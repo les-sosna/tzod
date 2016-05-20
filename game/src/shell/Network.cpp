@@ -240,7 +240,7 @@ void CreateServerDlg::OnLobbyEnable()
 	_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
 }
 
-void CreateServerDlg::OnCloseChild(UI::Dialog &sender, int result)
+void CreateServerDlg::OnCloseChild(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultCancel == result )
 	{
@@ -251,7 +251,7 @@ void CreateServerDlg::OnCloseChild(UI::Dialog &sender, int result)
 	{
 		Close(_resultOK);
 	}
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -443,7 +443,7 @@ void InternetDlg::Error(const char *msg)
 	_name->SetEnabled(true);
 }
 
-void InternetDlg::OnCloseChild(UI::Dialog &sender, int result)
+void InternetDlg::OnCloseChild(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultCancel == result )
 	{
@@ -454,7 +454,7 @@ void InternetDlg::OnCloseChild(UI::Dialog &sender, int result)
 	{
 		Close(_resultOK);
 	}
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -530,7 +530,7 @@ WaitingForPlayersDlg::~WaitingForPlayersDlg()
 {
 }
 
-void WaitingForPlayersDlg::OnCloseProfileDlg(UI::Dialog &sender, int result)
+void WaitingForPlayersDlg::OnCloseProfileDlg(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	_btnProfile->SetEnabled(true);
 	_btnOK->SetEnabled(true);
@@ -539,7 +539,7 @@ void WaitingForPlayersDlg::OnCloseProfileDlg(UI::Dialog &sender, int result)
 	{
 //		dynamic_cast<TankClient*>(g_client)->SendPlayerInfo(GetPlayerDescFromConf(_conf.cl_playerinfo));
 	}
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 void WaitingForPlayersDlg::OnChangeProfileClick()
@@ -559,7 +559,7 @@ void WaitingForPlayersDlg::OnAddBotClick()
 	AddFront(dlg);
 }
 
-void WaitingForPlayersDlg::OnAddBotClose(UI::Dialog &sender, int result)
+void WaitingForPlayersDlg::OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultOK == result )
 	{
@@ -568,7 +568,7 @@ void WaitingForPlayersDlg::OnAddBotClose(UI::Dialog &sender, int result)
 //		bd.level = _conf.ui_netbotinfo.level.GetInt();
 //		dynamic_cast<TankClient*>(g_client)->SendAddBot(bd);
 	}
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 void WaitingForPlayersDlg::OnOK()

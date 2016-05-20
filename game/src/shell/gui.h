@@ -58,16 +58,16 @@ protected:
 
 protected:
 	void OnAddPlayer();
-	void OnAddPlayerClose(UI::Dialog &sender, int result);
+	void OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnEditPlayer();
-	void OnEditPlayerClose(UI::Dialog &sender, int result);
+	void OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnRemovePlayer();
 	void OnSelectPlayer(int index);
 
 	void OnAddBot();
-	void OnAddBotClose(UI::Dialog &sender, int result);
+	void OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnEditBot();
-	void OnEditBotClose(UI::Dialog &sender, int result);
+	void OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnRemoveBot();
 	void OnSelectBot(int index);
 

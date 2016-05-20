@@ -101,7 +101,7 @@ private:
 	void OnCommand(const std::string &cmd);
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
 
-	void OnCloseChild(UI::Window &child, int result);
+	void OnCloseChild(std::shared_ptr<UI::Window> child, int result);
 	void ClearNavStack();
 	void PopNavStack(UI::Window *wnd = nullptr);
 	void PushNavStack(std::shared_ptr<UI::Window> wnd);

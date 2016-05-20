@@ -230,7 +230,7 @@ void NewGameDlg::OnAddPlayer()
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnAddPlayerClose(UI::Dialog &sender, int result)
+void NewGameDlg::OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultOK == result )
 	{
@@ -241,7 +241,7 @@ void NewGameDlg::OnAddPlayerClose(UI::Dialog &sender, int result)
 		_conf.dm_players.PopBack();
 	}
 	_newPlayer = false;
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnRemovePlayer()
@@ -261,13 +261,13 @@ void NewGameDlg::OnEditPlayer()
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnEditPlayerClose(UI::Dialog &sender, int result)
+void NewGameDlg::OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultOK == result )
 	{
 		RefreshPlayersList();
 	}
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnAddBot()
@@ -284,7 +284,7 @@ void NewGameDlg::OnAddBot()
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnAddBotClose(UI::Dialog &sender, int result)
+void NewGameDlg::OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultOK == result )
 	{
@@ -295,7 +295,7 @@ void NewGameDlg::OnAddBotClose(UI::Dialog &sender, int result)
 		_conf.dm_bots.PopBack();
 	}
 	_newPlayer = false;
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnRemoveBot()
@@ -315,13 +315,13 @@ void NewGameDlg::OnEditBot()
 	AddFront(dlg);
 }
 
-void NewGameDlg::OnEditBotClose(UI::Dialog &sender, int result)
+void NewGameDlg::OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result)
 {
 	if( _resultOK == result )
 	{
 		RefreshBotsList();
 	}
-	UnlinkChild(sender);
+	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnOK()

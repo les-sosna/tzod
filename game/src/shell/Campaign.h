@@ -20,7 +20,7 @@ class NewCampaignDlg : public UI::Dialog
 public:
 	NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, LangCache &lang);
 	~NewCampaignDlg();
-	std::function<void(NewCampaignDlg&, std::string)> eventCampaignSelected;
+	std::function<void(std::shared_ptr<NewCampaignDlg>, std::string)> eventCampaignSelected;
 
 private:
 	void OnOK();

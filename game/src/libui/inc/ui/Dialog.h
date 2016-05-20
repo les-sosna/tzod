@@ -19,7 +19,7 @@ public:
 		_resultCancel
 	};
 
-	std::function<void(Dialog&, int)> eventClose;
+	std::function<void(std::shared_ptr<Dialog>, int)> eventClose;
 
 	void Close(int result);
 

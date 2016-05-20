@@ -60,7 +60,7 @@ protected:
 	void OnCancel();
 
 	void UpdateProfilesList();
-	void OnProfileEditorClosed(UI::Dialog &sender, int code);
+	void OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result);
 };
 
 class ControlProfileDlg : public UI::Dialog
