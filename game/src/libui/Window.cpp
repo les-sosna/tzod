@@ -277,11 +277,6 @@ void Window::SetEnabled(bool enable)
 	}
 }
 
-bool Window::GetEnabledCombined() const
-{
-	return _isEnabled && (GetParent() ? GetParent()->GetEnabledCombined() : true);
-}
-
 void Window::SetVisible(bool visible)
 {
 	if( _isVisible != visible )

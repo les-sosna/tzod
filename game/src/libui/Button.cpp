@@ -65,8 +65,8 @@ bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerTy
 			OnClick();
 			if( eventClick )
 				eventClick();
-//			if( GetEnabledCombined() )  // handler may have disabled this button
-//				SetState(stateHottrack);
+			if( GetEnabled() )  // handler may have disabled this button
+				SetState(stateHottrack);
 		}
 	}
 	return true;

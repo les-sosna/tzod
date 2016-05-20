@@ -157,7 +157,6 @@ public:
 
 	void SetEnabled(bool enable);
 	bool GetEnabled() const { return _isEnabled; }
-	bool GetEnabledCombined() const;
 
 	void SetTimeStep(bool enable);
 	bool GetTimeStep() const { return _isTimeStep; }

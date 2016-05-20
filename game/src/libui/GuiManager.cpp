@@ -173,7 +173,7 @@ bool LayoutManager::ProcessPointerInternal(
 				{
 				case Msg::PointerDown:
 				case Msg::TAP:
-//					if (child->GetEnabledCombined() && child->GetVisibleCombined() && child->GetNeedsFocus())
+					if (child->GetEnabled() && child->GetVisible() && child->GetNeedsFocus())
 					{
 						wnd->SetFocus(child);
 					}
@@ -219,7 +219,8 @@ bool LayoutManager::ProcessPointerInternal(
 			{
 				if( auto hotTrackWnd = _hotTrackWnd.lock() )
 					hotTrackWnd->OnMouseLeave();
-				if( wnd->GetVisibleCombined() && wnd->GetEnabledCombined() )
+
+				if( wnd->GetVisible() && wnd->GetEnabled() )
 				{
 					_hotTrackWnd = wnd;
 					wnd->OnMouseEnter(x, y);
