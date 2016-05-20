@@ -1,6 +1,7 @@
 #include "inc/ui/Dialog.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
+#include "inc/ui/UIInput.h"
 
 using namespace UI;
 
@@ -70,50 +71,78 @@ bool Dialog::OnMouseLeave()
 	return true;
 }
 
+void Dialog::NextFocus(bool wrap)
+{
+	auto &children = GetChildren();
+	if (auto focus = GetFocus())
+	{
+		auto focusIt = std::find(children.rbegin(), children.rend(), focus);
+		for (;;)
+		{
+			while (focusIt != children.rbegin())
+			{
+				focusIt--;
+				if (TrySetFocus(*focusIt))
+					return;
+			}
+			if (!wrap)
+				break;
+			wrap = false;
+			focusIt = children.rend();
+		}
+	}
+}
+
+void Dialog::PrevFocus(bool wrap)
+{
+	auto &children = GetChildren();
+	if (auto focus = GetFocus())
+	{
+		auto focusIt = std::find(children.begin(), children.end(), focus);
+		for (;;)
+		{
+			while (focusIt != children.begin())
+			{
+				focusIt--;
+				if (TrySetFocus(*focusIt))
+					return;
+			}
+			if (!wrap)
+				break;
+			wrap = false;
+			focusIt = children.end();
+		}
+	}
+}
+
+bool Dialog::TrySetFocus(const std::shared_ptr<Window> &child)
+{
+	if (child->GetVisible() && child->GetEnabled() && child->GetNeedsFocus())
+	{
+		SetFocus(child);
+		return true;
+	}
+	return false;
+}
+
 bool Dialog::OnKeyPressed(Key key)
 {
+	bool shift = GetManager().GetInput().IsKeyPressed(Key::LeftShift) ||
+		GetManager().GetInput().IsKeyPressed(Key::RightShift);
+
 	switch( key )
 	{
 	case Key::Up:
-		//if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
-		//{
-		//	// try to pass focus to previous siblings
-		//	auto r = GetManager().GetFocusWnd()->GetPrevSibling();
-		//	for( ; r; r = r->GetPrevSibling() )
-		//	{
-		//		if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
-		//	}
-		//}
+		PrevFocus(false);
 		break;
 	case Key::Down:
-		//if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
-		//{
-		//	// try to pass focus to next siblings
-		//	auto r = GetManager().GetFocusWnd()->GetNextSibling();
-		//	for( ; r; r = r->GetNextSibling() )
-		//	{
-		//		if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
-		//	}
-		//}
+		NextFocus(false);
 		break;
 	case Key::Tab:
-		//if( GetManager().GetFocusWnd() && this != GetManager().GetFocusWnd().get() )
-		//{
-		//	// try to pass focus to next siblings ...
-		//	auto r = GetManager().GetFocusWnd()->GetNextSibling();
-		//	for( ; r; r = r->GetNextSibling() )
-		//	{
-		//		if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
-		//	}
-		//	if( r ) break;
-
-		//	// ... and then start from first one
-		//	r = GetFirstChild();
-		//	for( ; r; r = r->GetNextSibling() )
-		//	{
-		//		if( r->GetVisibleCombined() && r->GetEnabledCombined() && GetManager().SetFocusWnd(r) ) break;
-		//	}
-		//}
+		if (shift)
+			PrevFocus(true);
+		else
+			NextFocus(true);
 		break;
 	case Key::Enter:
 	case Key::NumEnter:

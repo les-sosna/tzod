@@ -33,6 +33,10 @@ protected:
 	bool OnKeyPressed(Key key) override;
 	bool GetNeedsFocus() override;
 
+	void NextFocus(bool wrap);
+	void PrevFocus(bool wrap);
+	bool TrySetFocus(const std::shared_ptr<Window> &child);
+
 private:
 	float _mouseX;
 	float _mouseY;

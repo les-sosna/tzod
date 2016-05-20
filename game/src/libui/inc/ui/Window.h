@@ -164,7 +164,7 @@ public:
 
 	void SetFocus(std::shared_ptr<Window> child);
 	std::shared_ptr<Window> GetFocus() const;
-
+	virtual bool GetNeedsFocus();
 
 	//
 	// Events
@@ -213,7 +213,6 @@ private:
 	//
 
 	virtual void OnTextChange();
-	virtual bool GetNeedsFocus();
 	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnTimeStep(float dt);
 };
