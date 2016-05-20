@@ -59,14 +59,12 @@ void Window::UnlinkChild(Window &child)
 
 void Window::AddFront(std::shared_ptr<Window> child)
 {
-	assert(!child->GetParent());
 	child->_parent = this;
 	_children.push_back(std::move(child));
 }
 
 void Window::AddBack(std::shared_ptr<Window> child)
 {
-	assert(!child->GetParent());
 	child->_parent = this;
 	_children.push_front(std::move(child));
 }
@@ -125,7 +123,7 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Window::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
 	assert(_isVisible);
 

@@ -104,9 +104,9 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Edit::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, size, dc, texman);
+	Window::Draw(focused, enabled, size, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 
@@ -122,7 +122,7 @@ void Edit::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &te
 	}
 
 	// text
-	SpriteColor c = GetEnabledCombined() ? 0xffffffff : 0xaaaaaaaa;
+	SpriteColor c = enabled ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
 		dc.DrawBitmapText(0, 1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));

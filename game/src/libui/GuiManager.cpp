@@ -173,7 +173,7 @@ bool LayoutManager::ProcessPointerInternal(
 				{
 				case Msg::PointerDown:
 				case Msg::TAP:
-					if (child->GetEnabledCombined() && child->GetVisibleCombined() && child->GetNeedsFocus())
+//					if (child->GetEnabledCombined() && child->GetVisibleCombined() && child->GetNeedsFocus())
 					{
 						wnd->SetFocus(child);
 					}
@@ -332,7 +332,7 @@ bool LayoutManager::ProcessText(int c)
 	return ProcessCharRecursive(_desktop, c);
 }
 
-static void DrawWindowRecursive(bool focused, const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
+static void DrawWindowRecursive(bool focused, bool enabled, const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
 {
 	insideTopMost |= wnd.GetTopMost();
 
@@ -344,7 +344,7 @@ static void DrawWindowRecursive(bool focused, const FRECT &rect, const Window &w
 	vec2d size = Size(rect);
 
 	if (insideTopMost == topMostPass)
-		wnd.Draw(focused, size, dc, texman);
+		wnd.Draw(focused, enabled, size, dc, texman);
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
@@ -363,7 +363,8 @@ static void DrawWindowRecursive(bool focused, const FRECT &rect, const Window &w
 	{
 		FRECT childRect = wnd.GetChildRect(Size(rect), *w);
 		bool childFocused = focused && (wnd.GetFocus() == w);
-		DrawWindowRecursive(childFocused, childRect, *w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
+		bool childEnabled = enabled && wnd.GetEnabled();
+		DrawWindowRecursive(childFocused, childEnabled, childRect, *w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
 	}
 
 	if (clipChildren)
@@ -376,8 +377,8 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-	DrawWindowRecursive(_isAppActive, rect, *_desktop, dc, GetTextureManager(), false, false);
-	DrawWindowRecursive(_isAppActive, rect, *_desktop, dc, GetTextureManager(), true, false);
+	DrawWindowRecursive(_isAppActive, true, rect, *_desktop, dc, GetTextureManager(), false, false);
+	DrawWindowRecursive(_isAppActive, true, rect, *_desktop, dc, GetTextureManager(), true, false);
 
 #ifndef NDEBUG
 	for (auto &id2pos: _lastPointerLocation)

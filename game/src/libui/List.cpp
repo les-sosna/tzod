@@ -233,9 +233,9 @@ bool List::GetNeedsFocus()
 	return true;
 }
 
-void List::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void List::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, size, dc, texman);
+	Window::Draw(focused, enabled, size, dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
@@ -254,7 +254,7 @@ void List::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &te
 		SpriteColor c;
 		float y = floorf(((float) i - pos) * GetItemHeight() + 0.5f);
 
-		if( GetEnabledCombined() )
+		if( enabled )
 		{
 			c = 0xffd0d0d0; // normal;
 			if( _curSel == i )

@@ -62,7 +62,7 @@ protected:
 	void OnChangeState(State state) override;
 
 	// Window
-	void Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _font;
@@ -86,7 +86,7 @@ protected:
 	void AlignSizeToContent();
 
 	void OnTextChange() override;
-	void Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 
 private:
@@ -128,7 +128,7 @@ protected:
 	void OnChangeState(State state) override;
 
 	// Window
-	void Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _fontTexture;

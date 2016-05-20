@@ -40,7 +40,7 @@ public:
 	std::function<void()> eventChange;
 
 protected:
-	void Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	bool OnChar(int c) override;
 	bool OnKeyPressed(Key key) override;
 	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;

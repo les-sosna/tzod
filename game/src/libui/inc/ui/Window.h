@@ -176,7 +176,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const;
+	virtual void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const;
 
 private:
 

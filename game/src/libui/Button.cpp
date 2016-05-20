@@ -65,8 +65,8 @@ bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerTy
 			OnClick();
 			if( eventClick )
 				eventClick();
-			if( GetEnabledCombined() )  // handler may have disabled this button
-				SetState(stateHottrack);
+//			if( GetEnabledCombined() )  // handler may have disabled this button
+//				SetState(stateHottrack);
 		}
 	}
 	return true;
@@ -153,9 +153,9 @@ void Button::OnChangeState(State state)
 	SetFrame(state);
 }
 
-void Button::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Button::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, size, dc, texman);
+	ButtonBase::Draw(focused, enabled, size, dc, texman);
 
 	SpriteColor c = 0;
 
@@ -240,9 +240,9 @@ void TextButton::OnTextChange()
 	AlignSizeToContent();
 }
 
-void TextButton::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void TextButton::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, size, dc, texman);
+	ButtonBase::Draw(focused, enabled, size, dc, texman);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -324,9 +324,9 @@ void CheckBox::OnChangeState(State state)
 	SetFrame(_isChecked ? state+4 : state);
 }
 
-void CheckBox::Draw(bool focused, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void CheckBox::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, size, dc, texman);
+	ButtonBase::Draw(focused, enabled, size, dc, texman);
 
 	float bh = texman.GetFrameHeight(_boxTexture, GetFrame());
 	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());
