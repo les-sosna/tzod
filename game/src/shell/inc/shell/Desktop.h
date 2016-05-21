@@ -55,7 +55,7 @@ protected:
 	bool OnKeyPressed(UI::Key key) override;
 	bool GetNeedsFocus() override;
 	void OnSize(float width, float height) override;
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
 private:
 	ConfigConsoleHistory  _history;

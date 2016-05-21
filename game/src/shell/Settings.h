@@ -72,7 +72,7 @@ public:
 	// UI::Window
 	bool GetNeedsFocus() override;
 	bool OnKeyPressed(UI::Key key) override;
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
 private:
 	void AddAction(ConfVarString &var, std::string actionDisplayName);

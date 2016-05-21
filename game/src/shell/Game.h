@@ -23,7 +23,7 @@ public:
 	TimeElapsed(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, World &world);
 
 private:
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
 	World &_world;
 };
@@ -50,7 +50,7 @@ public:
 	virtual ~GameLayout();
 
 	// Window
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 	bool GetNeedsFocus() override { return true; }

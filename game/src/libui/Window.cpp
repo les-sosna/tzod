@@ -31,7 +31,7 @@ void Window::PrepareToUnlink(Window &child)
 	if (_focusChild.get() == &child)
 		_focusChild = nullptr;
 
-	// this removes focus and mouse hover if any.
+	// removes mouse hover and captures if any.
 	GetManager().ResetWindow(child);
 
 	if (child.GetTimeStep())
@@ -381,6 +381,6 @@ bool Window::GetNeedsFocus()
 	return false;
 }
 
-void Window::OnTimeStep(float dt)
+void Window::OnTimeStep(LayoutManager &manager, float dt)
 {
 }

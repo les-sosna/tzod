@@ -30,7 +30,7 @@ TimeElapsed::TimeElapsed(UI::LayoutManager &manager, TextureManager &texman, flo
 	SetAlign(align);
 }
 
-void TimeElapsed::OnTimeStep(float dt)
+void TimeElapsed::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	std::ostringstream text;
 	int time = (int) _world.GetTime();
@@ -140,14 +140,14 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 	return count;
 }
 
-void GameLayout::OnTimeStep(float dt)
+void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
-	bool tab = GetManager().GetInput().IsKeyPressed(UI::Key::Tab);
+	bool tab = manager.GetInput().IsKeyPressed(UI::Key::Tab);
 	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
 
 	_gameViewHarness.Step(dt);
 
-	bool readUserInput = true;//!GetManager().GetFocusWnd() || this == GetManager().GetFocusWnd().get();
+	bool readUserInput = true;//!manager.GetFocusWnd() || this == manager.GetFocusWnd().get();
 	WorldController::ControllerStateMap controlStates;
 
 	if (readUserInput)
@@ -163,11 +163,11 @@ void GameLayout::OnTimeStep(float dt)
 				controller->Step(dt);
 				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 				{
-					vec2d mouse = GetManager().GetInput().GetMousePos();
+					vec2d mouse = manager.GetInput().GetMousePos();
 					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
 
 					VehicleState vs;
-					controller->ReadControllerState(GetManager().GetInput(), _gameContext.GetWorld(),
+					controller->ReadControllerState(manager.GetInput(), _gameContext.GetWorld(),
 					                                *vehicle, c2w.visible ? &c2w.worldPos : nullptr, dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}

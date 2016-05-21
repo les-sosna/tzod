@@ -20,7 +20,7 @@ public:
 	void Clear();
 
 	// UI::Window
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 private:

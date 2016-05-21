@@ -117,7 +117,7 @@ void LayoutManager::TimeStep(float dt)
 
 	for( _tsCurrent = _timestep.begin(); _tsCurrent != _timestep.end(); )
 	{
-		(*_tsCurrent)->OnTimeStep(dt);
+		(*_tsCurrent)->OnTimeStep(*this, dt);
 		if (_tsDeleteCurrent)
 		{
 			_tsDeleteCurrent = false;

@@ -231,7 +231,7 @@ bool Console::OnPointerMove(float x, float y, PointerType pointerType, unsigned 
 	return true;
 }
 
-void Console::OnTimeStep(float dt)
+void Console::OnTimeStep(LayoutManager &manager, float dt)
 {
 	// FIXME: workaround
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() - 1 : 0);

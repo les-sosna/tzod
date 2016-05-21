@@ -60,7 +60,7 @@ protected:
 	bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
 	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
 
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(LayoutManager &manager, float dt) override;
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 	bool GetNeedsFocus() override;

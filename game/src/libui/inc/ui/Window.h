@@ -212,7 +212,7 @@ private:
 
 	virtual void OnTextChange();
 	virtual void OnEnabledChange(bool enable, bool inherited);
-	virtual void OnTimeStep(float dt);
+	virtual void OnTimeStep(LayoutManager &manager, float dt);
 };
 
 } // namespace UI

@@ -364,7 +364,7 @@ bool ControlProfileDlg::GetNeedsFocus()
 	return UI::Dialog::GetNeedsFocus();
 }
 
-void ControlProfileDlg::OnTimeStep(float dt)
+void ControlProfileDlg::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	_time += dt;
 	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");

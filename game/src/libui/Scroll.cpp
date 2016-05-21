@@ -7,9 +7,6 @@
 namespace UI
 {
 
-///////////////////////////////////////////////////////////////////////////////
-// scrollbar class implementation
-
 ScrollBarBase::ScrollBarBase(LayoutManager &manager)
     : Window(manager)
     , _tmpBoxPos(-1)
@@ -243,7 +240,4 @@ void ScrollBarHorizontal::SetPos(float pos)
 		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f), _btnBox->GetY());
 }
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file

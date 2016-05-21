@@ -21,7 +21,7 @@ FpsCounter::FpsCounter(UI::LayoutManager &manager, TextureManager &texman, float
 	SetAlign(align);
 }
 
-void FpsCounter::OnTimeStep(float dt)
+void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	_dts.push_back(dt);
 	if( _dts.size() > 200 ) _dts.pop_front();

@@ -70,7 +70,7 @@ public:
 	bool GetNeedsFocus() override { return true; }
 
 protected:
-	void OnTimeStep(float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	void CreatePanel(TextureManager &texman); // create panel of current _ptype and go to PS_APPEARING state
 	void SwitchPanel(PanelType newtype);
 };

@@ -14,7 +14,7 @@ MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, Con
 {
 }
 
-void MessageArea::OnTimeStep(float dt)
+void MessageArea::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	for( size_t i = 0; i < _lines.size(); ++i )
 		_lines[i].time -= dt;

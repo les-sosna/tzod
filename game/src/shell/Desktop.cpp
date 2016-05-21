@@ -135,7 +135,7 @@ Desktop::~Desktop()
 	_conf.ui_showfps.eventChange = nullptr;
 }
 
-void Desktop::OnTimeStep(float dt)
+void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
 
@@ -163,7 +163,7 @@ void Desktop::OnTimeStep(float dt)
 		assert(dt >= 0);
 		counterDt.Push(dt);
 
-		_defaultCamera.HandleMovement(GetManager().GetInput(),
+		_defaultCamera.HandleMovement(manager.GetInput(),
 		                              gc->GetWorld()._sx,
 		                              gc->GetWorld()._sy,
 		                              (float) GetWidth(),

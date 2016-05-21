@@ -135,7 +135,7 @@ void MainMenuDlg::CreatePanel(TextureManager &texman)
 	}
 }
 
-void MainMenuDlg::OnTimeStep(float dt)
+void MainMenuDlg::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	switch( _pstate )
 	{
@@ -159,7 +159,7 @@ void MainMenuDlg::OnTimeStep(float dt)
 			if( PT_NONE != _ptype )
 			{
 				_pstate = PS_APPEARING;
-				CreatePanel(GetManager().GetTextureManager());
+				CreatePanel(manager.GetTextureManager());
 			}
 			else
 			{

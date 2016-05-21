@@ -20,7 +20,7 @@ public:
 	FpsCounter(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
-	void OnTimeStep(float dt);
+	void OnTimeStep(UI::LayoutManager &manager, float dt);
 };
 
 class Oscilloscope : public UI::Window
