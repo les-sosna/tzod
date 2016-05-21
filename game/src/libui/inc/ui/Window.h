@@ -26,6 +26,27 @@ enum class StretchMode
 	Fill,
 };
 
+struct PointerSink
+{
+	virtual void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnMouseWheel(float x, float y, float z) {}
+	virtual void OnMouseEnter(float x, float y) {}
+	virtual void OnMouseLeave() {}
+	virtual void OnTap(InputContext &ic, float x, float y) {}
+};
+
+struct KeyboardSink
+{
+	virtual bool OnKeyPressed(InputContext &ic, Key key) = 0;
+};
+
+struct TextSink
+{
+	virtual bool OnChar(int c) = 0;
+};
+
 class Window : public std::enable_shared_from_this<Window>
 {
 	friend class LayoutManager;
@@ -101,6 +122,12 @@ public:
 
 	virtual FRECT GetChildRect(vec2d size, const Window &child) const;
 
+	//
+	// Input
+	//
+	virtual PointerSink* GetPointerSink() { return nullptr; }
+	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
+	virtual TextSink* GetTextSink() { return nullptr; }
 
 	//
 	// Appearance
@@ -163,7 +190,6 @@ public:
 
 	void SetFocus(std::shared_ptr<Window> child);
 	std::shared_ptr<Window> GetFocus() const;
-	virtual bool GetNeedsFocus();
 
 	//
 	// Events
@@ -178,28 +204,6 @@ public:
 	virtual void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const;
 
 private:
-	friend class InputContext;
-
-	//
-	// pointer handlers
-	//
-
-	virtual bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnMouseWheel(float x, float y, float z);
-	virtual bool OnMouseEnter(float x, float y);
-	virtual bool OnMouseLeave();
-	virtual bool OnTap(InputContext &ic, float x, float y);
-
-
-	//
-	// keyboard handlers
-	//
-
-	virtual bool OnChar(int c);
-	virtual bool OnKeyPressed(InputContext &ic, Key key);
-
 
 	//
 	// size
@@ -217,5 +221,9 @@ private:
 	virtual void OnTimeStep(LayoutManager &manager, float dt);
 };
 
-} // namespace UI
+inline bool NeedsFocus(Window *wnd)
+{
+	return wnd ? wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get()) : false;
+}
 
+} // namespace UI

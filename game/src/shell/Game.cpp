@@ -228,7 +228,7 @@ void GameLayout::OnSize(float width, float height)
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
-bool GameLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
@@ -236,20 +236,18 @@ bool GameLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int butto
 		_activeDrags[pointerID].second = vec2d(x, y);
 		ic.SetCapture(pointerID, shared_from_this());
 	}
-	return true;
 }
 
-bool GameLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (ic.GetCapture(pointerID).get() == this)
 	{
 		_activeDrags.erase(pointerID);
 		ic.SetCapture(pointerID, nullptr);
 	}
-	return true;
 }
 
-bool GameLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (ic.GetCapture(pointerID).get() == this)
 	{
@@ -262,10 +260,9 @@ bool GameLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::Point
 			drag.first = drag.second - dir.Norm() * maxDragLength;
 		}
 	}
-	return true;
 }
 
-bool GameLayout::OnTap(UI::InputContext &ic, float x, float y)
+void GameLayout::OnTap(UI::InputContext &ic, float x, float y)
 {
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
@@ -279,7 +276,6 @@ bool GameLayout::OnTap(UI::InputContext &ic, float x, float y)
 			}
 		}
 	}
-	return true;
 }
 
 void GameLayout::OnChangeShowTime()

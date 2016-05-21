@@ -140,15 +140,10 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 		if( !_list->GetVisible() )
 			DropList();
 		return true;
-    default:
-        break;
+	default:
+		break;
 	}
 	return false;
-}
-
-bool ComboBox::GetNeedsFocus()
-{
-	return true;
 }
 
 void ComboBox::OnSize(float width, float height)

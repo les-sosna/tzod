@@ -4,9 +4,11 @@
 
 namespace UI
 {
-	// TODO: to make dialog modal create a full screen window behind it
 
-class Dialog : public Window
+class Dialog
+	: public Window
+	, private PointerSink
+	, private KeyboardSink
 {
 public:
 	Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal = true);
@@ -23,19 +25,17 @@ public:
 
 	void Close(int result);
 
-protected:
 	// Window
-	bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
-	bool OnMouseEnter(float x, float y) override;
-	bool OnMouseLeave() override;
-	bool OnKeyPressed(InputContext &ic, Key key) override;
-	bool GetNeedsFocus() override;
+	PointerSink* GetPointerSink() override { return this; }
+	KeyboardSink *GetKeyboardSink() override { return this; }
 
+protected:
 	void NextFocus(bool wrap);
 	void PrevFocus(bool wrap);
 	bool TrySetFocus(const std::shared_ptr<Window> &child);
+
+	// KeyboardSink
+	bool OnKeyPressed(InputContext &ic, Key key) override;
 
 private:
 	float _mouseX;
@@ -43,6 +43,11 @@ private:
 	bool  _easyMove;
 
 	virtual bool OnClose(int result) { return true; }
+
+	// PointerSink
+	void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
 };
 
 } // end of namespace UI

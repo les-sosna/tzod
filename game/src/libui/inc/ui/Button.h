@@ -7,7 +7,9 @@ class TextureManager;
 namespace UI
 {
 
-class ButtonBase : public Window
+class ButtonBase
+	: public Window
+	, private PointerSink
 {
 public:
 	enum State
@@ -27,13 +29,10 @@ public:
 
 	State GetState() const { return _state; }
 
-protected:
-	bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnMouseLeave() override;
-	bool OnTap(InputContext &ic, float x, float y) override;
+	// Window
+	PointerSink* GetPointerSink() override { return this; }
 
+protected:
 	void OnEnabledChange(bool enable, bool inherited) override;
 	virtual void OnChangeState(State state);
 
@@ -42,6 +41,13 @@ private:
 
 	State _state;
 	void SetState(State s);
+
+	// PointerSink
+	void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnMouseLeave() override;
+	void OnTap(InputContext &ic, float x, float y) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

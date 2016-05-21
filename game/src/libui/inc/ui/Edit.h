@@ -6,7 +6,11 @@ class TextureManager;
 namespace UI
 {
 
-class Edit : public Window
+class Edit
+	: public Window
+	, private PointerSink
+	, private KeyboardSink
+	, private TextSink
 {
 	int   _selStart;
 	int   _selEnd;
@@ -40,15 +44,25 @@ public:
 	std::function<void()> eventChange;
 
 protected:
+	// Window
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
-	bool OnChar(int c) override;
-	bool OnKeyPressed(InputContext &ic, Key key) override;
-	bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
-	bool GetNeedsFocus() override;
 	void OnEnabledChange(bool enable, bool inherited) override;
 	void OnTextChange() override;
+	PointerSink* GetPointerSink() override { return this; }
+	KeyboardSink *GetKeyboardSink() override;
+	TextSink* GetTextSink() override { return this; }
+
+private:
+	// TextSink
+	bool OnChar(int c) override;
+
+	// KeyboardSink
+	bool OnKeyPressed(InputContext &ic, Key key) override;
+	
+	// PointerSink
+	void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
 };
 
 } // namespace UI

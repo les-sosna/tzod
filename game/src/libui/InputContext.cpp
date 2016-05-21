@@ -63,7 +63,8 @@ void InputContext::ResetWindow(Window &wnd)
 {
 	if (_hotTrackWnd.lock().get() == &wnd)
 	{
-		wnd.OnMouseLeave();
+		assert(wnd.GetPointerSink());
+		wnd.GetPointerSink()->OnMouseLeave();
 		_hotTrackWnd.reset();
 	}
 
@@ -93,7 +94,8 @@ bool InputContext::ProcessPointerInternal(
 	if ((pointerInside || !wnd->GetClipChildren()) && GetCapture(pointerID) != wnd)
 	{
 		// route message to each child in reverse order until someone process it
-		for (auto it = wnd->_children.rbegin(); it != wnd->_children.rend(); ++it)
+		auto &children = wnd->GetChildren();
+		for (auto it = children.rbegin(); it != children.rend(); ++it)
 		{
 			auto &child = *it;
 			FRECT rect = wnd->GetChildRect(size, *child);
@@ -113,7 +115,7 @@ bool InputContext::ProcessPointerInternal(
 				{
 				case Msg::PointerDown:
 				case Msg::TAP:
-					if (child->GetEnabled() && child->GetVisible() && child->GetNeedsFocus())
+					if (child->GetEnabled() && child->GetVisible() && NeedsFocus(child.get()))
 					{
 						wnd->SetFocus(child);
 					}
@@ -126,49 +128,51 @@ bool InputContext::ProcessPointerInternal(
 		}
 	}
 
+	// if window is captured or the pointer is inside the window
 	if (insideTopMost == topMostPass && (pointerInside || GetCapture(pointerID) == wnd))
 	{
-		// window is captured or the pointer is inside the window
-
-		bool msgProcessed = false;
-		switch (msg)
+		PointerSink *pointerSink = wnd->GetPointerSink();
+		if (pointerSink)
 		{
-		case Msg::PointerDown:
-			msgProcessed = wnd->OnPointerDown(*this, x, y, buttons, pointerType, pointerID);
-			break;
-		case Msg::PointerUp:
-		case Msg::PointerCancel:
-			msgProcessed = wnd->OnPointerUp(*this, x, y, buttons, pointerType, pointerID);
-			break;
-		case Msg::PointerMove:
-			msgProcessed = wnd->OnPointerMove(*this, x, y, pointerType, pointerID);
-			break;
-		case Msg::MOUSEWHEEL:
-			msgProcessed = wnd->OnMouseWheel(x, y, z);
-			break;
-		case Msg::TAP:
-			msgProcessed = wnd->OnTap(*this, x, y);
-			break;
-		default:
-			assert(false);
-		}
+			switch (msg)
+			{
+			case Msg::PointerDown:
+				pointerSink->OnPointerDown(*this, x, y, buttons, pointerType, pointerID);
+				break;
+			case Msg::PointerUp:
+			case Msg::PointerCancel:
+				pointerSink->OnPointerUp(*this, x, y, buttons, pointerType, pointerID);
+				break;
+			case Msg::PointerMove:
+				pointerSink->OnPointerMove(*this, x, y, pointerType, pointerID);
+				break;
+			case Msg::MOUSEWHEEL:
+				pointerSink->OnMouseWheel(x, y, z);
+				break;
+			case Msg::TAP:
+				pointerSink->OnTap(*this, x, y);
+				break;
+			default:
+				assert(false);
+			}
 
-		if (msgProcessed)
-		{
 			if (wnd != _hotTrackWnd.lock())
 			{
 				if (auto hotTrackWnd = _hotTrackWnd.lock())
-					hotTrackWnd->OnMouseLeave();
+				{
+					assert(hotTrackWnd->GetPointerSink());
+					hotTrackWnd->GetPointerSink()->OnMouseLeave();
+				}
 
 				if (wnd->GetVisible() && wnd->GetEnabled())
 				{
 					_hotTrackWnd = wnd;
-					wnd->OnMouseEnter(x, y);
+					pointerSink->OnMouseEnter(x, y);
 				}
 			}
 		}
 
-		return msgProcessed;
+		return !!pointerSink;
 	}
 
 	return false;
@@ -223,7 +227,8 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, float
 	}
 	if (auto hotTrackWnd = _hotTrackWnd.lock())
 	{
-		hotTrackWnd->OnMouseLeave();
+		assert(hotTrackWnd->GetPointerSink());
+		hotTrackWnd->GetPointerSink()->OnMouseLeave();
 		_hotTrackWnd.reset();
 	}
 	return false;
@@ -238,7 +243,13 @@ bool InputContext::ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key k
 			return true;
 		}
 	}
-	return wnd->OnKeyPressed(*this, key);
+
+	if (KeyboardSink *keyboardSink = wnd->GetKeyboardSink())
+	{
+		return keyboardSink->OnKeyPressed(*this, key);
+	}
+
+	return false;
 }
 
 bool InputContext::ProcessKeys(std::shared_ptr<Window> wnd, Msg msg, Key key)
@@ -265,7 +276,13 @@ bool InputContext::ProcessCharRecursive(std::shared_ptr<Window> wnd, int c)
 			return true;
 		}
 	}
-	return wnd->OnChar(c);
+
+	if (TextSink *textSink = wnd->GetTextSink())
+	{
+		return textSink->OnChar(c);
+	}
+
+	return false;
 }
 
 bool InputContext::ProcessText(std::shared_ptr<Window> wnd, int c)

@@ -22,7 +22,10 @@ namespace UI
 	class Text;
 }
 
-class EditorLayout : public UI::Window
+class EditorLayout
+	: public UI::Window
+	, private UI::PointerSink
+	, private UI::KeyboardSink
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
@@ -67,16 +70,21 @@ public:
 	void SelectNone();
 
 protected:
-	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
-
-	bool OnMouseWheel(float x, float y, float z) override;
-	bool OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool GetNeedsFocus() override;
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
-	void OnSize(float width, float height) override;
-
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
+
+	// UI::PointerSink
+	void OnMouseWheel(float x, float y, float z) override;
+	void OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+
+	// UI::KeyboardSink
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+
+	// UI::Window
+	void OnSize(float width, float height) override;
+	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	PointerSink* GetPointerSink() override { return this; }
+	KeyboardSink *GetKeyboardSink() override { return this; }
 };

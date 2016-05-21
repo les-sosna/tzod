@@ -26,9 +26,9 @@ class ConsoleHistoryDefault : public IConsoleHistory
 public:
 	ConsoleHistoryDefault(size_t maxSize);
 
-    void Enter(std::string str) override;
-    size_t GetItemCount() const override;
-    const std::string& GetItem(size_t index) const override;
+	void Enter(std::string str) override;
+	size_t GetItemCount() const override;
+	const std::string& GetItem(size_t index) const override;
 
 private:
 	size_t _maxSize;
@@ -37,7 +37,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Console : public Window
+class Console
+	: public Window
+	, private PointerSink
+	, private KeyboardSink
 {
 public:
 	Console(LayoutManager &manager, TextureManager &texman);
@@ -52,21 +55,12 @@ public:
 	std::function<void(const std::string &)> eventOnSendCommand;
 	std::function<bool(const std::string &, int &, std::string &)> eventOnRequestCompleteCommand;
 
-protected:
-	bool OnChar(int c) override;
-	bool OnKeyPressed(InputContext &ic, Key key) override;
-	bool OnMouseWheel(float x, float y, float z) override;
-	bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
-
+	// Window
+	PointerSink* GetPointerSink() override { return this; }
+	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnTimeStep(LayoutManager &manager, float dt) override;
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
-	bool GetNeedsFocus() override;
-
-private:
-	void OnScroll(float pos);
 
 private:
 	std::shared_ptr<ScrollBarVertical> _scroll;
@@ -80,6 +74,14 @@ private:
 
 	bool _echo;
 	bool _autoScroll;
+
+	void OnScroll(float pos);
+
+	// KeyboardSink
+	bool OnKeyPressed(InputContext &ic, Key key) override;
+
+	// PointerSink
+	void OnMouseWheel(float x, float y, float z) override;
 };
 
 } // namespace UI

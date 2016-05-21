@@ -35,6 +35,7 @@ namespace UI
 
 class GameLayout
 	: public UI::Window
+	, private UI::PointerSink
 	, private GameListener
 {
 public:
@@ -53,11 +54,7 @@ public:
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
-	bool GetNeedsFocus() override { return true; }
-	bool OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnTap(UI::InputContext &ic, float x, float y) override;
+	PointerSink* GetPointerSink() override { return this; }
 
 private:
 	void OnChangeShowTime();
@@ -80,6 +77,12 @@ private:
 	size_t _texTarget;
 
 	std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
+
+	// UI::PointerSink
+	void OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnTap(UI::InputContext &ic, float x, float y) override;
 
 	// GameListener
 	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;

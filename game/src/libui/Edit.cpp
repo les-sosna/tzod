@@ -283,7 +283,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-bool Edit::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && !ic.HasCapturedPointers(this) )
 	{
@@ -292,10 +292,9 @@ bool Edit::OnPointerDown(InputContext &ic, float x, float y, int button, Pointer
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(sel, sel);
 	}
-	return true;
 }
 
-bool Edit::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.GetCapture(pointerID).get() == this )
 	{
@@ -303,23 +302,21 @@ bool Edit::OnPointerMove(InputContext &ic, float x, float y, PointerType pointer
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(GetSelStart(), sel);
 	}
-	return true;
 }
 
-bool Edit::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && ic.GetCapture(pointerID).get() == this )
 	{
 		ic.SetCapture(pointerID, nullptr);
 	}
-	return true;
 }
 
-bool Edit::GetNeedsFocus()
+KeyboardSink* Edit::GetKeyboardSink()
 {
-	// FIXME: workaround
+	// FIXME: gross hack
 	_lastCursortime = GetManager().GetTime();
-	return true;
+	return this;
 }
 
 void Edit::OnEnabledChange(bool enable, bool inherited)

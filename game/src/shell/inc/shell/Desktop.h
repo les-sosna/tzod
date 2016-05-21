@@ -36,6 +36,7 @@ class LangCache;
 
 class Desktop
 	: public UI::Window
+	, private UI::KeyboardSink
 	, private AppStateListener
 {
 public:
@@ -52,8 +53,7 @@ public:
 	void ShowConsole(bool show);
 
 protected:
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
-	bool GetNeedsFocus() override;
+	UI::KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnSize(float width, float height) override;
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
@@ -118,4 +118,7 @@ private:
 	// AppStateListener
 	void OnGameContextChanging() override;
 	void OnGameContextChanged() override;
+
+	// UI::KeyboardSink
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 };

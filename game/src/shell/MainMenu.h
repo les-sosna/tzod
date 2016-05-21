@@ -28,7 +28,9 @@ struct MainMenuCommands
 	std::function<void()> close;
 };
 
-class MainMenuDlg : public UI::Window
+class MainMenuDlg
+	: public UI::Window
+	, private UI::KeyboardSink
 {
 	void OnEditor();
 	void OnMapSettings();
@@ -66,11 +68,14 @@ public:
 	            UI::ConsoleBuffer &logger,
 	            MainMenuCommands commands);
 	virtual ~MainMenuDlg();
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
-	bool GetNeedsFocus() override { return true; }
 
-protected:
+	KeyboardSink *GetKeyboardSink() override { return this; }
+
+private:
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	void CreatePanel(TextureManager &texman); // create panel of current _ptype and go to PS_APPEARING state
 	void SwitchPanel(PanelType newtype);
+
+	// UI::KeyboardSink
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 };

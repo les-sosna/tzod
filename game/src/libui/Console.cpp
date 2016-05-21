@@ -59,6 +59,7 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
 {
 	_input = std::make_shared<Edit>(manager, texman);
 	AddFront(_input);
+	SetFocus(_input);
 	_scroll = std::make_shared<ScrollBarVertical>(manager, texman);
 	_scroll->eventScroll = std::bind(&Console::OnScroll, this, std::placeholders::_1);
 	AddFront(_scroll);
@@ -92,12 +93,6 @@ void Console::SetBuffer(ConsoleBuffer *buf)
 void Console::SetEcho(bool echo)
 {
 	_echo = echo;
-}
-
-bool Console::OnChar(int c)
-{
-	SetFocus(_input);
-	return true;
 }
 
 bool Console::OnKeyPressed(InputContext &ic, Key key)
@@ -209,26 +204,10 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-bool Console::OnMouseWheel(float x, float y, float z)
+void Console::OnMouseWheel(float x, float y, float z)
 {
 	_scroll->SetPos(_scroll->GetPos() - z * 3);
 	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
-	return true;
-}
-
-bool Console::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
-{
-	return true;
-}
-
-bool Console::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
-{
-	return true;
-}
-
-bool Console::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
-{
-	return true;
 }
 
 void Console::OnTimeStep(LayoutManager &manager, float dt)
@@ -281,11 +260,6 @@ void Console::OnSize(float width, float height)
 	_scroll->Resize(_scroll->GetWidth(), height - _input->GetHeight());
 	_scroll->SetPageSize(_input->GetY() / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
-}
-
-bool Console::GetNeedsFocus()
-{
-	return true;
 }
 
 void Console::OnScroll(float pos)

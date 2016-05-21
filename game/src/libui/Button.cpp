@@ -22,7 +22,7 @@ void ButtonBase::SetState(State s)
 	}
 }
 
-bool ButtonBase::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.HasCapturedPointers(this) )
 	{
@@ -38,10 +38,9 @@ bool ButtonBase::OnPointerMove(InputContext &ic, float x, float y, PointerType p
 	}
 	if( eventMouseMove )
 		eventMouseMove(x, y);
-	return true;
 }
 
-bool ButtonBase::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
@@ -50,10 +49,9 @@ bool ButtonBase::OnPointerDown(InputContext &ic, float x, float y, int button, P
 		if( eventMouseDown )
 			eventMouseDown(x, y);
 	}
-	return true;
 }
 
-bool ButtonBase::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.GetCapture(pointerID).get() == this && 1 == button )
 	{
@@ -70,24 +68,21 @@ bool ButtonBase::OnPointerUp(InputContext &ic, float x, float y, int button, Poi
 				SetState(stateHottrack);
 		}
 	}
-	return true;
 }
 
-bool ButtonBase::OnMouseLeave()
+void ButtonBase::OnMouseLeave()
 {
 	SetState(stateNormal);
-	return true;
 }
 
-bool ButtonBase::OnTap(InputContext &ic, float x, float y)
+void ButtonBase::OnTap(InputContext &ic, float x, float y)
 {
-    if( !ic.HasCapturedPointers(this))
-    {
-        OnClick();
-        if( eventClick )
-            eventClick();
-    }
-    return true;
+	if( !ic.HasCapturedPointers(this))
+	{
+		OnClick();
+		if( eventClick )
+			eventClick();
+	}
 }
 
 void ButtonBase::OnClick()

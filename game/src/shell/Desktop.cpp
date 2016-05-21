@@ -555,11 +555,6 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-bool Desktop::GetNeedsFocus()
-{
-	return true;
-}
-
 void Desktop::OnSize(float width, float height)
 {
 	if (_background)

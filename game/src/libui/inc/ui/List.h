@@ -7,14 +7,12 @@ class TextureManager;
 
 namespace UI
 {
-
 class ScrollBarVertical;
 
-
-///////////////////////////////////////////////////////////////////////////////
-// multi-column ListBox control
-
-class List : public Window
+class List
+	: public Window
+	, private PointerSink
+	, private KeyboardSink
 {
 public:
 	List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource);
@@ -55,21 +53,15 @@ protected:
 	ListCallbackImpl _callbacks;
 
 protected:
+	// Window
+	PointerSink* GetPointerSink() override { return this; }
+	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnSize(float width, float height) override;
-	bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
-	bool OnMouseLeave() override;
-	bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnMouseWheel(float x, float y, float z) override;
-	bool OnTap(InputContext &ic, float x, float y) override;
-	bool OnKeyPressed(InputContext &ic, Key key) override;
-	bool GetNeedsFocus() override;
-
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
-	List(const List &); // no copy
-	List& operator = (const List &);
+	List(const List &) = delete;
+	List& operator=(const List &) = delete;
 
 	ListDataSource *_data;
 	std::vector<float> _tabs;
@@ -81,6 +73,16 @@ private:
 
 	size_t     _font;
 	size_t     _selection;
+
+	// PointerSink
+	void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
+	void OnMouseLeave() override;
+	void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnMouseWheel(float x, float y, float z) override;
+	void OnTap(InputContext &ic, float x, float y) override;
+
+	// KeyboardSink
+	bool OnKeyPressed(InputContext &ic, Key key) override;
 };
 
 } // namespace UI

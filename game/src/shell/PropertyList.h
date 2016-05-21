@@ -15,7 +15,8 @@ namespace UI
 	class ScrollBarVertical;
 }
 
-class PropertyList : public UI::Dialog
+class PropertyList
+	: public UI::Dialog
 {
 public:
 	PropertyList(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
@@ -25,8 +26,6 @@ public:
 private:
 	void OnScroll(float pos);
 	void OnSize(float width, float height) override;
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
-	bool OnMouseWheel(float x, float y, float z) override;
 
 	class Container : public UI::Window
 	{
@@ -42,6 +41,12 @@ private:
 	World &_world;
 	ConfCache &_conf;
 	UI::ConsoleBuffer &_logger;
+
+	// UI::KeyboardSink
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+
+	// UI::PointerSink
+	void OnMouseWheel(float x, float y, float z) override;
 };
 
 void SaveToConfig(ConfCache &conf, const PropertySet &ps);

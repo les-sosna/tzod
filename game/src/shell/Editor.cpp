@@ -241,7 +241,7 @@ void EditorLayout::SelectNone()
 	}
 }
 
-bool EditorLayout::OnMouseWheel(float x, float y, float z)
+void EditorLayout::OnMouseWheel(float x, float y, float z)
 {
 	if( z > 0 )
 	{
@@ -251,19 +251,17 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	{
 		_typeList->SetCurSel( std::min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
 	}
-	return true;
 }
 
-bool EditorLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton )
 	{
 		OnPointerDown(ic, x, y, _mbutton, pointerType, pointerID);
 	}
-	return true;
 }
 
-bool EditorLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
@@ -271,10 +269,9 @@ bool EditorLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int butto
 		_mbutton = 0;
 		ic.SetCapture(pointerID, nullptr);
 	}
-	return true;
 }
 
-bool EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( 0 == _mbutton )
 	{
@@ -284,7 +281,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int but
 
 	if( _mbutton != button )
 	{
-		return true;
+		return;
 	}
 
 	vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPos().x,
@@ -381,12 +378,6 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int but
 	}
 
 	_click = false;
-	return true;
-}
-
-bool EditorLayout::GetNeedsFocus()
-{
-	return true;
 }
 
 bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)

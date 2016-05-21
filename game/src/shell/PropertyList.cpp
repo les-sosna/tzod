@@ -257,11 +257,10 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-bool PropertyList::OnMouseWheel(float x, float y, float z)
+void PropertyList::OnMouseWheel(float x, float y, float z)
 {
-	_scrollBar->SetPos( _scrollBar->GetPos() - z * 10.0f );
+	_scrollBar->SetPos(_scrollBar->GetPos() - z * 10.0f);
 	OnScroll(_scrollBar->GetPos());
-	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

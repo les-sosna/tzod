@@ -299,63 +299,6 @@ void Window::SetText(const std::string &text)
 }
 
 
-
-//
-// pointer handlers
-//
-
-bool Window::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
-{
-	return false;
-}
-
-bool Window::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
-{
-	return false;
-}
-
-bool Window::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
-{
-	return false;
-}
-
-bool Window::OnMouseEnter(float x, float y)
-{
-	return false;
-}
-
-bool Window::OnMouseLeave()
-{
-	return false;
-}
-
-bool Window::OnMouseWheel(float x, float y, float z)
-{
-	return false;
-}
-
-bool Window::OnTap(InputContext &ic, float x, float y)
-{
-	return false;
-}
-
-
-
-//
-// keyboard handlers
-//
-
-bool Window::OnChar(int c)
-{
-	return false;
-}
-
-bool Window::OnKeyPressed(InputContext &ic, Key key)
-{
-	return false;
-}
-
-
 //
 // size
 //
@@ -375,11 +318,6 @@ void Window::OnEnabledChange(bool enable, bool inherited)
 
 void Window::OnTextChange()
 {
-}
-
-bool Window::GetNeedsFocus()
-{
-	return false;
 }
 
 void Window::OnTimeStep(LayoutManager &manager, float dt)

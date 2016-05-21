@@ -354,16 +354,6 @@ void ControlProfileDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-bool ControlProfileDlg::GetNeedsFocus()
-{
-	// TODO: enable when remove autofocus on click
-	//if (!focus)
-	//{
-	//	SetActiveIndex(-1);
-	//}
-	return UI::Dialog::GetNeedsFocus();
-}
-
 void ControlProfileDlg::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	_time += dt;

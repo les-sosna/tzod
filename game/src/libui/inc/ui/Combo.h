@@ -12,7 +12,9 @@ class List;
 class TextButton;
 class ButtonBase;
 
-class ComboBox : public Window
+class ComboBox
+	: public Window
+	, private KeyboardSink
 {
 public:
 	ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource);
@@ -30,14 +32,12 @@ public:
 	std::function<void(int)> eventChangeCurSel;
 
 protected:
-	void OnEnabledChange(bool enable, bool inherited);
-	bool OnKeyPressed(InputContext &ic, Key key);
-	bool GetNeedsFocus();
-	void OnSize(float width, float height);
+	void OnEnabledChange(bool enable, bool inherited) override;
+	void OnSize(float width, float height) override;
+	KeyboardSink *GetKeyboardSink() override { return this; }
 
 	void OnClickItem(int index);
 	void OnChangeSelection(int index);
-
 	void OnListLostFocus();
 
 private:
@@ -45,10 +45,9 @@ private:
 	std::shared_ptr<ButtonBase> _btn;
 	std::shared_ptr<List> _list;
 	int _curSel;
+
+	// KeyboardSink
+	bool OnKeyPressed(InputContext &ic, Key key) override;
 };
 
-
-///////////////////////////////////////////////////////////////////////////////
-} // end of namespace UI
-
-// end of file
+} // namespace UI

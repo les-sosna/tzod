@@ -37,7 +37,7 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-bool Dialog::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Dialog::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( _easyMove && 1 == button && !ic.HasCapturedPointers(this) )
 	{
@@ -45,31 +45,22 @@ bool Dialog::OnPointerDown(InputContext &ic, float x, float y, int button, Point
 		_mouseX = x;
 		_mouseY = y;
 	}
-	return true;
 }
-bool Dialog::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+
+void Dialog::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && ic.GetCapture(pointerID).get() == this )
 	{
 		ic.SetCapture(pointerID, nullptr);
 	}
-	return true;
 }
-bool Dialog::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
+
+void Dialog::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	if( this == ic.GetCapture(pointerID).get())
 	{
 		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
 	}
-	return true;
-}
-bool Dialog::OnMouseEnter(float x, float y)
-{
-	return true;
-}
-bool Dialog::OnMouseLeave()
-{
-	return true;
 }
 
 void Dialog::NextFocus(bool wrap)
@@ -118,7 +109,7 @@ void Dialog::PrevFocus(bool wrap)
 
 bool Dialog::TrySetFocus(const std::shared_ptr<Window> &child)
 {
-	if (child->GetVisible() && child->GetEnabled() && child->GetNeedsFocus())
+	if (child->GetVisible() && child->GetEnabled() && NeedsFocus(child.get()))
 	{
 		SetFocus(child);
 		return true;
@@ -155,11 +146,6 @@ bool Dialog::OnKeyPressed(InputContext &ic, Key key)
 	default:
 		return false;
 	}
-	return true;
-}
-
-bool Dialog::GetNeedsFocus()
-{
 	return true;
 }
 
