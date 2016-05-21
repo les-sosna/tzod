@@ -239,7 +239,7 @@ void PropertyList::OnSize(float width, float height)
 	_psheet->Resize(_scrollBar->GetX(), _psheet->GetHeight());
 }
 
-bool PropertyList::OnKeyPressed(UI::Key key)
+bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch(key)
 	{
@@ -252,7 +252,7 @@ bool PropertyList::OnKeyPressed(UI::Key key)
 		SetVisible(false);
 		break;
 	default:
-		return Dialog::OnKeyPressed(key);
+		return Dialog::OnKeyPressed(ic, key);
 	}
 	return true;
 }

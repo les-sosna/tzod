@@ -159,7 +159,7 @@ void List::OnSize(float width, float height)
 	_scrollBar->SetPageSize(GetNumLinesVisible());
 }
 
-bool List::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
+bool List::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	_hotItem = HitTest(y);
 	return true;
@@ -171,16 +171,16 @@ bool List::OnMouseLeave()
 	return true;
 }
 
-bool List::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool List::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && x < _scrollBar->GetX() )
 	{
-        OnTap(x, y);
+		OnTap(ic, x, y);
 	}
 	return true;
 }
 
-bool List::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool List::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }
@@ -190,17 +190,17 @@ bool List::OnMouseWheel(float x, float y, float z)
 	SetScrollPos(GetScrollPos() - z * 3.0f);
 	return true;
 }
-    
-bool List::OnTap(float x, float y)
+
+bool List::OnTap(InputContext &ic, float x, float y)
 {
-    int index = HitTest(y);
-    SetCurSel(index, false);
-    if( -1 != index && eventClickItem )
-        eventClickItem(index);
-    return true;
+	int index = HitTest(y);
+	SetCurSel(index, false);
+	if( -1 != index && eventClickItem )
+		eventClickItem(index);
+	return true;
 }
 
-bool List::OnKeyPressed(Key key)
+bool List::OnKeyPressed(InputContext &ic, Key key)
 {
 	switch( key )
 	{

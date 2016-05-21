@@ -31,7 +31,7 @@ public:
 
 protected:
 	void OnEnabledChange(bool enable, bool inherited);
-	bool OnKeyPressed(Key key);
+	bool OnKeyPressed(InputContext &ic, Key key);
 	bool GetNeedsFocus();
 	void OnSize(float width, float height);
 

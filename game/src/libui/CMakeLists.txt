@@ -18,6 +18,7 @@ add_library(ui
 	Dialog.cpp
 	Edit.cpp
 	GuiManager.cpp
+	InputContext.cpp
 	List.cpp
 	ListBase.cpp
 	Scroll.cpp

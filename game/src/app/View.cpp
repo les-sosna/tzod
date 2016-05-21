@@ -5,6 +5,7 @@
 #include <fs/FileSystem.h>
 #include <shell/Desktop.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Window.h>
 #include <video/DrawingContext.h>
@@ -29,6 +30,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &
 struct TzodViewImpl
 {
 	TextureManager textureManager;
+	UI::InputContext inputContext;
 	UI::LayoutManager gui;
 	std::shared_ptr<UI::Window> desktop;
 #ifndef NOSOUND
@@ -37,7 +39,8 @@ struct TzodViewImpl
 
 	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
 		: textureManager(InitTextureManager(fs, logger, appWindow.GetRender()))
-		, gui(appWindow.GetInput(), appWindow.GetClipboard(), textureManager)
+		, inputContext(appWindow.GetInput(), appWindow.GetClipboard())
+		, gui(textureManager, inputContext)
 		, desktop(std::make_shared<Desktop>(
 			gui,
 			textureManager,

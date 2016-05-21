@@ -50,7 +50,7 @@ public:
 	NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
-	bool OnKeyPressed(UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 protected:
 	void RefreshPlayersList();

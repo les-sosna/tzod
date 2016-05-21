@@ -100,7 +100,7 @@ bool Console::OnChar(int c)
 	return true;
 }
 
-bool Console::OnKeyPressed(Key key)
+bool Console::OnKeyPressed(InputContext &ic, Key key)
 {
 	switch(key)
 	{
@@ -216,17 +216,17 @@ bool Console::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
-bool Console::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Console::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }
 
-bool Console::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Console::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }
 
-bool Console::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
+bool Console::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	return true;
 }

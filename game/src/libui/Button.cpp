@@ -1,4 +1,5 @@
 #include "inc/ui/Button.h"
+#include "inc/ui/InputContext.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -21,11 +22,11 @@ void ButtonBase::SetState(State s)
 	}
 }
 
-bool ButtonBase::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
+bool ButtonBase::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
-	if( GetManager().HasCapturedPointers(this) )
+	if( ic.HasCapturedPointers(this) )
 	{
-		if (GetManager().GetCapture(pointerID).get() == this)
+		if (ic.GetCapture(pointerID).get() == this)
 		{
 			bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
 			SetState(push ? statePushed : stateNormal);
@@ -40,11 +41,11 @@ bool ButtonBase::OnPointerMove(float x, float y, PointerType pointerType, unsign
 	return true;
 }
 
-bool ButtonBase::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool ButtonBase::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( !GetManager().HasCapturedPointers(this) && 1 == button ) // primary button only
+	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
-		GetManager().SetCapture(pointerID, shared_from_this());
+		ic.SetCapture(pointerID, shared_from_this());
 		SetState(statePushed);
 		if( eventMouseDown )
 			eventMouseDown(x, y);
@@ -52,11 +53,11 @@ bool ButtonBase::OnPointerDown(float x, float y, int button, PointerType pointer
 	return true;
 }
 
-bool ButtonBase::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool ButtonBase::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( GetManager().GetCapture(pointerID).get() == this && 1 == button )
+	if( ic.GetCapture(pointerID).get() == this && 1 == button )
 	{
-		GetManager().SetCapture(pointerID, nullptr);
+		ic.SetCapture(pointerID, nullptr);
 		bool click = (GetState() == statePushed);
 		if( eventMouseUp )
 			eventMouseUp(x, y);
@@ -78,9 +79,9 @@ bool ButtonBase::OnMouseLeave()
 	return true;
 }
 
-bool ButtonBase::OnTap(float x, float y)
+bool ButtonBase::OnTap(InputContext &ic, float x, float y)
 {
-    if( !GetManager().HasCapturedPointers(this))
+    if( !ic.HasCapturedPointers(this))
     {
         OnClick();
         if( eventClick )

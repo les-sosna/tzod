@@ -370,7 +370,7 @@ void ControlProfileDlg::OnTimeStep(UI::LayoutManager &manager, float dt)
 	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(_time, 0.6f) > 0.3f ? "" : "...");
 }
 
-bool ControlProfileDlg::OnKeyPressed(UI::Key key)
+bool ControlProfileDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	if (-1 != _activeIndex)
 	{
@@ -398,7 +398,7 @@ bool ControlProfileDlg::OnKeyPressed(UI::Key key)
 		case UI::Key::Escape:
 			break;
 		default:
-			return Dialog::OnKeyPressed(key);
+			return Dialog::OnKeyPressed(ic, key);
 		}
 	}
 	return true;

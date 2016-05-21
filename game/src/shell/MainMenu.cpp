@@ -79,7 +79,7 @@ void MainMenuDlg::OnMapSettings()
 	_commands.mapSettings();
 }
 
-bool MainMenuDlg::OnKeyPressed(UI::Key key)
+bool MainMenuDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch(key)
 	{

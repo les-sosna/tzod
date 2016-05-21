@@ -76,6 +76,6 @@ protected:
 	void OnSelectService(int i);
 	EditorLayout* GetEditorLayout() const;
 
-	virtual void OnSize(float width, float height);
-	virtual bool OnKeyPressed(UI::Key key);
+	void OnSize(float width, float height) override;
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 };

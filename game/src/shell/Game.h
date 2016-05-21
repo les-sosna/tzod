@@ -54,10 +54,10 @@ public:
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 	bool GetNeedsFocus() override { return true; }
-	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnTap(float x, float y) override;
+	bool OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnTap(UI::InputContext &ic, float x, float y) override;
 
 private:
 	void OnChangeShowTime();

@@ -1,4 +1,5 @@
 #include "inc/ui/Dialog.h"
+#include "inc/ui/InputContext.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/UIInput.h"
@@ -36,27 +37,27 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-bool Dialog::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Dialog::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( _easyMove && 1 == button && !GetManager().HasCapturedPointers(this) )
+	if( _easyMove && 1 == button && !ic.HasCapturedPointers(this) )
 	{
-		GetManager().SetCapture(pointerID, shared_from_this());
+		ic.SetCapture(pointerID, shared_from_this());
 		_mouseX = x;
 		_mouseY = y;
 	}
 	return true;
 }
-bool Dialog::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Dialog::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( 1 == button && GetManager().GetCapture(pointerID).get() == this )
+	if( 1 == button && ic.GetCapture(pointerID).get() == this )
 	{
-		GetManager().SetCapture(pointerID, nullptr);
+		ic.SetCapture(pointerID, nullptr);
 	}
 	return true;
 }
-bool Dialog::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
+bool Dialog::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
-	if( this == GetManager().GetCapture(pointerID).get())
+	if( this == ic.GetCapture(pointerID).get())
 	{
 		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
 	}
@@ -125,10 +126,10 @@ bool Dialog::TrySetFocus(const std::shared_ptr<Window> &child)
 	return false;
 }
 
-bool Dialog::OnKeyPressed(Key key)
+bool Dialog::OnKeyPressed(InputContext &ic, Key key)
 {
-	bool shift = GetManager().GetInput().IsKeyPressed(Key::LeftShift) ||
-		GetManager().GetInput().IsKeyPressed(Key::RightShift);
+	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
+		ic.GetInput().IsKeyPressed(Key::RightShift);
 
 	switch( key )
 	{

@@ -71,7 +71,7 @@ public:
 
 	// UI::Window
 	bool GetNeedsFocus() override;
-	bool OnKeyPressed(UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
 private:

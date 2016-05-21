@@ -52,7 +52,7 @@ public:
 	void ShowConsole(bool show);
 
 protected:
-	bool OnKeyPressed(UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 	bool GetNeedsFocus() override;
 	void OnSize(float width, float height) override;
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;

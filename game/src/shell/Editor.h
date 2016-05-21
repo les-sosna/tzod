@@ -70,11 +70,11 @@ protected:
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
 
 	bool OnMouseWheel(float x, float y, float z) override;
-	bool OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
 	bool GetNeedsFocus() override;
-	bool OnKeyPressed(UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 	void OnSize(float width, float height) override;
 
 	void OnChangeObjectType(int index);

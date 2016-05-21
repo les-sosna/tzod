@@ -370,7 +370,7 @@ void NewGameDlg::OnSelectBot(int index)
 	_changeBot->SetEnabled( -1 != index );
 }
 
-bool NewGameDlg::OnKeyPressed(UI::Key key)
+bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch(key)
 	{
@@ -385,7 +385,7 @@ bool NewGameDlg::OnKeyPressed(UI::Key key)
 		OnAddPlayer();
 		break;
 	default:
-		return Dialog::OnKeyPressed(key);
+		return Dialog::OnKeyPressed(ic, key);
 	}
 	return true;
 }

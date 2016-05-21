@@ -90,7 +90,7 @@ void GetFileNameDlg::OnChangeName()
 	_changing = false;
 }
 
-bool GetFileNameDlg::OnKeyPressed(UI::Key key)
+bool GetFileNameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch( key )
 	{
@@ -102,7 +102,7 @@ bool GetFileNameDlg::OnKeyPressed(UI::Key key)
 		OnOK();
 		break;
 	default:
-		return Dialog::OnKeyPressed(key);
+		return Dialog::OnKeyPressed(ic, key);
 	}
 	return true;
 }

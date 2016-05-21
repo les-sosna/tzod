@@ -1,4 +1,5 @@
 #include "inc/ui/Window.h"
+#include "inc/ui/InputContext.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -32,7 +33,7 @@ void Window::PrepareToUnlink(Window &child)
 		_focusChild = nullptr;
 
 	// removes mouse hover and captures if any.
-	GetManager().ResetWindow(child);
+	GetManager().GetInputContext().ResetWindow(child);
 
 	if (child.GetTimeStep())
 		GetManager().TimeStepUnregister(child._timeStepReg);
@@ -237,7 +238,7 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 		{
 			w->OnEnabledChangeInternal(false, true);
 		}
-		GetManager().ResetWindow(*this);
+		GetManager().GetInputContext().ResetWindow(*this);
 		if( !inherited )
 			_isEnabled = false;
 		OnEnabledChange(false, inherited);
@@ -261,7 +262,7 @@ void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 		for (auto &w : _children)
 			w->OnVisibleChangeInternal(false, true);
 
-		GetManager().ResetWindow(*this);
+		GetManager().GetInputContext().ResetWindow(*this);
 
 		if (!inherited)
 			_isVisible = false;
@@ -303,17 +304,17 @@ void Window::SetText(const std::string &text)
 // pointer handlers
 //
 
-bool Window::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Window::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return false;
 }
 
-bool Window::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Window::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
 	return false;
 }
 
-bool Window::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
+bool Window::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
 	return false;
 }
@@ -332,10 +333,10 @@ bool Window::OnMouseWheel(float x, float y, float z)
 {
 	return false;
 }
-    
-bool Window::OnTap(float x, float y)
+
+bool Window::OnTap(InputContext &ic, float x, float y)
 {
-    return false;
+	return false;
 }
 
 
@@ -349,7 +350,7 @@ bool Window::OnChar(int c)
 	return false;
 }
 
-bool Window::OnKeyPressed(Key key)
+bool Window::OnKeyPressed(InputContext &ic, Key key)
 {
 	return false;
 }

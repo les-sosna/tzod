@@ -13,6 +13,7 @@
 #include <loc/Language.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>
+#include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Text.h>
 #include <ui/Combo.h>
@@ -253,31 +254,31 @@ bool EditorLayout::OnMouseWheel(float x, float y, float z)
 	return true;
 }
 
-bool EditorLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton )
 	{
-		OnPointerDown(x, y, _mbutton, pointerType, pointerID);
+		OnPointerDown(ic, x, y, _mbutton, pointerType, pointerID);
 	}
 	return true;
 }
 
-bool EditorLayout::OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
 		_click = true;
 		_mbutton = 0;
-		GetManager().SetCapture(pointerID, nullptr);
+		ic.SetCapture(pointerID, nullptr);
 	}
 	return true;
 }
 
-bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( 0 == _mbutton )
 	{
-		GetManager().SetCapture(pointerID, shared_from_this());
+		ic.SetCapture(pointerID, shared_from_this());
 		_mbutton = button;
 	}
 
@@ -286,100 +287,98 @@ bool EditorLayout::OnPointerDown(float x, float y, int button, UI::PointerType p
 		return true;
 	}
 
+	vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPos().x,
+	            y / _defaultCamera.GetZoom() + _defaultCamera.GetPos().y);
 
-    vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPos().x,
-                y / _defaultCamera.GetZoom() + _defaultCamera.GetPos().y);
+	ObjectType type = static_cast<ObjectType>(_typeList->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 
-    ObjectType type = static_cast<ObjectType>(
-        _typeList->GetData()->GetItemData(_conf.ed_object.GetInt()) );
+	float align = RTTypes::Inst().GetTypeInfo(type).align;
+	float offset = RTTypes::Inst().GetTypeInfo(type).offset;
 
-    float align = RTTypes::Inst().GetTypeInfo(type).align;
-    float offset = RTTypes::Inst().GetTypeInfo(type).offset;
+	vec2d pt;
+	pt.x = std::min(_world._sx - align, std::max(align - offset, mouse.x));
+	pt.y = std::min(_world._sy - align, std::max(align - offset, mouse.y));
+	pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
+	pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
 
-    vec2d pt;
-    pt.x = std::min(_world._sx - align, std::max(align - offset, mouse.x));
-    pt.y = std::min(_world._sy - align, std::max(align - offset, mouse.y));
-    pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
-    pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
+	int layer = -1;
+	if( _conf.ed_uselayers.Get() )
+	{
+		layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
+	}
 
-    int layer = -1;
-    if( _conf.ed_uselayers.Get() )
-    {
-        layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
-    }
+	if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, mouse, layer) )
+	{
+		if( 1 == button )
+		{
+			if( _click && _selectedObject == object )
+			{
+				auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
 
-    if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, mouse, layer) )
-    {
-        if( 1 == button )
-        {
-            if( _click && _selectedObject == object )
-            {
-                auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
+				lua_getglobal(_globL, "editor_actions");
+				if( lua_isnil(_globL, -1) )
+				{
+					_logger.WriteLine(1, "There was no editor module loaded");
+				}
+				else
+				{
+					lua_getfield(_globL, -1, selTypeInfo.name);
+					if (lua_isnil(_globL, -1))
+					{
+						// no action available for this object
+						lua_pop(_globL, 1);
+					}
+					else
+					{
+						luaT_pushobject(_globL, object);
+						if( lua_pcall(_globL, 1, 0, 0) )
+						{
+							_logger.WriteLine(1, lua_tostring(_globL, -1));
+							lua_pop(_globL, 1); // pop error message
+						}
+					}
+				}
+				lua_pop(_globL, 1); // pop editor_actions
 
-                lua_getglobal(_globL, "editor_actions");
-                if( lua_isnil(_globL, -1) )
-                {
-                    _logger.WriteLine(1, "There was no editor module loaded");
-                }
-                else
-                {
-                    lua_getfield(_globL, -1, selTypeInfo.name);
-                    if (lua_isnil(_globL, -1))
-                    {
-                        // no action available for this object
-                        lua_pop(_globL, 1);
-                    }
-                    else
-                    {
-                        luaT_pushobject(_globL, object);
-                        if( lua_pcall(_globL, 1, 0, 0) )
-                        {
-                            _logger.WriteLine(1, lua_tostring(_globL, -1));
-                            lua_pop(_globL, 1); // pop error message
-                        }
-                    }
-                }
-                lua_pop(_globL, 1); // pop editor_actions
+				_propList->DoExchange(false, GetManager().GetTextureManager());
+				if( _isObjectNew )
+					SaveToConfig(_conf, *object->GetProperties(_world));
+			}
+			else
+			{
+				Select(object, true);
+			}
+		}
 
-                _propList->DoExchange(false, GetManager().GetTextureManager());
-                if( _isObjectNew )
-                    SaveToConfig(_conf, *object->GetProperties(_world));
-            }
-            else
-            {
-                Select(object, true);
-            }
-        }
-
-        if( 2 == button )
-        {
-            if( _selectedObject == object )
-            {
-                Select(object, false);
-            }
-            object->Kill(_world);
-        }
-    }
-    else
-    {
-        if( 1 == button )
-        {
-            // create object
-            GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
+		if( 2 == button )
+		{
+			if( _selectedObject == object )
+			{
+				Select(object, false);
+			}
+			object->Kill(_world);
+		}
+	}
+	else
+	{
+		if( 1 == button )
+		{
+			// create object
+			GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
 			std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
-            // set default properties if Ctrl key is not pressed
-            if( GetManager().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
-                GetManager().GetInput().IsKeyPressed(UI::Key::RightCtrl) )
-            {
-                LoadFromConfig(_conf, *properties);
-                properties->Exchange(_world, true);
-            }
+			// set default properties if Ctrl key is not pressed
+			if( ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
+				ic.GetInput().IsKeyPressed(UI::Key::RightCtrl) )
+			{
+				LoadFromConfig(_conf, *properties);
+				properties->Exchange(_world, true);
+			}
 
 			Select(&newobj, true);
-            _isObjectNew = true;
-        }
-    }
+			_isObjectNew = true;
+		}
+	}
 
 	_click = false;
 	return true;
@@ -390,7 +389,7 @@ bool EditorLayout::GetNeedsFocus()
 	return true;
 }
 
-bool EditorLayout::OnKeyPressed(UI::Key key)
+bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch(key)
 	{
@@ -501,7 +500,7 @@ void EditorLayout::Draw(bool focused, bool enabled, vec2d size, DrawingContext &
 	}
 
 	// Mouse coordinates
-	vec2d mouse = GetManager().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
+	vec2d mouse = GetManager().GetInputContext().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	dc.DrawBitmapText(floor(size.x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);

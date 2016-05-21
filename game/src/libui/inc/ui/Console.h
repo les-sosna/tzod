@@ -54,11 +54,11 @@ public:
 
 protected:
 	bool OnChar(int c) override;
-	bool OnKeyPressed(Key key) override;
+	bool OnKeyPressed(InputContext &ic, Key key) override;
 	bool OnMouseWheel(float x, float y, float z) override;
-	bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
 
 	void OnTimeStep(LayoutManager &manager, float dt) override;
 	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;

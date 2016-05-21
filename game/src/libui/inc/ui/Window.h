@@ -15,6 +15,7 @@ class TextureManager;
 namespace UI
 {
 
+class InputContext;
 class LayoutManager;
 enum class Key;
 enum class PointerType;
@@ -177,18 +178,19 @@ public:
 	virtual void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const;
 
 private:
+	friend class InputContext;
 
 	//
 	// pointer handlers
 	//
 
-	virtual bool OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID);
-	virtual bool OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID);
+	virtual bool OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID);
 	virtual bool OnMouseWheel(float x, float y, float z);
 	virtual bool OnMouseEnter(float x, float y);
 	virtual bool OnMouseLeave();
-	virtual bool OnTap(float x, float y);
+	virtual bool OnTap(InputContext &ic, float x, float y);
 
 
 	//
@@ -196,7 +198,7 @@ private:
 	//
 
 	virtual bool OnChar(int c);
-	virtual bool OnKeyPressed(Key key);
+	virtual bool OnKeyPressed(InputContext &ic, Key key);
 
 
 	//

@@ -24,9 +24,9 @@ public:
 
 private:
 	void OnScroll(float pos);
-	void OnSize(float width, float height);
-	bool OnKeyPressed(UI::Key key);
-	bool OnMouseWheel(float x, float y, float z);
+	void OnSize(float width, float height) override;
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	bool OnMouseWheel(float x, float y, float z) override;
 
 	class Container : public UI::Window
 	{
@@ -46,4 +46,3 @@ private:
 
 void SaveToConfig(ConfCache &conf, const PropertySet &ps);
 void LoadFromConfig(const ConfCache &conf, PropertySet &ps);
-

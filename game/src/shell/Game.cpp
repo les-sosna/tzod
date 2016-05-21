@@ -13,6 +13,7 @@
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <loc/Language.h>
+#include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
@@ -142,7 +143,7 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 
 void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
-	bool tab = manager.GetInput().IsKeyPressed(UI::Key::Tab);
+	bool tab = manager.GetInputContext().GetInput().IsKeyPressed(UI::Key::Tab);
 	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
 
 	_gameViewHarness.Step(dt);
@@ -163,11 +164,11 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 				controller->Step(dt);
 				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 				{
-					vec2d mouse = manager.GetInput().GetMousePos();
+					vec2d mouse = manager.GetInputContext().GetInput().GetMousePos();
 					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
 
 					VehicleState vs;
-					controller->ReadControllerState(manager.GetInput(), _gameContext.GetWorld(),
+					controller->ReadControllerState(manager.GetInputContext().GetInput(), _gameContext.GetWorld(),
 					                                *vehicle, c2w.visible ? &c2w.worldPos : nullptr, dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
@@ -227,30 +228,30 @@ void GameLayout::OnSize(float width, float height)
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
-bool GameLayout::OnPointerDown(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool GameLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
 		_activeDrags[pointerID].first = vec2d(x, y);
 		_activeDrags[pointerID].second = vec2d(x, y);
-		GetManager().SetCapture(pointerID, shared_from_this());
+		ic.SetCapture(pointerID, shared_from_this());
 	}
 	return true;
 }
 
-bool GameLayout::OnPointerUp(float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool GameLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if (GetManager().GetCapture(pointerID).get() == this)
+	if (ic.GetCapture(pointerID).get() == this)
 	{
 		_activeDrags.erase(pointerID);
-		GetManager().SetCapture(pointerID, nullptr);
+		ic.SetCapture(pointerID, nullptr);
 	}
 	return true;
 }
 
-bool GameLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, unsigned int pointerID)
+bool GameLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if (GetManager().GetCapture(pointerID).get() == this)
+	if (ic.GetCapture(pointerID).get() == this)
 	{
 		auto &drag = _activeDrags[pointerID];
 		drag.second = vec2d(x, y);
@@ -264,7 +265,7 @@ bool GameLayout::OnPointerMove(float x, float y, UI::PointerType pointerType, un
 	return true;
 }
 
-bool GameLayout::OnTap(float x, float y)
+bool GameLayout::OnTap(UI::InputContext &ic, float x, float y)
 {
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)

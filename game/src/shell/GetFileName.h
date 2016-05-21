@@ -45,7 +45,7 @@ public:
 protected:
 	void OnSelect(int index);
 	void OnChangeName();
-	bool OnKeyPressed(UI::Key key);
+	bool OnKeyPressed(UI::InputContext &ic, UI::Key key);
 
 	void OnOK();
 	void OnCancel();

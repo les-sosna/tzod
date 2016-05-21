@@ -23,6 +23,7 @@
 #include <ui/Button.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 
@@ -163,7 +164,7 @@ void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 		assert(dt >= 0);
 		counterDt.Push(dt);
 
-		_defaultCamera.HandleMovement(manager.GetInput(),
+		_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(),
 		                              gc->GetWorld()._sx,
 		                              gc->GetWorld()._sy,
 		                              (float) GetWidth(),
@@ -491,7 +492,7 @@ float Desktop::GetTransitionTarget() const
 	return (GetHeight() + (_navStack.empty() ? 0 : _navStack.back()->GetHeight())) / 2 - GetNavStackSize();
 }
 
-bool Desktop::OnKeyPressed(UI::Key key)
+bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch( key )
 	{

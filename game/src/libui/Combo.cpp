@@ -115,7 +115,7 @@ void ComboBox::OnEnabledChange(bool enable, bool inherited)
 	SetFrame(enable ? 0 : 3);
 }
 
-bool ComboBox::OnKeyPressed(Key key)
+bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 {
 	switch( key )
 	{

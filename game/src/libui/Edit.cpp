@@ -1,5 +1,6 @@
 #include "inc/ui/Edit.h"
 #include "inc/ui/Clipboard.h"
+#include "inc/ui/InputContext.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/UIInput.h"
@@ -156,45 +157,45 @@ bool Edit::OnChar(int c)
 	return false;
 }
 
-bool Edit::OnKeyPressed(Key key)
+bool Edit::OnKeyPressed(InputContext &ic, Key key)
 {
-    bool shift = GetManager().GetInput().IsKeyPressed(Key::LeftShift) ||
-        GetManager().GetInput().IsKeyPressed(Key::RightShift);
-    bool control = GetManager().GetInput().IsKeyPressed(Key::LeftCtrl) ||
-        GetManager().GetInput().IsKeyPressed(Key::RightCtrl);
+	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
+		ic.GetInput().IsKeyPressed(Key::RightShift);
+	bool control = ic.GetInput().IsKeyPressed(Key::LeftCtrl) ||
+		ic.GetInput().IsKeyPressed(Key::RightCtrl);
 	int tmp;
 	switch(key)
 	{
 	case Key::Insert:
-        if( shift )
+		if( shift )
 		{
-			Paste();
+			Paste(ic);
 			return true;
 		}
 		else if( control )
 		{
-			Copy();
+			Copy(ic);
 			return true;
 		}
 		break;
 	case Key::V:
 		if( control )
 		{
-			Paste();
+			Paste(ic);
 			return true;
 		}
 		break;
 	case Key::C:
 		if( control )
 		{
-			Copy();
+			Copy(ic);
 			return true;
 		}
 		break;
 	case Key::X:
 		if( 0 != GetSelLength() && control )
 		{
-			Copy();
+			Copy(ic);
 			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 			SetSel(GetSelMin(), GetSelMin());
 			return true;
@@ -210,7 +211,7 @@ bool Edit::OnKeyPressed(Key key)
 		{
 			if( shift )
 			{
-				Copy();
+				Copy(ic);
 			}
 			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 		}
@@ -282,11 +283,11 @@ bool Edit::OnKeyPressed(Key key)
 	return false;
 }
 
-bool Edit::OnPointerDown(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Edit::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( 1 == button && !GetManager().HasCapturedPointers(this) )
+	if( 1 == button && !ic.HasCapturedPointers(this) )
 	{
-		GetManager().SetCapture(pointerID, shared_from_this());
+		ic.SetCapture(pointerID, shared_from_this());
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
 		SetSel(sel, sel);
@@ -294,9 +295,9 @@ bool Edit::OnPointerDown(float x, float y, int button, PointerType pointerType, 
 	return true;
 }
 
-bool Edit::OnPointerMove(float x, float y, PointerType pointerType, unsigned int pointerID)
+bool Edit::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
 {
-	if( GetManager().GetCapture(pointerID).get() == this )
+	if( ic.GetCapture(pointerID).get() == this )
 	{
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
@@ -305,11 +306,11 @@ bool Edit::OnPointerMove(float x, float y, PointerType pointerType, unsigned int
 	return true;
 }
 
-bool Edit::OnPointerUp(float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+bool Edit::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( 1 == button && GetManager().GetCapture(pointerID).get() == this )
+	if( 1 == button && ic.GetCapture(pointerID).get() == this )
 	{
-		GetManager().SetCapture(pointerID, nullptr);
+		ic.SetCapture(pointerID, nullptr);
 	}
 	return true;
 }
@@ -341,25 +342,25 @@ void Edit::OnTextChange()
 		eventChange();
 }
 
-void Edit::Paste()
+void Edit::Paste(InputContext &ic)
 {
-    if( const char *data = GetManager().GetClipboard().GetClipboardText() )
-    {
-        std::ostringstream buf;
-        buf << GetText().substr(0, GetSelMin());
-        buf << data;
-        buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
-        SetText(buf.str());
-        SetSel(GetSelMin() + std::strlen(data), GetSelMin() + std::strlen(data));
-    }
+	if( const char *data = ic.GetClipboard().GetClipboardText() )
+	{
+		std::ostringstream buf;
+		buf << GetText().substr(0, GetSelMin());
+		buf << data;
+		buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
+		SetText(buf.str());
+		SetSel(GetSelMin() + std::strlen(data), GetSelMin() + std::strlen(data));
+	}
 }
 
-void Edit::Copy() const
+void Edit::Copy(InputContext &ic) const
 {
 	std::string str = GetText().substr(GetSelMin(), GetSelLength());
 	if( !str.empty() )
 	{
-		GetManager().GetClipboard().SetClipboardText(std::move(str));
+		ic.GetClipboard().SetClipboardText(std::move(str));
 	}
 }
 

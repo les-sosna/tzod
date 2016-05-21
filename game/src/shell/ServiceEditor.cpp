@@ -212,7 +212,7 @@ void ServiceEditor::OnSize(float width, float height)
 	_list->SetTabPos(1, floor(_list->GetWidth() / 2));
 }
 
-bool ServiceEditor::OnKeyPressed(UI::Key key)
+bool ServiceEditor::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch (key)
 	{
@@ -222,7 +222,7 @@ bool ServiceEditor::OnKeyPressed(UI::Key key)
 		SetVisible(false);
 		break;
 	default:
-		return Dialog::OnKeyPressed(key);
+		return Dialog::OnKeyPressed(ic, key);
 	}
 	return true;
 }
