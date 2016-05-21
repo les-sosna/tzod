@@ -283,28 +283,28 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-void Edit::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && !ic.HasCapturedPointers(this) )
 	{
 		ic.SetCapture(pointerID, shared_from_this());
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
-		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
+		int sel = std::min(GetTextLength(), std::max(0, int(pointerPosition.x / w)) + (int) _offset);
 		SetSel(sel, sel);
 	}
 }
 
-void Edit::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.GetCapture(pointerID).get() == this )
 	{
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
-		int sel = std::min(GetTextLength(), std::max(0, int(x / w)) + (int) _offset);
+		int sel = std::min(GetTextLength(), std::max(0, int(pointerPosition.x / w)) + (int) _offset);
 		SetSel(GetSelStart(), sel);
 	}
 }
 
-void Edit::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && ic.GetCapture(pointerID).get() == this )
 	{

@@ -241,27 +241,27 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::OnMouseWheel(float x, float y, float z)
+void EditorLayout::OnMouseWheel(vec2d pointerPosition, float z)
 {
 	if( z > 0 )
 	{
-		_typeList->SetCurSel( std::max(0, _typeList->GetCurSel() - 1) );
+		_typeList->SetCurSel(std::max(0, _typeList->GetCurSel() - 1));
 	}
 	if( z < 0 )
 	{
-		_typeList->SetCurSel( std::min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1) );
+		_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1));
 	}
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton )
 	{
-		OnPointerDown(ic, x, y, _mbutton, pointerType, pointerID);
+		OnPointerDown(ic, pointerPosition, _mbutton, pointerType, pointerID);
 	}
 }
 
-void EditorLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
@@ -271,7 +271,7 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int butto
 	}
 }
 
-void EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( 0 == _mbutton )
 	{
@@ -284,8 +284,7 @@ void EditorLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int but
 		return;
 	}
 
-	vec2d mouse(x / _defaultCamera.GetZoom() + _defaultCamera.GetPos().x,
-	            y / _defaultCamera.GetZoom() + _defaultCamera.GetPos().y);
+	vec2d mouse = pointerPosition / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 
 	ObjectType type = static_cast<ObjectType>(_typeList->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 

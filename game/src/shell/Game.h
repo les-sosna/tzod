@@ -79,10 +79,10 @@ private:
 	std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 
 	// UI::PointerSink
-	void OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID) override;
-	void OnTap(UI::InputContext &ic, float x, float y) override;
+	void OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnTap(UI::InputContext &ic, vec2d pointerPosition) override;
 
 	// GameListener
 	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;

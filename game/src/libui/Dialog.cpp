@@ -8,8 +8,7 @@ using namespace UI;
 
 Dialog::Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal)
   : Window(manager)
-  , _mouseX(0)
-  , _mouseY(0)
+  , _mousePos(0, 0)
   , _easyMove(false)
 {
 	SetTexture(texman, "ui/window", false);
@@ -37,17 +36,16 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-void Dialog::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Dialog::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( _easyMove && 1 == button && !ic.HasCapturedPointers(this) )
 	{
 		ic.SetCapture(pointerID, shared_from_this());
-		_mouseX = x;
-		_mouseY = y;
+		_mousePos = pointerPosition;
 	}
 }
 
-void Dialog::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void Dialog::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && ic.GetCapture(pointerID).get() == this )
 	{
@@ -55,11 +53,11 @@ void Dialog::OnPointerUp(InputContext &ic, float x, float y, int button, Pointer
 	}
 }
 
-void Dialog::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
+void Dialog::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
 {
 	if( this == ic.GetCapture(pointerID).get())
 	{
-		Move(GetX() + x - _mouseX, GetY() + y - _mouseY);
+		Move(GetX() + pointerPosition.x - _mousePos.x, GetY() + pointerPosition.y - _mousePos.y);
 	}
 }
 

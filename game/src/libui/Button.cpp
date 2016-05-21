@@ -22,13 +22,13 @@ void ButtonBase::SetState(State s)
 	}
 }
 
-void ButtonBase::OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.HasCapturedPointers(this) )
 	{
 		if (ic.GetCapture(pointerID).get() == this)
 		{
-			bool push = x < GetWidth() && y < GetHeight() && x > 0 && y > 0;
+			bool push = pointerPosition.x < GetWidth() && pointerPosition.y < GetHeight() && pointerPosition.x > 0 && pointerPosition.y > 0;
 			SetState(push ? statePushed : stateNormal);
 		}
 	}
@@ -37,28 +37,28 @@ void ButtonBase::OnPointerMove(InputContext &ic, float x, float y, PointerType p
 		SetState(stateHottrack);
 	}
 	if( eventMouseMove )
-		eventMouseMove(x, y);
+		eventMouseMove(pointerPosition.x, pointerPosition.y);
 }
 
-void ButtonBase::OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
 		ic.SetCapture(pointerID, shared_from_this());
 		SetState(statePushed);
 		if( eventMouseDown )
-			eventMouseDown(x, y);
+			eventMouseDown(pointerPosition.x, pointerPosition.y);
 	}
 }
 
-void ButtonBase::OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.GetCapture(pointerID).get() == this && 1 == button )
 	{
 		ic.SetCapture(pointerID, nullptr);
 		bool click = (GetState() == statePushed);
 		if( eventMouseUp )
-			eventMouseUp(x, y);
+			eventMouseUp(pointerPosition.x, pointerPosition.y);
 		if( click )
 		{
 			OnClick();
@@ -75,7 +75,7 @@ void ButtonBase::OnMouseLeave()
 	SetState(stateNormal);
 }
 
-void ButtonBase::OnTap(InputContext &ic, float x, float y)
+void ButtonBase::OnTap(InputContext &ic, vec2d pointerPosition)
 {
 	if( !ic.HasCapturedPointers(this))
 	{

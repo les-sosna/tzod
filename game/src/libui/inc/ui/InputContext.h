@@ -32,8 +32,7 @@ public:
 	bool ProcessPointer(
 		std::shared_ptr<Window> wnd,
 		vec2d size,
-		float x,
-		float y,
+		vec2d pointerPosition,
 		float z,
 		Msg msg,
 		int button,
@@ -64,8 +63,7 @@ private:
 	bool ProcessPointerInternal(
 		vec2d size,
 		std::shared_ptr<Window> wnd,
-		float x,
-		float y,
+		vec2d pointerPosition,
 		float z,
 		Msg msg,
 		int buttons,

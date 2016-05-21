@@ -51,8 +51,7 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			desktopSize,
-			mousePos.x,
-			mousePos.y,
+			mousePos,
 			0,
 			msg,
 			buttons,
@@ -70,8 +69,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			desktopSize,
-			mousePos.x,
-			mousePos.y,
+			mousePos,
 			0,
 			UI::Msg::PointerMove,
 			0,
@@ -90,8 +88,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			desktopSize,
-			mousePos.x,
-			mousePos.y,
+			mousePos,
 			mouseOffset.y,
 			UI::Msg::MOUSEWHEEL,
 			0,

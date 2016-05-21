@@ -28,13 +28,13 @@ enum class StretchMode
 
 struct PointerSink
 {
-	virtual void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) {}
-	virtual void OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) {}
-	virtual void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) {}
-	virtual void OnMouseWheel(float x, float y, float z) {}
-	virtual void OnMouseEnter(float x, float y) {}
+	virtual void OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnMouseWheel(vec2d pointerPosition, float z) {}
+	virtual void OnMouseEnter(vec2d pointerPosition) {}
 	virtual void OnMouseLeave() {}
-	virtual void OnTap(InputContext &ic, float x, float y) {}
+	virtual void OnTap(InputContext &ic, vec2d pointerPosition) {}
 };
 
 struct KeyboardSink

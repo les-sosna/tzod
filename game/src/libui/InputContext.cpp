@@ -74,8 +74,7 @@ void InputContext::ResetWindow(Window &wnd)
 bool InputContext::ProcessPointerInternal(
 	vec2d size,
 	std::shared_ptr<Window> wnd,
-	float x,
-	float y,
+	vec2d pointerPosition,
 	float z,
 	Msg msg,
 	int buttons,
@@ -89,7 +88,8 @@ bool InputContext::ProcessPointerInternal(
 	if (!wnd->GetEnabled() || !wnd->GetVisible() || (insideTopMost && !topMostPass))
 		return false;
 
-	bool pointerInside = (x >= 0 && x < size.x && y >= 0 && y < size.y);
+	bool pointerInside = (pointerPosition.x >= 0 && pointerPosition.x < size.x &&
+		pointerPosition.y >= 0 && pointerPosition.y < size.y);
 
 	if ((pointerInside || !wnd->GetClipChildren()) && GetCapture(pointerID) != wnd)
 	{
@@ -98,11 +98,11 @@ bool InputContext::ProcessPointerInternal(
 		for (auto it = children.rbegin(); it != children.rend(); ++it)
 		{
 			auto &child = *it;
-			FRECT rect = wnd->GetChildRect(size, *child);
-			if (ProcessPointerInternal(Size(rect),
+			FRECT childRect = wnd->GetChildRect(size, *child);
+			vec2d childPointerPosition = pointerPosition - vec2d(childRect.left, childRect.top);
+			if (ProcessPointerInternal(Size(childRect),
 				child,
-				x - rect.left,
-				y - rect.top,
+				childPointerPosition,
 				z,
 				msg,
 				buttons,
@@ -137,20 +137,20 @@ bool InputContext::ProcessPointerInternal(
 			switch (msg)
 			{
 			case Msg::PointerDown:
-				pointerSink->OnPointerDown(*this, x, y, buttons, pointerType, pointerID);
+				pointerSink->OnPointerDown(*this, pointerPosition, buttons, pointerType, pointerID);
 				break;
 			case Msg::PointerUp:
 			case Msg::PointerCancel:
-				pointerSink->OnPointerUp(*this, x, y, buttons, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
 				break;
 			case Msg::PointerMove:
-				pointerSink->OnPointerMove(*this, x, y, pointerType, pointerID);
+				pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID);
 				break;
 			case Msg::MOUSEWHEEL:
-				pointerSink->OnMouseWheel(x, y, z);
+				pointerSink->OnMouseWheel(pointerPosition, z);
 				break;
 			case Msg::TAP:
-				pointerSink->OnTap(*this, x, y);
+				pointerSink->OnTap(*this, pointerPosition);
 				break;
 			default:
 				assert(false);
@@ -167,7 +167,7 @@ bool InputContext::ProcessPointerInternal(
 				if (wnd->GetVisible() && wnd->GetEnabled())
 				{
 					_hotTrackWnd = wnd;
-					pointerSink->OnMouseEnter(x, y);
+					pointerSink->OnMouseEnter(pointerPosition);
 				}
 			}
 		}
@@ -196,10 +196,10 @@ static FRECT GetGlobalWindowRect(const vec2d &rootSize, const Window &wnd)
 	}
 }
 
-bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, float x, float y, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
+bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d pointerPosition, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
 {
 #ifndef NDEBUG
-	_lastPointerLocation[pointerID] = vec2d(x, y);
+	_lastPointerLocation[pointerID] = pointerPosition;
 #endif
 
 	if (auto captured = GetCapture(pointerID))
@@ -207,11 +207,11 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, float
 		FRECT capturetRect = GetGlobalWindowRect(size, *captured);
 		vec2d capturedSize = Size(capturetRect);
 
-		x -= capturetRect.left;
-		y -= capturetRect.top;
+		pointerPosition.x -= capturetRect.left;
+		pointerPosition.y -= capturetRect.top;
 
-		if (ProcessPointerInternal(capturedSize, captured, x, y, z, msg, button, pointerType, pointerID, true) ||
-			ProcessPointerInternal(capturedSize, captured, x, y, z, msg, button, pointerType, pointerID, false))
+		if (ProcessPointerInternal(capturedSize, captured, pointerPosition, z, msg, button, pointerType, pointerID, true) ||
+			ProcessPointerInternal(capturedSize, captured, pointerPosition, z, msg, button, pointerType, pointerID, false))
 		{
 			return true;
 		}
@@ -219,8 +219,8 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, float
 	else
 	{
 		// handle all children of the desktop recursively; offer to topmost windows first
-		if (ProcessPointerInternal(size, wnd, x, y, z, msg, button, pointerType, pointerID, true) ||
-			ProcessPointerInternal(size, wnd, x, y, z, msg, button, pointerType, pointerID, false))
+		if (ProcessPointerInternal(size, wnd, pointerPosition, z, msg, button, pointerType, pointerID, true) ||
+			ProcessPointerInternal(size, wnd, pointerPosition, z, msg, button, pointerType, pointerID, false))
 		{
 			return true;
 		}

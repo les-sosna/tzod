@@ -257,7 +257,7 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-void PropertyList::OnMouseWheel(float x, float y, float z)
+void PropertyList::OnMouseWheel(vec2d pointerPosition, float z)
 {
 	_scrollBar->SetPos(_scrollBar->GetPos() - z * 10.0f);
 	OnScroll(_scrollBar->GetPos());

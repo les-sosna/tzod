@@ -81,7 +81,7 @@ private:
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 
 	// PointerSink
-	void OnMouseWheel(float x, float y, float z) override;
+	void OnMouseWheel(vec2d pointerPosition, float z) override;
 };
 
 } // namespace UI

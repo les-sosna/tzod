@@ -46,7 +46,7 @@ private:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::PointerSink
-	void OnMouseWheel(float x, float y, float z) override;
+	void OnMouseWheel(vec2d pointerPosition, float z) override;
 };
 
 void SaveToConfig(ConfCache &conf, const PropertySet &ps);

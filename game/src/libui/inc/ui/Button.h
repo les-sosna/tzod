@@ -43,11 +43,11 @@ private:
 	void SetState(State s);
 
 	// PointerSink
-	void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerUp(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnMouseLeave() override;
-	void OnTap(InputContext &ic, float x, float y) override;
+	void OnTap(InputContext &ic, vec2d pointerPosition) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

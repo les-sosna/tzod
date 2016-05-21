@@ -228,17 +228,17 @@ void GameLayout::OnSize(float width, float height)
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
-void GameLayout::OnPointerDown(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
-		_activeDrags[pointerID].first = vec2d(x, y);
-		_activeDrags[pointerID].second = vec2d(x, y);
+		_activeDrags[pointerID].first = pointerPosition;
+		_activeDrags[pointerID].second = pointerPosition;
 		ic.SetCapture(pointerID, shared_from_this());
 	}
 }
 
-void GameLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (ic.GetCapture(pointerID).get() == this)
 	{
@@ -247,12 +247,12 @@ void GameLayout::OnPointerUp(UI::InputContext &ic, float x, float y, int button,
 	}
 }
 
-void GameLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (ic.GetCapture(pointerID).get() == this)
 	{
 		auto &drag = _activeDrags[pointerID];
-		drag.second = vec2d(x, y);
+		drag.second = pointerPosition;
 		vec2d dir = drag.second - drag.first;
 		const float maxDragLength = 100;
 		if (dir.len() > maxDragLength)
@@ -262,14 +262,14 @@ void GameLayout::OnPointerMove(UI::InputContext &ic, float x, float y, UI::Point
 	}
 }
 
-void GameLayout::OnTap(UI::InputContext &ic, float x, float y)
+void GameLayout::OnTap(UI::InputContext &ic, vec2d pointerPosition)
 {
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 	{
 		if( Controller *controller = _inputMgr.GetController(playerIndex) )
 		{
-			auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) x, (int) y);
+			auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int)pointerPosition.x, (int)pointerPosition.y);
 			if (c2w.visible)
 			{
 				controller->OnTap(c2w.worldPos);

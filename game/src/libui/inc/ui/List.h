@@ -68,18 +68,18 @@ private:
 
 	std::shared_ptr<ScrollBarVertical> _scrollBar;
 
-	int        _curSel;
-	int        _hotItem;
+	int _curSel;
+	int _hotItem;
 
-	size_t     _font;
-	size_t     _selection;
+	size_t _font;
+	size_t _selection;
 
 	// PointerSink
-	void OnPointerMove(InputContext &ic, float x, float y, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) override;
 	void OnMouseLeave() override;
-	void OnPointerDown(InputContext &ic, float x, float y, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnMouseWheel(float x, float y, float z) override;
-	void OnTap(InputContext &ic, float x, float y) override;
+	void OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnMouseWheel(vec2d pointerPosition, float z) override;
+	void OnTap(InputContext &ic, vec2d pointerPosition) override;
 
 	// KeyboardSink
 	bool OnKeyPressed(InputContext &ic, Key key) override;
