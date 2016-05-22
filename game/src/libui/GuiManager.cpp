@@ -62,10 +62,8 @@ void LayoutManager::TimeStep(float dt)
 
 static void DrawWindowRecursive(bool focused, bool enabled, const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
 {
-	insideTopMost |= wnd.GetTopMost();
-
-	if (!wnd.GetVisible() || (insideTopMost && !topMostPass))
-		return; // skip window and all its children
+	if (insideTopMost && !topMostPass)
+		return; // early skip topmost window and all its children
 
 	dc.PushTransform(vec2d(rect.left, rect.top));
 
@@ -87,12 +85,16 @@ static void DrawWindowRecursive(bool focused, bool enabled, const FRECT &rect, c
 		dc.PushClippingRect(clip);
 	}
 
-	for (auto &w : wnd.GetChildren())
+	for (auto &child : wnd.GetChildren())
 	{
-		FRECT childRect = wnd.GetChildRect(Size(rect), *w);
-		bool childFocused = focused && (wnd.GetFocus() == w);
-		bool childEnabled = enabled && wnd.GetEnabled();
-		DrawWindowRecursive(childFocused, childEnabled, childRect, *w, dc, texman, topMostPass, wnd.GetTopMost() || insideTopMost);
+		if (child->GetVisible())
+		{
+			FRECT childRect = wnd.GetChildRect(Size(rect), *child);
+			bool childFocused = focused && (wnd.GetFocus() == child);
+			bool childEnabled = enabled && wnd.GetEnabled();
+			bool childInsideTopMost = insideTopMost || child->GetTopMost();
+			DrawWindowRecursive(childFocused, childEnabled, childRect, *child, dc, texman, topMostPass, childInsideTopMost);
+		}
 	}
 
 	if (clipChildren)
