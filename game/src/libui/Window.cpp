@@ -124,7 +124,7 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Window::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	assert(_isVisible);
 

@@ -60,17 +60,28 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-static void DrawWindowRecursive(bool focused, bool enabled, const FRECT &rect, const Window &wnd, DrawingContext &dc, TextureManager &texman, bool topMostPass, bool insideTopMost)
+static void DrawWindowRecursive(
+	bool focused,
+	bool enabled,
+	const FRECT &rect,
+	const Window &wnd,
+	InputContext &ic,
+	DrawingContext &dc,
+	TextureManager &texman,
+	bool topMostPass,
+	bool insideTopMost)
 {
 	if (insideTopMost && !topMostPass)
 		return; // early skip topmost window and all its children
 
-	dc.PushTransform(vec2d(rect.left, rect.top));
+	vec2d offset(rect.left, rect.top);
+	dc.PushTransform(offset);
+	ic.PushTransform(offset);
 
 	vec2d size = Size(rect);
 
 	if (insideTopMost == topMostPass)
-		wnd.Draw(focused, enabled, size, dc, texman);
+		wnd.Draw(focused, enabled, size, ic, dc, texman);
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
@@ -93,13 +104,14 @@ static void DrawWindowRecursive(bool focused, bool enabled, const FRECT &rect, c
 			bool childFocused = focused && (wnd.GetFocus() == child);
 			bool childEnabled = enabled && wnd.GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
-			DrawWindowRecursive(childFocused, childEnabled, childRect, *child, dc, texman, topMostPass, childInsideTopMost);
+			DrawWindowRecursive(childFocused, childEnabled, childRect, *child, ic, dc, texman, topMostPass, childInsideTopMost);
 		}
 	}
 
 	if (clipChildren)
 		dc.PopClippingRect();
 
+	ic.PopTransform();
 	dc.PopTransform();
 }
 
@@ -107,8 +119,20 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
-	DrawWindowRecursive(_inputContext.GetMainWindowActive(), true, rect, *_desktop, dc, GetTextureManager(), false, false);
-	DrawWindowRecursive(_inputContext.GetMainWindowActive(), true, rect, *_desktop, dc, GetTextureManager(), true, false);
+	for (int pass = 0; pass != 2; pass++)
+	{
+		bool topMostPass = !!pass;
+		DrawWindowRecursive(
+			_inputContext.GetMainWindowActive(),
+			_desktop->GetEnabled(),
+			rect,
+			*_desktop,
+			_inputContext,
+			dc,
+			_texman,
+			topMostPass,
+			_desktop->GetTopMost());
+	}
 
 #ifndef NDEBUG
 	for (auto &id2pos: _inputContext.GetLastPointerLocation())

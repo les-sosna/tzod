@@ -26,7 +26,7 @@ public:
 	float GetCharWidth();
 	float GetCharHeight();
 
-	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnTextChange() override;
 
 private:

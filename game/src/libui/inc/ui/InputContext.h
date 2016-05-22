@@ -2,6 +2,7 @@
 #include "Pointers.h"
 #include <math/MyMath.h>
 #include <memory>
+#include <stack>
 #include <unordered_map>
 
 namespace UI
@@ -44,6 +45,11 @@ public:
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
 
+	void PushTransform(vec2d offset);
+	void PopTransform();
+
+	vec2d GetMousePos() const;
+
 	std::shared_ptr<Window> GetCapture(unsigned int pointerID) const;
 	void SetCapture(unsigned int pointerID, std::shared_ptr<Window> wnd);
 	bool HasCapturedPointers(Window* wnd) const;
@@ -74,6 +80,8 @@ private:
 
 	IInput &_input;
 	IClipboard &_clipboard;
+
+	std::stack<vec2d> _transformStack;
 
 	struct PointerCapture
 	{

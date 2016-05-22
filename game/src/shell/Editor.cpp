@@ -463,9 +463,9 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void EditorLayout::Draw(bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, dc, texman);
+	Window::Draw(focused, enabled, size, ic, dc, texman);
 
 	// World
 	CRect viewport(0, 0, (int) size.x, (int) size.y);
@@ -490,7 +490,7 @@ void EditorLayout::Draw(bool focused, bool enabled, vec2d size, DrawingContext &
 	}
 
 	// Mouse coordinates
-	vec2d mouse = GetManager().GetInputContext().GetInput().GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
+	vec2d mouse = ic.GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	dc.DrawBitmapText(floor(size.x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);

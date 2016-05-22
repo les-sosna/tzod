@@ -52,7 +52,7 @@ public:
 
 	// Window
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
-	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 	PointerSink* GetPointerSink() override { return this; }
 

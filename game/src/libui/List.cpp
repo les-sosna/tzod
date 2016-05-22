@@ -218,9 +218,9 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-void List::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void List::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, dc, texman);
+	Window::Draw(focused, enabled, size, ic, dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;

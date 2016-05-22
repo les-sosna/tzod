@@ -149,9 +149,9 @@ void Button::OnChangeState(State state)
 	SetFrame(state);
 }
 
-void Button::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Button::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, enabled, size, dc, texman);
+	ButtonBase::Draw(focused, enabled, size, ic, dc, texman);
 
 	SpriteColor c = 0;
 
@@ -236,9 +236,9 @@ void TextButton::OnTextChange()
 	AlignSizeToContent();
 }
 
-void TextButton::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void TextButton::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, enabled, size, dc, texman);
+	ButtonBase::Draw(focused, enabled, size, ic, dc, texman);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -320,9 +320,9 @@ void CheckBox::OnChangeState(State state)
 	SetFrame(_isChecked ? state+4 : state);
 }
 
-void CheckBox::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void CheckBox::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, enabled, size, dc, texman);
+	ButtonBase::Draw(focused, enabled, size, ic, dc, texman);
 
 	float bh = texman.GetFrameHeight(_boxTexture, GetFrame());
 	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());

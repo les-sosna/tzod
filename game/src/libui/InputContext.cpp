@@ -1,5 +1,6 @@
 #include "inc/ui/InputContext.h"
 #include "inc/ui/Window.h"
+#include "inc/ui/UIInput.h"
 
 using namespace UI;
 
@@ -12,6 +13,24 @@ InputContext::InputContext(IInput &input, IClipboard &clipboard)
 	, _lastPointerLocation()
 #endif
 {
+	_transformStack.emplace(0.f, 0.f);
+}
+
+void InputContext::PushTransform(vec2d offset)
+{
+	assert(!_transformStack.empty());
+	_transformStack.push(_transformStack.top() + offset);
+}
+
+void InputContext::PopTransform()
+{
+	assert(_transformStack.size() > 1);
+	_transformStack.pop();
+}
+
+vec2d InputContext::GetMousePos() const
+{
+	return _input.GetMousePos() - _transformStack.top();
 }
 
 std::shared_ptr<Window> InputContext::GetCapture(unsigned int pointerID) const

@@ -21,7 +21,7 @@ DefaultCamera::DefaultCamera()
 }
 
 void DefaultCamera::HandleMovement(UI::IInput &input,
-								   float worldWidth, float worldHeight,
+                                   float worldWidth, float worldHeight,
                                    float screenWidth, float screenHeight)
 {
 	static char  lastIn   = 0, LastOut = 0;

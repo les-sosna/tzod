@@ -218,9 +218,9 @@ void Console::OnTimeStep(LayoutManager &manager, float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void Console::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, dc, texman);
+	Window::Draw(focused, enabled, size, ic, dc, texman);
 
 	if( _buf )
 	{

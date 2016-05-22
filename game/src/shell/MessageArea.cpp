@@ -28,14 +28,14 @@ void MessageArea::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void MessageArea::Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const
+void MessageArea::Draw(bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	if( _lines.empty() || !_conf.ui_showmsg.Get() )
 	{
 		return;
 	}
 
-	Window::Draw(focused, enabled, size, dc, texman);
+	Window::Draw(focused, enabled, size, ic, dc, texman);
 
 	float h = texman.GetCharHeight(_fontTexture);
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;

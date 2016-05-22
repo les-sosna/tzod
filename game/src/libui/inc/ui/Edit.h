@@ -45,7 +45,7 @@ public:
 
 protected:
 	// Window
-	void Draw(bool focused, bool enabled, vec2d size, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnEnabledChange(bool enable, bool inherited) override;
 	void OnTextChange() override;
 	PointerSink* GetPointerSink() override { return this; }
