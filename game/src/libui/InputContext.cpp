@@ -90,6 +90,59 @@ void InputContext::ResetWindow(Window &wnd)
 	_pointerCaptures.clear();
 }
 
+struct PointerSinkSearch
+{
+	bool topMostPass;
+	std::shared_ptr<Window> captured;
+	std::vector<std::shared_ptr<Window>> outSinkPath;
+};
+
+static PointerSink* FindPointerSink(
+	PointerSinkSearch &search,
+	std::shared_ptr<Window> wnd,
+	vec2d size,
+	vec2d pointerPosition,
+	bool insideTopMost)
+{
+	if (insideTopMost && !search.topMostPass)
+		return nullptr;
+
+	PointerSink *pointerSink = nullptr;
+
+	bool pointerInside = (pointerPosition.x >= 0 && pointerPosition.x < size.x &&
+		pointerPosition.y >= 0 && pointerPosition.y < size.y);
+
+	if ((pointerInside || !wnd->GetClipChildren()) && search.captured != wnd)
+	{
+		// route message to each child in reverse order until someone process it
+		auto &children = wnd->GetChildren();
+		for (auto it = children.rbegin(); it != children.rend() && !pointerSink; ++it)
+		{
+			auto &child = *it;
+			if (child->GetEnabled() && child->GetVisible())
+			{
+				FRECT childRect = wnd->GetChildRect(size, *child);
+				vec2d childPointerPosition = pointerPosition - vec2d(childRect.left, childRect.top);
+				bool childInsideTopMost = insideTopMost || child->GetTopMost();
+				pointerSink = FindPointerSink(search,
+					child,
+					Size(childRect),
+					childPointerPosition,
+					childInsideTopMost);
+			}
+		}
+	}
+
+	// if window is captured or the pointer is inside the window
+	if (!pointerSink && insideTopMost == search.topMostPass && (pointerInside || search.captured == wnd))
+		pointerSink = wnd->GetPointerSink();
+
+	if (pointerSink)
+		search.outSinkPath.push_back(wnd);
+
+	return pointerSink;
+}
+
 bool InputContext::ProcessPointerInternal(
 	vec2d size,
 	std::shared_ptr<Window> wnd,
@@ -99,104 +152,68 @@ bool InputContext::ProcessPointerInternal(
 	int buttons,
 	PointerType pointerType,
 	unsigned int pointerID,
-	bool topMostPass,
-	bool insideTopMost)
+	bool topMostPass)
 {
-	if (insideTopMost && !topMostPass)
-		return false;
-
-	bool pointerInside = (pointerPosition.x >= 0 && pointerPosition.x < size.x &&
-		pointerPosition.y >= 0 && pointerPosition.y < size.y);
-
-	if ((pointerInside || !wnd->GetClipChildren()) && GetCapture(pointerID) != wnd)
+	PointerSinkSearch search{ topMostPass, GetCapture(pointerID) };
+	PointerSink *pointerSink = FindPointerSink(search, wnd, size, pointerPosition, wnd->GetTopMost());
+	if (pointerSink)
 	{
-		// route message to each child in reverse order until someone process it
-		auto &children = wnd->GetChildren();
-		for (auto it = children.rbegin(); it != children.rend(); ++it)
-		{
-			auto &child = *it;
-			if (child->GetEnabled() && child->GetVisible())
-			{
-				FRECT childRect = wnd->GetChildRect(size, *child);
-				vec2d childPointerPosition = pointerPosition - vec2d(childRect.left, childRect.top);
-				bool childInsideTopMost = insideTopMost || child->GetTopMost();
-				if (ProcessPointerInternal(Size(childRect),
-					child,
-					childPointerPosition,
-					z,
-					msg,
-					buttons,
-					pointerType,
-					pointerID,
-					topMostPass,
-					childInsideTopMost))
-				{
-					switch (msg)
-					{
-					case Msg::PointerDown:
-					case Msg::TAP:
-						if (child->GetEnabled() && child->GetVisible() && NeedsFocus(child.get()))
-						{
-							wnd->SetFocus(child);
-						}
-					default:
-						break;
-					}
+		assert(search.outSinkPath.back() == wnd);
 
-					return true;
-				}
+		auto &target = search.outSinkPath.front();
+		bool setFocus = (Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get());
+
+		for (size_t i = search.outSinkPath.size() - 1; i > 0; i--)
+		{
+			auto &child = search.outSinkPath[i - 1];
+			auto &parent = search.outSinkPath[i];
+
+			if (setFocus)
+				parent->SetFocus(child);
+
+			FRECT childRect = parent->GetChildRect(size, *child);
+			pointerPosition -= vec2d(childRect.left, childRect.top);
+			size = Size(childRect);
+		}
+
+		switch (msg)
+		{
+		case Msg::PointerDown:
+			pointerSink->OnPointerDown(*this, pointerPosition, buttons, pointerType, pointerID);
+			break;
+		case Msg::PointerUp:
+		case Msg::PointerCancel:
+			pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
+			break;
+		case Msg::PointerMove:
+			pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID);
+			break;
+		case Msg::MOUSEWHEEL:
+			pointerSink->OnMouseWheel(pointerPosition, z);
+			break;
+		case Msg::TAP:
+			pointerSink->OnTap(*this, pointerPosition);
+			break;
+		default:
+			assert(false);
+		}
+
+		if (target != _hotTrackWnd.lock())
+		{
+			if (auto hotTrackWnd = _hotTrackWnd.lock())
+			{
+				assert(hotTrackWnd->GetPointerSink());
+				hotTrackWnd->GetPointerSink()->OnMouseLeave();
+			}
+
+			if (target->GetVisible() && target->GetEnabled())
+			{
+				_hotTrackWnd = target;
+				pointerSink->OnMouseEnter(pointerPosition);
 			}
 		}
 	}
-
-	// if window is captured or the pointer is inside the window
-	if (insideTopMost == topMostPass && (pointerInside || GetCapture(pointerID) == wnd))
-	{
-		PointerSink *pointerSink = wnd->GetPointerSink();
-		if (pointerSink)
-		{
-			switch (msg)
-			{
-			case Msg::PointerDown:
-				pointerSink->OnPointerDown(*this, pointerPosition, buttons, pointerType, pointerID);
-				break;
-			case Msg::PointerUp:
-			case Msg::PointerCancel:
-				pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
-				break;
-			case Msg::PointerMove:
-				pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID);
-				break;
-			case Msg::MOUSEWHEEL:
-				pointerSink->OnMouseWheel(pointerPosition, z);
-				break;
-			case Msg::TAP:
-				pointerSink->OnTap(*this, pointerPosition);
-				break;
-			default:
-				assert(false);
-			}
-
-			if (wnd != _hotTrackWnd.lock())
-			{
-				if (auto hotTrackWnd = _hotTrackWnd.lock())
-				{
-					assert(hotTrackWnd->GetPointerSink());
-					hotTrackWnd->GetPointerSink()->OnMouseLeave();
-				}
-
-				if (wnd->GetVisible() && wnd->GetEnabled())
-				{
-					_hotTrackWnd = wnd;
-					pointerSink->OnMouseEnter(pointerPosition);
-				}
-			}
-		}
-
-		return !!pointerSink;
-	}
-
-	return false;
+	return !!pointerSink;
 }
 
 static FRECT GetGlobalWindowRect(const vec2d &rootSize, const Window &wnd)

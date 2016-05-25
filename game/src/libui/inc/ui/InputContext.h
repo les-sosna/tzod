@@ -75,8 +75,7 @@ private:
 		int buttons,
 		PointerType pointerType,
 		unsigned int pointerID,
-		bool topMostPass,
-		bool insideTopMost = false);
+		bool topMostPass);
 
 	IInput &_input;
 	IClipboard &_clipboard;
