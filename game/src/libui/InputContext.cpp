@@ -102,9 +102,7 @@ bool InputContext::ProcessPointerInternal(
 	bool topMostPass,
 	bool insideTopMost)
 {
-	insideTopMost |= wnd->GetTopMost();
-
-	if (!wnd->GetEnabled() || !wnd->GetVisible() || (insideTopMost && !topMostPass))
+	if (insideTopMost && !topMostPass)
 		return false;
 
 	bool pointerInside = (pointerPosition.x >= 0 && pointerPosition.x < size.x &&
@@ -117,32 +115,36 @@ bool InputContext::ProcessPointerInternal(
 		for (auto it = children.rbegin(); it != children.rend(); ++it)
 		{
 			auto &child = *it;
-			FRECT childRect = wnd->GetChildRect(size, *child);
-			vec2d childPointerPosition = pointerPosition - vec2d(childRect.left, childRect.top);
-			if (ProcessPointerInternal(Size(childRect),
-				child,
-				childPointerPosition,
-				z,
-				msg,
-				buttons,
-				pointerType,
-				pointerID,
-				topMostPass,
-				insideTopMost))
+			if (child->GetEnabled() && child->GetVisible())
 			{
-				switch (msg)
+				FRECT childRect = wnd->GetChildRect(size, *child);
+				vec2d childPointerPosition = pointerPosition - vec2d(childRect.left, childRect.top);
+				bool childInsideTopMost = insideTopMost || child->GetTopMost();
+				if (ProcessPointerInternal(Size(childRect),
+					child,
+					childPointerPosition,
+					z,
+					msg,
+					buttons,
+					pointerType,
+					pointerID,
+					topMostPass,
+					childInsideTopMost))
 				{
-				case Msg::PointerDown:
-				case Msg::TAP:
-					if (child->GetEnabled() && child->GetVisible() && NeedsFocus(child.get()))
+					switch (msg)
 					{
-						wnd->SetFocus(child);
+					case Msg::PointerDown:
+					case Msg::TAP:
+						if (child->GetEnabled() && child->GetVisible() && NeedsFocus(child.get()))
+						{
+							wnd->SetFocus(child);
+						}
+					default:
+						break;
 					}
-				default:
-					break;
-				}
 
-				return true;
+					return true;
+				}
 			}
 		}
 	}
