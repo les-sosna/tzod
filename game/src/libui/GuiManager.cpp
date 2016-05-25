@@ -60,31 +60,36 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
+struct RenderSettings
+{
+	InputContext &ic;
+	DrawingContext &dc;
+	TextureManager &texman;
+	bool topMostPass;
+};
+
 static void DrawWindowRecursive(
+	RenderSettings &renderSettings,
+	const Window &wnd,
+	const FRECT &rect,
 	bool focused,
 	bool enabled,
-	const FRECT &rect,
-	const Window &wnd,
-	InputContext &ic,
-	DrawingContext &dc,
-	TextureManager &texman,
-	bool topMostPass,
 	bool insideTopMost)
 {
-	if (insideTopMost && !topMostPass)
+	if (insideTopMost && !renderSettings.topMostPass)
 		return; // early skip topmost window and all its children
 
 	vec2d offset(rect.left, rect.top);
-	dc.PushTransform(offset);
-	ic.PushTransform(offset);
+	renderSettings.dc.PushTransform(offset);
+	renderSettings.ic.PushTransform(offset);
 
 	vec2d size = Size(rect);
 
-	if (insideTopMost == topMostPass)
-		wnd.Draw(focused, enabled, size, ic, dc, texman);
+	if (insideTopMost == renderSettings.topMostPass)
+		wnd.Draw(focused, enabled, size, renderSettings.ic, renderSettings.dc, renderSettings.texman);
 
 	// topmost windows escape parents' clip
-	bool clipChildren = wnd.GetClipChildren() && (!topMostPass || insideTopMost);
+	bool clipChildren = wnd.GetClipChildren() && (!renderSettings.topMostPass || insideTopMost);
 
 	if (clipChildren)
 	{
@@ -93,7 +98,7 @@ static void DrawWindowRecursive(
 		clip.top = 0;
 		clip.right = static_cast<int>(size.x);
 		clip.bottom = static_cast<int>(size.y);
-		dc.PushClippingRect(clip);
+		renderSettings.dc.PushClippingRect(clip);
 	}
 
 	for (auto &child : wnd.GetChildren())
@@ -104,33 +109,32 @@ static void DrawWindowRecursive(
 			bool childFocused = focused && (wnd.GetFocus() == child);
 			bool childEnabled = enabled && wnd.GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
-			DrawWindowRecursive(childFocused, childEnabled, childRect, *child, ic, dc, texman, topMostPass, childInsideTopMost);
+			DrawWindowRecursive(renderSettings, *child, childRect, childFocused, childEnabled, childInsideTopMost);
 		}
 	}
 
 	if (clipChildren)
-		dc.PopClippingRect();
+		renderSettings.dc.PopClippingRect();
 
-	ic.PopTransform();
-	dc.PopTransform();
+	renderSettings.ic.PopTransform();
+	renderSettings.dc.PopTransform();
 }
 
 void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
 	dc.SetMode(RM_INTERFACE);
 
+	RenderSettings rs{ _inputContext, dc, _texman };
+
 	for (int pass = 0; pass != 2; pass++)
 	{
-		bool topMostPass = !!pass;
+		rs.topMostPass = !!pass;
 		DrawWindowRecursive(
+			rs,
+			*_desktop,
+			rect,
 			_inputContext.GetMainWindowActive(),
 			_desktop->GetEnabled(),
-			rect,
-			*_desktop,
-			_inputContext,
-			dc,
-			_texman,
-			topMostPass,
 			_desktop->GetTopMost());
 	}
 
