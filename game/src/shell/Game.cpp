@@ -179,9 +179,9 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void GameLayout::Draw(bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void GameLayout::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, ic, dc, texman);
+	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	vec2d eye(_defaultCamera.GetPos().x + size.x / 2, _defaultCamera.GetPos().y + size.y / 2);
 	float zoom = _defaultCamera.GetZoom();

@@ -1,5 +1,6 @@
 #include "inc/ui/Button.h"
 #include "inc/ui/InputContext.h"
+#include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -9,33 +10,29 @@ using namespace UI;
 
 ButtonBase::ButtonBase(LayoutManager &manager)
   : Window(manager)
-  , _state(stateNormal)
 {
 }
 
-void ButtonBase::SetState(State s)
+ButtonBase::State ButtonBase::GetState(vec2d size, bool enabled, bool hover, const InputContext &ic) const
 {
-	if( _state != s )
-	{
-		_state = s;
-		OnChangeState(s);
-	}
+	if (!enabled)
+		return stateDisabled;
+
+	vec2d pointerPosition = ic.GetMousePos();
+	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < size.x && pointerPosition.y < size.y;
+	bool pointerPressed = ic.GetInput().IsMousePressed(1);
+
+	if (pointerInside && pointerPressed)
+		return statePushed;
+
+	if (hover)
+		return stateHottrack;
+
+	return stateNormal;
 }
 
 void ButtonBase::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
 {
-	if( ic.HasCapturedPointers(this) )
-	{
-		if (ic.GetCapture(pointerID).get() == this)
-		{
-			bool push = pointerPosition.x < GetWidth() && pointerPosition.y < GetHeight() && pointerPosition.x > 0 && pointerPosition.y > 0;
-			SetState(push ? statePushed : stateNormal);
-		}
-	}
-	else
-	{
-		SetState(stateHottrack);
-	}
 	if( eventMouseMove )
 		eventMouseMove(pointerPosition.x, pointerPosition.y);
 }
@@ -45,7 +42,6 @@ void ButtonBase::OnPointerDown(InputContext &ic, vec2d pointerPosition, int butt
 	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
 		ic.SetCapture(pointerID, shared_from_this());
-		SetState(statePushed);
 		if( eventMouseDown )
 			eventMouseDown(pointerPosition.x, pointerPosition.y);
 	}
@@ -56,23 +52,16 @@ void ButtonBase::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button
 	if( ic.GetCapture(pointerID).get() == this && 1 == button )
 	{
 		ic.SetCapture(pointerID, nullptr);
-		bool click = (GetState() == statePushed);
+		bool pointerInside = pointerPosition.x < GetWidth() && pointerPosition.y < GetHeight() && pointerPosition.x >= 0 && pointerPosition.y >= 0;
 		if( eventMouseUp )
 			eventMouseUp(pointerPosition.x, pointerPosition.y);
-		if( click )
+		if(pointerInside)
 		{
 			OnClick();
 			if( eventClick )
 				eventClick();
-			if( GetEnabled() )  // handler may have disabled this button
-				SetState(stateHottrack);
 		}
 	}
-}
-
-void ButtonBase::OnMouseLeave()
-{
-	SetState(stateNormal);
 }
 
 void ButtonBase::OnTap(InputContext &ic, vec2d pointerPosition)
@@ -88,23 +77,6 @@ void ButtonBase::OnTap(InputContext &ic, vec2d pointerPosition)
 void ButtonBase::OnClick()
 {
 }
-
-void ButtonBase::OnChangeState(State state)
-{
-}
-
-void ButtonBase::OnEnabledChange(bool enable, bool inherited)
-{
-	if( enable )
-	{
-		SetState(stateNormal);
-	}
-	else
-	{
-		SetState(stateDisabled);
-	}
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // button class implementation
@@ -131,7 +103,6 @@ Button::Button(LayoutManager &manager, TextureManager &texman)
 {
 	SetTexture(texman, "ui/button", true);
 	SetFont(texman, "font_default");
-	OnChangeState(stateNormal);
 }
 
 void Button::SetFont(TextureManager &texman, const char *fontName)
@@ -144,18 +115,17 @@ void Button::SetIcon(TextureManager &texman, const char *spriteName)
 	_icon = spriteName ? texman.FindSprite(spriteName) : (size_t)-1;
 }
 
-void Button::OnChangeState(State state)
+void Button::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	SetFrame(state);
-}
+	State state = GetState(size, enabled, hovered, ic);
 
-void Button::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
-{
-	ButtonBase::Draw(focused, enabled, size, ic, dc, texman);
+	const_cast<Button*>(this)->SetFrame(state);
+
+	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	SpriteColor c = 0;
 
-	switch( GetState() )
+	switch( state )
 	{
 	case statePushed:
 		c = 0xffffffff;
@@ -202,7 +172,6 @@ TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
   , _drawShadow(true)
 {
 	SetTexture(texman, nullptr, false);
-	OnChangeState(stateNormal);
 }
 
 void TextButton::AlignSizeToContent()
@@ -236,9 +205,9 @@ void TextButton::OnTextChange()
 	AlignSizeToContent();
 }
 
-void TextButton::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void TextButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(focused, enabled, size, ic, dc, texman);
+	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -248,11 +217,12 @@ void TextButton::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, 
 		SpriteColor(0xffccccff), // pushed
 		SpriteColor(0xAAAAAAAA), // disabled
 	};
-	if( _drawShadow && stateDisabled != GetState() )
+	State state = GetState(size, enabled, hovered, ic);
+	if( _drawShadow && stateDisabled != state )
 	{
 		dc.DrawBitmapText(1, 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc.DrawBitmapText(0, 0, _fontTexture, colors[GetState()], GetText());
+	dc.DrawBitmapText(0, 0, _fontTexture, colors[state], GetText());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -262,9 +232,13 @@ ImageButton::ImageButton(LayoutManager &manager)
 {
 }
 
-void ImageButton::OnChangeState(State state)
+void ImageButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	SetFrame(state);
+	State state = GetState(size, enabled, hovered, ic);
+
+	const_cast<ImageButton*>(this)->SetFrame(state);
+
+	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -302,7 +276,6 @@ void CheckBox::AlignSizeToContent()
 void CheckBox::SetCheck(bool checked)
 {
 	_isChecked = checked;
-	SetFrame(_isChecked ? GetState()+4 : GetState());
 }
 
 void CheckBox::OnClick()
@@ -315,14 +288,12 @@ void CheckBox::OnTextChange()
 	AlignSizeToContent();
 }
 
-void CheckBox::OnChangeState(State state)
+void CheckBox::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	SetFrame(_isChecked ? state+4 : state);
-}
+	State state = GetState(size, enabled, hovered, ic);
+	const_cast<CheckBox*>(this)->SetFrame(_isChecked ? state + 4 : state);
 
-void CheckBox::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
-{
-	ButtonBase::Draw(focused, enabled, size, ic, dc, texman);
+	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	float bh = texman.GetFrameHeight(_boxTexture, GetFrame());
 	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());
@@ -339,9 +310,9 @@ void CheckBox::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, Dr
 		SpriteColor(0xffffffff), // Pushed
 		SpriteColor(0xffffffff), // Disabled
 	};
-	if( _drawShadow && stateDisabled != GetState() )
+	if( _drawShadow && stateDisabled != state)
 	{
 		dc.DrawBitmapText(bw + 1, (size.y - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc.DrawBitmapText(bw, (size.y - th) / 2, _fontTexture, colors[GetState()], GetText());
+	dc.DrawBitmapText(bw, (size.y - th) / 2, _fontTexture, colors[state], GetText());
 }

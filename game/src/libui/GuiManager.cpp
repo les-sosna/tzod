@@ -90,7 +90,7 @@ static void DrawWindowRecursive(
 	vec2d size = Size(rect);
 
 	if (insideTopMost == renderSettings.topMostPass)
-		wnd.Draw(focused, enabled, size, renderSettings.ic, renderSettings.dc, renderSettings.texman);
+		wnd.Draw(onHoverPath, focused, enabled, size, renderSettings.ic, renderSettings.dc, renderSettings.texman);
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!renderSettings.topMostPass || insideTopMost);

@@ -68,9 +68,9 @@ float Text::GetCharHeight()
 	return GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
 }
 
-void Text::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Text::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, ic, dc, texman);
+	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	if( _drawShadow )
 	{

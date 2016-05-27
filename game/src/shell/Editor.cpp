@@ -463,9 +463,9 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::Draw(bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void EditorLayout::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, ic, dc, texman);
+	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	// World
 	CRect viewport(0, 0, (int) size.x, (int) size.y);

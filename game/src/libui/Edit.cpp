@@ -105,9 +105,9 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Edit::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, ic, dc, texman);
+	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 

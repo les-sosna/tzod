@@ -27,26 +27,18 @@ public:
 	std::function<void(float, float)> eventMouseUp;
 	std::function<void(float, float)> eventMouseMove;
 
-	State GetState() const { return _state; }
+	State GetState(vec2d size, bool enabled, bool hover, const InputContext &ic) const;
 
 	// Window
 	PointerSink* GetPointerSink() override { return this; }
 
-protected:
-	void OnEnabledChange(bool enable, bool inherited) override;
-	virtual void OnChangeState(State state);
-
 private:
 	virtual void OnClick();
-
-	State _state;
-	void SetState(State s);
 
 	// PointerSink
 	void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnMouseLeave() override;
 	void OnTap(InputContext &ic, vec2d pointerPosition) override;
 };
 
@@ -64,11 +56,8 @@ public:
 protected:
 	void SetFont(TextureManager &texman, const char *fontName);
 
-	// ButtonBase
-	void OnChangeState(State state) override;
-
 	// Window
-	void Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _font;
@@ -92,7 +81,7 @@ protected:
 	void AlignSizeToContent();
 
 	void OnTextChange() override;
-	void Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 
 private:
@@ -107,8 +96,8 @@ class ImageButton : public ButtonBase
 public:
 	explicit ImageButton(LayoutManager &manager);
 
-protected:
-	virtual void OnChangeState(State state);
+	// Window
+	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,10 +120,9 @@ protected:
 
 	void OnClick() override;
 	void OnTextChange() override;
-	void OnChangeState(State state) override;
 
 	// Window
-	void Draw(bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _fontTexture;

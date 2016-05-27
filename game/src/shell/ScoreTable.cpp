@@ -34,9 +34,9 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
 	SetDrawBorder(false);
 }
 
-void ScoreTable::Draw(bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void ScoreTable::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(focused, enabled, size, ic, dc, texman);
+	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
