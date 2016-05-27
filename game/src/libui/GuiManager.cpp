@@ -111,14 +111,14 @@ static void DrawWindowRecursive(
 		{
 			FRECT childRect = wnd.GetChildRect(Size(rect), *child);
 			bool childFocused = focused && (wnd.GetFocus() == child);
-			bool childEnabled = enabled && wnd.GetEnabled();
+			bool childEnabled = enabled && child->GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			bool childOnHoverPath = onHoverPath && depth + 1 < renderSettings.hoverPath.size() &&
 				renderSettings.hoverPath[renderSettings.hoverPath.size() - depth - 2] == child;
 			unsigned int childDepth = depth + 1;
 
 			DrawWindowRecursive(
-				renderSettings, 
+				renderSettings,
 				*child,
 				childRect,
 				childFocused,
