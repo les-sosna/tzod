@@ -1,3 +1,4 @@
+#include "inc/ui/InputContext.h"
 #include "inc/ui/List.h"
 #include "inc/ui/Scroll.h"
 #include "inc/ui/GuiManager.h"
@@ -55,7 +56,6 @@ List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataS
     , _data(dataSource)
     , _scrollBar(std::make_shared<ScrollBarVertical>(manager, texman))
     , _curSel(-1)
-    , _hotItem(-1)
     , _font(texman.FindSprite("font_small"))
     , _selection(texman.FindSprite("ui/listsel"))
 {
@@ -122,7 +122,7 @@ void List::SetCurSel(int sel, bool scroll)
 	}
 }
 
-int List::HitTest(float y)
+int List::HitTest(float y) const
 {
 	int index = int(y / GetItemHeight() + GetScrollPos());
 	if( index < 0 || index >= _data->GetItemCount() )
@@ -157,16 +157,6 @@ void List::OnSize(float width, float height)
 	_scrollBar->Resize(_scrollBar->GetWidth(), height);
 	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
 	_scrollBar->SetPageSize(GetNumLinesVisible());
-}
-
-void List::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
-{
-	_hotItem = HitTest(pointerPosition.y);
-}
-
-void List::OnMouseLeave()
-{
-	_hotItem = -1;
 }
 
 void List::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
@@ -234,6 +224,8 @@ void List::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 	clip.bottom = (int) (size.y);
 	dc.PushClippingRect(clip);
 
+	int hotItem = hovered ? HitTest(ic.GetMousePos().y) : -1;
+
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
 		SpriteColor c;
@@ -258,7 +250,7 @@ void List::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 				FRECT border = { -1, y - 2, _scrollBar->GetX() + 1, y + GetItemHeight() + 2 };
 				dc.DrawBorder(border, _selection, 0xffffffff, 0);
 			}
-			else if( _hotItem == i )
+			else if(hotItem == i )
 			{
 				c = 0xffffffff; // hot;
 			}

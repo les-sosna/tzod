@@ -26,7 +26,7 @@ public:
 	float GetItemHeight() const;
 	float GetNumLinesVisible() const;
 	void AlignHeightToContent(float maxHeight = 512);
-	int HitTest(float y); // returns index of item
+	int HitTest(float y) const; // returns index of item
 
 	int  GetCurSel() const;
 	void SetCurSel(int sel, bool scroll = false);
@@ -69,14 +69,11 @@ private:
 	std::shared_ptr<ScrollBarVertical> _scrollBar;
 
 	int _curSel;
-	int _hotItem;
 
 	size_t _font;
 	size_t _selection;
 
 	// PointerSink
-	void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) override;
-	void OnMouseLeave() override;
 	void OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnMouseWheel(vec2d pointerPosition, float z) override;
 	void OnTap(InputContext &ic, vec2d pointerPosition) override;
