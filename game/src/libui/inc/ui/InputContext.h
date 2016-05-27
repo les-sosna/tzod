@@ -92,8 +92,6 @@ private:
 
 	unsigned int _captureCountSystem;
 
-	std::weak_ptr<Window> _hotTrackWnd;
-
 	bool _isAppActive;
 #ifndef NDEBUG
 	std::unordered_map<unsigned int, vec2d> _lastPointerLocation;

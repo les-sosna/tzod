@@ -80,13 +80,6 @@ void InputContext::SetCapture(unsigned int pointerID, std::shared_ptr<Window> wn
 
 void InputContext::ResetWindow(Window &wnd)
 {
-	if (_hotTrackWnd.lock().get() == &wnd)
-	{
-		assert(wnd.GetPointerSink());
-		wnd.GetPointerSink()->OnMouseLeave();
-		_hotTrackWnd.reset();
-	}
-
 	_pointerCaptures.clear();
 }
 
@@ -190,21 +183,6 @@ bool InputContext::ProcessPointerInternal(
 		default:
 			assert(false);
 		}
-
-		if (target != _hotTrackWnd.lock())
-		{
-			if (auto hotTrackWnd = _hotTrackWnd.lock())
-			{
-				assert(hotTrackWnd->GetPointerSink());
-				hotTrackWnd->GetPointerSink()->OnMouseLeave();
-			}
-
-			if (target->GetVisible() && target->GetEnabled())
-			{
-				_hotTrackWnd = target;
-				pointerSink->OnMouseEnter(pointerPosition);
-			}
-		}
 	}
 	return !!pointerSink;
 }
@@ -255,12 +233,6 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d
 		{
 			return true;
 		}
-	}
-	if (auto hotTrackWnd = _hotTrackWnd.lock())
-	{
-		assert(hotTrackWnd->GetPointerSink());
-		hotTrackWnd->GetPointerSink()->OnMouseLeave();
-		_hotTrackWnd.reset();
 	}
 	return false;
 }
