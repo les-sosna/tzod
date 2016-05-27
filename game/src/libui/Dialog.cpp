@@ -36,26 +36,19 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-void Dialog::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool Dialog::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( _easyMove && 1 == button && !ic.HasCapturedPointers(this) )
 	{
-		ic.SetCapture(pointerID, shared_from_this());
 		_mousePos = pointerPosition;
+		return true;
 	}
-}
-
-void Dialog::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
-{
-	if( 1 == button && ic.GetCapture(pointerID).get() == this )
-	{
-		ic.SetCapture(pointerID, nullptr);
-	}
+	return false;
 }
 
 void Dialog::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
 {
-	if( this == ic.GetCapture(pointerID).get())
+	if( ic.GetCapture(pointerID).get() == this )
 	{
 		Move(GetX() + pointerPosition.x - _mousePos.x, GetY() + pointerPosition.y - _mousePos.y);
 	}

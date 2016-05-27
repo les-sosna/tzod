@@ -55,26 +55,12 @@ void InputContext::SetCapture(unsigned int pointerID, std::shared_ptr<Window> wn
 {
 	if (wnd)
 	{
-		if (!_pointerCaptures[pointerID].captureWnd.expired())
-		{
-			assert(_pointerCaptures[pointerID].captureWnd.lock() == wnd);
-			assert(_pointerCaptures[pointerID].captureCount != 0);
-		}
-		else
-		{
-			assert(0 == _pointerCaptures[pointerID].captureCount);
-			_pointerCaptures[pointerID].captureWnd = wnd;
-		}
-		_pointerCaptures[pointerID].captureCount++;
+		assert(_pointerCaptures[pointerID].captureWnd.expired());
+		_pointerCaptures[pointerID].captureWnd = wnd;
 	}
 	else
 	{
-		assert(!_pointerCaptures[pointerID].captureWnd.expired());
-		assert(0 != _pointerCaptures[pointerID].captureCount);
-		if (0 == --_pointerCaptures[pointerID].captureCount)
-		{
-			_pointerCaptures[pointerID].captureWnd.reset();
-		}
+		_pointerCaptures[pointerID].captureWnd.reset();
 	}
 }
 
@@ -165,11 +151,13 @@ bool InputContext::ProcessPointerInternal(
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			pointerSink->OnPointerDown(*this, pointerPosition, buttons, pointerType, pointerID);
+			if (pointerSink->OnPointerDown(*this, pointerPosition, buttons, pointerType, pointerID))
+				SetCapture(pointerID, target);
 			break;
 		case Msg::PointerUp:
 		case Msg::PointerCancel:
 			pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
+			SetCapture(pointerID, nullptr);
 			break;
 		case Msg::PointerMove:
 			pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID);

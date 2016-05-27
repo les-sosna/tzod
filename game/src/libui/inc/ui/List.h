@@ -74,7 +74,7 @@ private:
 	size_t _selection;
 
 	// PointerSink
-	void OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnMouseWheel(vec2d pointerPosition, float z) override;
 	void OnTap(InputContext &ic, vec2d pointerPosition) override;
 

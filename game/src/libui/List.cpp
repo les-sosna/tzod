@@ -159,12 +159,13 @@ void List::OnSize(float width, float height)
 	_scrollBar->SetPageSize(GetNumLinesVisible());
 }
 
-void List::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool List::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && pointerPosition.x < _scrollBar->GetX() )
 	{
 		OnTap(ic, pointerPosition);
 	}
+	return false;
 }
 
 void List::OnMouseWheel(vec2d pointerPosition, float z)

@@ -84,7 +84,6 @@ private:
 
 	struct PointerCapture
 	{
-		unsigned int captureCount = 0;
 		std::weak_ptr<Window> captureWnd;
 	};
 

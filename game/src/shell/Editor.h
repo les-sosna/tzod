@@ -75,7 +75,7 @@ protected:
 
 	// UI::PointerSink
 	void OnMouseWheel(vec2d pointerPosition, float z) override;
-	void OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	bool OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID) override;
 

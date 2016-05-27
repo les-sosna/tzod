@@ -37,21 +37,21 @@ void ButtonBase::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerT
 		eventMouseMove(pointerPosition.x, pointerPosition.y);
 }
 
-void ButtonBase::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool ButtonBase::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
-		ic.SetCapture(pointerID, shared_from_this());
 		if( eventMouseDown )
 			eventMouseDown(pointerPosition.x, pointerPosition.y);
+		return true;
 	}
+	return false;
 }
 
 void ButtonBase::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( ic.GetCapture(pointerID).get() == this && 1 == button )
 	{
-		ic.SetCapture(pointerID, nullptr);
 		bool pointerInside = pointerPosition.x < GetWidth() && pointerPosition.y < GetHeight() && pointerPosition.x >= 0 && pointerPosition.y >= 0;
 		if( eventMouseUp )
 			eventMouseUp(pointerPosition.x, pointerPosition.y);

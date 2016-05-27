@@ -228,28 +228,28 @@ void GameLayout::OnSize(float width, float height)
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
-void GameLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool GameLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
 		_activeDrags[pointerID].first = pointerPosition;
 		_activeDrags[pointerID].second = pointerPosition;
-		ic.SetCapture(pointerID, shared_from_this());
+		return true;
 	}
+	return false;
 }
 
 void GameLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if (ic.GetCapture(pointerID).get() == this)
+	if( ic.GetCapture(pointerID).get() == this )
 	{
 		_activeDrags.erase(pointerID);
-		ic.SetCapture(pointerID, nullptr);
 	}
 }
 
 void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if (ic.GetCapture(pointerID).get() == this)
+	if( ic.GetCapture(pointerID).get() == this )
 	{
 		auto &drag = _activeDrags[pointerID];
 		drag.second = pointerPosition;

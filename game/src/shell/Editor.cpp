@@ -267,21 +267,21 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int 
 	{
 		_click = true;
 		_mbutton = 0;
-		ic.SetCapture(pointerID, nullptr);
 	}
 }
 
-void EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
+	bool capture = false;
 	if( 0 == _mbutton )
 	{
-		ic.SetCapture(pointerID, shared_from_this());
+		capture = true;
 		_mbutton = button;
 	}
 
 	if( _mbutton != button )
 	{
-		return;
+		return capture;
 	}
 
 	vec2d mouse = pointerPosition / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
@@ -377,6 +377,8 @@ void EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, in
 	}
 
 	_click = false;
+
+	return capture;
 }
 
 bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
