@@ -90,14 +90,7 @@ void InputContext::ResetWindow(Window &wnd)
 	_pointerCaptures.clear();
 }
 
-struct PointerSinkSearch
-{
-	bool topMostPass;
-	std::shared_ptr<Window> captured;
-	std::vector<std::shared_ptr<Window>> outSinkPath;
-};
-
-static PointerSink* FindPointerSink(
+PointerSink* UI::FindPointerSink(
 	PointerSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	vec2d size,

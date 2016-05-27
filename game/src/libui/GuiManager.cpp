@@ -1,4 +1,5 @@
 #include "inc/ui/InputContext.h"
+#include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Window.h"
 #include <video/TextureManager.h>
@@ -66,6 +67,7 @@ struct RenderSettings
 	DrawingContext &dc;
 	TextureManager &texman;
 	bool topMostPass;
+	std::vector<std::shared_ptr<Window>> hoverPath;
 };
 
 static void DrawWindowRecursive(
@@ -74,7 +76,9 @@ static void DrawWindowRecursive(
 	const FRECT &rect,
 	bool focused,
 	bool enabled,
-	bool insideTopMost)
+	bool insideTopMost,
+	bool onHoverPath,
+	unsigned int depth = 0)
 {
 	if (insideTopMost && !renderSettings.topMostPass)
 		return; // early skip topmost window and all its children
@@ -109,7 +113,19 @@ static void DrawWindowRecursive(
 			bool childFocused = focused && (wnd.GetFocus() == child);
 			bool childEnabled = enabled && wnd.GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
-			DrawWindowRecursive(renderSettings, *child, childRect, childFocused, childEnabled, childInsideTopMost);
+			bool childOnHoverPath = onHoverPath && depth + 1 < renderSettings.hoverPath.size() &&
+				renderSettings.hoverPath[renderSettings.hoverPath.size() - depth - 2] == child;
+			unsigned int childDepth = depth + 1;
+
+			DrawWindowRecursive(
+				renderSettings, 
+				*child,
+				childRect,
+				childFocused,
+				childEnabled,
+				childInsideTopMost,
+				childOnHoverPath,
+				childDepth);
 		}
 	}
 
@@ -122,9 +138,21 @@ static void DrawWindowRecursive(
 
 void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 {
-	dc.SetMode(RM_INTERFACE);
-
 	RenderSettings rs{ _inputContext, dc, _texman };
+
+	// Find pointer sink path for hover
+	for (int pass = 0; pass != 2; pass++)
+	{
+		bool topMostPass = !pass; // top most pass first
+		PointerSinkSearch search{ topMostPass, _inputContext.GetCapture(0) };
+		if (FindPointerSink(search, _desktop, Size(rect), _inputContext.GetMousePos(), _desktop->GetTopMost()))
+		{
+			rs.hoverPath = std::move(search.outSinkPath);
+			break;
+		}
+	}
+
+	dc.SetMode(RM_INTERFACE);
 
 	for (int pass = 0; pass != 2; pass++)
 	{
@@ -135,7 +163,9 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 			rect,
 			_inputContext.GetMainWindowActive(),
 			_desktop->GetEnabled(),
-			_desktop->GetTopMost());
+			_desktop->GetTopMost(),
+			!rs.hoverPath.empty()
+			);
 	}
 
 #ifndef NDEBUG

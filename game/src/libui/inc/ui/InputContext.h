@@ -100,4 +100,21 @@ private:
 #endif
 };
 
+
+struct PointerSinkSearch
+{
+	bool topMostPass;
+	std::shared_ptr<Window> captured;
+	std::vector<std::shared_ptr<Window>> outSinkPath;
+};
+
+struct PointerSink;
+
+PointerSink* FindPointerSink(
+	PointerSinkSearch &search,
+	std::shared_ptr<Window> wnd,
+	vec2d size,
+	vec2d pointerPosition,
+	bool insideTopMost);
+
 } // namespace UI
