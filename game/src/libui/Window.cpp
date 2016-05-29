@@ -21,24 +21,19 @@ Window::Window(LayoutManager &manager)
 
 Window::~Window()
 {
-	assert(!_parent);
 	UnlinkAllChildren();
 }
 
 void Window::PrepareToUnlink(Window &child)
 {
-	assert(this == child._parent);
-
 	if (_focusChild.get() == &child)
 		_focusChild = nullptr;
 
-	// removes mouse hover and captures if any.
+	// removes mouse captures if any.
 	GetManager().GetInputContext().ResetWindow(child);
 
 	if (child.GetTimeStep())
 		GetManager().TimeStepUnregister(child._timeStepReg);
-
-	child._parent = nullptr;
 }
 
 void Window::UnlinkAllChildren()
@@ -60,27 +55,12 @@ void Window::UnlinkChild(Window &child)
 
 void Window::AddFront(std::shared_ptr<Window> child)
 {
-	child->_parent = this;
 	_children.push_back(std::move(child));
 }
 
 void Window::AddBack(std::shared_ptr<Window> child)
 {
-	child->_parent = this;
 	_children.push_front(std::move(child));
-}
-
-bool Window::Contains(const Window *other) const
-{
-	while( other )
-	{
-		if( this == other )
-		{
-			return true;
-		}
-		other = other->_parent;
-	}
-	return false;
 }
 
 FRECT Window::GetChildRect(vec2d size, const Window &child) const

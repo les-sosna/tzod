@@ -50,7 +50,6 @@ class Window : public std::enable_shared_from_this<Window>
 	friend class LayoutManager;
 	LayoutManager &_manager;
 
-	Window *_parent = nullptr;
 	std::shared_ptr<Window> _focusChild;
 	std::deque<std::shared_ptr<Window>> _children;
 
@@ -112,11 +111,8 @@ public:
 	void AddFront(std::shared_ptr<Window> child);
 	void AddBack(std::shared_ptr<Window> child);
 
-	Window* GetParent() const { return _parent; }
 	auto& GetChildren() const { return _children; }
 	LayoutManager& GetManager() const { return _manager;  } // to remove
-
-	bool Contains(const Window *other) const;
 
 	virtual FRECT GetChildRect(vec2d size, const Window &child) const;
 
