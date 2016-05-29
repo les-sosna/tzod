@@ -253,7 +253,7 @@ void EditorLayout::OnMouseWheel(vec2d pointerPosition, float z)
 	}
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( _mbutton )
 	{

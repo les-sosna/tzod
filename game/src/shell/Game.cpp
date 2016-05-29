@@ -244,9 +244,9 @@ void GameLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int bu
 	_activeDrags.erase(pointerID);
 }
 
-void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
-	if( ic.GetCapture(pointerID).get() == this )
+	if( captured )
 	{
 		auto &drag = _activeDrags[pointerID];
 		drag.second = pointerPosition;

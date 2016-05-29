@@ -141,14 +141,22 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 	RenderSettings rs{ _inputContext, dc, _texman };
 
 	// Find pointer sink path for hover
-	for (int pass = 0; pass != 2; pass++)
+	// TODO: all pointers
+	if (auto capturePath = _inputContext.GetCapturePath(0))
 	{
-		bool topMostPass = !pass; // top most pass first
-		PointerSinkSearch search{ topMostPass, _inputContext.GetCapture(0) };
-		if (FindPointerSink(search, _desktop, Size(rect), _inputContext.GetMousePos(), _desktop->GetTopMost()))
+		rs.hoverPath = *capturePath;
+	}
+	else
+	{
+		for (int pass = 0; pass != 2; pass++)
 		{
-			rs.hoverPath = std::move(search.outSinkPath);
-			break;
+			bool topMostPass = !pass; // top most pass first
+			PointerSinkSearch search{ topMostPass };
+			if (FindPointerSink(search, _desktop, Size(rect), _inputContext.GetMousePos(), _desktop->GetTopMost()))
+			{
+				rs.hoverPath = std::move(search.outSinkPath);
+				break;
+			}
 		}
 	}
 

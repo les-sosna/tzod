@@ -11,6 +11,7 @@ namespace UI
 enum class Key;
 struct IInput;
 struct IClipboard;
+struct PointerSink;
 class Window;
 
 enum class Msg
@@ -50,9 +51,8 @@ public:
 
 	vec2d GetMousePos() const;
 
-	std::shared_ptr<Window> GetCapture(unsigned int pointerID) const;
-	void SetCapture(unsigned int pointerID, std::shared_ptr<Window> wnd);
-	bool HasCapturedPointers(Window* wnd) const;
+	const std::vector<std::shared_ptr<Window>>* GetCapturePath(unsigned int pointerID) const;
+	bool HasCapturedPointers(const Window* wnd) const;
 
 	bool GetMainWindowActive() const { return _isAppActive; }
 
@@ -66,17 +66,6 @@ private:
 	bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
 	bool ProcessCharRecursive(std::shared_ptr<Window> wnd, int c);
 
-	bool ProcessPointerInternal(
-		vec2d size,
-		std::shared_ptr<Window> wnd,
-		vec2d pointerPosition,
-		float z,
-		Msg msg,
-		int buttons,
-		PointerType pointerType,
-		unsigned int pointerID,
-		bool topMostPass);
-
 	IInput &_input;
 	IClipboard &_clipboard;
 
@@ -84,7 +73,7 @@ private:
 
 	struct PointerCapture
 	{
-		std::weak_ptr<Window> captureWnd;
+		std::vector<std::shared_ptr<Window>> capturePath;
 	};
 
 	std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
@@ -101,7 +90,6 @@ private:
 struct PointerSinkSearch
 {
 	bool topMostPass;
-	std::shared_ptr<Window> captured;
 	std::vector<std::shared_ptr<Window>> outSinkPath;
 };
 

@@ -33,35 +33,22 @@ vec2d InputContext::GetMousePos() const
 	return _input.GetMousePos() - _transformStack.top();
 }
 
-std::shared_ptr<Window> InputContext::GetCapture(unsigned int pointerID) const
+const std::vector<std::shared_ptr<Window>>* InputContext::GetCapturePath(unsigned int pointerID) const
 {
 	auto it = _pointerCaptures.find(pointerID);
-	return _pointerCaptures.end() != it ? it->second.captureWnd.lock() : nullptr;
+	return _pointerCaptures.end() != it ? &it->second.capturePath : nullptr;
 }
 
-bool InputContext::HasCapturedPointers(Window *wnd) const
+bool InputContext::HasCapturedPointers(const Window *wnd) const
 {
 	for (auto &capture : _pointerCaptures)
 	{
-		if (capture.second.captureWnd.lock().get() == wnd)
+		if (capture.second.capturePath.front().get() == wnd)
 		{
 			return true;
 		}
 	}
 	return false;
-}
-
-void InputContext::SetCapture(unsigned int pointerID, std::shared_ptr<Window> wnd)
-{
-	if (wnd)
-	{
-		assert(_pointerCaptures[pointerID].captureWnd.expired());
-		_pointerCaptures[pointerID].captureWnd = wnd;
-	}
-	else
-	{
-		_pointerCaptures[pointerID].captureWnd.reset();
-	}
 }
 
 void InputContext::ResetWindow(Window &wnd)
@@ -84,7 +71,7 @@ PointerSink* UI::FindPointerSink(
 	bool pointerInside = (pointerPosition.x >= 0 && pointerPosition.x < size.x &&
 		pointerPosition.y >= 0 && pointerPosition.y < size.y);
 
-	if ((pointerInside || !wnd->GetClipChildren()) && search.captured != wnd)
+	if (pointerInside || !wnd->GetClipChildren())
 	{
 		// route message to each child in reverse order until someone process it
 		auto &children = wnd->GetChildren();
@@ -106,7 +93,7 @@ PointerSink* UI::FindPointerSink(
 	}
 
 	// if window is captured or the pointer is inside the window
-	if (!pointerSink && insideTopMost == search.topMostPass && (pointerInside || search.captured == wnd))
+	if (!pointerSink && insideTopMost == search.topMostPass && pointerInside)
 		pointerSink = wnd->GetPointerSink();
 
 	if (pointerSink)
@@ -115,23 +102,33 @@ PointerSink* UI::FindPointerSink(
 	return pointerSink;
 }
 
-bool InputContext::ProcessPointerInternal(
-	vec2d size,
-	std::shared_ptr<Window> wnd,
-	vec2d pointerPosition,
-	float z,
-	Msg msg,
-	int buttons,
-	PointerType pointerType,
-	unsigned int pointerID,
-	bool topMostPass)
+bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d pointerPosition, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
 {
-	PointerSinkSearch search{ topMostPass, GetCapture(pointerID) };
-	PointerSink *pointerSink = FindPointerSink(search, wnd, size, pointerPosition, wnd->GetTopMost());
+#ifndef NDEBUG
+	_lastPointerLocation[pointerID] = pointerPosition;
+#endif
+
+	PointerSink *pointerSink = nullptr;
+	PointerSinkSearch search;
+
+	const auto capturedIt = _pointerCaptures.find(pointerID);
+	if (_pointerCaptures.end() != capturedIt)
+	{
+		pointerSink = capturedIt->second.capturePath.front()->GetPointerSink();
+		assert(pointerSink);
+		search.outSinkPath = capturedIt->second.capturePath;
+	}
+	else
+	{
+		for (int pass = 0; pass < 2 && !pointerSink; ++pass)
+		{
+			search.topMostPass = !pass; // look for topmost windows first
+			pointerSink = FindPointerSink(search, wnd, size, pointerPosition, wnd->GetTopMost());
+		}
+	}
+
 	if (pointerSink)
 	{
-		assert(search.outSinkPath.back() == wnd);
-
 		auto &target = search.outSinkPath.front();
 		bool setFocus = (Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get());
 
@@ -151,19 +148,21 @@ bool InputContext::ProcessPointerInternal(
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, pointerPosition, buttons, pointerType, pointerID))
-				SetCapture(pointerID, target);
+			if (pointerSink->OnPointerDown(*this, pointerPosition, button, pointerType, pointerID))
+			{
+				_pointerCaptures[pointerID].capturePath = search.outSinkPath;
+			}
 			break;
 		case Msg::PointerUp:
 		case Msg::PointerCancel:
-			if (GetCapture(pointerID) == target)
+			if (_pointerCaptures.end() != capturedIt)
 			{
-				pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
-				SetCapture(pointerID, nullptr);
+				pointerSink->OnPointerUp(*this, pointerPosition, button, pointerType, pointerID);
+				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID);
+			pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID, _pointerCaptures.end() != capturedIt);
 			break;
 		case Msg::MOUSEWHEEL:
 			pointerSink->OnMouseWheel(pointerPosition, z);
@@ -175,57 +174,8 @@ bool InputContext::ProcessPointerInternal(
 			assert(false);
 		}
 	}
+
 	return !!pointerSink;
-}
-
-static FRECT GetGlobalWindowRect(const vec2d &rootSize, const Window &wnd)
-{
-	if (Window *parent = wnd.GetParent())
-	{
-		FRECT parentRect = GetGlobalWindowRect(rootSize, *parent);
-		FRECT childRect = parent->GetChildRect(Size(parentRect), wnd);
-		childRect.left += parentRect.left;
-		childRect.right += parentRect.left;
-		childRect.top += parentRect.top;
-		childRect.bottom += parentRect.top;
-		return childRect;
-	}
-	else
-	{
-		return FRECT{ 0, 0, rootSize.x, rootSize.y };
-	}
-}
-
-bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d pointerPosition, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
-{
-#ifndef NDEBUG
-	_lastPointerLocation[pointerID] = pointerPosition;
-#endif
-
-	if (auto captured = GetCapture(pointerID))
-	{
-		FRECT capturetRect = GetGlobalWindowRect(size, *captured);
-		vec2d capturedSize = Size(capturetRect);
-
-		pointerPosition.x -= capturetRect.left;
-		pointerPosition.y -= capturetRect.top;
-
-		if (ProcessPointerInternal(capturedSize, captured, pointerPosition, z, msg, button, pointerType, pointerID, true) ||
-			ProcessPointerInternal(capturedSize, captured, pointerPosition, z, msg, button, pointerType, pointerID, false))
-		{
-			return true;
-		}
-	}
-	else
-	{
-		// handle all children of the desktop recursively; offer to topmost windows first
-		if (ProcessPointerInternal(size, wnd, pointerPosition, z, msg, button, pointerType, pointerID, true) ||
-			ProcessPointerInternal(size, wnd, pointerPosition, z, msg, button, pointerType, pointerID, false))
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 bool InputContext::ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key)

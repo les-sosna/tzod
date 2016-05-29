@@ -31,7 +31,7 @@ ButtonBase::State ButtonBase::GetState(vec2d size, bool enabled, bool hover, con
 	return stateNormal;
 }
 
-void ButtonBase::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( eventMouseMove )
 		eventMouseMove(pointerPosition.x, pointerPosition.y);

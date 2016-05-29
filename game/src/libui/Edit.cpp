@@ -295,9 +295,9 @@ bool Edit::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, Po
 	return false;
 }
 
-void Edit::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
+void Edit::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
 {
-	if( ic.GetCapture(pointerID).get() == this )
+	if( captured )
 	{
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(pointerPosition.x / w)) + (int) _offset);

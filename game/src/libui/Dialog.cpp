@@ -46,9 +46,9 @@ bool Dialog::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, 
 	return false;
 }
 
-void Dialog::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID)
+void Dialog::OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
 {
-	if( ic.GetCapture(pointerID).get() == this )
+	if( captured )
 	{
 		Move(GetX() + pointerPosition.x - _mousePos.x, GetY() + pointerPosition.y - _mousePos.y);
 	}

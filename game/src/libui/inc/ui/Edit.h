@@ -61,7 +61,7 @@ private:
 	
 	// PointerSink
 	bool OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
 };
 
 } // namespace UI

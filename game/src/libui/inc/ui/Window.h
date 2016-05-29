@@ -30,7 +30,7 @@ struct PointerSink
 {
 	virtual bool OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) { return false; }
 	virtual void OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
-	virtual void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerMove(InputContext &ic, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) {}
 	virtual void OnMouseWheel(vec2d pointerPosition, float z) {}
 	virtual void OnTap(InputContext &ic, vec2d pointerPosition) {}
 };
