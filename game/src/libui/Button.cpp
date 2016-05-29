@@ -22,7 +22,7 @@ ButtonBase::State ButtonBase::GetState(vec2d size, bool enabled, bool hover, con
 	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < size.x && pointerPosition.y < size.y;
 	bool pointerPressed = ic.GetInput().IsMousePressed(1);
 
-	if (pointerInside && pointerPressed)
+	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this))
 		return statePushed;
 
 	if (hover)
