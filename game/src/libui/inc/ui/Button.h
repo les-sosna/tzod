@@ -71,16 +71,16 @@ class TextButton : public ButtonBase
 public:
 	explicit TextButton(LayoutManager &manager, TextureManager &texman);
 
-	void SetFont(const char *fontName);
+	void SetFont(TextureManager &texman, const char *fontName);
 
 	void SetDrawShadow(bool drawShadow);
 	bool GetDrawShadow() const;
 
 protected:
 
-	void AlignSizeToContent();
+	void AlignSizeToContent(TextureManager &texman);
 
-	void OnTextChange() override;
+	void OnTextChange(TextureManager &texman) override;
 	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 
@@ -116,10 +116,10 @@ public:
 	bool GetDrawShadow() const;
 
 protected:
-	void AlignSizeToContent();
+	void AlignSizeToContent(TextureManager &texman);
 
 	void OnClick() override;
-	void OnTextChange() override;
+	void OnTextChange(TextureManager &texman) override;
 
 	// Window
 	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;

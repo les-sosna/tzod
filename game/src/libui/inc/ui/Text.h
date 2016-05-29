@@ -27,7 +27,7 @@ public:
 	float GetCharHeight();
 
 	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	void OnTextChange() override;
+	void OnTextChange(TextureManager &texman) override;
 
 private:
 	size_t         _lineCount;

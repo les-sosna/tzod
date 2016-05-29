@@ -154,7 +154,7 @@ public:
 	bool GetClipChildren() const     { return _clipChildren; }
 
 	const std::string& GetText() const;
-	void SetText(const std::string &text);
+	void SetText(TextureManager &texman, const std::string &text);
 
 
 	//
@@ -210,7 +210,7 @@ private:
 	// other
 	//
 
-	virtual void OnTextChange();
+	virtual void OnTextChange(TextureManager &texman);
 	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnTimeStep(LayoutManager &manager, float dt);
 };

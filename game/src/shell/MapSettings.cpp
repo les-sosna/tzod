@@ -40,35 +40,35 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_author = std::make_shared<UI::Edit>(manager, texman);
 	_author->Move(x2, y += 15);
 	_author->SetWidth(256);
-	_author->SetText(world._infoAuthor);
+	_author->SetText(texman, world._infoAuthor);
 	AddFront(_author);
 
 	UI::Text::Create(this, texman, x1, y += 20, lang.map_email.Get(), alignTextLT);
 	_email = std::make_shared<UI::Edit>(manager, texman);
 	_email->Move(x2, y += 15);
 	_email->SetWidth(256);
-	_email->SetText(world._infoEmail);
+	_email->SetText(texman, world._infoEmail);
 	AddFront(_email);
 
 	UI::Text::Create(this, texman, x1, y += 20, lang.map_url.Get(), alignTextLT);
 	_url = std::make_shared<UI::Edit>(manager, texman);
 	_url->Move(x2, y += 15);
 	_url->SetWidth(256);
-	_url->SetText(world._infoUrl);
+	_url->SetText(texman, world._infoUrl);
 	AddFront(_url);
 
 	UI::Text::Create(this, texman, x1, y += 20, lang.map_desc.Get(), alignTextLT);
 	_desc = std::make_shared<UI::Edit>(manager, texman);
 	_desc->Move(x2, y += 15);
 	_desc->SetWidth(256);
-	_desc->SetText(world._infoDesc);
+	_desc->SetText(texman, world._infoDesc);
 	AddFront(_url);
 
 	UI::Text::Create(this, texman, x1, y += 20, lang.map_init_script.Get(), alignTextLT);
 	_onInit = std::make_shared<UI::Edit>(manager, texman);
 	_onInit->Move(x2, y += 15);
 	_onInit->SetWidth(256);
-	_onInit->SetText(world._infoOnInit);
+	_onInit->SetText(texman, world._infoOnInit);
 	AddFront(_onInit);
 
 	UI::Text::Create(this, texman, x1, y += 20, lang.map_theme.Get(), alignTextLT);

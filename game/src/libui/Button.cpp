@@ -82,7 +82,7 @@ std::shared_ptr<Button> Button::Create(Window *parent, TextureManager &texman, c
 {
 	auto res = std::make_shared<Button>(parent->GetManager(), texman);
 	res->Move(x, y);
-	res->SetText(text);
+	res->SetText(texman, text);
 	if( w >= 0 && h >= 0 )
 	{
 		res->Resize(w, h);
@@ -171,12 +171,12 @@ TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
 	SetTexture(texman, nullptr, false);
 }
 
-void TextButton::AlignSizeToContent()
+void TextButton::AlignSizeToContent(TextureManager &texman)
 {
 	if( -1 != _fontTexture )
 	{
-		float w = GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0);
-		float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
+		float w = texman.GetFrameWidth(_fontTexture, 0);
+		float h = texman.GetFrameHeight(_fontTexture, 0);
 		Resize((w - 1) * (float) GetText().length(), h + 1);
 	}
 }
@@ -191,15 +191,15 @@ bool TextButton::GetDrawShadow() const
 	return _drawShadow;
 }
 
-void TextButton::SetFont(const char *fontName)
+void TextButton::SetFont(TextureManager &texman, const char *fontName)
 {
-	_fontTexture = GetManager().GetTextureManager().FindSprite(fontName);
-	AlignSizeToContent();
+	_fontTexture = texman.FindSprite(fontName);
+	AlignSizeToContent(texman);
 }
 
-void TextButton::OnTextChange()
+void TextButton::OnTextChange(TextureManager &texman)
 {
-	AlignSizeToContent();
+	AlignSizeToContent(texman);
 }
 
 void TextButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -244,7 +244,7 @@ std::shared_ptr<CheckBox> CheckBox::Create(Window *parent, TextureManager &texma
 {
 	auto res = std::make_shared<CheckBox>(parent->GetManager(), texman);
 	res->Move(x, y);
-	res->SetText(text);
+	res->SetText(texman, text);
 	parent->AddFront(res);
 	return res;
 }
@@ -257,16 +257,15 @@ CheckBox::CheckBox(LayoutManager &manager, TextureManager &texman)
   , _isChecked(false)
 {
 	SetTexture(texman, nullptr, false);
-	AlignSizeToContent();
+	AlignSizeToContent(texman);
 }
 
-void CheckBox::AlignSizeToContent()
+void CheckBox::AlignSizeToContent(TextureManager &texman)
 {
-	const TextureManager &tm = GetManager().GetTextureManager();
-	float th = tm.GetFrameHeight(_fontTexture, 0);
-	float tw = tm.GetFrameWidth(_fontTexture, 0);
-	float bh = tm.GetFrameHeight(_boxTexture, GetFrame());
-	float bw = tm.GetFrameWidth(_boxTexture, GetFrame());
+	float th = texman.GetFrameHeight(_fontTexture, 0);
+	float tw = texman.GetFrameWidth(_fontTexture, 0);
+	float bh = texman.GetFrameHeight(_boxTexture, GetFrame());
+	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());
 	Resize(bw + (tw - 1) * (float) GetText().length(), std::max(th + 1, bh));
 }
 
@@ -280,9 +279,9 @@ void CheckBox::OnClick()
 	SetCheck(!GetCheck());
 }
 
-void CheckBox::OnTextChange()
+void CheckBox::OnTextChange(TextureManager &texman)
 {
-	AlignSizeToContent();
+	AlignSizeToContent(texman);
 }
 
 void CheckBox::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const

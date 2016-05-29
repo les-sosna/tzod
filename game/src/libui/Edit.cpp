@@ -38,12 +38,12 @@ void Edit::SetInt(int value)
 {
 	std::ostringstream tmp;
 	tmp << value;
-	SetText(tmp.str());
+	SetText(GetManager().GetTextureManager(), tmp.str());
 }
 
 int Edit::GetInt() const
 {
-    std::istringstream tmp(GetText());
+	std::istringstream tmp(GetText());
 	int result = 0;
 	tmp >> result;
 	return result;
@@ -53,7 +53,7 @@ void Edit::SetFloat(float value)
 {
 	std::ostringstream tmp;
 	tmp << value;
-	SetText(tmp.str());
+	SetText(GetManager().GetTextureManager(), tmp.str());
 }
 
 float Edit::GetFloat() const
@@ -150,7 +150,7 @@ bool Edit::OnChar(int c)
 	if( isprint((unsigned char) c) && '\t' != c )
 	{
 		int start = GetSelMin();
-		SetText(GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
+		SetText(GetManager().GetTextureManager(), GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
 		SetSel(start + 1, start + 1);
 		return true;
 	}
@@ -159,6 +159,7 @@ bool Edit::OnChar(int c)
 
 bool Edit::OnKeyPressed(InputContext &ic, Key key)
 {
+	TextureManager &texman = GetManager().GetTextureManager();
 	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
 		ic.GetInput().IsKeyPressed(Key::RightShift);
 	bool control = ic.GetInput().IsKeyPressed(Key::LeftCtrl) ||
@@ -169,7 +170,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Insert:
 		if( shift )
 		{
-			Paste(ic);
+			Paste(texman, ic);
 			return true;
 		}
 		else if( control )
@@ -181,7 +182,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 	case Key::V:
 		if( control )
 		{
-			Paste(ic);
+			Paste(texman, ic);
 			return true;
 		}
 		break;
@@ -196,7 +197,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 		if( 0 != GetSelLength() && control )
 		{
 			Copy(ic);
-			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(texman, GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 			SetSel(GetSelMin(), GetSelMin());
 			return true;
 		}
@@ -204,7 +205,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Delete:
 		if( 0 == GetSelLength() && GetSelEnd() < GetTextLength() )
 		{
-			SetText(GetText().substr(0, GetSelStart())
+			SetText(texman, GetText().substr(0, GetSelStart())
 				+ GetText().substr(GetSelEnd() + 1, GetTextLength() - GetSelEnd() - 1));
 		}
 		else
@@ -213,7 +214,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 			{
 				Copy(ic);
 			}
-			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(texman, GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 		}
 		SetSel(GetSelMin(), GetSelMin());
 		return true;
@@ -221,12 +222,12 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 		tmp = std::max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		if( 0 == GetSelLength() && GetSelStart() > 0 )
 		{
-			SetText(GetText().substr(0, GetSelStart() - 1)
+			SetText(texman, GetText().substr(0, GetSelStart() - 1)
 				+ GetText().substr(GetSelEnd(), GetTextLength() - GetSelEnd()));
 		}
 		else
 		{
-			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(texman, GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 		}
 		SetSel(tmp, tmp);
 		return true;
@@ -325,14 +326,14 @@ void Edit::OnEnabledChange(bool enable, bool inherited)
 	}
 }
 
-void Edit::OnTextChange()
+void Edit::OnTextChange(TextureManager &texman)
 {
 	SetSel(_selStart, _selEnd);
 	if( eventChange )
 		eventChange();
 }
 
-void Edit::Paste(InputContext &ic)
+void Edit::Paste(TextureManager &texman, InputContext &ic)
 {
 	if( const char *data = ic.GetClipboard().GetClipboardText() )
 	{
@@ -340,7 +341,7 @@ void Edit::Paste(InputContext &ic)
 		buf << GetText().substr(0, GetSelMin());
 		buf << data;
 		buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
-		SetText(buf.str());
+		SetText(texman, buf.str());
 		SetSel(GetSelMin() + std::strlen(data), GetSelMin() + std::strlen(data));
 	}
 }

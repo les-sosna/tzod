@@ -123,7 +123,7 @@ void MainMenuDlg::CreatePanel(TextureManager &texman)
 	switch( _ptype )
 	{
 	case PT_EDITOR:
-		_panelTitle->SetText(_lang.editor_title.Get());
+		_panelTitle->SetText(texman, _lang.editor_title.Get());
 		UI::Button::Create(_panel.get(), texman, _lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
 		UI::Button::Create(_panel.get(), texman, _lang.editor_load_map.Get(), 100, y)->eventClick = _commands.openMap;
 		UI::Button::Create(_panel.get(), texman, _lang.editor_save_map.Get(), 200, y)->eventClick = _commands.exportMap;

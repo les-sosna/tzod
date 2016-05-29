@@ -39,7 +39,7 @@ void TimeElapsed::OnTimeStep(UI::LayoutManager &manager, float dt)
 	if( time % 60 < 10 )
 		text << "0";
 	text << (time % 60);
-	SetText(text.str());
+	SetText(GetManager().GetTextureManager(), text.str());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

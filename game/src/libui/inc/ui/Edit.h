@@ -38,7 +38,7 @@ public:
 	int GetSelMax() const;
 	int GetSelLength() const;
 
-	void Paste(InputContext &ic);
+	void Paste(TextureManager &texman, InputContext &ic);
 	void Copy(InputContext &ic) const;
 
 	std::function<void()> eventChange;
@@ -47,7 +47,7 @@ protected:
 	// Window
 	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnEnabledChange(bool enable, bool inherited) override;
-	void OnTextChange() override;
+	void OnTextChange(TextureManager &texman) override;
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override;
 	TextSink* GetTextSink() override { return this; }

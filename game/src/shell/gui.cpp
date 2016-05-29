@@ -419,7 +419,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->SetText( _info.nick.Get() );
+	_name->SetText(texman, _info.nick.Get() );
 	AddFront(_name);
 	SetFocus(_name);
 
@@ -594,7 +594,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
+	_name->SetText(texman, _info.nick.Get().empty() ? "player" : _info.nick.Get());
 	AddFront(_name);
 	SetFocus(_name);
 

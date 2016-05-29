@@ -11,7 +11,7 @@ std::shared_ptr<Text> Text::Create(Window *parent, TextureManager &texman, float
 {
 	auto t = std::make_shared<Text>(parent->GetManager(), texman);
 	t->Move(x, y);
-	t->SetText(text);
+	t->SetText(texman, text);
 	t->SetAlign(align);
 	parent->AddFront(t);
 	return t;
@@ -79,7 +79,7 @@ void Text::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 	dc.DrawBitmapText(0, 0, _fontTexture, _fontColor, GetText(), _align);
 }
 
-void Text::OnTextChange()
+void Text::OnTextChange(TextureManager &texman)
 {
 	// update lines
 	_lineCount = 1;
@@ -100,8 +100,8 @@ void Text::OnTextChange()
 	{
 		_maxline = GetText().size();
 	}
-	float w = GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0);
-	float h = GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
+	float w = texman.GetFrameWidth(_fontTexture, 0);
+	float h = texman.GetFrameHeight(_fontTexture, 0);
 	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
 

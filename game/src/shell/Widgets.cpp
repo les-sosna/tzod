@@ -83,7 +83,7 @@ void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
 			}
 		}*/
 
-		SetText(s.str());
+		SetText(manager.GetTextureManager(), s.str());
 	}
 
 	_nSprites = 0;

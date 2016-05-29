@@ -441,7 +441,7 @@ void EditorLayout::OnChangeObjectType(int index)
 
 	std::ostringstream buf;
 	buf << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
-	_layerDisp->SetText(buf.str());
+	_layerDisp->SetText(GetManager().GetTextureManager(), buf.str());
 }
 
 void EditorLayout::OnChangeUseLayers()

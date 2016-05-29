@@ -269,7 +269,7 @@ ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(25, 80);
 	_name->SetWidth(300);
-	_name->SetText(defaultName);
+	_name->SetText(texman, defaultName);
 	AddFront(_name);
 
 	UI::Text::Create(this, texman, 20, 105, _lang.net_connect_status.Get(), alignTextLT);
@@ -356,7 +356,7 @@ InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, Wor
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(25, 80);
 	_name->SetWidth(300);
-	_name->SetText("tzod.fatal.ru/lobby/");
+	_name->SetText(texman, "tzod.fatal.ru/lobby/");
 	AddFront(_name);
 
 	UI::Text::Create(this, texman, 20, 105, _lang.net_internet_server_list.Get(), alignTextLT);
@@ -388,7 +388,7 @@ InternetDlg::~InternetDlg()
 void InternetDlg::OnRefresh()
 {
 	_servers->GetData()->DeleteAllItems();
-	_status->SetText(_lang.net_internet_searching.Get());
+	_status->SetText(GetManager().GetTextureManager(), _lang.net_internet_searching.Get());
 
 	_btnRefresh->SetEnabled(false);
 	_name->SetEnabled(false);
@@ -427,7 +427,7 @@ void InternetDlg::OnLobbyError(const std::string &msg)
 
 void InternetDlg::OnLobbyList(const std::vector<std::string> &result)
 {
-	_status->SetText(result.empty() ? _lang.net_internet_not_found.Get() : "");
+	_status->SetText(GetManager().GetTextureManager(), result.empty() ? _lang.net_internet_not_found.Get() : "");
 	for( size_t i = 0; i < result.size(); ++i )
 	{
 		_servers->GetData()->AddItem(result[i]);
@@ -438,7 +438,7 @@ void InternetDlg::OnLobbyList(const std::vector<std::string> &result)
 
 void InternetDlg::Error(const char *msg)
 {
-	_status->SetText(msg);
+	_status->SetText(GetManager().GetTextureManager(), msg);
 	_btnRefresh->SetEnabled(true);
 	_name->SetEnabled(true);
 }

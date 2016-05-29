@@ -156,7 +156,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				ctrl->Move(32, y);
 				ctrl->SetWidth(_psheet->GetWidth() - 64);
 				_psheet->AddFront(ctrl);
-				std::static_pointer_cast<UI::Edit>(ctrl)->SetText(prop->GetStringValue());
+				std::static_pointer_cast<UI::Edit>(ctrl)->SetText(texman, prop->GetStringValue());
 				labelTextBuffer << " (string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
@@ -197,7 +197,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				assert(false);
 			} // end of switch( prop->GetType() )
 
-			label->SetText(labelTextBuffer.str());
+			label->SetText(texman, labelTextBuffer.str());
 
 			if( focus == i )
 			{

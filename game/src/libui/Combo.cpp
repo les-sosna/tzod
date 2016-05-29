@@ -27,7 +27,7 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 
 	_text = std::make_shared<TextButton>(manager, texman);
 	_text->Move(0, 1);
-	_text->SetFont("font_small");
+	_text->SetFont(texman, "font_small");
 	_text->eventClick = std::bind(&ComboBox::DropList, this);
 	_text->SetDrawShadow(false);
 	AddFront(_text);
@@ -83,7 +83,7 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText(_list->GetData()->GetItemText(index, 0));
+		_text->SetText(GetManager().GetTextureManager(), _list->GetData()->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetTexture(GetManager().GetTextureManager(), "ui/scroll_down", false);
@@ -98,7 +98,7 @@ void ComboBox::OnChangeSelection(int index)
 {
 	if( -1 != index )
 	{
-		_text->SetText(_list->GetData()->GetItemText(index, 0));
+		_text->SetText(GetManager().GetTextureManager(), _list->GetData()->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 	}
 }

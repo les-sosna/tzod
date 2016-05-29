@@ -112,7 +112,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			if( _cmdIndex > 0 )
 			{
 				--_cmdIndex;
-				_input->SetText(_history->GetItem(_cmdIndex));
+				_input->SetText(GetManager().GetTextureManager(), _history->GetItem(_cmdIndex));
 			}
 		}
 		break;
@@ -128,11 +128,11 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )
 			{
-				_input->SetText(_history->GetItem(_cmdIndex));
+				_input->SetText(GetManager().GetTextureManager(), _history->GetItem(_cmdIndex));
 			}
 			else
 			{
-				_input->SetText(std::string());
+				_input->SetText(GetManager().GetTextureManager(), std::string());
 				_cmdIndex = _history->GetItemCount();
 			}
 		}
@@ -161,7 +161,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			}
 			if( eventOnSendCommand )
 				eventOnSendCommand(cmd.c_str());
-			_input->SetText(std::string());
+			_input->SetText(GetManager().GetTextureManager(), std::string());
 		}
 		_scroll->SetPos(_scroll->GetDocumentSize());
 		_autoScroll = true;
@@ -182,7 +182,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Escape:
 		if( _input->GetText().empty() )
 			return false;
-		_input->SetText(std::string());
+		_input->SetText(GetManager().GetTextureManager(), std::string());
 		break;
 	case Key::Tab:
 		if( eventOnRequestCompleteCommand )
@@ -191,7 +191,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			int pos = _input->GetSelEnd();
 			if( eventOnRequestCompleteCommand(_input->GetText(), pos, result) )
 			{
-				_input->SetText(result);
+				_input->SetText(GetManager().GetTextureManager(), result);
 				_input->SetSel(pos, pos);
 			}
 			_scroll->SetPos(_scroll->GetDocumentSize());

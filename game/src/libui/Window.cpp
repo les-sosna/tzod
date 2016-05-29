@@ -272,10 +272,10 @@ const std::string& Window::GetText() const
 	return _text;
 }
 
-void Window::SetText(const std::string &text)
+void Window::SetText(TextureManager &texman, const std::string &text)
 {
 	_text.assign(text);
-	OnTextChange();
+	OnTextChange(texman);
 }
 
 
@@ -296,7 +296,7 @@ void Window::OnEnabledChange(bool enable, bool inherited)
 {
 }
 
-void Window::OnTextChange()
+void Window::OnTextChange(TextureManager &texman)
 {
 }
 
