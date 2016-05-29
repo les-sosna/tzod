@@ -159,21 +159,21 @@ void List::OnSize(float width, float height)
 	_scrollBar->SetPageSize(GetNumLinesVisible());
 }
 
-bool List::OnPointerDown(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool List::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && pointerPosition.x < _scrollBar->GetX() )
 	{
-		OnTap(ic, pointerPosition);
+		OnTap(ic, size, pointerPosition);
 	}
 	return false;
 }
 
-void List::OnMouseWheel(vec2d pointerPosition, float z)
+void List::OnMouseWheel(InputContext &ic, vec2d size, vec2d pointerPosition, float z)
 {
 	SetScrollPos(GetScrollPos() - z * 3.0f);
 }
 
-void List::OnTap(InputContext &ic, vec2d pointerPosition)
+void List::OnTap(InputContext &ic, vec2d size, vec2d pointerPosition)
 {
 	int index = HitTest(pointerPosition.y);
 	SetCurSel(index, false);

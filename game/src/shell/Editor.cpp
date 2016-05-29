@@ -241,7 +241,7 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::OnMouseWheel(vec2d pointerPosition, float z)
+void EditorLayout::OnMouseWheel(UI::InputContext &ic, vec2d size, vec2d pointerPosition, float z)
 {
 	if( z > 0 )
 	{
@@ -253,15 +253,15 @@ void EditorLayout::OnMouseWheel(vec2d pointerPosition, float z)
 	}
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d size, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( _mbutton )
 	{
-		OnPointerDown(ic, pointerPosition, _mbutton, pointerType, pointerID);
+		OnPointerDown(ic, size, pointerPosition, _mbutton, pointerType, pointerID);
 	}
 }
 
-void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
@@ -270,7 +270,7 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int 
 	}
 }
 
-bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	bool capture = false;
 	if( 0 == _mbutton )

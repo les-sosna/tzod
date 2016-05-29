@@ -148,7 +148,7 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, pointerPosition, button, pointerType, pointerID))
+			if (pointerSink->OnPointerDown(*this, size, pointerPosition, button, pointerType, pointerID))
 			{
 				_pointerCaptures[pointerID].capturePath = search.outSinkPath;
 			}
@@ -157,18 +157,18 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d
 		case Msg::PointerCancel:
 			if (_pointerCaptures.end() != capturedIt)
 			{
-				pointerSink->OnPointerUp(*this, pointerPosition, button, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, size, pointerPosition, button, pointerType, pointerID);
 				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID, _pointerCaptures.end() != capturedIt);
+			pointerSink->OnPointerMove(*this, size, pointerPosition, pointerType, pointerID, _pointerCaptures.end() != capturedIt);
 			break;
 		case Msg::MOUSEWHEEL:
-			pointerSink->OnMouseWheel(pointerPosition, z);
+			pointerSink->OnMouseWheel(*this, size, pointerPosition, z);
 			break;
 		case Msg::TAP:
-			pointerSink->OnTap(*this, pointerPosition);
+			pointerSink->OnTap(*this, size, pointerPosition);
 			break;
 		default:
 			assert(false);
