@@ -156,8 +156,11 @@ bool InputContext::ProcessPointerInternal(
 			break;
 		case Msg::PointerUp:
 		case Msg::PointerCancel:
-			pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
-			SetCapture(pointerID, nullptr);
+			if (GetCapture(pointerID) == target)
+			{
+				pointerSink->OnPointerUp(*this, pointerPosition, buttons, pointerType, pointerID);
+				SetCapture(pointerID, nullptr);
+			}
 			break;
 		case Msg::PointerMove:
 			pointerSink->OnPointerMove(*this, pointerPosition, pointerType, pointerID);

@@ -241,10 +241,7 @@ bool GameLayout::OnPointerDown(UI::InputContext &ic, vec2d pointerPosition, int 
 
 void GameLayout::OnPointerUp(UI::InputContext &ic, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if( ic.GetCapture(pointerID).get() == this )
-	{
-		_activeDrags.erase(pointerID);
-	}
+	_activeDrags.erase(pointerID);
 }
 
 void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID)

@@ -50,17 +50,14 @@ bool ButtonBase::OnPointerDown(InputContext &ic, vec2d pointerPosition, int butt
 
 void ButtonBase::OnPointerUp(InputContext &ic, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( ic.GetCapture(pointerID).get() == this && 1 == button )
+	bool pointerInside = pointerPosition.x < GetWidth() && pointerPosition.y < GetHeight() && pointerPosition.x >= 0 && pointerPosition.y >= 0;
+	if( eventMouseUp )
+		eventMouseUp(pointerPosition.x, pointerPosition.y);
+	if(pointerInside)
 	{
-		bool pointerInside = pointerPosition.x < GetWidth() && pointerPosition.y < GetHeight() && pointerPosition.x >= 0 && pointerPosition.y >= 0;
-		if( eventMouseUp )
-			eventMouseUp(pointerPosition.x, pointerPosition.y);
-		if(pointerInside)
-		{
-			OnClick();
-			if( eventClick )
-				eventClick();
-		}
+		OnClick();
+		if( eventClick )
+			eventClick();
 	}
 }
 
