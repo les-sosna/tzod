@@ -60,8 +60,6 @@ public:
 	const std::unordered_map<unsigned int, vec2d>& GetLastPointerLocation() const { return _lastPointerLocation; }
 #endif
 
-	void ResetWindow(Window &wnd);
-
 private:
 	bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
 	bool ProcessCharRecursive(std::shared_ptr<Window> wnd, int c);

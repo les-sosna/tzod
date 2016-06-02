@@ -89,8 +89,6 @@ class Window : public std::enable_shared_from_this<Window>
 		bool _clipChildren   : 1;
 	};
 
-	void PrepareToUnlink(Window &child);
-
 protected:
 	unsigned int GetFrameCount() const;
 	unsigned int GetFrame() const { return _frame; }

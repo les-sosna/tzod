@@ -21,33 +21,20 @@ Window::Window(LayoutManager &manager)
 
 Window::~Window()
 {
+	SetTimeStep(false);
 	UnlinkAllChildren();
-}
-
-void Window::PrepareToUnlink(Window &child)
-{
-	if (_focusChild.get() == &child)
-		_focusChild = nullptr;
-
-	// removes mouse captures if any.
-	GetManager().GetInputContext().ResetWindow(child);
-
-	if (child.GetTimeStep())
-		GetManager().TimeStepUnregister(child._timeStepReg);
 }
 
 void Window::UnlinkAllChildren()
 {
-	for (auto &child: _children)
-	{
-		PrepareToUnlink(*child);
-	}
+	_focusChild.reset();
 	_children.clear();
 }
 
 void Window::UnlinkChild(Window &child)
 {
-	PrepareToUnlink(child);
+	if (_focusChild.get() == &child)
+		_focusChild = nullptr;
 	_children.erase(
 		std::remove_if(std::begin(_children), std::end(_children), [&](auto &which) { return which.get() == &child;} ),
 		_children.end());
@@ -218,7 +205,6 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 		{
 			w->OnEnabledChangeInternal(false, true);
 		}
-		GetManager().GetInputContext().ResetWindow(*this);
 		if( !inherited )
 			_isEnabled = false;
 		OnEnabledChange(false, inherited);
@@ -241,8 +227,6 @@ void Window::OnVisibleChangeInternal(bool visible, bool inherited)
 		// hide children first
 		for (auto &w : _children)
 			w->OnVisibleChangeInternal(false, true);
-
-		GetManager().GetInputContext().ResetWindow(*this);
 
 		if (!inherited)
 			_isVisible = false;

@@ -51,11 +51,6 @@ bool InputContext::HasCapturedPointers(const Window *wnd) const
 	return false;
 }
 
-void InputContext::ResetWindow(Window &wnd)
-{
-	_pointerCaptures.clear();
-}
-
 PointerSink* UI::FindPointerSink(
 	PointerSinkSearch &search,
 	std::shared_ptr<Window> wnd,
