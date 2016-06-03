@@ -117,7 +117,7 @@ void MainMenuDlg::CreatePanel(TextureManager &texman)
 	_panelTitle = UI::Text::Create(_panel.get(), texman, 0, 0, "", alignTextLT);
 	_panelTitle->SetFont(texman, "font_default");
 
-	float y = _panelTitle->GetCharHeight() + _panelTitle->GetY() + 10;
+	float y = _panelTitle->GetHeight() + _panelTitle->GetY() + 10;
 	std::shared_ptr<UI::Button> btn;
 
 	switch( _ptype )

@@ -58,16 +58,6 @@ void Text::SetFontColor(SpriteColor color)
 	_fontColor = color;
 }
 
-float Text::GetCharWidth()
-{
-	return GetManager().GetTextureManager().GetFrameWidth(_fontTexture, 0) - 1;
-}
-
-float Text::GetCharHeight()
-{
-	return GetManager().GetTextureManager().GetFrameHeight(_fontTexture, 0);
-}
-
 void Text::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
