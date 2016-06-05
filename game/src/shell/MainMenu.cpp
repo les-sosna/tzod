@@ -83,9 +83,6 @@ bool MainMenuDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch(key)
 	{
-	case UI::Key::F12:
-		_commands.gameSettings();
-		break;
 	case UI::Key::Escape:
 		if (_ptype != PT_NONE)
 			SwitchPanel(PT_NONE);
