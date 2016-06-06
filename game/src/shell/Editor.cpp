@@ -161,8 +161,9 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 
 	_layerDisp = UI::Text::Create(this, texman, 0, 0, "", alignTextRT);
 
-	_typeList = DefaultComboBox::Create(this, texman);
+	_typeList = std::make_shared<DefaultComboBox>(manager, texman);
 	_typeList->Resize(256);
+	AddFront(_typeList);
 	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
 		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;

@@ -163,9 +163,10 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
 				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-				ctrl = DefaultComboBox::Create(_psheet.get(), texman);
+				ctrl = std::make_shared<DefaultComboBox>(GetManager(), texman);
 				ctrl->Move(32, y);
 				static_cast<DefaultComboBox *>(ctrl.get())->Resize(_psheet->GetWidth() - 64);
+				_psheet->AddFront(ctrl);
 				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
 				{
 					for( size_t index = 0; index < prop->GetListSize(); ++index )

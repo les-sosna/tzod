@@ -52,7 +52,7 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 
 	UI::Text::Create(this, texman, x1, 46, _lang.choose_map.Get(), alignTextLT);
 
-	_maps = MapListBox::Create(this, texman, fs, _logger);
+	_maps = std::make_shared<MapListBox>(manager, texman, fs, _logger);
 	_maps->Move(x1, 62);
 	_maps->Resize(x2 - x1, 300);
 	_maps->SetTabPos(0,   4); // name
@@ -60,6 +60,7 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 	_maps->SetTabPos(2, 448); // theme
 	_maps->SetCurSel(_maps->GetData()->FindItem(_conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
+	AddFront(_maps);
 	SetFocus(_maps);
 
 
@@ -111,9 +112,10 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 	//
 	{
 		_lobbyEnable = UI::CheckBox::Create(this, texman, 32, 390, _lang.net_server_use_lobby.Get());
-		_lobbyList = DefaultComboBox::Create(this, texman);
+		_lobbyList = std::make_shared<DefaultComboBox>(manager, texman);
 		_lobbyList->Move(32, 415);
 		_lobbyList->Resize(200);
+		AddFront(_lobbyList);
 		_lobbyAdd = UI::Button::Create(this, texman, _lang.net_server_add_lobby.Get(), 250, 410);
 
 		_lobbyEnable->SetCheck(_conf.sv_use_lobby.Get());
@@ -273,9 +275,10 @@ ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const
 	AddFront(_name);
 
 	UI::Text::Create(this, texman, 20, 105, _lang.net_connect_status.Get(), alignTextLT);
-	_status = DefaultListBox::Create(this, texman);
+	_status = std::make_shared<DefaultListBox>(manager, texman);
 	_status->Move(25, 120);
 	_status->Resize(400, 180);
+	AddFront(_status);
 
 	_btnOK = UI::Button::Create(this, texman, _lang.net_connect_ok.Get(), 312, 350);
 	_btnOK->eventClick = std::bind(&ConnectDlg::OnOK, this);
@@ -360,10 +363,11 @@ InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, Wor
 	AddFront(_name);
 
 	UI::Text::Create(this, texman, 20, 105, _lang.net_internet_server_list.Get(), alignTextLT);
-	_servers = DefaultListBox::Create(this, texman);
+	_servers = std::make_shared<DefaultListBox>(manager, texman);
 	_servers->Move(25, 120);
 	_servers->Resize(400, 180);
 	_servers->eventChangeCurSel = std::bind(&InternetDlg::OnSelectServer, this, std::placeholders::_1);
+	AddFront(_servers);
 	_status = UI::Text::Create(_servers.get(), texman, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
 	_status->SetFontColor(0x7f7f7f7f);
 
@@ -480,23 +484,25 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
 	title->SetFont(texman, "font_default");
 
 	UI::Text::Create(this, texman, 20, 50, _lang.net_chatroom_players.Get(), alignTextLT);
-	_players = DefaultListBox::Create(this, texman);
+	_players = std::make_shared<DefaultListBox>(manager, texman);
 	_players->Move(20, 65);
 	_players->Resize(512, 70);
 	_players->SetTabPos(1, 200);
 	_players->SetTabPos(2, 300);
 	_players->SetTabPos(3, 400);
+	AddFront(_players);
 
 	_btnProfile = UI::Button::Create(this, texman, _lang.net_chatroom_my_profile.Get(), 560, 65);
 	_btnProfile->eventClick = std::bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 
 	UI::Text::Create(this, texman, 20, 150, _lang.net_chatroom_bots.Get(), alignTextLT);
-	_bots = DefaultListBox::Create(this, texman);
+	_bots = std::make_shared<DefaultListBox>(manager, texman);
 	_bots->Move(20, 165);
 	_bots->Resize(512, 100);
 	_bots->SetTabPos(1, 200);
 	_bots->SetTabPos(2, 300);
 	_bots->SetTabPos(3, 400);
+	AddFront(_bots);
 
 	UI::Button::Create(this, texman, _lang.net_chatroom_bot_new.Get(), 560, 180)->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
 

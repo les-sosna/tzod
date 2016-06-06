@@ -45,7 +45,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 
 	UI::Text::Create(this, texman, 16, 16, _lang.choose_map.Get(), alignTextLT);
 
-	_maps = MapList::Create(this, texman, fs, logger);
+	_maps = std::make_shared<MapList>(manager, texman, fs, logger);
 	_maps->Move(x1, 32);
 	_maps->Resize(x2 - x1, 192);
 	_maps->SetTabPos(0,   4); // name
@@ -53,6 +53,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_maps->SetTabPos(2, 448); // theme
 	_maps->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
 	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
+	AddFront(_maps);
 
 	SetFocus(_maps);
 
@@ -99,7 +100,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 
 	UI::Text::Create(this, texman, 16, 240, _lang.human_player_list.Get(), alignTextLT);
 
-	_players = DefaultListBox::Create(this, texman);
+	_players = std::make_shared<DefaultListBox>(manager, texman);
 	_players->Move(x1, 256);
 	_players->Resize(x2-x1, 96);
 	_players->SetTabPos(0,   4); // name
@@ -107,10 +108,11 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_players->SetTabPos(2, 256); // class
 	_players->SetTabPos(3, 320); // team
 	_players->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectPlayer, this, std::placeholders::_1);
+	AddFront(_players);
 
 
 	UI::Text::Create(this, texman, 16, 368, _lang.AI_player_list.Get(), alignTextLT);
-	_bots = DefaultListBox::Create(this, texman);
+	_bots = std::make_shared<DefaultListBox>(manager, texman);
 	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
 	_bots->SetTabPos(0,   4); // name
@@ -118,6 +120,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_bots->SetTabPos(2, 256); // class
 	_bots->SetTabPos(3, 320); // team
 	_bots->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectBot, this, std::placeholders::_1);
+	AddFront(_bots);
 
 
 	//
@@ -428,10 +431,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// skins combo
 	//
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_skin.Get(), alignTextLT);
-	_skins = DefaultComboBox::Create(this, texman);
+	_skins = std::make_shared<DefaultComboBox>(manager, texman);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
+	AddFront(_skins);
 	std::vector<std::string> names;
 	texman.GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
@@ -454,9 +458,10 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	//
 
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_class.Get(), alignTextLT);
-	_classes = DefaultComboBox::Create(this, texman);
+	_classes = std::make_shared<DefaultComboBox>(manager, texman);
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
+	AddFront(_classes);
 
 	std::pair<std::string, std::string> val;
 	for( unsigned int i = 0; GetVehicleClassName(i); ++i )
@@ -479,9 +484,10 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	_classes->GetList()->AlignHeightToContent();
 
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_team.Get(), alignTextLT);
-	_teams = DefaultComboBox::Create(this, texman);
+	_teams = std::make_shared<DefaultComboBox>(manager, texman);
 	_teams->Move(x2, y -= 1);
 	_teams->Resize(200);
+	AddFront(_teams);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		std::ostringstream s;
@@ -508,9 +514,10 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	//
 
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_profile.Get(), alignTextLT);
-	_profiles = DefaultComboBox::Create(this, texman);
+	_profiles = std::make_shared<DefaultComboBox>(manager, texman);
 	_profiles->Move(x2, y -= 1);
 	_profiles->Resize(200);
+	AddFront(_profiles);
 	std::vector<std::string> profiles = conf.dm_profiles.GetKeys();
 
 	for( size_t i = 0; i < profiles.size(); ++i )
@@ -603,10 +610,11 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// skins combo
 	//
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_skin.Get(), alignTextLT);
-	_skins = DefaultComboBox::Create(this, texman);
+	_skins = std::make_shared<DefaultComboBox>(manager, texman);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
 	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
+	AddFront(_skins);
 	std::vector<std::string> names;
 	texman.GetTextureNames(names, "skin/", true);
 	for( size_t i = 0; i < names.size(); ++i )
@@ -629,9 +637,10 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	//
 
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_class.Get(), alignTextLT);
-	_classes = DefaultComboBox::Create(this, texman);
+	_classes = std::make_shared<DefaultComboBox>(manager, texman);
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
+	AddFront(_classes);
 
 	std::pair<std::string, std::string> val;
 	for( unsigned int i = 0; GetVehicleClassName(i); ++i )
@@ -652,9 +661,10 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 
 
 	UI::Text::Create(this, texman, x1, y+=24, lang.player_team.Get(), alignTextLT);
-	_teams = DefaultComboBox::Create(this, texman);
+	_teams = std::make_shared<DefaultComboBox>(manager, texman);
 	_teams->Move(x2, y -= 1);
 	_teams->Resize(200);
+	AddFront(_teams);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
 		std::ostringstream s;
@@ -680,9 +690,10 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	//
 
 	UI::Text::Create(this, texman, x1, y+=24, lang.bot_level.Get(), alignTextLT);
-	_levels = DefaultComboBox::Create(this, texman);
+	_levels = std::make_shared<DefaultComboBox>(manager, texman);
 	_levels->Move(x2, y -= 1);
 	_levels->Resize(200);
+	AddFront(_levels);
 
 	for( int i = 0; i < 5; ++i )
 	{

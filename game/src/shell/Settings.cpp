@@ -250,12 +250,13 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 
 	UI::Text::Create(this, texman,  20, 65, _lang.profile_action.Get(), alignTextLT);
 	UI::Text::Create(this, texman, 220, 65, _lang.profile_key.Get(), alignTextLT);
-	_actions = DefaultListBox::Create(this, texman);
+	_actions = std::make_shared<DefaultListBox>(manager, texman);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
 	_actions->SetTabPos(0, 2);
 	_actions->SetTabPos(1, 200);
 	_actions->eventClickItem = std::bind(&ControlProfileDlg::OnSelectAction, this, std::placeholders::_1);
+	AddFront(_actions);
 
 	AddAction(_profile.key_forward      , _lang.action_move_forward.Get()  );
 	AddAction(_profile.key_back         , _lang.action_move_backward.Get() );

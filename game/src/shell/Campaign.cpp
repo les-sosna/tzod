@@ -17,9 +17,10 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
 	auto t = UI::Text::Create(this, texman, GetWidth() / 2, 16, lang.campaign_title.Get(), alignTextCT);
 	t->SetFont(texman, "font_default");
 
-	_files = DefaultListBox::Create(this, texman);
+	_files = std::make_shared<DefaultListBox>(manager, texman);
 	_files->Move(20, 56);
 	_files->Resize(472, 280);
+	AddFront(_files);
 
 	auto files = _fs.GetFileSystem("campaign")->EnumAllFiles("*.lua");
 	for( auto it = files.begin(); it != files.end(); ++it )

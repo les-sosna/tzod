@@ -19,9 +19,10 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	t->SetFont(texman, "font_default");
 
 	_ext = param.extension;
-	_files = DefaultListBox::Create(this, texman);
+	_files = std::make_shared<DefaultListBox>(manager, texman);
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
+	AddFront(_files);
 	if( _folder )
 	{
 		auto files = _folder->EnumAllFiles("*." + _ext);

@@ -131,7 +131,7 @@ ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman,
 	_btnCreate = UI::Button::Create(this, texman, _lang.service_create.Get(), 0, 0);
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
 
-	_combo = DefaultComboBox::Create(this, texman);
+	_combo = std::make_shared<DefaultComboBox>(manager, texman);
 	_combo->Move(_margins, _margins);
 	for (unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i)
 	{
@@ -142,6 +142,7 @@ ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman,
 		}
 	}
 	_combo->GetData()->Sort();
+	AddFront(_combo);
 
 	auto ls = _combo->GetList();
 	ls->SetTabPos(1, 128);

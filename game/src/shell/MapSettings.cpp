@@ -72,7 +72,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	AddFront(_onInit);
 
 	UI::Text::Create(this, texman, x1, y += 20, lang.map_theme.Get(), alignTextLT);
-	_theme = DefaultComboBox::Create(this, texman);
+	_theme = std::make_shared<DefaultComboBox>(manager, texman);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);
 /*	for (size_t i = 0; i < themeManager.GetThemeCount(); i++)
@@ -81,6 +81,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	}
 	_theme->SetCurSel(FindTheme(themeManager, world._infoTheme));*/
 	_theme->GetList()->AlignHeightToContent();
+	AddFront(_theme);
 
 
 	//
