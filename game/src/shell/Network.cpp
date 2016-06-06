@@ -71,8 +71,11 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 	{
 		float y =  56;
 
-		_nightMode = UI::CheckBox::Create(this, texman, x3, y, _lang.night_mode.Get());
+		_nightMode = std::make_shared<UI::CheckBox>(manager, texman);
+		_nightMode->Move(x3, y);
+		_nightMode->SetText(texman, _lang.night_mode.Get());
 //		_nightMode->SetCheck( _conf.cl_nightmode.Get() );
+		AddFront(_nightMode);
 
 
 		UI::Text::Create(this, texman, x3, y+=30, _lang.game_speed.Get(), alignTextLT);
@@ -111,16 +114,21 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 	// Lobby
 	//
 	{
-		_lobbyEnable = UI::CheckBox::Create(this, texman, 32, 390, _lang.net_server_use_lobby.Get());
+		_lobbyEnable = std::make_shared<UI::CheckBox>(manager, texman);
+		_lobbyEnable->Move(32, 390);
+		_lobbyEnable->SetText(texman, _lang.net_server_use_lobby.Get());
+		_lobbyEnable->SetCheck(_conf.sv_use_lobby.Get());
+		AddFront(_lobbyEnable);
+
 		_lobbyList = std::make_shared<DefaultComboBox>(manager, texman);
 		_lobbyList->Move(32, 415);
 		_lobbyList->Resize(200);
+		_lobbyList->SetEnabled(_conf.sv_use_lobby.Get());
 		AddFront(_lobbyList);
-		_lobbyAdd = UI::Button::Create(this, texman, _lang.net_server_add_lobby.Get(), 250, 410);
 
-		_lobbyEnable->SetCheck(_conf.sv_use_lobby.Get());
-		_lobbyList->SetEnabled(_lobbyEnable->GetCheck());
-		_lobbyAdd->SetEnabled(_lobbyEnable->GetCheck());
+		_lobbyAdd = UI::Button::Create(this, texman, _lang.net_server_add_lobby.Get(), 250, 410);
+		_lobbyAdd->SetEnabled(_conf.sv_use_lobby.Get());
+
 		for( size_t i = 0; i < _conf.lobby_servers.GetSize(); ++i )
 		{
 			const std::string &lobbyAddr = _conf.lobby_servers.GetStr(i).Get();

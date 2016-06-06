@@ -32,7 +32,6 @@ class SettingsDlg : public UI::Dialog
 	std::shared_ptr<UI::CheckBox> _showFps;
 	std::shared_ptr<UI::CheckBox> _showTime;
 	std::shared_ptr<UI::CheckBox> _showNames;
-	std::shared_ptr<UI::CheckBox> _askDisplaySettings;
 
 	std::shared_ptr<UI::ScrollBarHorizontal> _volumeSfx;
 	int _initialVolumeSfx;

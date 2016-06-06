@@ -105,9 +105,7 @@ public:
 class CheckBox : public ButtonBase
 {
 public:
-	static std::shared_ptr<CheckBox> Create(Window *parent, TextureManager &texman, float x, float y, const std::string &text);
-
-	explicit CheckBox(LayoutManager &manager, TextureManager &texman);
+	CheckBox(LayoutManager &manager, TextureManager &texman);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }

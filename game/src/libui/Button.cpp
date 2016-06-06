@@ -240,15 +240,6 @@ void ImageButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, Inp
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CheckBox> CheckBox::Create(Window *parent, TextureManager &texman, float x, float y, const std::string &text)
-{
-	auto res = std::make_shared<CheckBox>(parent->GetManager(), texman);
-	res->Move(x, y);
-	res->SetText(texman, text);
-	parent->AddFront(res);
-	return res;
-}
-
 CheckBox::CheckBox(LayoutManager &manager, TextureManager &texman)
   : ButtonBase(manager)
   , _fontTexture(texman.FindSprite("font_small"))

@@ -65,8 +65,11 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	{
 		float y =  16;
 
-		_nightMode = UI::CheckBox::Create(this, texman, x3, y, _lang.night_mode.Get());
+		_nightMode = std::make_shared<UI::CheckBox>(manager, texman);
+		_nightMode->Move(x3, y);
+		_nightMode->SetText(texman, _lang.night_mode.Get());
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
+		AddFront(_nightMode);
 
 		UI::Text::Create(this, texman, x3, y+=30, _lang.game_speed.Get(), alignTextLT);
 		_gameSpeed = std::make_shared<UI::Edit>(manager, texman);
