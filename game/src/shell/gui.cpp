@@ -234,6 +234,7 @@ void NewGameDlg::OnAddPlayer()
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _texman, p, _conf, _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
+	SetFocus(dlg);
 }
 
 void NewGameDlg::OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
@@ -265,6 +266,7 @@ void NewGameDlg::OnEditPlayer()
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _texman, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
+	SetFocus(dlg);
 }
 
 void NewGameDlg::OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
@@ -288,6 +290,7 @@ void NewGameDlg::OnAddBot()
 	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _texman, p, _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
+	SetFocus(dlg);
 }
 
 void NewGameDlg::OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result)
@@ -319,6 +322,7 @@ void NewGameDlg::OnEditBot()
 	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _texman, _conf.dm_bots.GetAt(index).AsTable(), _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
+	SetFocus(dlg);
 }
 
 void NewGameDlg::OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result)

@@ -150,6 +150,7 @@ void SettingsDlg::OnAddProfile()
 	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), GetManager().GetTextureManager(), nullptr, _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
+	SetFocus(dlg);
 }
 
 void SettingsDlg::OnEditProfile()
@@ -159,6 +160,7 @@ void SettingsDlg::OnEditProfile()
 	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), GetManager().GetTextureManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
+	SetFocus(dlg);
 }
 
 void SettingsDlg::OnDeleteProfile()
@@ -215,6 +217,7 @@ void SettingsDlg::OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int 
 		UpdateProfilesList();
 		SetFocus(_profiles);
 	}
+	UnlinkChild(*sender);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
