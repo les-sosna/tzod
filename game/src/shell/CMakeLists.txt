@@ -39,6 +39,7 @@ add_library(shell
 	MapSettings.cpp
 	MessageArea.cpp
 	Network.cpp
+	SinglePlayer.cpp
 	NewMap.cpp
 	Profiler.cpp
 	PropertyList.cpp

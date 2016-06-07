@@ -7,6 +7,7 @@
 #include "MapSettings.h"
 #include "NewMap.h"
 #include "Settings.h"
+#include "SinglePlayer.h"
 #include "Widgets.h"
 #include "inc/shell/Config.h"
 #include "inc/shell/Desktop.h"
@@ -26,6 +27,7 @@
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
+#include <ui/UIInput.h>
 
 extern "C"
 {
@@ -279,24 +281,49 @@ void Desktop::OnNewDM()
 	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
 		PopNavStack();
 
-	auto dlg = std::make_shared<NewGameDlg>(GetManager(), _texman, _fs, _conf, _logger, _lang);
-	dlg->eventClose = [this](auto sender, int result)
+	if (GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
+		GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		OnCloseChild(sender, result);
-		if (UI::Dialog::_resultOK == result)
+		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman);
+		dlg->eventClose = [this](auto sender, int result)
 		{
-			try
+			OnCloseChild(sender, result);
+			if (UI::Dialog::_resultOK == result)
 			{
-				_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-				ClearNavStack();
+				try
+				{
+					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
+					ClearNavStack();
+				}
+				catch (const std::exception &e)
+				{
+					_logger.Printf(1, "Could not start new game - %s", e.what());
+				}
 			}
-			catch( const std::exception &e )
+		};
+		PushNavStack(dlg);
+	}
+	else
+	{
+		auto dlg = std::make_shared<NewGameDlg>(GetManager(), _texman, _fs, _conf, _logger, _lang);
+		dlg->eventClose = [this](auto sender, int result)
+		{
+			OnCloseChild(sender, result);
+			if (UI::Dialog::_resultOK == result)
 			{
-				_logger.Printf(1, "Could not start new game - %s", e.what());
+				try
+				{
+					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
+					ClearNavStack();
+				}
+				catch (const std::exception &e)
+				{
+					_logger.Printf(1, "Could not start new game - %s", e.what());
+				}
 			}
-		}
-	};
-	PushNavStack(dlg);
+		};
+		PushNavStack(dlg);
+	}
 }
 
 void Desktop::OnNewMap()
