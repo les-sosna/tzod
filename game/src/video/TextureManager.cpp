@@ -144,20 +144,73 @@ void TextureManager::CreateChecker()
 	it->refCount++;
 }
 
-static int auxgetint(lua_State *L, int tblidx, const char *field, int def)
+static int getint(lua_State *L, int tblidx, const char *field, int def)
 {
 	lua_getfield(L, tblidx, field);
-	if( lua_isnumber(L, -1) ) def = lua_tointeger(L, -1);
+	if( lua_isnumber(L, -1) )
+		def = lua_tointeger(L, -1);
 	lua_pop(L, 1); // pop result of getfield
 	return def;
 }
 
-static float auxgetfloat(lua_State *L, int tblidx, const char *field, float def)
+static float getfloat(lua_State *L, int tblidx, const char *field, float def)
 {
 	lua_getfield(L, tblidx, field);
-	if( lua_isnumber(L, -1) ) def = (float) lua_tonumber(L, -1);
+	if( lua_isnumber(L, -1) )
+		def = (float) lua_tonumber(L, -1);
 	lua_pop(L, 1); // pop result of getfield
 	return def;
+}
+
+static LogicalTexture getlt(lua_State *L, int idx, float pxWidth, float pxHeight)
+{
+	LogicalTexture tex;
+
+	// texture bounds
+	float uvLeft = floorf(getfloat(L, idx, "left", 0)) / pxWidth;
+	float uvRight = floorf(getfloat(L, idx, "right", pxWidth)) / pxWidth;
+	float uvTop = floorf(getfloat(L, idx, "top", 0)) / pxHeight;
+	float uvBottom = floorf(getfloat(L, idx, "bottom", pxHeight)) / pxHeight;
+
+	// border
+	tex.pxBorderSize = floorf(getfloat(L, idx, "border", 0));
+	float uvBorderWidth = tex.pxBorderSize / pxWidth;
+	float uvBorderHeight = tex.pxBorderSize / pxHeight;
+
+	// frames count
+	int xframes = getint(L, idx, "xframes", 1);
+	int yframes = getint(L, idx, "yframes", 1);
+
+	// frame size with border
+	float uvFrameWidth = (uvRight - uvLeft) / (float)xframes;
+	float uvFrameHeight = (uvBottom - uvTop) / (float)yframes;
+
+	// original size
+	float scale_x = getfloat(L, idx, "xscale", 1);
+	float scale_y = getfloat(L, idx, "yscale", 1);
+	tex.pxFrameWidth = pxWidth * scale_x * uvFrameWidth;
+	tex.pxFrameHeight = pxHeight * scale_y * uvFrameHeight;
+
+	// pivot position
+	tex.uvPivot.x = (float)getfloat(L, idx, "xpivot", pxWidth * uvFrameWidth / 2) / (pxWidth * uvFrameWidth);
+	tex.uvPivot.y = (float)getfloat(L, idx, "ypivot", pxHeight * uvFrameHeight / 2) / (pxHeight * uvFrameHeight);
+
+	// frames
+	tex.uvFrames.reserve(xframes * yframes);
+	for (int y = 0; y < yframes; ++y)
+	{
+		for (int x = 0; x < xframes; ++x)
+		{
+			FRECT rt;
+			rt.left = uvLeft + uvFrameWidth * (float)x + uvBorderWidth;
+			rt.right = uvLeft + uvFrameWidth * (float)(x + 1) - uvBorderWidth;
+			rt.top = uvTop + uvFrameHeight * (float)y + uvBorderHeight;
+			rt.bottom = uvTop + uvFrameHeight * (float)(y + 1) - uvBorderHeight;
+			tex.uvFrames.push_back(rt);
+		}
+	}
+
+	return tex;
 }
 
 int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs)
@@ -209,7 +262,6 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 				break;
 			}
 
-
 			// get 'content' field
 			lua_getfield(L, -1, "content");
 			if( lua_istable(L, -1) )
@@ -223,66 +275,17 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 						continue;
 					}
 
-					lua_pushvalue(L, -2); // create copy of the key
+					// copy the key because lua_tostring may change its type
+					lua_pushvalue(L, -2);
 					if( const char *texname = lua_tostring(L, -1) )
 					{
 						// now 'value' at index -2
-
-						float scale_x = auxgetfloat(L, -2, "xscale", 1);
-						float scale_y = auxgetfloat(L, -2, "yscale", 1);
-
-						LogicalTexture tex;
-
-						// texture bounds
-						float uvLeft   = floorf(auxgetfloat(L, -2, "left", 0)) / (float) td->width;
-						float uvRight  = floorf(auxgetfloat(L, -2, "right", (float) td->width)) / (float) td->width;
-						float uvTop    = floorf(auxgetfloat(L, -2, "top", 0)) / (float) td->height;
-						float uvBottom = floorf(auxgetfloat(L, -2, "bottom", (float) td->height)) / (float) td->height;
-
-						// border
-						tex.pxBorderSize = floorf(auxgetfloat(L, -2, "border", 0));
-						float uvBorderWidth = tex.pxBorderSize / (float)td->width;
-						float uvBorderHeight = tex.pxBorderSize / (float)td->height;
-
-						// frames count
-						int xframes = auxgetint(L, -2, "xframes", 1);
-						int yframes = auxgetint(L, -2, "yframes", 1);
-
-						// frame size with border
-						float uvFrameWidth  = (uvRight - uvLeft) / (float) xframes;
-						float uvFrameHeight = (uvBottom - uvTop) / (float) yframes;
-
-						// original size
-						tex.pxFrameWidth = (float) td->width * scale_x * uvFrameWidth;
-						tex.pxFrameHeight = (float) td->height * scale_y * uvFrameHeight;
-
-						// pivot position
-						tex.uvPivot.x = (float) auxgetfloat(L, -2, "xpivot", (float) td->width * uvFrameWidth / 2) / ((float) td->width * uvFrameWidth);
-						tex.uvPivot.y = (float) auxgetfloat(L, -2, "ypivot", (float) td->height * uvFrameHeight / 2) / ((float) td->height * uvFrameHeight);
-
-						// frames
-						tex.uvFrames.reserve(xframes * yframes);
-						for( int y = 0; y < yframes; ++y )
-						{
-							for( int x = 0; x < xframes; ++x )
-							{
-								FRECT rt;
-								rt.left   = uvLeft + uvFrameWidth * (float) x + uvBorderWidth;
-								rt.right  = uvLeft + uvFrameWidth * (float) (x + 1) - uvBorderWidth;
-								rt.top    = uvTop + uvFrameHeight * (float) y + uvBorderHeight;
-								rt.bottom = uvTop + uvFrameHeight * (float) (y + 1) - uvBorderHeight;
-								tex.uvFrames.push_back(rt);
-							}
-						}
-
-						//---------------------
-						if( xframes > 0 && yframes > 0 )
+						LogicalTexture tex = getlt(L, -2, (float)td->width, (float)td->height);
+						if(!tex.uvFrames.empty())
 						{
 							td->refCount++;
-							//---------------------------------------------
-							std::map<std::string, size_t>::iterator it =
-								_mapName_to_Index.find(texname);
 
+							auto it = _mapName_to_Index.find(texname);
 							if( _mapName_to_Index.end() != it )
 							{
 								// replace existing logical texture
@@ -298,18 +301,18 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 								_mapName_to_Index[texname] = _logicalTextures.size();
 								_logicalTextures.emplace_back(tex, td->id);
 							}
-						} // end if( xframes > 0 && yframes > 0 )
-					} // end if( texname )
-					lua_pop(L, 1); // remove copy of the key
-				} // end loop over 'content'
-			} // end if 'content' is table
-			else
+						}
+					}
+					lua_pop(L, 1); // pop key copy
+				} // loop over 'content'
+			}
+			else // if 'content' is table
 			{
 				TRACE("WARNING: 'content' field is not a table.");
 			}
 			lua_pop(L, 1); // pop the result of getfield("content")
 			break;
-		} // end of while( lua_istable(L, -1) )
+		} // while( lua_istable(L, -1) )
 	}
 	lua_close(L);
 
