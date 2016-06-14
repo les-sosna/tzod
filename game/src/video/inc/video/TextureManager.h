@@ -49,7 +49,7 @@ public:
 	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].pxBorderSize; }
 	unsigned int GetFrameCount(size_t texIndex) const { return static_cast<unsigned int>(_logicalTextures[texIndex].uvFrames.size()); }
 
-	void GetTextureNames(std::vector<std::string> &names, const char *prefix, bool noPrefixReturn) const;
+	void GetTextureNames(std::vector<std::string> &names, const char *prefix) const;
 
 	float GetCharHeight(size_t fontTexture) const;
 

@@ -408,9 +408,9 @@ size_t TextureManager::FindSprite(const std::string &name) const
 }
 
 void TextureManager::GetTextureNames(std::vector<std::string> &names,
-                                     const char *prefix, bool noPrefixReturn) const
+                                     const char *prefix) const
 {
-	size_t trimLength = (prefix && noPrefixReturn) ? std::strlen(prefix) : 0;
+	size_t trimLength = prefix ? std::strlen(prefix) : 0;
 
 	names.clear();
 	std::map<std::string, size_t>::const_iterator it = _mapName_to_Index.begin();

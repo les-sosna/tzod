@@ -179,7 +179,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				{
 					std::vector<std::string> names;
 					const char *filter = prop->GetType() == ObjectProperty::TYPE_SKIN ? "skin/" : nullptr;
-					texman.GetTextureNames(names, filter, true);
+					texman.GetTextureNames(names, filter);
 					for( auto &name: names )
 					{
 						// only allow using textures which are less than half of a cell
