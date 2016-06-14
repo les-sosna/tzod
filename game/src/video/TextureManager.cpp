@@ -53,10 +53,9 @@ TextureManager::~TextureManager()
 
 void TextureManager::UnloadAllTextures()
 {
-	auto it = _textures.begin();
-	while( it != _textures.end() )
-		_render.TexFree((it++)->id);
-	_textures.clear();
+	for (auto &t: _devTextures)
+		_render.TexFree(t.id);
+	_devTextures.clear();
 	_mapFile_to_TexDescIter.clear();
 	_mapDevTex_to_TexDescIter.clear();
 	_mapName_to_Index.clear();
@@ -85,8 +84,8 @@ void TextureManager::LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const 
 		td.height    = image->GetHeight();
 		td.refCount  = 0;
 
-		_textures.push_front(td);
-		itTexDesc = _textures.begin();
+		_devTextures.push_front(td);
+		itTexDesc = _devTextures.begin();
 		_mapFile_to_TexDescIter[fileName] = itTexDesc;
 		_mapDevTex_to_TexDescIter[itTexDesc->id] = itTexDesc;
 	}
@@ -124,8 +123,8 @@ void TextureManager::CreateChecker()
 	td.height    = c.GetHeight();
 	td.refCount  = 0;
 
-	_textures.push_front(td);
-	auto it = _textures.begin();
+	_devTextures.push_front(td);
+	auto it = _devTextures.begin();
 
 
 
@@ -133,7 +132,6 @@ void TextureManager::CreateChecker()
 	// create logical texture
 	//
 
-	tex.dev_texture = it->id;
 	tex.uvPivot = vec2d(0, 0);
 	tex.pxFrameWidth = (float) td.width * 8;
 	tex.pxFrameHeight = (float) td.height * 8;
@@ -142,7 +140,7 @@ void TextureManager::CreateChecker()
 	FRECT whole = {0,0,8,8};
 	tex.uvFrames.push_back(whole);
 	//---------------------
-	_logicalTextures.push_back(tex);
+	_logicalTextures.emplace_back(tex, it->id);
 	it->refCount++;
 }
 
@@ -234,7 +232,6 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 						float scale_y = auxgetfloat(L, -2, "yscale", 1);
 
 						LogicalTexture tex;
-						tex.dev_texture = td->id;
 
 						// texture bounds
 						float uvLeft   = floorf(auxgetfloat(L, -2, "left", 0)) / (float) td->width;
@@ -289,9 +286,9 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 							if( _mapName_to_Index.end() != it )
 							{
 								// replace existing logical texture
-								LogicalTexture &existing = _logicalTextures[it->second];
-								auto tmp = _mapDevTex_to_TexDescIter[existing.dev_texture];
-								existing = tex;
+								auto &existing = _logicalTextures[it->second];
+								auto tmp = _mapDevTex_to_TexDescIter[existing.second];
+								existing.first = tex;
 								tmp->refCount--;
 								assert(tmp->refCount >= 0);
 							}
@@ -299,7 +296,7 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 							{
 								// define new texture
 								_mapName_to_Index[texname] = _logicalTextures.size();
-								_logicalTextures.push_back(tex);
+								_logicalTextures.emplace_back(tex, td->id);
 							}
 						} // end if( xframes > 0 && yframes > 0 )
 					} // end if( texname )
@@ -320,8 +317,8 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 	//
 	// unload unused textures
 	//
-	auto it = _textures.begin();
-	while( _textures.end() != it )
+	auto it = _devTextures.begin();
+	while( _devTextures.end() != it )
 	{
 		auto what = it++;
 		assert(what->refCount >= 0);
@@ -341,7 +338,7 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 			}
 
 			_mapDevTex_to_TexDescIter.erase(what->id);
-			_textures.erase(what);
+			_devTextures.erase(what);
 		}
 	}
 
@@ -372,7 +369,6 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 		texName.erase(texName.length() - 4); // cut out the file extension
 
 		LogicalTexture tex;
-		tex.dev_texture = td->id;
 		tex.uvPivot  = vec2d(0.5f, 0.5f);
 		tex.pxFrameWidth = (float) td->width;
 		tex.pxFrameHeight = (float) td->height;
@@ -384,7 +380,7 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 		if( _mapName_to_Index.end() != _mapName_to_Index.find(texName) )
 			continue; // skip if there is a texture with the same name
 		_mapName_to_Index[texName] = _logicalTextures.size();
-		_logicalTextures.push_back(tex);
+		_logicalTextures.emplace_back(tex, td->id);
 		td->refCount++;
 		count++;
 	}

@@ -18,8 +18,6 @@ namespace FS
 
 struct LogicalTexture
 {
-	DEV_TEXTURE dev_texture;
-
 	vec2d uvPivot;
 
 	float pxFrameWidth;
@@ -43,11 +41,12 @@ public:
 	void UnloadAllTextures();
 
 	size_t FindSprite(const std::string &name) const;
-	const LogicalTexture& GetSpriteInfo(size_t texIndex) const { return _logicalTextures[texIndex]; }
-	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameWidth; }
-	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
-	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].pxBorderSize; }
-	unsigned int GetFrameCount(size_t texIndex) const { return static_cast<unsigned int>(_logicalTextures[texIndex].uvFrames.size()); }
+	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const { return _logicalTextures[texIndex].second; }
+	const LogicalTexture& GetSpriteInfo(size_t texIndex) const { return _logicalTextures[texIndex].first; }
+	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].first.pxFrameWidth; }
+	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].first.pxFrameHeight; }
+	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].first.pxBorderSize; }
+	unsigned int GetFrameCount(size_t texIndex) const { return static_cast<unsigned int>(_logicalTextures[texIndex].first.uvFrames.size()); }
 
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix) const;
 
@@ -64,11 +63,11 @@ protected:
 		int refCount;       // number of logical textures
 	};
 
-	std::list<TexDesc> _textures;
+	std::list<TexDesc> _devTextures;
 	std::map<std::string, std::list<TexDesc>::iterator> _mapFile_to_TexDescIter;
 	std::map<DEV_TEXTURE, std::list<TexDesc>::iterator> _mapDevTex_to_TexDescIter;
 	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
-	std::vector<LogicalTexture> _logicalTextures;
+	std::vector<std::pair<LogicalTexture, DEV_TEXTURE>> _logicalTextures;
 
 	void LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs);
 
