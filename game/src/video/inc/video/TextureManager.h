@@ -54,7 +54,7 @@ public:
 	float GetCharHeight(size_t fontTexture) const;
 
 protected:
-    IRender &_render;
+	IRender &_render;
 
 	struct TexDesc
 	{
@@ -63,22 +63,14 @@ protected:
 		int height;         // The Height Of The Entire Image.
 		int refCount;       // number of logical textures
 	};
-	typedef std::list<TexDesc>       TexDescList;
-	typedef TexDescList::iterator    TexDescIterator;
 
-	typedef std::map<std::string, TexDescIterator> FileToTexDescMap;
-	typedef std::map<DEV_TEXTURE, TexDescIterator> DevToTexDescMap;
+	std::list<TexDesc> _textures;
+	std::map<std::string, std::list<TexDesc>::iterator> _mapFile_to_TexDescIter;
+	std::map<DEV_TEXTURE, std::list<TexDesc>::iterator> _mapDevTex_to_TexDescIter;
+	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
+	std::vector<LogicalTexture> _logicalTextures;
 
-	FileToTexDescMap _mapFile_to_TexDescIter;
-	DevToTexDescMap  _mapDevTex_to_TexDescIter;
-	TexDescList      _textures;
-	std::map<std::string, size_t>   _mapName_to_Index;// index in _logicalTextures
-	std::vector<LogicalTexture>  _logicalTextures;
-
-	void LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs);
-	void Unload(TexDescIterator what);
+	void LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs);
 
 	void CreateChecker(); // Create checker texture without name and with index=0
 };
-
-// end of file

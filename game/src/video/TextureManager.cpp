@@ -53,7 +53,7 @@ TextureManager::~TextureManager()
 
 void TextureManager::UnloadAllTextures()
 {
-	TexDescIterator it = _textures.begin();
+	auto it = _textures.begin();
 	while( it != _textures.end() )
 		_render.TexFree((it++)->id);
 	_textures.clear();
@@ -63,9 +63,9 @@ void TextureManager::UnloadAllTextures()
 	_logicalTextures.clear();
 }
 
-void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs)
+void TextureManager::LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs)
 {
-	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.find(fileName);
+	auto it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
 	{
 		itTexDesc = it->second;
@@ -90,25 +90,6 @@ void TextureManager::LoadTexture(TexDescIterator &itTexDesc, const std::string &
 		_mapFile_to_TexDescIter[fileName] = itTexDesc;
 		_mapDevTex_to_TexDescIter[itTexDesc->id] = itTexDesc;
 	}
-}
-
-void TextureManager::Unload(TexDescIterator what)
-{
-	_render.TexFree(what->id);
-
-	FileToTexDescMap::iterator it = _mapFile_to_TexDescIter.begin();
-	while( _mapFile_to_TexDescIter.end() != it )
-	{
-		if( it->second->id == what->id )
-		{
-			_mapFile_to_TexDescIter.erase(it);
-			break;
-		}
-		++it;
-	}
-
-	_mapDevTex_to_TexDescIter.erase(what->id);
-	_textures.erase(what);
 }
 
 void TextureManager::CreateChecker()
@@ -144,7 +125,7 @@ void TextureManager::CreateChecker()
 	td.refCount  = 0;
 
 	_textures.push_front(td);
-	TexDescIterator it = _textures.begin();
+	auto it = _textures.begin();
 
 
 
@@ -213,7 +194,7 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 
 		while( lua_istable(L, -1) )
 		{
-			TexDescIterator td;
+			std::list<TexDesc>::iterator td;
 
 			// get a file name; load
 			lua_getfield(L, -1, "file");
@@ -309,8 +290,7 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 							{
 								// replace existing logical texture
 								LogicalTexture &existing = _logicalTextures[it->second];
-								TexDescIterator tmp =
-									_mapDevTex_to_TexDescIter[existing.dev_texture];
+								auto tmp = _mapDevTex_to_TexDescIter[existing.dev_texture];
 								existing = tex;
 								tmp->refCount--;
 								assert(tmp->refCount >= 0);
@@ -340,13 +320,29 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 	//
 	// unload unused textures
 	//
-	TexDescIterator it = _textures.begin();
+	auto it = _textures.begin();
 	while( _textures.end() != it )
 	{
-        TexDescIterator tmp = it++;
-		assert(tmp->refCount >= 0);
-		if( 0 == tmp->refCount )
-			Unload(tmp);
+		auto what = it++;
+		assert(what->refCount >= 0);
+		if (0 == what->refCount)
+		{
+			_render.TexFree(what->id);
+
+			auto it2 = _mapFile_to_TexDescIter.begin();
+			while (_mapFile_to_TexDescIter.end() != it2)
+			{
+				if (it2->second->id == what->id)
+				{
+					_mapFile_to_TexDescIter.erase(it2);
+					break;
+				}
+				++it2;
+			}
+
+			_mapDevTex_to_TexDescIter.erase(what->id);
+			_textures.erase(what);
+		}
 	}
 
 	TRACE("Total number of loaded textures: %d", _logicalTextures.size());
@@ -360,7 +356,7 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 	auto files = dir->EnumAllFiles("*.tga");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{
-		TexDescIterator td;
+		std::list<TexDesc>::iterator td;
 		std::string fileName = dirName + '/' + *it;
 		try
 		{
@@ -427,4 +423,3 @@ float TextureManager::GetCharHeight(size_t fontTexture) const
 	return GetSpriteInfo(fontTexture).pxFrameHeight;
 }
 
-// end of file
