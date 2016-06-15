@@ -92,25 +92,11 @@ std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const s
 
 void TextureManager::CreateChecker()
 {
-	TexDesc td;
-	LogicalTexture tex;
-
-
-	//
-	// check if checker texture already exists
-	//
-
 	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
 	assert(_mapName_to_Index.empty());
-
 	TRACE("Creating checker texture...");
 
-
-
-	//
-	// create device texture
-	//
-
+	TexDesc td;
 	CheckerImage c;
 	if( !_render.TexCreate(td.id, c) )
 	{
@@ -118,29 +104,23 @@ void TextureManager::CreateChecker()
 		assert(false);
 		return;
 	}
-	td.width     = c.GetWidth();
-	td.height    = c.GetHeight();
-	td.refCount  = 0;
+	td.width = c.GetWidth();
+	td.height = c.GetHeight();
+	td.refCount = 0;
 
 	_devTextures.push_front(td);
-	auto it = _devTextures.begin();
 
+	auto texDescIter = _devTextures.begin();
+	texDescIter->refCount++;
 
-
-	//
-	// create logical texture
-	//
-
+	LogicalTexture tex;
 	tex.uvPivot = vec2d(0, 0);
 	tex.pxFrameWidth = (float) td.width * 8;
 	tex.pxFrameHeight = (float) td.height * 8;
 	tex.pxBorderSize = 0;
+	tex.uvFrames = { { 0,0,8,8 } };
 
-	FRECT whole = {0,0,8,8};
-	tex.uvFrames.push_back(whole);
-	//---------------------
-	_logicalTextures.emplace_back(tex, it);
-	it->refCount++;
+	_logicalTextures.emplace_back(tex, texDescIter);
 }
 
 static int getint(lua_State *L, int tblidx, const char *field, int def)
