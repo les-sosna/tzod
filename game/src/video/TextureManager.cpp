@@ -265,14 +265,14 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 							if( emplaced.second )
 							{
 								// define new texture
-								_logicalTextures.emplace_back(tex, texDescIter);
+								_logicalTextures.emplace_back(std::move(tex), texDescIter);
 							}
 							else
 							{
 								// replace existing logical texture
 								auto &existing = _logicalTextures[emplaced.first->second];
 								assert(existing.second->refCount > 0);
-								existing.first = tex;
+								existing.first = std::move(tex);
 								existing.second->refCount--;
 								existing.second = texDescIter;
 							}
