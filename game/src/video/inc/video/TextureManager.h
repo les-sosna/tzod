@@ -69,7 +69,7 @@ protected:
 	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
 	std::vector<std::pair<LogicalTexture, DEV_TEXTURE>> _logicalTextures;
 
-	void LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs);
+	std::list<TexDesc>::iterator LoadTexture(const std::string &fileName, FS::FileSystem &fs);
 
 	void CreateChecker(); // Create checker texture without name and with index=0
 };

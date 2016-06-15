@@ -62,17 +62,17 @@ void TextureManager::UnloadAllTextures()
 	_logicalTextures.clear();
 }
 
-void TextureManager::LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const std::string &fileName, FS::FileSystem &fs)
+std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const std::string &fileName, FS::FileSystem &fs)
 {
 	auto it = _mapFile_to_TexDescIter.find(fileName);
 	if( _mapFile_to_TexDescIter.end() != it )
 	{
-		itTexDesc = it->second;
+		return it->second;
 	}
 	else
 	{
 		std::shared_ptr<FS::MemMap> file = fs.Open(fileName)->QueryMap();
-		std::unique_ptr<TgaImage> image(new TgaImage(file->GetData(), file->GetSize()));
+		std::unique_ptr<Image> image(new TgaImage(file->GetData(), file->GetSize()));
 
 		TexDesc td;
 		if( !_render.TexCreate(td.id, *image) )
@@ -85,9 +85,10 @@ void TextureManager::LoadTexture(std::list<TexDesc>::iterator &itTexDesc, const 
 		td.refCount  = 0;
 
 		_devTextures.push_front(td);
-		itTexDesc = _devTextures.begin();
-		_mapFile_to_TexDescIter[fileName] = itTexDesc;
-		_mapDevTex_to_TexDescIter[itTexDesc->id] = itTexDesc;
+		auto it2 = _devTextures.begin();
+		_mapFile_to_TexDescIter.emplace(fileName, it2);
+		_mapDevTex_to_TexDescIter.emplace(it2->id, it2);
+		return it2;
 	}
 }
 
@@ -245,16 +246,14 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 
 		while( lua_istable(L, -1) )
 		{
-			std::list<TexDesc>::iterator td;
-
-			// get a file name; load
 			lua_getfield(L, -1, "file");
-			std::string f = lua_tostring(L, -1);
+			std::string fileName = lua_tostring(L, -1);
 			lua_pop(L, 1); // pop result of lua_getfield
 
+			std::list<TexDesc>::iterator td;
 			try
 			{
-				LoadTexture(td, f, fs);
+				td = LoadTexture(fileName, fs);
 			}
 			catch( const std::exception &e )
 			{
@@ -262,7 +261,6 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 				break;
 			}
 
-			// get 'content' field
 			lua_getfield(L, -1, "content");
 			if( lua_istable(L, -1) )
 			{
@@ -360,7 +358,7 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 		std::string fileName = dirName + '/' + *it;
 		try
 		{
-			LoadTexture(td, fileName, fs);
+			td = LoadTexture(fileName, fs);
 		}
 		catch( const std::exception &e )
 		{
