@@ -11,6 +11,7 @@ include_directories(
 	${GV_SOURCE_DIR}/inc
 	${LibUI_SOURCE_DIR}/inc
 	${Loc_SOURCE_DIR}/inc
+	${LuaEtc_SOURCE_DIR}/inc
 	${MapFile_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
 	${Render_SOURCE_DIR}/inc
@@ -60,5 +61,6 @@ target_link_libraries(shell
 	render
 	ui
 	lua
+	luaetc
 )
 

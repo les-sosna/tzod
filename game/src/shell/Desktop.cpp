@@ -41,13 +41,6 @@ extern "C"
 
 static CounterBase counterDt("dt", "dt, ms");
 
-
-void LuaStateDeleter::operator()(lua_State *L)
-{
-	lua_close(L);
-}
-
-
 Desktop::Desktop(UI::LayoutManager &manager,
                  TextureManager &texman,
                  AppState &appState,

@@ -14,6 +14,7 @@ endif()
 
 add_subdirectory(external)
 
+add_subdirectory(luaetc)
 add_subdirectory(fs)
 add_subdirectory(config)
 add_subdirectory(loc)

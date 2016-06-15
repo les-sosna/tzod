@@ -2,6 +2,7 @@
 #include "detail/ConfigConsoleHistory.h"
 #include "detail/DefaultCamera.h"
 #include <as/AppStateListener.h>
+#include <luaetc/LuaDeleter.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
 #include <ui/Window.h>
@@ -12,12 +13,6 @@ namespace FS
 {
 	class FileSystem;
 }
-struct lua_State;
-
-struct LuaStateDeleter
-{
-	void operator()(lua_State *L);
-};
 
 namespace UI
 {
