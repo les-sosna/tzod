@@ -12,7 +12,7 @@ struct SpriteColor
 		};
 	};
 
-	SpriteColor() {}
+	SpriteColor() = default;
 	SpriteColor(uint32_t c) : color(c) {}
 	SpriteColor(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_)
 		: r(r_)
@@ -75,7 +75,7 @@ struct MyVertex
 class Image
 {
 public:
-	virtual ~Image() {}
+	virtual ~Image() = default;
 	virtual const void* GetData() const = 0;
 	virtual unsigned int GetBpp() const = 0;
 	virtual unsigned int GetWidth() const = 0;
@@ -86,7 +86,7 @@ public:
 
 struct IRender
 {
-	virtual ~IRender() {}
+	virtual ~IRender() = default;
 	virtual void OnResizeWnd(unsigned int width, unsigned int height) = 0;
 	virtual void SetDisplayOrientation(DisplayOrientation displayOrientation) = 0;
 
@@ -117,6 +117,3 @@ struct IRender
 
 	virtual void DrawLines(const MyLine *lines, size_t count) = 0;
 };
-
-
-// end of file
