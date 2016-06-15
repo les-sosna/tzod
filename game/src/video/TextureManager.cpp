@@ -57,7 +57,6 @@ void TextureManager::UnloadAllTextures()
 		_render.TexFree(t.id);
 	_devTextures.clear();
 	_mapFile_to_TexDescIter.clear();
-	_mapDevTex_to_TexDescIter.clear();
 	_mapName_to_Index.clear();
 	_logicalTextures.clear();
 }
@@ -87,7 +86,6 @@ std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const s
 		_devTextures.push_front(td);
 		auto it2 = _devTextures.begin();
 		_mapFile_to_TexDescIter.emplace(fileName, it2);
-		_mapDevTex_to_TexDescIter.emplace(it2->id, it2);
 		return it2;
 	}
 }
@@ -141,7 +139,7 @@ void TextureManager::CreateChecker()
 	FRECT whole = {0,0,8,8};
 	tex.uvFrames.push_back(whole);
 	//---------------------
-	_logicalTextures.emplace_back(tex, it->id);
+	_logicalTextures.emplace_back(tex, it);
 	it->refCount++;
 }
 
@@ -250,10 +248,10 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 			std::string fileName = lua_tostring(L, -1);
 			lua_pop(L, 1); // pop result of lua_getfield
 
-			std::list<TexDesc>::iterator td;
+			std::list<TexDesc>::iterator texDescIter;
 			try
 			{
-				td = LoadTexture(fileName, fs);
+				texDescIter = LoadTexture(fileName, fs);
 			}
 			catch( const std::exception &e )
 			{
@@ -278,26 +276,25 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 					if( const char *texname = lua_tostring(L, -1) )
 					{
 						// now 'value' at index -2
-						LogicalTexture tex = getlt(L, -2, (float)td->width, (float)td->height);
-						if(!tex.uvFrames.empty())
+						LogicalTexture tex = getlt(L, -2, (float)texDescIter->width, (float)texDescIter->height);
+						if( !tex.uvFrames.empty() )
 						{
-							td->refCount++;
+							texDescIter->refCount++;
 
-							auto it = _mapName_to_Index.find(texname);
-							if( _mapName_to_Index.end() != it )
+							auto emplaced = _mapName_to_Index.emplace(texname, _logicalTextures.size());
+							if( emplaced.second )
 							{
-								// replace existing logical texture
-								auto &existing = _logicalTextures[it->second];
-								auto tmp = _mapDevTex_to_TexDescIter[existing.second];
-								existing.first = tex;
-								tmp->refCount--;
-								assert(tmp->refCount >= 0);
+								// define new texture
+								_logicalTextures.emplace_back(tex, texDescIter);
 							}
 							else
 							{
-								// define new texture
-								_mapName_to_Index[texname] = _logicalTextures.size();
-								_logicalTextures.emplace_back(tex, td->id);
+								// replace existing logical texture
+								auto &existing = _logicalTextures[emplaced.first->second];
+								assert(existing.second->refCount > 0);
+								existing.first = tex;
+								existing.second->refCount--;
+								existing.second = texDescIter;
 							}
 						}
 					}
@@ -318,28 +315,17 @@ int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<
 	//
 	// unload unused textures
 	//
-	auto it = _devTextures.begin();
-	while( _devTextures.end() != it )
+
+	for (auto it = _mapFile_to_TexDescIter.begin(); _mapFile_to_TexDescIter.end() != it; )
 	{
-		auto what = it++;
-		assert(what->refCount >= 0);
-		if (0 == what->refCount)
+		if (0 == it->second->refCount)
 		{
-			_render.TexFree(what->id);
-
-			auto it2 = _mapFile_to_TexDescIter.begin();
-			while (_mapFile_to_TexDescIter.end() != it2)
-			{
-				if (it2->second->id == what->id)
-				{
-					_mapFile_to_TexDescIter.erase(it2);
-					break;
-				}
-				++it2;
-			}
-
-			_mapDevTex_to_TexDescIter.erase(what->id);
-			_devTextures.erase(what);
+			_devTextures.erase(it->second);
+			it = _mapFile_to_TexDescIter.erase(it);
+		}
+		else
+		{
+			++it;
 		}
 	}
 
@@ -354,11 +340,17 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 	auto files = dir->EnumAllFiles("*.tga");
 	for( auto it = files.begin(); it != files.end(); ++it )
 	{
-		std::list<TexDesc>::iterator td;
+		std::string texName = texPrefix + *it;
+		texName.erase(texName.length() - 4); // cut out the file extension
+
+		if (_mapName_to_Index.end() != _mapName_to_Index.find(texName))
+			continue; // skip if there is a texture with the same name
+
+		std::list<TexDesc>::iterator texDescIter;
 		std::string fileName = dirName + '/' + *it;
 		try
 		{
-			td = LoadTexture(fileName, fs);
+			texDescIter = LoadTexture(fileName, fs);
 		}
 		catch( const std::exception &e )
 		{
@@ -366,23 +358,16 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 			continue;
 		}
 
-		std::string texName = texPrefix + *it;
-		texName.erase(texName.length() - 4); // cut out the file extension
-
 		LogicalTexture tex;
 		tex.uvPivot  = vec2d(0.5f, 0.5f);
-		tex.pxFrameWidth = (float) td->width;
-		tex.pxFrameHeight = (float) td->height;
+		tex.pxFrameWidth = (float) texDescIter->width;
+		tex.pxFrameHeight = (float) texDescIter->height;
 		tex.pxBorderSize = 0;
+		tex.uvFrames = { { 0, 0, 1, 1 } };
 
-		FRECT frame = {0,0,1,1};
-		tex.uvFrames.push_back(frame);
-		//---------------------
-		if( _mapName_to_Index.end() != _mapName_to_Index.find(texName) )
-			continue; // skip if there is a texture with the same name
 		_mapName_to_Index[texName] = _logicalTextures.size();
-		_logicalTextures.emplace_back(tex, td->id);
-		td->refCount++;
+		_logicalTextures.emplace_back(tex, texDescIter);
+		texDescIter->refCount++;
 		count++;
 	}
 	return count;

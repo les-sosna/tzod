@@ -41,7 +41,7 @@ public:
 	void UnloadAllTextures();
 
 	size_t FindSprite(const std::string &name) const;
-	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const { return _logicalTextures[texIndex].second; }
+	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const { return _logicalTextures[texIndex].second->id; }
 	const LogicalTexture& GetSpriteInfo(size_t texIndex) const { return _logicalTextures[texIndex].first; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].first.pxFrameWidth; }
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].first.pxFrameHeight; }
@@ -65,9 +65,8 @@ protected:
 
 	std::list<TexDesc> _devTextures;
 	std::map<std::string, std::list<TexDesc>::iterator> _mapFile_to_TexDescIter;
-	std::map<DEV_TEXTURE, std::list<TexDesc>::iterator> _mapDevTex_to_TexDescIter;
 	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
-	std::vector<std::pair<LogicalTexture, DEV_TEXTURE>> _logicalTextures;
+	std::vector<std::pair<LogicalTexture, std::list<TexDesc>::iterator>> _logicalTextures;
 
 	std::list<TexDesc>::iterator LoadTexture(const std::string &fileName, FS::FileSystem &fs);
 
