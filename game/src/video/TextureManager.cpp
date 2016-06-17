@@ -14,6 +14,7 @@ extern "C"
 }
 
 #include <cstring>
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,36 +57,33 @@ void TextureManager::UnloadAllTextures()
 	for (auto &t: _devTextures)
 		_render.TexFree(t.id);
 	_devTextures.clear();
-	_mapFile_to_TexDescIter.clear();
+	_mapImage_to_TexDescIter.clear();
 	_mapName_to_Index.clear();
 	_logicalTextures.clear();
 }
 
-std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const std::string &fileName, FS::FileSystem &fs)
+std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const std::shared_ptr<Image> &image)
 {
-	auto it = _mapFile_to_TexDescIter.find(fileName);
-	if( _mapFile_to_TexDescIter.end() != it )
+	auto it = _mapImage_to_TexDescIter.find(image);
+	if( _mapImage_to_TexDescIter.end() != it )
 	{
 		return it->second;
 	}
 	else
 	{
-		std::shared_ptr<FS::MemMap> file = fs.Open(fileName)->QueryMap();
-		std::unique_ptr<Image> image(new TgaImage(file->GetData(), file->GetSize()));
-
 		TexDesc td;
 		if( !_render.TexCreate(td.id, *image) )
 		{
 			throw std::runtime_error("error in render device");
 		}
 
-		td.width     = image->GetWidth();
-		td.height    = image->GetHeight();
-		td.refCount  = 0;
+		td.width = image->GetWidth();
+		td.height = image->GetHeight();
+		td.refCount = 0;
 
 		_devTextures.push_front(td);
 		auto it2 = _devTextures.begin();
-		_mapFile_to_TexDescIter.emplace(fileName, it2);
+		_mapImage_to_TexDescIter.emplace(image, it2);
 		return it2;
 	}
 }
@@ -192,116 +190,121 @@ static LogicalTexture getlt(lua_State *L, int idx, float pxWidth, float pxHeight
 	return tex;
 }
 
-int TextureManager::LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs)
+#include <luaetc/LuaDeleter.h>
+
+std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
+ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs)
 {
-	TRACE("Loading texture package '%s'", packageName.c_str());
+	std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> result;
 
-	lua_State *L = lua_open();
+	std::unique_ptr<lua_State, LuaStateDeleter> luaState(lua_open());
+	if (!luaState)
+		throw std::bad_alloc();
 
-	if( 0 != (luaL_loadbuffer(L, file->GetData(), file->GetSize(), packageName.c_str()) || lua_pcall(L, 0, 1, 0)) )
+	lua_State *L = luaState.get();
+
+	if (0 != (luaL_loadbuffer(L, file->GetData(), file->GetSize(), packageName.c_str()) || lua_pcall(L, 0, 1, 0)))
 	{
-		TRACE("%s", lua_tostring(L, -1));
+		std::runtime_error e(lua_tostring(L, -1));
 		lua_close(L);
-		return 0;
+		throw e;
 	}
 
-	if( !lua_istable(L, 1) )
+	std::map<std::string, std::shared_ptr<Image>> imageCache;
+
+	if (lua_istable(L, -1))
 	{
-		lua_close(L);
-		return 0;
-	}
-
-	// loop over files
-	for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
-	{
-		// now 'key' is at index -2 and 'value' at index -1
-
-		// check that value is a table
-		if( !lua_istable(L, -1) )
+		// loop over files
+		for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1))
 		{
-			TRACE("WARNING: value is not a table; skipping.");
-		}
+			// now 'key' is at index -2 and 'value' at index -1
+			if (!lua_istable(L, -1))
+				continue;
 
-		while( lua_istable(L, -1) )
-		{
 			lua_getfield(L, -1, "file");
 			std::string fileName = lua_tostring(L, -1);
 			lua_pop(L, 1); // pop result of lua_getfield
 
-			std::list<TexDesc>::iterator texDescIter;
-			try
+			auto &cachedImage = imageCache[fileName];
+			if (!cachedImage)
 			{
-				texDescIter = LoadTexture(fileName, fs);
-			}
-			catch( const std::exception &e )
-			{
-				TRACE("WARNING: could not load texture '%s' - %s", f.c_str(), e.what());
-				break;
+				try
+				{
+					auto file = fs.Open(fileName)->QueryMap();
+					cachedImage = std::make_shared<TgaImage>(file->GetData(), file->GetSize());
+				}
+				catch (const std::exception &e)
+				{
+					TRACE("WARNING: could not load texture '%s' - %s", f.c_str(), e.what());
+					continue;
+				}
 			}
 
 			lua_getfield(L, -1, "content");
-			if( lua_istable(L, -1) )
+			if (lua_istable(L, -1))
 			{
 				// loop over textures in 'content' table
-				for( lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1) )
+				for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1))
 				{
-					if( !lua_istable(L, -1) )
-					{
-						TRACE("WARNING: element of 'content' is not a table; skipping");
+					if (!lua_istable(L, -1))
 						continue;
-					}
 
-					// copy the key because lua_tostring may change its type
+					// make the key copy because lua_tostring may change its type
 					lua_pushvalue(L, -2);
-					if( const char *texname = lua_tostring(L, -1) )
+					if (const char *texname = lua_tostring(L, -1))
 					{
 						// now 'value' at index -2
-						LogicalTexture tex = getlt(L, -2, (float)texDescIter->width, (float)texDescIter->height);
-						if( !tex.uvFrames.empty() )
-						{
-							texDescIter->refCount++;
-
-							auto emplaced = _mapName_to_Index.emplace(texname, _logicalTextures.size());
-							if( emplaced.second )
-							{
-								// define new texture
-								_logicalTextures.emplace_back(std::move(tex), texDescIter);
-							}
-							else
-							{
-								// replace existing logical texture
-								auto &existing = _logicalTextures[emplaced.first->second];
-								assert(existing.second->refCount > 0);
-								existing.first = std::move(tex);
-								existing.second->refCount--;
-								existing.second = texDescIter;
-							}
-						}
+						result.emplace_back(cachedImage, texname, getlt(L, -2, (float)cachedImage->GetWidth(), (float)cachedImage->GetHeight()));
 					}
 					lua_pop(L, 1); // pop key copy
-				} // loop over 'content'
+				}
 			}
-			else // if 'content' is table
-			{
-				TRACE("WARNING: 'content' field is not a table.");
-			}
-			lua_pop(L, 1); // pop the result of getfield("content")
-			break;
-		} // while( lua_istable(L, -1) )
+			lua_pop(L, 1); // pop content
+		}
 	}
-	lua_close(L);
+
+	return result;
+}
+
+int TextureManager::LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions)
+{
+	for (auto &item: definitions)
+	{
+		LogicalTexture &tex = std::get<2>(item);
+		if( !tex.uvFrames.empty() )
+		{
+			std::list<TexDesc>::iterator texDescIter = LoadTexture(std::get<0>(item));
+			texDescIter->refCount++;
+
+			auto emplaced = _mapName_to_Index.emplace(std::get<1>(item), _logicalTextures.size());
+			if( emplaced.second )
+			{
+				// define new texture
+				_logicalTextures.emplace_back(std::move(tex), texDescIter);
+			}
+			else
+			{
+				// replace existing logical texture
+				auto &existing = _logicalTextures[emplaced.first->second];
+				assert(existing.second->refCount > 0);
+				existing.first = std::move(tex);
+				existing.second->refCount--;
+				existing.second = texDescIter;
+			}
+		}
+	}
 
 
 	//
 	// unload unused textures
 	//
 
-	for (auto it = _mapFile_to_TexDescIter.begin(); _mapFile_to_TexDescIter.end() != it; )
+	for (auto it = _mapImage_to_TexDescIter.begin(); _mapImage_to_TexDescIter.end() != it; )
 	{
 		if (0 == it->second->refCount)
 		{
 			_devTextures.erase(it->second);
-			it = _mapFile_to_TexDescIter.erase(it);
+			it = _mapImage_to_TexDescIter.erase(it);
 		}
 		else
 		{
@@ -330,7 +333,8 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 		std::string fileName = dirName + '/' + *it;
 		try
 		{
-			texDescIter = LoadTexture(fileName, fs);
+			auto file = fs.Open(fileName)->QueryMap();
+			texDescIter = LoadTexture(std::make_shared<TgaImage>(file->GetData(), file->GetSize()));
 		}
 		catch( const std::exception &e )
 		{

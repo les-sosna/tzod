@@ -8,6 +8,7 @@ endif()
 include_directories(
 	${FileSystem_SOURCE_DIR}/inc
 	${Math_SOURCE_DIR}/inc
+	${LuaEtc_SOURCE_DIR}/inc
 
 	# 3rd party
 	${GLFW_SOURCE_DIR}/include
@@ -37,5 +38,6 @@ add_library(video ${video_SOURCES})
 target_link_libraries(video
 	filesystem
 	lua
+	luaetc
 	${GLFW_LIBRARIES}
 )

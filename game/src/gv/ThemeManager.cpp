@@ -45,7 +45,7 @@ void ThemeManager::OnGameContextChanging()
 void ThemeManager::OnGameContextChanged()
 {
 	// load default theme
-	_textureManager.LoadPackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs);
+	_textureManager.LoadPackage(ParsePackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs));
 
 	if (GameContextBase *gameContext = GetAppState().GetGameContext())
 	{
@@ -55,7 +55,8 @@ void ThemeManager::OnGameContextChanged()
 			if (GetThemeName(i) == gameContext->GetWorld()._infoTheme)
 			{
 				// _themes there is no entry for default
-				_textureManager.LoadPackage(_themes[i - 1].fileName, _themes[i - 1].file, _fs);
+
+				_textureManager.LoadPackage(ParsePackage(_themes[i - 1].fileName, _themes[i - 1].file, _fs));
 			}
 		}
 	}

@@ -36,7 +36,7 @@ public:
 
 	IRender& GetRender() const { return _render; }
 
-	int LoadPackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs);
+	int LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions);
 	int LoadDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs);
 	void UnloadAllTextures();
 
@@ -64,11 +64,14 @@ protected:
 	};
 
 	std::list<TexDesc> _devTextures;
-	std::map<std::string, std::list<TexDesc>::iterator> _mapFile_to_TexDescIter;
+	std::map<std::shared_ptr<Image>, std::list<TexDesc>::iterator> _mapImage_to_TexDescIter;
 	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
 	std::vector<std::pair<LogicalTexture, std::list<TexDesc>::iterator>> _logicalTextures;
 
-	std::list<TexDesc>::iterator LoadTexture(const std::string &fileName, FS::FileSystem &fs);
+	std::list<TexDesc>::iterator LoadTexture(const std::shared_ptr<Image> &image);
 
 	void CreateChecker(); // Create checker texture without name and with index=0
 };
+
+std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
+ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs);
