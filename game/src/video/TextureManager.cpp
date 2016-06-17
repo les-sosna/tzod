@@ -316,9 +316,11 @@ int TextureManager::LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, s
 	return _logicalTextures.size();
 }
 
-int TextureManager::LoadDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs)
+std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
+ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs)
 {
-	int count = 0;
+	std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> result;
+
 	std::shared_ptr<FS::FileSystem> dir = fs.GetFileSystem(dirName);
 	auto files = dir->EnumAllFiles("*.tga");
 	for( auto it = files.begin(); it != files.end(); ++it )
@@ -326,15 +328,13 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 		std::string texName = texPrefix + *it;
 		texName.erase(texName.length() - 4); // cut out the file extension
 
-		if (_mapName_to_Index.end() != _mapName_to_Index.find(texName))
-			continue; // skip if there is a texture with the same name
+		std::shared_ptr<Image> image;
 
-		std::list<TexDesc>::iterator texDescIter;
 		std::string fileName = dirName + '/' + *it;
 		try
 		{
 			auto file = fs.Open(fileName)->QueryMap();
-			texDescIter = LoadTexture(std::make_shared<TgaImage>(file->GetData(), file->GetSize()));
+			image = std::make_shared<TgaImage>(file->GetData(), file->GetSize());
 		}
 		catch( const std::exception &e )
 		{
@@ -344,17 +344,15 @@ int TextureManager::LoadDirectory(const std::string &dirName, const std::string 
 
 		LogicalTexture tex;
 		tex.uvPivot  = vec2d(0.5f, 0.5f);
-		tex.pxFrameWidth = (float) texDescIter->width;
-		tex.pxFrameHeight = (float) texDescIter->height;
+		tex.pxFrameWidth = (float) image->GetWidth();
+		tex.pxFrameHeight = (float) image->GetHeight();
 		tex.pxBorderSize = 0;
 		tex.uvFrames = { { 0, 0, 1, 1 } };
 
-		_mapName_to_Index[texName] = _logicalTextures.size();
-		_logicalTextures.emplace_back(tex, texDescIter);
-		texDescIter->refCount++;
-		count++;
+		result.emplace_back(image, texName, tex);
 	}
-	return count;
+
+	return result;
 }
 
 size_t TextureManager::FindSprite(const std::string &name) const

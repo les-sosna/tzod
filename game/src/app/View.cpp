@@ -21,7 +21,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &
 
 	if (textureManager.LoadPackage(ParsePackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs)) <= 0)
 		logger.Printf(1, "WARNING: no textures loaded");
-	if (textureManager.LoadDirectory(DIR_SKINS, "skin/", fs) <= 0)
+	if (textureManager.LoadPackage(ParseDirectory(DIR_SKINS, "skin/", fs)) <= 0)
 		logger.Printf(1, "WARNING: no skins found");
 
 	return textureManager;

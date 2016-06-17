@@ -37,7 +37,6 @@ public:
 	IRender& GetRender() const { return _render; }
 
 	int LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions);
-	int LoadDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs);
 	void UnloadAllTextures();
 
 	size_t FindSprite(const std::string &name) const;
@@ -75,3 +74,6 @@ protected:
 
 std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
 ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs);
+
+std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
+ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs);
