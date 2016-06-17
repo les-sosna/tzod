@@ -36,7 +36,7 @@ public:
 	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
 	void DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length);
 
-	void Camera(const RectRB &viewport, float x, float y, float scale);
+	void Camera(RectRB viewport, float x, float y, float scale);
 	void SetAmbient(float ambient);
 	void SetMode(const RenderMode mode);
 
@@ -45,4 +45,5 @@ private:
 	std::stack<RectRB> _clipStack;
 	std::stack<vec2d> _transformStack;
 	RectRB _viewport;
+	RenderMode _mode;
 };

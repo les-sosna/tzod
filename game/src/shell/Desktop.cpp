@@ -277,7 +277,7 @@ void Desktop::OnNewDM()
 	if (GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
 		GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman);
+		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs);
 		dlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender, result);

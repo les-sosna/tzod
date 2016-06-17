@@ -300,8 +300,11 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		}
 	}
 
-	sx += _transformStack.top().x;
-	sy += _transformStack.top().y;
+	if (_mode == RM_INTERFACE)
+	{
+		sx += _transformStack.top().x;
+		sy += _transformStack.top().y;
+	}
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
@@ -366,8 +369,11 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	x += _transformStack.top().x;
-	y += _transformStack.top().y;
+	if (_mode == RM_INTERFACE)
+	{
+		x += _transformStack.top().x;
+		y += _transformStack.top().y;
+	}
 
 	float width = lt.pxFrameWidth;
 	float height = lt.pxFrameHeight;
@@ -407,9 +413,11 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 	MyVertex *v = _tm.GetRender().DrawQuad(_tm.GetDeviceTexture(tex));
 
-	x += _transformStack.top().x;
-	y += _transformStack.top().y;
-
+	if (_mode == RM_INTERFACE)
+	{
+		x += _transformStack.top().x;
+		y += _transformStack.top().y;
+	}
 
 	float px = lt.uvPivot.x * width;
 	float py = lt.uvPivot.y * height;
@@ -641,8 +649,12 @@ void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, v
 	}
 }
 
-void DrawingContext::Camera(const RectRB &viewport, float x, float y, float scale)
+void DrawingContext::Camera(RectRB viewport, float x, float y, float scale)
 {
+	viewport.left += (int) _transformStack.top().x;
+	viewport.top += (int) _transformStack.top().y;
+	viewport.right += (int) _transformStack.top().x;
+	viewport.bottom += (int) _transformStack.top().y;
 	_tm.GetRender().Camera(&viewport, x, y, scale);
 }
 
@@ -654,4 +666,5 @@ void DrawingContext::SetAmbient(float ambient)
 void DrawingContext::SetMode(const RenderMode mode)
 {
 	_tm.GetRender().SetMode(mode);
+	_mode = mode;
 }
