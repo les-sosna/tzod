@@ -37,6 +37,7 @@ add_library(shell
 	KeyMapper.cpp
 	MainMenu.cpp
 	MapList.cpp
+	MapPreview.cpp
 	MapSettings.cpp
 	MessageArea.cpp
 	Network.cpp

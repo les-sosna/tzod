@@ -61,9 +61,19 @@ public:
 		return vec2d(x * a, y * a);
 	}
 
+	vec2d operator * (const vec2d &v) const
+	{
+		return vec2d(x * v.x, y * v.y);
+	}
+
 	vec2d operator / (float a) const
 	{
 		return vec2d(x / a, y / a);
+	}
+
+	vec2d operator / (const vec2d &v) const
+	{
+		return vec2d(x / v.x, y / v.y);
 	}
 
 	const vec2d& operator *= (float a)

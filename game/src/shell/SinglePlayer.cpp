@@ -1,33 +1,24 @@
 #include "SinglePlayer.h"
+#include "MapPreview.h"
 #include <render/WorldView.h>
 #include <MapFile.h>
 #include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <video/DrawingContext.h>
+#include <thread>
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs)
-	: UI::Dialog(manager, texman, 600, 400)
-	, _worldView(worldView)
+	: UI::Dialog(manager, texman, 562, 400)
 {
-	auto stream = fs.GetFileSystem("maps")->Open("dm5.map")->QueryStream();
-	MapFile file(*stream, false);
-
-	int width, height;
-	if (!file.getMapAttribute("width", width) ||
-		!file.getMapAttribute("height", height))
+	std::vector<std::string> maps = { "dm1", "skew-dm", "dm3", "dm5" };
+	float x = 10;
+	for( auto &map: maps )
 	{
-		throw std::runtime_error("unknown map size");
+		auto mp = std::make_shared<MapPreview>(manager, texman, worldView);
+		mp->Resize(128, 128);
+		mp->Move(x, 10.f);
+		mp->SetMapName(map, fs);
+		x += 128.f + 10.f;
+		AddFront(mp);
 	}
-
-	_world.reset(new World(width, height));
-	_world->Import(file);
 }
-
-void SinglePlayer::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
-{
-	UI::Dialog::Draw(hovered, focused, enabled, size, ic, dc, texman);
-
-	_worldView.Render(dc, *_world, { 0, 0, 256, 256}, vec2d(_world->_sx, _world->_sy) / 2, 1.f / 8, false, false, true);
-	dc.SetMode(RM_INTERFACE);
-}
-
