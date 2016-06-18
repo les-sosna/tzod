@@ -198,7 +198,7 @@ float GC_RigidBodyDynamic::GetSpinup() const
 vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 {
 	float result;
-	float vx = _lv * GetDirection();
+	float vx = Vec2dDot(_lv, GetDirection());
 	if( _Mx > 0 )
 	{
 		if( _Nx > 0 )
@@ -249,11 +249,11 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 
 	vec2d dir_y(GetDirection().y, -GetDirection().x);
 
-	float vx = _lv * GetDirection();
-	float vy = _lv * dir_y;
+	float vx = Vec2dDot(_lv, GetDirection());
+	float vy = Vec2dDot(_lv, dir_y);
 
 	_lv.Normalize();
-	vec2d dev(_lv * GetDirection(), _lv * dir_y);
+	vec2d dev(Vec2dDot(_lv, GetDirection()), Vec2dDot(_lv, dir_y));
 
 	if( vx > 0 )
 		vx = std::max(.0f, vx - _Nx * dt * dev.x);

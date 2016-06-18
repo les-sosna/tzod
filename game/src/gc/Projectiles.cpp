@@ -223,7 +223,7 @@ void GC_Rocket::SelectTarget(World &world)
 
 		vec2d a = target - GetPos();
 
-		float cosinus = (a * GetDirection()) / a.len();
+		float cosinus = Vec2dDot(a, GetDirection()) / a.len();
 
 		if( cosinus > nearest_cosinus )
 		{
@@ -288,7 +288,7 @@ void GC_Rocket::TimeStep(World &world, float dt)
 			vec2d a = target - GetPos();
 
 			vec2d p = a - GetDirection();
-			vec2d dv = p - GetDirection() * (GetDirection() * p);
+			vec2d dv = p - GetDirection() * Vec2dDot(GetDirection(), p);
 
 			float ldv = dv.len();
 			if( ldv > 0 )
@@ -546,7 +546,7 @@ GC_RigidBodyDynamic* GC_BfgCore::FindTarget(World &world) const
 
 		vec2d a = veh->GetPos() - GetPos();
 
-		float cosinus = (a * GetDirection()) / a.len();
+		float cosinus = Vec2dDot(a, GetDirection()) / a.len();
 
 		if( cosinus > nearest_cosinus )
 		{
@@ -631,7 +631,7 @@ void GC_BfgCore::TimeStep(World &world, float dt)
 		vec2d a = target - GetPos();
 
 		vec2d p = a - GetDirection();
-		vec2d dv = p - GetDirection() * (GetDirection() * p);
+		vec2d dv = p - GetDirection() * Vec2dDot(GetDirection(), p);
 
 		float ldv = dv.len();
 		if( ldv > 0 )
@@ -690,7 +690,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 {
 	vec2d nn(norm.y, -norm.x);
 
-	if( GetDirection() * nn < (world.net_frand(0.6f) - 0.3f) )
+	if(Vec2dDot(GetDirection(), nn) < (world.net_frand(0.6f) - 0.3f) )
 	{
 		nn = -nn;
 		_rotation = frand(4) + 5;
@@ -701,7 +701,7 @@ bool GC_FireSpark::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &
 	}
 
 
-	float vdotn = GetDirection() * norm;
+	float vdotn = Vec2dDot(GetDirection(), norm);
 	float up = (0.5f - 0.6f * world.net_frand(vdotn));
 	up *= up;
 	up *= up;
@@ -1008,7 +1008,7 @@ bool GC_Disk::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, 
 		dd.damage /= 3; // one third of damage to owner
 	ApplyHitDamage(world, *object, dd, GetDirection() * dd.damage / DAMAGE_DISK_MAX * 20);
 
-	SetDirection(GetDirection() - norm * 2 * (GetDirection() * norm));
+	SetDirection(GetDirection() - norm * 2 * Vec2dDot(GetDirection(), norm));
 	MoveWithTrail(world, hit + norm, true);
 
 	for( int i = 0; i < 11; ++i )
@@ -1078,7 +1078,7 @@ void GC_Disk::SpawnTrailParticle(World &world, const vec2d &pos)
 	vec2d dx = vrand(3.0f);
 	float time = frand(0.01f) + 0.03f;
 
-	vec2d v = (-dx - GetDirection() * (-dx * GetDirection())) / time;
+	vec2d v = (-dx - GetDirection() * Vec2dDot(-dx, GetDirection())) / time;
 	vec2d dir(v - GetDirection() * (32.0f / time));
 	dir.Normalize();
 	world.New<GC_Particle>(pos + dx - GetDirection()*4.0f, v, PARTICLE_TRACE2, time, dir);

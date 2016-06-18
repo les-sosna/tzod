@@ -466,7 +466,7 @@ std::list<AIController::PathNode>::const_iterator AIController::FindNearPathNode
 			--prevIt;
 			prevDir  = prevIt->coord - result->coord;
 			prevDir2 = prevDir.sqr();
-			prevDot  = prevDir * dev;
+			prevDot  = Vec2dDot(prevDir, dev);
 			prevL    = prevDot / sqrtf(prevDir2);
 		}
 
@@ -475,7 +475,7 @@ std::list<AIController::PathNode>::const_iterator AIController::FindNearPathNode
 		{
 			nextDir  = nextIt->coord - result->coord;
 			nextDir2 = nextDir.sqr();
-			nextDot  = nextDir * dev;
+			nextDot  = Vec2dDot(nextDir, dev);
 			nextL    = nextDot / sqrtf(nextDir2);
 		}
 
@@ -528,7 +528,7 @@ static void RotateTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2
 	vec2d tmp = x - vehicle.GetPos();
 	tmp.Normalize();
 
-	float cosDiff = tmp * vehicle.GetDirection();
+	float cosDiff = Vec2dDot(tmp, vehicle.GetDirection());
 	float minDiff = std::cos(MIN_PATH_ANGLE);
 
 	pState->_bState_MoveForward = cosDiff > minDiff && bForv;
@@ -547,7 +547,7 @@ void AIController::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, cons
 	{
 		tmp.Normalize();
 		tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
-		float cosDiff = tmp * vehicle.GetWeapon()->GetDirection();
+		float cosDiff = Vec2dDot(tmp, vehicle.GetWeapon()->GetDirection());
 		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
 		pState->_fTowerAngle = Vec2dSubDirection(tmp, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
@@ -1181,7 +1181,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 		if( min_d > 0 )
 		{
 			vec2d hit_dir = currentDir; // (min_hit - currentPos).Normalize();
-			min_norm = (min_norm - hit_dir * (min_norm * hit_dir)).Normalize() + min_norm;
+			min_norm = (min_norm - hit_dir * Vec2dDot(min_norm, hit_dir)).Normalize() + min_norm;
 			min_norm.Normalize();
 			min_norm *= 1.4142f;// sqrt(2)
 			_arrivalPoint = min_hit + min_norm * vehicle.GetRadius();

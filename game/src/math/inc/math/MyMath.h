@@ -80,11 +80,6 @@ public:
 		return *this;
 	}
 
-	float operator * (const vec2d &v) const
-	{
-		return x * v.x + y * v.y;  // dot product
-	}
-
 	friend vec2d operator * (float a, const vec2d &v)
 	{
 		return vec2d(v.x * a, v.y * a);

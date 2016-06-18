@@ -307,7 +307,7 @@ void GC_ProjectileBasedWeapon::OnUpdateView(World &world)
 		{
 			float op = 1.0f - pow(time / feTime, 2);
 			vec2d dir = GetDirection();
-			_fireLight->MoveTo(world, GetPos() + vec2d(_lastShotPos * dir, _lastShotPos.x*dir.y - _lastShotPos.y*dir.x));
+			_fireLight->MoveTo(world, GetPos() + vec2d(Vec2dDot(_lastShotPos, dir), _lastShotPos.x*dir.y - _lastShotPos.y*dir.x));
 			_fireLight->SetIntensity(op);
 		}
 		else

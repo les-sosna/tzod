@@ -81,7 +81,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
         if( dir.sqr() > 1 )
         {
             dir.Normalize();
-            float cosDiff = dir * vehicle.GetWeapon()->GetDirection();
+            float cosDiff = Vec2dDot(dir, vehicle.GetWeapon()->GetDirection());
             AIWEAPSETTINGS ws;
             vehicle.GetWeapon()->SetupAI(&ws);
             vs._bState_Fire = cosDiff >= ws.fMaxAttackAngleCos;
@@ -100,7 +100,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 		tmp.Normalize();
 
 		bool move = !tmp.IsZero();
-		bool sameDirection = tmp * vehicle.GetDirection() > cos(PI/4);
+		bool sameDirection = Vec2dDot(tmp, vehicle.GetDirection()) > cos(PI/4);
 
 		bool bBack = move && !sameDirection && nullptr != world.TraceNearest(world.grid_rigid_s, &vehicle,
 			vehicle.GetPos(), vehicle.GetDirection() * vehicle.GetRadius());
@@ -130,7 +130,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 			vec2d tmp = *mouse - vehicle.GetPos() - vehicle.GetBrakingLength();
 			if( tmp.sqr() > 1 )
 			{
-				if( tmp * vehicle.GetDirection() < 0 )
+				if(Vec2dDot(tmp, vehicle.GetDirection()) < 0 )
 				{
 					tmp = -tmp;
 					vs._bState_MoveBack    = true;
@@ -156,7 +156,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 			{
 				dragDirection = -dragDirection;
 			}
-			bool doMove = dragDirection.Norm() * vehicle.GetDirection() > cos(PI/4);
+			bool doMove = Vec2dDot(dragDirection.Norm(), vehicle.GetDirection()) > cos(PI/4);
 			vs._fBodyAngle = dragDirection.Angle();
 			vs._bState_MoveForward = !reverse && doMove;
 			vs._bState_MoveBack = reverse && doMove;
