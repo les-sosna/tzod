@@ -1,5 +1,5 @@
 #pragma once
-#include <ui/Window.h>
+#include <ui/Button.h>
 #include <memory>
 #include <string>
 class World;
@@ -10,8 +10,7 @@ namespace FS
 }
 
 class MapPreview
-	: public UI::Window
-	, private UI::PointerSink
+	: public UI::ButtonBase
 {
 public:
 	MapPreview(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView);
@@ -20,7 +19,6 @@ public:
 
 	// UI::Window
 	void Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	UI::PointerSink* GetPointerSink() override { return this; }
 
 private:
 	std::unique_ptr<World> _world;

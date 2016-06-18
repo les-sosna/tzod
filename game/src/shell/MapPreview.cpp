@@ -9,7 +9,7 @@
 #include <thread>
 
 MapPreview::MapPreview(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView)
-	: UI::Window(manager)
+	: UI::ButtonBase(manager)
 	, _worldView(worldView)
 	, _font(texman.FindSprite("font_small"))
 {
@@ -44,15 +44,17 @@ void MapPreview::SetMapName(std::string mapName, FS::FileSystem &fs)
 
 void MapPreview::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	UI::Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	UI::ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
 
 	if (_world)
 	{
+		State state = GetState(size, enabled, hovered, ic);
+
 		vec2d worldSize(_world->_sx, _world->_sy);
 		vec2d eye = worldSize / 2;
 		float zoom = std::max(size.x / _world->_sx, size.y / _world->_sy);
 
-		if (hovered)
+		if (state == statePushed)
 		{
 			zoom *= 1.1f;
 			eye += worldSize * (ic.GetMousePos() - size / 2) / size / 10;
