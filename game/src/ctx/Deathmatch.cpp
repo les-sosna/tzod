@@ -58,7 +58,7 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			else if( vehicle->GetOwner() )
 			{
 				if( 0 != vehicle->GetOwner()->GetTeam() &&
-				   dd.from->GetTeam() == vehicle->GetOwner()->GetTeam() )
+				    dd.from->GetTeam() == vehicle->GetOwner()->GetTeam() )
 				{
 					dd.from->SetScore(dd.from->GetScore() - 1);
 					style = GC_Text::SCORE_MINUS;

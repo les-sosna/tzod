@@ -144,7 +144,11 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	bool tab = manager.GetInputContext().GetInput().IsKeyPressed(UI::Key::Tab);
-	_score->SetVisible(tab || _gameContext.GetGameplay().IsGameOver());
+	bool gameOver = _gameContext.GetGameplay().IsGameOver();
+	bool allDead = true;
+	for (auto player : _gameContext.GetWorldController().GetLocalPlayers())
+		allDead &= !player->GetVehicle();
+	_score->SetVisible(tab || gameOver || (allDead && _gameContext.GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
 
 	_gameViewHarness.Step(dt);
 
