@@ -358,7 +358,6 @@ void NewGameDlg::OnOK()
 	_conf.sv_nightmode.Set(_conf.cl_nightmode.Get());
 
 	_conf.cl_map.Set(fn);
-	_conf.ui_showmsg.Set(true);
 
 	Close(_resultOK);
 }

@@ -9,26 +9,40 @@
 #include <thread>
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf)
-	: UI::Dialog(manager, texman, 562, 400)
+	: UI::Dialog(manager, texman, 1, 1)
 	, _conf(conf)
 {
-	std::vector<std::string> maps = { "dm1", "skew-dm", "dm3", "dm5" };
-	float x = 10;
+	std::vector<std::string> maps = { "dm1", "dm2", "dm3", "dm4" };
+	int index = 0;
 	for( auto map: maps )
 	{
 		auto mp = std::make_shared<MapPreview>(manager, texman, worldView);
-		mp->Resize(128, 128);
-		mp->Move(x, 10.f);
 		mp->SetMapName(map, fs);
 		mp->eventClick = [this, map] {OnClickMap(map);};
-		x += 128.f + 10.f;
 		AddFront(mp);
+		_tiles[index] = mp;
+		index++;
 	}
 }
 
 void SinglePlayer::OnClickMap(std::string mapName)
 {
 	_conf.cl_map.Set(mapName);
-	_conf.ui_showmsg.Set(true);
 	Close(_resultOK);
 }
+
+void SinglePlayer::OnSize(float width, float height)
+{
+	const float tileSize = 256;
+	const float tileSpacing = 16;
+	const size_t columns = 2;
+	const size_t rows = (_tiles.size() + columns - 1) / columns;
+	float x = (width - tileSize * (float)columns - tileSpacing) / 2;
+	float y = (height - tileSize * (float)rows - tileSpacing) / 2;
+	for (size_t i = 0; i < _tiles.size(); i++)
+	{
+		_tiles[i]->Move(x + (float)(i % columns) * (tileSize + tileSpacing), y + (float)(i / columns) * (tileSize + tileSpacing));
+		_tiles[i]->Resize(tileSize, tileSize);
+	}
+}
+

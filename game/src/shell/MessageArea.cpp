@@ -30,7 +30,7 @@ void MessageArea::OnTimeStep(UI::LayoutManager &manager, float dt)
 
 void MessageArea::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	if( _lines.empty() || !_conf.ui_showmsg.Get() )
+	if( _lines.empty() )
 	{
 		return;
 	}

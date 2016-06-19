@@ -106,7 +106,6 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	// user interface
 	VAR_BOOL(  ui_showfps,         false )
 	VAR_BOOL(  ui_showtime,         true )
-	VAR_BOOL(  ui_showmsg,          true )
 	VAR_FLOAT( ui_foldtime,        0.25f )
 	VAR_FLOAT( ui_spacing,        100.0f )
 	VAR_REFLECTION( ui_netbotinfo,  ConfPlayerAI )

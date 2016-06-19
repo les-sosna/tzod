@@ -245,7 +245,6 @@ void Desktop::OnNewCampaign()
 		{
 			OnCloseChild(sender, UI::Dialog::_resultOK);
 
-			_conf.ui_showmsg.Set(true);
             try
             {
 //                script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
@@ -274,10 +273,11 @@ void Desktop::OnNewDM()
 	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
 		PopNavStack();
 
-	if (GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
-		GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
+	if (!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
+		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
 		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _conf);
+		dlg->Resize(800, 600);
 		dlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender, result);
