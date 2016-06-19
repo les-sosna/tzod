@@ -233,6 +233,9 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 		settings.bots.push_back(GetPlayerDescFromConf(p));
 	}
 
+	settings.timeLimit = conf.sv_timelimit.GetFloat() * 60;
+	settings.fragLimit = conf.sv_fraglimit.GetInt();
+
 	return settings;
 }
 

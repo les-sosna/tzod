@@ -41,6 +41,8 @@ struct DMSettings
 {
 	std::vector<PlayerDesc> players;
 	std::vector<PlayerDesc> bots;
+	int fragLimit = 0;
+	float timeLimit = 0;
 };
 
 
@@ -63,10 +65,10 @@ public:
 
 private:
 	GameEventsBroadcaster _gameEventsBroadcaster;
-    app_detail::ScriptMessageBroadcaster _scriptMessageBroadcaster;
+	app_detail::ScriptMessageBroadcaster _scriptMessageBroadcaster;
 	std::unique_ptr<World> _world;
+	std::unique_ptr<WorldController> _worldController;
 	std::unique_ptr<Deathmatch> _gameplay;
 	std::unique_ptr<ScriptHarness> _scriptHarness;
-	std::unique_ptr<WorldController> _worldController;
 	std::unique_ptr<AIManager> _aiManager;
 };

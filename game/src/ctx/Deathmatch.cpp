@@ -1,16 +1,16 @@
 #include "inc/ctx/Deathmatch.h"
 #include "inc/ctx/GameEvents.h"
+#include "inc/ctx/WorldController.h"
 #include <gc/GameClasses.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <gc/SaveFile.h>
 
-Deathmatch::Deathmatch(World &world, GameListener &gameListener)
+Deathmatch::Deathmatch(World &world, WorldController &worldController, GameListener &gameListener)
 	: _world(world)
+	, _worldController(worldController)
 	, _gameListener(gameListener)
-	, _fragLimit(0)
-	, _timeLimit(0)
 {
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 }
@@ -31,7 +31,8 @@ void Deathmatch::Step()
 
 bool Deathmatch::IsGameOver()
 {
-	return _timeLimit > 0 && _timeLimit <= _world.GetTime();
+	return _timeLimit > 0 && _world.GetTime() >= _timeLimit ||
+		_fragLimit > 0 && _maxScore >= _fragLimit;
 }
 
 void Deathmatch::Serialize(SaveFile &f)
@@ -93,5 +94,12 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 			snprintf(score, sizeof(score), "%d", vehicle->GetOwner()->GetScore());
 			_world.New<GC_Text_ToolTip>(vehicle->GetPos(), score, GC_Text::SCORE_MINUS);
 		}
+
+		int maxScore = INT_MIN;
+		for (auto player: _worldController.GetLocalPlayers())
+			maxScore = std::max(maxScore, player->GetScore());
+		for (auto player : _worldController.GetAIPlayers())
+			maxScore = std::max(maxScore, player->GetScore());
+		_maxScore = maxScore;
 	}
 }

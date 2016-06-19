@@ -55,9 +55,11 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 //        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
 	}
 
-	_gameplay.reset(new Deathmatch(*_world, _gameEventsBroadcaster));
-	_scriptHarness.reset(new ScriptHarness(*_world, _scriptMessageBroadcaster));
 	_worldController.reset(new WorldController(*_world));
+	_gameplay.reset(new Deathmatch(*_world, *_worldController, _gameEventsBroadcaster));
+	_gameplay->SetFragLimit(settings.fragLimit);
+	_gameplay->SetTimeLimit(settings.timeLimit);
+	_scriptHarness.reset(new ScriptHarness(*_world, _scriptMessageBroadcaster));
 }
 
 GameContext::~GameContext()
@@ -104,8 +106,11 @@ void GameContext::Deserialize(FS::Stream &stream)
 	_world.reset(new World(width, height));
 	_world->Deserialize(f);
 
+	// TODO: deserialize world controller
+	_worldController.reset(new WorldController(*_world));
+
 	// TODO: restore gameplay type
-	_gameplay.reset(new Deathmatch(*_world, _gameEventsBroadcaster));
+	_gameplay.reset(new Deathmatch(*_world, *_worldController, _gameEventsBroadcaster));
 	_gameplay->Serialize(f);
 
 	_scriptHarness.reset(new ScriptHarness(*_world, _scriptMessageBroadcaster));

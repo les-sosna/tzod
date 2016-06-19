@@ -3,6 +3,7 @@
 
 class SaveFile;
 class World;
+class WorldController;
 struct GameListener;
 
 struct Gameplay
@@ -18,11 +19,14 @@ class Deathmatch
 	, private ObjectListener<GC_RigidBodyStatic>
 {
 public:
-	Deathmatch(World &world, GameListener &gameListener);
+	Deathmatch(World &world, WorldController &worldController, GameListener &gameListener);
 	virtual ~Deathmatch();
 
 	int GetFragLimit() const { return _fragLimit; }
+	void SetFragLimit(int fragLimit) { _fragLimit = fragLimit; }
+
 	float GetTimeLimit() const { return _timeLimit; }
+	void SetTimeLimit(float timeLimit) { _timeLimit = timeLimit; }
 
 	// Gameplay
 	void Step() override;
@@ -31,9 +35,11 @@ public:
 
 private:
 	World &_world;
+	WorldController &_worldController;
 	GameListener &_gameListener;
-	int _fragLimit;
-	float _timeLimit;
+	int _fragLimit = 0;
+	float _timeLimit = 0;
+	int _maxScore = 0;
 
 	// ObjectListener<GC_RigidBodyStatic>
 	void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
