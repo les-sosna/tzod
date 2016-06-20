@@ -68,9 +68,21 @@ GameContext::~GameContext()
 
 void GameContext::Step(float dt)
 {
-	_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
-	_world->Step(dt);
-	_scriptHarness->Step(dt);
+	bool isActive = true;
+	for (auto player : _worldController->GetLocalPlayers())
+	{
+		if (!player->GetIsActive())
+		{
+			isActive = false;
+			break;
+		}
+	}
+	if (isActive)
+	{
+		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
+		_world->Step(dt);
+		_scriptHarness->Step(dt);
+	}
 }
 
 void GameContext::Serialize(FS::Stream &stream)

@@ -152,15 +152,27 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 
 	_gameViewHarness.Step(dt);
 
-	bool readUserInput = true;//!manager.GetFocusWnd() || this == manager.GetFocusWnd().get();
-	WorldController::ControllerStateMap controlStates;
+	bool readUserInput = false;
+	for (auto wnd = manager.GetDesktop(); wnd; wnd = wnd->GetFocus())
+	{
+		if (this == wnd.get())
+		{
+			readUserInput = true;
+		}
+	}
+
+	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
+	
+	for (auto player : players)
+		player->SetIsActive(readUserInput);
 
 	if (readUserInput)
 	{
+		WorldController::ControllerStateMap controlStates;
+
 		vec2d dragDirection = GetDragDirection();
 		bool reversing = GetEffectiveDragCount() > 1;
 		
-		std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 		{
 			if( Controller *controller = _inputMgr.GetController(playerIndex) )

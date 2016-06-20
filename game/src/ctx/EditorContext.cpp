@@ -29,5 +29,5 @@ EditorContext::~EditorContext()
 
 void EditorContext::Step(float dt)
 {
-	_world->Step(dt);
+//	_world->Step(dt);
 }

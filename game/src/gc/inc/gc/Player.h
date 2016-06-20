@@ -9,13 +9,14 @@ class GC_Vehicle;
 #define PLAYER_RESPAWN_DELAY 2.0f
 
 #define GC_FLAG_PLAYER_ISHUMAN     (GC_FLAG_SERVICE_ << 0)
-#define GC_FLAG_PLAYER_            (GC_FLAG_SERVICE_ << 1)
+#define GC_FLAG_PLAYER_ISACTIVE    (GC_FLAG_SERVICE_ << 1)
+#define GC_FLAG_PLAYER_            (GC_FLAG_SERVICE_ << 2)
 
 class GC_Player : public GC_Service
 {
     DECLARE_SELF_REGISTRATION(GC_Player);
 	DECLARE_LIST_MEMBER(override);
-    typedef GC_Service base;
+	typedef GC_Service base;
 
 public:
 	GC_Player();
@@ -44,11 +45,14 @@ public:
 	void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }
 	bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
 
+	void SetIsActive(bool isActive) { SetFlags(GC_FLAG_PLAYER_ISACTIVE, isActive); }
+	bool GetIsActive() const { return CheckFlags(GC_FLAG_PLAYER_ISACTIVE); }
+
 	// GC_Object
-    void Kill(World &world) override;
-    void Serialize(World &world, SaveFile &f) override;
-    void MapExchange(MapFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Kill(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void MapExchange(MapFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet

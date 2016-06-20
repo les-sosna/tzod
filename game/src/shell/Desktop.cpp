@@ -445,6 +445,7 @@ void Desktop::ClearNavStack()
 		UnlinkChild(*wnd);
 	}
 	_navStack.clear();
+	UpdateFocus();
 }
 
 void Desktop::PopNavStack(UI::Window *wnd)
@@ -476,6 +477,7 @@ void Desktop::PopNavStack(UI::Window *wnd)
 	}
 
 	OnSize(GetWidth(), GetHeight());
+	UpdateFocus();
 }
 
 void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
@@ -492,8 +494,24 @@ void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
 		_navStack.back()->SetEnabled(false);
 	}
 	_navStack.push_back(wnd);
-	SetFocus(wnd);
 	OnSize(GetWidth(), GetHeight());
+	UpdateFocus();
+}
+
+void Desktop::UpdateFocus()
+{
+	if (_con->GetVisible())
+	{
+		SetFocus(_con);
+	}
+	else if(!_navStack.empty())
+	{
+		SetFocus(_navStack.back());
+	}
+	else
+	{
+		SetFocus(_game);
+	}
 }
 
 float Desktop::GetNavStackSize() const
@@ -520,22 +538,15 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	switch( key )
 	{
 	case UI::Key::GraveAccent: // '~'
-		if( _con->GetVisible() )
-		{
-			_con->SetVisible(false);
-		}
-		else
-		{
-			_con->SetVisible(true);
-			SetFocus(_con);
-		}
+		_con->SetVisible(!_con->GetVisible());
+		UpdateFocus();
 		break;
 
 	case UI::Key::Escape:
 		if( GetFocus() == _con )
 		{
-			SetFocus(_navStack.back());
 			_con->SetVisible(false);
+			UpdateFocus();
 		}
 		else
 		{
@@ -704,6 +715,8 @@ void Desktop::OnGameContextChanging()
 		UnlinkChild(*_editor);
 		_editor.reset();
 	}
+
+	UpdateFocus();
 }
 
 void Desktop::OnGameContextChanged()
@@ -758,4 +771,6 @@ void Desktop::OnGameContextChanged()
 	}
 
 	_pauseButton->SetVisible(!!GetAppState().GetGameContext());
+
+	UpdateFocus();
 }

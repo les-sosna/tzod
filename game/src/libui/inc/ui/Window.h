@@ -37,7 +37,7 @@ struct PointerSink
 
 struct KeyboardSink
 {
-	virtual bool OnKeyPressed(InputContext &ic, Key key) = 0;
+	virtual bool OnKeyPressed(InputContext &ic, Key key) { return false; }
 };
 
 struct TextSink
