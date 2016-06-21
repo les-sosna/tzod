@@ -2,7 +2,9 @@
 #include <ui/Dialog.h>
 #include <array>
 #include <memory>
+#include <vector>
 
+class BotView;
 class MapPreview;
 class ConfCache;
 class World;
@@ -10,6 +12,10 @@ class WorldView;
 namespace FS
 {
 	class FileSystem;
+}
+namespace UI
+{
+	class Text;
 }
 
 class SinglePlayer : public UI::Dialog
@@ -24,4 +30,7 @@ private:
 	void OnClickMap(std::string mapName);
 	ConfCache &_conf;
 	std::array<std::shared_ptr<MapPreview>, 4> _tiles;
+	std::shared_ptr<UI::Text> _tierTitle;
+	std::shared_ptr<UI::Text> _enemiesTitle;
+	std::vector<std::shared_ptr<BotView>> _enemies;
 };

@@ -23,7 +23,7 @@ include_directories(
 )
 
 add_library(shell
-	gui.cpp
+	BotView.cpp
 	Campaign.cpp
 	Config.cpp
 	ConfigConsoleHistory.cpp
@@ -33,6 +33,7 @@ add_library(shell
 	Editor.cpp
 	Game.cpp
 	GetFileName.cpp
+	gui.cpp
 	InputManager.cpp
 	KeyMapper.cpp
 	MainMenu.cpp
