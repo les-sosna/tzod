@@ -105,7 +105,7 @@ void Window::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputCon
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				dc.DrawSprite(&client, _texture, _backColor, _frame);
+				dc.DrawSprite(client, _texture, _backColor, _frame);
 			}
 			else
 			{
@@ -129,7 +129,7 @@ void Window::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputCon
 					client.right = client.left + newWidth;
 				}
 
-				dc.DrawSprite(&client, _texture, _backColor, _frame);
+				dc.DrawSprite(client, _texture, _backColor, _frame);
 
 				dc.PopClippingRect();
 			}

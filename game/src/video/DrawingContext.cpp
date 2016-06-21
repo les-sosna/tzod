@@ -65,9 +65,9 @@ void DrawingContext::PopTransform()
 	_transformStack.pop();
 }
 
-void DrawingContext::DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame)
+void DrawingContext::DrawSprite(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
-	DrawSprite(sprite, frame, color, dst->left, dst->top, dst->right - dst->left, dst->bottom - dst->top, vec2d(1,0));
+	DrawSprite(sprite, frame, color, dst.left, dst.top, WIDTH(dst), HEIGHT(dst), vec2d(1,0));
 }
 
 void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)

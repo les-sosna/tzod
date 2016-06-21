@@ -242,7 +242,7 @@ void List::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 				{
 					c = 0xff000000; // selected focused;
 					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };
-					dc.DrawSprite(&sel, _selection, 0xffffffff, 0);
+					dc.DrawSprite(sel, _selection, 0xffffffff, 0);
 				}
 				else
 				{

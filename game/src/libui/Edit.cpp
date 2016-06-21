@@ -119,7 +119,7 @@ void Edit::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 		rt.top = 0;
 		rt.right = rt.left + w * GetSelLength() - 1;
 		rt.bottom = rt.top + size.y;
-		dc.DrawSprite(&rt, _selection, 0xffffffff, 0);
+		dc.DrawSprite(rt, _selection, 0xffffffff, 0);
 	}
 
 	// text
@@ -141,7 +141,7 @@ void Edit::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 		rt.top = 0;
 		rt.right = rt.left + texman.GetFrameWidth(_cursor, 0);
 		rt.bottom = rt.top + size.y;
-		dc.DrawSprite(&rt, _cursor, 0xffffffff, 0);
+		dc.DrawSprite(rt, _cursor, 0xffffffff, 0);
 	}
 }
 

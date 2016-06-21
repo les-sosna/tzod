@@ -23,7 +23,7 @@ public:
 	void PushTransform(vec2d offset);
 	void PopTransform();
 
-	void DrawSprite(const FRECT *dst, size_t sprite, SpriteColor color, unsigned int frame);
+	void DrawSprite(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir);

@@ -488,7 +488,7 @@ void EditorLayout::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI
 			(rt.left - _defaultCamera.GetPos().x) * _defaultCamera.GetZoom() + WIDTH(rt) * _defaultCamera.GetZoom(),
 			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
 		};
-		dc.DrawSprite(&sel, _texSelection, 0xffffffff, 0);
+		dc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
 		dc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
 	}
 

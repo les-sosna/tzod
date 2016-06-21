@@ -287,7 +287,7 @@ void CheckBox::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputC
 	float th = texman.GetFrameHeight(_fontTexture, 0);
 
 	FRECT box = {0, (size.y - bh) / 2, bw, (size.y - bh) / 2 + bh};
-	dc.DrawSprite(&box, _boxTexture, GetBackColor(), GetFrame());
+	dc.DrawSprite(box, _boxTexture, GetBackColor(), GetFrame());
 
 	// grep 'enum State'
 	SpriteColor colors[] =
