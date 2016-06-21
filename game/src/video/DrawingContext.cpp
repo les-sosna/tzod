@@ -65,9 +65,44 @@ void DrawingContext::PopTransform()
 	_transformStack.pop();
 }
 
-void DrawingContext::DrawSprite(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
+void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
-	DrawSprite(sprite, frame, color, dst.left, dst.top, WIDTH(dst), HEIGHT(dst), vec2d(1,0));
+	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
+	const FRECT &rt = lt.uvFrames[frame];
+
+	MyVertex *v = _tm.GetRender().DrawQuad(_tm.GetDeviceTexture(sprite));
+
+	if (_mode == RM_INTERFACE)
+	{
+		dst.left += _transformStack.top().x;
+		dst.top += _transformStack.top().y;
+		dst.right += _transformStack.top().x;
+		dst.bottom += _transformStack.top().y;
+	}
+
+	v[0].color = color;
+	v[0].u = rt.left;
+	v[0].v = rt.top;
+	v[0].x = dst.left;
+	v[0].y = dst.top;
+
+	v[1].color = color;
+	v[1].u = rt.right;
+	v[1].v = rt.top;
+	v[1].x = dst.right;
+	v[1].y = dst.top;
+
+	v[2].color = color;
+	v[2].u = rt.right;
+	v[2].v = rt.bottom;
+	v[2].x = dst.right;
+	v[2].y = dst.bottom;
+
+	v[3].color = color;
+	v[3].u = rt.left;
+	v[3].v = rt.bottom;
+	v[3].x = dst.left;
+	v[3].y = dst.bottom;
 }
 
 void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
