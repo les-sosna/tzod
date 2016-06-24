@@ -98,21 +98,20 @@ static void DrawWindowRecursive(
 		renderSettings.dc.PushClippingRect(clip);
 	}
 
+	unsigned int childDepth = depth + 1;
 	for (auto &child : wnd.GetChildren())
 	{
 		if (child->GetVisible())
 		{
-			FRECT childRect = wnd.GetChildRect(size, *child);
-			bool childEnabled = enabled && child->GetEnabled();
-			bool childInsideTopMost = insideTopMost || child->GetTopMost();
-			unsigned int childDepth = depth + 1;
-
 			// early skip topmost window and all its children
+			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
+				FRECT childRect = wnd.GetChildRect(size, *child);
+				bool childEnabled = enabled && child->GetEnabled();
 				bool childFocused = wnd.GetFocus() == child;
-				bool childOnHoverPath = depth + 1 < renderSettings.hoverPath.size() &&
-					renderSettings.hoverPath[renderSettings.hoverPath.size() - depth - 2] == child;
+				bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
+					renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
 
 				vec2d offset{ childRect.left, childRect.top };
 				renderSettings.dc.PushTransform(offset);
