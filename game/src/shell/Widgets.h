@@ -36,7 +36,7 @@ public:
 	void AutoRange();
 
 protected:
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _barTexture;

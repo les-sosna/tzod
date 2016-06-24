@@ -4,6 +4,7 @@
 #include <ctx/GameContext.h>
 #include <gc/World.h>
 #include <ui/GuiManager.h>
+#include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <sstream>
@@ -208,15 +209,15 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Oscilloscope::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
 	float labelOffset = texman.GetCharHeight(_titleFont) / 2;
 
-	float scale = (size.y - labelOffset * 2) / (_rangeMin - _rangeMax);
+	float scale = (lc.GetSize().y - labelOffset * 2) / (_rangeMin - _rangeMax);
 	float center = labelOffset - _rangeMax * scale;
-	float dx = size.x - (float) _data.size() * _scale;
+	float dx = lc.GetSize().x - (float) _data.size() * _scale;
 
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
@@ -232,18 +233,17 @@ void Oscilloscope::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI
 		for( int i = start; i <= stop; ++i )
 		{
 			float y = (float) i * _gridStepY;
-			dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - (_rangeMax - y) * scale, size.x, -1, vec2d(1,0));
+			dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - (_rangeMax - y) * scale, lc.GetSize().x, -1, vec2d(1,0));
 			std::ostringstream buf;
 			buf << y;
 			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
-			dc.DrawBitmapText(size.x - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf.str());
+			dc.DrawBitmapText(lc.GetSize().x - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf.str());
 		}
 	}
 	else
 	{
-		dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - _rangeMax * scale, size.x, -1, vec2d(1,0));
+		dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - _rangeMax * scale, lc.GetSize().x, -1, vec2d(1,0));
 	}
 
 	dc.DrawBitmapText(0, labelOffset - labelOffset, _titleFont, 0x77777777, _title);
 }
-

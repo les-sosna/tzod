@@ -19,6 +19,7 @@ add_library(ui
 	Edit.cpp
 	GuiManager.cpp
 	InputContext.cpp
+	LayoutContext.cpp
 	List.cpp
 	ListBase.cpp
 	Scroll.cpp

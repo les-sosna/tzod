@@ -16,6 +16,7 @@
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
+#include <ui/LayoutContext.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
@@ -195,11 +196,11 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void GameLayout::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
-	vec2d eye(_defaultCamera.GetPos().x + size.x / 2, _defaultCamera.GetPos().y + size.y / 2);
+	vec2d eye = _defaultCamera.GetPos() + lc.GetSize() / 2;
 	float zoom = _defaultCamera.GetZoom();
 	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);

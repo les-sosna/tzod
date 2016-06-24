@@ -13,7 +13,7 @@ public:
 	void SetBotConfig(ConfVarTable &botConf, TextureManager &texman);
 
 	// UI::Window
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _texSkin = -1;

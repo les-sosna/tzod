@@ -1,5 +1,6 @@
 #include "inc/ui/Button.h"
 #include "inc/ui/InputContext.h"
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
@@ -13,19 +14,19 @@ ButtonBase::ButtonBase(LayoutManager &manager)
 {
 }
 
-ButtonBase::State ButtonBase::GetState(vec2d size, bool enabled, bool hover, const InputContext &ic) const
+ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic) const
 {
-	if (!enabled)
+	if (!lc.GetEnabled())
 		return stateDisabled;
 
 	vec2d pointerPosition = ic.GetMousePos();
-	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < size.x && pointerPosition.y < size.y;
+	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < lc.GetSize().x && pointerPosition.y < lc.GetSize().y;
 	bool pointerPressed = ic.GetInput().IsMousePressed(1);
 
 	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this))
 		return statePushed;
 
-	if (hover)
+	if (lc.GetHovered())
 		return stateHottrack;
 
 	return stateNormal;
@@ -112,13 +113,13 @@ void Button::SetIcon(TextureManager &texman, const char *spriteName)
 	_icon = spriteName ? texman.FindSprite(spriteName) : (size_t)-1;
 }
 
-void Button::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Button::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	State state = GetState(size, enabled, hovered, ic);
+	State state = GetState(lc, ic);
 
 	const_cast<Button*>(this)->SetFrame(state);
 
-	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	ButtonBase::Draw(lc, ic, dc, texman);
 
 	SpriteColor c = 0;
 
@@ -145,16 +146,16 @@ void Button::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputCon
 		float iconHeight = texman.GetFrameHeight(_icon, 0);
 		float textHeight = texman.GetFrameHeight(_font, 0);
 
-		float x = size.x / 2;
-		float y = (size.y - iconHeight - textHeight) / 2 + iconHeight;
+		float x = lc.GetSize().x / 2;
+		float y = (lc.GetSize().y - iconHeight - textHeight) / 2 + iconHeight;
 
 		dc.DrawSprite(_icon, 0, c, x, y - iconHeight/2, vec2d(1, 0));
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCT);
 	}
 	else
 	{
-		float x = size.x / 2;
-		float y = size.y / 2;
+		float x = lc.GetSize().x / 2;
+		float y = lc.GetSize().y / 2;
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCC);
 	}
 }
@@ -202,9 +203,9 @@ void TextButton::OnTextChange(TextureManager &texman)
 	AlignSizeToContent(texman);
 }
 
-void TextButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void TextButton::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	ButtonBase::Draw(lc, ic, dc, texman);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -214,7 +215,7 @@ void TextButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, Inpu
 		SpriteColor(0xffccccff), // pushed
 		SpriteColor(0xAAAAAAAA), // disabled
 	};
-	State state = GetState(size, enabled, hovered, ic);
+	State state = GetState(lc, ic);
 	if( _drawShadow && stateDisabled != state )
 	{
 		dc.DrawBitmapText(1, 1, _fontTexture, 0xff000000, GetText());
@@ -229,13 +230,13 @@ ImageButton::ImageButton(LayoutManager &manager)
 {
 }
 
-void ImageButton::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void ImageButton::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	State state = GetState(size, enabled, hovered, ic);
+	State state = GetState(lc, ic);
 
 	const_cast<ImageButton*>(this)->SetFrame(state);
 
-	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	ButtonBase::Draw(lc, ic, dc, texman);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -275,18 +276,18 @@ void CheckBox::OnTextChange(TextureManager &texman)
 	AlignSizeToContent(texman);
 }
 
-void CheckBox::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void CheckBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	State state = GetState(size, enabled, hovered, ic);
+	State state = GetState(lc, ic);
 	const_cast<CheckBox*>(this)->SetFrame(_isChecked ? state + 4 : state);
 
-	ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	ButtonBase::Draw(lc, ic, dc, texman);
 
 	float bh = texman.GetFrameHeight(_boxTexture, GetFrame());
 	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());
 	float th = texman.GetFrameHeight(_fontTexture, 0);
 
-	FRECT box = {0, (size.y - bh) / 2, bw, (size.y - bh) / 2 + bh};
+	FRECT box = {0, (lc.GetSize().y - bh) / 2, bw, (lc.GetSize().y - bh) / 2 + bh};
 	dc.DrawSprite(box, _boxTexture, GetBackColor(), GetFrame());
 
 	// grep 'enum State'
@@ -299,7 +300,7 @@ void CheckBox::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputC
 	};
 	if( _drawShadow && stateDisabled != state)
 	{
-		dc.DrawBitmapText(bw + 1, (size.y - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
+		dc.DrawBitmapText(bw + 1, (lc.GetSize().y - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc.DrawBitmapText(bw, (size.y - th) / 2, _fontTexture, colors[state], GetText());
+	dc.DrawBitmapText(bw, (lc.GetSize().y - th) / 2, _fontTexture, colors[state], GetText());
 }

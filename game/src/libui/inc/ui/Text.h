@@ -23,7 +23,7 @@ public:
 	void SetFont(TextureManager &texman, const char *fontName);
 	void SetFontColor(SpriteColor color);
 
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnTextChange(TextureManager &texman) override;
 
 private:

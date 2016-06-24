@@ -4,6 +4,7 @@
 #include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <ui/InputContext.h>
+#include <ui/LayoutContext.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
 #include <thread>
@@ -42,28 +43,28 @@ void MapPreview::SetMapName(std::string mapName, FS::FileSystem &fs)
 	}
 }
 
-void MapPreview::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void MapPreview::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	UI::ButtonBase::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	UI::ButtonBase::Draw(lc, ic, dc, texman);
 
 	if (_world)
 	{
-		State state = GetState(size, enabled, hovered, ic);
+		State state = GetState(lc, ic);
 
 		vec2d worldSize(_world->_sx, _world->_sy);
 		vec2d eye = worldSize / 2;
-		float zoom = std::max(size.x / _world->_sx, size.y / _world->_sy);
+		float zoom = std::max(lc.GetSize().x / _world->_sx, lc.GetSize().y / _world->_sy);
 
 		if (state == statePushed)
 		{
 			zoom *= 1.1f;
-			eye += worldSize * (ic.GetMousePos() - size / 2) / size / 10;
+			eye += worldSize * (ic.GetMousePos() - lc.GetSize() / 2) / lc.GetSize() / 10;
 		}
 
 		_worldView.Render(
 			dc,
 			*_world,
-			{ 0, 0, (int)size.x, (int)size.y }, // viewport
+			{ 0, 0, (int)lc.GetSize().x, (int)lc.GetSize().y }, // viewport
 			eye,
 			zoom,
 			false, // editorMode

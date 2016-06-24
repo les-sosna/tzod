@@ -1,6 +1,7 @@
 #include "inc/ui/Window.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <algorithm>
@@ -91,11 +92,11 @@ unsigned int Window::GetFrameCount() const
 	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
 }
 
-void Window::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Window::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	assert(_isVisible);
 
-	FRECT dst = {0, 0, size.x, size.y};
+	FRECT dst = {0, 0, lc.GetSize().x, lc.GetSize().y};
 
 	if( -1 != _texture )
 	{

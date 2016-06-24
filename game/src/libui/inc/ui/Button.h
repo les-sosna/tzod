@@ -27,7 +27,7 @@ public:
 	std::function<void(float, float)> eventMouseUp;
 	std::function<void(float, float)> eventMouseMove;
 
-	State GetState(vec2d size, bool enabled, bool hover, const InputContext &ic) const;
+	State GetState(const LayoutContext &lc, const InputContext &ic) const;
 
 	// Window
 	PointerSink* GetPointerSink() override { return this; }
@@ -57,7 +57,7 @@ protected:
 	void SetFont(TextureManager &texman, const char *fontName);
 
 	// Window
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _font;
@@ -81,7 +81,7 @@ protected:
 	void AlignSizeToContent(TextureManager &texman);
 
 	void OnTextChange(TextureManager &texman) override;
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 
 private:
@@ -97,7 +97,7 @@ public:
 	explicit ImageButton(LayoutManager &manager);
 
 	// Window
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ protected:
 	void OnTextChange(TextureManager &texman) override;
 
 	// Window
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _fontTexture;

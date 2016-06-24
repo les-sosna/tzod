@@ -1,6 +1,7 @@
 #include "inc/ui/Edit.h"
 #include "inc/ui/Clipboard.h"
 #include "inc/ui/InputContext.h"
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/UIInput.h"
@@ -105,25 +106,25 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 
 	// selection
-	if( GetSelLength() && focused )
+	if( GetSelLength() && lc.GetFocused() )
 	{
 		FRECT rt;
 		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
 		rt.top = 0;
 		rt.right = rt.left + w * GetSelLength() - 1;
-		rt.bottom = rt.top + size.y;
+		rt.bottom = rt.top + lc.GetSize().y;
 		dc.DrawSprite(rt, _selection, 0xffffffff, 0);
 	}
 
 	// text
-	SpriteColor c = enabled ? 0xffffffff : 0xaaaaaaaa;
+	SpriteColor c = lc.GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
 		dc.DrawBitmapText(0, 1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
@@ -134,13 +135,13 @@ void Edit::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 	float time = GetManager().GetTime() - _lastCursortime;
 
 	// cursor
-	if( focused && fmodf(time, 1.0f) < 0.5f )
+	if( lc.GetFocused() && fmodf(time, 1.0f) < 0.5f )
 	{
 		FRECT rt;
 		rt.left = (GetSelEnd() - (float) _offset) * w;
 		rt.top = 0;
 		rt.right = rt.left + texman.GetFrameWidth(_cursor, 0);
-		rt.bottom = rt.top + size.y;
+		rt.bottom = rt.top + lc.GetSize().y;
 		dc.DrawSprite(rt, _cursor, 0xffffffff, 0);
 	}
 }

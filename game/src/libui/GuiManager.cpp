@@ -1,6 +1,7 @@
 #include "inc/ui/InputContext.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/Window.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -90,7 +91,10 @@ static void DrawWindowRecursive(
 	vec2d size = Size(rect);
 
 	if (insideTopMost == renderSettings.topMostPass)
-		wnd.Draw(onHoverPath, focused, enabled, size, renderSettings.ic, renderSettings.dc, renderSettings.texman);
+	{
+		LayoutContext lc(size, enabled, focused, onHoverPath);
+		wnd.Draw(lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
+	}
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!renderSettings.topMostPass || insideTopMost);

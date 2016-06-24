@@ -21,6 +21,7 @@
 #include <ui/List.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Keys.h>
+#include <ui/LayoutContext.h>
 #include <ui/UIInput.h>
 #include <video/TextureManager.h>
 
@@ -466,13 +467,13 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return result;
 }
 
-void EditorLayout::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
 	// World
-	CRect viewport(0, 0, (int) size.x, (int) size.y);
-	vec2d eye(_defaultCamera.GetPos().x + size.x / 2, _defaultCamera.GetPos().y + size.y / 2);
+	CRect viewport(0, 0, (int)lc.GetSize().x, (int)lc.GetSize().y);
+	vec2d eye = _defaultCamera.GetPos() + lc.GetSize() / 2;
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
@@ -496,5 +497,5 @@ void EditorLayout::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI
 	vec2d mouse = ic.GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-	dc.DrawBitmapText(floor(size.x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	dc.DrawBitmapText(floor(lc.GetSize().x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }

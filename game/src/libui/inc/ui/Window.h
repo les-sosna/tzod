@@ -16,6 +16,7 @@ namespace UI
 {
 
 class InputContext;
+class LayoutContext;
 class LayoutManager;
 enum class Key;
 enum class PointerType;
@@ -193,7 +194,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const;
+	virtual void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const;
 
 private:
 

@@ -59,7 +59,7 @@ public:
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnTimeStep(LayoutManager &manager, float dt) override;
-	void Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnSize(float width, float height) override;
 
 private:

@@ -58,9 +58,9 @@ void Text::SetFontColor(SpriteColor color)
 	_fontColor = color;
 }
 
-void Text::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Text::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
 	if( _drawShadow )
 	{

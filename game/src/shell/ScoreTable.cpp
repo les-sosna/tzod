@@ -7,6 +7,7 @@
 #include <gc/Macros.h>
 #include <loc/Language.h>
 #include <ui/GuiManager.h>
+#include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -34,9 +35,9 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
 	SetDrawBorder(false);
 }
 
-void ScoreTable::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void ScoreTable::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
@@ -94,7 +95,7 @@ void ScoreTable::Draw(bool hovered, bool focused, bool enabled, vec2d size, UI::
 			dc.DrawBitmapText(SCORE_POS_NUMBER, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str());
 			text.str(std::string());
 			text << players[i]->GetScore();
-			dc.DrawBitmapText(size.x - SCORE_POS_SCORE, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
+			dc.DrawBitmapText(lc.GetSize().x - SCORE_POS_SCORE, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
 		}
 		else
 		{

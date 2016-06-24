@@ -3,6 +3,7 @@
 #include "inc/ui/Scroll.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
+#include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -209,9 +210,9 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-void List::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(hovered, focused, enabled, size, ic, dc, texman);
+	Window::Draw(lc, ic, dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
@@ -222,23 +223,23 @@ void List::Draw(bool hovered, bool focused, bool enabled, vec2d size, InputConte
 	clip.left = 0;
 	clip.top = 0;
 	clip.right = (int) (_scrollBar->GetX());
-	clip.bottom = (int) (size.y);
+	clip.bottom = (int) (lc.GetSize().y);
 	dc.PushClippingRect(clip);
 
-	int hotItem = hovered ? HitTest(ic.GetMousePos().y) : -1;
+	int hotItem = lc.GetHovered() ? HitTest(ic.GetMousePos().y) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
 		SpriteColor c;
 		float y = floorf(((float) i - pos) * GetItemHeight() + 0.5f);
 
-		if( enabled )
+		if( lc.GetEnabled() )
 		{
 			c = 0xffd0d0d0; // normal;
 			if( _curSel == i )
 			{
 				// selection frame around selected item
-				if( focused )
+				if( lc.GetFocused() )
 				{
 					c = 0xff000000; // selected focused;
 					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };
