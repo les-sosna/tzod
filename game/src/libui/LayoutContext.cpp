@@ -2,9 +2,8 @@
 
 using namespace UI;
 
-LayoutContext::LayoutContext(vec2d size, bool enabled, bool hovered)
+LayoutContext::LayoutContext(vec2d size, bool enabled)
 	: _size(size)
 	, _enabled(enabled)
-	, _hovered(hovered)
 {}
 

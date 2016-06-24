@@ -26,7 +26,7 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this))
 		return statePushed;
 
-	if (lc.GetHovered())
+	if (ic.GetHovered())
 		return stateHottrack;
 
 	return stateNormal;

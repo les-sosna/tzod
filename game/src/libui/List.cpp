@@ -226,7 +226,7 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 	clip.bottom = (int) (lc.GetSize().y);
 	dc.PushClippingRect(clip);
 
-	int hotItem = lc.GetHovered() ? HitTest(ic.GetMousePos().y) : -1;
+	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos().y) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{

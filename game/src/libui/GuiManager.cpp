@@ -77,12 +77,11 @@ static void DrawWindowRecursive(
 	vec2d size,
 	bool enabled,
 	bool insideTopMost,
-	bool onHoverPath,
 	unsigned int depth = 0)
 {
 	if (insideTopMost == renderSettings.topMostPass)
 	{
-		LayoutContext lc(size, enabled, onHoverPath);
+		LayoutContext lc(size, enabled);
 		wnd.Draw(lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
 	}
 
@@ -106,16 +105,18 @@ static void DrawWindowRecursive(
 			FRECT childRect = wnd.GetChildRect(size, *child);
 			bool childEnabled = enabled && child->GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
-			bool childOnHoverPath = onHoverPath && depth + 1 < renderSettings.hoverPath.size() &&
-				renderSettings.hoverPath[renderSettings.hoverPath.size() - depth - 2] == child;
 			unsigned int childDepth = depth + 1;
 
 			// early skip topmost window and all its children
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
+				bool childFocused = wnd.GetFocus() == child;
+				bool childOnHoverPath = depth + 1 < renderSettings.hoverPath.size() &&
+					renderSettings.hoverPath[renderSettings.hoverPath.size() - depth - 2] == child;
+
 				vec2d offset{ childRect.left, childRect.top };
 				renderSettings.dc.PushTransform(offset);
-				renderSettings.ic.PushTransform(offset, wnd.GetFocus() == child);
+				renderSettings.ic.PushTransform(offset, childFocused, childOnHoverPath);
 
 				DrawWindowRecursive(
 					renderSettings,
@@ -123,7 +124,6 @@ static void DrawWindowRecursive(
 					Size(childRect),
 					childEnabled,
 					childInsideTopMost,
-					childOnHoverPath,
 					childDepth);
 
 				renderSettings.ic.PopTransform();
@@ -161,7 +161,7 @@ void LayoutManager::Render(vec2d size, DrawingContext &dc) const
 
 	dc.SetMode(RM_INTERFACE);
 
-	rs.ic.PushTransform(vec2d{}, _inputContext.GetMainWindowActive());
+	rs.ic.PushTransform(vec2d{}, _inputContext.GetMainWindowActive(), !rs.hoverPath.empty());
 	for (bool topMostPass : {false, true})
 	{
 		rs.topMostPass = topMostPass;
@@ -170,9 +170,8 @@ void LayoutManager::Render(vec2d size, DrawingContext &dc) const
 			*_desktop,
 			size,
 			_desktop->GetEnabled(),
-			_desktop->GetTopMost(),
-			!rs.hoverPath.empty()
-			);
+			_desktop->GetTopMost()
+		);
 	}
 	rs.ic.PopTransform();
 
