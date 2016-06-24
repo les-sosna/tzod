@@ -239,7 +239,7 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 			if( _curSel == i )
 			{
 				// selection frame around selected item
-				if( lc.GetFocused() )
+				if( ic.GetFocused() )
 				{
 					c = 0xff000000; // selected focused;
 					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };

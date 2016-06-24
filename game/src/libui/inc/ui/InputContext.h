@@ -46,10 +46,11 @@ public:
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
 
-	void PushTransform(vec2d offset);
+	void PushTransform(vec2d offset, bool focused);
 	void PopTransform();
 
 	vec2d GetMousePos() const;
+	bool GetFocused() const;
 
 	const std::vector<std::shared_ptr<Window>>* GetCapturePath(unsigned int pointerID) const;
 	bool HasCapturedPointers(const Window* wnd) const;
@@ -67,7 +68,12 @@ private:
 	IInput &_input;
 	IClipboard &_clipboard;
 
-	std::stack<vec2d> _transformStack;
+	struct InputStackFrame
+	{
+		vec2d offset;
+		bool focused;
+	};
+	std::stack<InputStackFrame> _transformStack;
 
 	struct PointerCapture
 	{

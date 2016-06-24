@@ -113,7 +113,7 @@ void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 
 	// selection
-	if( GetSelLength() && lc.GetFocused() )
+	if( GetSelLength() && ic.GetFocused() )
 	{
 		FRECT rt;
 		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
@@ -135,7 +135,7 @@ void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 	float time = GetManager().GetTime() - _lastCursortime;
 
 	// cursor
-	if( lc.GetFocused() && fmodf(time, 1.0f) < 0.5f )
+	if( ic.GetFocused() && fmodf(time, 1.0f) < 0.5f )
 	{
 		FRECT rt;
 		rt.left = (GetSelEnd() - (float) _offset) * w;

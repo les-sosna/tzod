@@ -13,13 +13,16 @@ InputContext::InputContext(IInput &input, IClipboard &clipboard)
 	, _lastPointerLocation()
 #endif
 {
-	_transformStack.emplace(0.f, 0.f);
+	_transformStack.emplace(InputStackFrame{vec2d(), true});
 }
 
-void InputContext::PushTransform(vec2d offset)
+void InputContext::PushTransform(vec2d offset, bool focused)
 {
 	assert(!_transformStack.empty());
-	_transformStack.push(_transformStack.top() + offset);
+	_transformStack.push(InputStackFrame{
+		_transformStack.top().offset + offset,
+		_transformStack.top().focused && focused
+	});
 }
 
 void InputContext::PopTransform()
@@ -30,7 +33,12 @@ void InputContext::PopTransform()
 
 vec2d InputContext::GetMousePos() const
 {
-	return _input.GetMousePos() - _transformStack.top();
+	return _input.GetMousePos() - _transformStack.top().offset;
+}
+
+bool InputContext::GetFocused() const
+{
+	return _transformStack.top().focused;
 }
 
 const std::vector<std::shared_ptr<Window>>* InputContext::GetCapturePath(unsigned int pointerID) const

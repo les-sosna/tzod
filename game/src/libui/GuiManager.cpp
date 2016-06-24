@@ -75,7 +75,6 @@ static void DrawWindowRecursive(
 	RenderSettings &renderSettings,
 	const Window &wnd,
 	vec2d size,
-	bool focused,
 	bool enabled,
 	bool insideTopMost,
 	bool onHoverPath,
@@ -83,7 +82,7 @@ static void DrawWindowRecursive(
 {
 	if (insideTopMost == renderSettings.topMostPass)
 	{
-		LayoutContext lc(size, enabled, focused, onHoverPath);
+		LayoutContext lc(size, enabled, onHoverPath);
 		wnd.Draw(lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
 	}
 
@@ -105,7 +104,6 @@ static void DrawWindowRecursive(
 		if (child->GetVisible())
 		{
 			FRECT childRect = wnd.GetChildRect(size, *child);
-			bool childFocused = focused && (wnd.GetFocus() == child);
 			bool childEnabled = enabled && child->GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			bool childOnHoverPath = onHoverPath && depth + 1 < renderSettings.hoverPath.size() &&
@@ -117,13 +115,12 @@ static void DrawWindowRecursive(
 			{
 				vec2d offset(childRect.left, childRect.top);
 				renderSettings.dc.PushTransform(offset);
-				renderSettings.ic.PushTransform(offset);
+				renderSettings.ic.PushTransform(offset, wnd.GetFocus() == child);
 
 				DrawWindowRecursive(
 					renderSettings,
 					*child,
 					Size(childRect),
-					childFocused,
 					childEnabled,
 					childInsideTopMost,
 					childOnHoverPath,
@@ -164,6 +161,7 @@ void LayoutManager::Render(vec2d size, DrawingContext &dc) const
 
 	dc.SetMode(RM_INTERFACE);
 
+	rs.ic.PushTransform(vec2d(), _inputContext.GetMainWindowActive());
 	for (bool topMostPass : {false, true})
 	{
 		rs.topMostPass = topMostPass;
@@ -171,12 +169,12 @@ void LayoutManager::Render(vec2d size, DrawingContext &dc) const
 			rs,
 			*_desktop,
 			size,
-			_inputContext.GetMainWindowActive(),
 			_desktop->GetEnabled(),
 			_desktop->GetTopMost(),
 			!rs.hoverPath.empty()
 			);
 	}
+	rs.ic.PopTransform();
 
 #ifndef NDEBUG
 	for (auto &id2pos: _inputContext.GetLastPointerLocation())
