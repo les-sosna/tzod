@@ -74,22 +74,13 @@ struct RenderSettings
 static void DrawWindowRecursive(
 	RenderSettings &renderSettings,
 	const Window &wnd,
-	const FRECT &rect,
+	vec2d size,
 	bool focused,
 	bool enabled,
 	bool insideTopMost,
 	bool onHoverPath,
 	unsigned int depth = 0)
 {
-	if (insideTopMost && !renderSettings.topMostPass)
-		return; // early skip topmost window and all its children
-
-	vec2d offset(rect.left, rect.top);
-	renderSettings.dc.PushTransform(offset);
-	renderSettings.ic.PushTransform(offset);
-
-	vec2d size = Size(rect);
-
 	if (insideTopMost == renderSettings.topMostPass)
 	{
 		LayoutContext lc(size, enabled, focused, onHoverPath);
@@ -113,7 +104,7 @@ static void DrawWindowRecursive(
 	{
 		if (child->GetVisible())
 		{
-			FRECT childRect = wnd.GetChildRect(Size(rect), *child);
+			FRECT childRect = wnd.GetChildRect(size, *child);
 			bool childFocused = focused && (wnd.GetFocus() == child);
 			bool childEnabled = enabled && child->GetEnabled();
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
@@ -121,26 +112,34 @@ static void DrawWindowRecursive(
 				renderSettings.hoverPath[renderSettings.hoverPath.size() - depth - 2] == child;
 			unsigned int childDepth = depth + 1;
 
-			DrawWindowRecursive(
-				renderSettings,
-				*child,
-				childRect,
-				childFocused,
-				childEnabled,
-				childInsideTopMost,
-				childOnHoverPath,
-				childDepth);
+			// early skip topmost window and all its children
+			if (!childInsideTopMost || renderSettings.topMostPass)
+			{
+				vec2d offset(childRect.left, childRect.top);
+				renderSettings.dc.PushTransform(offset);
+				renderSettings.ic.PushTransform(offset);
+
+				DrawWindowRecursive(
+					renderSettings,
+					*child,
+					Size(childRect),
+					childFocused,
+					childEnabled,
+					childInsideTopMost,
+					childOnHoverPath,
+					childDepth);
+
+				renderSettings.ic.PopTransform();
+				renderSettings.dc.PopTransform();
+			}
 		}
 	}
 
 	if (clipChildren)
 		renderSettings.dc.PopClippingRect();
-
-	renderSettings.ic.PopTransform();
-	renderSettings.dc.PopTransform();
 }
 
-void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
+void LayoutManager::Render(vec2d size, DrawingContext &dc) const
 {
 	RenderSettings rs{ _inputContext, dc, _texman };
 
@@ -152,11 +151,10 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 	}
 	else
 	{
-		for (int pass = 0; pass != 2; pass++)
+		for (bool topMostPass : {true, false})
 		{
-			bool topMostPass = !pass; // top most pass first
 			PointerSinkSearch search{ topMostPass };
-			if (FindPointerSink(search, _desktop, Size(rect), _inputContext.GetMousePos(), _desktop->GetTopMost()))
+			if (FindPointerSink(search, _desktop, size, _inputContext.GetMousePos(), _desktop->GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;
@@ -166,13 +164,13 @@ void LayoutManager::Render(FRECT rect, DrawingContext &dc) const
 
 	dc.SetMode(RM_INTERFACE);
 
-	for (int pass = 0; pass != 2; pass++)
+	for (bool topMostPass : {false, true})
 	{
-		rs.topMostPass = !!pass;
+		rs.topMostPass = topMostPass;
 		DrawWindowRecursive(
 			rs,
 			*_desktop,
-			rect,
+			size,
 			_inputContext.GetMainWindowActive(),
 			_desktop->GetEnabled(),
 			_desktop->GetTopMost(),
