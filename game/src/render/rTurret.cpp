@@ -17,7 +17,7 @@ void R_Turret::Draw(const World &world, const GC_Actor &actor, DrawingContext &d
 
 	vec2d pos = turret.GetPos();
 	vec2d dir = turret.GetDirection();
-	vec2d weapDir = vec2d(turret.GetWeaponDir());
+	vec2d weapDir = Vec2dDirection(turret.GetWeaponDir());
 	float ready = turret.GetReadyState();
 	unsigned int nFrames = _tm.GetFrameCount(_texPlatform);
 	if (ready == 1)

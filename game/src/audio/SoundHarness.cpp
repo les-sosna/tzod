@@ -362,7 +362,7 @@ void SoundHarness::OnLight(GC_Vehicle &obj)
 void SoundHarness::OnGameFinished()
 {
 	// FIXME: play at no specific position
-	_soundRender.PlayOnce(SoundTemplate::Limit, vec2d(0,0));
+	_soundRender.PlayOnce(SoundTemplate::Limit, vec2d{});
 }
 
 void SoundHarness::OnKill(GC_Object &obj)

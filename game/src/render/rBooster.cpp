@@ -12,6 +12,6 @@ R_Booster::R_Booster(TextureManager &tm)
 void R_Booster::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
 {
 	vec2d pos = actor.GetPos();
-	vec2d dir = vec2d(world.GetTime() * 50);
+	vec2d dir = Vec2dDirection(world.GetTime() * 50);
 	dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }

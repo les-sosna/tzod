@@ -54,7 +54,7 @@ void R_Particle::Draw(const World &world, const GC_Actor &actor, DrawingContext 
 		float state = particle.GetTime() / particle.GetLifeTime();
 		auto frame = std::min(_tm.GetFrameCount(texId) - 1, (unsigned int) ((float) _tm.GetFrameCount(texId) * state));
 		vec2d pos = particle.GetPos();
-		vec2d dir = particle.GetRotationSpeed() > 0 ? vec2d(particle.GetRotationSpeed() * particle.GetTime()) : particle.GetDirection();
+		vec2d dir = particle.GetRotationSpeed() > 0 ? Vec2dDirection(particle.GetRotationSpeed() * particle.GetTime()) : particle.GetDirection();
 		SpriteColor color;
 		if (particle.GetFade())
 		{

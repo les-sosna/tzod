@@ -67,7 +67,7 @@ void GC_RigidBodyDynamic::MyPropertySet::MyExchange(World &world, bool applyToOb
 		tmp->_Nx = _propNx.GetFloatValue();
 		tmp->_Ny = _propNy.GetFloatValue();
 		tmp->_Nw = _propNw.GetFloatValue();
-		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
+		tmp->SetDirection(Vec2dDirection(_propRotation.GetFloatValue()));
 	}
 	else
 	{
@@ -144,7 +144,7 @@ void GC_RigidBodyDynamic::MapExchange(MapFile &f)
 	MAP_EXCHANGE_FLOAT(rotation, rotTmp, 0);
 	if( f.loading() )
 	{
-		SetDirection(vec2d(rotTmp));
+		SetDirection(Vec2dDirection(rotTmp));
 	}
 }
 
@@ -223,7 +223,7 @@ vec2d GC_RigidBodyDynamic::GetBrakingLength() const
 void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 {
 	vec2d dx = _lv * dt;
-	vec2d da(_av * dt);
+	vec2d da = Vec2dDirection(_av * dt);
 
 	MoveTo(world, GetPos() + dx);
 	vec2d dirTmp = Vec2dAddDirection(GetDirection(), da);
@@ -247,13 +247,13 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 	// linear friction
 	//
 
-	vec2d dir_y(GetDirection().y, -GetDirection().x);
+	vec2d dir_y{ GetDirection().y, -GetDirection().x };
 
 	float vx = Vec2dDot(_lv, GetDirection());
 	float vy = Vec2dDot(_lv, dir_y);
 
 	_lv.Normalize();
-	vec2d dev(Vec2dDot(_lv, GetDirection()), Vec2dDot(_lv, dir_y));
+	vec2d dev{ Vec2dDot(_lv, GetDirection()), Vec2dDot(_lv, dir_y) };
 
 	if( vx > 0 )
 		vx = std::max(.0f, vx - _Nx * dt * dev.x);
@@ -304,7 +304,7 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 	contact.total_tp = 0;
 	contact.obj1_d   = this;
 
-	vec2d myHalfSize(GetHalfLength(), GetHalfWidth());
+	vec2d myHalfSize{ GetHalfLength(), GetHalfWidth() };
 
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{

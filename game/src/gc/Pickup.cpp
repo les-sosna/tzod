@@ -122,7 +122,7 @@ void GC_Pickup::TimeStep(World &world, float dt)
 
 			for( int n = 0; n < 50; ++n )
 			{
-				vec2d a(PI2 * (float) n / 50);
+				vec2d a = Vec2dDirection(PI2 * (float) n / 50);
 				world.New<GC_Particle>(GetPos() + a * 25, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
 			}
 		}
@@ -328,7 +328,7 @@ void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 
 		const vec2d &pos = _vehicle->GetPos();
 		vec2d dir = (dd.hit - pos).Normalize();
-		vec2d p = vec2d(dir.y, -dir.x);
+		vec2d p = vec2d{ dir.y, -dir.x };
 		vec2d v = _vehicle->_lv;
 		for( int i = 0; i < 7; i++ )
 		{
@@ -359,7 +359,7 @@ IMPLEMENT_1LIST_MEMBER(GC_pu_Shock, LIST_gsprites);
 
 GC_pu_Shock::GC_pu_Shock(vec2d pos)
   : GC_Pickup(pos)
-  , _targetPos(0, 0)
+  , _targetPos()
 {
 	SetRespawnTime(GetDefaultRespawnTime());
 }

@@ -15,7 +15,7 @@ static unsigned int GetMilliseconds()
 DefaultCamera::DefaultCamera()
   : _zoom(1)
   , _dt(50)
-  , _pos(0,0)
+  , _pos()
 {
 	_dwTimeX = _dwTimeY = GetMilliseconds();
 }

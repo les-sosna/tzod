@@ -6,7 +6,7 @@
 DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)
 	: _tm(tm)
 {
-	_transformStack.push(vec2d(0, 0));
+	_transformStack.emplace();
 	_viewport.left = 0;
 	_viewport.top = 0;
 	_viewport.right = width;

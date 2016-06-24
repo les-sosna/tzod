@@ -47,7 +47,7 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 				return;
 		}
 		vec2d mousePos = GetCursorPosInPixels(window);
-		vec2d desktopSize(gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight());
+		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			desktopSize,
@@ -65,7 +65,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		vec2d mousePos = GetCursorPosInPixels(window, xpos, ypos);
-		vec2d desktopSize(gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight());
+		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			desktopSize,
@@ -84,7 +84,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 	{
 		vec2d mousePos = GetCursorPosInPixels(window);
 		vec2d mouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-		vec2d desktopSize(gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight());
+		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			desktopSize,

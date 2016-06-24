@@ -13,19 +13,6 @@ class vec2d
 {
 public:
 	float x, y;
-	vec2d() {};
-
-	vec2d(float _x, float _y)
-	{
-		x = _x;
-		y = _y;
-	}
-
-	explicit vec2d(float angle)
-	{
-		x = cosf(angle);
-		y = sinf(angle);
-	}
 
 	vec2d& operator-=(const vec2d &v)
 	{
@@ -43,37 +30,37 @@ public:
 
 	vec2d operator + (const vec2d &v) const
 	{
-		return vec2d(x + v.x, y + v.y);
+		return vec2d{ x + v.x, y + v.y };
 	}
 
 	vec2d operator - (const vec2d &v) const
 	{
-		return vec2d(x - v.x, y - v.y);
+		return vec2d{ x - v.x, y - v.y };
 	}
 
 	vec2d operator - () const
 	{
-		return vec2d(-x, -y);
+		return vec2d{ -x, -y };
 	}
 
 	vec2d operator * (float a) const
 	{
-		return vec2d(x * a, y * a);
+		return vec2d{ x * a, y * a };
 	}
 
 	vec2d operator * (const vec2d &v) const
 	{
-		return vec2d(x * v.x, y * v.y);
+		return vec2d{ x * v.x, y * v.y };
 	}
 
 	vec2d operator / (float a) const
 	{
-		return vec2d(x / a, y / a);
+		return vec2d{ x / a, y / a };
 	}
 
 	vec2d operator / (const vec2d &v) const
 	{
-		return vec2d(x / v.x, y / v.y);
+		return vec2d{ x / v.x, y / v.y };
 	}
 
 	const vec2d& operator *= (float a)
@@ -92,7 +79,7 @@ public:
 
 	friend vec2d operator * (float a, const vec2d &v)
 	{
-		return vec2d(v.x * a, v.y * a);
+		return vec2d{ v.x * a, v.y * a };
 	}
 
 	bool operator ==(const vec2d &v) const
@@ -115,11 +102,11 @@ public:
 	{
 		return sqrt(x*x + y*y);
 	}
-    
-    bool IsZero() const
-    {
-        return x == 0 && y == 0;
-    }
+
+	bool IsZero() const
+	{
+		return x == 0 && y == 0;
+	}
 
 	float Angle() const // angle to the X axis
 	{
@@ -142,12 +129,12 @@ public:
 		return *this;
 	}
 
-    vec2d Norm() const
-    {
-        vec2d result = *this;
-        return result.Normalize();
-    }
-    
+	vec2d Norm() const
+	{
+		vec2d result = *this;
+		return result.Normalize();
+	}
+
 	const vec2d& Set(float _x, float _y)
 	{
 		x = _x;
@@ -164,15 +151,15 @@ public:
 
 struct FRECT
 {
-    float left;
-    float top;
-    float right;
-    float bottom;
+	float left;
+	float top;
+	float right;
+	float bottom;
 };
 
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
 inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
-inline vec2d Size(const FRECT &rect) { return vec2d(WIDTH(rect), HEIGHT(rect)); }
+inline vec2d Size(const FRECT &rect) { return { WIDTH(rect), HEIGHT(rect) }; }
 
 struct RectRB
 {
@@ -185,31 +172,35 @@ struct RectRB
 class CRect : public RectRB
 {
 public:
-    CRect(int l, int t, int r, int b)
-    {
-        left = l;
-        top = t;
-        right = r;
-        bottom = b;
-    }
+	CRect(int l, int t, int r, int b)
+	{
+		left = l;
+		top = t;
+		right = r;
+		bottom = b;
+	}
 };
 
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
 inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
 
+inline vec2d Vec2dDirection(float angle)
+{
+	return{ cosf(angle), sinf(angle) };
+}
 
 inline vec2d Vec2dAddDirection(const vec2d &a, const vec2d &b)
 {
-    assert(std::abs(a.sqr() - 1) < 1e-5);
+	assert(std::abs(a.sqr() - 1) < 1e-5);
 	assert(std::abs(b.sqr() - 1) < 1e-5);
-	return vec2d(a.x*b.x - a.y*b.y, a.y*b.x + a.x*b.y);
+	return{ a.x*b.x - a.y*b.y, a.y*b.x + a.x*b.y };
 }
 
 inline vec2d Vec2dSubDirection(const vec2d &a, const vec2d &b)
 {
-    assert(std::abs(a.sqr() - 1) < 1e-5);
-    assert(std::abs(b.sqr() - 1) < 1e-5);
-	return vec2d(a.x*b.x + a.y*b.y, a.y*b.x - a.x*b.y);
+	assert(std::abs(a.sqr() - 1) < 1e-5);
+	assert(std::abs(b.sqr() - 1) < 1e-5);
+	return{ a.x*b.x + a.y*b.y, a.y*b.x - a.x*b.y };
 }
 
 inline float Vec2dCross(const vec2d &a, const vec2d &b)
@@ -230,8 +221,8 @@ inline bool PtInFRect(const FRECT &rect, const vec2d &pt)
 
 inline bool PtInRect(const RectRB &rect, int x, int y)
 {
-    return rect.left <= x && x < rect.right &&
-        rect.top <= y && y < rect.bottom;
+	return rect.left <= x && x < rect.right &&
+		rect.top <= y && y < rect.bottom;
 }
 
 inline void RectToFRect(FRECT *lpfrt, const RectRB *lprt)
@@ -275,9 +266,6 @@ inline float frand(float max)
 // generates a pseudo random vector of the specified length
 inline vec2d vrand(float len)
 {
-	return vec2d(frand(PI2)) * len;
+	return Vec2dDirection(frand(PI2)) * len;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

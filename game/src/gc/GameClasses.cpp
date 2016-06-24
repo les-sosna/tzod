@@ -204,13 +204,10 @@ void GC_Text_ToolTip::Serialize(World &world, SaveFile &f)
 
 void GC_Text_ToolTip::TimeStep(World &world, float dt)
 {
-	MoveTo(world, GetPos() + vec2d(0, -20.0f) * dt);
+	MoveTo(world, GetPos() + vec2d{ 0, -20.0f } *dt);
 	_time += dt;
 	if( _time > 1.2f )
-    {
-        Kill(world);
-    }
+	{
+		Kill(world);
+	}
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

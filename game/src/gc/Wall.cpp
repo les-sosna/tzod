@@ -77,7 +77,7 @@ void GC_Wall::Kill(World &world)
     GC_RigidBodyStatic::Kill(world);
 }
 
-static const vec2d angles[4] = {vec2d(5*PI4), vec2d(7*PI4), vec2d(PI4), vec2d(3*PI4)};
+static const vec2d angles[4] = { Vec2dDirection(5*PI4), Vec2dDirection(7*PI4), Vec2dDirection(PI4), Vec2dDirection(3*PI4)};
 
 bool GC_Wall::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const
 {
@@ -148,7 +148,7 @@ bool GC_Wall::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirect
 		{
 			outEnter = lineProjW_abs > 0 ? bW / lineProjW_abs : 0;
 			outEnterNormal = lineProjW > 0 ?
-				vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+				vec2d{ -GetDirection().y, GetDirection().x } : vec2d{ GetDirection().y, -GetDirection().x };
 		}
 		else
 		{
@@ -273,14 +273,14 @@ bool GC_Wall::IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCent
 		{
 		case 0:
 			outNormal = deltaCrossRectDir > 0 ?
-				vec2d(-rectDirection.y, rectDirection.x) : vec2d(rectDirection.y, -rectDirection.x);
+				vec2d{ -rectDirection.y, rectDirection.x } : vec2d{ rectDirection.y, -rectDirection.x };
 			break;
 		case 1:
 			outNormal = deltaDotRectDir > 0 ? -rectDirection : rectDirection;
 			break;
 		case 2:
 			outNormal = deltaCrossDir > 0 ?
-				vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+				vec2d{ -GetDirection().y, GetDirection().x } : vec2d{ GetDirection().y, -GetDirection().x };
 			break;
 		case 3:
 			outNormal = deltaDotDir > 0 ? -GetDirection() : GetDirection();
@@ -416,7 +416,7 @@ void GC_Wall::OnDestroy(World &world, const DamageDesc &dd)
 {
 	for( int n = 0; n < 5; ++n )
 	{
-		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d(frand(100.0f) - 50, -frand(100.0f)));
+		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d{ frand(100.0f) - 50, -frand(100.0f) });
 	}
 	world.New<GC_Particle>(GetPos(), SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
 

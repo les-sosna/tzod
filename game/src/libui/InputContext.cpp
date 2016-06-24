@@ -13,7 +13,7 @@ InputContext::InputContext(IInput &input, IClipboard &clipboard)
 	, _lastPointerLocation()
 #endif
 {
-	_transformStack.emplace(InputStackFrame{vec2d(), true});
+	_transformStack.emplace(InputStackFrame{vec2d{}, true});
 }
 
 void InputContext::PushTransform(vec2d offset, bool focused)
@@ -84,7 +84,7 @@ PointerSink* UI::FindPointerSink(
 			if (child->GetEnabled() && child->GetVisible())
 			{
 				FRECT childRect = wnd->GetChildRect(size, *child);
-				vec2d childPointerPosition = pointerPosition - vec2d(childRect.left, childRect.top);
+				vec2d childPointerPosition = pointerPosition - vec2d{ childRect.left, childRect.top };
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				pointerSink = FindPointerSink(search,
 					child,
@@ -144,7 +144,7 @@ bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d
 				parent->SetFocus(child);
 
 			FRECT childRect = parent->GetChildRect(size, *child);
-			pointerPosition -= vec2d(childRect.left, childRect.top);
+			pointerPosition -= {childRect.left, childRect.top};
 			size = Size(childRect);
 		}
 

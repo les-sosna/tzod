@@ -113,7 +113,7 @@ static void DrawWindowRecursive(
 			// early skip topmost window and all its children
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
-				vec2d offset(childRect.left, childRect.top);
+				vec2d offset{ childRect.left, childRect.top };
 				renderSettings.dc.PushTransform(offset);
 				renderSettings.ic.PushTransform(offset, wnd.GetFocus() == child);
 
@@ -161,7 +161,7 @@ void LayoutManager::Render(vec2d size, DrawingContext &dc) const
 
 	dc.SetMode(RM_INTERFACE);
 
-	rs.ic.PushTransform(vec2d(), _inputContext.GetMainWindowActive());
+	rs.ic.PushTransform(vec2d{}, _inputContext.GetMainWindowActive());
 	for (bool topMostPass : {false, true})
 	{
 		rs.topMostPass = topMostPass;

@@ -142,7 +142,7 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 			_rotatorWeap.stop(false);
 	}
 
-	vec2d a(_angle);
+	vec2d a = Vec2dDirection(_angle);
 	vec2d direction = Vec2dAddDirection(GetVehicle()->GetDirection(), a);
 	SetDirection(direction);
 
@@ -216,7 +216,7 @@ void GC_Weapon::TimeStep(World &world, float dt)
 GC_ProjectileBasedWeapon::GC_ProjectileBasedWeapon(vec2d pos)
 	: GC_Weapon(pos)
 	, _lastShotTime(-FLT_MAX)
-	, _lastShotPos(0,0)
+	, _lastShotPos()
 	, _numShots(0)
 	, _firing(nullptr)
 {
@@ -274,7 +274,7 @@ void GC_ProjectileBasedWeapon::ResetSeries()
 
 void GC_ProjectileBasedWeapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
-	_fireLight = &world.New<GC_Light>(vec2d(0, 0), GC_Light::LIGHT_POINT);
+	_fireLight = &world.New<GC_Light>(vec2d{}, GC_Light::LIGHT_POINT);
 	_fireLight->SetActive(false);
 	GC_Weapon::OnAttached(world, vehicle);
 }
@@ -307,7 +307,7 @@ void GC_ProjectileBasedWeapon::OnUpdateView(World &world)
 		{
 			float op = 1.0f - pow(time / feTime, 2);
 			vec2d dir = GetDirection();
-			_fireLight->MoveTo(world, GetPos() + vec2d(Vec2dDot(_lastShotPos, dir), _lastShotPos.x*dir.y - _lastShotPos.y*dir.x));
+			_fireLight->MoveTo(world, GetPos() + vec2d{ Vec2dDot(_lastShotPos, dir), _lastShotPos.x*dir.y - _lastShotPos.y*dir.x });
 			_fireLight->SetIntensity(op);
 		}
 		else

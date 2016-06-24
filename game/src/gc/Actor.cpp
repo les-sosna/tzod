@@ -15,7 +15,7 @@ IMPLEMENT_GRID_MEMBER(GC_Actor, grid_actors)
 
 GC_Actor::GC_Actor(vec2d pos)
 	: _pos(pos)
-	, _direction(1, 0)
+	, _direction{ 1, 0 }
 {
 	SetFlags(GC_FLAG_ACTOR_INGRIDSET, true);
 }

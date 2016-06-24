@@ -92,7 +92,7 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	// move with keyboard
 	if( _arcadeStyle )
 	{
-		vec2d tmp(0, 0);
+		vec2d tmp{0, 0};
 		if( input.IsKeyPressed(_keyForward) ) tmp.y -= 1;
 		if( input.IsKeyPressed(_keyBack)    ) tmp.y += 1;
 		if( input.IsKeyPressed(_keyLeft)    ) tmp.x -= 1;

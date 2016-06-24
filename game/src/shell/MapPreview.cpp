@@ -51,7 +51,7 @@ void MapPreview::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 	{
 		State state = GetState(lc, ic);
 
-		vec2d worldSize(_world->_sx, _world->_sy);
+		vec2d worldSize{ _world->_sx, _world->_sy };
 		vec2d eye = worldSize / 2;
 		float zoom = std::max(lc.GetSize().x / _world->_sx, lc.GetSize().y / _world->_sy);
 

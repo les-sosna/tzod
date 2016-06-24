@@ -161,7 +161,7 @@ void GC_Decoration::MapExchange(MapFile &f)
 	{
 //		SetFrame(frame % GetFrameCount());
 		SetZ((enumZOrder) z);
-		SetDirection(vec2d(rot));
+		SetDirection(Vec2dDirection(rot));
 		if( _frameRate > 0 )
 		{
             // TODO: animation
@@ -235,7 +235,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		tmp->SetTextureName(_propTexture.GetStringValue());
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 //		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
-		tmp->SetDirection(vec2d(_propRotation.GetFloatValue()));
+		tmp->SetDirection(Vec2dDirection(_propRotation.GetFloatValue()));
 		tmp->_frameRate = _propAnimate.GetFloatValue();
 
         // TODO: animation

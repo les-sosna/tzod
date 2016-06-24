@@ -38,7 +38,7 @@ void GC_Crate::OnDestroy(World &world, const DamageDesc &dd)
 {
 	for( int n = 0; n < 5; ++n )
 	{
-		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d(frand(100.0f) - 50, -frand(100.0f)));
+		world.New<GC_BrickFragment>(GetPos() + vrand(GetRadius()), vec2d{ frand(100.0f) - 50.f, -frand(100.0f) });
 	}
 
 	GC_RigidBodyDynamic::OnDestroy(world, dd);

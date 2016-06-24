@@ -44,7 +44,7 @@ void GC_BrickFragment::TimeStep(World &world, float dt)
 	}
 
 	MoveTo(world, GetPos() + _velocity * dt);
-	_velocity += vec2d(0, 300.0f) * dt;
+	_velocity += vec2d{ 0, 300.0f } *dt;
 }
 
 /////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ void GC_Particle::TimeStep(World &world, float dt)
 	}
 
 	if( _rotationSpeed )
-		SetDirection(vec2d(_rotationSpeed * _time));
+		SetDirection(Vec2dDirection(_rotationSpeed * _time));
 
 	MoveTo(world, GetPos() + _velocity * dt);
 }

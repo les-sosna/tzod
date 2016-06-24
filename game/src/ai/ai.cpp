@@ -31,7 +31,7 @@ static void CatmullRom( const vec2d &p1, const vec2d &p2, const vec2d &p3, const
 
 
 AIController::AIController()
-  : _arrivalPoint(0,0)
+  : _arrivalPoint()
   , _desiredOffset(0)
   , _currentOffset(0)
   , _favoriteWeaponType(INVALID_OBJECT_TYPE)
@@ -546,7 +546,7 @@ void AIController::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, cons
 	if( tmp.x && tmp.y )
 	{
 		tmp.Normalize();
-		tmp = Vec2dAddDirection(tmp, vec2d(_currentOffset));
+		tmp = Vec2dAddDirection(tmp, Vec2dDirection(_currentOffset));
 		float cosDiff = Vec2dDot(tmp, vehicle.GetWeapon()->GetDirection());
 		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
@@ -880,7 +880,7 @@ bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float
     AIWEAPSETTINGS ws;
     if( vehicle.GetWeapon() )
         vehicle.GetWeapon()->SetupAI(&ws);
-    if( CreatePath(world, vehicle.GetPos(), vec2d(x, y), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
+	if (CreatePath(world, vehicle.GetPos(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0)
     {
         SmoothPath();
         SetL1(L1_NONE);
@@ -959,7 +959,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 			float x = std::min(std::max(.0f, t.x), world._sx);
 			float y = std::min(std::max(.0f, t.y), world._sy);
 
-			if( CreatePath(world, vehicle.GetPos(), vec2d(x, y), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
+			if (CreatePath(world, vehicle.GetPos(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
 			{
 				SmoothPath();
 				SetL1(L1_NONE);
@@ -992,7 +992,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 
 	if( !_path.empty() )
 	{
-		vec2d predictedProj;
+//		vec2d predictedProj;
 //		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, nullptr);
 
 		vec2d currentProj;
@@ -1139,7 +1139,7 @@ void AIController::DoState(World &world, const GC_Vehicle &vehicle, VehicleState
 
 	if( brake.sqr() > 0 )
 	{
-		vec2d angle[] = {vec2d(PI/4), vec2d(0), vec2d(-PI/4)};
+		vec2d angle[] = { Vec2dDirection(PI/4), Vec2dDirection(0), Vec2dDirection(-PI/4)};
 		float len[] = {1,2,1};
 
 		float min_d = -1;

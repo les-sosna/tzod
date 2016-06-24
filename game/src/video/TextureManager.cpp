@@ -112,7 +112,7 @@ void TextureManager::CreateChecker()
 	texDescIter->refCount++;
 
 	LogicalTexture tex;
-	tex.uvPivot = vec2d(0, 0);
+	tex.uvPivot = { 0, 0 };
 	tex.pxFrameWidth = (float) td.width * 8;
 	tex.pxFrameHeight = (float) td.height * 8;
 	tex.pxBorderSize = 0;
@@ -343,7 +343,7 @@ ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::Fil
 		}
 
 		LogicalTexture tex;
-		tex.uvPivot  = vec2d(0.5f, 0.5f);
+		tex.uvPivot = { 0.5f, 0.5f };
 		tex.pxFrameWidth = (float) image->GetWidth();
 		tex.pxFrameHeight = (float) image->GetHeight();
 		tex.pxBorderSize = 0;

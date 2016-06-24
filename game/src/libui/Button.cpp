@@ -149,7 +149,7 @@ void Button::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc,
 		float x = lc.GetSize().x / 2;
 		float y = (lc.GetSize().y - iconHeight - textHeight) / 2 + iconHeight;
 
-		dc.DrawSprite(_icon, 0, c, x, y - iconHeight/2, vec2d(1, 0));
+		dc.DrawSprite(_icon, 0, c, x, y - iconHeight / 2, { 1, 0 });
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCT);
 	}
 	else

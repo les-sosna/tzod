@@ -6,7 +6,7 @@
 vec2d GetWeapSpriteDirection(const World &world, const GC_Weapon &weapon)
 {
 	bool animate = !weapon.GetAttached() && !weapon.GetRespawn();
-	vec2d dir = animate ? vec2d(world.GetTime()) : weapon.GetDirection();
+	vec2d dir = animate ? Vec2dDirection(world.GetTime()) : weapon.GetDirection();
 	return dir;
 }
 

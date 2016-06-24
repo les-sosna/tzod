@@ -16,23 +16,23 @@ class RTTypes
 public:
 	struct EdItem
 	{
-        union
-        {
-            GC_Actor& (*CreateActor) (World &, float, float);
-            GC_Service& (*CreateService) (World &);
-        };
-        union
-        {
-            GC_Actor& (*CreateDetachedActor)(vec2d pos);
-            GC_Service& (*CreateDetachedService)();
-        };
+		union
+		{
+			GC_Actor& (*CreateActor) (World &, float, float);
+			GC_Service& (*CreateService) (World &);
+		};
+		union
+		{
+			GC_Actor& (*CreateDetachedActor)(vec2d pos);
+			GC_Service& (*CreateDetachedService)();
+		};
 		int           layer;
 		float         align;
 		float         offset;
 		vec2d         size;
 		const char*   name;
 		const char*   desc;
-        bool          service;
+		bool          service;
 	};
 
 private:
@@ -41,35 +41,35 @@ private:
 	typedef std::vector<ObjectType> index2type;
 	typedef std::map<ObjectType, GC_Object& (*) (World&)> FromFileMap;
 
-    template<class T>
-    static GC_Actor& DetachedActorCtor(vec2d pos)
-    {
-        return *new T(pos);
-    }
-
-    template<class T>
-    static GC_Service& DetachedServiceCtor()
-    {
-        return *new T();
-    }
+	template<class T>
+	static GC_Actor& DetachedActorCtor(vec2d pos)
+	{
+		return *new T(pos);
+	}
 
 	template<class T>
-    static GC_Actor& ActorCtor(World &world, float x, float y)
-    {
-        return world.New<T>(vec2d(x, y));
-    }
+	static GC_Service& DetachedServiceCtor()
+	{
+		return *new T();
+	}
 
 	template<class T>
-    static GC_Service& ServiceCtor(World &world)
-    {
-        return world.New<T>();
-    }
+	static GC_Actor& ActorCtor(World &world, float x, float y)
+	{
+		return world.New<T>(vec2d{ x, y });
+	}
 
 	template<class T>
-    static GC_Object& FromFileCtor(World &world)
-    {
-        return world.New<T>(::FromFile());
-    }
+	static GC_Service& ServiceCtor(World &world)
+	{
+		return world.New<T>();
+	}
+
+	template<class T>
+	static GC_Object& FromFileCtor(World &world)
+	{
+		return world.New<T>(::FromFile());
+	}
 
 public:
 	// access to singleton instance
@@ -90,13 +90,13 @@ public:
 	{
 		assert( !IsRegistered(T::GetTypeStatic()) );
 		assert( 0 == _n2t.count(name) );
-        EdItem ei = {};
-		ei.desc    = desc;  // index in localization table
-		ei.name    = name;
-		ei.layer   = layer;
-		ei.size    = vec2d(width, height);
-		ei.align   = align;
-		ei.offset  = offset;
+		EdItem ei = {};
+		ei.desc = desc;  // index in localization table
+		ei.name = name;
+		ei.layer = layer;
+		ei.size = { width, height };
+		ei.align = align;
+		ei.offset = offset;
 		ei.service = false;
 		ei.CreateActor = ActorCtor<T>;
 		ei.CreateDetachedActor = DetachedActorCtor<T>;

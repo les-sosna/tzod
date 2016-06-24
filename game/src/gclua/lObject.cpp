@@ -246,8 +246,8 @@ static int object_setposition(lua_State *L)
 	GC_Actor *actor = checkobject<GC_Actor>(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
-    World &world = luaT_getworld(L);
-    actor->MoveTo(world, vec2d(x,y));
+	World &world = luaT_getworld(L);
+	actor->MoveTo(world, { x, y });
 	return 1;
 }
 

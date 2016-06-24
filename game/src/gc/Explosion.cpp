@@ -254,7 +254,7 @@ void GC_ExplosionBig::Init(World &world)
 	SetTimeout(world, 0.10f);
 
 	float duration = 0.72f;
-	world.New<GC_ParticleExplosion>(GetPos(), vec2d(0,0), PARTICLE_EXPLOSION2, duration, vrand(1));
+	world.New<GC_ParticleExplosion>(GetPos(), vec2d{}, PARTICLE_EXPLOSION2, duration, vrand(1));
 
 	auto &light = world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
 	light.SetRadius(128 * 5);
@@ -284,7 +284,7 @@ void GC_ExplosionBig::Init(World &world)
 		p2._time = frand(1.0f);
 	}
 
-	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d(0,0), PARTICLE_BIGBLAST, 20.0f, vrand(1));
+	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d{}, PARTICLE_BIGBLAST, 20.0f, vrand(1));
 	p.SetFade(true);
 }
 
@@ -314,7 +314,7 @@ void GC_ExplosionStandard::Init(World &world)
 	SetTimeout(world, 0.03f);
 
 	float duration = 0.32f;
-	world.New<GC_ParticleExplosion>(GetPos(), vec2d(0,0), PARTICLE_EXPLOSION1, duration, vrand(1));
+	world.New<GC_ParticleExplosion>(GetPos(), vec2d{}, PARTICLE_EXPLOSION1, duration, vrand(1));
 
 	auto &light = world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
 	light.SetRadius(70 * 5);
@@ -324,15 +324,15 @@ void GC_ExplosionStandard::Init(World &world)
 	{
 		//ring
 		float ang = frand(PI2);
-		world.New<GC_Particle>(GetPos(), vec2d(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
+		world.New<GC_Particle>(GetPos(), Vec2dDirection(ang) * 100, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
 
 		//smoke
 		ang = frand(PI2);
 		float d = frand(64.0f) - 32.0f;
 
-		auto &p1 = world.New<GC_Particle>(GetPos() + vec2d(ang) * d, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
+		auto &p1 = world.New<GC_Particle>(GetPos() + Vec2dDirection(ang) * d, SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
 		p1._time = frand(1.0f);
 	}
-	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d(0,0), PARTICLE_SMALLBLAST, 8.0f, vrand(1));
+	auto &p = world.New<GC_ParticleDecal>(GetPos(), vec2d{}, PARTICLE_SMALLBLAST, 8.0f, vrand(1));
 	p.SetFade(true);
 }

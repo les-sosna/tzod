@@ -44,7 +44,7 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 		unsigned char op = (unsigned char) int(255.0f * (1.0f - advance * advance));
 		SpriteColor color = { op, op, op, op };
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * _offsetX;
-		pos += Vec2dAddDirection(weapon.GetDirection(), vec2d(0, -1)) * weapon.GetLastShotPos().y;
+		pos += Vec2dAddDirection(weapon.GetDirection(), vec2d{ 0, -1 }) * weapon.GetLastShotPos().y;
 		vec2d dir;
 		if( _oriented )
 		{
@@ -54,7 +54,7 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 		{
 			unsigned int hash = reinterpret_cast<unsigned int&>(lastShot);
 			hash ^= (hash >> 16) | (hash << 16);
-			dir = vec2d((float) hash);
+			dir = Vec2dDirection((float) hash);
 		}
 		dc.DrawSprite(_texId, frame, color, pos.x, pos.y, dir);
 	}
@@ -80,7 +80,7 @@ void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, DrawingContex
 	if (ripper.GetAttached() && ripper.GetNumShots() == 0)
 	{
 		vec2d pos = ripper.GetPos() - ripper.GetDirection() * 8;
-		vec2d dir = vec2d(world.GetTime() * 10);
+		vec2d dir = Vec2dDirection(world.GetTime() * 10);
 		dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	}
 }
@@ -98,7 +98,7 @@ void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext
 	if (weapon.GetAttached())
 	{
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;
-		vec2d dir = vec2d(world.GetTime() * 5);
+		vec2d dir = Vec2dDirection(world.GetTime() * 5);
 		dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	}
 }

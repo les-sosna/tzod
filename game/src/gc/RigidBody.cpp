@@ -102,7 +102,7 @@ bool GC_RigidBodyStatic::IntersectWithLine(const vec2d &lineCenter, const vec2d 
 	{
 		outEnter = lineProjW_abs > std::numeric_limits<float>::epsilon() ? b1 / lineProjW_abs : 0;
 		outEnterNormal = lineProjW > 0 ?
-			vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+			vec2d{ -GetDirection().y, GetDirection().x } : vec2d{ GetDirection().y, -GetDirection().x };
 	}
 	else
 	{
@@ -193,14 +193,14 @@ bool GC_RigidBodyStatic::IntersectWithRect(const vec2d &rectHalfSize, const vec2
 	{
 	case 0:
 		outNormal = deltaCrossRectDir > 0 ?
-			vec2d(-rectDirection.y, rectDirection.x) : vec2d(rectDirection.y, -rectDirection.x);
+			vec2d{ -rectDirection.y, rectDirection.x } : vec2d{ rectDirection.y, -rectDirection.x };
 		break;
 	case 1:
 		outNormal = deltaDotRectDir > 0 ? -rectDirection : rectDirection;
 		break;
 	case 2:
 		outNormal = deltaCrossDir > 0 ?
-			vec2d(-GetDirection().y, GetDirection().x) : vec2d(GetDirection().y, -GetDirection().x);
+			vec2d{ -GetDirection().y, GetDirection().x } : vec2d{ GetDirection().y, -GetDirection().x };
 		break;
 	case 3:
 		outNormal = deltaDotDir > 0 ? -GetDirection() : GetDirection();
@@ -240,10 +240,10 @@ bool GC_RigidBodyStatic::IntersectWithRect(const vec2d &rectHalfSize, const vec2
 
 	vec2d v[4] =
 	{
-		vec2d(xx - yy, yx + xy),
-		vec2d(xx + yy, -yx + xy),
-		vec2d(-xx - yy, yx - xy),
-		vec2d(-xx + yy, -yx - xy)
+		{xx - yy, yx + xy},
+		{xx + yy, -yx + xy},
+		{-xx - yy, yx - xy},
+		{-xx + yy, -yx - xy}
 	};
 	unsigned int idx;
 	float mindot = FLT_MAX;
@@ -361,8 +361,8 @@ vec2d GC_RigidBodyStatic::GetVertex(int index) const
 		case 2: x = -_length / 2; y = -_width / 2; break;
 		case 3: x =  _length / 2; y = -_width / 2; break;
 	}
-	return vec2d(GetPos().x + x * GetDirection().x - y * GetDirection().y,
-				 GetPos().y + x * GetDirection().y + y * GetDirection().x);
+	return{ GetPos().x + x * GetDirection().x - y * GetDirection().y,
+	        GetPos().y + x * GetDirection().y + y * GetDirection().x };
 }
 
 void GC_RigidBodyStatic::MapExchange(MapFile &f)

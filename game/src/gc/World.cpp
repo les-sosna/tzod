@@ -179,28 +179,28 @@ void World::Import(MapFile &file)
 	{
 		ObjectType t = RTTypes::Inst().GetTypeByName(file.GetCurrentClassName());
 		if( INVALID_OBJECT_TYPE != t )
-        {
-            GC_Object *obj;
-            const RTTypes::EdItem &ei = RTTypes::Inst().GetTypeInfo(t);
-            if (ei.service)
-            {
-                obj = &ei.CreateDetachedService();
-            }
-            else
-            {
-                float x = 0;
-                float y = 0;
-                file.getObjectAttribute("x", x);
-                file.getObjectAttribute("y", y);
-                obj = &ei.CreateDetachedActor(vec2d(x, y));
-            }
-            obj->MapExchange(file);
-            std::string name;
-            if (file.getObjectAttribute("name", name))
-                obj->SetName(*this, name.c_str());
-            obj->Register(*this);
-            obj->Init(*this);
-        }
+		{
+			GC_Object *obj;
+			const RTTypes::EdItem &ei = RTTypes::Inst().GetTypeInfo(t);
+			if (ei.service)
+			{
+				obj = &ei.CreateDetachedService();
+			}
+			else
+			{
+				float x = 0;
+				float y = 0;
+				file.getObjectAttribute("x", x);
+				file.getObjectAttribute("y", y);
+				obj = &ei.CreateDetachedActor({ x, y });
+			}
+			obj->MapExchange(file);
+			std::string name;
+			if (file.getObjectAttribute("name", name))
+				obj->SetName(*this, name.c_str());
+			obj->Register(*this);
+			obj->Init(*this);
+		}
 	}
 }
 
@@ -258,7 +258,7 @@ float World::net_frand(float max)
 
 vec2d World::net_vrand(float len)
 {
-	return vec2d(net_frand(PI2)) * len;
+	return Vec2dDirection(net_frand(PI2)) * len;
 }
 
 bool World::CalcOutstrip( const vec2d &fp, // fire point

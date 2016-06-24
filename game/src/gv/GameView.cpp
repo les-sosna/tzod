@@ -40,7 +40,7 @@ void GameView::Render(DrawingContext &drawingContext, const WorldView &worldView
 {
     if (_harness)
     {
-        _harness->RenderGame(drawingContext, worldView, vec2d(0,0), 1.0f);
+        _harness->RenderGame(drawingContext, worldView, vec2d{}, 1.0f);
     }
 }
 

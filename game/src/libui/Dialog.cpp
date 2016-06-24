@@ -8,7 +8,7 @@ using namespace UI;
 
 Dialog::Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal)
   : Window(manager)
-  , _mousePos(0, 0)
+	, _mousePos{ 0, 0 }
   , _easyMove(false)
 {
 	SetTexture(texman, "ui/window", false);

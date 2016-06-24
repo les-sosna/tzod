@@ -45,7 +45,7 @@ void GC_SpawnPoint::MapExchange(MapFile &f)
 
 	if( f.loading() )
 	{
-		SetDirection(vec2d(dir));
+		SetDirection(Vec2dDirection(dir));
 		if( _team > MAX_TEAMS-1 )
 			_team = MAX_TEAMS-1;
 	}
@@ -95,7 +95,7 @@ void GC_SpawnPoint::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_team = _propTeam.GetIntValue();
-		tmp->SetDirection(vec2d(_propDir.GetFloatValue()));
+		tmp->SetDirection(Vec2dDirection(_propDir.GetFloatValue()));
 	}
 	else
 	{

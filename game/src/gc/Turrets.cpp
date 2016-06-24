@@ -366,7 +366,7 @@ void GC_TurretRocket::TimeStep(World &world, float dt)
 
 void GC_TurretRocket::OnShoot(World &world)
 {
-	vec2d a(GetWeaponDir());
+	vec2d a = Vec2dDirection(GetWeaponDir());
 	auto &rocket = world.New<GC_Rocket>(GetPos() + a * 25.0f, a * SPEED_ROCKET, this, nullptr, true);
 	rocket.SelectTarget(world);
 }
@@ -429,17 +429,17 @@ void GC_TurretCannon::TimeStep(World &world, float dt)
 		_time_smoke_dt += dt;
 		for( ;_time_smoke_dt > 0; _time_smoke_dt -= 0.025f )
 		{
-			world.New<GC_Particle>(GetPos() + vec2d(GetWeaponDir()) * 33.0f,
-								   SPEED_SMOKE + vec2d(GetWeaponDir()) * 50,
-								   PARTICLE_SMOKE,
-								   frand(0.3f) + 0.2f);
+			world.New<GC_Particle>(GetPos() + Vec2dDirection(GetWeaponDir()) * 33.0f,
+			                       SPEED_SMOKE + Vec2dDirection(GetWeaponDir()) * 50,
+			                       PARTICLE_SMOKE,
+			                       frand(0.3f) + 0.2f);
 		}
 	}
 }
 
 void GC_TurretCannon::OnShoot(World &world)
 {
-	vec2d a(GetWeaponDir());
+	vec2d a = Vec2dDirection(GetWeaponDir());
 	world.New<GC_TankBullet>(GetPos() + a * 31.9f, a * SPEED_TANKBULLET + world.net_vrand(40), this, nullptr, false);
 }
 
@@ -477,7 +477,7 @@ void GC_TurretBunker::MapExchange(MapFile &f)
 	GC_Turret::MapExchange(f);
 	if( f.loading() )
 	{
-		SetDirection(vec2d(_initialDir));
+		SetDirection(Vec2dDirection(_initialDir));
 	}
 }
 
@@ -614,7 +614,7 @@ void GC_TurretBunker::SetInitialDir(float initialDir)
 {
 	_initialDir = initialDir;
 	_dir = _initialDir;
-	SetDirection(vec2d(_initialDir));
+	SetDirection(Vec2dDirection(_initialDir));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -676,8 +676,8 @@ void GC_TurretMinigun::TimeStep(World &world, float dt)
 void GC_TurretMinigun::OnShoot(World &world)
 {
 	float ang = _dir + world.net_frand(0.1f) - 0.05f;
-	vec2d a(_dir);
-	world.New<GC_Bullet>(GetPos() + a * 31.9f, vec2d(ang) * SPEED_BULLET, this, nullptr, false);
+	vec2d a = Vec2dDirection(_dir);
+	world.New<GC_Bullet>(GetPos() + a * 31.9f, Vec2dDirection(ang) * SPEED_BULLET, this, nullptr, false);
 	world.New<GC_Particle>(GetPos() + a * 31.9f, a * (400 + frand(400.0f)), PARTICLE_TYPE1, frand(0.06f) + 0.03f);
 }
 
@@ -760,8 +760,7 @@ void GC_TurretGauss::OnShoot(World &world)
 	float dy = _shotCount == 0 ? -7.0f : 7.0f;
 	float c = cosf(_dir), s = sinf(_dir);
 
-	world.New<GC_GaussRay>(vec2d(GetPos().x + c * 20.0f - dy * s, GetPos().y + s * 20.0f + dy * c),
-						   vec2d(c, s) * SPEED_GAUSS, this, nullptr, false);
+	world.New<GC_GaussRay>(
+		vec2d{ GetPos().x + c * 20.0f - dy * s, GetPos().y + s * 20.0f + dy * c },
+		vec2d{ c, s } * SPEED_GAUSS, this, nullptr, false);
 }
-
-// end of file

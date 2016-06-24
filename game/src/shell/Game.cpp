@@ -91,7 +91,7 @@ GameLayout::~GameLayout()
 
 vec2d GameLayout::GetDragDirection() const
 {
-	vec2d dragDirection(0, 0);
+	vec2d dragDirection{ 0, 0 };
 
 	if (!_activeDrags.empty())
 	{
@@ -228,7 +228,7 @@ void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 			if (time > 0)
 			{
 				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
-				dc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, vec2d(_gameContext.GetWorld().GetTime()*3));
+				dc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
 			}
 		}
 	}

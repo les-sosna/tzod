@@ -62,7 +62,7 @@ GameViewHarness::GameViewHarness(World &world, WorldController &worldController)
     for (GC_Player *player: worldController.GetLocalPlayers())
     {
         assert(player);
-        vec2d pos = player->GetVehicle() ? player->GetVehicle()->GetPos() : vec2d(_world._sx / 2, _world._sy / 2);
+		vec2d pos = player->GetVehicle() ? player->GetVehicle()->GetPos() : vec2d{ _world._sx / 2, _world._sy / 2 };
         _cameras.emplace_back(pos, *player);
     }
 }
@@ -82,7 +82,7 @@ GameViewHarness::CanvasToWorldResult GameViewHarness::CanvasToWorld(unsigned int
     x -= viewport.left;
     y -= viewport.top;
     result.visible = (0 <= x && x < viewport.right && 0 <= y && y < viewport.bottom);
-    result.worldPos = camera.GetCameraPos() + (vec2d((float)x, (float)y) - vec2d((float) WIDTH(viewport), (float)HEIGHT(viewport)) / 2) / _scale;
+	result.worldPos = camera.GetCameraPos() + (vec2d{ (float)x, (float)y } -vec2d{ (float)WIDTH(viewport), (float)HEIGHT(viewport) } / 2) / _scale;
     return result;
 }
 
@@ -91,8 +91,8 @@ vec2d GameViewHarness::WorldToCanvas(unsigned int viewIndex, vec2d worldPos) con
     assert(viewIndex < _cameras.size());
     const Camera &camera = IsSingleCamera() ? GetMaxShakeCamera() : _cameras[viewIndex];
     RectRB viewport = camera.GetViewport();
-    vec2d viewPos = (worldPos - camera.GetCameraPos()) * _scale + vec2d((float)WIDTH(viewport), (float)HEIGHT(viewport)) / 2;
-    return viewPos + vec2d((float)viewport.left, (float)viewport.top);
+	vec2d viewPos = (worldPos - camera.GetCameraPos()) * _scale + vec2d{ (float)WIDTH(viewport), (float)HEIGHT(viewport) } / 2;
+	return viewPos + vec2d{ (float)viewport.left, (float)viewport.top };
 }
 
 void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)
@@ -176,7 +176,7 @@ void GameViewHarness::OnBoom(GC_Explosion &obj, float radius, float damage)
     for( auto &camera: _cameras )
     {
         RectRB viewport = camera.GetViewport();
-        vec2d viewSize = vec2d((float)WIDTH(viewport), (float)HEIGHT(viewport));
+		vec2d viewSize{ (float)WIDTH(viewport), (float)HEIGHT(viewport) };
         vec2d lt = camera.GetCameraPos() - viewSize / 2;
         vec2d rb = lt + viewSize;
 

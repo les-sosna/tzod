@@ -54,7 +54,7 @@ enum ParticleType
 	PARTICLE_CATTRACK,
 };
 
-#define SPEED_SMOKE          vec2d(0, -40.0f)
+#define SPEED_SMOKE vec2d{0, -40.0f}
 
 #define GC_FLAG_PARTICLE_FADE            (GC_FLAG_ACTOR_ << 0)
 #define GC_FLAG_PARTICLE_                (GC_FLAG_ACTOR_ << 1)
@@ -74,7 +74,7 @@ public:
 	ParticleType _ptype = PARTICLE_TYPE1;
 
 public:
-	GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient = vec2d(1,0));
+	GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient = { 1, 0 });
 	GC_Particle(FromFile);
 
 	ParticleType GetParticleType() const { return _ptype; }
@@ -101,7 +101,7 @@ public:
         DECLARE_SELF_REGISTRATION(clsname);                                 \
     public:                                                                 \
         clsname(vec2d pos, vec2d v, ParticleType ptype,                     \
-                float lifeTime, vec2d orient = vec2d(1,0))                  \
+                float lifeTime, vec2d orient = {1, 0})                      \
             : GC_Particle(pos, v, ptype, lifeTime, orient)                  \
         {}                                                                  \
         clsname(FromFile) : GC_Particle(FromFile()) {}                      \
