@@ -472,7 +472,7 @@ void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawi
 	Window::Draw(lc, ic, dc, texman);
 
 	// World
-	CRect viewport(0, 0, (int)lc.GetSize().x, (int)lc.GetSize().y);
+	RectRB viewport{ 0, 0, (int)lc.GetSize().x, (int)lc.GetSize().y };
 	vec2d eye = _defaultCamera.GetPos() + lc.GetSize() / 2;
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());

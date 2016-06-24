@@ -11,44 +11,44 @@
 
 RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsigned int camIndex)
 {
-    assert(camCount > 0 && camCount <= 4);
-    assert(camIndex < camCount);
+	assert(camCount > 0 && camCount <= 4);
+	assert(camIndex < camCount);
 
-    RectRB viewports[4];
+	RectRB viewports[4];
 
-    switch( camCount )
-    {
-        case 1:
-            viewports[0] = CRect(0,             0,             screenW,       screenH);
-            break;
-        case 2:
-            if (screenW >= screenH)
-            {
-                viewports[0] = CRect(0,             0,             screenW/2 - 1, screenH);
-                viewports[1] = CRect(screenW/2 + 1, 0,             screenW,       screenH);
-            }
-            else
-            {
-                viewports[0] = CRect(0,             0,             screenW, screenH/2 - 1);
-                viewports[1] = CRect(0, screenH/2 + 1,             screenW,       screenH);
-            }
-            break;
-        case 3:
-            viewports[0] = CRect(0,             0,             screenW/2 - 1, screenH/2 - 1);
-            viewports[1] = CRect(screenW/2 + 1, 0,             screenW,       screenH/2 - 1);
-            viewports[2] = CRect(screenW/4,     screenH/2 + 1, screenW*3/4,   screenH);
-            break;
-        case 4:
-            viewports[0] = CRect(0,             0,             screenW/2 - 1, screenH/2 - 1);
-            viewports[1] = CRect(screenW/2 + 1, 0,             screenW,       screenH/2 - 1);
-            viewports[2] = CRect(0,             screenH/2 + 1, screenW/2 - 1, screenH);
-            viewports[3] = CRect(screenW/2 + 1, screenH/2 + 1, screenW,       screenH);
-            break;
-        default:
-            assert(false);
-    }
+	switch( camCount )
+	{
+		case 1:
+			viewports[0] = RectRB{      0,             0,            screenW,         screenH };
+			break;
+		case 2:
+			if (screenW >= screenH)
+			{
+				viewports[0] = RectRB{ 0,              0,            screenW / 2 - 1, screenH };
+				viewports[1] = RectRB{screenW / 2 + 1, 0,            screenW,         screenH };
+			}
+			else
+			{
+				viewports[0] = RectRB{ 0,               0,           screenW,         screenH / 2 - 1 };
+				viewports[1] = RectRB{ 0, screenH / 2 + 1,           screenW,         screenH };
+			}
+			break;
+		case 3:
+			viewports[0] = RectRB{ 0,               0,               screenW / 2 - 1, screenH / 2 - 1 };
+			viewports[1] = RectRB{ screenW / 2 + 1, 0,               screenW,         screenH / 2 - 1 };
+			viewports[2] = RectRB{ screenW / 4,     screenH / 2 + 1, screenW * 3 / 4, screenH};
+			break;
+		case 4:
+			viewports[0] = RectRB{ 0,               0,               screenW / 2 - 1, screenH / 2 - 1 };
+			viewports[1] = RectRB{ screenW / 2 + 1, 0,               screenW,         screenH / 2 - 1 };
+			viewports[2] = RectRB{ 0,               screenH / 2 + 1, screenW / 2 - 1, screenH };
+			viewports[3] = RectRB{ screenW / 2 + 1, screenH / 2 + 1, screenW,         screenH };
+			break;
+		default:
+			assert(false);
+	}
 
-    return viewports[camIndex];
+	return viewports[camIndex];
 }
 
 GameViewHarness::GameViewHarness(World &world, WorldController &worldController)
@@ -129,7 +129,7 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
     else
     {
         // render from default camera
-        CRect viewport(0, 0, _pxWidth, _pxHeight);
+        RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
         worldView.Render(dc, _world, viewport, defaultEye, defaultZoom*_scale, false, false, _world.GetNightMode());
     }
 }

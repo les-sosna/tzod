@@ -169,18 +169,6 @@ struct RectRB
 	int bottom;
 };
 
-class CRect : public RectRB
-{
-public:
-	CRect(int l, int t, int r, int b)
-	{
-		left = l;
-		top = t;
-		right = r;
-		bottom = b;
-	}
-};
-
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
 inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
 
