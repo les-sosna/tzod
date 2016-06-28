@@ -9,8 +9,7 @@
 
 #include <algorithm>
 
-namespace UI
-{
+using namespace UI;
 
 ///////////////////////////////////////////////////////////////////////////////
 // class List::ListCallbackImpl
@@ -235,31 +234,31 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 
 		if( lc.GetEnabled() )
 		{
-			c = 0xffd0d0d0; // normal;
+			c = 0xffd0d0d0; // normal
 			if( _curSel == i )
 			{
 				// selection frame around selected item
 				if( ic.GetFocused() )
 				{
-					c = 0xff000000; // selected focused;
-					FRECT sel = { 1, y, _scrollBar->GetX() - 1, y + GetItemHeight() };
+					c = 0xff000000; // selected focused
+					FRECT sel = { 1, y, lc.GetPixelSize().x - 1, y + GetItemHeight() };
 					dc.DrawSprite(sel, _selection, 0xffffffff, 0);
 				}
 				else
 				{
-					c = 0xffffffff; // selected unfocused;
+					c = 0xffffffff; // selected unfocused
 				}
-				FRECT border = { -1, y - 2, _scrollBar->GetX() + 1, y + GetItemHeight() + 2 };
+				FRECT border = { -1, y - 2, lc.GetPixelSize().x + 1, y + GetItemHeight() + 2 };
 				dc.DrawBorder(border, _selection, 0xffffffff, 0);
 			}
-			else if(hotItem == i )
+			else if( hotItem == i )
 			{
-				c = 0xffffffff; // hot;
+				c = 0xffffffff; // hot
 			}
 		}
 		else
 		{
-			c = 0x70707070; // disabled;
+			c = 0x70707070; // disabled
 		}
 
 		for( int k = _data->GetSubItemCount(i); k--; )
@@ -270,5 +269,3 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 
 	dc.PopClippingRect();
 }
-
-} // namespace UI
