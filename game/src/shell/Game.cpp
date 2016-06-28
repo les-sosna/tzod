@@ -200,9 +200,9 @@ void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 {
 	Window::Draw(lc, ic, dc, texman);
 
-	vec2d eye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
-	float zoom = _defaultCamera.GetZoom();
-	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
+	vec2d defaultEye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
+	float defaultZoom = _defaultCamera.GetZoom();
+	_gameViewHarness.RenderGame(dc, _worldView, defaultEye, defaultZoom);
 	dc.SetMode(RM_INTERFACE);
 
 	vec2d dir = GetDragDirection();
@@ -239,7 +239,7 @@ void GameLayout::OnSize(float width, float height)
 	_score->Move(std::floor((width - _score->GetWidth()) / 2), std::floor((height - _score->GetHeight()) / 2));
 	_time->Move(GetWidth() - 1, GetHeight() - 1);
 	_msg->Move(_msg->GetX(), GetHeight() - 50);
-	auto size = GetWidth() > GetHeight() ? GetWidth() : GetHeight();
+	float size = GetWidth() > GetHeight() ? GetWidth() : GetHeight();
 	float base = 1024.f;
 	float scale = size > base ? std::floor(size / base + 0.5f) : 1 / std::floor(base / size + 0.5f);
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
