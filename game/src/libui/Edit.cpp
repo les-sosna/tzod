@@ -119,7 +119,7 @@ void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
 		rt.top = 0;
 		rt.right = rt.left + w * GetSelLength() - 1;
-		rt.bottom = rt.top + lc.GetSize().y;
+		rt.bottom = rt.top + lc.GetPixelSize().y;
 		dc.DrawSprite(rt, _selection, 0xffffffff, 0);
 	}
 
@@ -141,7 +141,7 @@ void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 		rt.left = (GetSelEnd() - (float) _offset) * w;
 		rt.top = 0;
 		rt.right = rt.left + texman.GetFrameWidth(_cursor, 0);
-		rt.bottom = rt.top + lc.GetSize().y;
+		rt.bottom = rt.top + lc.GetPixelSize().y;
 		dc.DrawSprite(rt, _cursor, 0xffffffff, 0);
 	}
 }

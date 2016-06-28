@@ -20,7 +20,7 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 		return stateDisabled;
 
 	vec2d pointerPosition = ic.GetMousePos();
-	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < lc.GetSize().x && pointerPosition.y < lc.GetSize().y;
+	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < lc.GetPixelSize().x && pointerPosition.y < lc.GetPixelSize().y;
 	bool pointerPressed = ic.GetInput().IsMousePressed(1);
 
 	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this))
@@ -146,17 +146,16 @@ void Button::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc,
 		float iconHeight = texman.GetFrameHeight(_icon, 0);
 		float textHeight = texman.GetFrameHeight(_font, 0);
 
-		float x = lc.GetSize().x / 2;
-		float y = (lc.GetSize().y - iconHeight - textHeight) / 2 + iconHeight;
+		float x = lc.GetPixelSize().x / 2;
+		float y = (lc.GetPixelSize().y - iconHeight - textHeight) / 2 + iconHeight;
 
 		dc.DrawSprite(_icon, 0, c, x, y - iconHeight / 2, { 1, 0 });
 		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCT);
 	}
 	else
 	{
-		float x = lc.GetSize().x / 2;
-		float y = lc.GetSize().y / 2;
-		dc.DrawBitmapText(x, y, _font, c, GetText(), alignTextCC);
+		vec2d pos = lc.GetPixelSize() / 2;
+		dc.DrawBitmapText(pos.x, pos.y, _font, c, GetText(), alignTextCC);
 	}
 }
 
@@ -287,7 +286,7 @@ void CheckBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &d
 	float bw = texman.GetFrameWidth(_boxTexture, GetFrame());
 	float th = texman.GetFrameHeight(_fontTexture, 0);
 
-	FRECT box = {0, (lc.GetSize().y - bh) / 2, bw, (lc.GetSize().y - bh) / 2 + bh};
+	FRECT box = {0, (lc.GetPixelSize().y - bh) / 2, bw, (lc.GetPixelSize().y - bh) / 2 + bh};
 	dc.DrawSprite(box, _boxTexture, GetBackColor(), GetFrame());
 
 	// grep 'enum State'
@@ -300,7 +299,7 @@ void CheckBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &d
 	};
 	if( _drawShadow && stateDisabled != state)
 	{
-		dc.DrawBitmapText(bw + 1, (lc.GetSize().y - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
+		dc.DrawBitmapText(bw + 1, (lc.GetPixelSize().y - th) / 2 + 1, _fontTexture, 0xff000000, GetText());
 	}
-	dc.DrawBitmapText(bw, (lc.GetSize().y - th) / 2, _fontTexture, colors[state], GetText());
+	dc.DrawBitmapText(bw, (lc.GetPixelSize().y - th) / 2, _fontTexture, colors[state], GetText());
 }

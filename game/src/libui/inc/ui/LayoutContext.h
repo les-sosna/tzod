@@ -12,7 +12,7 @@ namespace UI
 		LayoutContext(vec2d size, bool enabled);
 
 		bool GetEnabled() const { return _enabled; }
-		vec2d GetSize() const { return _size; }
+		vec2d GetPixelSize() const { return _size; }
 
 	private:
 		vec2d _size;

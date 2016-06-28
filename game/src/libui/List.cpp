@@ -223,7 +223,7 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 	clip.left = 0;
 	clip.top = 0;
 	clip.right = (int) (_scrollBar->GetX());
-	clip.bottom = (int) (lc.GetSize().y);
+	clip.bottom = (int) (lc.GetPixelSize().y);
 	dc.PushClippingRect(clip);
 
 	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos().y) : -1;

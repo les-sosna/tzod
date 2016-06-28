@@ -96,7 +96,7 @@ void Window::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc,
 {
 	assert(_isVisible);
 
-	FRECT dst = {0, 0, lc.GetSize().x, lc.GetSize().y};
+	FRECT dst = {0, 0, lc.GetPixelSize().x, lc.GetPixelSize().y};
 
 	if( -1 != _texture )
 	{

@@ -200,7 +200,7 @@ void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 {
 	Window::Draw(lc, ic, dc, texman);
 
-	vec2d eye = _defaultCamera.GetPos() + lc.GetSize() / 2;
+	vec2d eye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
 	float zoom = _defaultCamera.GetZoom();
 	_gameViewHarness.RenderGame(dc, _worldView, eye, zoom);
 	dc.SetMode(RM_INTERFACE);

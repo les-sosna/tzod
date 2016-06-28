@@ -53,18 +53,18 @@ void MapPreview::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 
 		vec2d worldSize{ _world->_sx, _world->_sy };
 		vec2d eye = worldSize / 2;
-		float zoom = std::max(lc.GetSize().x / _world->_sx, lc.GetSize().y / _world->_sy);
+		float zoom = std::max(lc.GetPixelSize().x / _world->_sx, lc.GetPixelSize().y / _world->_sy);
 
 		if (state == statePushed)
 		{
 			zoom *= 1.1f;
-			eye += worldSize * (ic.GetMousePos() - lc.GetSize() / 2) / lc.GetSize() / 10;
+			eye += worldSize * (ic.GetMousePos() - lc.GetPixelSize() / 2) / lc.GetPixelSize() / 10;
 		}
 
 		_worldView.Render(
 			dc,
 			*_world,
-			{ 0, 0, (int)lc.GetSize().x, (int)lc.GetSize().y }, // viewport
+			{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y }, // viewport
 			eye,
 			zoom,
 			false, // editorMode

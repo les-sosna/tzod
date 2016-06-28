@@ -472,8 +472,8 @@ void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawi
 	Window::Draw(lc, ic, dc, texman);
 
 	// World
-	RectRB viewport{ 0, 0, (int)lc.GetSize().x, (int)lc.GetSize().y };
-	vec2d eye = _defaultCamera.GetPos() + lc.GetSize() / 2;
+	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
+	vec2d eye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
@@ -497,5 +497,5 @@ void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawi
 	vec2d mouse = ic.GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-	dc.DrawBitmapText(floor(lc.GetSize().x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	dc.DrawBitmapText(floor(lc.GetPixelSize().x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }

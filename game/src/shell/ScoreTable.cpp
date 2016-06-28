@@ -95,7 +95,7 @@ void ScoreTable::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 			dc.DrawBitmapText(SCORE_POS_NUMBER, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str());
 			text.str(std::string());
 			text << players[i]->GetScore();
-			dc.DrawBitmapText(lc.GetSize().x - SCORE_POS_SCORE, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
+			dc.DrawBitmapText(lc.GetPixelSize().x - SCORE_POS_SCORE, SCORE_NAMES_TOP + (h - 1) * (float) i, _font, 0xffffffff, text.str(), alignTextRT);
 		}
 		else
 		{
