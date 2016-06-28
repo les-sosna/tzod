@@ -136,7 +136,8 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
 	if (auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window))
 	{
-		gui->GetDesktop()->Resize((float)width, (float)height);
+        float layoutScale = GetLayoutScale(window);
+		gui->GetDesktop()->Resize((float)width / layoutScale, (float)height / layoutScale);
 	}
 }
 

@@ -64,7 +64,8 @@ TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, 
 {
 	int width = appWindow.GetPixelWidth();
 	int height = appWindow.GetPixelHeight();
-	_impl->desktop->Resize((float)width, (float)height);
+    float layoutScale = appWindow.GetLayoutScale();
+	_impl->desktop->Resize((float)width / layoutScale, (float)height / layoutScale);
 
 	//	ThemeManager themeManager(appState, *fs, texman);
 
