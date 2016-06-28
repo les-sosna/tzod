@@ -2,8 +2,19 @@
 
 using namespace UI;
 
-LayoutContext::LayoutContext(vec2d size, bool enabled)
-	: _size(size)
-	, _enabled(enabled)
+LayoutContext::LayoutContext(float scale, vec2d size, bool enabled)
+	: _layoutStack({ Node{size, enabled} })
+	, _scale(scale)
 {}
 
+void LayoutContext::PushTransform(vec2d size, bool enabled)
+{
+	assert(!_layoutStack.empty());
+	_layoutStack.push_back(Node{ size, GetEnabled() && enabled });
+}
+
+void LayoutContext::PopTransform()
+{
+	_layoutStack.pop_back();
+	assert(!_layoutStack.empty());
+}

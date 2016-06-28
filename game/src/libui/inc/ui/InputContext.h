@@ -33,8 +33,9 @@ public:
 
 	bool ProcessPointer(
 		std::shared_ptr<Window> wnd,
-		vec2d size,
-		vec2d pointerPosition,
+		float layoutScale,
+		vec2d pxSize,
+		vec2d pxPointerPosition,
 		float z,
 		Msg msg,
 		int button,
@@ -95,6 +96,7 @@ private:
 
 struct PointerSinkSearch
 {
+	float layoutScale;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;
 };
@@ -104,8 +106,8 @@ struct PointerSink;
 PointerSink* FindPointerSink(
 	PointerSinkSearch &search,
 	std::shared_ptr<Window> wnd,
-	vec2d size,
-	vec2d pointerPosition,
+	vec2d pxSize,
+	vec2d pxPointerPosition,
 	bool insideTopMost);
 
 } // namespace UI

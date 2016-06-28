@@ -263,7 +263,8 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 
 		for( int k = _data->GetSubItemCount(i); k--; )
 		{
-			dc.DrawBitmapText(_tabs[std::min(k, maxtab)], y, _font, c, _data->GetItemText(i, k));
+			float x = std::floor(_tabs[std::min(k, maxtab)] * lc.GetScale());
+			dc.DrawBitmapText(x, y, _font, c, _data->GetItemText(i, k));
 		}
 	}
 

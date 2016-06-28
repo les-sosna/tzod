@@ -16,5 +16,6 @@ struct AppWindow
 	virtual IRender& GetRender() = 0;
 	virtual unsigned int GetPixelWidth() = 0;
 	virtual unsigned int GetPixelHeight() = 0;
+	virtual float GetLayoutScale() = 0;
 	virtual void SetInputSink(UI::LayoutManager *inputSink) = 0;
 };

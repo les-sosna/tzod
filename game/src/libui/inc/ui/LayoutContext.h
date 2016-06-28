@@ -9,13 +9,22 @@ namespace UI
 	class LayoutContext
 	{
 	public:
-		LayoutContext(vec2d size, bool enabled);
+		LayoutContext(float scale, vec2d size, bool enabled);
 
-		bool GetEnabled() const { return _enabled; }
-		vec2d GetPixelSize() const { return _size; }
+		void PushTransform(vec2d size, bool enabled);
+		void PopTransform();
+
+		bool GetEnabled() const { return _layoutStack.back().enabled; }
+		vec2d GetPixelSize() const { return _layoutStack.back().size; }
+		float GetScale() const { return _scale; }
 
 	private:
-		vec2d _size;
-		bool _enabled;
+		struct Node
+		{
+			vec2d size;
+			bool enabled;
+		};
+		std::vector<Node> _layoutStack;
+		float _scale;
 	};
 }

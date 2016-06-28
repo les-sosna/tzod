@@ -113,7 +113,7 @@ public:
 	auto& GetChildren() const { return _children; }
 	LayoutManager& GetManager() const { return _manager;  } // to remove
 
-	virtual FRECT GetChildRect(vec2d size, const Window &child) const;
+	virtual FRECT GetChildRect(vec2d size, float scale, const Window &child) const;
 
 	//
 	// Input

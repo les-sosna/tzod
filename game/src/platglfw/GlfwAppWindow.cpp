@@ -26,6 +26,18 @@ void GlfwWindowDeleter::operator()(GLFWwindow *window)
 	glfwDestroyWindow(window);
 }
 
+
+static float GetLayoutScale(GLFWwindow *window)
+{
+	int framebuferWidth;
+	glfwGetFramebufferSize(window, &framebuferWidth, nullptr);
+
+	int logicalWidth;
+	glfwGetWindowSize(window, &logicalWidth, nullptr);
+
+	return logicalWidth > 0 ? (float)framebuferWidth / (float)logicalWidth : 1.f;
+}
+
 static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
@@ -46,12 +58,13 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 			default:
 				return;
 		}
-		vec2d mousePos = GetCursorPosInPixels(window);
+		vec2d pxMousePos = GetCursorPosInPixels(window);
 		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
+			GetLayoutScale(window),
 			desktopSize,
-			mousePos,
+			pxMousePos,
 			0,
 			msg,
 			buttons,
@@ -64,12 +77,13 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		vec2d mousePos = GetCursorPosInPixels(window, xpos, ypos);
+		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
 		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
+			GetLayoutScale(window),
 			desktopSize,
-			mousePos,
+			pxMousePos,
 			0,
 			UI::Msg::PointerMove,
 			0,
@@ -82,14 +96,15 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
-		vec2d mousePos = GetCursorPosInPixels(window);
-		vec2d mouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
+		vec2d pxMousePos = GetCursorPosInPixels(window);
+		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
 		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
+			GetLayoutScale(window),
 			desktopSize,
-			mousePos,
-			mouseOffset.y,
+			pxMousePos,
+			pxMouseOffset.y,
 			UI::Msg::MOUSEWHEEL,
 			0,
 			UI::PointerType::Mouse,
@@ -189,6 +204,11 @@ unsigned int GlfwAppWindow::GetPixelHeight()
 	int height;
 	glfwGetFramebufferSize(_window.get(), nullptr, &height);
 	return height;
+}
+
+float GlfwAppWindow::GetLayoutScale()
+{
+	return ::GetLayoutScale(_window.get());
 }
 
 void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)

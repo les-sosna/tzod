@@ -98,10 +98,11 @@ void TzodView::Render(AppWindow &appWindow)
 
 	unsigned int width = appWindow.GetPixelWidth();
 	unsigned int height = appWindow.GetPixelHeight();
+	float layoutScale = appWindow.GetLayoutScale();
 
 	DrawingContext dc(_impl->textureManager, width, height);
 	appWindow.GetRender().Begin();
-	_impl->gui.Render({ static_cast<float>(width), static_cast<float>(height) }, dc);
+	_impl->gui.Render(layoutScale, vec2d{ static_cast<float>(width), static_cast<float>(height) }, dc);
 	appWindow.GetRender().End();
 }
 

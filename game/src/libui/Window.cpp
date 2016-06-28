@@ -51,9 +51,11 @@ void Window::AddBack(std::shared_ptr<Window> child)
 	_children.push_front(std::move(child));
 }
 
-FRECT Window::GetChildRect(vec2d size, const Window &child) const
+FRECT Window::GetChildRect(vec2d size, float scale, const Window &child) const
 {
-	return FRECT{ child._x, child._y, child._x + child._width, child._y + child._height };
+	float left = std::floor(child._x * scale);
+	float top = std::floor(child._y * scale);
+	return FRECT{ left, top, left + std::floor(child._width * scale), top + std::floor(child._height * scale) };
 }
 
 float Window::GetTextureWidth(TextureManager &texman) const

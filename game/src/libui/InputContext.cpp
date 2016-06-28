@@ -68,17 +68,14 @@ bool InputContext::HasCapturedPointers(const Window *wnd) const
 PointerSink* UI::FindPointerSink(
 	PointerSinkSearch &search,
 	std::shared_ptr<Window> wnd,
-	vec2d size,
-	vec2d pointerPosition,
+	vec2d pxSize,
+	vec2d pxPointerPosition,
 	bool insideTopMost)
 {
-	if (insideTopMost && !search.topMostPass)
-		return nullptr;
-
 	PointerSink *pointerSink = nullptr;
 
-	bool pointerInside = (pointerPosition.x >= 0 && pointerPosition.x < size.x &&
-		pointerPosition.y >= 0 && pointerPosition.y < size.y);
+	bool pointerInside = (pxPointerPosition.x >= 0 && pxPointerPosition.x < pxSize.x &&
+		pxPointerPosition.y >= 0 && pxPointerPosition.y < pxSize.y);
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
@@ -89,14 +86,18 @@ PointerSink* UI::FindPointerSink(
 			auto &child = *it;
 			if (child->GetEnabled() && child->GetVisible())
 			{
-				FRECT childRect = wnd->GetChildRect(size, *child);
-				vec2d childPointerPosition = pointerPosition - vec2d{ childRect.left, childRect.top };
+				// early skip topmost subtree
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
-				pointerSink = FindPointerSink(search,
-					child,
-					Size(childRect),
-					childPointerPosition,
-					childInsideTopMost);
+				if (!childInsideTopMost || search.topMostPass)
+				{
+					FRECT childRect = wnd->GetChildRect(pxSize, search.layoutScale, *child);
+					vec2d childPointerPosition = pxPointerPosition - vec2d{ childRect.left, childRect.top };
+					pointerSink = FindPointerSink(search,
+						child,
+						Size(childRect),
+						childPointerPosition,
+						childInsideTopMost);
+				}
 			}
 		}
 	}
@@ -111,73 +112,88 @@ PointerSink* UI::FindPointerSink(
 	return pointerSink;
 }
 
-bool InputContext::ProcessPointer(std::shared_ptr<Window> wnd, vec2d size, vec2d pointerPosition, float z, Msg msg, int button, PointerType pointerType, unsigned int pointerID)
+bool InputContext::ProcessPointer(
+	std::shared_ptr<Window> wnd,
+	float layoutScale,
+	vec2d pxSize,
+	vec2d pxPointerPosition,
+	float z,
+	Msg msg,
+	int button,
+	PointerType pointerType,
+	unsigned int pointerID)
 {
 #ifndef NDEBUG
-	_lastPointerLocation[pointerID] = pointerPosition;
+	_lastPointerLocation[pointerID] = pxPointerPosition;
 #endif
 
 	PointerSink *pointerSink = nullptr;
-	PointerSinkSearch search;
+	std::vector<std::shared_ptr<Window>> sinkPath;
 
 	const auto capturedIt = _pointerCaptures.find(pointerID);
 	if (_pointerCaptures.end() != capturedIt)
 	{
 		pointerSink = capturedIt->second.capturePath.front()->GetPointerSink();
 		assert(pointerSink);
-		search.outSinkPath = capturedIt->second.capturePath;
+		sinkPath = capturedIt->second.capturePath;
 	}
 	else
 	{
-		for (int pass = 0; pass < 2 && !pointerSink; ++pass)
+		for (bool topMostPass : {true, false})
 		{
-			search.topMostPass = !pass; // look for topmost windows first
-			pointerSink = FindPointerSink(search, wnd, size, pointerPosition, wnd->GetTopMost());
+			// look for topmost windows first
+			PointerSinkSearch search{ layoutScale, topMostPass };
+			pointerSink = FindPointerSink(search, wnd, pxSize, pxPointerPosition, wnd->GetTopMost());
+			if (pointerSink)
+			{
+				sinkPath = std::move(search.outSinkPath);
+				break;
+			}
 		}
 	}
 
 	if (pointerSink)
 	{
-		auto &target = search.outSinkPath.front();
+		auto &target = sinkPath.front();
 		bool setFocus = (Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get());
 
-		for (size_t i = search.outSinkPath.size() - 1; i > 0; i--)
+		for (size_t i = sinkPath.size() - 1; i > 0; i--)
 		{
-			auto &child = search.outSinkPath[i - 1];
-			auto &parent = search.outSinkPath[i];
+			auto &child = sinkPath[i - 1];
+			auto &parent = sinkPath[i];
 
 			if (setFocus)
 				parent->SetFocus(child);
 
-			FRECT childRect = parent->GetChildRect(size, *child);
-			pointerPosition -= {childRect.left, childRect.top};
-			size = Size(childRect);
+			FRECT childRect = parent->GetChildRect(pxSize, layoutScale, *child);
+			pxPointerPosition -= {childRect.left, childRect.top};
+			pxSize = Size(childRect);
 		}
 
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, size, pointerPosition, button, pointerType, pointerID))
+			if (pointerSink->OnPointerDown(*this, pxSize, pxPointerPosition, button, pointerType, pointerID))
 			{
-				_pointerCaptures[pointerID].capturePath = search.outSinkPath;
+				_pointerCaptures[pointerID].capturePath = sinkPath;
 			}
 			break;
 		case Msg::PointerUp:
 		case Msg::PointerCancel:
 			if (_pointerCaptures.end() != capturedIt)
 			{
-				pointerSink->OnPointerUp(*this, size, pointerPosition, button, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, pxSize, pxPointerPosition, button, pointerType, pointerID);
 				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, size, pointerPosition, pointerType, pointerID, _pointerCaptures.end() != capturedIt);
+			pointerSink->OnPointerMove(*this, pxSize, pxPointerPosition, pointerType, pointerID, _pointerCaptures.end() != capturedIt);
 			break;
 		case Msg::MOUSEWHEEL:
-			pointerSink->OnMouseWheel(*this, size, pointerPosition, z);
+			pointerSink->OnMouseWheel(*this, pxSize, pxPointerPosition, z);
 			break;
 		case Msg::TAP:
-			pointerSink->OnTap(*this, size, pointerPosition);
+			pointerSink->OnTap(*this, pxSize, pxPointerPosition);
 			break;
 		default:
 			assert(false);
