@@ -110,7 +110,7 @@ public:
 	void AddFront(std::shared_ptr<Window> child);
 	void AddBack(std::shared_ptr<Window> child);
 
-	auto& GetChildren() const { return _children; }
+	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
 	LayoutManager& GetManager() const { return _manager;  } // to remove
 
 	virtual FRECT GetChildRect(vec2d size, float scale, const Window &child) const;
