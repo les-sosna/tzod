@@ -25,6 +25,26 @@ add_library(ui
 	Scroll.cpp
 	Text.cpp
 	Window.cpp
+
+	inc/ui/Button.h
+	inc/ui/Clipboard.h
+	inc/ui/Combo.h
+	inc/ui/Console.h
+	inc/ui/ConsoleBuffer.h
+	inc/ui/DataSourceAdapters.h
+	inc/ui/Dialog.h
+	inc/ui/Edit.h
+	inc/ui/GuiManager.h
+	inc/ui/InputContext.h
+	inc/ui/Keys.h
+	inc/ui/LayoutContext.h
+	inc/ui/List.h
+	inc/ui/ListBase.h
+	inc/ui/Pointers.h
+	inc/ui/Scroll.h
+	inc/ui/Text.h
+	inc/ui/UIInput.h
+	inc/ui/Window.h
 )
 
 target_link_libraries(ui
