@@ -166,7 +166,6 @@ void Button::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc,
 TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
   : ButtonBase(manager)
   , _fontTexture((size_t) -1)
-  , _drawShadow(true)
 {
 	SetTexture(texman, nullptr, false);
 }
@@ -179,16 +178,6 @@ void TextButton::AlignSizeToContent(TextureManager &texman)
 		float h = texman.GetFrameHeight(_fontTexture, 0);
 		Resize((w - 1) * (float) GetText().length(), h + 1);
 	}
-}
-
-void TextButton::SetDrawShadow(bool drawShadow)
-{
-	_drawShadow = drawShadow;
-}
-
-bool TextButton::GetDrawShadow() const
-{
-	return _drawShadow;
 }
 
 void TextButton::SetFont(TextureManager &texman, const char *fontName)
@@ -215,10 +204,6 @@ void TextButton::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext 
 		SpriteColor(0xAAAAAAAA), // disabled
 	};
 	State state = GetState(lc, ic);
-	if( _drawShadow && stateDisabled != state )
-	{
-		dc.DrawBitmapText(1, 1, _fontTexture, 0xff000000, GetText());
-	}
 	dc.DrawBitmapText(0, 0, _fontTexture, colors[state], GetText());
 }
 

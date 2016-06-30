@@ -29,7 +29,6 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	_text->Move(0, 1);
 	_text->SetFont(texman, "font_small");
 	_text->eventClick = std::bind(&ComboBox::DropList, this);
-	_text->SetDrawShadow(false);
 	AddFront(_text);
 
 	SetDrawBorder(true);

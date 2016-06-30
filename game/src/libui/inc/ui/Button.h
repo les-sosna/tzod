@@ -73,9 +73,6 @@ public:
 
 	void SetFont(TextureManager &texman, const char *fontName);
 
-	void SetDrawShadow(bool drawShadow);
-	bool GetDrawShadow() const;
-
 protected:
 
 	void AlignSizeToContent(TextureManager &texman);
@@ -86,7 +83,6 @@ protected:
 
 private:
 	size_t _fontTexture;
-	bool   _drawShadow;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
