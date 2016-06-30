@@ -215,13 +215,13 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;
-	int i_max = i_min + (int) GetNumLinesVisible() + 1;
+	int i_max = i_min + (int) (lc.GetPixelSize().y / GetItemHeight()) + 1;
 	int maxtab = (int) _tabs.size() - 1;
 
 	RectRB clip;
 	clip.left = 0;
 	clip.top = 0;
-	clip.right = (int) (_scrollBar->GetX());
+	clip.right = (int) (lc.GetPixelSize().x);
 	clip.bottom = (int) (lc.GetPixelSize().y);
 	dc.PushClippingRect(clip);
 
