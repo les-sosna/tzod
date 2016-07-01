@@ -133,36 +133,58 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	{
 		std::shared_ptr<UI::Button> btn;
 
-
-		btn = UI::Button::Create(this, texman, _lang.human_player_add.Get(), x3, 256);
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.human_player_add.Get());
+		btn->Move(x3, 256);
 		btn->eventClick = std::bind(&NewGameDlg::OnAddPlayer, this);
+		AddFront(btn);
 
-		_removePlayer = UI::Button::Create(this, texman, _lang.human_player_remove.Get(), x3, 286);
+		_removePlayer = std::make_shared<UI::Button>(manager, texman);
+		_removePlayer->SetText(texman, _lang.human_player_remove.Get());
+		_removePlayer->Move(x3, 286);
 		_removePlayer->eventClick = std::bind(&NewGameDlg::OnRemovePlayer, this);
 		_removePlayer->SetEnabled(false);
+		AddFront(_removePlayer);
 
-		_changePlayer = UI::Button::Create(this, texman, _lang.human_player_modify.Get(), x3, 316);
+		_changePlayer = std::make_shared<UI::Button>(manager, texman);
+		_changePlayer->SetText(texman, _lang.human_player_modify.Get());
+		_changePlayer->Move(x3, 316);
 		_changePlayer->eventClick = std::bind(&NewGameDlg::OnEditPlayer, this);
 		_changePlayer->SetEnabled(false);
+		AddFront(_changePlayer);
 
-		btn = UI::Button::Create(this, texman, _lang.AI_player_add.Get(), x3, 384);
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.AI_player_add.Get());
+		btn->Move(x3, 384);
 		btn->eventClick = std::bind(&NewGameDlg::OnAddBot, this);
+		AddFront(btn);
 
-		_removeBot = UI::Button::Create(this, texman, _lang.AI_player_remove.Get(), x3, 414);
+		_removeBot = std::make_shared<UI::Button>(manager, texman);
+		_removeBot->SetText(texman, _lang.AI_player_remove.Get());
+		_removeBot->Move(x3, 414);
 		_removeBot->eventClick = std::bind(&NewGameDlg::OnRemoveBot, this);
 		_removeBot->SetEnabled(false);
+		AddFront(_removeBot);
 
-		_changeBot = UI::Button::Create(this, texman, _lang.AI_player_modify.Get(), x3, 444);
+		_changeBot = std::make_shared<UI::Button>(manager, texman);
+		_changeBot->SetText(texman, _lang.AI_player_modify.Get());
+		_changeBot->Move(x3, 444);
 		_changeBot->eventClick = std::bind(&NewGameDlg::OnEditBot, this);
 		_changeBot->SetEnabled(false);
+		AddFront(_changeBot);
 
 
-
-		btn = UI::Button::Create(this, texman, _lang.dm_ok.Get(), 544, 510);
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.dm_ok.Get());
+		btn->Move(544, 510);
 		btn->eventClick = std::bind(&NewGameDlg::OnOK, this);
+		AddFront(btn);
 
-		btn = UI::Button::Create(this, texman, _lang.dm_cancel.Get(), 656, 510);
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.dm_cancel.Get());
+		btn->Move(656, 510);
 		btn->eventClick = std::bind(&NewGameDlg::OnCancel, this);
+		AddFront(btn);
 	}
 
 	// call this after creation of buttons
@@ -545,8 +567,17 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// create buttons
 	//
 
-	UI::Button::Create(this, texman, lang.common_ok.Get(), 176, 190)->eventClick = std::bind(&Dialog::Close, this, _resultOK);
-	UI::Button::Create(this, texman, lang.common_cancel.Get(), 280, 190)->eventClick = std::bind(&Dialog::Close, this, _resultCancel);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_ok.Get());
+	btn->Move(176, 190);
+	btn->eventClick = std::bind(&Dialog::Close, this, _resultOK);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_cancel.Get());
+	btn->Move(280, 190);
+	btn->eventClick = std::bind(&Dialog::Close, this, _resultCancel);
+	AddFront(btn);
 }
 
 void EditPlayerDlg::OnChangeSkin(int index)
@@ -720,8 +751,17 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// create buttons
 	//
 
-	UI::Button::Create(this, texman, lang.common_ok.Get(), 176, 190)->eventClick = std::bind(&EditBotDlg::OnOK, this);
-	UI::Button::Create(this, texman, lang.common_cancel.Get(), 280, 190)->eventClick = std::bind(&EditBotDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_ok.Get());
+	btn->Move(176, 190);
+	btn->eventClick = std::bind(&EditBotDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_cancel.Get());
+	btn->Move(280, 190);
+	btn->eventClick = std::bind(&EditBotDlg::OnCancel, this);
+	AddFront(btn);
 }
 
 void EditBotDlg::OnOK()
@@ -779,8 +819,11 @@ ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
 
 	_text = UI::Text::Create(this, texman, 10, 10, text, alignTextLT);
 
-	_button1 = UI::Button::Create(this, texman, btn1, 0, _text->GetHeight() + 20);
+	_button1 = std::make_shared<UI::Button>(manager, texman);
+	_button1->SetText(texman, btn1);
+	_button1->Move(0, _text->GetHeight() + 20);
 	_button1->eventClick = std::bind(&ScriptMessageBox::OnButton1, this);
+	AddFront(_button1);
 
 	int nbtn = 1 + !btn2.empty() + !(btn3.empty() || btn2.empty());
 
@@ -797,8 +840,11 @@ ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
 
 	if( !btn2.empty() )
 	{
-		_button2 = UI::Button::Create(this, texman, btn2, _button1->GetX() - 10 - bw, by);
+		_button2 = std::make_shared<UI::Button>(manager, texman);
+		_button2->SetText(texman, btn2);
+		_button2->Move(_button1->GetX() - 10 - bw, by);
 		_button2->eventClick = std::bind(&ScriptMessageBox::OnButton2, this);
+		AddFront(_button2);
 	}
 	else
 	{
@@ -807,8 +853,11 @@ ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
 
 	if( !btn2.empty() && !btn3.empty() )
 	{
-		_button3 = UI::Button::Create(this, texman, btn3, _button2->GetX() - 10 - bw, by);
+		_button3 = std::make_shared<UI::Button>(manager, texman);
+		_button3->SetText(texman, btn3);
+		_button3->Move(_button2->GetX() - 10 - bw, by);
 		_button3->eventClick = std::bind(&ScriptMessageBox::OnButton3, this);
+		AddFront(_button3);
 	}
 	else
 	{

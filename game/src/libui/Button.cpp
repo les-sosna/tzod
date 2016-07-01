@@ -77,22 +77,6 @@ void ButtonBase::OnClick()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// button class implementation
-
-std::shared_ptr<Button> Button::Create(Window *parent, TextureManager &texman, const std::string &text, float x, float y, float w, float h)
-{
-	auto res = std::make_shared<Button>(parent->GetManager(), texman);
-	res->Move(x, y);
-	res->SetText(texman, text);
-	if( w >= 0 && h >= 0 )
-	{
-		res->Resize(w, h);
-	}
-
-	parent->AddFront(res);
-
-	return res;
-}
 
 Button::Button(LayoutManager &manager, TextureManager &texman)
   : ButtonBase(manager)

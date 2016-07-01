@@ -60,13 +60,25 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 	_profiles->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
-	UI::Button::Create(this, texman, _lang.settings_profile_new.Get(), 40, 184)->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
-	_editProfile = UI::Button::Create(this, texman, _lang.settings_profile_edit.Get(), 40, 216);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.settings_profile_new.Get());
+	btn->Move(40, 184);
+	btn->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
+	AddFront(btn);
+
+	_editProfile = std::make_shared<UI::Button>(manager, texman);
+	_editProfile->SetText(texman, _lang.settings_profile_edit.Get());
+	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled(false);
-	_deleteProfile = UI::Button::Create(this, texman, _lang.settings_profile_delete.Get(), 40, 248);
+	AddFront(_editProfile);
+
+	_deleteProfile = std::make_shared<UI::Button>(manager, texman);
+	_deleteProfile->SetText(texman, _lang.settings_profile_delete.Get());
+	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->SetEnabled(false);
+	AddFront(_deleteProfile);
 
 
 	//
@@ -124,8 +136,17 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	// OK & Cancel
 	//
 
-	UI::Button::Create(this, texman, _lang.common_ok.Get(), 304, 256)->eventClick = std::bind(&SettingsDlg::OnOK, this);
-	UI::Button::Create(this, texman, _lang.common_cancel.Get(), 408, 256)->eventClick = std::bind(&SettingsDlg::OnCancel, this);
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.common_ok.Get());
+	btn->Move(304, 256);
+	btn->eventClick = std::bind(&SettingsDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.common_cancel.Get());
+	btn->Move(408, 256);
+	btn->eventClick = std::bind(&SettingsDlg::OnCancel, this);
+	AddFront(btn);
 
 	_profiles->SetCurSel(0, true);
 	SetFocus(_profiles);
@@ -295,8 +316,17 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_arcadeStyleChkBox->SetText(texman, _lang.profile_arcade_style.Get());
 	AddFront(_arcadeStyleChkBox);
 
-	UI::Button::Create(this, texman, _lang.common_ok.Get(), 240, 380)->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
-	UI::Button::Create(this, texman, _lang.common_cancel.Get(), 344, 380)->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.common_ok.Get());
+	btn->Move(240, 380);
+	btn->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.common_cancel.Get());
+	btn->Move(344, 380);
+	btn->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
+	AddFront(btn);
 
 	SetFocus(_actions);
 }

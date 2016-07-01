@@ -30,8 +30,17 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
 	}
 	_files->GetData()->Sort();
 
-	UI::Button::Create(this, texman, lang.campaign_ok.Get(), 290, 360)->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
-	UI::Button::Create(this, texman, lang.campaign_cancel.Get(), 400, 360)->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.campaign_ok.Get());
+	btn->Move(290, 360);
+	btn->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.campaign_cancel.Get());
+	btn->Move(400, 360);
+	btn->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
+	AddFront(btn);
 }
 
 NewCampaignDlg::~NewCampaignDlg()

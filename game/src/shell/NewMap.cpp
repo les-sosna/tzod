@@ -29,8 +29,17 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCac
 	_height->SetInt(_conf.ed_height.GetInt());
 	AddFront(_height);
 
-	UI::Button::Create(this, texman, lang.common_ok.Get(), 20, 200)->eventClick = std::bind(&NewMapDlg::OnOK, this);
-	UI::Button::Create(this, texman, lang.common_cancel.Get(), 140, 200)->eventClick = std::bind(&NewMapDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_ok.Get());
+	btn->Move(20, 200);
+	btn->eventClick = std::bind(&NewMapDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_cancel.Get());
+	btn->Move(140, 200);
+	btn->eventClick = std::bind(&NewMapDlg::OnCancel, this);
+	AddFront(btn);
 
 	SetFocus(_width);
 }

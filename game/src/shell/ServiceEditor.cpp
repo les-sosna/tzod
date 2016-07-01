@@ -128,8 +128,10 @@ ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman,
 	_list->eventChangeCurSel = std::bind(&ServiceEditor::OnSelectService, this, std::placeholders::_1);
 	AddFront(_list);
 
-	_btnCreate = UI::Button::Create(this, texman, _lang.service_create.Get(), 0, 0);
+	_btnCreate = std::make_shared<UI::Button>(manager, texman);
+	_btnCreate->SetText(texman, _lang.service_create.Get());
 	_btnCreate->eventClick = std::bind(&ServiceEditor::OnCreateService, this);
+	AddFront(_btnCreate);
 
 	_combo = std::make_shared<DefaultComboBox>(manager, texman);
 	_combo->Move(_margins, _margins);

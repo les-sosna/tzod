@@ -47,8 +47,6 @@ private:
 class Button : public ButtonBase
 {
 public:
-	static std::shared_ptr<Button> Create(Window *parent, TextureManager &texman, const std::string &text, float x, float y, float w=-1, float h=-1);
-
 	Button(LayoutManager &manager, TextureManager &texman);
 
 	void SetIcon(TextureManager &texman, const char *spriteName);

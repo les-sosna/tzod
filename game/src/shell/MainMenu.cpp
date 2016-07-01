@@ -35,20 +35,29 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 
 	float y = (GetHeight() - buttonHeight) / 2;
 
-	button = UI::Button::Create(this, texman, _lang.single_player_btn.Get(), 0, y);
+	button = std::make_shared<UI::Button>(manager, texman);
+	button->SetText(texman, _lang.single_player_btn.Get());
+	button->Move(0, y);
 	button->SetIcon(texman, "ui/play");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.newDM;
+	AddFront(button);
 
-	button = UI::Button::Create(this, texman, _lang.editor_btn.Get(), (GetWidth() - buttonWidth) / 2, y);
+	button = std::make_shared<UI::Button>(manager, texman);
+	button->SetText(texman, _lang.editor_btn.Get());
+	button->Move((GetWidth() - buttonWidth) / 2, y);
 	button->SetIcon(texman, "ui/editor");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
+	AddFront(button);
 
-	button = UI::Button::Create(this, texman, _lang.settings_btn.Get(), GetWidth() - buttonWidth, y);
+	button = std::make_shared<UI::Button>(manager, texman);
+	button->SetText(texman, _lang.settings_btn.Get());
+	button->Move(GetWidth() - buttonWidth, y);
 	button->SetIcon(texman, "ui/settings");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.gameSettings;
+	AddFront(button);
 
 	_panelFrame = std::make_shared<Window>(manager);
 	_panelFrame->SetDrawBackground(false);
@@ -116,16 +125,36 @@ void MainMenuDlg::CreatePanel(TextureManager &texman)
 
 	float y = _panelTitle->GetHeight() + _panelTitle->GetY() + 10;
 	std::shared_ptr<UI::Button> btn;
+	auto &manager = GetManager();
 
 	switch( _ptype )
 	{
 	case PT_EDITOR:
 		_panelTitle->SetText(texman, _lang.editor_title.Get());
-		UI::Button::Create(_panel.get(), texman, _lang.editor_new_map.Get(), 0, y)->eventClick = _commands.newMap;
-		UI::Button::Create(_panel.get(), texman, _lang.editor_load_map.Get(), 100, y)->eventClick = _commands.openMap;
-		UI::Button::Create(_panel.get(), texman, _lang.editor_save_map.Get(), 200, y)->eventClick = _commands.exportMap;
-		btn = UI::Button::Create(_panel.get(), texman, _lang.editor_map_settings.Get(), 300, y);
+
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.editor_new_map.Get());
+		btn->Move(0, y);
+		btn->eventClick = _commands.newMap;
+		_panel->AddFront(btn);
+
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.editor_load_map.Get());
+		btn->Move(100, y);
+		btn->eventClick = _commands.openMap;
+		_panel->AddFront(btn);
+
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.editor_save_map.Get());
+		btn->Move(200, y);
+		btn->eventClick = _commands.exportMap;
+		_panel->AddFront(btn);
+
+		btn = std::make_shared<UI::Button>(manager, texman);
+		btn->SetText(texman, _lang.editor_map_settings.Get());
+		btn->Move(300, y);
 		btn->eventClick = std::bind(&MainMenuDlg::OnMapSettings, this);
+		_panel->AddFront(btn);
 		break;
 	default:
 		assert(false);

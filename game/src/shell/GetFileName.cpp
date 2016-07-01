@@ -42,8 +42,17 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	_fileName->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 
-	UI::Button::Create(this, texman, lang.common_ok.Get(), 290, 420)->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
-	UI::Button::Create(this, texman, lang.common_cancel.Get(), 400, 420)->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_ok.Get());
+	btn->Move(290, 420);
+	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_cancel.Get());
+	btn->Move(400, 420);
+	btn->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
+	AddFront(btn);
 
 	SetFocus(_fileName);
 }

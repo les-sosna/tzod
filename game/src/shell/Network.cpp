@@ -126,8 +126,11 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 		_lobbyList->SetEnabled(_conf.sv_use_lobby.Get());
 		AddFront(_lobbyList);
 
-		_lobbyAdd = UI::Button::Create(this, texman, _lang.net_server_add_lobby.Get(), 250, 410);
+		_lobbyAdd = std::make_shared<UI::Button>(manager, texman);
+		_lobbyAdd->SetText(texman, _lang.net_server_add_lobby.Get());
+		_lobbyAdd->Move(250, 410);
 		_lobbyAdd->SetEnabled(_conf.sv_use_lobby.Get());
+		AddFront(_lobbyAdd);
 
 		for( size_t i = 0; i < _conf.lobby_servers.GetSize(); ++i )
 		{
@@ -143,11 +146,17 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 		_lobbyEnable->eventClick = std::bind(&CreateServerDlg::OnLobbyEnable, this);
 	}
 
-	auto btn = UI::Button::Create(this, texman, _lang.net_server_ok.Get(), 544, 410);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.net_server_ok.Get());
+	btn->Move(544, 410);
 	btn->eventClick = std::bind(&CreateServerDlg::OnOK, this);
+	AddFront(btn);
 
-	btn = UI::Button::Create(this, texman, _lang.net_server_cancel.Get(), 656, 410);
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.net_server_cancel.Get());
+	btn->Move(656, 410);
 	btn->eventClick = std::bind(&CreateServerDlg::OnCancel, this);
+	AddFront(btn);
 }
 
 CreateServerDlg::~CreateServerDlg()
@@ -288,10 +297,17 @@ ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const
 	_status->Resize(400, 180);
 	AddFront(_status);
 
-	_btnOK = UI::Button::Create(this, texman, _lang.net_connect_ok.Get(), 312, 350);
+	_btnOK = std::make_shared<UI::Button>(manager, texman);;
+	_btnOK->SetText(texman, _lang.net_connect_ok.Get());
+	_btnOK->Move(312, 350);
 	_btnOK->eventClick = std::bind(&ConnectDlg::OnOK, this);
+	AddFront(_btnOK);
 
-	UI::Button::Create(this, texman, _lang.net_connect_cancel.Get(), 412, 350)->eventClick = std::bind(&ConnectDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.net_connect_cancel.Get());
+	btn->Move(412, 350);
+	btn->eventClick = std::bind(&ConnectDlg::OnCancel, this);
+	AddFront(btn);
 
 	SetFocus(_name);
 }
@@ -379,14 +395,24 @@ InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, Wor
 	_status = UI::Text::Create(_servers.get(), texman, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
 	_status->SetFontColor(0x7f7f7f7f);
 
-	_btnRefresh = UI::Button::Create(this, texman, _lang.net_internet_refresh.Get(), 25, 320);
+	_btnRefresh = std::make_shared<UI::Button>(manager, texman);
+	_btnRefresh->SetText(texman, _lang.net_internet_refresh.Get());
+	_btnRefresh->Move(25, 320);
 	_btnRefresh->eventClick = std::bind(&InternetDlg::OnRefresh, this);
+	AddFront(_btnRefresh);
 
-	_btnConnect = UI::Button::Create(this, texman, _lang.net_internet_connect.Get(), 175, 320);
+	_btnConnect = std::make_shared<UI::Button>(manager, texman);
+	_btnConnect->SetText(texman, _lang.net_internet_connect.Get());
+	_btnConnect->Move(175, 320);
 	_btnConnect->eventClick = std::bind(&InternetDlg::OnConnect, this);
 	_btnConnect->SetEnabled(false);
+	AddFront(_btnConnect);
 
-	UI::Button::Create(this, texman, _lang.net_internet_cancel.Get(), 325, 320)->eventClick = std::bind(&InternetDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.net_internet_cancel.Get());
+	btn->Move(325, 320);
+	btn->eventClick = std::bind(&InternetDlg::OnCancel, this);
+	AddFront(btn);
 
 	SetFocus(_name);
 
@@ -500,8 +526,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
 	_players->SetTabPos(3, 400);
 	AddFront(_players);
 
-	_btnProfile = UI::Button::Create(this, texman, _lang.net_chatroom_my_profile.Get(), 560, 65);
+	_btnProfile = std::make_shared<UI::Button>(manager, texman);
+	_btnProfile->SetText(texman, _lang.net_chatroom_my_profile.Get());
+	_btnProfile->Move(560, 65);
 	_btnProfile->eventClick = std::bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
+	AddFront(_btnProfile);
 
 	UI::Text::Create(this, texman, 20, 150, _lang.net_chatroom_bots.Get(), alignTextLT);
 	_bots = std::make_shared<DefaultListBox>(manager, texman);
@@ -512,7 +541,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
 	_bots->SetTabPos(3, 400);
 	AddFront(_bots);
 
-	UI::Button::Create(this, texman, _lang.net_chatroom_bot_new.Get(), 560, 180)->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.net_chatroom_bot_new.Get());
+	btn->Move(560, 180);
+	btn->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
+	AddFront(btn);
 
 	UI::Text::Create(this, texman, 20, 285, _lang.net_chatroom_chat_window.Get(), alignTextLT);
 
@@ -522,11 +555,18 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
 	_chat->eventOnSendCommand = std::bind(&WaitingForPlayersDlg::OnSendMessage, this, std::placeholders::_1);
 
 
-	_btnOK = UI::Button::Create(this, texman, _lang.net_chatroom_ready_button.Get(), 560, 450);
+	_btnOK = std::make_shared<UI::Button>(manager, texman);
+	_btnOK->SetText(texman, _lang.net_chatroom_ready_button.Get());
+	_btnOK->Move(560, 450);
 	_btnOK->eventClick = std::bind(&WaitingForPlayersDlg::OnOK, this);
 	_btnOK->SetEnabled(false);
+	AddFront(_btnOK);
 
-	UI::Button::Create(this, texman, _lang.common_cancel.Get(), 560, 480)->eventClick = std::bind(&WaitingForPlayersDlg::OnCancel, this);
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, _lang.common_cancel.Get());
+	btn->Move(560, 480);
+	btn->eventClick = std::bind(&WaitingForPlayersDlg::OnCancel, this);
+	AddFront(btn);
 
 
 	//

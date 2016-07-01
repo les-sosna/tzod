@@ -87,8 +87,17 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	//
 	// OK & Cancel
 	//
-	UI::Button::Create(this, texman, lang.common_ok.Get(), 304, 480)->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
-	UI::Button::Create(this, texman, lang.common_cancel.Get(), 408, 480)->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
+	auto btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_ok.Get());
+	btn->Move(304, 480);
+	btn->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
+	AddFront(btn);
+
+	btn = std::make_shared<UI::Button>(manager, texman);
+	btn->SetText(texman, lang.common_cancel.Get());
+	btn->Move(408, 480);
+	btn->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
+	AddFront(btn);
 }
 
 MapSettingsDlg::~MapSettingsDlg()
