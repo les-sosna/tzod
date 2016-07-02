@@ -1,5 +1,5 @@
 #pragma once
-#include "Window.h"
+#include "Rectangle.h"
 #include <functional>
 
 class TextureManager;
@@ -8,7 +8,7 @@ namespace UI
 {
 
 class ButtonBase
-	: public Window
+	: public Rectangle
 	, private PointerSink
 {
 public:

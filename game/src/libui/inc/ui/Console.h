@@ -1,5 +1,5 @@
 #pragma once
-#include "Window.h"
+#include "Rectangle.h"
 #include <deque>
 #include <functional>
 #include <string>
@@ -38,7 +38,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 class Console
-	: public Window
+	: public Rectangle
 	, private PointerSink
 	, private KeyboardSink
 {

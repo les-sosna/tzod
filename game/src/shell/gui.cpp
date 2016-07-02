@@ -436,7 +436,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = std::make_shared<Window>(manager);
+	_skinPreview = std::make_shared<Rectangle>(manager);
 	_skinPreview->Move(300, y);
 	_skinPreview->SetTexture(texman, nullptr, false);
 	AddFront(_skinPreview);
@@ -624,7 +624,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = std::make_shared<Window>(manager);
+	_skinPreview = std::make_shared<Rectangle>(manager);
 	_skinPreview->Move(300, y);
 	_skinPreview->SetTexture(texman, nullptr, false);
 	AddFront(_skinPreview);
@@ -812,7 +812,7 @@ ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
                                     const std::string &btn1,
                                     const std::string &btn2,
                                     const std::string &btn3)
-  : Window(manager)
+  : UI::Rectangle(manager)
 {
 	SetTexture(texman, "ui/window", false);
 	SetDrawBorder(true);

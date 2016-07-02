@@ -1,5 +1,5 @@
 #pragma once
-#include "Window.h"
+#include "Rectangle.h"
 
 class TextureManager;
 
@@ -7,7 +7,7 @@ namespace UI
 {
 
 class Edit
-	: public Window
+	: public Rectangle
 	, private PointerSink
 	, private KeyboardSink
 	, private TextSink

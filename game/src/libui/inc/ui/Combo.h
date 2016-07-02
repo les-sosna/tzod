@@ -1,5 +1,5 @@
 #pragma once
-#include "Window.h"
+#include "Rectangle.h"
 #include <functional>
 
 class TextureManager;
@@ -13,7 +13,7 @@ class TextButton;
 class ButtonBase;
 
 class ComboBox
-	: public Window
+	: public Rectangle
 	, private KeyboardSink
 {
 public:

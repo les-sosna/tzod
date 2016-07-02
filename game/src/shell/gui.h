@@ -81,7 +81,7 @@ class EditPlayerDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
-	std::shared_ptr<UI::Window> _skinPreview;
+	std::shared_ptr<UI::Rectangle> _skinPreview;
 	std::shared_ptr<UI::Edit> _name;
 	std::shared_ptr<DefaultComboBox> _profiles;
 	std::shared_ptr<DefaultComboBox> _skins;
@@ -109,7 +109,7 @@ class EditBotDlg : public UI::Dialog
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Edit> _name;
-	std::shared_ptr<UI::Window> _skinPreview;
+	std::shared_ptr<UI::Rectangle> _skinPreview;
 	std::shared_ptr<DefaultComboBox> _skins;
 	std::shared_ptr<DefaultComboBox> _classes;
 	std::shared_ptr<DefaultComboBox> _teams;
@@ -131,7 +131,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ScriptMessageBox : public UI::Window
+class ScriptMessageBox : public UI::Rectangle
 {
 	std::shared_ptr<UI::Text> _text;
 	std::shared_ptr<UI::Button> _button1;

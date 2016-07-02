@@ -147,8 +147,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _worldView(worldView)
   , _globL(globL)
 {
-	SetTexture(texman, nullptr, false);
-
 	_help = UI::Text::Create(this, texman, 10, 10, _lang.f1_help_editor.Get(), alignTextLT);
 	_help->SetVisible(false);
 

@@ -9,7 +9,7 @@
 using namespace UI;
 
 ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource)
-  : Window(manager)
+  : Rectangle(manager)
   , _curSel(-1)
 {
 	_list = std::make_shared<List>(manager, texman, dataSource);
@@ -34,7 +34,7 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 
 	SetDrawBorder(true);
 	SetTexture(texman, "ui/combo", false);
-	Window::Resize(GetWidth(), _text->GetHeight() + _text->GetY() * 2);
+	Rectangle::Resize(GetWidth(), _text->GetHeight() + _text->GetY() * 2);
 }
 
 ListDataSource* ComboBox::GetData() const
@@ -153,6 +153,6 @@ void ComboBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &d
 {
 	const_cast<ComboBox*>(this)->SetFrame(lc.GetEnabled() ? 0 : 3);
 
-	Window::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(lc, ic, dc, texman);
 }
 

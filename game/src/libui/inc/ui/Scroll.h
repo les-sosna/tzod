@@ -1,15 +1,12 @@
-// Scroll.h
-
 #pragma once
-
-#include "Window.h"
+#include "Rectangle.h"
 
 namespace UI
 {
 
 class ImageButton;
 
-class ScrollBarBase : public Window
+class ScrollBarBase : public Rectangle
 {
 public:
 	ScrollBarBase(LayoutManager &manager);

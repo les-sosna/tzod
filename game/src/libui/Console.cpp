@@ -49,7 +49,7 @@ std::shared_ptr<Console> Console::Create(Window *parent, TextureManager &texman,
 }
 
 Console::Console(LayoutManager &manager, TextureManager &texman)
-  : Window(manager)
+  : Rectangle(manager)
   , _cmdIndex(0)
   , _font(texman.FindSprite("font_small"))
   , _buf(nullptr)
@@ -220,7 +220,7 @@ void Console::OnTimeStep(LayoutManager &manager, float dt)
 
 void Console::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(lc, ic, dc, texman);
 
 	if( _buf )
 	{

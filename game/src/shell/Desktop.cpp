@@ -67,7 +67,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	if (!_globL)
 		throw std::bad_alloc();
 
-	_background = std::make_shared<UI::Window>(manager);
+	_background = std::make_shared<UI::Rectangle>(manager);
 	_background->SetTexture(texman, "gui_splash", false);
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
 	_background->SetDrawBorder(false);

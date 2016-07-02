@@ -27,7 +27,6 @@ Text::Text(LayoutManager &manager, TextureManager &texman)
   , _drawShadow(true)
 {
 	SetFont(texman, "font_small");
-	SetTexture(texman, nullptr, false);
 }
 
 void Text::SetDrawShadow(bool drawShadow)

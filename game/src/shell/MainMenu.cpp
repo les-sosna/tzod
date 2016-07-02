@@ -60,16 +60,12 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	AddFront(button);
 
 	_panelFrame = std::make_shared<Window>(manager);
-	_panelFrame->SetDrawBackground(false);
-	_panelFrame->SetDrawBorder(false);
 	_panelFrame->SetClipChildren(true);
 	_panelFrame->Move(0, GetHeight() + 40);
 	_panelFrame->Resize(GetWidth(), 64);
 	AddFront(_panelFrame);
 
 	_panel = std::make_shared<Window>(manager);
-	_panel->SetDrawBackground(false);
-	_panel->SetDrawBorder(false);
 	_panel->Move(0, -_panelFrame->GetHeight());
 	_panelFrame->AddFront(_panel);
 }

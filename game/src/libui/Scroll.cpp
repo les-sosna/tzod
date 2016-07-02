@@ -9,7 +9,7 @@ namespace UI
 {
 
 ScrollBarBase::ScrollBarBase(LayoutManager &manager)
-    : Window(manager)
+    : Rectangle(manager)
     , _tmpBoxPos(-1)
     , _pos(0)
     , _lineSize(0.1f)
@@ -175,7 +175,7 @@ float ScrollBarBase::GetScrollPaneLength() const
 void ScrollBarBase::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	const_cast<ScrollBarBase*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
-	Window::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(lc, ic, dc, texman);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

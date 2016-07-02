@@ -73,27 +73,14 @@ class Window : public std::enable_shared_from_this<Window>
 
 	std::string  _text;
 
-	SpriteColor  _backColor = 0xffffffff;
-	SpriteColor  _borderColor = 0xffffffff;
-	size_t       _texture = -1;
-	StretchMode  _textureStretchMode = StretchMode::Stretch;
-	unsigned int _frame = 0;
-
 	struct
 	{
 		bool _isVisible      : 1;
 		bool _isEnabled      : 1;
 		bool _isTopMost      : 1;
 		bool _isTimeStep     : 1;
-		bool _drawBorder     : 1;
-		bool _drawBackground : 1;
 		bool _clipChildren   : 1;
 	};
-
-protected:
-	unsigned int GetFrameCount() const;
-	unsigned int GetFrame() const { return _frame; }
-	void SetFrame(unsigned int n) { assert(-1 == _texture || n < GetFrameCount()); _frame = n; }
 
 public:
 	explicit Window(LayoutManager &manager);
@@ -122,23 +109,6 @@ public:
 	//
 	// Appearance
 	//
-
-	void SetBackColor(SpriteColor color)   { _backColor = color; }
-	SpriteColor GetBackColor() const       { return _backColor;  }
-
-	void SetBorderColor(SpriteColor color) { _borderColor = color; }
-	SpriteColor GetBorderColor() const     { return _borderColor;  }
-
-	void SetDrawBorder(bool enable)        { _drawBorder = enable; }
-	bool GetDrawBorder() const             { return _drawBorder;   }
-
-	void SetDrawBackground(bool enable)    { _drawBackground = enable; }
-	bool GetDrawBackground() const         { return _drawBackground;   }
-
-	void SetTexture(TextureManager &texman, const char *tex, bool fitSize);
-	void SetTextureStretchMode(StretchMode stretchMode);
-	float GetTextureWidth(TextureManager &texman)  const;
-	float GetTextureHeight(TextureManager &texman) const;
 
 	void SetVisible(bool show);
 	bool GetVisible() const { return _isVisible; }
@@ -191,7 +161,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const;
+	virtual void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const {}
 
 private:
 

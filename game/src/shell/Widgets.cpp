@@ -95,7 +95,7 @@ void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
 ///////////////////////////////////////////////////////////////////////////////
 
 Oscilloscope::Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, float x, float y)
-  : Window(manager)
+  : UI::Rectangle(manager)
   , _barTexture(texman.FindSprite("ui/bar"))
   , _titleFont(texman.FindSprite("font_small"))
   , _rangeMin(-0.1f)
@@ -211,7 +211,7 @@ void Oscilloscope::AutoRange()
 
 void Oscilloscope::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
+	UI::Rectangle::Draw(lc, ic, dc, texman);
 
 	float labelOffset = texman.GetCharHeight(_titleFont) / 2;
 

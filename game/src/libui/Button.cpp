@@ -10,7 +10,7 @@
 using namespace UI;
 
 ButtonBase::ButtonBase(LayoutManager &manager)
-  : Window(manager)
+  : Rectangle(manager)
 {
 }
 

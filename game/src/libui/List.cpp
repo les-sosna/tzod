@@ -51,7 +51,7 @@ void List::ListCallbackImpl::OnAddItem()
 // class List
 
 List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource)
-    : Window(manager)
+    : Rectangle(manager)
     , _callbacks(this)
     , _data(dataSource)
     , _scrollBar(std::make_shared<ScrollBarVertical>(manager, texman))
@@ -211,7 +211,7 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 
 void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(lc, ic, dc, texman);
 
 	float pos = GetScrollPos();
 	int i_min = (int) pos;

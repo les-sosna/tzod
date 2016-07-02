@@ -1,5 +1,5 @@
 #pragma once
-#include "Window.h"
+#include "Rectangle.h"
 #include "ListBase.h"
 #include <functional>
 
@@ -10,7 +10,7 @@ namespace UI
 class ScrollBarVertical;
 
 class List
-	: public Window
+	: public Rectangle
 	, private PointerSink
 	, private KeyboardSink
 {

@@ -23,6 +23,7 @@ add_library(ui
 	List.cpp
 	ListBase.cpp
 	Scroll.cpp
+	Rectangle.cpp
 	Text.cpp
 	Window.cpp
 
@@ -41,6 +42,7 @@ add_library(ui
 	inc/ui/List.h
 	inc/ui/ListBase.h
 	inc/ui/Pointers.h
+	inc/ui/Rectangle.h
 	inc/ui/Scroll.h
 	inc/ui/Text.h
 	inc/ui/UIInput.h

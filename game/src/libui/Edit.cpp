@@ -15,7 +15,7 @@
 using namespace UI;
 
 Edit::Edit(LayoutManager &manager, TextureManager &texman)
-  : Window(manager)
+  : Rectangle(manager)
   , _selStart(-1)
   , _selEnd(-1)
   , _offset(0)
@@ -110,7 +110,7 @@ void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 {
 	const_cast<Edit*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
 
-	Window::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(lc, ic, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 

@@ -25,7 +25,7 @@
 #define SCORE_ROW_HEIGHT     24
 
 ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, Deathmatch &deathmatch, LangCache &lang)
-  : UI::Window(manager)
+  : UI::Rectangle(manager)
   , _font(texman.FindSprite("font_default"))
   , _world(world)
   , _deathmatch(deathmatch)
@@ -37,7 +37,7 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
 
 void ScoreTable::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
+	UI::Rectangle::Draw(lc, ic, dc, texman);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )

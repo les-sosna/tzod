@@ -1,4 +1,5 @@
 #pragma once
+#include "ui/Rectangle.h"
 #include "ui/Text.h"
 #include <list>
 #include <string>
@@ -23,7 +24,7 @@ protected:
 	void OnTimeStep(UI::LayoutManager &manager, float dt);
 };
 
-class Oscilloscope : public UI::Window
+class Oscilloscope : public UI::Rectangle
 {
 public:
 	Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, float x, float y);

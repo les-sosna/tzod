@@ -7,7 +7,7 @@
 using namespace UI;
 
 Dialog::Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal)
-  : Window(manager)
+  : Rectangle(manager)
 	, _mousePos{ 0, 0 }
   , _easyMove(false)
 {

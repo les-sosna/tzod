@@ -1,12 +1,12 @@
 #pragma once
-#include <ui/Window.h>
+#include <ui/Rectangle.h>
 
 class World;
 class Deathmatch;
 class LangCache;
 class TextureManager;
 
-class ScoreTable : public UI::Window
+class ScoreTable : public UI::Rectangle
 {
 public:
 	ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, Deathmatch &deathmatch, LangCache &lang);
