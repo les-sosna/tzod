@@ -188,39 +188,9 @@ std::shared_ptr<Window> Window::GetFocus() const
 	return _focusChild;
 }
 
-void Window::OnEnabledChangeInternal(bool enable, bool inherited)
-{
-	if( enable )
-	{
-		// enable children last
-		if( !inherited )
-			_isEnabled = true;
-		OnEnabledChange(true, inherited);
-		for( auto &w: _children )
-		{
-			w->OnEnabledChangeInternal(true, true);
-		}
-	}
-	else
-	{
-		// disable children first
-		for (auto &w : _children)
-		{
-			w->OnEnabledChangeInternal(false, true);
-		}
-		if( !inherited )
-			_isEnabled = false;
-		OnEnabledChange(false, inherited);
-	}
-}
-
 void Window::SetEnabled(bool enable)
 {
-	if( _isEnabled != enable )
-	{
-		OnEnabledChangeInternal(enable, false);
-		assert(_isEnabled == enable);
-	}
+	_isEnabled = enable;
 }
 
 void Window::SetVisible(bool visible)
@@ -252,10 +222,6 @@ void Window::OnSize(float width, float height)
 //
 // other
 //
-
-void Window::OnEnabledChange(bool enable, bool inherited)
-{
-}
 
 void Window::OnTextChange(TextureManager &texman)
 {

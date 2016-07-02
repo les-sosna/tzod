@@ -108,6 +108,8 @@ int Edit::GetSelMax() const
 
 void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
+	const_cast<Edit*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
+
 	Window::Draw(lc, ic, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
@@ -312,19 +314,6 @@ KeyboardSink* Edit::GetKeyboardSink()
 	// FIXME: gross hack
 	_lastCursortime = GetManager().GetTime();
 	return this;
-}
-
-void Edit::OnEnabledChange(bool enable, bool inherited)
-{
-	if( !enable )
-	{
-		SetSel(0, 0);
-		SetFrame(1);
-	}
-	else
-	{
-		SetFrame(0);
-	}
 }
 
 void Edit::OnTextChange(TextureManager &texman)

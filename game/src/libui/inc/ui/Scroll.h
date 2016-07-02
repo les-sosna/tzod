@@ -36,8 +36,10 @@ public:
 
 	std::function<void(float)> eventScroll;
 
+	// Window
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+
 protected:
-	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual float Select(float x, float y) const = 0;
 	float GetScrollPaneLength() const;
 

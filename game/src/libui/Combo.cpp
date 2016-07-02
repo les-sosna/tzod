@@ -4,6 +4,7 @@
 #include "inc/ui/Button.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
+#include "inc/ui/LayoutContext.h"
 
 using namespace UI;
 
@@ -109,11 +110,6 @@ void ComboBox::OnListLostFocus()
 	_btn->SetTexture(GetManager().GetTextureManager(), "ui/scroll_down", false);
 }
 
-void ComboBox::OnEnabledChange(bool enable, bool inherited)
-{
-	SetFrame(enable ? 0 : 3);
-}
-
 bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 {
 	switch( key )
@@ -152,3 +148,11 @@ void ComboBox::OnSize(float width, float height)
 	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
 	_text->Resize(_btn->GetX(), height);
 }
+
+void ComboBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+{
+	const_cast<ComboBox*>(this)->SetFrame(lc.GetEnabled() ? 0 : 3);
+
+	Window::Draw(lc, ic, dc, texman);
+}
+

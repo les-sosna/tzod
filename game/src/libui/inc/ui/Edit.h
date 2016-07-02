@@ -46,7 +46,6 @@ public:
 protected:
 	// Window
 	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	void OnEnabledChange(bool enable, bool inherited) override;
 	void OnTextChange(TextureManager &texman) override;
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override;

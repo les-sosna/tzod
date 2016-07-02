@@ -31,8 +31,10 @@ public:
 
 	std::function<void(int)> eventChangeCurSel;
 
+	// Window
+	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+
 protected:
-	void OnEnabledChange(bool enable, bool inherited) override;
 	void OnSize(float width, float height) override;
 	KeyboardSink *GetKeyboardSink() override { return this; }
 

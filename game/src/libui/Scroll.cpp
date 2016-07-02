@@ -1,6 +1,7 @@
 #include "inc/ui/Scroll.h"
 #include "inc/ui/Button.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/LayoutContext.h"
 #include <algorithm>
 #include <cmath>
 
@@ -102,11 +103,6 @@ void ScrollBarBase::SetElementTextures(TextureManager &texman, const char *slide
 	SetPos(GetPos()); // update scroll position
 }
 
-void ScrollBarBase::OnEnabledChange(bool enable, bool inherited)
-{
-	SetFrame(enable ? 0 : 1);
-}
-
 void ScrollBarBase::OnBoxMouseDown(float x, float y)
 {
 	_tmpBoxPos = Select(x, y);
@@ -174,6 +170,12 @@ float ScrollBarBase::GetScrollPaneLength() const
 		                 _btnDownRight->GetHeight() + _btnUpLeft->GetHeight() );
 	}
 	return result;
+}
+
+void ScrollBarBase::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+{
+	const_cast<ScrollBarBase*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
+	Window::Draw(lc, ic, dc, texman);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

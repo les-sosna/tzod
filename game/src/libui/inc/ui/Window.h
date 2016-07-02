@@ -95,8 +95,6 @@ protected:
 	unsigned int GetFrame() const { return _frame; }
 	void SetFrame(unsigned int n) { assert(-1 == _texture || n < GetFrameCount()); _frame = n; }
 
-	void OnEnabledChangeInternal(bool enable, bool inherited);
-
 public:
 	explicit Window(LayoutManager &manager);
 	virtual ~Window();
@@ -209,7 +207,6 @@ private:
 	//
 
 	virtual void OnTextChange(TextureManager &texman);
-	virtual void OnEnabledChange(bool enable, bool inherited);
 	virtual void OnTimeStep(LayoutManager &manager, float dt);
 };
 
