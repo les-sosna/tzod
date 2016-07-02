@@ -214,28 +214,6 @@ void Window::OnEnabledChangeInternal(bool enable, bool inherited)
 	}
 }
 
-void Window::OnVisibleChangeInternal(bool visible, bool inherited)
-{
-	if( visible )
-	{
-		// show children last
-		if (!inherited)
-			_isVisible = true;
-
-		for (auto &w : _children)
-			w->OnVisibleChangeInternal(true, true);
-	}
-	else
-	{
-		// hide children first
-		for (auto &w : _children)
-			w->OnVisibleChangeInternal(false, true);
-
-		if (!inherited)
-			_isVisible = false;
-	}
-}
-
 void Window::SetEnabled(bool enable)
 {
 	if( _isEnabled != enable )
@@ -247,11 +225,7 @@ void Window::SetEnabled(bool enable)
 
 void Window::SetVisible(bool visible)
 {
-	if( _isVisible != visible )
-	{
-		OnVisibleChangeInternal(visible, false);
-		assert(_isVisible == visible);
-	}
+	_isVisible = visible;
 }
 
 const std::string& Window::GetText() const
