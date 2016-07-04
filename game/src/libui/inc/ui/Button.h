@@ -1,5 +1,5 @@
 #pragma once
-#include "Rectangle.h"
+#include "Window.h"
 #include <functional>
 
 class TextureManager;
@@ -8,7 +8,7 @@ namespace UI
 {
 
 class ButtonBase
-	: public Rectangle
+	: public Window
 	, private PointerSink
 {
 public:
@@ -44,22 +44,30 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class Rectangle;
+class Text;
+
 class Button : public ButtonBase
 {
 public:
 	Button(LayoutManager &manager, TextureManager &texman);
 
-	void SetIcon(TextureManager &texman, const char *spriteName);
+	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
+
+	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
 
 protected:
 	void SetFont(TextureManager &texman, const char *fontName);
 
 	// Window
+	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void OnTextChange(TextureManager &texman) override;
 
 private:
-	size_t _font;
-	size_t _icon;
+	std::shared_ptr<Rectangle> _background;
+	std::shared_ptr<Rectangle> _icon;
+	std::shared_ptr<Text> _text;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,17 +93,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ImageButton : public ButtonBase
-{
-public:
-	explicit ImageButton(LayoutManager &manager);
-
-	// Window
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class CheckBox : public ButtonBase
 {
 public:
@@ -103,9 +100,6 @@ public:
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
-
-	void SetDrawShadow(bool drawShadow);
-	bool GetDrawShadow() const;
 
 protected:
 	void AlignSizeToContent(TextureManager &texman);
@@ -119,7 +113,6 @@ protected:
 private:
 	size_t _fontTexture;
 	size_t _boxTexture;
-	bool   _drawShadow;
 	bool   _isChecked;
 };
 

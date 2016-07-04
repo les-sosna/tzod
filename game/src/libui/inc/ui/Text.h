@@ -16,9 +16,6 @@ public:
 
 	Text(LayoutManager &manager, TextureManager &texman);
 
-	void SetDrawShadow(bool drawShadow);
-	bool GetDrawShadow() const;
-
 	void SetAlign(enumAlignText align);
 	void SetFont(TextureManager &texman, const char *fontName);
 	void SetFontColor(SpriteColor color);
@@ -32,8 +29,6 @@ private:
 	enumAlignText  _align;
 	size_t         _fontTexture;
 	SpriteColor    _fontColor;
-
-	bool           _drawShadow;
 };
 
 } // namespace UI

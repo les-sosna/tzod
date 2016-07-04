@@ -18,7 +18,7 @@ namespace UI
 {
 	class Console;
 	class Oscilloscope;
-	class ButtonBase;
+	class Button;
 }
 
 class AppController;
@@ -67,7 +67,7 @@ private:
 	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
-	std::shared_ptr<UI::ButtonBase> _pauseButton;
+	std::shared_ptr<UI::Button> _pauseButton;
 	std::vector<std::shared_ptr<UI::Window>> _navStack;
 	float _navTransitionTime = 0;
 	float _navTransitionStart = 0;

@@ -5,10 +5,12 @@
 #include <algorithm>
 #include <cmath>
 
+static const float MIN_THUMB_SIZE = 10.f;
+
 namespace UI
 {
 
-ScrollBarBase::ScrollBarBase(LayoutManager &manager)
+ScrollBarBase::ScrollBarBase(LayoutManager &manager, TextureManager &texman)
     : Rectangle(manager)
     , _tmpBoxPos(-1)
     , _pos(0)
@@ -17,11 +19,11 @@ ScrollBarBase::ScrollBarBase(LayoutManager &manager)
     , _documentSize(1.0f)
     , _showButtons(true)
 {
-	_btnBox = std::make_shared<ImageButton>(manager);
+	_btnBox = std::make_shared<Button>(manager, texman);
 	AddFront(_btnBox);
-	_btnUpLeft = std::make_shared<ImageButton>(manager);
+	_btnUpLeft = std::make_shared<Button>(manager, texman);
 	AddFront(_btnUpLeft);
-	_btnDownRight = std::make_shared<ImageButton>(manager);
+	_btnDownRight = std::make_shared<Button>(manager, texman);
 	AddFront(_btnDownRight);
 
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
@@ -30,7 +32,6 @@ ScrollBarBase::ScrollBarBase(LayoutManager &manager)
 	_btnBox->eventMouseUp = std::bind(&ScrollBarBase::OnBoxMouseUp, this, std::placeholders::_1, std::placeholders::_2);
 	_btnBox->eventMouseDown = std::bind(&ScrollBarBase::OnBoxMouseDown, this, std::placeholders::_1, std::placeholders::_2);
 	_btnBox->eventMouseMove = std::bind(&ScrollBarBase::OnBoxMouseMove, this, std::placeholders::_1, std::placeholders::_2);
-	_btnBox->SetDrawBorder(true);
 
 	SetDrawBorder(true);
 	SetShowButtons(true);
@@ -95,9 +96,9 @@ float ScrollBarBase::GetLineSize() const
 
 void ScrollBarBase::SetElementTextures(TextureManager &texman, const char *slider, const char *upleft, const char *downright)
 {
-	_btnBox->SetTexture(texman, slider, true);
-	_btnUpLeft->SetTexture(texman, upleft, true);
-	_btnDownRight->SetTexture(texman, downright, true);
+	_btnBox->SetBackground(texman, slider, true);
+	_btnUpLeft->SetBackground(texman, upleft, true);
+	_btnDownRight->SetBackground(texman, downright, true);
 
 	_btnBox->Move((GetWidth() - _btnBox->GetWidth()) / 2, (GetHeight() - _btnBox->GetHeight()) / 2);
 	SetPos(GetPos()); // update scroll position
@@ -181,11 +182,11 @@ void ScrollBarBase::Draw(const LayoutContext &lc, InputContext &ic, DrawingConte
 ///////////////////////////////////////////////////////////////////////////////
 
 ScrollBarVertical::ScrollBarVertical(LayoutManager &manager, TextureManager &texman)
-  : ScrollBarBase(manager)
+  : ScrollBarBase(manager, texman)
 {
-	_btnBox->SetTexture(texman, "ui/scroll_vert", true);
-	_btnUpLeft->SetTexture(texman, "ui/scroll_up", true);
-	_btnDownRight->SetTexture(texman, "ui/scroll_down", true);
+	_btnBox->SetBackground(texman, "ui/scroll_vert", true);
+	_btnUpLeft->SetBackground(texman, "ui/scroll_up", true);
+	_btnDownRight->SetBackground(texman, "ui/scroll_down", true);
 	SetTexture(texman, "ui/scroll_back_vert", true);
 }
 
@@ -204,8 +205,7 @@ void ScrollBarVertical::SetPos(float pos)
 	ScrollBarBase::SetPos(pos);
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
-	_btnBox->Resize(_btnBox->GetWidth(),
-		std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureHeight(GetManager().GetTextureManager())));
+	_btnBox->Resize(_btnBox->GetWidth(), std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE));
 	_btnBox->Move(_btnBox->GetX(), floor(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
 		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f));
 }
@@ -213,11 +213,11 @@ void ScrollBarVertical::SetPos(float pos)
 ///////////////////////////////////////////////////////////////////////////////
 
 ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman)
-  : ScrollBarBase(manager)
+  : ScrollBarBase(manager, texman)
 {
-	_btnBox->SetTexture(texman, "ui/scroll_hor", true);
-	_btnUpLeft->SetTexture(texman, "ui/scroll_left", true);
-	_btnDownRight->SetTexture(texman, "ui/scroll_right", true);
+	_btnBox->SetBackground(texman, "ui/scroll_hor", true);
+	_btnUpLeft->SetBackground(texman, "ui/scroll_left", true);
+	_btnDownRight->SetBackground(texman, "ui/scroll_right", true);
 	SetTexture(texman, "ui/scroll_back_hor", true);
 }
 
@@ -236,8 +236,7 @@ void ScrollBarHorizontal::SetPos(float pos)
 	ScrollBarBase::SetPos(pos);
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
-	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), _btnBox->GetTextureWidth(GetManager().GetTextureManager())),
-		_btnBox->GetHeight());
+	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE), _btnBox->GetHeight());
 	_btnBox->Move(floor(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
 		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f), _btnBox->GetY());
 }

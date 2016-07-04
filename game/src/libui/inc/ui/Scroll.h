@@ -4,12 +4,12 @@
 namespace UI
 {
 
-class ImageButton;
+class Button;
 
 class ScrollBarBase : public Rectangle
 {
 public:
-	ScrollBarBase(LayoutManager &manager);
+	ScrollBarBase(LayoutManager &manager, TextureManager &texman);
 
 	void SetShowButtons(bool showButtons);
 	bool GetShowButtons() const;
@@ -41,9 +41,9 @@ protected:
 	float GetScrollPaneLength() const;
 
 	float _tmpBoxPos;
-	std::shared_ptr<ImageButton> _btnBox;
-	std::shared_ptr<ImageButton> _btnUpLeft;
-	std::shared_ptr<ImageButton> _btnDownRight;
+	std::shared_ptr<Button> _btnBox;
+	std::shared_ptr<Button> _btnUpLeft;
+	std::shared_ptr<Button> _btnDownRight;
 
 private:
 	virtual void OnSize(float width, float height);

@@ -136,6 +136,7 @@ public:
 	void SetWidth(float width) { Resize(width, GetHeight()); }
 	float GetWidth()  const { return _width;  }
 	float GetHeight() const { return _height; }
+	vec2d GetSize() const { return vec2d{_width, _height}; }
 
 
 	//

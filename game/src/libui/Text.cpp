@@ -24,19 +24,8 @@ Text::Text(LayoutManager &manager, TextureManager &texman)
   , _align(alignTextLT)
   , _fontTexture(0)
   , _fontColor(0xffffffff)
-  , _drawShadow(true)
 {
 	SetFont(texman, "font_small");
-}
-
-void Text::SetDrawShadow(bool drawShadow)
-{
-	_drawShadow = drawShadow;
-}
-
-bool Text::GetDrawShadow() const
-{
-	return _drawShadow;
 }
 
 void Text::SetAlign(enumAlignText align)
@@ -59,12 +48,6 @@ void Text::SetFontColor(SpriteColor color)
 
 void Text::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
-
-	if( _drawShadow )
-	{
-		dc.DrawBitmapText(1, 1, _fontTexture, 0xff000000, GetText(), _align);
-	}
 	dc.DrawBitmapText(0, 0, _fontTexture, _fontColor, GetText(), _align);
 }
 

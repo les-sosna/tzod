@@ -172,6 +172,11 @@ struct RectRB
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
 inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
 
+inline vec2d Vec2dFloor(const vec2d &vec)
+{
+	return{ std::floor(vec.x), std::floor(vec.y) };
+}
+
 inline vec2d Vec2dDirection(float angle)
 {
 	return{ cosf(angle), sinf(angle) };

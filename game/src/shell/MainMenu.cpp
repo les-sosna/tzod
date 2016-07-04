@@ -38,7 +38,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button = std::make_shared<UI::Button>(manager, texman);
 	button->SetText(texman, _lang.single_player_btn.Get());
 	button->Move(0, y);
-	button->SetIcon(texman, "ui/play");
+	button->SetIcon(manager, texman, "ui/play");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.newDM;
 	AddFront(button);
@@ -46,7 +46,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button = std::make_shared<UI::Button>(manager, texman);
 	button->SetText(texman, _lang.editor_btn.Get());
 	button->Move((GetWidth() - buttonWidth) / 2, y);
-	button->SetIcon(texman, "ui/editor");
+	button->SetIcon(manager, texman, "ui/editor");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = std::bind(&MainMenuDlg::OnEditor, this);
 	AddFront(button);
@@ -54,7 +54,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button = std::make_shared<UI::Button>(manager, texman);
 	button->SetText(texman, _lang.settings_btn.Get());
 	button->Move(GetWidth() - buttonWidth, y);
-	button->SetIcon(texman, "ui/settings");
+	button->SetIcon(manager, texman, "ui/settings");
 	button->Resize(buttonWidth, buttonHeight);
 	button->eventClick = _commands.gameSettings;
 	AddFront(button);

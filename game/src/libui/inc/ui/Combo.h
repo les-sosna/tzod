@@ -10,7 +10,7 @@ namespace UI
 struct ListDataSource;
 class List;
 class TextButton;
-class ButtonBase;
+class Button;
 
 class ComboBox
 	: public Rectangle
@@ -44,7 +44,7 @@ protected:
 
 private:
 	std::shared_ptr<TextButton> _text;
-	std::shared_ptr<ButtonBase> _btn;
+	std::shared_ptr<Button> _btn;
 	std::shared_ptr<List> _list;
 	int _curSel;
 

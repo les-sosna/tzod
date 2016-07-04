@@ -104,8 +104,8 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		}
 	}
 
-	_pauseButton = std::make_shared<UI::ImageButton>(manager);
-	_pauseButton->SetTexture(texman, "ui/pause", true);
+	_pauseButton = std::make_shared<UI::Button>(manager, texman);
+	_pauseButton->SetBackground(texman, "ui/pause", true);
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
