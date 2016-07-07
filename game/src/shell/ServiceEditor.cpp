@@ -119,8 +119,15 @@ ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman,
 	, _conf(conf)
 	, _lang(lang)
 {
-	_labelService = UI::Text::Create(this, texman, _margins, _margins, _lang.service_type.Get(), alignTextLT);
-	_labelName = UI::Text::Create(this, texman, w / 2, _margins, _lang.service_name.Get(), alignTextLT);
+	_labelService = std::make_shared<UI::Text>(manager, texman);
+	_labelService->Move(_margins, _margins);
+	_labelService->SetText(texman, _lang.service_type.Get());
+	AddFront(_labelService);
+
+	_labelName = std::make_shared<UI::Text>(manager, texman);
+	_labelName->Move(w / 2, _margins);
+	_labelName->SetText(texman, _lang.service_name.Get());
+	AddFront(_labelName);
 
 	_list = std::make_shared<UI::List>(manager, texman, &_listData);
 	_list->Move(_margins, _margins + _labelService->GetY() + _labelService->GetHeight());

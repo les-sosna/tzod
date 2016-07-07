@@ -25,8 +25,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 {
 	SetEasyMove(true);
 
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, _lang.settings_title.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, _lang.settings_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
 
 	//
@@ -36,7 +40,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	float x = 24;
 	float y = 48;
 
-	y += UI::Text::Create(this, texman, x, y, _lang.settings_player1.Get(), alignTextLT)->GetHeight() + 2;
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x, y);
+	text->SetText(texman, _lang.settings_player1.Get());
+	AddFront(text);
+	y += text->GetHeight() + 2;
+
 	_player1 = std::make_shared<UI::ComboBox>(manager, texman, &_profilesDataSource);
 	_player1->Move(x, y);
 	_player1->Resize(128);
@@ -44,7 +53,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	AddFront(_player1);
 	y += _player1->GetHeight() + 5;
 
-	y += UI::Text::Create(this, texman, 24, y, _lang.settings_player2.Get(), alignTextLT)->GetHeight() + 2;
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(24, y);
+	text->SetText(texman, _lang.settings_player2.Get());
+	AddFront(text);
+	y += text->GetHeight() + 2;
+
 	_player2 = std::make_shared<UI::ComboBox>(manager, texman, &_profilesDataSource);
 	_player2->Move(x, y);
 	_player2->Resize(128);
@@ -52,7 +66,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	AddFront(_player2);
 	y += _player2->GetHeight() + 5;
 
-	y += UI::Text::Create(this, texman, x, y, _lang.settings_profiles.Get(), alignTextLT)->GetHeight() + 2;
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x, y);
+	text->SetText(texman, _lang.settings_profiles.Get());
+	AddFront(text);
+	y += text->GetHeight() + 2;
+
 	_profiles = std::make_shared<UI::List>(manager, texman, &_profilesDataSource);
 	_profiles->Move(x, y);
 	_profiles->Resize(128, 52);
@@ -109,7 +128,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	AddFront(_showNames);
 	y += _showNames->GetHeight();
 
-	UI::Text::Create(this, texman, x + 50, y += 20, _lang.settings_sfx_volume.Get(), alignTextRT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x + 50, y += 20);
+	text->SetText(texman, _lang.settings_sfx_volume.Get());
+	text->SetAlign(alignTextRT);
+	AddFront(text);
+
 	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(manager, texman);
 	_volumeSfx->Move(x + 60, y);
 	_volumeSfx->SetSize(150);
@@ -120,7 +144,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	AddFront(_volumeSfx);
 	_initialVolumeSfx = _conf.s_volume.GetInt();
 
-	UI::Text::Create(this, texman, x + 50, y += 20, _lang.settings_music_volume.Get(), alignTextRT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x + 50, y += 20);
+	text->SetText(texman, _lang.settings_music_volume.Get());
+	text->SetAlign(alignTextRT);
+	AddFront(text);
+
 	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(manager, texman);
 	_volumeMusic->Move(x + 60, y);
 	_volumeMusic->SetSize(150);
@@ -269,15 +298,27 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 {
 	SetEasyMove(true);
 
-	UI::Text::Create(this, texman, 20, 15, _lang.profile_name.Get(), alignTextLT);
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 15);
+	text->SetText(texman, _lang.profile_name.Get());
+	AddFront(text);
+
 	_nameEdit = std::make_shared<UI::Edit>(manager, texman);
 	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
 	_nameEdit->SetText(texman, _nameOrig);
 	AddFront(_nameEdit);
 
-	UI::Text::Create(this, texman,  20, 65, _lang.profile_action.Get(), alignTextLT);
-	UI::Text::Create(this, texman, 220, 65, _lang.profile_key.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 65);
+	text->SetText(texman, _lang.profile_action.Get());
+	AddFront(text);
+
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(220, 65);
+	text->SetText(texman, _lang.profile_key.Get());
+	AddFront(text);
+
 	_actions = std::make_shared<DefaultListBox>(manager, texman);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);

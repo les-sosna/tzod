@@ -147,8 +147,12 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _worldView(worldView)
   , _globL(globL)
 {
-	_help = UI::Text::Create(this, texman, 10, 10, _lang.f1_help_editor.Get(), alignTextLT);
+	_help = std::make_shared<UI::Text>(manager, texman);
+	_help->Move(10, 10);
+	_help->SetText(texman, _lang.f1_help_editor.Get());
+	_help->SetAlign(alignTextLT);
 	_help->SetVisible(false);
+	AddFront(_help);
 
 	_propList = std::make_shared<PropertyList>(manager, texman, 5.f, 5.f, 512.f, 256.f, _world, _conf, _logger);
 	_propList->SetVisible(false);
@@ -158,7 +162,9 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_serviceList->SetVisible(_conf.ed_showservices.Get());
 	AddFront(_serviceList);
 
-	_layerDisp = UI::Text::Create(this, texman, 0, 0, "", alignTextRT);
+	_layerDisp = std::make_shared<UI::Text>(manager, texman);
+	_layerDisp->SetAlign(alignTextRT);
+	AddFront(_layerDisp);
 
 	_typeList = std::make_shared<DefaultComboBox>(manager, texman);
 	_typeList->Resize(256);

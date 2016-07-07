@@ -127,7 +127,9 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			std::ostringstream labelTextBuffer;
 			labelTextBuffer << prop->GetName();
 
-			auto label = UI::Text::Create(_psheet.get(), texman, 5, y, "", alignTextLT);
+			auto label = std::make_shared<UI::Text>(GetManager(), texman);
+			label->Move(5, y);
+			_psheet->AddFront(label);
 			y += label->GetHeight();
 			y += 5;
 

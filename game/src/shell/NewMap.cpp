@@ -12,17 +12,30 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCac
 	: Dialog(manager, texman, 256, 256)
 	, _conf(conf)
 {
-	auto header = UI::Text::Create(this, texman, 128, 20, lang.newmap_title.Get(), alignTextCT);
-	header->SetFont(texman, "font_default");
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(128, 20);
+	text->SetText(texman, lang.newmap_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
-	UI::Text::Create(this, texman, 40, 75, lang.newmap_width.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(40, 75);
+	text->SetText(texman, lang.newmap_width.Get());
+	AddFront(text);
+
 	_width = std::make_shared<UI::Edit>(manager, texman);
 	_width->Move(60, 90);
 	_width->SetWidth(80);
 	_width->SetInt(_conf.ed_width.GetInt());
 	AddFront(_width);
 
-	UI::Text::Create(this, texman, 40, 115, lang.newmap_height.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(40, 115);
+	text->SetText(texman, lang.newmap_height.Get());
+	AddFront(text);
+
 	_height = std::make_shared<UI::Edit>(manager, texman);
 	_height->Move(60, 130);
 	_height->SetWidth(80);

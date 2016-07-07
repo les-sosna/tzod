@@ -1,21 +1,9 @@
-// Text.cpp
-
 #include "inc/ui/Text.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
 using namespace UI;
-
-std::shared_ptr<Text> Text::Create(Window *parent, TextureManager &texman, float x, float y, const std::string &text, enumAlignText align)
-{
-	auto t = std::make_shared<Text>(parent->GetManager(), texman);
-	t->Move(x, y);
-	t->SetText(texman, text);
-	t->SetAlign(align);
-	parent->AddFront(t);
-	return t;
-}
 
 Text::Text(LayoutManager &manager, TextureManager &texman)
   : Window(manager)

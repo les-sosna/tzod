@@ -1,19 +1,13 @@
-// Text.h
-
 #pragma once
-
 #include "Window.h"
 #include "video/DrawingContext.h"
 
 namespace UI
 {
 
-// static text
 class Text : public Window
 {
 public:
-	static std::shared_ptr<Text> Create(Window *parent, TextureManager &texman, float x, float y, const std::string &text, enumAlignText align);
-
 	Text(LayoutManager &manager, TextureManager &texman);
 
 	void SetAlign(enumAlignText align);

@@ -38,8 +38,13 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
   , _lang(lang)
   , _logger(logger)
 {
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, _lang.net_server_title.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, _lang.net_server_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
 	float x1 = 16;
 	float x2 = x1 + 550;
@@ -50,7 +55,10 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 	// map list
 	//
 
-	UI::Text::Create(this, texman, x1, 46, _lang.choose_map.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, 46);
+	text->SetText(texman, _lang.choose_map.Get());
+	AddFront(text);
 
 	_maps = std::make_shared<MapListBox>(manager, texman, fs, _logger);
 	_maps->Move(x1, 62);
@@ -78,30 +86,49 @@ CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &tex
 		AddFront(_nightMode);
 
 
-		UI::Text::Create(this, texman, x3, y+=30, _lang.game_speed.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 30);
+		text->SetText(texman, _lang.game_speed.Get());
+		AddFront(text);
+
 		_gameSpeed = std::make_shared<UI::Edit>(manager, texman);
 		_gameSpeed->Move(x4, y += 15);
 		_gameSpeed->SetWidth(80);
 		_gameSpeed->SetInt(_conf.cl_speed.GetInt());
 		AddFront(_gameSpeed);
 
-		UI::Text::Create(this, texman, x3, y+=30, _lang.frag_limit.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 30);
+		text->SetText(texman, _lang.frag_limit.Get());
+		AddFront(text);
+
 		_fragLimit = std::make_shared<UI::Edit>(manager, texman);
 		_fragLimit->Move(x4, y += 15);
 		_fragLimit->SetWidth(80);
 //		_fragLimit->SetInt(_conf.cl_fraglimit.GetInt());
 		AddFront(_fragLimit);
 
-		UI::Text::Create(this, texman, x3, y+=30, _lang.time_limit.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 30);
+		text->SetText(texman, _lang.time_limit.Get());
+		AddFront(text);
+
 		_timeLimit = std::make_shared<UI::Edit>(manager, texman);
 		_timeLimit->Move(x4, y += 15);
 		_timeLimit->SetWidth(80);
 //		_timeLimit->SetInt(_conf.cl_timelimit.GetInt());
 		AddFront(_timeLimit);
 
-		UI::Text::Create(this, texman, x3+30, y+=30, _lang.zero_no_limits.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3 + 30, y += 30);
+		text->SetText(texman, _lang.zero_no_limits.Get());
+		AddFront(text);
 
-		UI::Text::Create(this, texman, x3, y+=40, _lang.net_server_fps.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 40);
+		text->SetText(texman, _lang.net_server_fps.Get());
+		AddFront(text);
+
 		_svFps = std::make_shared<UI::Edit>(manager, texman);
 		_svFps->Move(x4, y += 15);
 		_svFps->SetWidth(100);
@@ -281,17 +308,30 @@ ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const
   , _conf(conf)
   , _lang(lang)
 {
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, _lang.net_connect_title.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, _lang.net_connect_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
-	UI::Text::Create(this, texman, 20, 65, _lang.net_connect_address.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 65);
+	text->SetText(texman, _lang.net_connect_address.Get());
+	AddFront(text);
+
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(25, 80);
 	_name->SetWidth(300);
 	_name->SetText(texman, defaultName);
 	AddFront(_name);
 
-	UI::Text::Create(this, texman, 20, 105, _lang.net_connect_status.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 105);
+	text->SetText(texman, _lang.net_connect_status.Get());
+	AddFront(text);
+
 	_status = std::make_shared<DefaultListBox>(manager, texman);
 	_status->Move(25, 120);
 	_status->Resize(400, 180);
@@ -376,24 +416,41 @@ InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, Wor
 //	_client->eventError.bind(&InternetDlg::OnLobbyError, this);
 //	_client->eventServerListReply.bind(&InternetDlg::OnLobbyList, this);
 
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, _lang.net_internet_title.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, _lang.net_internet_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
-	UI::Text::Create(this, texman, 20, 65, _lang.net_internet_lobby_address.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 65);
+	text->SetText(texman, _lang.net_internet_lobby_address.Get());
+	AddFront(text);
+
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(25, 80);
 	_name->SetWidth(300);
 	_name->SetText(texman, "tzod.fatal.ru/lobby/");
 	AddFront(_name);
 
-	UI::Text::Create(this, texman, 20, 105, _lang.net_internet_server_list.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 105);
+	text->SetText(texman, _lang.net_internet_server_list.Get());
+	AddFront(text);
+
 	_servers = std::make_shared<DefaultListBox>(manager, texman);
 	_servers->Move(25, 120);
 	_servers->Resize(400, 180);
 	_servers->eventChangeCurSel = std::bind(&InternetDlg::OnSelectServer, this, std::placeholders::_1);
 	AddFront(_servers);
-	_status = UI::Text::Create(_servers.get(), texman, _servers->GetWidth() / 2, _servers->GetHeight() / 2, "", alignTextCC);
+
+	_status = std::make_shared<UI::Text>(manager, texman);
+	_status->Move(_servers->GetWidth() / 2, _servers->GetHeight() / 2);
+	_status->SetAlign(alignTextCC);
 	_status->SetFontColor(0x7f7f7f7f);
+	_servers->AddFront(_status);
 
 	_btnRefresh = std::make_shared<UI::Button>(manager, texman);
 	_btnRefresh->SetText(texman, _lang.net_internet_refresh.Get());
@@ -510,14 +567,19 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
   , _lang(lang)
 //  , _clientSubscribtion(g_client->AddListener(this))
 {
-	//
-	// create controls
-	//
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, _lang.net_chatroom_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, _lang.net_chatroom_title.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 50);
+	text->SetText(texman, _lang.net_chatroom_players.Get());
+	AddFront(text);
 
-	UI::Text::Create(this, texman, 20, 50, _lang.net_chatroom_players.Get(), alignTextLT);
 	_players = std::make_shared<DefaultListBox>(manager, texman);
 	_players->Move(20, 65);
 	_players->Resize(512, 70);
@@ -532,7 +594,11 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
 	_btnProfile->eventClick = std::bind(&WaitingForPlayersDlg::OnChangeProfileClick, this);
 	AddFront(_btnProfile);
 
-	UI::Text::Create(this, texman, 20, 150, _lang.net_chatroom_bots.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 150);
+	text->SetText(texman, _lang.net_chatroom_bots.Get());
+	AddFront(text);
+
 	_bots = std::make_shared<DefaultListBox>(manager, texman);
 	_bots->Move(20, 165);
 	_bots->Resize(512, 100);
@@ -547,7 +613,10 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
 	btn->eventClick = std::bind(&WaitingForPlayersDlg::OnAddBotClick, this);
 	AddFront(btn);
 
-	UI::Text::Create(this, texman, 20, 285, _lang.net_chatroom_chat_window.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(20, 285);
+	text->SetText(texman, _lang.net_chatroom_chat_window.Get());
+	AddFront(text);
 
 	_chat = UI::Console::Create(this, texman, 20, 300, 512, 200, _buf.get());
 	_chat->SetTexture(texman, "ui/list", false);

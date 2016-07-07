@@ -116,12 +116,14 @@ void MainMenuDlg::SwitchPanel(PanelType newtype)
 
 void MainMenuDlg::CreatePanel(TextureManager &texman)
 {
-	_panelTitle = UI::Text::Create(_panel.get(), texman, 0, 0, "", alignTextLT);
+	auto &manager = GetManager();
+
+	_panelTitle = std::make_shared<UI::Text>(manager, texman);
 	_panelTitle->SetFont(texman, "font_default");
+	_panel->AddFront(_panelTitle);
 
 	float y = _panelTitle->GetHeight() + _panelTitle->GetY() + 10;
 	std::shared_ptr<UI::Button> btn;
-	auto &manager = GetManager();
 
 	switch( _ptype )
 	{

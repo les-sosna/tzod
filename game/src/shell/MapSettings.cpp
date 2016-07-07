@@ -27,51 +27,79 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 {
 	SetEasyMove(true);
 
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, lang.map_title.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
-
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, lang.map_title.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
 	float x1 = 20;
 	float x2 = x1 + 12;
 
 	float y = 32;
 
-	UI::Text::Create(this, texman, x1, y += 20, lang.map_author.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 20);
+	text->SetText(texman, lang.map_author.Get());
+	AddFront(text);
+
 	_author = std::make_shared<UI::Edit>(manager, texman);
 	_author->Move(x2, y += 15);
 	_author->SetWidth(256);
 	_author->SetText(texman, world._infoAuthor);
 	AddFront(_author);
 
-	UI::Text::Create(this, texman, x1, y += 20, lang.map_email.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 20);
+	text->SetText(texman, lang.map_email.Get());
+	AddFront(text);
+
 	_email = std::make_shared<UI::Edit>(manager, texman);
 	_email->Move(x2, y += 15);
 	_email->SetWidth(256);
 	_email->SetText(texman, world._infoEmail);
 	AddFront(_email);
 
-	UI::Text::Create(this, texman, x1, y += 20, lang.map_url.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 20);
+	text->SetText(texman, lang.map_url.Get());
+	AddFront(text);
+
 	_url = std::make_shared<UI::Edit>(manager, texman);
 	_url->Move(x2, y += 15);
 	_url->SetWidth(256);
 	_url->SetText(texman, world._infoUrl);
 	AddFront(_url);
 
-	UI::Text::Create(this, texman, x1, y += 20, lang.map_desc.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 20);
+	text->SetText(texman, lang.map_desc.Get());
+	AddFront(text);
+
 	_desc = std::make_shared<UI::Edit>(manager, texman);
 	_desc->Move(x2, y += 15);
 	_desc->SetWidth(256);
 	_desc->SetText(texman, world._infoDesc);
 	AddFront(_url);
 
-	UI::Text::Create(this, texman, x1, y += 20, lang.map_init_script.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 20);
+	text->SetText(texman, lang.map_init_script.Get());
+	AddFront(text);
+
 	_onInit = std::make_shared<UI::Edit>(manager, texman);
 	_onInit->Move(x2, y += 15);
 	_onInit->SetWidth(256);
 	_onInit->SetText(texman, world._infoOnInit);
 	AddFront(_onInit);
 
-	UI::Text::Create(this, texman, x1, y += 20, lang.map_theme.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 20);
+	text->SetText(texman, lang.map_theme.Get());
+	AddFront(text);
+
 	_theme = std::make_shared<DefaultComboBox>(manager, texman);
 	_theme->Move(x2, y += 15);
 	_theme->Resize(256);

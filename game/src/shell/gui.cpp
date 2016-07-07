@@ -43,7 +43,10 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	// map list
 	//
 
-	UI::Text::Create(this, texman, 16, 16, _lang.choose_map.Get(), alignTextLT);
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(16, 16);
+	text->SetText(texman, _lang.choose_map.Get());
+	AddFront(text);
 
 	_maps = std::make_shared<MapList>(manager, texman, fs, logger);
 	_maps->Move(x1, 32);
@@ -71,28 +74,43 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
 		AddFront(_nightMode);
 
-		UI::Text::Create(this, texman, x3, y+=30, _lang.game_speed.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 30);
+		text->SetText(texman, _lang.game_speed.Get());
+		AddFront(text);
+
 		_gameSpeed = std::make_shared<UI::Edit>(manager, texman);
 		_gameSpeed->Move(x3 + 20, y += 15);
 		_gameSpeed->SetWidth(80);
 		_gameSpeed->SetInt(conf.cl_speed.GetInt());
 		AddFront(_gameSpeed);
 
-		UI::Text::Create(this, texman, x3, y+=30, _lang.frag_limit.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 30);
+		text->SetText(texman, _lang.frag_limit.Get());
+		AddFront(text);
+
 		_fragLimit = std::make_shared<UI::Edit>(manager, texman);
 		_fragLimit->Move(x3 + 20, y += 15);
 		_fragLimit->SetWidth(80);
 		_fragLimit->SetInt(conf.cl_fraglimit.GetInt());
 		AddFront(_fragLimit);
 
-		UI::Text::Create(this, texman, x3, y+=30, _lang.time_limit.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3, y += 30);
+		text->SetText(texman, _lang.time_limit.Get());
+		AddFront(text);
+
 		_timeLimit = std::make_shared<UI::Edit>(manager, texman);
 		_timeLimit->Move(x3 + 20, y += 15);
 		_timeLimit->SetWidth(80);
 		_timeLimit->SetInt(conf.cl_timelimit.GetInt());
 		AddFront(_timeLimit);
 
-		UI::Text::Create(this, texman, x3+30, y+=30, _lang.zero_no_limits.Get(), alignTextLT);
+		text = std::make_shared<UI::Text>(manager, texman);
+		text->Move(x3 + 30, y += 30);
+		text->SetText(texman, _lang.zero_no_limits.Get());
+		AddFront(text);
 	}
 
 
@@ -101,7 +119,10 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	// player list
 	//
 
-	UI::Text::Create(this, texman, 16, 240, _lang.human_player_list.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(16, 240);
+	text->SetText(texman, _lang.human_player_list.Get());;
+	AddFront(text);
 
 	_players = std::make_shared<DefaultListBox>(manager, texman);
 	_players->Move(x1, 256);
@@ -114,7 +135,11 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	AddFront(_players);
 
 
-	UI::Text::Create(this, texman, 16, 368, _lang.AI_player_list.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(16, 368);
+	text->SetText(texman, _lang.AI_player_list.Get());
+	AddFront(text);
+
 	_bots = std::make_shared<DefaultListBox>(manager, texman);
 	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
@@ -429,8 +454,13 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 {
 	SetEasyMove(true);
 
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, lang.player_settings.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, lang.player_settings.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
 	float x1 = 30;
 	float x2 = x1 + 56;
@@ -446,7 +476,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// player name field
 	//
 
-	UI::Text::Create(this, texman, x1, y, lang.player_nick.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y);
+	text->SetText(texman, lang.player_nick.Get());
+	AddFront(text);
+
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
@@ -458,7 +492,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	//
 	// skins combo
 	//
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_skin.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_skin.Get());
+	AddFront(text);
+
 	_skins = std::make_shared<DefaultComboBox>(manager, texman);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
@@ -485,7 +523,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// create and fill the classes list
 	//
 
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_class.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_class.Get());
+	AddFront(text);
+
 	_classes = std::make_shared<DefaultComboBox>(manager, texman);
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
@@ -511,7 +553,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 		_classes->SetCurSel(0);
 	_classes->GetList()->AlignHeightToContent();
 
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_team.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_team.Get());
+	AddFront(text);
+
 	_teams = std::make_shared<DefaultComboBox>(manager, texman);
 	_teams->Move(x2, y -= 1);
 	_teams->Resize(200);
@@ -541,7 +587,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// player profile combo
 	//
 
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_profile.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_profile.Get());
+	AddFront(text);
+
 	_profiles = std::make_shared<DefaultComboBox>(manager, texman);
 	_profiles->Move(x2, y -= 1);
 	_profiles->Resize(200);
@@ -616,8 +666,13 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 {
 	SetEasyMove(true);
 
-	auto title = UI::Text::Create(this, texman, GetWidth() / 2, 16, lang.bot_settings.Get(), alignTextCT);
-	title->SetFont(texman, "font_default");
+	// Title
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(GetWidth() / 2, 16);
+	text->SetText(texman, lang.bot_settings.Get());
+	text->SetAlign(alignTextCT);
+	text->SetFont(texman, "font_default");
+	AddFront(text);
 
 
 	float x1 = 30;
@@ -634,7 +689,11 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// player name field
 	//
 
-	UI::Text::Create(this, texman, x1, y, lang.player_nick.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y);
+	text->SetText(texman, lang.player_nick.Get());
+	AddFront(text);
+
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
@@ -646,7 +705,11 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	//
 	// skins combo
 	//
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_skin.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_skin.Get());
+	AddFront(text);
+
 	_skins = std::make_shared<DefaultComboBox>(manager, texman);
 	_skins->Move(x2, y -= 1);
 	_skins->Resize(200);
@@ -673,7 +736,11 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// create and fill the classes list
 	//
 
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_class.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_class.Get());
+	AddFront(text);
+
 	_classes = std::make_shared<DefaultComboBox>(manager, texman);
 	_classes->Move(x2, y -= 1);
 	_classes->Resize(200);
@@ -697,7 +764,11 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	_classes->GetList()->AlignHeightToContent();
 
 
-	UI::Text::Create(this, texman, x1, y+=24, lang.player_team.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.player_team.Get());
+	AddFront(text);
+
 	_teams = std::make_shared<DefaultComboBox>(manager, texman);
 	_teams->Move(x2, y -= 1);
 	_teams->Resize(200);
@@ -726,7 +797,11 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// create and fill the levels list
 	//
 
-	UI::Text::Create(this, texman, x1, y+=24, lang.bot_level.Get(), alignTextLT);
+	text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(x1, y += 24);
+	text->SetText(texman, lang.bot_level.Get());
+	AddFront(text);
+
 	_levels = std::make_shared<DefaultComboBox>(manager, texman);
 	_levels->Move(x2, y -= 1);
 	_levels->Resize(200);
@@ -817,7 +892,10 @@ ScriptMessageBox::ScriptMessageBox(UI::LayoutManager &manager,
 	SetTexture(texman, "ui/window", false);
 	SetDrawBorder(true);
 
-	_text = UI::Text::Create(this, texman, 10, 10, text, alignTextLT);
+	_text = std::make_shared<UI::Text>(manager, texman);
+	_text->Move(10, 10);
+	_text->SetText(texman, text);
+	AddFront(_text);
 
 	_button1 = std::make_shared<UI::Button>(manager, texman);
 	_button1->SetText(texman, btn1);

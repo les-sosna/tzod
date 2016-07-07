@@ -15,8 +15,12 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
   , _folder(param.folder)
   , _changing(false)
 {
-	auto t = UI::Text::Create(this, texman, GetWidth() / 2, 16, param.title, alignTextCT);
+	auto t = std::make_shared<UI::Text>(manager, texman);
+	t->Move(GetWidth() / 2, 16);
+	t->SetText(texman, param.title);
+	t->SetAlign(alignTextCT);
 	t->SetFont(texman, "font_default");
+	AddFront(t);
 
 	_ext = param.extension;
 	_files = std::make_shared<DefaultListBox>(manager, texman);
@@ -35,7 +39,11 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	_files->GetData()->Sort();
 	_files->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
-	UI::Text::Create(this, texman, 16, 370, lang.get_file_name_title.Get(), alignTextLT);
+	auto text = std::make_shared<UI::Text>(manager, texman);
+	text->Move(16, 370);
+	text->SetText(texman, lang.get_file_name_title.Get());
+	AddFront(text);
+
 	_fileName = std::make_shared<UI::Edit>(manager, texman);
 	_fileName->Move(20, 385);
 	_fileName->Resize(472, _fileName->GetHeight());

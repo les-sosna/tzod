@@ -14,8 +14,12 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
   : UI::Dialog(manager, texman, 512, 400)
   , _fs(fs)
 {
-	auto t = UI::Text::Create(this, texman, GetWidth() / 2, 16, lang.campaign_title.Get(), alignTextCT);
+	auto t = std::make_shared<UI::Text>(manager, texman);
+	t->Move(GetWidth() / 2, 16);
+	t->SetText(texman, lang.campaign_title.Get());
+	t->SetAlign(alignTextCT);
 	t->SetFont(texman, "font_default");
+	AddFront(t);
 
 	_files = std::make_shared<DefaultListBox>(manager, texman);
 	_files->Move(20, 56);
