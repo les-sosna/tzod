@@ -130,7 +130,8 @@ bool InputContext::ProcessPointer(
 	std::vector<std::shared_ptr<Window>> sinkPath;
 
 	const auto capturedIt = _pointerCaptures.find(pointerID);
-	if (_pointerCaptures.end() != capturedIt)
+	bool isPointerCaptured = _pointerCaptures.end() != capturedIt;
+	if (isPointerCaptured)
 	{
 		pointerSink = capturedIt->second.capturePath.front()->GetPointerSink();
 		assert(pointerSink);
@@ -179,14 +180,14 @@ bool InputContext::ProcessPointer(
 			break;
 		case Msg::PointerUp:
 		case Msg::PointerCancel:
-			if (_pointerCaptures.end() != capturedIt)
+			if (isPointerCaptured)
 			{
 				pointerSink->OnPointerUp(*this, pxSize, pxPointerPosition, button, pointerType, pointerID);
 				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, pxSize, pxPointerPosition, pointerType, pointerID, _pointerCaptures.end() != capturedIt);
+			pointerSink->OnPointerMove(*this, pxSize, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
 			break;
 		case Msg::MOUSEWHEEL:
 			pointerSink->OnMouseWheel(*this, pxSize, pxPointerPosition, z);
