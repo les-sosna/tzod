@@ -86,8 +86,6 @@ private:
 
 	std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
 
-	unsigned int _captureCountSystem;
-
 	bool _isAppActive;
 #ifndef NDEBUG
 	std::unordered_map<unsigned int, vec2d> _lastPointerLocation;

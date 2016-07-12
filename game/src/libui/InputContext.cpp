@@ -7,7 +7,6 @@ using namespace UI;
 InputContext::InputContext(IInput &input, IClipboard &clipboard)
 	: _input(input)
 	, _clipboard(clipboard)
-	, _captureCountSystem(0)
 	, _isAppActive(true)
 #ifndef NDEBUG
 	, _lastPointerLocation()
