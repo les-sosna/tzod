@@ -130,6 +130,7 @@ public:
 	void Move(float x, float y);
 	float GetX() const { return _x; }
 	float GetY() const { return _y; }
+	vec2d GetOffset() const { return vec2d{_x, _y}; }
 
 	void Resize(float width, float height);
 	void SetHeight(float height) { Resize(GetWidth(), height); }
@@ -185,5 +186,7 @@ inline bool NeedsFocus(Window *wnd)
 {
 	return wnd ? wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get()) : false;
 }
+
+FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
 
 } // namespace UI

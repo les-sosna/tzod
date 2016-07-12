@@ -48,9 +48,7 @@ void Window::AddBack(std::shared_ptr<Window> child)
 
 FRECT Window::GetChildRect(vec2d size, float scale, const Window &child) const
 {
-	float left = std::floor(child._x * scale);
-	float top = std::floor(child._y * scale);
-	return FRECT{ left, top, left + std::floor(child._width * scale), top + std::floor(child._height * scale) };
+	return CanvasLayout(child.GetOffset(), child.GetSize(), scale);
 }
 
 void Window::Move(float x, float y)
@@ -138,4 +136,12 @@ void Window::OnTextChange(TextureManager &texman)
 
 void Window::OnTimeStep(LayoutManager &manager, float dt)
 {
+}
+
+
+FRECT UI::CanvasLayout(vec2d offset, vec2d size, float scale)
+{
+	float left = std::floor(offset.x * scale);
+	float top = std::floor(offset.y * scale);
+	return FRECT{ left, top, left + std::floor(size.x * scale), top + std::floor(size.y * scale) };
 }

@@ -83,7 +83,7 @@ protected:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::Window
-	void OnSize(float width, float height) override;
+	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 	void Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
