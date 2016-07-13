@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-class BotView;
 class MapPreview;
 class ConfCache;
 class World;
@@ -15,6 +14,7 @@ namespace FS
 }
 namespace UI
 {
+	class StackLayout;
 	class Text;
 }
 
@@ -32,5 +32,5 @@ private:
 	std::array<std::shared_ptr<MapPreview>, 4> _tiles;
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::Text> _enemiesTitle;
-	std::vector<std::shared_ptr<BotView>> _enemies;
+	std::shared_ptr<UI::StackLayout> _enemies;
 };

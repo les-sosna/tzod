@@ -7,7 +7,12 @@
 #include <gc/World.h>
 #include <render/WorldView.h>
 #include <video/DrawingContext.h>
+#include <ui/StackLayout.h>
 #include <ui/Text.h>
+
+static const float c_tileSize = 180;
+static const float c_tileSpacing = 16;
+
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf)
 	: UI::Dialog(manager, texman, 1, 1)
@@ -36,13 +41,16 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_enemiesTitle->SetText(texman, "Enemies");
 	AddFront(_enemiesTitle);
 
+	_enemies = std::make_shared<UI::StackLayout>(manager);
+	_enemies->SetFlowDirection(UI::FlowDirection::Horizontal);
+	AddFront(_enemies);
+
 	for (size_t i = 0; i < _conf.dm_bots.GetSize(); ++i)
 	{
 		auto botView = std::make_shared<BotView>(manager, texman);
 		botView->SetBotConfig(_conf.dm_bots.GetAt(i).AsTable(), texman);
 		botView->Resize(64, 64);
-		AddFront(botView);
-		_enemies.push_back(botView);
+		_enemies->AddFront(botView);
 	}
 }
 
@@ -54,36 +62,32 @@ void SinglePlayer::OnClickMap(std::string mapName)
 
 void SinglePlayer::OnSize(float width, float height)
 {
-	const float tileSize = 180;
-	const float tileSpacing = 16;
 	const size_t columns = 4;
 	const size_t rows = (_tiles.size() + columns - 1) / columns;
 
-	float y = tileSpacing;
+	float y = c_tileSpacing;
 
 	_tierTitle->Move(width / 2, y);
 	y += _tierTitle->GetHeight();
 
-	y += tileSpacing;
+	y += c_tileSpacing;
 
-	float x = (width - (tileSize + tileSpacing) * (float)columns + tileSpacing) / 2;
+	float x = (width - (c_tileSize + c_tileSpacing) * (float)columns + c_tileSpacing) / 2;
 	for (size_t i = 0; i < _tiles.size(); i++)
 	{
-		_tiles[i]->Move(x + (float)(i % columns) * (tileSize + tileSpacing), y + (float)(i / columns) * (tileSize + tileSpacing));
-		_tiles[i]->Resize(tileSize, tileSize);
+		_tiles[i]->Move(x + (float)(i % columns) * (c_tileSize + c_tileSpacing), y + (float)(i / columns) * (c_tileSize + c_tileSpacing));
+		_tiles[i]->Resize(c_tileSize, c_tileSize);
 	}
-	y += (float)rows * (tileSize + tileSpacing);
+	y += (float)rows * (c_tileSize + c_tileSpacing);
 
-	y += tileSpacing;
+	y += c_tileSpacing;
 
 	_enemiesTitle->Move(x, y);
 	y += _enemiesTitle->GetHeight();
 
-	y += tileSpacing;
+	y += c_tileSpacing;
 
-	for (size_t i = 0; i < _enemies.size(); i++)
-	{
-		_enemies[i]->Move(x + (_enemies[i]->GetWidth() + tileSpacing) * (float)i, y);
-	}
+	_enemies->Move(x, y);
+	_enemies->Resize(width - c_tileSpacing / 2, 64);
 }
 
