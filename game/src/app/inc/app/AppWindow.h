@@ -18,4 +18,5 @@ struct AppWindow
 	virtual unsigned int GetPixelHeight() = 0;
 	virtual float GetLayoutScale() = 0;
 	virtual void SetInputSink(UI::LayoutManager *inputSink) = 0;
+	virtual void MakeCurrent() = 0;
 };

@@ -58,13 +58,19 @@ struct TzodViewImpl
 	}
 };
 
+static AppWindow& EnsureCurrent(AppWindow &appWindow)
+{
+	appWindow.MakeCurrent();
+	return appWindow;
+}
+
 TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
-	: _appWindow(appWindow)
+	: _appWindow(EnsureCurrent(appWindow))
 	, _impl(new TzodViewImpl(fs, logger, app, appWindow))
 {
 	int width = appWindow.GetPixelWidth();
 	int height = appWindow.GetPixelHeight();
-    float layoutScale = appWindow.GetLayoutScale();
+	float layoutScale = appWindow.GetLayoutScale();
 	_impl->desktop->Resize((float)width / layoutScale, (float)height / layoutScale);
 
 	//	ThemeManager themeManager(appState, *fs, texman);
@@ -74,16 +80,20 @@ TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, 
 
 TzodView::~TzodView()
 {
+	_appWindow.MakeCurrent();
 	_appWindow.SetInputSink(nullptr);
 }
 
 void TzodView::Step(float dt)
 {
+	_appWindow.MakeCurrent();
 	_impl->gui.TimeStep(dt); // this also sends user controller state to WorldController
 }
 
 void TzodView::Render(AppWindow &appWindow)
 {
+	_appWindow.MakeCurrent();
+
 #ifndef NOSOUND
 //        vec2d pos(0, 0);
 //        if (!_world.GetList(LIST_cameras).empty())
@@ -105,10 +115,5 @@ void TzodView::Render(AppWindow &appWindow)
 	appWindow.GetRender().Begin();
 	_impl->gui.Render(layoutScale, vec2d{ static_cast<float>(width), static_cast<float>(height) }, dc);
 	appWindow.GetRender().End();
-}
-
-UI::LayoutManager& TzodView::GetGui()
-{
-	return _impl->gui;
 }
 

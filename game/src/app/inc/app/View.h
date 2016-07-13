@@ -28,8 +28,6 @@ public:
 	void Step(float dt);
 	void Render(AppWindow &appWindow);
 
-	UI::LayoutManager& GetGui();
-
 private:
 	AppWindow &_appWindow;
 	std::unique_ptr<struct TzodViewImpl> _impl;

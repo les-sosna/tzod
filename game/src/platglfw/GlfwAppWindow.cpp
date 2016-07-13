@@ -175,6 +175,8 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 
 GlfwAppWindow::~GlfwAppWindow()
 {
+	glfwMakeContextCurrent(_window.get());
+	_render.reset();
 	glfwMakeContextCurrent(nullptr);
 }
 
@@ -215,6 +217,11 @@ float GlfwAppWindow::GetLayoutScale()
 void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
 	glfwSetWindowUserPointer(_window.get(), inputSink);
+}
+
+void GlfwAppWindow::MakeCurrent()
+{
+	glfwMakeContextCurrent(_window.get());
 }
 
 void GlfwAppWindow::Present()
