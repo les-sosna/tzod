@@ -16,7 +16,6 @@ using namespace Windows::ApplicationModel::Activation;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Input;
 using namespace Windows::System;
-using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
 FrameworkView::FrameworkView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app)
@@ -26,8 +25,8 @@ FrameworkView::FrameworkView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, Tzod
 	, _logger(logger)
 	, _app(app)
 {
-	CoreApplication::Suspending += ref new EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
-	CoreApplication::Resuming += ref new EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
+	CoreApplication::Suspending += ref new Windows::Foundation::EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
+	CoreApplication::Resuming += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
 }
 
 FrameworkView::~FrameworkView()
@@ -39,7 +38,8 @@ void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 {
 	// Register event handlers for app lifecycle. This example includes Activated, so that we
 	// can make the CoreWindow active and start rendering on the window.
-	coreApplicationView->Activated += ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnAppViewActivated);
+	coreApplicationView->Activated +=
+		ref new Windows::Foundation::TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnAppViewActivated);
 }
 
 // Called when the CoreWindow object is created (or re-created).
@@ -48,24 +48,24 @@ void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 	m_window = coreWindow;
 
 	coreWindow->SizeChanged +=
-		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &FrameworkView::OnWindowSizeChanged);
+		ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &FrameworkView::OnWindowSizeChanged);
 
 	coreWindow->VisibilityChanged +=
-		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &FrameworkView::OnVisibilityChanged);
+		ref new Windows::Foundation::TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &FrameworkView::OnVisibilityChanged);
 
 	coreWindow->Closed +=
-		ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &FrameworkView::OnWindowClosed);
+		ref new Windows::Foundation::TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &FrameworkView::OnWindowClosed);
 
 	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
 
 	currentDisplayInformation->DpiChanged +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDpiChanged);
+		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDpiChanged);
 
 	currentDisplayInformation->OrientationChanged +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnOrientationChanged);
+		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnOrientationChanged);
 
 	DisplayInformation::DisplayContentsInvalidated +=
-		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
+		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
 
 	HandleDeviceLost();
 }
@@ -175,7 +175,7 @@ void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ ar
 
 void FrameworkView::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
-	if (!m_swapChainResources->SetLogicalSize(Size(sender->Bounds.Width, sender->Bounds.Height)))
+	if (!m_swapChainResources->SetLogicalSize(Windows::Foundation::Size(sender->Bounds.Width, sender->Bounds.Height)))
 	{
 		HandleDeviceLost();
 	}
@@ -197,7 +197,7 @@ void FrameworkView::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 {
 	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
 	if (!m_swapChainResources->SetDpi(sender->LogicalDpi) ||
-		!m_swapChainResources->SetLogicalSize(Size(m_window->Bounds.Width, m_window->Bounds.Height)))
+		!m_swapChainResources->SetLogicalSize(Windows::Foundation::Size(m_window->Bounds.Width, m_window->Bounds.Height)))
 	{
 		HandleDeviceLost();
 	}

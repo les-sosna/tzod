@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wtzod", "wtzod\wtzod.vcxproj", "{6508C136-731E-4579-B847-4767C7C3D6F2}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -51,6 +51,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "audio", "_build\src\audio\audio.vcxproj", "{F3862BA7-C578-3329-82EA-52E1C5622FBD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oggvorbis", "_build\src\external\oggvorbis\oggvorbis.vcxproj", "{488C5DF8-0989-327E-BA58-0BCC59C3B3C5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luaetc", "_build\src\luaetc\luaetc.vcxproj", "{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -256,6 +258,14 @@ Global
 		{488C5DF8-0989-327E-BA58-0BCC59C3B3C5}.Release|x64.ActiveCfg = Release|Win32
 		{488C5DF8-0989-327E-BA58-0BCC59C3B3C5}.Release|x86.ActiveCfg = Release|Win32
 		{488C5DF8-0989-327E-BA58-0BCC59C3B3C5}.Release|x86.Build.0 = Release|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Debug|ARM.ActiveCfg = Debug|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Debug|x64.ActiveCfg = Debug|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Debug|x86.ActiveCfg = Debug|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Debug|x86.Build.0 = Debug|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Release|ARM.ActiveCfg = Release|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Release|x64.ActiveCfg = Release|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Release|x86.ActiveCfg = Release|Win32
+		{9FF9B0DD-199D-3F01-B43B-33737CEAC92F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

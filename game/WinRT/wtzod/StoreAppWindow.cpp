@@ -7,6 +7,7 @@
 #include <video/RenderBase.h>
 #include <video/RenderD3D11.h>
 #include <ui/GuiManager.h>
+#include <ui/InputContext.h>
 #include <ui/Window.h>
 
 using namespace Windows::ApplicationModel;
@@ -18,6 +19,8 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Devices::Input;
+
+static const float c_defaultDpi = 96.0f;
 
 static ::DisplayOrientation DOFromDegrees(int degrees)
 {
@@ -33,11 +36,10 @@ static ::DisplayOrientation DOFromDegrees(int degrees)
 
 static float PixelsFromDips(float dips, float dpi)
 {
-	const float defaultDpi = 96.0f;
-	return dips * dpi / defaultDpi;
+	return dips * dpi / c_defaultDpi;
 }
 
-static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArgs ^args, float dpi, UI::Msg msgHint)
+static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArgs ^args, vec2d pxWndSize, float dpi, UI::Msg msgHint)
 {
 	UI::PointerType pointerType;
 	switch (args->CurrentPoint->PointerDevice->PointerDeviceType)
@@ -108,10 +110,15 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 	}
 
 	int delta = args->CurrentPoint->Properties->MouseWheelDelta;
+	
+	vec2d pxPointerPos = { PixelsFromDips(args->CurrentPoint->Position.X, dpi),
+	                       PixelsFromDips(args->CurrentPoint->Position.Y, dpi) };
 
-	return inputSink.ProcessPointer(
-		PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-		PixelsFromDips(args->CurrentPoint->Position.Y, dpi),
+	return inputSink.GetInputContext().ProcessPointer(
+		inputSink.GetDesktop(),
+		dpi / c_defaultDpi, // layoutScale
+		pxWndSize,
+		pxPointerPos,
 		(float)delta / 120.f,
 		msg,
 		button,
@@ -140,8 +147,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			(*inputSink)->GetDesktop()->Resize(PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi));
+			(*inputSink)->GetDesktop()->Resize(sender->Bounds.Width, sender->Bounds.Height);
 		}
 	});
 
@@ -152,7 +158,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerMove);
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
+			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::PointerMove);
 		}
 	});
 
@@ -163,7 +171,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerDown);
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
+			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::PointerDown);
 		}
 	});
 
@@ -175,7 +185,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerUp);
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
+			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::PointerUp);
 		}
 	});
 
@@ -188,21 +200,28 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::MOUSEWHEEL);
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
+			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::MOUSEWHEEL);
 		}
 	});
 
 	_gestureRecognizer->GestureSettings = GestureSettings::Tap;
 	_gestureRecognizer->Tapped += ref new TypedEventHandler<GestureRecognizer ^, TappedEventArgs ^>(
-		[inputSink = _inputSink, displayInformation = _displayInformation](GestureRecognizer ^sender, TappedEventArgs ^args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, coreWindow = _coreWindow](GestureRecognizer ^sender, TappedEventArgs ^args)
 	{
 		if (*inputSink)
 		{
 			float dpi = displayInformation->LogicalDpi;
+			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
+			vec2d pxPointerPosition{ PixelsFromDips(args->Position.X, dpi), PixelsFromDips(args->Position.Y, dpi) };
+
 			unsigned int pointerID = 111; // should be unique enough :)
-			(*inputSink)->ProcessPointer(
-				PixelsFromDips(args->Position.X, dpi),
-				PixelsFromDips(args->Position.Y, dpi),
+			(*inputSink)->GetInputContext().ProcessPointer(
+				(*inputSink)->GetDesktop(),
+				dpi / c_defaultDpi, // layoutScale
+				pxWndSize,
+				pxPointerPosition,
 				0, // z delta
 				UI::Msg::TAP,
 				1,
@@ -216,7 +235,10 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->ProcessKeys(UI::Msg::KEYDOWN, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
+				(*inputSink)->GetDesktop(),
+				UI::Msg::KEYDOWN,
+				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
 	});
 
@@ -225,7 +247,10 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->ProcessKeys(UI::Msg::KEYUP, MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
+				(*inputSink)->GetDesktop(),
+				UI::Msg::KEYUP,
+				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
 	});
 
@@ -234,7 +259,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->ProcessText(args->KeyCode);
+			args->Handled = (*inputSink)->GetInputContext().ProcessText((*inputSink)->GetDesktop(), args->KeyCode);
 		}
 	});
 }
@@ -281,6 +306,11 @@ unsigned int StoreAppWindow::GetPixelHeight()
 {
 	float dpi = _displayInformation->LogicalDpi;
 	return (unsigned int)PixelsFromDips(_coreWindow->Bounds.Height, dpi);
+}
+
+float StoreAppWindow::GetLayoutScale()
+{
+	return _displayInformation->LogicalDpi / c_defaultDpi;
 }
 
 void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)

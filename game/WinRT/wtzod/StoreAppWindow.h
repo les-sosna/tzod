@@ -21,7 +21,9 @@ public:
 	IRender& GetRender() override;
 	unsigned int GetPixelWidth() override;
 	unsigned int GetPixelHeight() override;
+	float GetLayoutScale() override;
 	void SetInputSink(UI::LayoutManager *inputSink) override;
+	void MakeCurrent() override {}
 
 private:
 	Windows::UI::Input::GestureRecognizer^ _gestureRecognizer;
