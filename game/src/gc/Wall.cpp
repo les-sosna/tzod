@@ -308,10 +308,10 @@ bool GC_Wall::IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCent
 			center = GetPos();
 			sign = -1;
 
-			if(corner != 1) v[vcount++].Set(xx - yy, yx + xy);
-			if(corner != 4) v[vcount++].Set(xx + yy, -yx + xy);
-			if(corner != 2) v[vcount++].Set(-xx - yy, yx - xy);
-			if(corner != 3) v[vcount++].Set(-xx + yy, -yx - xy);
+			if (corner != 1) v[vcount++] = { xx - yy, yx + xy };
+			if (corner != 4) v[vcount++] = { xx + yy, -yx + xy };
+			if (corner != 2) v[vcount++] = { -xx - yy, yx - xy };
+			if (corner != 3) v[vcount++] = { -xx + yy, -yx - xy };
 		}
 		else
 		{
@@ -323,10 +323,10 @@ bool GC_Wall::IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCent
 			sign = 1;
 
 			vcount = 4;
-			v[0].Set(xx - yy, yx + xy);
-			v[1].Set(xx + yy, -yx + xy);
-			v[2].Set(-xx - yy, yx - xy);
-			v[3].Set(-xx + yy, -yx - xy);
+			v[0] = { xx - yy, yx + xy };
+			v[1] = { xx + yy, -yx + xy };
+			v[2] = { -xx - yy, yx - xy };
+			v[3] = { -xx + yy, -yx - xy };
 		}
 
 		unsigned int idx;

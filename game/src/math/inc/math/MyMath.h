@@ -135,13 +135,6 @@ public:
 		return result.Normalize();
 	}
 
-	const vec2d& Set(float _x, float _y)
-	{
-		x = _x;
-		y = _y;
-		return *this;
-	}
-
 	void Zero()
 	{
 		x = 0;

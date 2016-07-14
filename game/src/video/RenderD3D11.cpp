@@ -275,7 +275,7 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *r
 	, _vaSize(0)
 	, _iaSize(0)
 	, _curtex(nullptr)
-	, _cameraEye(0, 0)
+	, _cameraEye()
 	, _cameraScale(1)
 	, _displayOrientation(DO_0)
 {
@@ -445,7 +445,7 @@ void RenderD3D11::Camera(const RectRB *vp, float x, float y, float scale)
 	SetScissor(vp);
 
 	_cameraScale = scale;
-	_cameraEye = vec2d(x, y);
+	_cameraEye = vec2d{ x, y };
 }
 
 void RenderD3D11::Begin()

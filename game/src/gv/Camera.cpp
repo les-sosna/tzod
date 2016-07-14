@@ -58,7 +58,8 @@ vec2d Camera::GetCameraPos() const
 	vec2d shake{0, 0};
 	if( _time_shake > 0 )
 	{
-		shake.Set(cos((_time_shake + _time_seed)*70.71068f), sin((_time_shake + _time_seed)*86.60254f));
+		shake.x = std::cos((_time_shake + _time_seed)*70.71068f);
+		shake.y = std::sin((_time_shake + _time_seed)*86.60254f);
 		shake *= _time_shake * CELL_SIZE * 0.1f;
 	}
 	return _pos + shake;
