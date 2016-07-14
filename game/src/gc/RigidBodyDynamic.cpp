@@ -91,30 +91,24 @@ std::stack<GC_RigidBodyDynamic::ContactList> GC_RigidBodyDynamic::_contactsStack
 bool GC_RigidBodyDynamic::_glob_parity = false;
 
 GC_RigidBodyDynamic::GC_RigidBodyDynamic(vec2d pos)
-  : GC_RigidBodyStatic(pos)
+	: GC_RigidBodyStatic(pos)
+	, _external_force()
+	, _external_momentum(0)
+	, _external_impulse()
+	, _external_torque(0)
+	, _av(0)
+	, _lv()
+	, _inv_m(1.0f / 1)
+	, _inv_i(_inv_m * 12.0f / (36 * 36 + 36 * 36))
+	, _Nx(0)
+	, _Ny(0)
+	, _Nw(0)
+	, _Mx(0)
+	, _My(0)
+	, _Mw(0)
+	, _percussion(1)
+	, _fragility(1)
 {
-	_lv.Zero();
-	_av     = 0;
-	_inv_m  = 1.0f / 1;
-	_inv_i  = _inv_m * 12.0f / (36*36 + 36*36);
-
-	_Nx     = 0;
-	_Ny     = 0;
-	_Nw     = 0;
-
-	_Mx     = 0;
-	_My     = 0;
-	_Mw     = 0;
-
-	_percussion = 1;
-	_fragility  = 1;
-
-	_external_force.Zero();
-	_external_momentum = 0;
-
-	_external_impulse.Zero();
-	_external_torque = 0;
-
 	if( _glob_parity )
         SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
 }
@@ -237,8 +231,8 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 
 	_lv += (_external_force * dt + _external_impulse) * _inv_m;
 	_av += (_external_momentum * dt + _external_torque) * _inv_i;
-	_external_force.Zero();
-	_external_impulse.Zero();
+	_external_force = {};
+	_external_impulse = {};
 	_external_momentum = 0;
 	_external_torque = 0;
 

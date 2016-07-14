@@ -119,7 +119,8 @@ public:
 		float len = sqrt(x*x + y*y);
 		if( len < 1e-7 )
 		{
-			Zero();
+			x = 0;
+			y = 0;
 		}
 		else
 		{
@@ -133,12 +134,6 @@ public:
 	{
 		vec2d result = *this;
 		return result.Normalize();
-	}
-
-	void Zero()
-	{
-		x = 0;
-		y = 0;
 	}
 };
 
