@@ -31,7 +31,7 @@ public:
     CanvasToWorldResult CanvasToWorld(unsigned int viewIndex, int x, int y) const;
 	vec2d WorldToCanvas(unsigned int viewIndex, vec2d worldPos) const;
 	void SetCanvasSize(int pxWidth, int pxHeight, float scale);
-    void RenderGame(DrawingContext &dc, const WorldView &worldView, vec2d defaultEye, float defaultZoom) const;
+    void RenderGame(DrawingContext &dc, const WorldView &worldView) const;
     void Step(float dt);
 
 private:

@@ -202,7 +202,7 @@ void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 
 	vec2d defaultEye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
 	float defaultZoom = _defaultCamera.GetZoom();
-	_gameViewHarness.RenderGame(dc, _worldView, defaultEye, defaultZoom);
+	_gameViewHarness.RenderGame(dc, _worldView);
 	dc.SetMode(RM_INTERFACE);
 
 	vec2d dir = GetDragDirection();

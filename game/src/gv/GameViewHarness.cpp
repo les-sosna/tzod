@@ -110,8 +110,7 @@ void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)
     }
 }
 
-void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
-                                 vec2d defaultEye, float defaultZoom) const
+void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView) const
 {
     if( !_cameras.empty() )
     {
@@ -128,9 +127,12 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView,
     }
     else
     {
-        // render from default camera
+        vec2d worldSize{ _world._sx, _world._sy };
+        vec2d eye = worldSize / 2;
+        float zoom = std::max(_pxWidth / _world._sx, _pxHeight / _world._sy);
+
         RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
-        worldView.Render(dc, _world, viewport, defaultEye, defaultZoom*_scale, false, false, _world.GetNightMode());
+        worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
     }
 }
 
