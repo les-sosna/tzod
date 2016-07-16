@@ -18,7 +18,6 @@ include_directories(
 
 add_library(gv
 	Camera.cpp
-	GameView.cpp
 	GameViewHarness.cpp
 	ThemeManager.cpp
 )
