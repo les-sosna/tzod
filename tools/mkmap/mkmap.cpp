@@ -51,7 +51,7 @@ bool ObjectFromColor(_TCHAR *name, COLORREF color)
 {
 	if( 0xff000000 & color ) return false;
 
-	const count = 4;
+	const unsigned int count = 4;
 	static const Node nodes[count] = {
 		{0xffffff, _T("WALL_CONCRETE")},
 		{0x0000ff, _T("WALL")},
