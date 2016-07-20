@@ -68,15 +68,20 @@ GameContext::~GameContext()
 
 void GameContext::Step(float dt)
 {
-	bool isActive = true;
-	for (auto player : _worldController->GetLocalPlayers())
+	bool isActive = !_gameplay->IsGameOver();
+
+	if (isActive)
 	{
-		if (!player->GetIsActive())
+		for (auto player : _worldController->GetLocalPlayers())
 		{
-			isActive = false;
-			break;
+			if (!player->GetIsActive())
+			{
+				isActive = false;
+				break;
+			}
 		}
 	}
+
 	if (isActive)
 	{
 		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));

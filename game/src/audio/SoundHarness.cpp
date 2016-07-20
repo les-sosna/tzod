@@ -51,7 +51,7 @@ static void SetupVehicleMoveSound(const GC_Vehicle &vehicle, Sound &sound)
 
 void SoundHarness::SetListenerPos(vec2d pos)
 {
-    _soundRender.SetListenerPos(pos);
+	_soundRender.SetListenerPos(pos);
 }
 
 void SoundHarness::Step()
