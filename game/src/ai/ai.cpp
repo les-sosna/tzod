@@ -107,7 +107,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 			_pickupCurrent = nullptr;
 		}
 		else if( (_pickupCurrent->GetPos() - vehicle.GetPos()).sqr() <
-		          _pickupCurrent->GetRadius() * _pickupCurrent->GetRadius() )
+                std::pow(_pickupCurrent->GetRadius() + vehicle.GetRadius(), 2) )
 		{
 			vs._bState_AllowDrop = true;
 		}
