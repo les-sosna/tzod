@@ -111,7 +111,7 @@ static const AttribLocationBinding s_bindings[] =
 RenderGLES2::RenderGLES2()
     : _windowWidth(0)
     , _windowHeight(0)
-    , _cameraEye(0, 0)
+    , _cameraEye()
     , _cameraScale(1)
     , _curtex(-1)
     , _vaSize(0)
@@ -177,7 +177,7 @@ void RenderGLES2::Camera(const RectRB *vp, float x, float y, float scale)
 	SetScissor(vp);
     
     _cameraScale = scale;
-    _cameraEye = vec2d(x, y);
+    _cameraEye = vec2d{x, y};
 }
 
 int RenderGLES2::GetViewportWidth() const

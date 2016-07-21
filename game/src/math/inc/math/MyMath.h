@@ -9,6 +9,8 @@
 #define PI2   6.283185f
 #define PI4   0.785398f
 
+namespace math {
+
 class vec2d
 {
 public:
@@ -249,4 +251,7 @@ inline vec2d vrand(float len)
 {
 	return Vec2dDirection(frand(PI2)) * len;
 }
+    
+} // namespace math
 
+using namespace math;

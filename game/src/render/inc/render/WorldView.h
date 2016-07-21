@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Terrain.h"
+#include <math/MyMath.h>
 
 class DrawingContext;
 class TextureManager;
 class RenderScheme;
 class World;
-struct RectRB;
-class vec2d;
 
 class WorldView
 {

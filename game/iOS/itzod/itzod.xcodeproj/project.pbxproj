@@ -14,6 +14,7 @@
 		0749F8921B75CE820067358B /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8911B75CE820067358B /* OpenAL.framework */; };
 		0749F8941B75CE910067358B /* liboggvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0749F8931B75CE910067358B /* liboggvorbis.a */; };
 		075602451C3FB3EC00287F77 /* GameView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 075602441C3FB3EC00287F77 /* GameView.mm */; };
+		075FC98D1D408F72004931C8 /* libluaetc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 075FC98C1D408F72004931C8 /* libluaetc.a */; };
 		07705C561B328956008ED733 /* libvideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C551B328956008ED733 /* libvideo.a */; };
 		07705C581B3289B2008ED733 /* librender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07705C571B3289B2008ED733 /* librender.a */; };
 		0775001C1C1CDEC200A325C8 /* CocoaTouchWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0775001B1C1CDEC200A325C8 /* CocoaTouchWindow.mm */; };
@@ -63,6 +64,7 @@
 		0749F8931B75CE910067358B /* liboggvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liboggvorbis.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphonesimulator/liboggvorbis.a"; sourceTree = "<group>"; };
 		075602431C3FB3EC00287F77 /* GameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameView.h; sourceTree = "<group>"; };
 		075602441C3FB3EC00287F77 /* GameView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameView.mm; sourceTree = "<group>"; };
+		075FC98C1D408F72004931C8 /* libluaetc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libluaetc.a; path = "../../../../../Library/Developer/Xcode/DerivedData/itzod_xcode-eaiqmrhnqpqizpcxhhrkgggzpnem/Build/Products/Debug-iphoneos/libluaetc.a"; sourceTree = "<group>"; };
 		07705C551B328956008ED733 /* libvideo.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvideo.a; path = "../_build/video/Debug-iphonesimulator/libvideo.a"; sourceTree = "<group>"; };
 		07705C571B3289B2008ED733 /* librender.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = librender.a; path = "../_build/render/Debug-iphonesimulator/librender.a"; sourceTree = "<group>"; };
 		0775001A1C1CDEC200A325C8 /* CocoaTouchWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaTouchWindow.h; sourceTree = "<group>"; };
@@ -105,6 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				075FC98D1D408F72004931C8 /* libluaetc.a in Frameworks */,
 				077500231C1CE32A00A325C8 /* libas.a in Frameworks */,
 				077500241C1CE32A00A325C8 /* libctx.a in Frameworks */,
 				077500251C1CE32A00A325C8 /* libgv.a in Frameworks */,
@@ -170,6 +173,7 @@
 		07F8658E1C385A7E0027DA89 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				075FC98C1D408F72004931C8 /* libluaetc.a */,
 				07CAF7A61B33F4E2008A60CA /* GLKit.framework */,
 				07CAF7AC1B3BBE04008A60CA /* OpenGLES.framework */,
 				07CAF7AE1B3BBE71008A60CA /* UIKit.framework */,
@@ -506,7 +510,7 @@
 					../../src/libui/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -540,7 +544,7 @@
 					../../src/libui/inc,
 				);
 				INFOPLIST_FILE = itzod/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

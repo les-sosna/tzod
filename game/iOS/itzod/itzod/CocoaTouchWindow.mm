@@ -13,7 +13,7 @@ public:
     // UI::IInput
     bool IsKeyPressed(UI::Key key) const override { return false; }
     bool IsMousePressed(int button) const override { return false; }
-    vec2d GetMousePos() const override { return vec2d(0, 0); }
+    vec2d GetMousePos() const override { return vec2d(); }
 };
 
 class Clipboard : public UI::IClipboard
@@ -26,9 +26,6 @@ public:
 CocoaTouchWindow::CocoaTouchWindow(GLKView *view)
     : _glkView(view)
     , _render(RenderCreateOpenGL())
-    , _inputSink(nullptr)
-    , _width(110)
-    , _height(110)
 {
 }
 
@@ -36,13 +33,14 @@ CocoaTouchWindow::~CocoaTouchWindow()
 {
 }
 
-void CocoaTouchWindow::SetPixelSize(unsigned int width, unsigned int height)
+void CocoaTouchWindow::SetSizeAndScale(float width, float height, float scale)
 {
-    if (_inputSink && (_width != width || _height != height))
+    if (_inputSink && (_width != width || _height != height || _scale != scale))
     {
         _width = width;
         _height = height;
-        _inputSink->GetDesktop()->Resize((float) width, (float) height);
+        _scale = scale;
+        _inputSink->GetDesktop()->Resize(width, height);
     }
 }
 
@@ -65,12 +63,17 @@ IRender& CocoaTouchWindow::GetRender()
 
 unsigned int CocoaTouchWindow::GetPixelWidth()
 {
-    return _width;
+    return static_cast<unsigned int>(_width * _scale);
 }
 
 unsigned int CocoaTouchWindow::GetPixelHeight()
 {
-    return _height;
+    return static_cast<unsigned int>(_height * _scale);
+}
+
+float CocoaTouchWindow::GetLayoutScale()
+{
+    return _scale;
 }
 
 void CocoaTouchWindow::SetInputSink(UI::LayoutManager *inputSink)
