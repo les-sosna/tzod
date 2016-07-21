@@ -67,7 +67,6 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _texTarget(texman.FindSprite("ui/target"))
 {
 	_msg = std::make_shared<MessageArea>(manager, texman, _conf, logger);
-	_msg->Move(100, 100);
 	AddFront(_msg);
 
 	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
@@ -236,13 +235,27 @@ void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 
 void GameLayout::OnSize(float width, float height)
 {
-	_score->Move(std::floor((width - _score->GetWidth()) / 2), std::floor((height - _score->GetHeight()) / 2));
-	_time->Move(GetWidth() - 1, GetHeight() - 1);
-	_msg->Move(_msg->GetX(), GetHeight() - 50);
 	float size = GetWidth() > GetHeight() ? GetWidth() : GetHeight();
 	float base = 1024.f;
 	float scale = size > base ? std::floor(size / base + 0.5f) : 1 / std::floor(base / size + 0.5f);
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
+}
+
+FRECT GameLayout::GetChildRect(vec2d size, float scale, const Window &child) const
+{
+	if (_score.get() == &child)
+	{
+		return UI::CanvasLayout((size - _score->GetSize()) / 2, _score->GetSize(), scale);
+	}
+	else if (_time.get() == &child)
+	{
+		return UI::CanvasLayout(size, _time->GetSize(), scale);
+	}
+	else if (_msg.get() == &child)
+	{
+		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
+	}
+	return UI::Window::GetChildRect(size, scale, child);
 }
 
 bool GameLayout::OnPointerDown(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
