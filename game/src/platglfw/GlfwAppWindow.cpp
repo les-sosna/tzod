@@ -38,7 +38,16 @@ static float GetLayoutScale(GLFWwindow *window)
 	return logicalWidth > 0 ? (float)framebuferWidth / (float)logicalWidth : 1.f;
 }
 
+static vec2d GetPixelSize(GLFWwindow *window)
+{
+	int width;
+	int height;
+	glfwGetFramebufferSize(window, &width, &height);
+	return vec2d{static_cast<float>(width), static_cast<float>(height)};
+}
+
 static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
+try
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
@@ -59,11 +68,10 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 				return;
 		}
 		vec2d pxMousePos = GetCursorPosInPixels(window);
-		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			GetLayoutScale(window),
-			desktopSize,
+			GetPixelSize(window),
 			pxMousePos,
 			0,
 			msg,
@@ -72,17 +80,20 @@ static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
 			0);
 	}
 }
+catch (const std::exception &e)
+{
+
+}
 
 static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
-		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			GetLayoutScale(window),
-			desktopSize,
+			GetPixelSize(window),
 			pxMousePos,
 			0,
 			UI::Msg::PointerMove,
@@ -98,11 +109,10 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window);
 		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-		vec2d desktopSize{ gui->GetDesktop()->GetWidth(), gui->GetDesktop()->GetHeight() };
 		gui->GetInputContext().ProcessPointer(
 			gui->GetDesktop(),
 			GetLayoutScale(window),
-			desktopSize,
+			GetPixelSize(window),
 			pxMousePos,
 			pxMouseOffset.y,
 			UI::Msg::MOUSEWHEEL,
@@ -136,7 +146,7 @@ static void OnFramebufferSize(GLFWwindow *window, int width, int height)
 {
 	if (auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window))
 	{
-        float layoutScale = GetLayoutScale(window);
+		float layoutScale = GetLayoutScale(window);
 		gui->GetDesktop()->Resize((float)width / layoutScale, (float)height / layoutScale);
 	}
 }
