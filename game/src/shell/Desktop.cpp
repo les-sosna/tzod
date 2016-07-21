@@ -749,7 +749,6 @@ void Desktop::OnGameContextChanged()
 			editorContext->GetWorld(),
 			_worldView,
 			_defaultCamera,
-			_globL.get(),
 			_conf,
 			_lang,
 			_logger);

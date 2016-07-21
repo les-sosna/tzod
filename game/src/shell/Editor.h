@@ -1,4 +1,5 @@
 #pragma once
+#include "QuickActions.h"
 #include <ui/Window.h>
 #include <functional>
 
@@ -11,7 +12,6 @@ class ServiceEditor;
 class TextureManager;
 class World;
 class WorldView;
-struct lua_State;
 
 namespace UI
 {
@@ -48,8 +48,7 @@ class EditorLayout
 	int  _mbutton;
 	World &_world;
 	WorldView &_worldView;
-	lua_State *_globL;
-
+	QuickActions _quickActions;
 
 	void OnKillSelected(World &world, GC_Object *sender, void *param);
 	void OnMoveSelected(World &world, GC_Object *sender, void *param);
@@ -60,7 +59,6 @@ public:
 		World &world,
 		WorldView &worldView,
 		const DefaultCamera &defaultCamera,
-		lua_State *globL,
 		ConfCache &conf,
 		LangCache &lang,
 		UI::ConsoleBuffer &logger);

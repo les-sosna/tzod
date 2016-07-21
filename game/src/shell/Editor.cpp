@@ -8,7 +8,6 @@
 #include <gc/RigidBody.h>
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
-#include <gclua/lObjUtil.h>
 #include <gv/ThemeManager.h>
 #include <loc/Language.h>
 #include <render/WorldView.h>
@@ -26,13 +25,6 @@
 #include <video/TextureManager.h>
 
 #include <sstream>
-
-extern "C"
-{
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -128,7 +120,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            World &world,
                            WorldView &worldView,
                            const DefaultCamera &defaultCamera,
-                           lua_State *globL,
                            ConfCache &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
@@ -145,7 +136,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _mbutton(0)
   , _world(world)
   , _worldView(worldView)
-  , _globL(globL)
+  , _quickActions(logger, world)
 {
 	_help = std::make_shared<UI::Text>(manager, texman);
 	_help->Move(10, 10);
@@ -315,32 +306,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, vec2d pointer
 		{
 			if( _click && _selectedObject == object )
 			{
-				auto &selTypeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
-
-				lua_getglobal(_globL, "editor_actions");
-				if( lua_isnil(_globL, -1) )
-				{
-					_logger.WriteLine(1, "There was no editor module loaded");
-				}
-				else
-				{
-					lua_getfield(_globL, -1, selTypeInfo.name);
-					if (lua_isnil(_globL, -1))
-					{
-						// no action available for this object
-						lua_pop(_globL, 1);
-					}
-					else
-					{
-						luaT_pushobject(_globL, object);
-						if( lua_pcall(_globL, 1, 0, 0) )
-						{
-							_logger.WriteLine(1, lua_tostring(_globL, -1));
-							lua_pop(_globL, 1); // pop error message
-						}
-					}
-				}
-				lua_pop(_globL, 1); // pop editor_actions
+				_quickActions.DoAction(*object);
 
 				_propList->DoExchange(false, GetManager().GetTextureManager());
 				if( _isObjectNew )

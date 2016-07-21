@@ -46,6 +46,7 @@ add_library(shell
 	NewMap.cpp
 	Profiler.cpp
 	PropertyList.cpp
+	QuickActions.cpp
 	ScoreTable.cpp
 	ServiceEditor.cpp
 	Settings.cpp
