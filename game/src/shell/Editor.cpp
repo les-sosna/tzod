@@ -405,12 +405,12 @@ FRECT EditorLayout::GetChildRect(vec2d size, float scale, const Window &child) c
 {
 	if (_typeList.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ size.x - _typeList->GetWidth() - 5, 5 }, _typeList->GetSize(), scale);
+		return UI::CanvasLayout(vec2d{ size.x / scale - _typeList->GetWidth() - 5, 5 }, _typeList->GetSize(), scale);
 	}
 
 	if (_layerDisp.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ size.x - _typeList->GetWidth() - 5, 6 }, _layerDisp->GetSize(), scale);
+		return UI::CanvasLayout(vec2d{ size.x / scale - _typeList->GetWidth() - 5, 6 }, _layerDisp->GetSize(), scale);
 	}
 
 	return UI::Window::GetChildRect(size, scale, child);
