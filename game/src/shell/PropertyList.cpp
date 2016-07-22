@@ -9,34 +9,24 @@
 #include <ui/Edit.h>
 #include <ui/List.h>
 #include <ui/ListBase.h>
-#include <ui/Scroll.h>
+#include <ui/ScrollView.h>
 #include <ui/Text.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::Container::Container(UI::LayoutManager &manager)
-  : UI::Window(manager)
-{
-}
-
-PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
+PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
   : Dialog(manager, texman, w, h, false)
   , _world(world)
   , _conf(conf)
   , _logger(logger)
 {
-	Move(x, y);
-	_psheet = std::make_shared<Container>(manager);
-	AddFront(_psheet);
+	_scrollView = std::make_shared<UI::ScrollView>(manager);
+	AddFront(_scrollView);
 
-	_scrollBar = std::make_shared<UI::ScrollBarVertical>(manager, texman);
-	_scrollBar->SetHeight(h);
-	_scrollBar->Move(w - _scrollBar->GetWidth(), 0);
-	_scrollBar->eventScroll = std::bind(&PropertyList::OnScroll, this, std::placeholders::_1);
-//	_scrollBar->SetLimit(100);
-	AddFront(_scrollBar);
+	_psheet = std::make_shared<UI::Window>(manager);
+	_scrollView->SetContent(_psheet);
 
 	OnSize(w, h);
 	SetEasyMove(true);
@@ -218,8 +208,6 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 		}
 	}
 	_psheet->Resize(_psheet->GetWidth(), y);
-	_scrollBar->SetDocumentSize(y);
-	OnScroll(_scrollBar->GetPos());
 }
 
 void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman)
@@ -229,17 +217,10 @@ void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &te
 	DoExchange(false, texman);
 }
 
-void PropertyList::OnScroll(float pos)
-{
-	_psheet->Move(0, -floorf(_scrollBar->GetPos()));
-}
-
 void PropertyList::OnSize(float width, float height)
 {
-	_scrollBar->Resize(_scrollBar->GetWidth(), height);
-	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->SetPageSize(height);
-	_psheet->Resize(_scrollBar->GetX(), _psheet->GetHeight());
+	_psheet->Resize(width, _psheet->GetHeight());
+	_scrollView->Resize(width, height);
 }
 
 bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
@@ -258,12 +239,6 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		return Dialog::OnKeyPressed(ic, key);
 	}
 	return true;
-}
-
-void PropertyList::OnMouseWheel(UI::InputContext &ic, vec2d size, vec2d pointerPosition, float z)
-{
-	_scrollBar->SetPos(_scrollBar->GetPos() - z * 10.0f);
-	OnScroll(_scrollBar->GetPos());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

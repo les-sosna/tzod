@@ -1,6 +1,6 @@
 #include "Editor.h"
 #include "PropertyList.h"
-#include "ServiceEditor.h"
+//#include "ServiceEditor.h"
 #include "inc/shell/detail/DefaultCamera.h"
 #include "inc/shell/Config.h"
 #include <gc/Object.h>
@@ -145,13 +145,13 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager, texman, 5.f, 5.f, 512.f, 256.f, _world, _conf, _logger);
+	_propList = std::make_shared<PropertyList>(manager, texman, 120.f, 240.f, _world, _conf, _logger);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
-	_serviceList = std::make_shared<ServiceEditor>(manager, texman, 5.f, 300.f, 512.f, 256.f, _world, _conf, _lang);
-	_serviceList->SetVisible(_conf.ed_showservices.Get());
-	AddFront(_serviceList);
+	//_serviceList = std::make_shared<ServiceEditor>(manager, texman, 5.f, 300.f, 512.f, 256.f, _world, _conf, _lang);
+	//_serviceList->SetVisible(_conf.ed_showservices.Get());
+	//AddFront(_serviceList);
 
 	_layerDisp = std::make_shared<UI::Text>(manager, texman);
 	_layerDisp->SetAlign(alignTextRT);
@@ -224,10 +224,10 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_propList->SetVisible(false);
 	}
 
-	if (_serviceList)
-	{
-		_serviceList->OnChangeSelectionGlobal(_selectedObject);
-	}
+	//if (_serviceList)
+	//{
+	//	_serviceList->OnChangeSelectionGlobal(_selectedObject);
+	//}
 }
 
 void EditorLayout::SelectNone()
@@ -238,13 +238,13 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::OnMouseWheel(UI::InputContext &ic, vec2d size, vec2d pointerPosition, float z)
+void EditorLayout::OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
 {
-	if( z > 0 )
+	if( offset.y > 0 )
 	{
 		_typeList->SetCurSel(std::max(0, _typeList->GetCurSel() - 1));
 	}
-	if( z < 0 )
+	if( offset.y < 0 )
 	{
 		_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1));
 	}
@@ -365,8 +365,11 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		}
 		break;
 	case UI::Key::S:
-		_serviceList->SetVisible(!_serviceList->GetVisible());
-		_conf.ed_showservices.Set(_serviceList->GetVisible());
+		//if (_serviceList)
+		//{
+		//	_serviceList->SetVisible(!_serviceList->GetVisible());
+		//	_conf.ed_showservices.Set(_serviceList->GetVisible());
+		//}
 		break;
 	case UI::Key::Delete:
 		if( _selectedObject )

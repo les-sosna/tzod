@@ -39,7 +39,7 @@ private:
 
 class Console
 	: public Rectangle
-	, private PointerSink
+	, private ScrollSink
 	, private KeyboardSink
 {
 public:
@@ -56,7 +56,7 @@ public:
 	std::function<bool(const std::string &, int &, std::string &)> eventOnRequestCompleteCommand;
 
 	// Window
-	PointerSink* GetPointerSink() override { return this; }
+	ScrollSink* GetScrollSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnTimeStep(LayoutManager &manager, float dt) override;
 	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
@@ -75,13 +75,13 @@ private:
 	bool _echo;
 	bool _autoScroll;
 
-	void OnScroll(float pos);
+	void OnScrollBar(float pos);
 
 	// KeyboardSink
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 
-	// PointerSink
-	void OnMouseWheel(InputContext &ic, vec2d size, vec2d pointerPosition, float z) override;
+	// ScrollSink
+	void OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;
 };
 
 } // namespace UI

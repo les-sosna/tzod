@@ -168,9 +168,9 @@ bool List::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, in
 	return false;
 }
 
-void List::OnMouseWheel(InputContext &ic, vec2d size, vec2d pointerPosition, float z)
+void List::OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
 {
-	SetScrollPos(GetScrollPos() - z * 3.0f);
+	SetScrollPos(GetScrollPos() - offset.y * 3.0f);
 }
 
 void List::OnTap(InputContext &ic, vec2d size, vec2d pointerPosition)

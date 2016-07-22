@@ -64,23 +64,47 @@ bool InputContext::HasCapturedPointers(const Window *wnd) const
 	return false;
 }
 
-PointerSink* UI::FindPointerSink(
-	PointerSinkSearch &search,
+namespace
+{
+	template <class T>
+	struct SinkGetter {};
+
+	template <>
+	struct SinkGetter<PointerSink>
+	{
+		static PointerSink* GetSink(Window &wnd)
+		{
+			return wnd.GetPointerSink();
+		}
+	};
+
+	template <>
+	struct SinkGetter<ScrollSink>
+	{
+		static ScrollSink* GetSink(Window &wnd)
+		{
+			return wnd.GetScrollSink();
+		}
+	};
+}
+
+template<class SinkType>
+SinkType* UI::FindAreaSink(
+	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	vec2d pxSize,
 	vec2d pxPointerPosition,
 	bool insideTopMost)
 {
-	PointerSink *pointerSink = nullptr;
+	SinkType *sink = nullptr;
 
 	bool pointerInside = (pxPointerPosition.x >= 0 && pxPointerPosition.x < pxSize.x &&
 		pxPointerPosition.y >= 0 && pxPointerPosition.y < pxSize.y);
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
-		// route message to each child in reverse order until someone process it
 		auto &children = wnd->GetChildren();
-		for (auto it = children.rbegin(); it != children.rend() && !pointerSink; ++it)
+		for (auto it = children.rbegin(); it != children.rend() && !sink; ++it)
 		{
 			auto &child = *it;
 			if (child->GetEnabled() && child->GetVisible())
@@ -91,24 +115,19 @@ PointerSink* UI::FindPointerSink(
 				{
 					FRECT childRect = wnd->GetChildRect(pxSize, search.layoutScale, *child);
 					vec2d childPointerPosition = pxPointerPosition - vec2d{ childRect.left, childRect.top };
-					pointerSink = FindPointerSink(search,
-						child,
-						Size(childRect),
-						childPointerPosition,
-						childInsideTopMost);
+					sink = FindAreaSink<SinkType>(search, child, Size(childRect), childPointerPosition, childInsideTopMost);
 				}
 			}
 		}
 	}
 
-	// if window is captured or the pointer is inside the window
-	if (!pointerSink && insideTopMost == search.topMostPass && pointerInside)
-		pointerSink = wnd->GetPointerSink();
+	if (!sink && insideTopMost == search.topMostPass && pointerInside)
+		sink = SinkGetter<SinkType>::GetSink(*wnd);
 
-	if (pointerSink)
+	if (sink)
 		search.outSinkPath.push_back(wnd);
 
-	return pointerSink;
+	return sink;
 }
 
 bool InputContext::ProcessPointer(
@@ -126,6 +145,11 @@ bool InputContext::ProcessPointer(
 	_lastPointerLocation[pointerID] = pxPointerPosition;
 #endif
 
+	if (Msg::MOUSEWHEEL == msg)
+	{
+		return ProcessScroll(wnd, vec2d{ 0, z }, pxSize, pxPointerPosition, layoutScale);
+	}
+
 	PointerSink *pointerSink = nullptr;
 	std::vector<std::shared_ptr<Window>> sinkPath;
 
@@ -141,9 +165,8 @@ bool InputContext::ProcessPointer(
 	{
 		for (bool topMostPass : {true, false})
 		{
-			// look for topmost windows first
-			PointerSinkSearch search{ layoutScale, topMostPass };
-			pointerSink = FindPointerSink(search, wnd, pxSize, pxPointerPosition, wnd->GetTopMost());
+			AreaSinkSearch search{ layoutScale, topMostPass };
+			pointerSink = FindAreaSink<PointerSink>(search, wnd, pxSize, pxPointerPosition, wnd->GetTopMost());
 			if (pointerSink)
 			{
 				sinkPath = std::move(search.outSinkPath);
@@ -189,9 +212,6 @@ bool InputContext::ProcessPointer(
 		case Msg::PointerMove:
 			pointerSink->OnPointerMove(*this, pxSize, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
 			break;
-		case Msg::MOUSEWHEEL:
-			pointerSink->OnMouseWheel(*this, pxSize, pxPointerPosition, z);
-			break;
 		case Msg::TAP:
 			pointerSink->OnTap(*this, pxSize, pxPointerPosition);
 			break;
@@ -201,6 +221,41 @@ bool InputContext::ProcessPointer(
 	}
 
 	return !!pointerSink;
+}
+
+bool InputContext::ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2d pxSize, vec2d pxPointerPosition, float layoutScale)
+{
+	ScrollSink *scrollSink = nullptr;
+	std::vector<std::shared_ptr<Window>> sinkPath;
+
+	// look for topmost windows first
+	for (bool topMostPass : {true, false})
+	{
+		AreaSinkSearch search{ layoutScale, topMostPass };
+		scrollSink = FindAreaSink<ScrollSink>(search, wnd, pxSize, pxPointerPosition, wnd->GetTopMost());
+		if (scrollSink)
+		{
+			sinkPath = std::move(search.outSinkPath);
+			break;
+		}
+	}
+
+	if (scrollSink)
+	{
+		for (size_t i = sinkPath.size() - 1; i > 0; i--)
+		{
+			auto &child = sinkPath[i - 1];
+			auto &parent = sinkPath[i];
+			FRECT childRect = parent->GetChildRect(pxSize, layoutScale, *child);
+			pxPointerPosition -= {childRect.left, childRect.top};
+			pxSize = Size(childRect);
+		}
+
+		scrollSink->OnScroll(*this, pxSize, layoutScale, pxPointerPosition, offset);
+		return true;
+	}
+
+	return false;
 }
 
 bool InputContext::ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key)

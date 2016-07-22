@@ -65,8 +65,9 @@ public:
 #endif
 
 private:
-	bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
 	bool ProcessCharRecursive(std::shared_ptr<Window> wnd, int c);
+	bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
+	bool ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2d pxSize, vec2d pxPointerPosition, float layoutScale);
 
 	IInput &_input;
 	IClipboard &_clipboard;
@@ -93,17 +94,16 @@ private:
 };
 
 
-struct PointerSinkSearch
+struct AreaSinkSearch
 {
 	float layoutScale;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;
 };
 
-struct PointerSink;
-
-PointerSink* FindPointerSink(
-	PointerSinkSearch &search,
+template<class SinkType>
+SinkType* FindAreaSink(
+	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	vec2d pxSize,
 	vec2d pxPointerPosition,

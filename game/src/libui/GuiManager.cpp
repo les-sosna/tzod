@@ -148,8 +148,8 @@ void LayoutManager::Render(float layoutScale, vec2d size, DrawingContext &dc) co
 	{
 		for (bool topMostPass : {true, false})
 		{
-			PointerSinkSearch search{ layoutContext.GetScale(), topMostPass };
-			if (FindPointerSink(search, _desktop, size, _inputContext.GetMousePos(), _desktop->GetTopMost()))
+			AreaSinkSearch search{ layoutContext.GetScale(), topMostPass };
+			if (FindAreaSink<PointerSink>(search, _desktop, size, _inputContext.GetMousePos(), _desktop->GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;

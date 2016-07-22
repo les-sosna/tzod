@@ -11,6 +11,7 @@ class ScrollBarVertical;
 
 class List
 	: public Rectangle
+	, private ScrollSink
 	, private PointerSink
 	, private KeyboardSink
 {
@@ -54,6 +55,7 @@ protected:
 
 protected:
 	// Window
+	ScrollSink* GetScrollSink() override { return this; }
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnSize(float width, float height) override;
@@ -73,9 +75,11 @@ private:
 	size_t _font;
 	size_t _selection;
 
+	// ScrollSink
+	void OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;
+
 	// PointerSink
 	bool OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnMouseWheel(InputContext &ic, vec2d size, vec2d pointerPosition, float z) override;
 	void OnTap(InputContext &ic, vec2d size, vec2d pointerPosition) override;
 
 	// KeyboardSink

@@ -48,7 +48,7 @@ add_library(shell
 	PropertyList.cpp
 	QuickActions.cpp
 	ScoreTable.cpp
-	ServiceEditor.cpp
+#	ServiceEditor.cpp
 	Settings.cpp
 	Widgets.cpp
 )

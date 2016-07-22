@@ -24,6 +24,7 @@ namespace UI
 
 class EditorLayout
 	: public UI::Window
+	, private UI::ScrollSink
 	, private UI::PointerSink
 	, private UI::KeyboardSink
 {
@@ -71,8 +72,10 @@ protected:
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
 
+	// UI::ScrollSink
+	void OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;
+
 	// UI::PointerSink
-	void OnMouseWheel(UI::InputContext &ic, vec2d size, vec2d pointerPosition, float z) override;
 	bool OnPointerDown(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerUp(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerMove(UI::InputContext &ic, vec2d size, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured) override;
@@ -83,6 +86,7 @@ protected:
 	// UI::Window
 	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 	void Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	ScrollSink* GetScrollSink() override { return this; }
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 };

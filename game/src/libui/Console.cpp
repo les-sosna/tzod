@@ -61,7 +61,7 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
 	AddFront(_input);
 	SetFocus(_input);
 	_scroll = std::make_shared<ScrollBarVertical>(manager, texman);
-	_scroll->eventScroll = std::bind(&Console::OnScroll, this, std::placeholders::_1);
+	_scroll->eventScroll = std::bind(&Console::OnScrollBar, this, std::placeholders::_1);
 	AddFront(_scroll);
 	SetTexture(texman, "ui/console", false);
 	SetDrawBorder(true);
@@ -204,9 +204,9 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-void Console::OnMouseWheel(InputContext &ic, vec2d size, vec2d pointerPosition, float z)
+void Console::OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
 {
-	_scroll->SetPos(_scroll->GetPos() - z * 3);
+	_scroll->SetPos(_scroll->GetPos() - offset.y * 3);
 	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
 
@@ -262,7 +262,7 @@ void Console::OnSize(float width, float height)
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 
-void Console::OnScroll(float pos)
+void Console::OnScrollBar(float pos)
 {
 	_autoScroll = pos + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
