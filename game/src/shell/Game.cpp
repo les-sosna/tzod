@@ -245,11 +245,11 @@ FRECT GameLayout::GetChildRect(vec2d size, float scale, const Window &child) con
 {
 	if (_score.get() == &child)
 	{
-		return UI::CanvasLayout((size - _score->GetSize()) / 2, _score->GetSize(), scale);
+		return UI::CanvasLayout((size / scale - _score->GetSize()) / 2, _score->GetSize(), scale);
 	}
 	else if (_time.get() == &child)
 	{
-		return UI::CanvasLayout(size, _time->GetSize(), scale);
+		return UI::CanvasLayout(size / scale, _time->GetSize(), scale);
 	}
 	else if (_msg.get() == &child)
 	{
