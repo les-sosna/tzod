@@ -44,11 +44,6 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 	_textureStretchMode = stretchMode;
 }
 
-unsigned int Rectangle::GetFrameCount() const
-{
-	return (-1 != _texture) ? GetManager().GetTextureManager().GetFrameCount(_texture) : 0;
-}
-
 void Rectangle::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	FRECT dst = { 0, 0, lc.GetPixelSize().x, lc.GetPixelSize().y };

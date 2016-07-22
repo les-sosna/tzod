@@ -25,9 +25,8 @@ namespace UI
 		float GetTextureWidth(TextureManager &texman)  const;
 		float GetTextureHeight(TextureManager &texman) const;
 
-		unsigned int GetFrameCount() const;
 		unsigned int GetFrame() const { return _frame; }
-		void SetFrame(unsigned int n) { assert(-1 == _texture || n < GetFrameCount()); _frame = n; }
+		void SetFrame(unsigned int n) { assert(-1 == _texture); _frame = n; }
 
 		// Window
 		void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
