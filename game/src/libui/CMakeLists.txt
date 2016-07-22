@@ -22,6 +22,7 @@ add_library(ui
 	LayoutContext.cpp
 	List.cpp
 	ListBase.cpp
+	ListBox.cpp
 	Scroll.cpp
 	ScrollView.cpp
 	StackLayout.cpp
@@ -43,6 +44,7 @@ add_library(ui
 	inc/ui/LayoutContext.h
 	inc/ui/List.h
 	inc/ui/ListBase.h
+	inc/ui/ListBox.h
 	inc/ui/Pointers.h
 	inc/ui/Rectangle.h
 	inc/ui/Scroll.h

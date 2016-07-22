@@ -13,14 +13,14 @@ namespace FS
 namespace UI
 {
 	class ListDataSourceDefault;
-	class List;
+	class ListBox;
 	class Edit;
 	template<class, class> class ListAdapter;
 }
 
 class GetFileNameDlg : public UI::Dialog
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 	std::shared_ptr<DefaultListBox> _files;
 	std::shared_ptr<UI::Edit> _fileName;
 	std::string _ext;

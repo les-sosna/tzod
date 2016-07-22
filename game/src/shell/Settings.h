@@ -13,7 +13,7 @@ namespace UI
 	class CheckBox;
 	class ComboBox;
 	class Edit;
-	class List;
+	class ListBox;
 	class ScrollBarHorizontal;
 	template<class, class> class ListAdapter;
 	enum class Key;
@@ -25,7 +25,7 @@ class SettingsDlg : public UI::Dialog
 
 	std::shared_ptr<UI::ComboBox> _player1;
 	std::shared_ptr<UI::ComboBox> _player2;
-	std::shared_ptr<UI::List> _profiles;
+	std::shared_ptr<UI::ListBox> _profiles;
 	std::shared_ptr<UI::Button> _editProfile;
 	std::shared_ptr<UI::Button> _deleteProfile;
 
@@ -81,7 +81,7 @@ private:
 	void OnSelectAction(int index);
 	void SetActiveIndex(int index);
 
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 	std::shared_ptr<DefaultListBox> _actions;
 	std::shared_ptr<UI::Edit> _nameEdit;
 	std::shared_ptr<UI::CheckBox> _aimToMouseChkBox;

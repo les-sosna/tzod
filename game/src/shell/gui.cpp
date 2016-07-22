@@ -6,13 +6,14 @@
 #include <gc/VehicleClasses.h>
 #include <loc/Language.h>
 #include <ui/Button.h>
-#include <ui/List.h>
+#include <ui/ListBox.h>
 #include <ui/Text.h>
 #include <ui/Edit.h>
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
+#include <ui/ScrollView.h>
 #include <video/TextureManager.h>
 
 #include <algorithm>
@@ -49,15 +50,14 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	AddFront(text);
 
 	_maps = std::make_shared<MapList>(manager, texman, fs, logger);
+	_maps->GetList()->SetTabPos(0,   4); // name
+	_maps->GetList()->SetTabPos(1, 384); // size
+	_maps->GetList()->SetTabPos(2, 448); // theme
+	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
+//	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 	_maps->Move(x1, 32);
 	_maps->Resize(x2 - x1, 192);
-	_maps->SetTabPos(0,   4); // name
-	_maps->SetTabPos(1, 384); // size
-	_maps->SetTabPos(2, 448); // theme
-	_maps->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
-	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 	AddFront(_maps);
-
 	SetFocus(_maps);
 
 
@@ -127,11 +127,11 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_players = std::make_shared<DefaultListBox>(manager, texman);
 	_players->Move(x1, 256);
 	_players->Resize(x2-x1, 96);
-	_players->SetTabPos(0,   4); // name
-	_players->SetTabPos(1, 192); // skin
-	_players->SetTabPos(2, 256); // class
-	_players->SetTabPos(3, 320); // team
-	_players->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectPlayer, this, std::placeholders::_1);
+	_players->GetList()->SetTabPos(0,   4); // name
+	_players->GetList()->SetTabPos(1, 192); // skin
+	_players->GetList()->SetTabPos(2, 256); // class
+	_players->GetList()->SetTabPos(3, 320); // team
+	_players->GetList()->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectPlayer, this, std::placeholders::_1);
 	AddFront(_players);
 
 
@@ -143,11 +143,11 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_bots = std::make_shared<DefaultListBox>(manager, texman);
 	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
-	_bots->SetTabPos(0,   4); // name
-	_bots->SetTabPos(1, 192); // skin
-	_bots->SetTabPos(2, 256); // class
-	_bots->SetTabPos(3, 320); // team
-	_bots->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectBot, this, std::placeholders::_1);
+	_bots->GetList()->SetTabPos(0,   4); // name
+	_bots->GetList()->SetTabPos(1, 192); // skin
+	_bots->GetList()->SetTabPos(2, 256); // class
+	_bots->GetList()->SetTabPos(3, 320); // team
+	_bots->GetList()->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectBot, this, std::placeholders::_1);
 	AddFront(_bots);
 
 
@@ -223,7 +223,7 @@ NewGameDlg::~NewGameDlg()
 
 void NewGameDlg::RefreshPlayersList()
 {
-	int selected = _players->GetCurSel();
+	int selected = _players->GetList()->GetCurSel();
 	_players->GetData()->DeleteAllItems();
 
 	for( size_t i = 0; i < _conf.dm_players.GetSize(); ++i )
@@ -242,12 +242,12 @@ void NewGameDlg::RefreshPlayersList()
 		_players->GetData()->SetItemText(index, 3, s.str());
 	}
 
-	_players->SetCurSel(std::min(selected, _players->GetData()->GetItemCount()-1));
+	_players->GetList()->SetCurSel(std::min(selected, _players->GetData()->GetItemCount()-1));
 }
 
 void NewGameDlg::RefreshBotsList()
 {
-	int selected = _bots->GetCurSel();
+	int selected = _bots->GetList()->GetCurSel();
 	_bots->GetData()->DeleteAllItems();
 
 	for( size_t i = 0; i < _conf.dm_bots.GetSize(); ++i )
@@ -266,7 +266,7 @@ void NewGameDlg::RefreshBotsList()
 		_bots->GetData()->SetItemText(index, 3, s.str());
 	}
 
-	_bots->SetCurSel(std::min(selected, _bots->GetData()->GetItemCount() - 1));
+	_bots->GetList()->SetCurSel(std::min(selected, _bots->GetData()->GetItemCount() - 1));
 }
 
 void NewGameDlg::OnAddPlayer()
@@ -300,14 +300,14 @@ void NewGameDlg::OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result
 
 void NewGameDlg::OnRemovePlayer()
 {
-	assert( -1 != _players->GetCurSel() );
-	_conf.dm_players.RemoveAt(_players->GetCurSel());
+	assert(-1 != _players->GetList()->GetCurSel());
+	_conf.dm_players.RemoveAt(_players->GetList()->GetCurSel());
 	RefreshPlayersList();
 }
 
 void NewGameDlg::OnEditPlayer()
 {
-	int index = _players->GetCurSel();
+	int index = _players->GetList()->GetCurSel();
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _texman, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
@@ -356,14 +356,14 @@ void NewGameDlg::OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result)
 
 void NewGameDlg::OnRemoveBot()
 {
-	assert( -1 != _bots->GetCurSel() );
-	_conf.dm_bots.RemoveAt(_bots->GetCurSel());
+	assert(-1 != _bots->GetList()->GetCurSel());
+	_conf.dm_bots.RemoveAt(_bots->GetList()->GetCurSel());
 	RefreshBotsList();
 }
 
 void NewGameDlg::OnEditBot()
 {
-	int index = _bots->GetCurSel();
+	int index = _bots->GetList()->GetCurSel();
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _texman, _conf.dm_bots.GetAt(index).AsTable(), _lang);
@@ -384,7 +384,7 @@ void NewGameDlg::OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result)
 void NewGameDlg::OnOK()
 {
 	std::string fn;
-	int index = _maps->GetCurSel();
+	int index = _maps->GetList()->GetCurSel();
 	if( -1 != index )
 	{
 		fn = _maps->GetData()->GetItemText(index, 0);
@@ -432,7 +432,7 @@ bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	{
 	case UI::Key::Enter:
 	case UI::Key::NumEnter:
-		if( GetFocus() == _players && -1 != _players->GetCurSel() )
+		if( GetFocus() == _players && -1 != _players->GetList()->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
@@ -516,7 +516,6 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	{
 		_skins->SetCurSel(0);
 	}
-	_skins->GetList()->AlignHeightToContent();
 
 
 	//
@@ -551,7 +550,6 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	}
 	if( -1 == _classes->GetCurSel() )
 		_classes->SetCurSel(0);
-	_classes->GetList()->AlignHeightToContent();
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 24);
@@ -579,7 +577,6 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	{
 		_teams->SetCurSel(0);
 	}
-	_teams->GetList()->AlignHeightToContent();
 
 
 
@@ -610,7 +607,6 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	{
 		_profiles->SetCurSel(0);
 	}
-	_profiles->GetList()->AlignHeightToContent();
 
 
 	//
@@ -729,7 +725,6 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	{
 		_skins->SetCurSel(0);
 	}
-	_skins->GetList()->AlignHeightToContent();
 
 
 	//
@@ -761,7 +756,6 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	}
 	if( -1 == _classes->GetCurSel() )
 		_classes->SetCurSel(0);
-	_classes->GetList()->AlignHeightToContent();
 
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -790,7 +784,6 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	{
 		_teams->SetCurSel(0);
 	}
-	_teams->GetList()->AlignHeightToContent();
 
 
 	//
@@ -819,7 +812,6 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	{
 		_levels->SetCurSel(2);
 	}
-	_levels->GetList()->AlignHeightToContent();
 
 
 	//

@@ -9,6 +9,7 @@ namespace UI
 
 struct ListDataSource;
 class List;
+class ListBox;
 class TextButton;
 class Button;
 
@@ -33,9 +34,9 @@ public:
 
 	// Window
 	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 
 protected:
-	void OnSize(float width, float height) override;
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
 	void OnClickItem(int index);
@@ -45,7 +46,7 @@ protected:
 private:
 	std::shared_ptr<TextButton> _text;
 	std::shared_ptr<Button> _btn;
-	std::shared_ptr<List> _list;
+	std::shared_ptr<ListBox> _list;
 	int _curSel;
 
 	// KeyboardSink

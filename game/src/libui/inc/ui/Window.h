@@ -34,10 +34,10 @@ struct ScrollSink
 
 struct PointerSink
 {
-	virtual bool OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) { return false; }
-	virtual void OnPointerUp(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
-	virtual void OnPointerMove(InputContext &ic, vec2d size, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) {}
-	virtual void OnTap(InputContext &ic, vec2d size, vec2d pointerPosition) {}
+	virtual bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) { return false; }
+	virtual void OnPointerUp(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) {}
+	virtual void OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition) {}
 };
 
 struct KeyboardSink
@@ -140,9 +140,9 @@ public:
 	void Resize(float width, float height);
 	void SetHeight(float height) { Resize(GetWidth(), height); }
 	void SetWidth(float width) { Resize(width, GetHeight()); }
-	float GetWidth()  const { return _width;  }
-	float GetHeight() const { return _height; }
-	vec2d GetSize() const { return vec2d{_width, _height}; }
+	virtual float GetWidth() const { return _width; }
+	virtual float GetHeight() const { return _height; }
+	vec2d GetSize() const { return vec2d{GetWidth(), GetHeight()}; }
 
 
 	//

@@ -6,6 +6,7 @@
 #include <loc/Language.h>
 #include <ui/Text.h>
 #include <ui/List.h>
+#include <ui/ListBox.h>
 #include <ui/Button.h>
 #include <ui/Scroll.h>
 #include <ui/Edit.h>
@@ -72,12 +73,12 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	AddFront(text);
 	y += text->GetHeight() + 2;
 
-	_profiles = std::make_shared<UI::List>(manager, texman, &_profilesDataSource);
+	_profiles = std::make_shared<UI::ListBox>(manager, texman, &_profilesDataSource);
 	_profiles->Move(x, y);
 	_profiles->Resize(128, 52);
 	AddFront(_profiles);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
-	_profiles->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
+	_profiles->GetList()->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
 	btn->SetText(texman, _lang.settings_profile_new.Get());
@@ -177,7 +178,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	btn->eventClick = std::bind(&SettingsDlg::OnCancel, this);
 	AddFront(btn);
 
-	_profiles->SetCurSel(0, true);
+	_profiles->GetList()->SetCurSel(0, true);
 	SetFocus(_profiles);
 }
 
@@ -205,7 +206,7 @@ void SettingsDlg::OnAddProfile()
 
 void SettingsDlg::OnEditProfile()
 {
-	int i = _profiles->GetCurSel();
+	int i = _profiles->GetList()->GetCurSel();
 	assert(i >= 0);
 	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), GetManager().GetTextureManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
@@ -215,7 +216,7 @@ void SettingsDlg::OnEditProfile()
 
 void SettingsDlg::OnDeleteProfile()
 {
-	int i = _profiles->GetCurSel();
+	int i = _profiles->GetList()->GetCurSel();
 	assert(i >= 0);
 	if( _conf.cl_playerinfo.profile.Get() == _profilesDataSource.GetItemText(i, 0) )
 	{
@@ -250,14 +251,14 @@ void SettingsDlg::OnCancel()
 
 void SettingsDlg::UpdateProfilesList()
 {
-	int sel = _profiles->GetCurSel();
+	int sel = _profiles->GetList()->GetCurSel();
 	std::vector<std::string> profiles = _conf.dm_profiles.GetKeys();
 	_profilesDataSource.DeleteAllItems();
 	for( size_t i = 0; i < profiles.size(); ++i )
 	{
 		_profilesDataSource.AddItem(profiles[i]);
 	}
-	_profiles->SetCurSel(std::min(_profilesDataSource.GetItemCount() - 1, sel));
+	_profiles->GetList()->SetCurSel(std::min(_profilesDataSource.GetItemCount() - 1, sel));
 }
 
 void SettingsDlg::OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result)
@@ -322,9 +323,9 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_actions = std::make_shared<DefaultListBox>(manager, texman);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
-	_actions->SetTabPos(0, 2);
-	_actions->SetTabPos(1, 200);
-	_actions->eventClickItem = std::bind(&ControlProfileDlg::OnSelectAction, this, std::placeholders::_1);
+	_actions->GetList()->SetTabPos(0, 2);
+	_actions->GetList()->SetTabPos(1, 200);
+	_actions->GetList()->eventClickItem = std::bind(&ControlProfileDlg::OnSelectAction, this, std::placeholders::_1);
 	AddFront(_actions);
 
 	AddAction(_profile.key_forward      , _lang.action_move_forward.Get()  );
@@ -337,7 +338,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	AddAction(_profile.key_tower_right  , _lang.action_tower_right.Get()   );
 	AddAction(_profile.key_tower_center , _lang.action_tower_center.Get()  );
 	AddAction(_profile.key_no_pickup    , _lang.action_no_pickup.Get()     );
-	_actions->SetCurSel(0, true);
+	_actions->GetList()->SetCurSel(0, true);
 
 	_aimToMouseChkBox = std::make_shared<UI::CheckBox>(manager, texman);
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
@@ -464,9 +465,9 @@ bool ControlProfileDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		switch( key )
 		{
 		case UI::Key::Enter:
-			if( GetFocus() == _actions && -1 != _actions->GetCurSel() )
+			if( GetFocus() == _actions && -1 != _actions->GetList()->GetCurSel() )
 			{
-				OnSelectAction(_actions->GetCurSel());
+				OnSelectAction(_actions->GetList()->GetCurSel());
 			}
 			else
 			{

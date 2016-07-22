@@ -1,5 +1,5 @@
 #pragma once
-#include "Rectangle.h"
+#include "Window.h"
 #include "ListBase.h"
 #include <functional>
 
@@ -7,11 +7,9 @@ class TextureManager;
 
 namespace UI
 {
-class ScrollBarVertical;
 
 class List
-	: public Rectangle
-	, private ScrollSink
+	: public Window
 	, private PointerSink
 	, private KeyboardSink
 {
@@ -21,13 +19,8 @@ public:
 
 	ListDataSource* GetData() const;
 
-	float GetScrollPos() const;
-	void SetScrollPos(float pos);
-
-	float GetItemHeight() const;
-	float GetNumLinesVisible() const;
-	void AlignHeightToContent(float maxHeight = 512);
-	int HitTest(float y) const; // returns index of item
+	float GetItemHeight(float scale) const;
+	int HitTest(float y, float scale) const; // returns index of item
 
 	int  GetCurSel() const;
 	void SetCurSel(int sel, bool scroll = false);
@@ -37,6 +30,9 @@ public:
 	// list events
 	std::function<void(int)> eventChangeCurSel;
 	std::function<void(int)> eventClickItem;
+
+	// Window
+	float GetHeight() const override;
 
 protected:
 	// callback interface
@@ -55,10 +51,8 @@ protected:
 
 protected:
 	// Window
-	ScrollSink* GetScrollSink() override { return this; }
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
-	void OnSize(float width, float height) override;
 	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
@@ -68,19 +62,14 @@ private:
 	ListDataSource *_data;
 	std::vector<float> _tabs;
 
-	std::shared_ptr<ScrollBarVertical> _scrollBar;
-
 	int _curSel;
 
 	size_t _font;
 	size_t _selection;
 
-	// ScrollSink
-	void OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;
-
 	// PointerSink
-	bool OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnTap(InputContext &ic, vec2d size, vec2d pointerPosition) override;
+	bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition) override;
 
 	// KeyboardSink
 	bool OnKeyPressed(InputContext &ic, Key key) override;

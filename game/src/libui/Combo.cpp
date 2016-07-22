@@ -1,6 +1,7 @@
 #include "inc/ui/Combo.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/List.h"
+#include "inc/ui/ListBox.h"
 #include "inc/ui/Button.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
@@ -12,13 +13,12 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
   : Rectangle(manager)
   , _curSel(-1)
 {
-	_list = std::make_shared<List>(manager, texman, dataSource);
-	_list->SetTexture(texman, "ui/combo_list", false);
+	_list = std::make_shared<ListBox>(manager, texman, dataSource);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
-	_list->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
-	_list->eventChangeCurSel = std::bind(&ComboBox::OnChangeSelection, this, std::placeholders::_1);
-	_list->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
+	_list->GetList()->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
+	_list->GetList()->eventChangeCurSel = std::bind(&ComboBox::OnChangeSelection, this, std::placeholders::_1);
+	_list->GetList()->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
 	AddFront(_list);
 
 	_btn = std::make_shared<Button>(manager, texman);
@@ -39,13 +39,13 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 
 ListDataSource* ComboBox::GetData() const
 {
-	return _list->GetData();
+	return _list->GetList()->GetData();
 }
 
 void ComboBox::SetCurSel(int index)
 {
 	_curSel = index;
-	_list->SetCurSel(index);
+	_list->GetList()->SetCurSel(index);
 	if( eventChangeCurSel )
 		eventChangeCurSel(index);
 }
@@ -57,7 +57,7 @@ int ComboBox::GetCurSel() const
 
 std::shared_ptr<List> ComboBox::GetList() const
 {
-	return _list;
+	return _list->GetList();
 }
 
 void ComboBox::DropList()
@@ -66,14 +66,14 @@ void ComboBox::DropList()
 	{
 		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
 		_list->SetVisible(false);
-		_list->SetCurSel(GetCurSel());
+		_list->GetList()->SetCurSel(GetCurSel());
 		SetFocus(nullptr);
 	}
 	else
 	{
 		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_up", false);
 		_list->SetVisible(true);
-		_list->SetScrollPos((float) GetCurSel());
+//		_list->SetScrollPos((float) GetCurSel());
 		SetFocus(_list);
 	}
 }
@@ -83,7 +83,7 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText(GetManager().GetTextureManager(), _list->GetData()->GetItemText(index, 0));
+		_text->SetText(GetManager().GetTextureManager(), _list->GetList()->GetData()->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
@@ -98,14 +98,14 @@ void ComboBox::OnChangeSelection(int index)
 {
 	if( -1 != index )
 	{
-		_text->SetText(GetManager().GetTextureManager(), _list->GetData()->GetItemText(index, 0));
+		_text->SetText(GetManager().GetTextureManager(), _list->GetList()->GetData()->GetItemText(index, 0));
 		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 	}
 }
 
 void ComboBox::OnListLostFocus()
 {
-	_list->SetCurSel(_curSel); // cancel changes
+	_list->GetList()->SetCurSel(_curSel); // cancel changes
 	_list->SetVisible(false);
 	_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
 }
@@ -124,9 +124,9 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Enter:
 		if( _list->GetVisible() )
 		{
-			if( -1 != _list->GetCurSel() )
+			if( -1 != _list->GetList()->GetCurSel() )
 			{
-				OnClickItem(_list->GetCurSel());
+				OnClickItem(_list->GetList()->GetCurSel());
 				return true;
 			}
 		}
@@ -141,12 +141,23 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-void ComboBox::OnSize(float width, float height)
+FRECT ComboBox::GetChildRect(vec2d size, float scale, const Window &child) const
 {
-	_list->Move(0, height);
-	_list->Resize(width, _list->GetHeight());
-	_btn->Move(width - _btn->GetWidth(), (height - _btn->GetHeight()) * 0.5f);
-	_text->Resize(_btn->GetX(), height);
+	if (_list.get() == &child)
+	{
+		return FRECT{ 0, size.y, size.x, size.y + std::floor(_list->GetList()->GetHeight() * scale) };
+	}
+	else if (_btn.get() == &child)
+	{
+		float top = std::floor((size.y - child.GetHeight() * scale) / 2);
+		return FRECT{ size.x - std::floor(child.GetWidth() * scale), top, size.x, top + std::floor(child.GetHeight() * scale) };
+	}
+	else if (_text.get() == &child)
+	{
+		return FRECT{ 0, 0, size.x - std::floor(_btn->GetWidth() * scale), size.y };
+	}
+
+	return Window::GetChildRect(size, scale, child);
 }
 
 void ComboBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const

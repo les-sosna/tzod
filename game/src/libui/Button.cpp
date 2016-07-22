@@ -34,13 +34,13 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	return stateNormal;
 }
 
-void ButtonBase::OnPointerMove(InputContext &ic, vec2d size, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
+void ButtonBase::OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( eventMouseMove )
 		eventMouseMove(pointerPosition.x, pointerPosition.y);
 }
 
-bool ButtonBase::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool ButtonBase::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
@@ -51,7 +51,7 @@ bool ButtonBase::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPositi
 	return false;
 }
 
-void ButtonBase::OnPointerUp(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerUp(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	bool pointerInside = pointerPosition.x < size.x && pointerPosition.y < size.y && pointerPosition.x >= 0 && pointerPosition.y >= 0;
 	if( eventMouseUp )
@@ -64,7 +64,7 @@ void ButtonBase::OnPointerUp(InputContext &ic, vec2d size, vec2d pointerPosition
 	}
 }
 
-void ButtonBase::OnTap(InputContext &ic, vec2d size, vec2d pointerPosition)
+void ButtonBase::OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition)
 {
 	if( !ic.HasCapturedPointers(this))
 	{

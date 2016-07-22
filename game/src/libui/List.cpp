@@ -1,6 +1,5 @@
 #include "inc/ui/InputContext.h"
 #include "inc/ui/List.h"
-#include "inc/ui/Scroll.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
@@ -22,13 +21,11 @@ List::ListCallbackImpl::ListCallbackImpl(List *list)
 
 void List::ListCallbackImpl::OnDeleteAllItems()
 {
-	_list->_scrollBar->SetDocumentSize(0);
 	_list->SetCurSel(-1, false);
 }
 
 void List::ListCallbackImpl::OnDeleteItem(int index)
 {
-	_list->_scrollBar->SetDocumentSize((float) _list->_data->GetItemCount());
 	if( -1 != _list->GetCurSel() )
 	{
 		if( _list->GetCurSel() > index )
@@ -44,30 +41,21 @@ void List::ListCallbackImpl::OnDeleteItem(int index)
 
 void List::ListCallbackImpl::OnAddItem()
 {
-	_list->_scrollBar->SetDocumentSize((float) _list->_data->GetItemCount());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
 List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource)
-    : Rectangle(manager)
+    : Window(manager)
     , _callbacks(this)
     , _data(dataSource)
-    , _scrollBar(std::make_shared<ScrollBarVertical>(manager, texman))
     , _curSel(-1)
     , _font(texman.FindSprite("font_small"))
     , _selection(texman.FindSprite("ui/listsel"))
 {
-	AddFront(_scrollBar);
-
-	SetTexture(texman, "ui/list", false);
-	SetDrawBorder(true);
 	SetTabPos(0, 1); // first column
-
 	_data->AddListener(&_callbacks);
-	_scrollBar->SetDocumentSize((float) _data->GetItemCount());
-	_scrollBar->SetLineSize(1);
 }
 
 List::~List()
@@ -88,9 +76,9 @@ void List::SetTabPos(int index, float pos)
 		_tabs[index] = pos;
 }
 
-float List::GetItemHeight() const
+float List::GetItemHeight(float scale) const
 {
-	return GetManager().GetTextureManager().GetFrameHeight(_font, 0);
+	return std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale);
 }
 
 int List::GetCurSel() const
@@ -111,10 +99,10 @@ void List::SetCurSel(int sel, bool scroll)
 		if( scroll )
 		{
 			float fs = (float) sel;
-			if( fs < GetScrollPos() )
-				SetScrollPos(fs);
-			else if( fs > GetScrollPos() + GetNumLinesVisible() - 1 )
-				SetScrollPos(fs - GetNumLinesVisible() + 1);
+			//if( fs < GetScrollPos() )
+			//	SetScrollPos(fs);
+			//else if( fs > GetScrollPos() + GetNumLinesVisible() - 1 )
+			//	SetScrollPos(fs - GetNumLinesVisible() + 1);
 		}
 
 		if( eventChangeCurSel )
@@ -122,9 +110,9 @@ void List::SetCurSel(int sel, bool scroll)
 	}
 }
 
-int List::HitTest(float y) const
+int List::HitTest(float pxY, float scale) const
 {
-	int index = int(y / GetItemHeight() + GetScrollPos());
+	int index = int(pxY / GetItemHeight(scale));
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
 		index = -1;
@@ -132,50 +120,18 @@ int List::HitTest(float y) const
 	return index;
 }
 
-float List::GetNumLinesVisible() const
+bool List::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
-	return GetHeight() / GetItemHeight();
-}
-
-float List::GetScrollPos() const
-{
-	return _scrollBar->GetPos();
-}
-
-void List::SetScrollPos(float line)
-{
-	_scrollBar->SetPos(line);
-}
-
-void List::AlignHeightToContent(float maxHeight)
-{
-	Resize(GetWidth(), std::min(maxHeight, GetItemHeight() * (float) _data->GetItemCount()));
-}
-
-void List::OnSize(float width, float height)
-{
-	_scrollBar->Resize(_scrollBar->GetWidth(), height);
-	_scrollBar->Move(width - _scrollBar->GetWidth(), 0);
-	_scrollBar->SetPageSize(GetNumLinesVisible());
-}
-
-bool List::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
-{
-	if( 1 == button && pointerPosition.x < _scrollBar->GetX() )
+	if( 1 == button )
 	{
-		OnTap(ic, size, pointerPosition);
+		OnTap(ic, size, scale, pointerPosition);
 	}
 	return false;
 }
 
-void List::OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
+void List::OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition)
 {
-	SetScrollPos(GetScrollPos() - offset.y * 3.0f);
-}
-
-void List::OnTap(InputContext &ic, vec2d size, vec2d pointerPosition)
-{
-	int index = HitTest(pointerPosition.y);
+	int index = HitTest(pointerPosition.y, scale);
 	SetCurSel(index, false);
 	if( -1 != index && eventClickItem )
 		eventClickItem(index);
@@ -197,40 +153,39 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	case Key::End:
 		SetCurSel(_data->GetItemCount() - 1, true);
 		break;
-	case Key::PageUp:
-		SetCurSel(std::max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
-		break;
-	case Key::PageDown:
-		SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
-		break;
+	//case Key::PageUp:
+	//	SetCurSel(std::max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
+	//	break;
+	//case Key::PageDown:
+	//	SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
+	//	break;
 	default:
 		return false;
 	}
 	return true;
 }
 
+float List::GetHeight() const
+{
+	return GetItemHeight(1) * _data->GetItemCount();
+}
+
 void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Rectangle::Draw(lc, ic, dc, texman);
+	RectRB visibleRegion = dc.GetVisibleRegion();
 
-	float pos = GetScrollPos();
-	int i_min = (int) pos;
-	int i_max = i_min + (int) (lc.GetPixelSize().y / GetItemHeight()) + 1;
+	float pxItemHeight = GetItemHeight(lc.GetScale());
+
+	int i_min = std::max(0, visibleRegion.top / (int)pxItemHeight);
+	int i_max = std::max(0, (visibleRegion.bottom + (int)pxItemHeight - 1) / (int)pxItemHeight);
 	int maxtab = (int) _tabs.size() - 1;
 
-	RectRB clip;
-	clip.left = 0;
-	clip.top = 0;
-	clip.right = (int) (lc.GetPixelSize().x);
-	clip.bottom = (int) (lc.GetPixelSize().y);
-	dc.PushClippingRect(clip);
-
-	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos().y) : -1;
+	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos().y, lc.GetScale()) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
 		SpriteColor c;
-		float y = floorf(((float) i - pos) * GetItemHeight() + 0.5f);
+		float y = (float) i * pxItemHeight;
 
 		if( lc.GetEnabled() )
 		{
@@ -241,14 +196,14 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 				if( ic.GetFocused() )
 				{
 					c = 0xff000000; // selected focused
-					FRECT sel = { 1, y, lc.GetPixelSize().x - 1, y + GetItemHeight() };
+					FRECT sel = { 1, y, lc.GetPixelSize().x - 1, y + pxItemHeight };
 					dc.DrawSprite(sel, _selection, 0xffffffff, 0);
 				}
 				else
 				{
 					c = 0xffffffff; // selected unfocused
 				}
-				FRECT border = { -1, y - 2, lc.GetPixelSize().x + 1, y + GetItemHeight() + 2 };
+				FRECT border = { -1, y - 2, lc.GetPixelSize().x + 1, y + pxItemHeight + 2 };
 				dc.DrawBorder(border, _selection, 0xffffffff, 0);
 			}
 			else if( hotItem == i )
@@ -267,6 +222,4 @@ void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, T
 			dc.DrawBitmapText(x, y, _font, c, _data->GetItemText(i, k));
 		}
 	}
-
-	dc.PopClippingRect();
 }

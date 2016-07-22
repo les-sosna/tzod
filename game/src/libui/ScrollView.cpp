@@ -19,6 +19,7 @@ void ScrollView::SetContent(std::shared_ptr<Window> content)
 		}
 		_content = content;
 		AddBack(_content);
+		SetFocus(_content);
 	}
 }
 
@@ -26,7 +27,7 @@ FRECT ScrollView::GetChildRect(vec2d size, float scale, const Window &child) con
 {
 	if (_content.get() == &child)
 	{
-		return CanvasLayout(-_offset, child.GetSize(), scale);
+		return CanvasLayout(-_offset, vec2d{ size.x / scale, child.GetSize().y }, scale);
 	}
 
 	return Window::GetChildRect(size, scale, child);

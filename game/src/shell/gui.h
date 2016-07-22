@@ -16,7 +16,7 @@ namespace UI
 	class ComboBox;
 	class ConsoleBuffer;
 	class Edit;
-	class List;
+	class ListBox;
 	class ListDataSourceDefault;
 	class Text;
 	template<class, class> class ListAdapter;
@@ -25,8 +25,8 @@ class ListDataSourceMaps;
 
 class NewGameDlg : public UI::Dialog
 {
-	typedef UI::ListAdapter<ListDataSourceMaps, UI::List> MapList;
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
+	typedef UI::ListAdapter<ListDataSourceMaps, UI::ListBox> MapList;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 
 	TextureManager &_texman;
 	ConfCache &_conf;

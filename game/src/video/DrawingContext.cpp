@@ -65,6 +65,16 @@ void DrawingContext::PopTransform()
 	_transformStack.pop();
 }
 
+RectRB DrawingContext::GetVisibleRegion() const
+{
+	RectRB visibleRegion = _clipStack.empty() ? _viewport : _clipStack.top();
+	visibleRegion.left -= (int)_transformStack.top().x;
+	visibleRegion.top -= (int)_transformStack.top().y;
+	visibleRegion.right -= (int)_transformStack.top().x;
+	visibleRegion.bottom -= (int)_transformStack.top().y;
+	return visibleRegion;
+}
+
 void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);

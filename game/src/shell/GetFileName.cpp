@@ -4,6 +4,7 @@
 #include <loc/Language.h>
 #include <ui/Text.h>
 #include <ui/List.h>
+#include <ui/ListBox.h>
 #include <ui/Button.h>
 #include <ui/Edit.h>
 #include <ui/DataSourceAdapters.h>
@@ -37,7 +38,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 		}
 	}
 	_files->GetData()->Sort();
-	_files->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
+	_files->GetList()->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(16, 370);
@@ -102,7 +103,7 @@ void GetFileNameDlg::OnChangeName()
 		if( n > match )
 		{
 			match = n;
-			_files->SetCurSel(i, true);
+			_files->GetList()->SetCurSel(i, true);
 		}
 	}
 	_changing = false;

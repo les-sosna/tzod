@@ -23,6 +23,8 @@ public:
 	void PushTransform(vec2d offset);
 	void PopTransform();
 
+	RectRB GetVisibleRegion() const;
+
 	void DrawSprite(const FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBitmapText(float x, float y, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT);

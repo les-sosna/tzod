@@ -184,7 +184,6 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 						}
 					}
 				}
-				static_cast<DefaultComboBox*>(ctrl.get())->GetList()->AlignHeightToContent();
 				break;
 			default:
 				assert(false);

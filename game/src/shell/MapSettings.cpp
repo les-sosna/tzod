@@ -108,7 +108,6 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 		_theme->GetData()->AddItem(themeManager.GetThemeName(i));
 	}
 	_theme->SetCurSel(FindTheme(themeManager, world._infoTheme));*/
-	_theme->GetList()->AlignHeightToContent();
 	AddFront(_theme);
 
 

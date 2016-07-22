@@ -196,7 +196,7 @@ bool InputContext::ProcessPointer(
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, pxSize, pxPointerPosition, button, pointerType, pointerID))
+			if (pointerSink->OnPointerDown(*this, pxSize, layoutScale, pxPointerPosition, button, pointerType, pointerID))
 			{
 				_pointerCaptures[pointerID].capturePath = sinkPath;
 			}
@@ -205,15 +205,15 @@ bool InputContext::ProcessPointer(
 		case Msg::PointerCancel:
 			if (isPointerCaptured)
 			{
-				pointerSink->OnPointerUp(*this, pxSize, pxPointerPosition, button, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, pxSize, layoutScale, pxPointerPosition, button, pointerType, pointerID);
 				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, pxSize, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
+			pointerSink->OnPointerMove(*this, pxSize, layoutScale, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
 			break;
 		case Msg::TAP:
-			pointerSink->OnTap(*this, pxSize, pxPointerPosition);
+			pointerSink->OnTap(*this, pxSize, layoutScale, pxPointerPosition);
 			break;
 		default:
 			assert(false);

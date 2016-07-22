@@ -36,7 +36,7 @@ void Dialog::Close(int result)
 // capture mouse messages
 //
 
-bool Dialog::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool Dialog::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( _easyMove && 1 == button && !ic.HasCapturedPointers(this) )
 	{
@@ -46,7 +46,7 @@ bool Dialog::OnPointerDown(InputContext &ic, vec2d size, vec2d pointerPosition, 
 	return false;
 }
 
-void Dialog::OnPointerMove(InputContext &ic, vec2d size, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
+void Dialog::OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( captured )
 	{

@@ -169,7 +169,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_typeList->GetData()->Sort();
 	auto ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
-	ls->AlignHeightToContent();
 	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
 	_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
 
@@ -250,15 +249,15 @@ void EditorLayout::OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d
 	}
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d size, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( _mbutton )
 	{
-		OnPointerDown(ic, size, pointerPosition, _mbutton, pointerType, pointerID);
+		OnPointerDown(ic, size, scale, pointerPosition, _mbutton, pointerType, pointerID);
 	}
 }
 
-void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
@@ -267,7 +266,7 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d size, vec2d pointerPo
 	}
 }
 
-bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	bool capture = false;
 	if( 0 == _mbutton )
