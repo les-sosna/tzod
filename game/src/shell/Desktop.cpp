@@ -153,17 +153,11 @@ void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 		OnSize(GetWidth(), GetHeight());
 	}
 
-//	if( !IsGamePaused() || !IsPauseSupported() )
 	if (GameContextBase *gc = GetAppState().GetGameContext())
 	{
 		assert(dt >= 0);
 		counterDt.Push(dt);
-
-		_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(),
-		                              gc->GetWorld()._sx,
-		                              gc->GetWorld()._sy,
-		                              (float) GetWidth(),
-		                              (float) GetHeight());
+		_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), gc->GetWorld()._bounds, GetSize());
 	}
 }
 
@@ -184,11 +178,6 @@ void Desktop::SetEditorMode(bool editorMode)
 			SetFocus(_editor);
 		}
 	}
-}
-
-bool Desktop::IsGamePaused() const
-{
-	return !_navStack.empty() || _editor->GetVisible(); //  || _world._limitHit
 }
 
 void Desktop::ShowConsole(bool show)

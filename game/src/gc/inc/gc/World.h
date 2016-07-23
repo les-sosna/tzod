@@ -119,7 +119,7 @@ public:
 	bool    _gameStarted;
 	bool    _frozen;
 	bool    _nightMode;
-	float   _sx, _sy;   // world size
+	FRECT   _bounds;
 	int     _cellsX;
 	int     _cellsY;
 

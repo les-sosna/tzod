@@ -88,7 +88,6 @@ private:
 	void OnMapSettings();
 	bool GetEditorMode() const;
 	void SetEditorMode(bool editorMode);
-	bool IsGamePaused() const;
 	void ShowMainMenu();
 
 	void OnChangeShowFps();

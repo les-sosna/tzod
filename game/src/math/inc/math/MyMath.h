@@ -1,6 +1,6 @@
-// MyMath.h
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cassert>
 #include <cstdlib>
@@ -150,6 +150,7 @@ struct FRECT
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
 inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
 inline vec2d Size(const FRECT &rect) { return { WIDTH(rect), HEIGHT(rect) }; }
+inline vec2d Center(const FRECT &rect) { return vec2d{ rect.left + rect.right, rect.top + rect.bottom} / 2; }
 
 struct RectRB
 {
@@ -161,6 +162,11 @@ struct RectRB
 
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
 inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
+
+inline vec2d Vec2dConstrain(const vec2d &vec, const FRECT &rect)
+{
+	return vec2d{ std::max(rect.left, std::min(vec.x, rect.right)), std::max(rect.top, std::min(vec.y, rect.bottom)) };
+}
 
 inline vec2d Vec2dFloor(const vec2d &vec)
 {
@@ -251,7 +257,7 @@ inline vec2d vrand(float len)
 {
 	return Vec2dDirection(frand(PI2)) * len;
 }
-    
+
 } // namespace math
 
 using namespace math;

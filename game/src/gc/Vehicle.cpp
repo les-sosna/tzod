@@ -382,8 +382,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	//
 	// die if out of level bounds
 	//
-	if( GetPos().x < 0 || GetPos().x > world._sx ||
-		GetPos().y < 0 || GetPos().y > world._sy )
+	if( !PtInFRect(world._bounds, GetPos()) )
 	{
 	//	if( !TakeDamage(world, GetHealth(), GetPos(), GetOwner()) )
         {

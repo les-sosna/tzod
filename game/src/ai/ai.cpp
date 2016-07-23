@@ -201,7 +201,7 @@ static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 
 float AIController::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
-	if( to.x < 0 || to.x >= world._sx || to.y < 0 || to.y >= world._sy )
+	if (!PtInFRect(world._bounds, to))
 	{
 		return -1;
 	}
@@ -760,8 +760,8 @@ void AIController::CalcOutstrip(World &world, vec2d origin, const GC_Vehicle &ta
 
 		fake.x = origin.x + fx * c - y * s;
 		fake.y = origin.y + fx * s + y * c;
-		fake.x = std::max(.0f, std::min(world._sx, fake.x));
-		fake.y = std::max(.0f, std::min(world._sy, fake.y));
+
+		fake = Vec2dConstrain(fake, world._bounds);
 	}
 	else
 	{
@@ -954,18 +954,18 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 		assert(nullptr == _target);
 		if( L1_STICK == _aiState_l1 || _path.empty() )
 		{
-			vec2d t = vehicle.GetPos()
-				+ world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
-			float x = std::min(std::max(.0f, t.x), world._sx);
-			float y = std::min(std::max(.0f, t.y), world._sy);
+			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
+			t = Vec2dConstrain(t, world._bounds);
 
-			if (CreatePath(world, vehicle.GetPos(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
+			if (CreatePath(world, vehicle.GetPos(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
 			{
 				SmoothPath();
 				SetL1(L1_NONE);
 			}
 			else
+			{
 				ClearPath();
+			}
 		}
 	} break;
 	}

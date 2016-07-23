@@ -9,9 +9,9 @@ Terrain::Terrain(TextureManager &tm)
 {
 }
 
-void Terrain::Draw(DrawingContext &dc, float sizeX, float sizeY, bool drawGrid) const
+void Terrain::Draw(DrawingContext &dc, const FRECT &bounds, bool drawGrid) const
 {
-	dc.DrawBackground(_texBack, sizeX, sizeY);
+	dc.DrawBackground(_texBack, bounds);
 	if( drawGrid )
-		dc.DrawBackground(_texGrid, sizeX, sizeY);
+		dc.DrawBackground(_texGrid, bounds);
 }

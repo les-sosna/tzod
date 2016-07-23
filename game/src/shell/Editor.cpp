@@ -284,15 +284,6 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, 
 
 	ObjectType type = static_cast<ObjectType>(_typeList->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 
-	float align = RTTypes::Inst().GetTypeInfo(type).align;
-	float offset = RTTypes::Inst().GetTypeInfo(type).offset;
-
-	vec2d pt;
-	pt.x = std::min(_world._sx - align, std::max(align - offset, mouse.x));
-	pt.y = std::min(_world._sy - align, std::max(align - offset, mouse.y));
-	pt.x -= fmod(pt.x + align * 0.5f - offset, align) - align * 0.5f;
-	pt.y -= fmod(pt.y + align * 0.5f - offset, align) - align * 0.5f;
-
 	int layer = -1;
 	if( _conf.ed_uselayers.Get() )
 	{
@@ -326,17 +317,22 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, 
 			object->Kill(_world);
 		}
 	}
-	else
+	else if( 1 == button )
 	{
-		if( 1 == button )
+		float align = RTTypes::Inst().GetTypeInfo(type).align;
+		float offset = RTTypes::Inst().GetTypeInfo(type).offset;
+
+		vec2d pt = Vec2dFloor(mouse / align) * align + vec2d{ offset, offset };
+
+		if (PtInFRect(_world._bounds, pt))
 		{
 			// create object
 			GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
 			std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
 			// set default properties if Ctrl key is not pressed
-			if( ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
-				ic.GetInput().IsKeyPressed(UI::Key::RightCtrl) )
+			if (ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
+				ic.GetInput().IsKeyPressed(UI::Key::RightCtrl))
 			{
 				LoadFromConfig(_conf, *properties);
 				properties->Exchange(_world, true);

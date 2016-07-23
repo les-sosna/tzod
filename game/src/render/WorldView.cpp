@@ -45,10 +45,10 @@ void WorldView::Render(DrawingContext &dc,
 	dc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( nightMode )
 	{
-		float xmin = std::max(0.0f, left);
-		float ymin = std::max(0.0f, top);
-		float xmax = std::min(world._sx, right);
-		float ymax = std::min(world._sy, bottom);
+		float xmin = std::max(world._bounds.left, left);
+		float ymin = std::max(world._bounds.top, top);
+		float xmax = std::min(world._bounds.right, right);
+		float ymax = std::min(world._bounds.bottom, bottom);
 
 		FOREACH( world.GetList(LIST_lights), const GC_Light, pLight )
 		{
@@ -128,7 +128,7 @@ void WorldView::Render(DrawingContext &dc,
 
 	dc.SetMode(RM_WORLD);
 
-	_terrain.Draw(dc, world._sx, world._sy, drawGrid);
+	_terrain.Draw(dc, world._bounds, drawGrid);
 
     for( int z = 0; z < Z_COUNT; ++z )
     {

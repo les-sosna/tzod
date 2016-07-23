@@ -95,8 +95,8 @@ void GameContext::Serialize(FS::Stream &stream)
 	SaveFile f(stream, false);
 
 	int version = VERSION;
-	int width = (int) _world->_sx / CELL_SIZE;
-	int height = (int) _world->_sy / CELL_SIZE;
+	int width = (int) WIDTH(_world->_bounds) / CELL_SIZE;
+	int height = (int) HEIGHT(_world->_bounds) / CELL_SIZE;
 	f.Serialize(version);
 	f.Serialize(width);
 	f.Serialize(height);

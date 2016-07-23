@@ -14,7 +14,7 @@ class DefaultCamera
 public:
 	DefaultCamera();
 
-	void HandleMovement(UI::IInput &input, float worldWidth, float worldHeight, float screenWidth, float screenHeight);
+	void HandleMovement(UI::IInput &input, const FRECT &worldBounds, vec2d screenSize);
 	float GetZoom() const { return _zoom; }
 	vec2d GetPos() const { return _pos; }
 

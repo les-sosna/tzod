@@ -20,9 +20,7 @@ DefaultCamera::DefaultCamera()
 	_dwTimeX = _dwTimeY = GetMilliseconds();
 }
 
-void DefaultCamera::HandleMovement(UI::IInput &input,
-                                   float worldWidth, float worldHeight,
-                                   float screenWidth, float screenHeight)
+void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, vec2d screenSize)
 {
 	static char  lastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
@@ -42,7 +40,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 	unsigned int dwCurTime = GetMilliseconds();
 	unsigned int dt        = (unsigned int) _dt;
 
-    vec2d mouse = input.GetMousePos();
+	vec2d mouse = input.GetMousePos();
 
 	if( 0 == (int) mouse.x || input.IsKeyPressed(UI::Key::Left) )
 	{
@@ -54,7 +52,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 		}
 	}
 	else
-	if( screenWidth - 1 == (int) mouse.x || input.IsKeyPressed(UI::Key::Right) )
+	if(screenSize.x - 1 == (int) mouse.x || input.IsKeyPressed(UI::Key::Right) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -76,7 +74,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 		}
 	}
 	else
-	if( screenHeight - 1 == (int) mouse.y || input.IsKeyPressed(UI::Key::Down) )
+	if(screenSize.y - 1 == (int) mouse.y || input.IsKeyPressed(UI::Key::Down) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -93,12 +91,10 @@ void DefaultCamera::HandleMovement(UI::IInput &input,
 	else
 		_dt = 50.0f;
 	//------------------------------------------------------
-	int dx = std::max(0, (int) (screenWidth / _zoom - worldWidth) / 2);
-	int dy = std::max(0, (int) (screenHeight / _zoom - worldHeight) / 2);
-	_pos.x = (float) std::max(int(_pos.x), dx);
-	_pos.x = (float) std::min(int(_pos.x), int(worldWidth - screenWidth / _zoom) + dx);
-	_pos.y = (float) std::max(int(_pos.y), dy);
-	_pos.y = (float) std::min(int(_pos.y), int(worldHeight - screenHeight / _zoom) + dy);
+	float dx = std::max(0.f, (screenSize.x / _zoom - WIDTH(worldBounds)) / 2);
+	float dy = std::max(0.f, (screenSize.y / _zoom - HEIGHT(worldBounds)) / 2);
+	_pos.x = std::max(_pos.x, worldBounds.left + dx);
+	_pos.x = std::min(_pos.x, worldBounds.right - screenSize.x / _zoom + dx);
+	_pos.y = std::max(_pos.y, worldBounds.top + dy);
+	_pos.y = std::min(_pos.y, worldBounds.bottom - screenSize.y / _zoom + dy);
 }
-
-// end of file

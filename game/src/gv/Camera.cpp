@@ -26,8 +26,8 @@ void Camera::CameraTimeStep(World &world, float dt, float scale)
 	{
 		mu += vehicle->_lv.len() / 100;
 
-		int dx = (int) std::max(.0f, (viewSize.x - world._sx) / 2);
-		int dy = (int) std::max(.0f, (viewSize.y - world._sy) / 2);
+		float dx = std::max(0.f, (viewSize.x - world._bounds.right) / 2);
+		float dy = std::max(0.f, (viewSize.y - world._bounds.bottom) / 2);
 
 		vec2d r = vehicle->GetPos() + vehicle->_lv / mu;
 		float directionMultipler = std::min(130.0f, std::min(viewSize.x, viewSize.y) / 3);
@@ -37,10 +37,10 @@ void Camera::CameraTimeStep(World &world, float dt, float scale)
 		else
 			r += vehicle->GetDirection() * directionMultipler;
 
-		_target.x = std::max(r.x + (float) dx, viewSize.x * 0.5f + dx);
-		_target.y = std::max(r.y + (float) dy, viewSize.y * 0.5f + dy);
-		_target.x = std::min(_target.x, world._sx - viewSize.x * 0.5f + dx);
-		_target.y = std::min(_target.y, world._sy - viewSize.y * 0.5f + dy);
+		_target.x = std::max(r.x + dx, world._bounds.left + viewSize.x * 0.5f + dx);
+		_target.y = std::max(r.y + dy, world._bounds.top + viewSize.y * 0.5f + dy);
+		_target.x = std::min(_target.x, world._bounds.right - viewSize.x * 0.5f + dx);
+		_target.y = std::min(_target.y, world._bounds.bottom - viewSize.y * 0.5f + dy);
 	}
 
 	if( _time_shake > 0 )

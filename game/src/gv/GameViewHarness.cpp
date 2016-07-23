@@ -62,7 +62,7 @@ GameViewHarness::GameViewHarness(World &world, WorldController &worldController)
     for (GC_Player *player: worldController.GetLocalPlayers())
     {
         assert(player);
-		vec2d pos = player->GetVehicle() ? player->GetVehicle()->GetPos() : vec2d{ _world._sx / 2, _world._sy / 2 };
+        vec2d pos = player->GetVehicle() ? player->GetVehicle()->GetPos() : Center(_world._bounds);
         _cameras.emplace_back(pos, *player);
     }
 }
@@ -127,9 +127,8 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView)
     }
     else
     {
-        vec2d worldSize{ _world._sx, _world._sy };
-        vec2d eye = worldSize / 2;
-        float zoom = std::max(_pxWidth / _world._sx, _pxHeight / _world._sy);
+        vec2d eye = Center(_world._bounds);
+        float zoom = std::max(_pxWidth / WIDTH(_world._bounds), _pxHeight / HEIGHT(_world._bounds));
 
         RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
         worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
@@ -170,7 +169,7 @@ const Camera& GameViewHarness::GetMaxShakeCamera() const
 
 bool GameViewHarness::IsSingleCamera() const
 {
-    return _pxWidth / _scale >= _world._sx && _pxHeight / _scale >= _world._sy;
+    return _pxWidth / _scale >= WIDTH(_world._bounds) && _pxHeight / _scale >= HEIGHT(_world._bounds);
 }
 
 void GameViewHarness::OnBoom(GC_Explosion &obj, float radius, float damage)

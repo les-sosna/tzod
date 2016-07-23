@@ -162,8 +162,8 @@ void GC_Projectile::TimeStep(World &world, float dt)
 	}
 
 	MoveWithTrail(world, GetPos() + dx, CheckFlags(GC_FLAG_PROJECTILE_TRAIL));
-	if( GetPos().x < 0 || GetPos().x > world._sx ||
-		GetPos().y < 0 || GetPos().y > world._sy )
+
+	if (!PtInFRect(world._bounds, GetPos()))
 	{
 		Kill(world);
 	}
@@ -406,8 +406,7 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 {
 	if( GetAdvanced() )
 	{
-		auto &e = world.New<GC_ExplosionBig>(vec2d{ std::max(.0f, std::min(world._sx - 1, hit.x + norm.x)),
-		                                            std::max(.0f, std::min(world._sy - 1, hit.y + norm.y)) });
+		auto &e = world.New<GC_ExplosionBig>(Vec2dConstrain(hit + norm, world._bounds));
 		e.SetOwner(GetOwner());
 		e.SetTimeout(world, 0.05f);
 	}

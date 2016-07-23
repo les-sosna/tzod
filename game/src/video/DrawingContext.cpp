@@ -567,31 +567,31 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 	v[3].y = y0 + py * c;
 }
 
-void DrawingContext::DrawBackground(size_t tex, float sizeX, float sizeY) const
+void DrawingContext::DrawBackground(size_t tex, FRECT bounds) const
 {
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 	v[0].color = 0xffffffff;
-	v[0].u = 0;
-	v[0].v = 0;
-	v[0].x = 0;
-	v[0].y = 0;
+	v[0].u = bounds.left / lt.pxFrameWidth;
+	v[0].v = bounds.top / lt.pxFrameHeight;
+	v[0].x = bounds.left;
+	v[0].y = bounds.top;
 	v[1].color = 0xffffffff;
-	v[1].u = sizeX / lt.pxFrameWidth;
-	v[1].v = 0;
-	v[1].x = sizeX;
-	v[1].y = 0;
+	v[1].u = bounds.right / lt.pxFrameWidth;
+	v[1].v = bounds.top / lt.pxFrameHeight;
+	v[1].x = bounds.right;
+	v[1].y = bounds.top;
 	v[2].color = 0xffffffff;
-	v[2].u = sizeX / lt.pxFrameWidth;
-	v[2].v = sizeY / lt.pxFrameHeight;
-	v[2].x = sizeX;
-	v[2].y = sizeY;
+	v[2].u = bounds.right / lt.pxFrameWidth;
+	v[2].v = bounds.bottom / lt.pxFrameHeight;
+	v[2].x = bounds.right;
+	v[2].y = bounds.bottom;
 	v[3].color = 0xffffffff;
-	v[3].u = 0;
-	v[3].v = sizeY / lt.pxFrameHeight;
-	v[3].x = 0;
-	v[3].y = sizeY;
+	v[3].u = bounds.left / lt.pxFrameWidth;
+	v[3].v = bounds.bottom / lt.pxFrameHeight;
+	v[3].x = bounds.left;
+	v[3].y = bounds.bottom;
 }
 
 static const int SINTABLE_SIZE = 32;

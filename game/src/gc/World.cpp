@@ -13,22 +13,21 @@
 #include <MapFile.h>
 
 World::World(int X, int Y)
-  : _gameStarted(false)
-  , _frozen(false)
-  , _nightMode(false)
-  , _sx((float)X * CELL_SIZE)
-  , _sy((float)Y * CELL_SIZE)
-  , _cellsX(X)
-  , _cellsY(Y)
-  , _locationsX((X * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
-  , _locationsY((Y * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
-  , _seed(1)
-  , _safeMode(true)
-  , _time(0)
+	: _gameStarted(false)
+	, _frozen(false)
+	, _nightMode(false)
+	, _bounds{ 0, 0, (float)X * CELL_SIZE, (float)Y * CELL_SIZE }
+	, _cellsX(X)
+	, _cellsY(Y)
+	, _locationsX((X * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
+	, _locationsY((Y * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
+	, _seed(1)
+	, _safeMode(true)
+	, _time(0)
 #ifdef NETWORK_DEBUG
-  , _checksum(0)
-  , _frame(0)
-  , _dump(nullptr)
+	, _checksum(0)
+	, _frame(0)
+	, _dump(nullptr)
 #endif
 {
 	// don't create game objects in the constructor
@@ -215,8 +214,8 @@ void World::Export(FS::Stream &s)
 	str << VERSION;
 	file.setMapAttribute("version", str.str());
 
-	file.setMapAttribute("width",  (int) _sx / CELL_SIZE);
-	file.setMapAttribute("height", (int) _sy / CELL_SIZE);
+	file.setMapAttribute("width",  (int) WIDTH(_bounds) / CELL_SIZE);
+	file.setMapAttribute("height", (int) HEIGHT(_bounds) / CELL_SIZE);
 
 	file.setMapAttribute("author",   _infoAuthor);
 	file.setMapAttribute("desc",     _infoDesc);
@@ -279,8 +278,7 @@ bool World::CalcOutstrip( const vec2d &fp, // fire point
 
 	float fx = x + vt * (x*vt + sqrt(x*x * vp*vp + y*y * tmp)) / tmp;
 
-	out_fake.x = std::max(0.0f, std::min(_sx, fp.x + fx*cg - y*sg));
-	out_fake.y = std::max(0.0f, std::min(_sy, fp.y + fx*sg + y*cg));
+	out_fake = Vec2dConstrain(fp + vec2d{ fx*cg - y*sg, fx*sg + y*cg }, _bounds);
 	return true;
 }
 
