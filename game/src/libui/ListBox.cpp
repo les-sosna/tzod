@@ -15,6 +15,7 @@ ListBox::ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource*
 	AddFront(_scrollView);
 
 	_scrollView->SetContent(_list);
+	SetFocus(_scrollView);
 
 	_background->SetTexture(texman, "ui/list", false);
 	_background->SetDrawBorder(true);
