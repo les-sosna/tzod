@@ -31,6 +31,7 @@ class GetFileNameDlg : public UI::Dialog
 public:
 	struct Params
 	{
+		std::string blank;
 		std::string title;
 		std::string extension;
 		std::shared_ptr<FS::FileSystem> folder;
@@ -39,6 +40,7 @@ public:
 	GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang);
 	virtual ~GetFileNameDlg();
 
+	bool IsBlank() const;
 	std::string GetFileName() const;
 	std::string GetFileTitle() const;
 

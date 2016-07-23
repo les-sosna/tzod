@@ -341,6 +341,7 @@ void Desktop::OnNewMap()
 void Desktop::OnOpenMap()
 {
 	GetFileNameDlg::Params param;
+	param.blank = _lang.get_file_name_new_map.Get();
 	param.title = _lang.get_file_name_load_map.Get();
 	param.folder = _fs.GetFileSystem(DIR_MAPS);
 	param.extension = "map";
@@ -358,8 +359,16 @@ void Desktop::OnOpenMap()
 		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
 		{
-			auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
-			std::unique_ptr<GameContextBase> gc(new EditorContext(*_fs.Open(fileName)->QueryStream()));
+			std::unique_ptr<GameContextBase> gc;
+			if (static_cast<GetFileNameDlg&>(*sender).IsBlank())
+			{
+				gc.reset(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
+			}
+			else
+			{
+				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
+				gc.reset(new EditorContext(*_fs.Open(fileName)->QueryStream()));
+			}
 			GetAppState().SetGameContext(std::move(gc));
 			ClearNavStack();
 		}

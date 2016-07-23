@@ -11,6 +11,8 @@
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 
+#include <algorithm>
+
 GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang)
   : Dialog(manager, texman, 512, 460)
   , _folder(param.folder)
@@ -28,16 +30,23 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
 	AddFront(_files);
+
+	if (!param.blank.empty())
+	{
+		_files->GetData()->AddItem(param.blank);
+	}
+
 	if( _folder )
 	{
 		auto files = _folder->EnumAllFiles("*." + _ext);
+		std::sort(files.begin(), files.end());
 		for( auto it = files.begin(); it != files.end(); ++it )
 		{
 			it->erase(it->length() - _ext.length() - 1); // cut out the file extension
 			_files->GetData()->AddItem(*it);
 		}
 	}
-	_files->GetData()->Sort();
+	_files->GetList()->SetCurSel(0, true);
 	_files->GetList()->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
 	auto text = std::make_shared<UI::Text>(manager, texman);
@@ -68,6 +77,11 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 
 GetFileNameDlg::~GetFileNameDlg()
 {
+}
+
+bool GetFileNameDlg::IsBlank() const
+{
+	return _files->GetList()->GetCurSel() == 0;
 }
 
 std::string GetFileNameDlg::GetFileName() const
