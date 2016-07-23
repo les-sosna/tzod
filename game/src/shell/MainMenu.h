@@ -1,5 +1,5 @@
 #pragma once
-#include <ui/Window.h>
+#include <ui/StackLayout.h>
 #include <functional>
 
 namespace FS
@@ -10,11 +10,9 @@ namespace FS
 namespace UI
 {
 	class ConsoleBuffer;
-	class Text;
 }
 
-class ConfCache;
-class GetFileNameDlg;
+class LangCache;
 
 struct MainMenuCommands
 {
@@ -28,54 +26,15 @@ struct MainMenuCommands
 	std::function<void()> close;
 };
 
-class MainMenuDlg
-	: public UI::Window
-	, private UI::KeyboardSink
+class MainMenuDlg : public UI::StackLayout
 {
-	void OnEditor();
-	void OnMapSettings();
-
-	enum PanelType
-	{
-		PT_NONE,
-		PT_EDITOR,
-	};
-
-	enum PanelState
-	{
-		PS_NONE,
-		PS_APPEARING,
-		PS_DISAPPEARING,
-	};
-
-	std::shared_ptr<UI::Window> _panel;
-	std::shared_ptr<UI::Window> _panelFrame;
-	std::shared_ptr<UI::Text> _panelTitle;
-	PanelType  _ptype;
-	PanelState _pstate;
-
-	FS::FileSystem &_fs;
-	LangCache &_lang;
-	UI::ConsoleBuffer &_logger;
-	MainMenuCommands _commands;
-
 public:
 	MainMenuDlg(UI::LayoutManager &manager,
 	            TextureManager &texman,
-	            FS::FileSystem &fs,
-	            ConfCache &conf,
 	            LangCache &lang,
-	            UI::ConsoleBuffer &logger,
 	            MainMenuCommands commands);
-	virtual ~MainMenuDlg();
-
-	KeyboardSink *GetKeyboardSink() override { return this; }
 
 private:
-	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
-	void CreatePanel(TextureManager &texman); // create panel of current _ptype and go to PS_APPEARING state
-	void SwitchPanel(PanelType newtype);
-
-	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	LangCache &_lang;
+	MainMenuCommands _commands;
 };

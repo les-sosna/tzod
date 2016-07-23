@@ -435,7 +435,7 @@ void Desktop::ShowMainMenu()
 			ClearNavStack();
 		}
 	};
-	PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _fs, _conf, _lang, _logger, std::move(commands)));
+	PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _lang, std::move(commands)));
 }
 
 void Desktop::ClearNavStack()
