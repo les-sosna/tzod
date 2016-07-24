@@ -92,8 +92,8 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	// editor
 	VAR_BOOL(  ed_drawgrid,         true )
 	VAR_BOOL(  ed_uselayers,       false )
-	VAR_INT(   ed_width,              32 )
-	VAR_INT(   ed_height,             24 )
+	VAR_INT(   ed_width,            1024 ) // 1M blocks "should be enough for everyone"
+	VAR_INT(   ed_height,           1024 )
 	VAR_INT(   ed_object,              0 )
 	VAR_BOOL(  ed_showproperties,   true )
 	VAR_BOOL(  ed_showservices,    false )

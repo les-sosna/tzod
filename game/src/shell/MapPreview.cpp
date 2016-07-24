@@ -31,7 +31,12 @@ void MapPreview::SetMapName(std::string mapName, FS::FileSystem &fs)
 			throw std::runtime_error("unknown map size");
 		}
 
-		_world.reset(new World(width, height));
+		int left = 0;
+		int top = 0;
+		file.getMapAttribute("west_bound", left);
+		file.getMapAttribute("north_bound", top);
+
+		_world.reset(new World(RectRB{ left, top, left + width, top + height }));
 		_world->Import(file);
 
 		_title = mapName;

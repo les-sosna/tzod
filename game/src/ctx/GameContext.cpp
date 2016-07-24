@@ -24,7 +24,12 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 		throw std::runtime_error("unknown map size");
 	}
 
-	_world.reset(new World(width, height));
+	int left = 0;
+	int top = 0;
+	file.getMapAttribute("west_bound", left);
+	file.getMapAttribute("north_bound", top);
+
+	_world.reset(new World(RectRB{ left, top, left + width, top + height }));
 	_aiManager.reset(new AIManager(*_world));
 
 	_world->Seed(rand());
@@ -120,7 +125,7 @@ void GameContext::Deserialize(FS::Stream &stream)
 	if( VERSION != version )
 		throw std::runtime_error("invalid version");
 
-	_world.reset(new World(width, height));
+	_world.reset(new World(RectRB{ width, height }));
 	_world->Deserialize(f);
 
 	// TODO: deserialize world controller

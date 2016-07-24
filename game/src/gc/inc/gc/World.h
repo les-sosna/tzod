@@ -137,7 +137,7 @@ public:
 
 public:
 
-	World(int X, int Y);
+	explicit World(RectRB blockBounds);
 	~World();
 
 	void Step(float dt);
@@ -157,6 +157,7 @@ public:
 	void Deserialize(SaveFile &f);
 	void Serialize(SaveFile &f);
 
+	FRECT GetOccupiedBounds() const;
 	void Export(FS::Stream &stream);
 	void Import(MapFile &file);
 

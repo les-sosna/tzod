@@ -244,7 +244,7 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 
 void SaveToConfig(ConfCache &conf, const PropertySet &ps)
 {
-	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
+	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
 	for (int i = 0; i < ps.GetCount(); ++i)
 	{
 		const ObjectProperty *prop = const_cast<PropertySet&>(ps).GetProperty(i);
@@ -272,7 +272,7 @@ void SaveToConfig(ConfCache &conf, const PropertySet &ps)
 
 void LoadFromConfig(const ConfCache &conf, PropertySet &ps)
 {
-	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeName(ps.GetObject()->GetType()));
+	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
 	for (int i = 0; i < ps.GetCount(); ++i)
 	{
 		ObjectProperty *prop = ps.GetProperty(i);

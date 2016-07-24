@@ -731,7 +731,7 @@ void AIController::SelectFavoriteWeapon(World &world)
 	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
 		ObjectType type = RTTypes::Inst().GetTypeByIndex(i);
-		const char *name = RTTypes::Inst().GetTypeName(type);
+		const char *name = RTTypes::Inst().GetTypeInfo(type).name;
 		if( name == std::strstr(name, "weap_") )
 		{
 			if( 0 == world.net_rand() % ++wcount )

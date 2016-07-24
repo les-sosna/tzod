@@ -2,25 +2,34 @@
 #include <gc/World.h>
 #include <MapFile.h>
 
-EditorContext::EditorContext(FS::Stream &stream)
+EditorContext::EditorContext(int width, int height, FS::Stream *stream)
 {
-	MapFile mf(stream, false);
+	assert(width >= 0 && height >= 0);
+	RectRB bounds{ -width / 2, -height / 2, width / 2, height / 2 };
 
-	int width = 0;
-	int height = 0;
-	if (!mf.getMapAttribute("width", width) ||
-		!mf.getMapAttribute("height", height))
+	if (stream)
 	{
-		throw std::runtime_error("unknown map size");
+		MapFile mf(*stream, false);
+
+		int width = 0;
+		int height = 0;
+		if (!mf.getMapAttribute("width", width) ||
+			!mf.getMapAttribute("height", height))
+		{
+			throw std::runtime_error("unknown map size");
+		}
+
+		bounds.right = std::max(bounds.right, width);
+		bounds.bottom = std::max(bounds.bottom, height);
+
+		_world.reset(new World(bounds));
+		_world->Import(mf);
+	}
+	else
+	{
+		_world.reset(new World(bounds));
 	}
 
-	_world.reset(new World(width, height));
-	_world->Import(mf);
-}
-
-EditorContext::EditorContext(int width, int height)
-	: _world(new World(width, height))
-{
 }
 
 EditorContext::~EditorContext()

@@ -348,16 +348,13 @@ void Desktop::OnOpenMap()
 		OnCloseChild(sender, result);
 		if (UI::Dialog::_resultOK == result)
 		{
-			std::unique_ptr<GameContextBase> gc;
-			if (static_cast<GetFileNameDlg&>(*sender).IsBlank())
-			{
-				gc.reset(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
-			}
-			else
+			std::shared_ptr<FS::Stream> stream;
+			if (!static_cast<GetFileNameDlg&>(*sender).IsBlank())
 			{
 				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
-				gc.reset(new EditorContext(*_fs.Open(fileName)->QueryStream()));
+				stream = _fs.Open(fileName)->QueryStream();
 			}
+			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt(), stream.get()));
 			GetAppState().SetGameContext(std::move(gc));
 			ClearNavStack();
 		}

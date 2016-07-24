@@ -26,8 +26,8 @@ void Camera::CameraTimeStep(World &world, float dt, float scale)
 	{
 		mu += vehicle->_lv.len() / 100;
 
-		float dx = std::max(0.f, (viewSize.x - world._bounds.right) / 2);
-		float dy = std::max(0.f, (viewSize.y - world._bounds.bottom) / 2);
+		float dx = std::max(0.f, (viewSize.x - WIDTH(world._bounds)) / 2);
+		float dy = std::max(0.f, (viewSize.y - HEIGHT(world._bounds)) / 2);
 
 		vec2d r = vehicle->GetPos() + vehicle->_lv / mu;
 		float directionMultipler = std::min(130.0f, std::min(viewSize.x, viewSize.y) / 3);

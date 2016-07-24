@@ -12,8 +12,7 @@ namespace FS
 class EditorContext : public GameContextBase
 {
 public:
-	EditorContext(FS::Stream &stream);
-	EditorContext(int width, int height);
+	EditorContext(int width, int height, FS::Stream *stream = nullptr);
 	virtual ~EditorContext();
 
 	// GameContextBase

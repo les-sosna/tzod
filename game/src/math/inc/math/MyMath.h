@@ -158,6 +158,11 @@ struct RectRB
 	int top;
 	int right;
 	int bottom;
+
+	RectRB operator *(int m) const
+	{
+		return RectRB{ left * m, top * m, right * m, bottom * m };
+	}
 };
 
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
@@ -214,12 +219,14 @@ inline bool PtInRect(const RectRB &rect, int x, int y)
 		rect.top <= y && y < rect.bottom;
 }
 
-inline void RectToFRect(FRECT *lpfrt, const RectRB *lprt)
+inline FRECT RectToFRect(const RectRB &rect)
 {
-	lpfrt->left   = (float) lprt->left;
-	lpfrt->top    = (float) lprt->top;
-	lpfrt->right  = (float) lprt->right;
-	lpfrt->bottom = (float) lprt->bottom;
+	return FRECT{
+		(float)rect.left,
+		(float)rect.top,
+		(float)rect.right,
+		(float)rect.bottom
+	};
 }
 
 inline void FRectToRect(RectRB *lprt, const FRECT *lpfrt)

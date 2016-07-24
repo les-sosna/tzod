@@ -155,7 +155,7 @@ static int pget(lua_State *L)
 	}
 
 	return luaL_error(L, "object of type '%s' does not have property '%s'",
-					  RTTypes::Inst().GetTypeName(obj->GetType()), prop);
+	                  RTTypes::Inst().GetTypeInfo(obj->GetType()).name, prop);
 }
 
 static int pset(lua_State *L)
@@ -177,7 +177,7 @@ static int pset(lua_State *L)
 	if( !luaT_setproperty(L, *properties) )
 	{
 		return luaL_error(L, "object of type '%s' has no property '%s'",
-						  RTTypes::Inst().GetTypeName(obj->GetType()), prop);
+		                  RTTypes::Inst().GetTypeInfo(obj->GetType()).name, prop);
 	}
 
 	properties->Exchange(world, true);
@@ -277,7 +277,7 @@ static int object_type(lua_State *L)
 	}
 
 	GC_Object *obj = luaT_checkobject(L, 1);
-	lua_pushstring(L, RTTypes::Inst().GetTypeName(obj->GetType()));
+	lua_pushstring(L, RTTypes::Inst().GetTypeInfo(obj->GetType()).name);
 	return 1;
 }
 

@@ -138,33 +138,29 @@ public:
 	// access type info
 	//
 
-	unsigned int GetTypeCount()
+	unsigned int GetTypeCount() const
 	{
 		return static_cast<unsigned int>(_i2t.size());
 	}
-	const EdItem& GetTypeInfoByIndex(unsigned int typeIndex)
+	const EdItem& GetTypeInfoByIndex(unsigned int typeIndex) const
 	{
-		return _t2i[_i2t[typeIndex]];
+		return _t2i.at(_i2t.at(typeIndex));
 	}
-	const EdItem& GetTypeInfo(ObjectType type)
+	const EdItem& GetTypeInfo(ObjectType type) const
 	{
-		return _t2i[type];
+		assert(IsRegistered(type));
+		return _t2i.at(type);
 	}
-	ObjectType GetTypeByIndex(unsigned int typeIndex)
+	ObjectType GetTypeByIndex(unsigned int typeIndex) const
 	{
 		return _i2t[typeIndex];
 	}
-	ObjectType GetTypeByName(const std::string &name)
+	ObjectType GetTypeByName(const std::string &name) const
 	{
 		name2type::const_iterator it = _n2t.find(name);
 		return _n2t.end() != it ? it->second : INVALID_OBJECT_TYPE;
 	}
-	const char* GetTypeName(ObjectType type)
-	{
-		assert(IsRegistered(type));
-		return _t2i[type].name;
-	}
-	bool IsRegistered(ObjectType type)
+	bool IsRegistered(ObjectType type) const
 	{
 		return _t2i.find(type) != _t2i.end();
 	}

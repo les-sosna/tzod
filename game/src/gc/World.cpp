@@ -12,13 +12,42 @@
 #include <fs/FileSystem.h>
 #include <MapFile.h>
 
-World::World(int X, int Y)
+
+static int DivFloor(int number, unsigned int denominator)
+{
+	if (number < 0)
+	{
+		return -((-number - 1) / (int)denominator + 1);
+	}
+	else
+	{
+		return number / (int)denominator;
+	}
+}
+
+static int DivCeil(int number, unsigned int denominator)
+{
+	if (number > 0)
+	{
+		return (number - 1) / (int)denominator + 1;
+	}
+	else
+	{
+		return -((-number) / (int)denominator);
+	}
+}
+
+World::World(RectRB blockBounds)
 	: _gameStarted(false)
 	, _frozen(false)
 	, _nightMode(false)
-	, _bounds{ 0, 0, (float)X * CELL_SIZE, (float)Y * CELL_SIZE }
-	, _blockBounds{ 0, 0, X, Y }
-	, _locationBounds{ 0, 0, (X * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE, (Y * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE }
+	, _bounds(RectToFRect(blockBounds * CELL_SIZE))
+	, _blockBounds(blockBounds)
+	, _locationBounds{
+		DivFloor(blockBounds.left * CELL_SIZE, LOCATION_SIZE),
+		DivFloor(blockBounds.top * CELL_SIZE, LOCATION_SIZE),
+		DivCeil(blockBounds.right * CELL_SIZE, LOCATION_SIZE),
+		DivCeil(blockBounds.bottom * CELL_SIZE, LOCATION_SIZE) }
 	, _seed(1)
 	, _safeMode(true)
 	, _time(0)
@@ -201,6 +230,31 @@ void World::Import(MapFile &file)
 	}
 }
 
+FRECT World::GetOccupiedBounds() const
+{
+	FRECT bounds = { FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX };
+
+	FOREACH(GetList(LIST_objects), GC_Object, object)
+	{
+		auto type = object->GetType();
+		if (RTTypes::Inst().IsRegistered(type))
+		{
+			auto &typeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
+			if (!typeInfo.service)
+			{
+				vec2d pos = static_cast<GC_Actor*>(object)->GetPos();
+				vec2d halfSize = typeInfo.size / 2;
+				bounds.left = std::min(bounds.left, pos.x - halfSize.x);
+				bounds.top = std::min(bounds.top, pos.y - halfSize.y);
+				bounds.right = std::max(bounds.right, pos.x + halfSize.x);
+				bounds.bottom = std::max(bounds.bottom, pos.y + halfSize.y);
+			}
+		}
+	}
+
+	return bounds;
+}
+
 void World::Export(FS::Stream &s)
 {
 	assert(IsSafeMode());
@@ -217,8 +271,17 @@ void World::Export(FS::Stream &s)
 	str << VERSION;
 	file.setMapAttribute("version", str.str());
 
-	file.setMapAttribute("width",  (int) WIDTH(_bounds) / CELL_SIZE);
-	file.setMapAttribute("height", (int) HEIGHT(_bounds) / CELL_SIZE);
+	RectRB blockBounds;
+	FRECT occupiedBounds = GetOccupiedBounds();
+	blockBounds.left = (int)std::floor(occupiedBounds.left / CELL_SIZE);
+	blockBounds.top = (int)std::floor(occupiedBounds.top / CELL_SIZE);
+	blockBounds.right = (int)std::ceil(occupiedBounds.right / CELL_SIZE);
+	blockBounds.bottom = (int)std::ceil(occupiedBounds.bottom / CELL_SIZE);
+
+	file.setMapAttribute("north_bound", blockBounds.left);
+	file.setMapAttribute("west_bound", blockBounds.top);
+	file.setMapAttribute("width", WIDTH(blockBounds));
+	file.setMapAttribute("height", HEIGHT(blockBounds));
 
 	file.setMapAttribute("author",   _infoAuthor);
 	file.setMapAttribute("desc",     _infoDesc);
@@ -234,7 +297,7 @@ void World::Export(FS::Stream &s)
 	{
 		if( RTTypes::Inst().IsRegistered(object->GetType()) )
 		{
-			file.BeginObject(RTTypes::Inst().GetTypeName(object->GetType()));
+			file.BeginObject(RTTypes::Inst().GetTypeInfo(object->GetType()).name);
 			if (const char *optName = object->GetName(*this))
 				file.setObjectAttribute("name", std::string(optName));
 			object->MapExchange(file);
