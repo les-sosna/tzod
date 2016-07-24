@@ -16,7 +16,7 @@ public:
 
 	void HandleMovement(UI::IInput &input, const FRECT &worldBounds, vec2d screenSize);
 	float GetZoom() const { return _zoom; }
-	vec2d GetPos() const { return _pos; }
+	vec2d GetEye() const { return _pos; }
 
 private:
 	float _zoom;

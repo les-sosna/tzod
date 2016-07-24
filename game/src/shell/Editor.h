@@ -68,7 +68,11 @@ public:
 	void Select(GC_Object *object, bool bSelect);
 	void SelectNone();
 
-protected:
+private:
+	vec2d CanvasToWorld(vec2d canvasSize, vec2d canvasPos) const;
+	vec2d WorldToCanvas(vec2d canvasSize, vec2d worldPos) const;
+	FRECT WorldToCanvas(vec2d canvasSize, FRECT worldRect) const;
+
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
 

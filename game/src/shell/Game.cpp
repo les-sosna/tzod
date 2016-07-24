@@ -199,8 +199,6 @@ void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawing
 {
 	Window::Draw(lc, ic, dc, texman);
 
-	vec2d defaultEye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
-	float defaultZoom = _defaultCamera.GetZoom();
 	_gameViewHarness.RenderGame(dc, _worldView);
 	dc.SetMode(RM_INTERFACE);
 

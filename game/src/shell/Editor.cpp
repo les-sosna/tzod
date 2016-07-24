@@ -280,7 +280,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, 
 		return capture;
 	}
 
-	vec2d mouse = pointerPosition / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
+	vec2d mouse = CanvasToWorld(size, pointerPosition);
 
 	ObjectType type = static_cast<ObjectType>(_typeList->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 
@@ -455,7 +455,7 @@ void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawi
 
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
-	vec2d eye = _defaultCamera.GetPos() + lc.GetPixelSize() / 2;
+	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
@@ -463,21 +463,40 @@ void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, Drawi
 	dc.SetMode(RM_INTERFACE);
 	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
 	{
-		FRECT rt = GetSelectionRect(*s);
+		FRECT rt = GetSelectionRect(*s); // in world coord
+		FRECT sel = WorldToCanvas(lc.GetPixelSize(), rt);
 
-		FRECT sel = {
-			(rt.left - _defaultCamera.GetPos().x) * _defaultCamera.GetZoom(),
-			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom(),
-			(rt.left - _defaultCamera.GetPos().x) * _defaultCamera.GetZoom() + WIDTH(rt) * _defaultCamera.GetZoom(),
-			(rt.top - _defaultCamera.GetPos().y) * _defaultCamera.GetZoom() + HEIGHT(rt) * _defaultCamera.GetZoom()
-		};
 		dc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
 		dc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
 	}
 
 	// Mouse coordinates
-	vec2d mouse = ic.GetMousePos() / _defaultCamera.GetZoom() + _defaultCamera.GetPos();
+	vec2d mouse = CanvasToWorld(lc.GetPixelSize(), ic.GetMousePos());
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	dc.DrawBitmapText(floor(lc.GetPixelSize().x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+}
+
+vec2d EditorLayout::CanvasToWorld(vec2d canvasSize, vec2d canvasPos) const
+{
+	vec2d eye = _defaultCamera.GetEye();
+	float zoom = _defaultCamera.GetZoom();
+	return (canvasPos - canvasSize / 2) / zoom + eye;
+}
+
+vec2d EditorLayout::WorldToCanvas(vec2d canvasSize, vec2d worldPos) const
+{
+	vec2d eye = _defaultCamera.GetEye();
+	float zoom = _defaultCamera.GetZoom();
+	return (worldPos - eye) * zoom + canvasSize / 2;
+}
+
+FRECT EditorLayout::WorldToCanvas(vec2d canvasSize, FRECT worldRect) const
+{
+	vec2d eye = _defaultCamera.GetEye();
+	float zoom = _defaultCamera.GetZoom();
+	vec2d offset = (vec2d{ worldRect.left, worldRect.top } - eye) * zoom + canvasSize / 2;
+	float canvasWidth = WIDTH(worldRect) * zoom;
+	float canvasHeight = HEIGHT(worldRect) * zoom;
+	return FRECT{ offset.x, offset.y, offset.x + canvasWidth, offset.y + canvasHeight };
 }

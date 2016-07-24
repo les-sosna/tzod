@@ -145,6 +145,11 @@ struct FRECT
 	float top;
 	float right;
 	float bottom;
+
+	FRECT operator *(float m) const
+	{
+		return FRECT{ left * m, top * m, right * m, bottom * m };
+	}
 };
 
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
@@ -237,20 +242,9 @@ inline void FRectToRect(RectRB *lprt, const FRECT *lpfrt)
 	lprt->bottom = (int) lpfrt->bottom;
 }
 
-inline void OffsetFRect(FRECT *lpfrt, float x, float y)
+inline FRECT RectOffset(const FRECT &rect, vec2d offset)
 {
-	lpfrt->left   += x;
-	lpfrt->top    += y;
-	lpfrt->right  += x;
-	lpfrt->bottom += y;
-}
-
-inline void OffsetFRect(FRECT *lpfrt, const vec2d &x)
-{
-	lpfrt->left   += x.x;
-	lpfrt->top    += x.y;
-	lpfrt->right  += x.x;
-	lpfrt->bottom += x.y;
+	return FRECT{rect.left + offset.x, rect.top + offset.y, rect.right + offset.x, rect.bottom + offset.y};
 }
 
 // generates a pseudo random number in range [0, max)
