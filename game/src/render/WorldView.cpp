@@ -87,15 +87,15 @@ void WorldView::Render(DrawingContext &dc,
 
 	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
-	int xmin = std::max(0, int(left / LOCATION_SIZE));
-	int ymin = std::max(0, int(top / LOCATION_SIZE));
-	int xmax = std::min(world._locationsX - 1, int(right / LOCATION_SIZE));
-	int ymax = std::min(world._locationsY - 1, int(bottom / LOCATION_SIZE) + 1);
-    for( int x = xmin; x <= xmax; ++x )
-    for( int y = ymin; y <= ymax; ++y )
-    {
-        FOREACH(world.grid_actors.element(x,y), const GC_Actor, object)
-        {
+	int xmin = std::max(world._locationBounds.left, (int)std::floor(left / LOCATION_SIZE));
+	int ymin = std::max(world._locationBounds.top, (int)std::floor(top / LOCATION_SIZE));
+	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(right / LOCATION_SIZE));
+	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(bottom / LOCATION_SIZE) + 1);
+	for( int x = xmin; x <= xmax; ++x )
+	for( int y = ymin; y <= ymax; ++y )
+	{
+		FOREACH(world.grid_actors.element(x, y), const GC_Actor, object)
+		{
 			if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
 			{
 				for( auto &view: *viewCollection )
@@ -105,11 +105,11 @@ void WorldView::Render(DrawingContext &dc,
 						zLayers[z].emplace_back(object, view.rfunc.get());
 				}
 			}
-        }
-    }
+		}
+	}
 
-    FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
-    {
+	FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
+	{
 		if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
 		{
 			for( auto &view: *viewCollection )
@@ -119,7 +119,7 @@ void WorldView::Render(DrawingContext &dc,
 					zLayers[z].emplace_back(object, view.rfunc.get());
 			}
 		}
-    }
+	}
 
 
 	//
@@ -130,10 +130,10 @@ void WorldView::Render(DrawingContext &dc,
 
 	_terrain.Draw(dc, world._bounds, drawGrid);
 
-    for( int z = 0; z < Z_COUNT; ++z )
-    {
-        for( auto &actorWithView: zLayers[z] )
+	for( int z = 0; z < Z_COUNT; ++z )
+	{
+		for( auto &actorWithView: zLayers[z] )
 			actorWithView.second->Draw(world, *actorWithView.first, dc);
-        zLayers[z].clear();
-    }
+		zLayers[z].clear();
+	}
 }

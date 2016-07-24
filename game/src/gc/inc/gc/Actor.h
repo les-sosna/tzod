@@ -29,8 +29,8 @@ public:
 protected:
 	int _locationX;
 	int _locationY;
-	virtual void EnterContexts(World &, unsigned int locX, unsigned int locY);
-	virtual void LeaveContexts(World &, unsigned int locX, unsigned int locY);
+	virtual void EnterContexts(World &, int locX, int locY);
+	virtual void LeaveContexts(World &, int locX, int locY);
 
 private:
 	vec2d _pos;
@@ -40,17 +40,17 @@ private:
 
 #define DECLARE_GRID_MEMBER()                                               \
 protected:                                                                  \
-    void EnterContexts(World &world, unsigned int locX, unsigned int locY) override; \
-    void LeaveContexts(World &world, unsigned int locX, unsigned int locY) override; \
+    void EnterContexts(World &world, int locX, int locY) override;          \
+    void LeaveContexts(World &world, int locX, int locY) override;          \
 private:
 
 #define IMPLEMENT_GRID_MEMBER(cls, grid)                                    \
-    void cls::EnterContexts(World &world, unsigned int locX, unsigned int locY) \
+    void cls::EnterContexts(World &world, int locX, int locY)               \
     {                                                                       \
         base::EnterContexts(world, locX, locY);                             \
         world.grid.element(locX, locY).insert(this);                        \
     }                                                                       \
-    void cls::LeaveContexts(World &world, unsigned int locX, unsigned int locY) \
+    void cls::LeaveContexts(World &world, int locX, int locY)               \
     {                                                                       \
         auto &cell = world.grid.element(locX, locY);                        \
         for (auto id = cell.begin(); id != cell.end(); id = cell.next(id))  \
@@ -64,6 +64,4 @@ private:
         }                                                                   \
         assert(false);                                                      \
     }
-
-// end of file
 

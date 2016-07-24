@@ -13,14 +13,12 @@ template <class T>
 class Grid
 {
 	T *_data;
-	int _cx;
-	int _cy;
+	RectRB _bounds;
 
 public:
 	Grid()
 	  : _data(nullptr)
-	  , _cx(0)
-	  , _cy(0)
+	  , _bounds()
 	{
 	}
 
@@ -29,35 +27,34 @@ public:
 		delete [] _data;
 	}
 
-	void resize(unsigned int cx, unsigned int cy)
+	void resize(RectRB bounds)
 	{
-		assert(cx > 0 && cy > 0);
+		assert(WIDTH(bounds) > 0 && HEIGHT(bounds) > 0);
 		delete [] _data;
-		_data = new T[cy*cx];
-		_cx = cx;
-		_cy = cy;
+		_data = new T[WIDTH(bounds) * HEIGHT(bounds)];
+		_bounds = bounds;
 	}
 
-	inline T& element(unsigned int x, unsigned int y)
+	inline T& element(int x, int y)
 	{
-		assert(x < (unsigned int) _cx && y < (unsigned int) _cy);
-		return _data[_cx*y + x];
+		assert(PtInRect(_bounds, x, y));
+		return _data[WIDTH(_bounds)*(y - _bounds.top) + x - _bounds.left];
 	}
 
-	inline const T& element(unsigned int x, unsigned int y) const
+	inline const T& element(int x, int y) const
 	{
-		assert(x < (unsigned int) _cx && y < (unsigned int) _cy);
-		return _data[_cx*y + x];
+		assert(PtInRect(_bounds, x, y));
+		return _data[WIDTH(_bounds)*(y - _bounds.top) + x - _bounds.left];
 	}
 
 	///////////////////////////////////////////////////////////////////////////
 
 	void OverlapRect(std::vector<T*> &receive, const FRECT &rect)
 	{
-		int xmin = std::max(0, (int) floorf(rect.left - 0.5f));
-		int ymin = std::max(0, (int) floorf(rect.top  - 0.5f));
-		int xmax = std::min(_cx-1, (int) floorf(rect.right  + 0.5f));
-		int ymax = std::min(_cy-1, (int) floorf(rect.bottom + 0.5f));
+		int xmin = std::max(_bounds.left, (int)std::floor(rect.left - 0.5f));
+		int ymin = std::max(_bounds.top, (int)std::floor(rect.top - 0.5f));
+		int xmax = std::min(_bounds.right - 1, (int)std::floor(rect.right + 0.5f));
+		int ymax = std::min(_bounds.bottom - 1, (int)std::floor(rect.bottom + 0.5f));
 
 		for( int y = ymin; y <= ymax; ++y )
 		{
@@ -70,10 +67,10 @@ public:
 
 	void OverlapPoint(std::vector<T*> &receive, const vec2d &pt)
 	{
-		int xmin = std::min(std::max((int) floorf(pt.x - 0.5f), 0), _cx-1);
-		int ymin = std::min(std::max((int) floorf(pt.y - 0.5f), 0), _cy-1);
-		int xmax = std::min(std::max((int) floorf(pt.x + 0.5f), 0), _cx-1);
-		int ymax = std::min(std::max((int) floorf(pt.y + 0.5f), 0), _cy-1);
+		int xmin = std::min(std::max((int)std::floor(pt.x - 0.5f), _bounds.left), _bounds.right - 1);
+		int ymin = std::min(std::max((int)std::floor(pt.y - 0.5f), _bounds.top), _bounds.bottom - 1);
+		int xmax = std::min(std::max((int)std::floor(pt.x + 0.5f), _bounds.left), _bounds.right - 1);
+		int ymax = std::min(std::max((int)std::floor(pt.y + 0.5f), _bounds.top), _bounds.bottom - 1);
 
 		for( int y = ymin; y <= ymax; ++y )
 		{
@@ -84,6 +81,3 @@ public:
 		}
 	}
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

@@ -1,5 +1,3 @@
-// World.inl - inline functions for World.h
-
 #include "RigidBody.h"
 #include "WorldCfg.h"
 #include <cmath>
@@ -16,11 +14,11 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 	end   /= LOCATION_SIZE;
 	delta /= LOCATION_SIZE;
 
-	const int halfBeginX = int(floor(begin.x - 0.5f));
-	const int halfBeginY = int(floor(begin.y - 0.5f));
+	const int halfBeginX = int(std::floor(begin.x - 0.5f));
+	const int halfBeginY = int(std::floor(begin.y - 0.5f));
 
-	const int halfEndX = int(floor(end.x - 0.5f));
-	const int halfEndY = int(floor(end.y - 0.5f));
+	const int halfEndX = int(std::floor(end.x - 0.5f));
+	const int halfEndY = int(std::floor(end.y - 0.5f));
 
 	static const int jitX[4] = {0,1,0,1};
 	static const int jitY[4] = {0,0,1,1};
@@ -37,13 +35,13 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 		int cx = halfBeginX + jitX[i];
 		int cy = halfBeginY + jitY[i];
 
-		int count = (abs(cx-halfEndX - (cx<halfEndX))>>1) + (abs(cy-halfEndY - (cy<halfEndY))>>1);
+		int count = (abs(cx-halfEndX - (cx<halfEndX)) / 2) + (abs(cy-halfEndY - (cy<halfEndY)) / 2);
 		assert(count >= 0);
 
 		do
 		{
 			// check current cell
-			if( cx >= 0 && cx < _locationsX && cy >= 0 && cy < _locationsY )
+			if( PtInRect(_locationBounds, cx, cy) )
 			{
 				const ObjectList &tmp_list = list.element(cx, cy);
 				for( ObjectList::id_type it = tmp_list.begin(); it != tmp_list.end(); it = tmp_list.next(it) )
@@ -78,13 +76,10 @@ void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
 
 			// step to the next cell
 			float t = delta.x * (float) cy - delta.y * (float) cx;
-			if( fabs(t + tx) < fabs(t + ty) )
+			if(std::fabs(t + tx) < std::fabs(t + ty) )
 				cx += stepx;
 			else
 				cy += stepy;
 		} while( count-- );
 	}
 }
-
-
-// end of file

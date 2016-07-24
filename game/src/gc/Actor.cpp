@@ -7,8 +7,8 @@
 // Workaround for IMPLEMENT_GRID_MEMBER macro used in the base class
 namespace base
 {
-	inline static void EnterContexts(World&, unsigned int, unsigned int){}
-	inline static void LeaveContexts(World&, unsigned int, unsigned int){}
+	inline static void EnterContexts(World&, int, int){}
+	inline static void LeaveContexts(World&, int, int){}
 }
 
 IMPLEMENT_GRID_MEMBER(GC_Actor, grid_actors)
@@ -23,8 +23,8 @@ GC_Actor::GC_Actor(vec2d pos)
 void GC_Actor::Init(World &world)
 {
 	GC_Object::Init(world);
-	_locationX = std::min(world._locationsX-1, std::max(0, int(_pos.x) / LOCATION_SIZE));
-	_locationY = std::min(world._locationsY-1, std::max(0, int(_pos.y) / LOCATION_SIZE));
+	_locationX = std::max(world._locationBounds.left, std::min((int)std::floor(_pos.x / LOCATION_SIZE), world._locationBounds.right - 1));
+	_locationY = std::max(world._locationBounds.top, std::min((int)std::floor(_pos.y / LOCATION_SIZE), world._locationBounds.bottom - 1));
 	EnterContexts(world, _locationX, _locationY);
 }
 
@@ -42,16 +42,16 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
 	f.Serialize(_pos);
 	f.Serialize(_direction);
 
-    if (f.loading())
-        EnterContexts(world, _locationX, _locationY);
+	if (f.loading())
+		EnterContexts(world, _locationX, _locationY);
 }
 
 void GC_Actor::MoveTo(World &world, const vec2d &pos)
 {
 	_pos = pos;
 
-	int locX = std::min(world._locationsX-1, std::max(0, int(pos.x) / LOCATION_SIZE));
-	int locY = std::min(world._locationsY-1, std::max(0, int(pos.y) / LOCATION_SIZE));
+	int locX = std::max(world._locationBounds.left, std::min((int)std::floor(_pos.x / LOCATION_SIZE), world._locationBounds.right - 1));
+	int locY = std::max(world._locationBounds.top, std::min((int)std::floor(_pos.y / LOCATION_SIZE), world._locationBounds.bottom - 1));
 
 	if (_locationX != locX || _locationY != locY)
 	{

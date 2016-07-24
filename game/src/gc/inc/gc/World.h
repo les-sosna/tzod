@@ -121,9 +121,7 @@ public:
 	bool    _nightMode;
 	FRECT   _bounds;
 	RectRB  _blockBounds;
-
-	int _locationsX;
-	int _locationsY;
+	RectRB  _locationBounds;
 
 	std::string _infoAuthor;
 	std::string _infoEmail;
