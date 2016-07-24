@@ -430,16 +430,21 @@ void EditorLayout::OnChangeUseLayers()
 
 static FRECT GetSelectionRect(const GC_Actor &actor)
 {
-	float halfSize = 8;
-	if (auto *pickup = dynamic_cast<const GC_Pickup*>(&actor))
-		halfSize = pickup->GetRadius();
-	else if (auto *rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
-		halfSize = rbs->GetRadius();
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
+	if (halfSize.sqr() < 16*16*2 - 1)
+	{
+		if (auto *pickup = dynamic_cast<const GC_Pickup*>(&actor))
+			halfSize = { pickup->GetRadius(), pickup->GetRadius() };
+		else if (auto *rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
+			halfSize = { rbs->GetRadius(), rbs->GetRadius() };
+		else
+			halfSize = { 16, 16 };
+	}
 	FRECT result = {
-		actor.GetPos().x - halfSize,
-		actor.GetPos().y - halfSize,
-		actor.GetPos().x + halfSize,
-		actor.GetPos().y + halfSize
+		actor.GetPos().x - halfSize.x,
+		actor.GetPos().y - halfSize.y,
+		actor.GetPos().x + halfSize.x,
+		actor.GetPos().y + halfSize.y
 	};
 	return result;
 }
