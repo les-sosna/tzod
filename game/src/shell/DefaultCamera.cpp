@@ -91,10 +91,14 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 	else
 		_dt = 50.0f;
 	//------------------------------------------------------
-	float dx = std::max(0.f, (screenSize.x / _zoom - WIDTH(worldBounds)) / 2);
-	float dy = std::max(0.f, (screenSize.y / _zoom - HEIGHT(worldBounds)) / 2);
-	_pos.x = std::max(_pos.x, worldBounds.left + dx);
-	_pos.x = std::min(_pos.x, worldBounds.right - screenSize.x / _zoom + dx);
-	_pos.y = std::max(_pos.y, worldBounds.top + dy);
-	_pos.y = std::min(_pos.y, worldBounds.bottom - screenSize.y / _zoom + dy);
+	vec2d halfScreen = screenSize / 2 / _zoom;
+	_pos.x = std::max(_pos.x, worldBounds.left + halfScreen.x);
+	_pos.x = std::min(_pos.x, worldBounds.right - halfScreen.x);
+	_pos.y = std::max(_pos.y, worldBounds.top + halfScreen.y);
+	_pos.y = std::min(_pos.y, worldBounds.bottom - halfScreen.y);
+
+	if (input.IsKeyPressed(UI::Key::Home))
+	{
+		_pos = vec2d{};
+	}
 }
