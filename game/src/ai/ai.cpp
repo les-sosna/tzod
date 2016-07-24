@@ -378,7 +378,6 @@ void AIController::SmoothPath()
 		{
 			PathNode new_node;
 			new_node.coord = (it[0]->coord + it[1]->coord) * 0.5f;
-			assert(new_node.coord.x > 0 && new_node.coord.y > 0);
 			_path.insert(it[1], new_node);
 			if( it[0] != _path.begin() )
 				_path.erase(it[0]);
@@ -396,7 +395,6 @@ void AIController::SmoothPath()
 	{
 		it[i] = tmp++;
 		vn[i] = it[i]->coord;
-		assert(vn[i].x > 0 && vn[i].y > 0);
 	}
 
 	for(;;)
@@ -406,7 +404,6 @@ void AIController::SmoothPath()
 		for( int i = 1; i < 4; ++i )
 		{
 			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node.coord, (float) i / 4.0f);
-			assert(new_node.coord.x > 0 && new_node.coord.y > 0);
 			_path.insert(it[2], new_node);
 		}
 
