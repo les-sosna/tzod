@@ -120,8 +120,7 @@ public:
 	bool    _frozen;
 	bool    _nightMode;
 	FRECT   _bounds;
-	int     _cellsX;
-	int     _cellsY;
+	RectRB  _blockBounds;
 
 	int _locationsX;
 	int _locationsY;
@@ -180,6 +179,7 @@ public:
                        vec2d &out_fake );  // out: fake target position
 
 	int GetTileIndex(vec2d pos) const;
+	int GetTileIndex(int blockX, int blockY) const;
 
 	//
 	// tracing

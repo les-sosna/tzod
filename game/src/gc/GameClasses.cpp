@@ -55,15 +55,15 @@ static const int nf[8] = { 131,   2,  14,   8,  56,  32, 224, 128 };
 
 int GC_Wood::GetNeighbors(const World &world) const
 {
-	int x0 = int(GetPos().x / CELL_SIZE);
-	int y0 = int(GetPos().y / CELL_SIZE);
+	int x0 = (int)std::floor(GetPos().x / CELL_SIZE);
+	int y0 = (int)std::floor(GetPos().y / CELL_SIZE);
 
 	int neighbors = 0;
 	for (int i = 0; i < 8; i++)
 	{
 		auto x = x0 + dx[i];
 		auto y = y0 + dy[i];
-		auto tileIndex = (x >= 0 && x < world._cellsX && y >= 0 && y < world._cellsY) ? x + world._cellsX * y : -1;
+		auto tileIndex = world.GetTileIndex(x, y);
 		if (tileIndex == -1 || world._woodTiles[tileIndex])
 		{
 			neighbors |= nf[i];

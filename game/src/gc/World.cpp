@@ -16,9 +16,8 @@ World::World(int X, int Y)
 	: _gameStarted(false)
 	, _frozen(false)
 	, _nightMode(false)
-	, _bounds{ 0, 0, (float)X * CELL_SIZE, (float)Y * CELL_SIZE }
-	, _cellsX(X)
-	, _cellsY(Y)
+	, _bounds{ -320, -320, (float)X * CELL_SIZE, (float)Y * CELL_SIZE }
+	, _blockBounds{ -10, -10, X, Y }
 	, _locationsX((X * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
 	, _locationsY((Y * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
 	, _seed(1)
@@ -38,16 +37,21 @@ World::World(int X, int Y)
 	grid_actors.resize(_locationsX, _locationsY);
 
 	_field.Resize(X + 1, Y + 1);
-	_waterTiles.resize(X * Y);
-	_woodTiles.resize(X * Y);
+	_waterTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
+	_woodTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 }
 
 int World::GetTileIndex(vec2d pos) const
 {
-	int x = int(pos.x / CELL_SIZE);
-	int y = int(pos.y / CELL_SIZE);
-	if (x >= 0 && x < _cellsX && y >= 0 && y < _cellsY)
-		return x + _cellsX * y;
+	int blockX = (int)std::floor(pos.x / CELL_SIZE);
+	int blockY = (int)std::floor(pos.y / CELL_SIZE);
+	return GetTileIndex(blockX, blockY);
+}
+
+int World::GetTileIndex(int blockX, int blockY) const
+{
+	if (blockX >= _blockBounds.left && blockX < _blockBounds.right && blockY >= _blockBounds.top && blockY < _blockBounds.bottom)
+		return blockX - _blockBounds.left + WIDTH(_blockBounds) * (blockY - _blockBounds.top);
 	else
 		return -1;
 }
