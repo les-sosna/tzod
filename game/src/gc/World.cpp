@@ -16,8 +16,8 @@ World::World(int X, int Y)
 	: _gameStarted(false)
 	, _frozen(false)
 	, _nightMode(false)
-	, _bounds{ -320, -320, (float)X * CELL_SIZE, (float)Y * CELL_SIZE }
-	, _blockBounds{ -10, -10, X, Y }
+	, _bounds{ 0, 0, (float)X * CELL_SIZE, (float)Y * CELL_SIZE }
+	, _blockBounds{ 0, 0, X, Y }
 	, _locationsX((X * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
 	, _locationsY((Y * CELL_SIZE + LOCATION_SIZE - 1) / LOCATION_SIZE)
 	, _seed(1)
@@ -36,7 +36,7 @@ World::World(int X, int Y)
 	grid_pickup.resize(_locationsX, _locationsY);
 	grid_actors.resize(_locationsX, _locationsY);
 
-	_field.Resize(X + 1, Y + 1);
+	_field.Resize(RectRB{ _blockBounds.left, _blockBounds.top, _blockBounds.right + 1, _blockBounds.bottom + 1 });
 	_waterTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 	_woodTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 }

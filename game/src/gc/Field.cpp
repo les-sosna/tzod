@@ -78,8 +78,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 Field::Field()
 {
 	_cells = nullptr;
-	_cx    = 0;
-	_cy    = 0;
+	_bounds = {};
 
 	_edgeCell._prop = 0xFF;
 	_edgeCell._x    = -1;
@@ -95,32 +94,29 @@ void Field::Clear()
 {
 	if( _cells )
 	{
-		for( int i = 0; i < _cy; i++ )
+		for( int i = 0; i < HEIGHT(_bounds); i++ )
 			delete[] _cells[i];
 		delete[] _cells;
-		//-----------
+
 		_cells = nullptr;
-		_cx    = 0;
-		_cy    = 0;
+		_bounds = {};
 	}
-	assert(0 == _cx && 0 == _cy);
 }
 
-void Field::Resize(int cx, int cy)
+void Field::Resize(RectRB bounds)
 {
-	assert(cx > 0 && cy > 0);
+	assert(WIDTH(bounds) > 0 && HEIGHT(bounds) > 0);
 	Clear();
-	_cx = cx;
-	_cy = cy;
-	_cells = new FieldCell* [_cy];
-	for( int y = 0; y < _cy; y++ )
+	_bounds = bounds;
+	_cells = new FieldCell* [HEIGHT(bounds)];
+	for( int y = bounds.top; y < bounds.bottom; y++ )
 	{
-		_cells[y] = new FieldCell[_cx];
-		for( int x = 0; x < _cx; x++ )
+		_cells[y - bounds.top] = new FieldCell[WIDTH(bounds)];
+		for( int x = bounds.left; x < bounds.right; x++ )
 		{
 			(*this)(x, y)._x = x;
 			(*this)(x, y)._y = y;
-			if( 0 == x || 0 == y || _cx-1 == x || _cy-1 == y )
+			if(bounds.left == x || bounds.top == y || bounds.right - 1 == x || bounds.bottom - 1 == y )
 				(*this)(x, y)._prop = 0xFF;
 		}
 	}
@@ -134,10 +130,10 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 
 	assert(r >= 0);
 
-	int xmin = std::max(0,       int(p.x - r + 0.5f));
-	int xmax = std::min(_cx - 1, int(p.x + r + 0.5f));
-	int ymin = std::max(0,       int(p.y - r + 0.5f));
-	int ymax = std::min(_cy - 1, int(p.y + r + 0.5f));
+	int xmin = std::max(_bounds.left, (int)std::floor(p.x - r + 0.5f));
+	int xmax = std::min(_bounds.right - 1, (int)std::floor(p.x + r + 0.5f));
+	int ymin = std::max(_bounds.top, (int)std::floor(p.y - r + 0.5f));
+	int ymax = std::min(_bounds.bottom - 1, (int)std::floor(p.y + r + 0.5f));
 
 	for( int x = xmin; x <= xmax; x++ )
         for( int y = ymin; y <= ymax; y++ )
@@ -149,7 +145,7 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
             else
             {
                 (*this)(x, y).RemoveObject(object);
-                if( 0 == x || 0 == y || _cx-1 == x || _cy-1 == y )
+                if(_bounds.left == x || _bounds.top == y || _bounds.right-1 == x || _bounds.bottom-1 == y )
                     (*this)(x, y)._prop = 0xFF;
             }
         }

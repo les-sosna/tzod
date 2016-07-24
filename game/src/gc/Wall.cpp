@@ -41,24 +41,24 @@ static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
 			default:
 				assert(false);
 			case 1:
-				x = int(p.x+1);
-				y = int(p.y+1);
+				x = (int)std::floor(p.x+1);
+				y = (int)std::floor(p.y+1);
 				break;
 			case 2:
-				x = int(p.x);
-				y = int(p.y + 1);
+				x = (int)std::floor(p.x);
+				y = (int)std::floor(p.y + 1);
 				break;
 			case 3:
-				x = int(p.x + 1);
-				y = int(p.y);
+				x = (int)std::floor(p.x + 1);
+				y = (int)std::floor(p.y);
 				break;
 			case 4:
-				x = int(p.x);
-				y = int(p.y);
+				x = (int)std::floor(p.x);
+				y = (int)std::floor(p.y);
 				break;
 		}
 		field(x, y).RemoveObject(&obj);
-		if( 0 == x || 0 == y || field.GetX() - 1 == x || field.GetX() - 1 == y )
+		if(field.GetBounds().left == x || field.GetBounds().top == y || field.GetBounds().right - 1 == x || field.GetBounds().bottom - 1 == y )
 		{
 			field(x, y)._prop = 0xFF;
 		}
@@ -457,20 +457,20 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 		default:
 			assert(false);
 		case 1:
-			x = int(p.x+1);
-			y = int(p.y+1);
+			x = (int)std::floor(p.x+1);
+			y = (int)std::floor(p.y+1);
 			break;
 		case 2:
-			x = int(p.x);
-			y = int(p.y + 1);
+			x = (int)std::floor(p.x);
+			y = (int)std::floor(p.y + 1);
 			break;
 		case 3:
-			x = int(p.x + 1);
-			y = int(p.y);
+			x = (int)std::floor(p.x + 1);
+			y = (int)std::floor(p.y);
 			break;
 		case 4:
-			x = int(p.x);
-			y = int(p.y);
+			x = (int)std::floor(p.x);
+			y = (int)std::floor(p.y);
 			break;
 		}
 		world._field(x, y).AddObject(this);

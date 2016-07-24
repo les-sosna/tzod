@@ -1,5 +1,6 @@
 #pragma once
 
+#include <math/MyMath.h>
 #include <algorithm>
 #include <cstdlib>
 
@@ -78,8 +79,7 @@ class Field
 {
 	FieldCell _edgeCell;
 	FieldCell **_cells;
-	int _cx;
-	int _cy;
+	RectRB _bounds;
 
 	void Clear();
 
@@ -89,13 +89,13 @@ public:
 	Field();
 	~Field();
 
-	void Resize(int cx, int cy);
+	void Resize(RectRB bounds);
 	void ProcessObject(GC_RigidBodyStatic *object, bool add);
-	int GetX() const { return _cx; }
-	int GetY() const { return _cy; }
 
-    FieldCell& operator() (int x, int y)
+	RectRB GetBounds() const { return _bounds; }
+
+	FieldCell& operator() (int x, int y)
 	{
-		return (x >= 0 && x < _cx && y >= 0 && y < _cy) ? _cells[y][x] : _edgeCell;
+		return PtInRect(_bounds, x, y) ? _cells[y - _bounds.top][x - _bounds.left] : _edgeCell;
 	}
 };
