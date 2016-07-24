@@ -10,7 +10,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 {
-	ED_LAND( "wood", "obj_wood",  7 );
+	ED_BLOCK( "wood", "obj_wood",  7 );
 	return true;
 }
 

@@ -13,7 +13,17 @@
 	RTTypes::Inst().RegisterActor<__ThisClass>(                     \
 	(name), (desc), (layer), (width), (height), (align), (offset) )
 
-#define ED_ITEM(name, desc, layer) ED_ACTOR(name, desc, layer, 2, 2, CELL_SIZE/2, 0)
-#define ED_LAND(name, desc, layer) ED_ACTOR(name, desc, layer, CELL_SIZE, CELL_SIZE, CELL_SIZE, CELL_SIZE/2)
-#define ED_TURRET(name, desc) ED_ACTOR(name, desc, 0, CELL_SIZE*2, CELL_SIZE*2, CELL_SIZE, CELL_SIZE)
+#define ED_ITEM(name, desc, layer) ED_ACTOR(name, desc, layer, \
+	2 /*width*/, \
+	2 /*height*/, \
+	CELL_SIZE/2 /*align*/, \
+	0 /*offset*/)
+
+#define ED_BLOCK(name, desc, layer) ED_ACTOR(name, desc, layer, \
+	CELL_SIZE /*width*/, \
+	CELL_SIZE /*height*/, \
+	CELL_SIZE /*align*/, \
+	CELL_SIZE/2 /*offset*/)
+
+#define ED_TURRET(name, desc) ED_ACTOR(name, desc, 0, CELL_SIZE*2 /*width*/, CELL_SIZE*2 /*height*/, CELL_SIZE /*align*/, CELL_SIZE /*offset*/)
 

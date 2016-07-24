@@ -5,7 +5,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Water)
 {
-	ED_LAND( "water", "obj_water", 0 );
+	ED_BLOCK( "water", "obj_water", 0 );
 	return true;
 }
 

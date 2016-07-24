@@ -8,7 +8,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 {
-	ED_LAND("wall_brick", "obj_wall_brick",  2 );
+	ED_BLOCK("wall_brick", "obj_wall_brick",  2 );
 	return true;
 }
 
@@ -578,7 +578,7 @@ void GC_Wall::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 {
-	ED_LAND("wall_concrete", "obj_wall_concrete", 1 );
+	ED_BLOCK("wall_concrete", "obj_wall_concrete", 1 );
 	return true;
 }
 

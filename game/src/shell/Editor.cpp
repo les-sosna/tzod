@@ -320,9 +320,9 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, 
 	else if( 1 == button )
 	{
 		float align = RTTypes::Inst().GetTypeInfo(type).align;
-		float offset = RTTypes::Inst().GetTypeInfo(type).offset;
-
-		vec2d pt = Vec2dFloor(mouse / align) * align + vec2d{ offset, offset };
+		vec2d offset = vec2d{ 1, 1 } * RTTypes::Inst().GetTypeInfo(type).offset;
+		vec2d halfAlign = vec2d{ align, align } / 2;
+		vec2d pt = Vec2dFloor((mouse + halfAlign - offset) / align) * align + offset;
 
 		if (PtInFRect(_world._bounds, pt))
 		{
