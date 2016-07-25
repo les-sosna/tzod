@@ -20,7 +20,7 @@ public:
 	~LayoutManager();
 
 	void TimeStep(float dt);
-	void Render(float layoutScale, vec2d size, DrawingContext &dc) const;
+	void Render(Window &desktop, vec2d size, float scale, DrawingContext &dc) const;
 
 	InputContext& GetInputContext() const { return _inputContext; }
 	TextureManager& GetTextureManager() const { return _texman; }

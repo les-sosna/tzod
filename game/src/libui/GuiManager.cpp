@@ -133,9 +133,9 @@ static void DrawWindowRecursive(
 		renderSettings.dc.PopClippingRect();
 }
 
-void LayoutManager::Render(float layoutScale, vec2d size, DrawingContext &dc) const
+void LayoutManager::Render(Window &desktop, vec2d size, float scale, DrawingContext &dc) const
 {
-	LayoutContext layoutContext(layoutScale, size, _desktop->GetEnabled());
+	LayoutContext layoutContext(scale, size, desktop.GetEnabled());
 	RenderSettings rs{ layoutContext, _inputContext, dc, _texman };
 
 	// Find pointer sink path for hover
@@ -149,7 +149,7 @@ void LayoutManager::Render(float layoutScale, vec2d size, DrawingContext &dc) co
 		for (bool topMostPass : {true, false})
 		{
 			AreaSinkSearch search{ layoutContext.GetScale(), topMostPass };
-			if (FindAreaSink<PointerSink>(search, _desktop, size, _inputContext.GetMousePos(), _desktop->GetTopMost()))
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), size, _inputContext.GetMousePos(), desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;
@@ -165,8 +165,8 @@ void LayoutManager::Render(float layoutScale, vec2d size, DrawingContext &dc) co
 		rs.topMostPass = topMostPass;
 		DrawWindowRecursive(
 			rs,
-			*_desktop,
-			_desktop->GetTopMost()
+			desktop,
+			desktop.GetTopMost()
 		);
 	}
 	rs.ic.PopTransform();

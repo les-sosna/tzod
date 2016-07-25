@@ -1,5 +1,5 @@
 #pragma once
-#include <app/AppWindow.h>
+#include <ui/AppWindow.h>
 #include <memory>
 
 class GlfwClipboard;

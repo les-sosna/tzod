@@ -1,9 +1,9 @@
 #include "inc/app/View.h"
-#include "inc/app/AppWindow.h"
 #include "inc/app/tzod.h"
 #include <as/AppCfg.h>
 #include <fs/FileSystem.h>
 #include <shell/Desktop.h>
+#include <ui/AppWindow.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
@@ -113,7 +113,7 @@ void TzodView::Render(AppWindow &appWindow)
 
 	DrawingContext dc(_impl->textureManager, width, height);
 	appWindow.GetRender().Begin();
-	_impl->gui.Render(layoutScale, vec2d{ static_cast<float>(width), static_cast<float>(height) }, dc);
+	_impl->gui.Render(*_impl->gui.GetDesktop(), vec2d{ static_cast<float>(width), static_cast<float>(height) }, layoutScale, dc);
 	appWindow.GetRender().End();
 }
 
