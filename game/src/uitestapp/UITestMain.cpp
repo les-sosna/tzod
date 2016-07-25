@@ -13,6 +13,24 @@
 
 #define FILE_TEXTURES "scripts/textures.lua"
 
+class InputBinding
+{
+public:
+	InputBinding(AppWindow &appWindow, UI::LayoutManager &gui)
+		: _appWindow(appWindow)
+	{
+		_appWindow.SetInputSink(&gui);
+	}
+
+	~InputBinding()
+	{
+		_appWindow.SetInputSink(nullptr);
+	}
+
+private:
+	AppWindow &_appWindow;
+};
+
 static void print_what(/*UI::ConsoleBuffer &logger, */const std::exception &e, std::string prefix);
 
 #ifdef _WIN32
@@ -46,6 +64,8 @@ try
 
 	auto desktop = std::make_shared<UITestDesktop>(gui, textureManager);
 	gui.SetDesktop(desktop);
+
+	InputBinding inputBinding(appWindow, gui);
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);
