@@ -8,7 +8,7 @@ unsigned int FieldCell::_sessionId;
 void FieldCell::UpdateProperties()
 {
 	_prop = 0;
-	for( int i = 0; i < _objCount; i++ )
+	for( unsigned int i = 0; i < _objCount; i++ )
 	{
 		assert(_ppObjects[i]->GetPassability() > 0);
 		if( _ppObjects[i]->GetPassability() > _prop )
@@ -21,7 +21,7 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 	assert(object);
 
 #ifndef NDEBUG
-	for( int i = 0; i < _objCount; ++i )
+	for( unsigned int i = 0; i < _objCount; ++i )
 	{
 		assert(object != _ppObjects[i]);
 	}
@@ -58,7 +58,7 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 	{
 		GC_RigidBodyStatic **tmp = new GC_RigidBodyStatic* [_objCount - 1];
 		int j = 0;
-		for( int i = 0; i < _objCount; ++i )
+		for( unsigned int i = 0; i < _objCount; ++i )
 		{
 			if( object == _ppObjects[i] ) continue;
 			tmp[j++] = _ppObjects[i];
