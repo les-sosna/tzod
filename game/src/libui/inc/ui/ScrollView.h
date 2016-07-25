@@ -12,6 +12,8 @@ namespace UI
 		ScrollView(LayoutManager &manager);
 
 		void SetContent(std::shared_ptr<Window> content);
+		void SetVerticalScrollEnabled(bool enabled) { _verticalScrollEnabled = enabled; }
+		void SetHorizontalScrollEnabled(bool enabled) { _horizontalScrollEnabled = enabled; }
 
 		// Window
 		ScrollSink* GetScrollSink() override { return this; }
@@ -20,6 +22,8 @@ namespace UI
 	private:
 		std::shared_ptr<Window> _content;
 		vec2d _offset = {};
+		bool _verticalScrollEnabled = true;
+		bool _horizontalScrollEnabled = false;
 
 		// ScrollSink
 		void OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;

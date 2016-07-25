@@ -23,6 +23,35 @@ include_directories(
 )
 
 add_library(shell
+	inc/shell/Config.h
+	inc/shell/Desktop.h
+	inc/shell/Profiler.h
+
+	BotView.h
+	Campaign.h
+	Controller.h
+	Editor.h
+	Game.h
+	GameClassVis.h
+	GetFileName.h
+	gui.h	
+	InputManager.h
+	KeyMapper.h
+	MainMenu.h
+	MapList.h
+	MapPreview.h
+	MapSettings.h
+	MessageArea.h
+	Network.h
+	NewMap.h
+	PropertyList.h
+	QuickActions.h
+	ScoreTable.h
+	ServiceEditor.h
+	Settings.h
+	SinglePlayer.h
+	Widgets.h
+
 	BotView.cpp
 	Campaign.cpp
 	Config.cpp
@@ -32,6 +61,7 @@ add_library(shell
 	Desktop.cpp
 	Editor.cpp
 	Game.cpp
+	GameClassVis.cpp
 	GetFileName.cpp
 	gui.cpp
 	InputManager.cpp

@@ -22,6 +22,8 @@ namespace UI
 
 		// Window
 		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+		float GetWidth() const override;
+		float GetHeight() const override;
 
 	private:
 		float _spacing = 0.f;

@@ -136,4 +136,6 @@ void WorldView::Render(DrawingContext &dc,
 			actorWithView.second->Draw(world, *actorWithView.first, dc);
 		zLayers[z].clear();
 	}
+
+	dc.SetMode(RM_INTERFACE);
 }

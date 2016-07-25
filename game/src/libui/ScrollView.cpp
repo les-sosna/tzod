@@ -27,7 +27,13 @@ FRECT ScrollView::GetChildRect(vec2d size, float scale, const Window &child) con
 {
 	if (_content.get() == &child)
 	{
-		return CanvasLayout(-_offset, vec2d{ size.x / scale, child.GetSize().y }, scale);
+		vec2d contentOffset = {
+			std::max(0.f, std::min(_content->GetWidth() - size.x / scale, _offset.x)),
+			std::max(0.f, std::min(_content->GetHeight() - size.y / scale, _offset.y)) };
+		vec2d contentSize = vec2d{ 
+			_horizontalScrollEnabled ? child.GetSize().x : size.x / scale,
+			_verticalScrollEnabled ? child.GetSize().y : size.y / scale };
+		return CanvasLayout(-contentOffset, contentSize, scale);
 	}
 
 	return Window::GetChildRect(size, scale, child);
@@ -37,9 +43,14 @@ void ScrollView::OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d p
 {
 	if (_content)
 	{
+		if (!_verticalScrollEnabled && _horizontalScrollEnabled && offset.x == 0)
+		{
+			offset.x = offset.y;
+		}
+
 		_offset -= offset * 30;
+		_offset.x = std::max(0.f, std::min(_content->GetWidth() - size.x / scale, _offset.x));
 		_offset.y = std::max(0.f, std::min(_content->GetHeight() - size.y / scale, _offset.y));
-		_offset.x = std::max(0.f, std::min(size.x / scale - _content->GetWidth(), _offset.x));
 	}
 	else
 	{

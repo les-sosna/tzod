@@ -8,10 +8,11 @@ class ConfCache;
 class DefaultCamera;
 class GC_Object;
 class PropertyList;
-class ServiceEditor;
 class TextureManager;
 class World;
 class WorldView;
+
+class GameClassVis;
 
 namespace UI
 {
@@ -20,6 +21,7 @@ namespace UI
 	class ComboBox;
 	class ConsoleBuffer;
 	class Text;
+	class ScrollView;
 }
 
 class EditorLayout
@@ -35,10 +37,10 @@ class EditorLayout
 	UI::ConsoleBuffer &_logger;
 	const DefaultCamera &_defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
-	std::shared_ptr<ServiceEditor> _serviceList;
 	std::shared_ptr<UI::Text> _layerDisp;
 	std::shared_ptr<DefaultComboBox> _typeList;
 	std::shared_ptr<UI::Text> _help;
+	std::shared_ptr<UI::ScrollView> _typeSelector;
 	size_t _fontSmall;
 
 	size_t _texSelection;

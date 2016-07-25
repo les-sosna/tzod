@@ -1,6 +1,6 @@
 #include "Editor.h"
 #include "PropertyList.h"
-//#include "ServiceEditor.h"
+#include "GameClassVis.h"
 #include "inc/shell/detail/DefaultCamera.h"
 #include "inc/shell/Config.h"
 #include <gc/Object.h>
@@ -21,6 +21,8 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
+#include <ui/ScrollView.h>
+#include <ui/StackLayout.h>
 #include <ui/UIInput.h>
 #include <video/TextureManager.h>
 
@@ -68,19 +70,19 @@ static bool PtInActor(const GC_Actor &actor, vec2d pt)
 
 static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt, int layer)
 {
-    GC_Actor* zLayers[Z_COUNT];
-    memset(zLayers, 0, sizeof(zLayers));
+	GC_Actor* zLayers[Z_COUNT];
+	memset(zLayers, 0, sizeof(zLayers));
 
-    std::vector<ObjectList*> receive;
-    world.grid_actors.OverlapPoint(receive, pt / LOCATION_SIZE);
-    for( auto rit = receive.begin(); rit != receive.end(); ++rit )
-    {
-        ObjectList *ls = *rit;
-        for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
-        {
-            auto *object = static_cast<GC_Actor*>(ls->at(it));
+	std::vector<ObjectList*> receive;
+	world.grid_actors.OverlapPoint(receive, pt / LOCATION_SIZE);
+	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
+	{
+		ObjectList *ls = *rit;
+		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
+		{
+			auto *object = static_cast<GC_Actor*>(ls->at(it));
 			if (PtInActor(*object, pt))
-            {
+			{
 				enumZOrder maxZ = Z_NONE;
 				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*object, true, false) )
 				{
@@ -101,17 +103,17 @@ static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d 
 						}
 					}
 				}
-            }
-        }
-    }
+			}
+		}
+	}
 
-    for( int z = Z_COUNT; z--; )
-    {
-        if (zLayers[z])
-            return zLayers[z];
-    }
+	for( int z = Z_COUNT; z--; )
+	{
+		if (zLayers[z])
+			return zLayers[z];
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 
@@ -149,13 +151,12 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
-	//_serviceList = std::make_shared<ServiceEditor>(manager, texman, 5.f, 300.f, 512.f, 256.f, _world, _conf, _lang);
-	//_serviceList->SetVisible(_conf.ed_showservices.Get());
-	//AddFront(_serviceList);
-
 	_layerDisp = std::make_shared<UI::Text>(manager, texman);
 	_layerDisp->SetAlign(alignTextRT);
 	AddFront(_layerDisp);
+
+	auto typeListStackPanel = std::make_shared<UI::StackLayout>(manager);
+	typeListStackPanel->SetFlowDirection(UI::FlowDirection::Horizontal);
 
 	_typeList = std::make_shared<DefaultComboBox>(manager, texman);
 	_typeList->Resize(256);
@@ -165,12 +166,24 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;
 		const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
 		_typeList->GetData()->AddItem(_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
+
+		auto gcv = std::make_shared<GameClassVis>(manager, _worldView);
+		gcv->Resize(64, 64);
+		gcv->Move(0, 64.f * i);
+		gcv->SetGameClass(RTTypes::Inst().GetTypeByIndex(i));
+		typeListStackPanel->AddFront(gcv);
 	}
 	_typeList->GetData()->Sort();
 	auto ls = _typeList->GetList();
 	ls->SetTabPos(1, 128);
 	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
 	_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
+
+	_typeSelector = std::make_shared<UI::ScrollView>(manager);
+	_typeSelector->SetContent(typeListStackPanel);
+	_typeSelector->SetHorizontalScrollEnabled(true);
+	_typeSelector->SetVerticalScrollEnabled(false);
+	AddFront(_typeSelector);
 
 	assert(!_conf.ed_uselayers.eventChange);
 	_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
@@ -222,11 +235,6 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_propList->ConnectTo(nullptr, GetManager().GetTextureManager());
 		_propList->SetVisible(false);
 	}
-
-	//if (_serviceList)
-	//{
-	//	_serviceList->OnChangeSelectionGlobal(_selectedObject);
-	//}
 }
 
 void EditorLayout::SelectNone()
@@ -359,13 +367,6 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 			_conf.ed_showproperties.Set(true);
 		}
 		break;
-	case UI::Key::S:
-		//if (_serviceList)
-		//{
-		//	_serviceList->SetVisible(!_serviceList->GetVisible());
-		//	_conf.ed_showservices.Set(_serviceList->GetVisible());
-		//}
-		break;
 	case UI::Key::Delete:
 		if( _selectedObject )
 		{
@@ -405,10 +406,13 @@ FRECT EditorLayout::GetChildRect(vec2d size, float scale, const Window &child) c
 	{
 		return UI::CanvasLayout(vec2d{ size.x / scale - _typeList->GetWidth() - 5, 5 }, _typeList->GetSize(), scale);
 	}
-
-	if (_layerDisp.get() == &child)
+	else if (_layerDisp.get() == &child)
 	{
 		return UI::CanvasLayout(vec2d{ size.x / scale - _typeList->GetWidth() - 5, 6 }, _layerDisp->GetSize(), scale);
+	}
+	else if (_typeSelector.get() == &child)
+	{
+		return FRECT{ 0, size.y - std::floor(64 * scale), size.x, size.y };
 	}
 
 	return UI::Window::GetChildRect(size, scale, child);
@@ -451,8 +455,6 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 
 void EditorLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
-
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
 	vec2d eye = _defaultCamera.GetEye();
