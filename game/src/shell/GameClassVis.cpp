@@ -5,8 +5,8 @@
 
 GameClassVis::GameClassVis(UI::LayoutManager &manager, WorldView &worldView)
 	: UI::Window(manager)
-	, _world(RectRB{-2, -2, 2, 2})
 	, _worldView(worldView)
+	, _world(RectRB{-2, -2, 2, 2})
 {
 }
 

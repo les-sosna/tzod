@@ -35,7 +35,6 @@ static void DrawWeaponIndicator(const World &world,
 	{
 		vec2d pos = vehicle->GetPos();
 		float radius = vehicle->GetRadius();
-		float indicatorHeight = tm.GetFrameHeight(texId, 0);
 		dc.DrawIndicator(texId, pos.x, pos.y + radius, value);
 	}
 }

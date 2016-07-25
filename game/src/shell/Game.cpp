@@ -50,7 +50,6 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        GameContext &gameContext,
                        WorldView &worldView,
                        WorldController &worldController,
-                       const DefaultCamera &defaultCamera,
                        ConfCache &conf,
                        LangCache &lang,
                        UI::ConsoleBuffer &logger)
@@ -59,7 +58,6 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _gameViewHarness(gameContext.GetWorld(), worldController)
   , _worldView(worldView)
   , _worldController(worldController)
-  , _defaultCamera(defaultCamera)
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)

@@ -725,7 +725,6 @@ void Desktop::OnGameContextChanged()
 			*gameContext,
 			_worldView,
 			gameContext->GetWorldController(),
-			_defaultCamera,
 			_conf,
 			_lang,
 			_logger);

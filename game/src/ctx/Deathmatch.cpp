@@ -31,8 +31,8 @@ void Deathmatch::Step()
 
 bool Deathmatch::IsGameOver()
 {
-	return _timeLimit > 0 && _world.GetTime() >= _timeLimit ||
-		_fragLimit > 0 && _maxScore >= _fragLimit;
+	return (_timeLimit > 0 && _world.GetTime() >= _timeLimit) ||
+		(_fragLimit > 0 && _maxScore >= _fragLimit);
 }
 
 void Deathmatch::Serialize(SaveFile &f)

@@ -11,6 +11,7 @@
 
 #include <fs/FileSystem.h>
 #include <MapFile.h>
+#include <cfloat>
 
 
 static int DivFloor(int number, unsigned int denominator)

@@ -46,7 +46,7 @@ protected:
 	std::shared_ptr<Button> _btnDownRight;
 
 private:
-	virtual void OnSize(float width, float height);
+	void OnSize(float width, float height) override;
 
 	void OnBoxMouseDown(float x, float y);
 	void OnBoxMouseUp(float x, float y);

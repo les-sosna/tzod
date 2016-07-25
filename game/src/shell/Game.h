@@ -44,7 +44,6 @@ public:
 	           GameContext &gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,
-	           const DefaultCamera &defaultCamera,
 	           ConfCache &conf,
 	           LangCache &lang,
 	           UI::ConsoleBuffer &logger);
@@ -70,7 +69,6 @@ private:
 	GameViewHarness _gameViewHarness;
 	WorldView &_worldView;
 	WorldController &_worldController;
-	const DefaultCamera &_defaultCamera;
 	ConfCache &_conf;
 	LangCache &_lang;
 	InputManager _inputMgr;
