@@ -57,6 +57,9 @@ static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
 				y = (int)std::floor(p.y);
 				break;
 		}
+		x = std::max(field.GetBounds().left, std::min(x, field.GetBounds().right - 1));
+		y = std::max(field.GetBounds().top, std::min(y, field.GetBounds().bottom - 1));
+
 		field(x, y).RemoveObject(&obj);
 		if(field.GetBounds().left == x || field.GetBounds().top == y || field.GetBounds().right - 1 == x || field.GetBounds().bottom - 1 == y )
 		{
@@ -473,6 +476,9 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 			y = (int)std::floor(p.y);
 			break;
 		}
+		x = std::max(world._field.GetBounds().left, std::min(x, world._field.GetBounds().right - 1));
+		y = std::max(world._field.GetBounds().top, std::min(y, world._field.GetBounds().bottom - 1));
+
 		world._field(x, y).AddObject(this);
 	}
 

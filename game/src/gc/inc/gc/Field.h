@@ -10,12 +10,12 @@ class GC_RigidBodyStatic;
 class FieldCell
 {
 public:
-	static unsigned long _sessionId;
+	static unsigned int _sessionId;
 	short _x, _y;
-	unsigned long _mySession;
+	unsigned int _mySession;
 	//-----------------------------
 	GC_RigidBodyStatic **_ppObjects;
-	unsigned char _objCount;
+	unsigned int _objCount;
 	unsigned char _prop;             // 0 - free, 1 - could be broken, 0xFF - impassable
 	//-----------------------------
 	void UpdateProperties();

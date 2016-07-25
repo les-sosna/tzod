@@ -3,7 +3,7 @@
 #include "inc/gc/WorldCfg.h"
 #include <cassert>
 
-unsigned long FieldCell::_sessionId;
+unsigned int FieldCell::_sessionId;
 
 void FieldCell::UpdateProperties()
 {
@@ -19,7 +19,6 @@ void FieldCell::UpdateProperties()
 void FieldCell::AddObject(GC_RigidBodyStatic *object)
 {
 	assert(object);
-	assert(_objCount < 255);
 
 #ifndef NDEBUG
 	for( int i = 0; i < _objCount; ++i )
@@ -130,10 +129,10 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 
 	assert(r >= 0);
 
-	int xmin = std::max(_bounds.left, (int)std::floor(p.x - r + 0.5f));
-	int xmax = std::min(_bounds.right - 1, (int)std::floor(p.x + r + 0.5f));
-	int ymin = std::max(_bounds.top, (int)std::floor(p.y - r + 0.5f));
-	int ymax = std::min(_bounds.bottom - 1, (int)std::floor(p.y + r + 0.5f));
+	int xmin = std::min(_bounds.right - 1, std::max(_bounds.left, (int)std::floor(p.x - r + 0.5f)));
+	int xmax = std::min(_bounds.right - 1, std::max(_bounds.left, (int)std::floor(p.x + r + 0.5f)));
+	int ymin = std::min(_bounds.bottom - 1, std::max(_bounds.top, (int)std::floor(p.y - r + 0.5f)));
+	int ymax = std::min(_bounds.bottom - 1, std::max(_bounds.top, (int)std::floor(p.y + r + 0.5f)));
 
 	for( int x = xmin; x <= xmax; x++ )
         for( int y = ymin; y <= ymax; y++ )
