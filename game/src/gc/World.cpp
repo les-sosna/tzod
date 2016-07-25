@@ -278,8 +278,8 @@ void World::Export(FS::Stream &s)
 	blockBounds.right = (int)std::ceil(occupiedBounds.right / CELL_SIZE);
 	blockBounds.bottom = (int)std::ceil(occupiedBounds.bottom / CELL_SIZE);
 
-	file.setMapAttribute("north_bound", blockBounds.left);
-	file.setMapAttribute("west_bound", blockBounds.top);
+	file.setMapAttribute("north_bound", blockBounds.top);
+	file.setMapAttribute("west_bound", blockBounds.left);
 	file.setMapAttribute("width", WIDTH(blockBounds));
 	file.setMapAttribute("height", HEIGHT(blockBounds));
 
