@@ -133,7 +133,7 @@ FRECT Button::GetChildRect(vec2d size, float scale, const Window &child) const
 {
 	if (_background.get() == &child)
 	{
-		return FRECT{ 0, 0, size.x, size.y };
+		return MakeRectRB(vec2d{}, size);
 	}
 
 	if (_icon)
@@ -142,25 +142,22 @@ FRECT Button::GetChildRect(vec2d size, float scale, const Window &child) const
 		{
 			vec2d pxChildPos = Vec2dFloor(size / 2);
 			pxChildPos.y += std::floor(_icon->GetHeight() * scale / 2);
-			return FRECT{ pxChildPos.x, pxChildPos.y, pxChildPos.x, pxChildPos.y };
+			return MakeRectWH(pxChildPos, vec2d{});
 		}
 
 		if (_icon.get() == &child)
 		{
 			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
 			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
-
 			pxChildPos.y -= std::floor(_text->GetHeight() * scale / 2);
-
-			return FRECT{ pxChildPos.x, pxChildPos.y, pxChildPos.x + pxChildSize.x, pxChildPos.y + pxChildSize.y };
+			return MakeRectWH(pxChildPos, pxChildSize);
 		}
 	}
 	else
 	{
 		if (_text.get() == &child)
 		{
-			vec2d pos = Vec2dFloor(size / 2);
-			return FRECT{ pos.x, pos.y, pos.x, pos.y };
+			return MakeRectWH(Vec2dFloor(size / 2), vec2d{});
 		}
 	}
 

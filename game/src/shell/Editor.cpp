@@ -498,7 +498,5 @@ FRECT EditorLayout::WorldToCanvas(vec2d canvasSize, FRECT worldRect) const
 	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom();
 	vec2d offset = (vec2d{ worldRect.left, worldRect.top } - eye) * zoom + canvasSize / 2;
-	float canvasWidth = WIDTH(worldRect) * zoom;
-	float canvasHeight = HEIGHT(worldRect) * zoom;
-	return FRECT{ offset.x, offset.y, offset.x + canvasWidth, offset.y + canvasHeight };
+	return MakeRectWH(offset, Size(worldRect) * zoom);
 }

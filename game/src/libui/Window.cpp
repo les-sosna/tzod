@@ -141,7 +141,5 @@ void Window::OnTimeStep(LayoutManager &manager, float dt)
 
 FRECT UI::CanvasLayout(vec2d offset, vec2d size, float scale)
 {
-	float left = std::floor(offset.x * scale);
-	float top = std::floor(offset.y * scale);
-	return FRECT{ left, top, left + std::floor(size.x * scale), top + std::floor(size.y * scale) };
+	return MakeRectWH(Vec2dFloor(offset * scale), Vec2dFloor(size * scale));
 }
