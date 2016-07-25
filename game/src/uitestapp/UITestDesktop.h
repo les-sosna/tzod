@@ -3,6 +3,7 @@
 
 namespace UI
 {
+	class Button;
 	class Rectangle;
 	class Text;
 }
@@ -18,4 +19,5 @@ public:
 private:
 	std::shared_ptr<UI::Rectangle> _testRect;
 	std::shared_ptr<UI::Text> _testText;
+	std::shared_ptr<UI::Button> _testButton;
 };

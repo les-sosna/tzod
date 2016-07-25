@@ -152,6 +152,9 @@ struct FRECT
 	}
 };
 
+inline FRECT MakeRectRB(vec2d lt, vec2d rb) { return FRECT{ lt.x, lt.y, rb.x, rb.y }; }
+inline FRECT MakeRectWH(vec2d lt, vec2d size) { return FRECT{ lt.x, lt.y, lt.x + size.x, lt.y + size.y }; }
+
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
 inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
 inline vec2d Size(const FRECT &rect) { return { WIDTH(rect), HEIGHT(rect) }; }
