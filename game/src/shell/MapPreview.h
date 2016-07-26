@@ -18,7 +18,7 @@ public:
 	void SetMapName(std::string mapName, FS::FileSystem &fs);
 
 	// UI::Window
-	void Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	std::unique_ptr<World> _world;

@@ -4,6 +4,7 @@
 
 namespace UI
 {
+struct ColorSource;
 
 class Text : public Window
 {
@@ -12,9 +13,9 @@ public:
 
 	void SetAlign(enumAlignText align);
 	void SetFont(TextureManager &texman, const char *fontName);
-	void SetFontColor(SpriteColor color);
+	void SetFontColor(std::shared_ptr<ColorSource> color);
 
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnTextChange(TextureManager &texman) override;
 
 private:
@@ -22,7 +23,7 @@ private:
 	size_t         _maxline;
 	enumAlignText  _align;
 	size_t         _fontTexture;
-	SpriteColor    _fontColor;
+	std::shared_ptr<ColorSource> _fontColor;
 };
 
 } // namespace UI

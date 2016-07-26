@@ -106,11 +106,11 @@ int Edit::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void Edit::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	const_cast<Edit*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
 
-	Rectangle::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(sc, lc, ic, dc, texman);
 
 	float w = texman.GetFrameWidth(_font, 0) - 1;
 

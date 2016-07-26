@@ -193,9 +193,9 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void GameLayout::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	Window::Draw(lc, ic, dc, texman);
+	Window::Draw(sc, lc, ic, dc, texman);
 
 	_gameViewHarness.RenderGame(dc, _worldView);
 	dc.SetMode(RM_INTERFACE);

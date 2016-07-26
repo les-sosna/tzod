@@ -1,7 +1,9 @@
 #include "inc/ui/Button.h"
+#include "inc/ui/DataSource.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/Rectangle.h"
+#include "inc/ui/StateContext.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
@@ -74,11 +76,35 @@ void ButtonBase::OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerP
 	}
 }
 
+void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const
+{
+	switch (GetState(lc, ic))
+	{
+	case statePushed:
+		sc.SetState("Pushed");
+		break;
+	case stateHottrack:
+		sc.SetState("Hover");
+		break;
+	case stateNormal:
+		sc.SetState("Idle");
+		break;
+	case stateDisabled:
+		sc.SetState("Disabled");
+		break;
+	default:
+		assert(false);
+	}
+}
+
 void ButtonBase::OnClick()
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static const auto c_textColor = std::make_shared<ColorMap>(0xffffffff, // default
+	ColorMap::ColorMapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffccccff } });
 
 Button::Button(LayoutManager &manager, TextureManager &texman)
 	: ButtonBase(manager)
@@ -89,6 +115,7 @@ Button::Button(LayoutManager &manager, TextureManager &texman)
 	AddFront(_text);
 
 	_text->SetAlign(alignTextCC);
+	_text->SetFontColor(c_textColor);
 
 	SetFont(texman, "font_default");
 	SetBackground(texman, "ui/button", true);
@@ -106,6 +133,8 @@ void Button::SetIcon(LayoutManager &manager, TextureManager &texman, const char 
 		if (!_icon)
 		{
 			_icon = std::make_shared<Rectangle>(manager);
+			_icon->SetBackColor(c_textColor);
+			_icon->SetBorderColor(c_textColor);
 			AddFront(_icon);
 		}
 		_icon->SetTexture(texman, spriteName, true);
@@ -169,40 +198,12 @@ void Button::OnTextChange(TextureManager &texman)
 	_text->SetText(texman, GetText());
 }
 
-void Button::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Button::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(lc, ic, dc, texman);
+	ButtonBase::Draw(sc, lc, ic, dc, texman);
 
 	State state = GetState(lc, ic);
-
-	SpriteColor c = 0;
-
-	switch( state )
-	{
-	case statePushed:
-		c = 0xffffffff;
-		break;
-	case stateHottrack:
-		c = 0xffffffff;
-		break;
-	case stateNormal:
-		c = 0xffffffff;
-		break;
-	case stateDisabled:
-		c = 0xbbbbbbbb;
-		break;
-	default:
-		assert(false);
-	}
-
 	_background->SetFrame(state);
-	_text->SetFontColor(c);
-
-	if (_icon)
-	{
-		_icon->SetBackColor(c);
-		_icon->SetBorderColor(c);
-	}
 }
 
 
@@ -236,9 +237,9 @@ void TextButton::OnTextChange(TextureManager &texman)
 	AlignSizeToContent(texman);
 }
 
-void TextButton::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void TextButton::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(lc, ic, dc, texman);
+	ButtonBase::Draw(sc, lc, ic, dc, texman);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -287,9 +288,9 @@ void CheckBox::OnTextChange(TextureManager &texman)
 	AlignSizeToContent(texman);
 }
 
-void CheckBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void CheckBox::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	ButtonBase::Draw(lc, ic, dc, texman);
+	ButtonBase::Draw(sc, lc, ic, dc, texman);
 
 	State state = GetState(lc, ic);
 	size_t frame = _isChecked ? state + 4 : state;

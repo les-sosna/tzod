@@ -34,7 +34,7 @@ public:
 	std::function<void(float)> eventScroll;
 
 	// Window
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 protected:
 	virtual float Select(float x, float y) const = 0;

@@ -15,9 +15,9 @@ void BotView::SetBotConfig(ConfVarTable &botConf, TextureManager &texman)
 	_texSkin = texman.FindSprite(std::string("skin/") + _botConfCache->skin.Get());
 }
 
-void BotView::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void BotView::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	UI::Window::Draw(lc, ic, dc, texman);
+	UI::Window::Draw(sc, lc, ic, dc, texman);
 
 	if (_botConfCache)
 	{

@@ -1,4 +1,5 @@
 #include "inc/ui/Text.h"
+#include "inc/ui/DataSource.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -11,7 +12,6 @@ Text::Text(LayoutManager &manager, TextureManager &texman)
   , _maxline(0)
   , _align(alignTextLT)
   , _fontTexture(0)
-  , _fontColor(0xffffffff)
 {
 	SetFont(texman, "font_small");
 }
@@ -29,14 +29,14 @@ void Text::SetFont(TextureManager &texman, const char *fontName)
 	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
 
-void Text::SetFontColor(SpriteColor color)
+void Text::SetFontColor(std::shared_ptr<ColorSource> color)
 {
 	_fontColor = color;
 }
 
-void Text::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	dc.DrawBitmapText(0, 0, _fontTexture, _fontColor, GetText(), _align);
+	dc.DrawBitmapText(0, 0, _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, GetText(), _align);
 }
 
 void Text::OnTextChange(TextureManager &texman)

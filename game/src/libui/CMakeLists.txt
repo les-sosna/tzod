@@ -15,6 +15,7 @@ add_library(ui
 	Combo.cpp
 	Console.cpp
 	ConsoleBuffer.cpp
+	DataSource.cpp
 	Dialog.cpp
 	Edit.cpp
 	GuiManager.cpp
@@ -35,6 +36,7 @@ add_library(ui
 	inc/ui/Combo.h
 	inc/ui/Console.h
 	inc/ui/ConsoleBuffer.h
+	inc/ui/DataSource.h
 	inc/ui/DataSourceAdapters.h
 	inc/ui/Dialog.h
 	inc/ui/Edit.h
@@ -50,6 +52,7 @@ add_library(ui
 	inc/ui/Scroll.h
 	inc/ui/ScrollView.h
 	inc/ui/StackLayout.h
+	inc/ui/StateContext.h
 	inc/ui/Text.h
 	inc/ui/UIInput.h
 	inc/ui/Window.h

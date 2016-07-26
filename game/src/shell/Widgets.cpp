@@ -209,9 +209,9 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Oscilloscope::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	UI::Rectangle::Draw(lc, ic, dc, texman);
+	UI::Rectangle::Draw(sc, lc, ic, dc, texman);
 
 	float labelOffset = texman.GetCharHeight(_titleFont) / 2;
 

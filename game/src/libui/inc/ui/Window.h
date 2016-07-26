@@ -50,6 +50,13 @@ struct TextSink
 	virtual bool OnChar(int c) = 0;
 };
 
+class StateContext;
+
+struct StateGen
+{
+	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const = 0;
+};
+
 class Window : public std::enable_shared_from_this<Window>
 {
 	friend class LayoutManager;
@@ -111,6 +118,9 @@ public:
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
 	virtual TextSink* GetTextSink() { return nullptr; }
 
+	// State
+	virtual const StateGen* GetStateGen() const { return nullptr; }
+
 	//
 	// Appearance
 	//
@@ -168,7 +178,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const {}
+	virtual void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const {}
 
 private:
 

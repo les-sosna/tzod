@@ -33,7 +33,7 @@ public:
 	std::function<void(int)> eventChangeCurSel;
 
 	// Window
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 
 protected:

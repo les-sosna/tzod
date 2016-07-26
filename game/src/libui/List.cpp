@@ -170,7 +170,7 @@ float List::GetHeight() const
 	return GetItemHeight(1) * _data->GetItemCount();
 }
 
-void List::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	RectRB visibleRegion = dc.GetVisibleRegion();
 

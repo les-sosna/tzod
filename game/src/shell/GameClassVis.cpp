@@ -16,7 +16,7 @@ void GameClassVis::SetGameClass(ObjectType type)
 	RTTypes::Inst().CreateActor(_world, type, 0, 0);
 }
 
-void GameClassVis::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void GameClassVis::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };
 	vec2d eye{ 0, 0 };

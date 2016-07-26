@@ -1,4 +1,5 @@
 #include "inc/ui/Rectangle.h"
+#include "inc/ui/DataSource.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
@@ -8,9 +9,16 @@ using namespace UI;
 
 Rectangle::Rectangle(LayoutManager &manager)
 	: Window(manager)
+	, _backColor(std::make_shared<StaticColor>(0xffffffff))
+	, _borderColor(std::make_shared<StaticColor>(0xffffffff))
 	, _drawBorder(true)
 	, _drawBackground(true)
 {
+}
+
+void Rectangle::SetBackColor(std::shared_ptr<ColorSource> color)
+{
+	_backColor = color;
 }
 
 float Rectangle::GetTextureWidth(TextureManager &texman) const
@@ -44,7 +52,7 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 	_textureStretchMode = stretchMode;
 }
 
-void Rectangle::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	FRECT dst = { 0, 0, lc.GetPixelSize().x, lc.GetPixelSize().y };
 
@@ -56,7 +64,7 @@ void Rectangle::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				dc.DrawSprite(client, _texture, _backColor, _frame);
+				dc.DrawSprite(client, _texture, _backColor->GetColor(sc), _frame);
 			}
 			else
 			{
@@ -80,14 +88,14 @@ void Rectangle::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &
 					client.right = client.left + newWidth;
 				}
 
-				dc.DrawSprite(client, _texture, _backColor, _frame);
+				dc.DrawSprite(client, _texture, _backColor->GetColor(sc), _frame);
 
 				dc.PopClippingRect();
 			}
 		}
 		if (_drawBorder)
 		{
-			dc.DrawBorder(dst, _texture, _borderColor, _frame);
+			dc.DrawBorder(dst, _texture, _borderColor->GetColor(sc), _frame);
 		}
 	}
 }

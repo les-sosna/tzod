@@ -10,6 +10,7 @@ namespace UI
 class ButtonBase
 	: public Window
 	, private PointerSink
+	, private StateGen
 {
 public:
 	enum State
@@ -31,6 +32,7 @@ public:
 
 	// Window
 	PointerSink* GetPointerSink() override { return this; }
+	const StateGen* GetStateGen() const override { return this; }
 
 private:
 	virtual void OnClick();
@@ -40,6 +42,9 @@ private:
 	bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerUp(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition) override;
+
+	// StateGen
+	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +66,7 @@ protected:
 
 	// Window
 	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	void OnTextChange(TextureManager &texman) override;
 
 private:
@@ -84,7 +89,7 @@ protected:
 	void AlignSizeToContent(TextureManager &texman);
 
 	void OnTextChange(TextureManager &texman) override;
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 
 private:
@@ -108,7 +113,7 @@ protected:
 	void OnTextChange(TextureManager &texman) override;
 
 	// Window
-	void Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
 	size_t _fontTexture;

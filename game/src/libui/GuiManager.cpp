@@ -2,6 +2,7 @@
 #include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
+#include "inc/ui/StateContext.h"
 #include "inc/ui/Window.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
@@ -64,6 +65,7 @@ void LayoutManager::TimeStep(float dt)
 
 struct RenderSettings
 {
+	StateContext &sc;
 	LayoutContext &lc;
 	InputContext &ic;
 	DrawingContext &dc;
@@ -79,7 +81,12 @@ static void DrawWindowRecursive(
 	unsigned int depth = 0)
 {
 	if (insideTopMost == renderSettings.topMostPass)
-		wnd.Draw(renderSettings.lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
+		wnd.Draw(renderSettings.sc, renderSettings.lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
+
+	if (auto stateGen = wnd.GetStateGen())
+	{
+		stateGen->PushState(renderSettings.sc, renderSettings.lc, renderSettings.ic);
+	}
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!renderSettings.topMostPass || insideTopMost);
@@ -135,8 +142,9 @@ static void DrawWindowRecursive(
 
 void LayoutManager::Render(Window &desktop, vec2d size, float scale, DrawingContext &dc) const
 {
+	StateContext stateContext;
 	LayoutContext layoutContext(scale, size, desktop.GetEnabled());
-	RenderSettings rs{ layoutContext, _inputContext, dc, _texman };
+	RenderSettings rs{ stateContext, layoutContext, _inputContext, dc, _texman };
 
 	// Find pointer sink path for hover
 	// TODO: all pointers

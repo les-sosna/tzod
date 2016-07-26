@@ -160,10 +160,10 @@ FRECT ComboBox::GetChildRect(vec2d size, float scale, const Window &child) const
 	return Window::GetChildRect(size, scale, child);
 }
 
-void ComboBox::Draw(const LayoutContext &lc, InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void ComboBox::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	const_cast<ComboBox*>(this)->SetFrame(lc.GetEnabled() ? 0 : 3);
 
-	Rectangle::Draw(lc, ic, dc, texman);
+	Rectangle::Draw(sc, lc, ic, dc, texman);
 }
 

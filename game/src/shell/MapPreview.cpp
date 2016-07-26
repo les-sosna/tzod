@@ -48,9 +48,9 @@ void MapPreview::SetMapName(std::string mapName, FS::FileSystem &fs)
 	}
 }
 
-void MapPreview::Draw(const UI::LayoutContext &lc, UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	UI::ButtonBase::Draw(lc, ic, dc, texman);
+	UI::ButtonBase::Draw(sc, lc, ic, dc, texman);
 
 	if (_world)
 	{
