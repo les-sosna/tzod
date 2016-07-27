@@ -329,6 +329,13 @@ void Desktop::OnNewMap()
 
 void Desktop::OnOpenMap()
 {
+	if (GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
+		GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
+	{
+		OnExportMap();
+		return;
+	}
+
 	GetFileNameDlg::Params param;
 	param.blank = _lang.get_file_name_new_map.Get();
 	param.title = _lang.get_file_name_load_map.Get();
