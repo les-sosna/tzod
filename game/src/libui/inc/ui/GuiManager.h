@@ -3,6 +3,7 @@
 #include <math/MyMath.h>
 #include <list>
 #include <memory>
+#include <vector>
 
 class DrawingContext;
 class TextureManager;
@@ -11,7 +12,22 @@ namespace UI
 {
 
 class InputContext;
+class LayoutContext;
+class StateContext;
 class Window;
+
+struct RenderSettings
+{
+	StateContext &sc;
+	LayoutContext &lc;
+	InputContext &ic;
+	DrawingContext &dc;
+	TextureManager &texman;
+	bool topMostPass;
+	std::vector<std::shared_ptr<Window>> hoverPath;
+};
+
+void RenderUIRoot(Window &desktop, RenderSettings &rs);
 
 class LayoutManager
 {
@@ -20,7 +36,6 @@ public:
 	~LayoutManager();
 
 	void TimeStep(float dt);
-	void Render(Window &desktop, vec2d size, float scale, DrawingContext &dc) const;
 
 	InputContext& GetInputContext() const { return _inputContext; }
 	TextureManager& GetTextureManager() const { return _texman; }

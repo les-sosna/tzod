@@ -5,8 +5,10 @@
 #include <platglfw/Timer.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
-#include <ui/InputContext.h>
 #include <ui/GuiManager.h>
+#include <ui/InputContext.h>
+#include <ui/LayoutContext.h>
+#include <ui/StateContext.h>
 #include <exception>
 #include <string>
 #include <iostream>
@@ -82,7 +84,12 @@ try
 
 		DrawingContext dc(textureManager, width, height);
 		appWindow.GetRender().Begin();
-		gui.Render(*desktop, vec2d{ static_cast<float>(width), static_cast<float>(height) }, layoutScale, dc);
+
+		UI::StateContext stateContext;
+		UI::LayoutContext layoutContext(layoutScale, vec2d{ static_cast<float>(width), static_cast<float>(height) }, desktop->GetEnabled());
+		UI::RenderSettings rs{ stateContext, layoutContext, gui.GetInputContext(), dc, textureManager };
+
+		UI::RenderUIRoot(*desktop, rs);
 		appWindow.GetRender().End();
 
 		appWindow.Present();

@@ -63,17 +63,6 @@ void LayoutManager::TimeStep(float dt)
 	}
 }
 
-struct RenderSettings
-{
-	StateContext &sc;
-	LayoutContext &lc;
-	InputContext &ic;
-	DrawingContext &dc;
-	TextureManager &texman;
-	bool topMostPass;
-	std::vector<std::shared_ptr<Window>> hoverPath;
-};
-
 static void DrawWindowRecursive(
 	RenderSettings &renderSettings,
 	const Window &wnd,
@@ -140,15 +129,11 @@ static void DrawWindowRecursive(
 		renderSettings.dc.PopClippingRect();
 }
 
-void LayoutManager::Render(Window &desktop, vec2d size, float scale, DrawingContext &dc) const
+void UI::RenderUIRoot(Window &desktop, RenderSettings &rs)
 {
-	StateContext stateContext;
-	LayoutContext layoutContext(scale, size, desktop.GetEnabled());
-	RenderSettings rs{ stateContext, layoutContext, _inputContext, dc, _texman };
-
 	// Find pointer sink path for hover
 	// TODO: all pointers
-	if (auto capturePath = _inputContext.GetCapturePath(0))
+	if (auto capturePath = rs.ic.GetCapturePath(0))
 	{
 		rs.hoverPath = *capturePath;
 	}
@@ -156,8 +141,8 @@ void LayoutManager::Render(Window &desktop, vec2d size, float scale, DrawingCont
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ layoutContext.GetScale(), topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), size, _inputContext.GetMousePos(), desktop.GetTopMost()))
+			AreaSinkSearch search{ rs.lc.GetScale(), topMostPass };
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), rs.lc.GetPixelSize(), rs.ic.GetMousePos(), desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;
@@ -165,9 +150,9 @@ void LayoutManager::Render(Window &desktop, vec2d size, float scale, DrawingCont
 		}
 	}
 
-	dc.SetMode(RM_INTERFACE);
+	rs.dc.SetMode(RM_INTERFACE);
 
-	rs.ic.PushTransform(vec2d{}, _inputContext.GetMainWindowActive(), !rs.hoverPath.empty());
+	rs.ic.PushTransform(vec2d{}, rs.ic.GetMainWindowActive(), !rs.hoverPath.empty());
 	for (bool topMostPass : {false, true})
 	{
 		rs.topMostPass = topMostPass;
@@ -180,10 +165,10 @@ void LayoutManager::Render(Window &desktop, vec2d size, float scale, DrawingCont
 	rs.ic.PopTransform();
 
 #ifndef NDEBUG
-	for (auto &id2pos: _inputContext.GetLastPointerLocation())
+	for (auto &id2pos: rs.ic.GetLastPointerLocation())
 	{
 		FRECT dst = { id2pos.second.x-4, id2pos.second.y-4, id2pos.second.x+4, id2pos.second.y+4 };
-		dc.DrawSprite(dst, 0U, 0xffffffff, 0U);
+		rs.dc.DrawSprite(dst, 0U, 0xffffffff, 0U);
 	}
 #endif
 }

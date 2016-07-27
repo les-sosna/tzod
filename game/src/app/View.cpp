@@ -5,8 +5,10 @@
 #include <shell/Desktop.h>
 #include <ui/AppWindow.h>
 #include <ui/ConsoleBuffer.h>
-#include <ui/InputContext.h>
 #include <ui/GuiManager.h>
+#include <ui/InputContext.h>
+#include <ui/LayoutContext.h>
+#include <ui/StateContext.h>
 #include <ui/Window.h>
 #include <video/DrawingContext.h>
 #include <video/RenderOpenGL.h>
@@ -113,7 +115,12 @@ void TzodView::Render(AppWindow &appWindow)
 
 	DrawingContext dc(_impl->textureManager, width, height);
 	appWindow.GetRender().Begin();
-	_impl->gui.Render(*_impl->gui.GetDesktop(), vec2d{ static_cast<float>(width), static_cast<float>(height) }, layoutScale, dc);
+
+	UI::StateContext stateContext;
+	UI::LayoutContext layoutContext(layoutScale, vec2d{ static_cast<float>(width), static_cast<float>(height) }, _impl->gui.GetDesktop()->GetEnabled());
+	UI::RenderSettings rs{ stateContext, layoutContext, _impl->gui.GetInputContext(), dc, _impl->textureManager };
+
+	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs);
 	appWindow.GetRender().End();
 }
 
