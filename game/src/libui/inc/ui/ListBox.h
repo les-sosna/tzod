@@ -14,6 +14,7 @@ namespace UI
 		ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource);
 
 		std::shared_ptr<List> GetList() { return _list; }
+		std::shared_ptr<ScrollView> GetScrollView() { return _scrollView; }
 
 		// Window
 		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;

@@ -7,7 +7,7 @@ class WorldView;
 class GameClassVis : public UI::Window
 {
 public:
-	GameClassVis(UI::LayoutManager &manager, WorldView &worldView);
+	GameClassVis(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView);
 
 	void SetGameClass(unsigned int type);
 
@@ -15,5 +15,6 @@ public:
 
 private:
 	WorldView &_worldView;
-	World _world;
+	mutable World _world;
+	size_t _texSelection;
 };

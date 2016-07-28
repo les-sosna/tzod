@@ -18,6 +18,7 @@
 #include <ui/Combo.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/List.h>
+#include <ui/ListBox.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
@@ -155,35 +156,26 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_layerDisp->SetAlign(alignTextRT);
 	AddFront(_layerDisp);
 
-	auto typeListStackPanel = std::make_shared<UI::StackLayout>(manager);
-	typeListStackPanel->SetFlowDirection(UI::FlowDirection::Horizontal);
+	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
+	gameClassVis->Resize(64, 64);
 
-	_typeList = std::make_shared<DefaultComboBox>(manager, texman);
-	_typeList->Resize(256);
-	AddFront(_typeList);
+	_typeSelector = std::make_shared<DefaultListBox>(manager, texman);
+	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);
+	_typeSelector->GetScrollView()->SetVerticalScrollEnabled(false);
+	_typeSelector->GetList()->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_typeSelector->GetList()->SetItemTemplate(gameClassVis);
+	AddFront(_typeSelector);
+
 	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
-		if( RTTypes::Inst().GetTypeInfoByIndex(i).service ) continue;
-		const char *desc0 = RTTypes::Inst().GetTypeInfoByIndex(i).desc;
-		_typeList->GetData()->AddItem(_lang->GetStr(desc0).Get(), RTTypes::Inst().GetTypeByIndex(i));
-
-		auto gcv = std::make_shared<GameClassVis>(manager, _worldView);
-		gcv->Resize(64, 64);
-		gcv->Move(0, 64.f * i);
-		gcv->SetGameClass(RTTypes::Inst().GetTypeByIndex(i));
-		typeListStackPanel->AddFront(gcv);
+		if (!RTTypes::Inst().GetTypeInfoByIndex(i).service)
+		{
+			auto &typeInfo = RTTypes::Inst().GetTypeInfoByIndex(i);
+			_typeSelector->GetData()->AddItem(typeInfo.name, RTTypes::Inst().GetTypeByIndex(i));
+		}
 	}
-	_typeList->GetData()->Sort();
-	auto ls = _typeList->GetList();
-	ls->SetTabPos(1, 128);
-	_typeList->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
-	_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
-
-	_typeSelector = std::make_shared<UI::ScrollView>(manager);
-	_typeSelector->SetContent(typeListStackPanel);
-	_typeSelector->SetHorizontalScrollEnabled(true);
-	_typeSelector->SetVerticalScrollEnabled(false);
-	AddFront(_typeSelector);
+	_typeSelector->GetList()->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
+	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
 
 	assert(!_conf.ed_uselayers.eventChange);
 	_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
@@ -247,14 +239,6 @@ void EditorLayout::SelectNone()
 
 void EditorLayout::OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
 {
-	if( offset.y > 0 )
-	{
-		_typeList->SetCurSel(std::max(0, _typeList->GetCurSel() - 1));
-	}
-	if( offset.y < 0 )
-	{
-		_typeList->SetCurSel(std::min(_typeList->GetData()->GetItemCount()-1, _typeList->GetCurSel() + 1));
-	}
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
@@ -288,14 +272,16 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, 
 		return capture;
 	}
 
+	SetFocus(nullptr);
+
 	vec2d mouse = CanvasToWorld(size, pointerPosition);
 
-	ObjectType type = static_cast<ObjectType>(_typeList->GetData()->GetItemData(_conf.ed_object.GetInt()) );
+	ObjectType type = static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 
 	int layer = -1;
 	if( _conf.ed_uselayers.Get() )
 	{
-		layer = RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(_typeList->GetCurSel())).layer;
+		layer = RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(_typeSelector->GetList()->GetCurSel())).layer;
 	}
 
 	if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, mouse, layer) )
@@ -402,13 +388,9 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 
 FRECT EditorLayout::GetChildRect(vec2d size, float scale, const Window &child) const
 {
-	if (_typeList.get() == &child)
+	if (_layerDisp.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ size.x / scale - _typeList->GetWidth() - 5, 5 }, _typeList->GetSize(), scale);
-	}
-	else if (_layerDisp.get() == &child)
-	{
-		return UI::CanvasLayout(vec2d{ size.x / scale - _typeList->GetWidth() - 5, 6 }, _layerDisp->GetSize(), scale);
+		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
 	}
 	else if (_typeSelector.get() == &child)
 	{
@@ -423,7 +405,7 @@ void EditorLayout::OnChangeObjectType(int index)
 	_conf.ed_object.SetInt(index);
 
 	std::ostringstream buf;
-	buf << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeList->GetData()->GetItemData(index)).layer << ": ";
+	buf << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(index)).layer << ": ";
 	_layerDisp->SetText(GetManager().GetTextureManager(), buf.str());
 }
 

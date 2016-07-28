@@ -19,19 +19,23 @@ public:
 
 	ListDataSource* GetData() const;
 
-	float GetItemHeight(float scale) const;
-	int HitTest(float y, float scale) const; // returns index of item
+	vec2d GetItemSize(float scale) const;
+	int HitTest(vec2d pxPos, float scale) const; // returns index of item
 
 	int  GetCurSel() const;
 	void SetCurSel(int sel, bool scroll = false);
 
 	void SetTabPos(int index, float pos);
+	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
+
+	void SetItemTemplate(std::shared_ptr<Window> itemTemplate);
 
 	// list events
 	std::function<void(int)> eventChangeCurSel;
 	std::function<void(int)> eventClickItem;
 
 	// Window
+	float GetWidth() const override;
 	float GetHeight() const override;
 
 protected:
@@ -58,6 +62,9 @@ protected:
 private:
 	List(const List &) = delete;
 	List& operator=(const List &) = delete;
+
+	std::shared_ptr<Window> _itemTemplate;
+	FlowDirection _flowDirection = FlowDirection::Vertical;
 
 	ListDataSource *_data;
 	std::vector<float> _tabs;

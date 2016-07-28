@@ -16,12 +16,11 @@ class GameClassVis;
 
 namespace UI
 {
-	template <class, class> class ListAdapter;
 	class ListDataSourceDefault;
-	class ComboBox;
 	class ConsoleBuffer;
 	class Text;
-	class ScrollView;
+	class ListBox;
+	template<class, class> class ListAdapter;
 }
 
 class EditorLayout
@@ -30,7 +29,7 @@ class EditorLayout
 	, private UI::PointerSink
 	, private UI::KeyboardSink
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 
 	ConfCache &_conf;
 	LangCache &_lang;
@@ -38,9 +37,8 @@ class EditorLayout
 	const DefaultCamera &_defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;
-	std::shared_ptr<DefaultComboBox> _typeList;
 	std::shared_ptr<UI::Text> _help;
-	std::shared_ptr<UI::ScrollView> _typeSelector;
+	std::shared_ptr<DefaultListBox> _typeSelector;
 	size_t _fontSmall;
 
 	size_t _texSelection;

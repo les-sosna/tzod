@@ -3,6 +3,7 @@
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
+#include "inc/ui/StateContext.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -76,9 +77,15 @@ void List::SetTabPos(int index, float pos)
 		_tabs[index] = pos;
 }
 
-float List::GetItemHeight(float scale) const
+void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
 {
-	return std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale);
+	_itemTemplate = itemTemplate;
+}
+
+vec2d List::GetItemSize(float scale) const
+{
+	return _itemTemplate ? Vec2dFloor(_itemTemplate->GetSize() * scale) :
+		vec2d{ 0.f, std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale) };
 }
 
 int List::GetCurSel() const
@@ -110,9 +117,10 @@ void List::SetCurSel(int sel, bool scroll)
 	}
 }
 
-int List::HitTest(float pxY, float scale) const
+int List::HitTest(vec2d pxPos, float scale) const
 {
-	int index = int(pxY / GetItemHeight(scale));
+	vec2d which = pxPos / GetItemSize(scale);
+	int index = _flowDirection == FlowDirection::Vertical ? int(which.y) : int(which.x);
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
 		index = -1;
@@ -131,7 +139,7 @@ bool List::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointe
 
 void List::OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition)
 {
-	int index = HitTest(pointerPosition.y, scale);
+	int index = HitTest(pointerPosition, scale);
 	SetCurSel(index, false);
 	if( -1 != index && eventClickItem )
 		eventClickItem(index);
@@ -165,61 +173,106 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
+float List::GetWidth() const
+{
+	return _flowDirection == FlowDirection::Vertical ? 0.f : _itemTemplate->GetWidth() * _data->GetItemCount();
+}
+
 float List::GetHeight() const
 {
-	return GetItemHeight(1) * _data->GetItemCount();
+	return _flowDirection == FlowDirection::Vertical ? GetItemSize(1).y * _data->GetItemCount() : 0.f;
 }
 
 void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	RectRB visibleRegion = dc.GetVisibleRegion();
 
-	float pxItemHeight = GetItemHeight(lc.GetScale());
+	bool isVertical = _flowDirection == FlowDirection::Vertical;
 
-	int i_min = std::max(0, visibleRegion.top / (int)pxItemHeight);
-	int i_max = std::max(0, (visibleRegion.bottom + (int)pxItemHeight - 1) / (int)pxItemHeight);
+	vec2d pxItemMinSize = GetItemSize(lc.GetScale());
+
+	vec2d pxItemSize = isVertical ?
+		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };
+
+	int advance = isVertical ? (int)pxItemSize.y : (int)pxItemSize.x;
+	int regionBegin = isVertical ? visibleRegion.top : visibleRegion.left;
+	int regionEnd = isVertical ? visibleRegion.bottom : visibleRegion.right;
+
+	int i_min = std::max(0, regionBegin / advance);
+	int i_max = std::max(0, (regionEnd + advance - 1) / advance);
 	int maxtab = (int) _tabs.size() - 1;
 
-	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos().y, lc.GetScale()) : -1;
+	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos(), lc.GetScale()) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
 		SpriteColor c;
-		float y = (float) i * pxItemHeight;
+		float y = isVertical ? (float)i * pxItemSize.y : 0.f;
+		float x = isVertical ? 0 : (float)i * pxItemSize.x;
 
-		if( lc.GetEnabled() )
+		enum ItemState { NORMAL, UNFOCUSED, FOCUSED, HOVER, DISABLED } itemState;
+		if (lc.GetEnabled())
 		{
-			c = 0xffd0d0d0; // normal
-			if( _curSel == i )
+			if (_curSel == i)
 			{
-				// selection frame around selected item
-				if( ic.GetFocused() )
-				{
-					c = 0xff000000; // selected focused
-					FRECT sel = { 1, y, lc.GetPixelSize().x - 1, y + pxItemHeight };
-					dc.DrawSprite(sel, _selection, 0xffffffff, 0);
-				}
+				if (ic.GetFocused())
+					itemState = FOCUSED;
 				else
-				{
-					c = 0xffffffff; // selected unfocused
-				}
-				FRECT border = { -1, y - 2, lc.GetPixelSize().x + 1, y + pxItemHeight + 2 };
-				dc.DrawBorder(border, _selection, 0xffffffff, 0);
+					itemState = UNFOCUSED;
 			}
-			else if( hotItem == i )
-			{
-				c = 0xffffffff; // hot
-			}
+			else if (hotItem == i)
+				itemState = HOVER;
+			else
+				itemState = NORMAL;
+		}
+		else
+			itemState = DISABLED;
+
+		if (_itemTemplate)
+		{
+			_itemTemplate->SetText(texman, _data->GetItemText(i, 0)); // HACK
+
+			// TODO: something smarter than const_cast (fork?)
+			UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<LayoutContext&>(lc), const_cast<InputContext&>(ic), dc, texman };
+
+			static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
+			rs.sc.SetState(itemStateStrings[itemState]);
+
+			rs.lc.PushTransform(pxItemSize, true);
+			rs.ic.PushTransform(vec2d{ x, y }, true, true);
+			dc.PushTransform(vec2d{ x, y });
+			RenderUIRoot(*_itemTemplate, rs);
+			dc.PopTransform();
+			rs.ic.PopTransform();
+			rs.lc.PopTransform();
 		}
 		else
 		{
-			c = 0x70707070; // disabled
-		}
+			static SpriteColor itemStateColors[] =
+			// Normal      Unfocused   Focused     Hover        Disabled
+			{ 0xffd0d0d0, 0xffffffff, 0xff000000, 0xffffffff,  0x70707070};
 
-		for( int k = _data->GetSubItemCount(i); k--; )
-		{
-			float x = std::floor(_tabs[std::min(k, maxtab)] * lc.GetScale());
-			dc.DrawBitmapText(x, y, _font, c, _data->GetItemText(i, k));
+			c = itemStateColors[itemState];
+			FRECT sel = { 1, y, lc.GetPixelSize().x - 1, y + pxItemSize.y };
+			FRECT border = { -1, y - 2, lc.GetPixelSize().x + 1, y + pxItemSize.y + 2 };
+
+			switch (itemState)
+			{
+			case FOCUSED:
+				dc.DrawSprite(sel, _selection, 0xffffffff, 0);
+				// fall through
+			case UNFOCUSED:
+				dc.DrawBorder(border, _selection, 0xffffffff, 0);
+				break;
+			default:
+				break;
+			}
+
+			for (int k = _data->GetSubItemCount(i); k--; )
+			{
+				float x = std::floor(_tabs[std::min(k, maxtab)] * lc.GetScale());
+				dc.DrawBitmapText(x, y, _font, c, _data->GetItemText(i, k));
+			}
 		}
 	}
 }

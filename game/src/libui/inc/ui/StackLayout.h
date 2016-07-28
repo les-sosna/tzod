@@ -3,12 +3,6 @@
 
 namespace UI
 {
-	enum class FlowDirection
-	{
-		Vertical,
-		Horizontal
-	};
-
 	class StackLayout : public Window
 	{
 	public:

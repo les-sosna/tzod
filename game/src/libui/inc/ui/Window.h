@@ -27,6 +27,12 @@ enum class StretchMode
 	Fill,
 };
 
+enum class FlowDirection
+{
+	Vertical,
+	Horizontal
+};
+
 struct ScrollSink
 {
 	virtual void OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) = 0;
