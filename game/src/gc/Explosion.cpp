@@ -45,10 +45,10 @@ void GC_Explosion::Serialize(World &world, SaveFile &f)
 
 float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance)
 {
-	int x0 = int(GetPos().x / CELL_SIZE);
-	int y0 = int(GetPos().y / CELL_SIZE);
-	int x1 = int(dst_x / CELL_SIZE);
-	int y1 = int(dst_y / CELL_SIZE);
+	int x0 = (int)std::floor(GetPos().x / CELL_SIZE);
+	int y0 = (int)std::floor(GetPos().y / CELL_SIZE);
+	int x1 = (int)std::floor(dst_x / CELL_SIZE);
+	int y1 = (int)std::floor(dst_y / CELL_SIZE);
 
 	std::deque<FieldNode *> open;
 	open.push_front(&field[coord(x0, y0)]);
@@ -129,8 +129,8 @@ float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, flo
 
 void GC_Explosion::Boom(World &world, float radius, float damage)
 {
-    for( auto ls: world.eGC_Explosion._listeners )
-        ls->OnBoom(*this, radius, damage);
+	for( auto ls: world.eGC_Explosion._listeners )
+		ls->OnBoom(*this, radius, damage);
 
 	FIELD_TYPE field;
 
@@ -140,7 +140,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	//
 	// get a list of locations which are affected by the explosion
 	//
-    std::vector<ObjectList*> receive;
+	std::vector<ObjectList*> receive;
 	FRECT rt = {GetPos().x - radius, GetPos().y - radius, GetPos().x + radius, GetPos().y + radius};
 	rt.left   /= LOCATION_SIZE;
 	rt.top    /= LOCATION_SIZE;
@@ -161,8 +161,8 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 
 			if( GC_Wall_Concrete::GetTypeStatic() == pDamObject->GetType() )
 			{
-				node.x = int(pDamObject->GetPos().x / CELL_SIZE);
-				node.y = int(pDamObject->GetPos().y / CELL_SIZE);
+				node.x = (int)std::floor(pDamObject->GetPos().x / CELL_SIZE);
+				node.y = (int)std::floor(pDamObject->GetPos().y / CELL_SIZE);
 				field[coord(node.x, node.y)] = node;
 			}
 		}
@@ -175,9 +175,9 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	bool bNeedClean = false;
 	for( auto it = receive.begin(); it != receive.end(); ++it )
 	{
-        (*it)->for_each([&](ObjectList::id_type, GC_Object *o)
+		(*it)->for_each([&](ObjectList::id_type, GC_Object *o)
 		{
-            auto pDamObject = static_cast<GC_RigidBodyStatic*>(o);
+			auto pDamObject = static_cast<GC_RigidBodyStatic*>(o);
 			vec2d dir = pDamObject->GetPos() - GetPos();
 			float d = dir.len();
 
@@ -213,7 +213,7 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 					dd.damage = dam;
 					dd.hit = GetPos();
 					dd.from = _owner;
-                    pDamObject->TakeDamage(world, dd);
+					pDamObject->TakeDamage(world, dd);
 				}
 			}
 		});

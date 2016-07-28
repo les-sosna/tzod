@@ -1,5 +1,3 @@
-// DefaultCamera.h
-
 #pragma once
 
 #include <math/MyMath.h>
@@ -25,5 +23,3 @@ private:
 	unsigned int _dwTimeX;
 	unsigned int _dwTimeY;
 };
-
-// end of file

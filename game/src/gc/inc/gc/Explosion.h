@@ -5,7 +5,6 @@
 #include <map>
 
 class GC_Player;
-class GC_Light;
 
 class GC_Explosion : public GC_Actor
 {
@@ -14,9 +13,9 @@ class GC_Explosion : public GC_Actor
 		FieldNode *parent;
 
 		// horizontal size = 12; diagonal = 17
-		unsigned int x        : 10;
-		unsigned int y        : 10;
-		unsigned int distance : 10;
+		short x;
+		short y;
+		unsigned int distance : 30;
 		bool checked          :  1;
 		bool open             :  1;
 
