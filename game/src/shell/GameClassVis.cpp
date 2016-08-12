@@ -32,7 +32,7 @@ void GameClassVis::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };
 	vec2d eye{ 0, 0 };
 	float zoom = 1.f;
-	bool editorMode = false;
+	bool editorMode = true;
 	bool drawGrid = false;
 	bool nightMode = false;
 	_worldView.Render(dc, _world, viewport, eye, zoom, editorMode, drawGrid, nightMode);
