@@ -22,11 +22,10 @@ void GameClassVis::SetGameClass(ObjectType type)
 
 void GameClassVis::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	auto &text = GetText();
-	if (!text.empty())
+	if (auto typeName = reinterpret_cast<const std::string*>(sc.GetDataContext()))
 	{
 		_world.Clear();
-		RTTypes::Inst().CreateActor(_world, RTTypes::Inst().GetTypeByName(text), 0, 0);
+		RTTypes::Inst().CreateActor(_world, RTTypes::Inst().GetTypeByName(*typeName), 0, 0);
 	}
 
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };

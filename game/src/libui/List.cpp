@@ -230,13 +230,12 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 		if (_itemTemplate)
 		{
-			_itemTemplate->SetText(texman, _data->GetItemText(i, 0)); // HACK
-
 			// TODO: something smarter than const_cast (fork?)
 			UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<LayoutContext&>(lc), const_cast<InputContext&>(ic), dc, texman };
 
 			static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
 			rs.sc.SetState(itemStateStrings[itemState]);
+			rs.sc.SetDataContext(&_data->GetItemText(i, 0));
 
 			rs.lc.PushTransform(pxItemSize, true);
 			rs.ic.PushTransform(vec2d{ x, y }, true, true);
