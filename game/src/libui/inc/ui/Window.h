@@ -149,8 +149,6 @@ public:
 	//
 
 	void Move(float x, float y);
-	float GetX() const { return _x; }
-	float GetY() const { return _y; }
 	vec2d GetOffset() const { return vec2d{_x, _y}; }
 
 	void Resize(float width, float height);

@@ -226,13 +226,15 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 	{
 		_buf->Lock();
 
+		float textAreaHeight = GetHeight() - _input->GetHeight();
+
 		float h = texman.GetFrameHeight(_font, 0);
-		size_t visibleLineCount = size_t(_input->GetY() / h);
+		size_t visibleLineCount = size_t(textAreaHeight / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;
 		size_t count   = std::min(lineMax, visibleLineCount);
 
-		float y = -fmod(_input->GetY(), h) + (float) (visibleLineCount - count) * h;
+		float y = -fmod(textAreaHeight, h) + (float) (visibleLineCount - count) * h;
 
 		for( size_t line = lineMax - count; line < lineMax; ++line )
 		{
@@ -243,22 +245,18 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 		}
 
 		_buf->Unlock();
-
-		if( _autoScroll )
-		{
-			// FIXME: magic number
-			dc.DrawBitmapText(_scroll->GetX() - 2, _input->GetY(), _font, 0x7f7f7f7f, "auto", alignTextRB);
-		}
 	}
 }
 
 void Console::OnSize(float width, float height)
 {
-	_input->Move(0, height - _input->GetHeight());
+	float textAreaHeight = height - _input->GetHeight();
+
+	_input->Move(0, textAreaHeight);
 	_input->Resize(width, _input->GetHeight());
 	_scroll->Move(width - _scroll->GetWidth(), 0);
 	_scroll->Resize(_scroll->GetWidth(), height - _input->GetHeight());
-	_scroll->SetPageSize(_input->GetY() / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
+	_scroll->SetPageSize(textAreaHeight / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
 }
 

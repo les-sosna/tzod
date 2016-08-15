@@ -83,14 +83,10 @@ public:
 	explicit TextButton(LayoutManager &manager, TextureManager &texman);
 
 	void SetFont(TextureManager &texman, const char *fontName);
+	vec2d GetContentSize(TextureManager &texman) const;
 
 protected:
-
-	void AlignSizeToContent(TextureManager &texman);
-
-	void OnTextChange(TextureManager &texman) override;
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-
 
 private:
 	size_t _fontTexture;

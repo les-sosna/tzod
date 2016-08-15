@@ -8,18 +8,11 @@ using namespace UI;
 
 Dialog::Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal)
   : Rectangle(manager)
-	, _mousePos{ 0, 0 }
-  , _easyMove(false)
 {
 	SetTexture(texman, "ui/window", false);
 	Resize(width, height);
 	SetDrawBorder(true);
 	SetDrawBackground(true);
-}
-
-void Dialog::SetEasyMove(bool enable)
-{
-	_easyMove = enable;
 }
 
 void Dialog::Close(int result)
@@ -28,29 +21,6 @@ void Dialog::Close(int result)
 	{
 		if (eventClose)
 			eventClose(std::static_pointer_cast<Dialog>(shared_from_this()), result);
-	}
-}
-
-
-//
-// capture mouse messages
-//
-
-bool Dialog::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
-{
-	if( _easyMove && 1 == button && !ic.HasCapturedPointers(this) )
-	{
-		_mousePos = pointerPosition;
-		return true;
-	}
-	return false;
-}
-
-void Dialog::OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
-{
-	if( captured )
-	{
-		Move(GetX() + pointerPosition.x - _mousePos.x, GetY() + pointerPosition.y - _mousePos.y);
 	}
 }
 

@@ -24,8 +24,6 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
   , _conf(conf)
   , _lang(lang)
 {
-	SetEasyMove(true);
-
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(texman, _lang.settings_title.Get());
@@ -297,8 +295,6 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
   , _activeIndex(-1)
   , _createNewProfile(!profileName)
 {
-	SetEasyMove(true);
-
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(20, 15);
 	text->SetText(texman, _lang.profile_name.Get());

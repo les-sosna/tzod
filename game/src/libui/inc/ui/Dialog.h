@@ -7,13 +7,10 @@ namespace UI
 
 class Dialog
 	: public Rectangle
-	, private PointerSink
 	, private KeyboardSink
 {
 public:
 	Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal = true);
-
-	void SetEasyMove(bool enable);
 
 	enum
 	{
@@ -26,7 +23,6 @@ public:
 	void Close(int result);
 
 	// Window
-	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
 protected:
@@ -38,14 +34,7 @@ protected:
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 
 private:
-	vec2d _mousePos;
-	bool  _easyMove;
-
 	virtual bool OnClose(int result) { return true; }
-
-	// PointerSink
-	bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
 };
 
 } // namespace UI

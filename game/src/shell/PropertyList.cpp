@@ -29,7 +29,6 @@ PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, f
 	_scrollView->SetContent(_psheet);
 
 	OnSize(w, h);
-	SetEasyMove(true);
 	SetClipChildren(true);
 }
 

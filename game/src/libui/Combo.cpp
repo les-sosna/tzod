@@ -27,14 +27,13 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	AddFront(_btn);
 
 	_text = std::make_shared<TextButton>(manager, texman);
-	_text->Move(0, 1);
 	_text->SetFont(texman, "font_small");
 	_text->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_text);
 
 	SetDrawBorder(true);
 	SetTexture(texman, "ui/combo", false);
-	Rectangle::Resize(GetWidth(), _text->GetHeight() + _text->GetY() * 2);
+	Rectangle::Resize(GetWidth(), _text->GetContentSize(texman).y + 2);
 }
 
 ListDataSource* ComboBox::GetData() const
@@ -84,7 +83,6 @@ void ComboBox::OnClickItem(int index)
 	{
 		_curSel = index;
 		_text->SetText(GetManager().GetTextureManager(), _list->GetList()->GetData()->GetItemText(index, 0));
-		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 		_list->SetVisible(false);
 		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
 		SetFocus(nullptr);
@@ -99,7 +97,6 @@ void ComboBox::OnChangeSelection(int index)
 	if( -1 != index )
 	{
 		_text->SetText(GetManager().GetTextureManager(), _list->GetList()->GetData()->GetItemText(index, 0));
-		_text->Resize(_btn->GetX(), GetHeight()); // workaround: SetText changes button size
 	}
 }
 

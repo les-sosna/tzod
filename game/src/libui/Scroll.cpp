@@ -118,7 +118,7 @@ void ScrollBarBase::OnBoxMouseMove(float x, float y)
 {
 	if( _tmpBoxPos < 0 )
 		return;
-	float pos = Select(_btnBox->GetX() + x, _btnBox->GetY() + y) - _tmpBoxPos;
+	float pos = Select(_boxPos.x + x, _boxPos.y + y) - _tmpBoxPos;
 	if( _showButtons )
 	{
 		pos -= Select(_btnUpLeft->GetWidth(), _btnUpLeft->GetHeight());
@@ -157,8 +157,6 @@ void ScrollBarBase::OnLimitsChanged()
 
 void ScrollBarBase::OnSize(float width, float height)
 {
-	_btnDownRight->Move( Select(width - _btnDownRight->GetWidth(), _btnDownRight->GetX()),
-	                     Select(_btnDownRight->GetY(), height - _btnDownRight->GetHeight()) );
 	SetPos(GetPos());  // to update scroll box position
 }
 
@@ -177,6 +175,20 @@ void ScrollBarBase::Draw(const StateContext &sc, const LayoutContext &lc, const 
 {
 	const_cast<ScrollBarBase*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
 	Rectangle::Draw(sc, lc, ic, dc, texman);
+}
+
+FRECT ScrollBarBase::GetChildRect(vec2d size, float scale, const Window &child) const
+{
+	if (_btnBox.get() == &child)
+	{
+		return CanvasLayout(_boxPos, child.GetSize(), scale);
+	}
+	else if (_btnDownRight.get() == &child)
+	{
+		return CanvasLayout(size / scale - child.GetSize(), child.GetSize(), scale);
+	}
+
+	return Rectangle::GetChildRect(size, scale, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -206,8 +218,8 @@ void ScrollBarVertical::SetPos(float pos)
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(_btnBox->GetWidth(), std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE));
-	_btnBox->Move(_btnBox->GetX(), floor(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
-		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f));
+	_boxPos.y = floor(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
+		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -237,8 +249,8 @@ void ScrollBarHorizontal::SetPos(float pos)
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE), _btnBox->GetHeight());
-	_btnBox->Move(floor(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
-		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f), _btnBox->GetY());
+	_boxPos.x = floor(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
+		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f);
 }
 
 } // end of namespace UI

@@ -452,8 +452,6 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
   : Dialog(manager, texman, 384, 220)
   , _info(&info)
 {
-	SetEasyMove(true);
-
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
@@ -655,13 +653,10 @@ static const char s_levels[][16] = {
 	"bot_level_4",
 };
 
-
 EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang)
   : Dialog(manager, texman, 384, 220)
   , _info(&info)
 {
-	SetEasyMove(true);
-
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);

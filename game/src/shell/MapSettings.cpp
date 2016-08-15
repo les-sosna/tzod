@@ -25,8 +25,6 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	: Dialog(manager, texman, 512, 512)
 	, _world(world)
 {
-	SetEasyMove(true);
-
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);

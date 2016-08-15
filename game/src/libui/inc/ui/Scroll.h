@@ -35,12 +35,14 @@ public:
 
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 
 protected:
 	virtual float Select(float x, float y) const = 0;
 	float GetScrollPaneLength() const;
 
 	float _tmpBoxPos;
+	vec2d _boxPos = { 0, 0 };
 	std::shared_ptr<Button> _btnBox;
 	std::shared_ptr<Button> _btnUpLeft;
 	std::shared_ptr<Button> _btnDownRight;

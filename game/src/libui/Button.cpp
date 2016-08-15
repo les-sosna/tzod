@@ -216,25 +216,23 @@ TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
 {
 }
 
-void TextButton::AlignSizeToContent(TextureManager &texman)
+vec2d TextButton::GetContentSize(TextureManager &texman) const
 {
-	if( -1 != _fontTexture )
+	if (-1 != _fontTexture)
 	{
 		float w = texman.GetFrameWidth(_fontTexture, 0);
 		float h = texman.GetFrameHeight(_fontTexture, 0);
-		Resize((w - 1) * (float) GetText().length(), h + 1);
+		return vec2d{ (w - 1) * (float)GetText().length(), h + 1 };
+	}
+	else
+	{
+		return vec2d{};
 	}
 }
 
 void TextButton::SetFont(TextureManager &texman, const char *fontName)
 {
 	_fontTexture = texman.FindSprite(fontName);
-	AlignSizeToContent(texman);
-}
-
-void TextButton::OnTextChange(TextureManager &texman)
-{
-	AlignSizeToContent(texman);
 }
 
 void TextButton::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
