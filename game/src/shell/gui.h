@@ -128,30 +128,3 @@ protected:
 
 	void OnChangeSkin(int index);
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-class ScriptMessageBox : public UI::Rectangle
-{
-	std::shared_ptr<UI::Text> _text;
-	std::shared_ptr<UI::Button> _button1;
-	std::shared_ptr<UI::Button> _button2;
-	std::shared_ptr<UI::Button> _button3;
-
-	void OnButton1();
-	void OnButton2();
-	void OnButton3();
-
-public:
-	ScriptMessageBox(
-		UI::LayoutManager &manager,
-		TextureManager &texman,
-		const std::string &title,
-		const std::string &text,
-		const std::string &btn1,
-		const std::string &btn2,
-		const std::string &btn3
-	);
-	std::function<void(int)> eventSelect;
-};
-
