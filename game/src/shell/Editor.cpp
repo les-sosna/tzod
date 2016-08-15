@@ -24,6 +24,7 @@
 #include <ui/LayoutContext.h>
 #include <ui/ScrollView.h>
 #include <ui/StackLayout.h>
+#include <ui/StateContext.h>
 #include <ui/UIInput.h>
 #include <video/TextureManager.h>
 
@@ -158,6 +159,9 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 
 	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
 	gameClassVis->Resize(64, 64);
+	gameClassVis->SetDataBinding([](const UI::StateContext &sc) -> auto& {
+		return *reinterpret_cast<const std::string*>(sc.GetDataContext());
+	});
 
 	_typeSelector = std::make_shared<DefaultListBox>(manager, texman);
 	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);
