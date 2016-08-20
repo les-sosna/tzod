@@ -1,15 +1,16 @@
 #include "GetFileName.h"
-
+#include "ConfigBinding.h"
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
-#include <ui/Text.h>
-#include <ui/List.h>
-#include <ui/ListBox.h>
 #include <ui/Button.h>
-#include <ui/Edit.h>
+#include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
+#include <ui/Edit.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
+#include <ui/List.h>
+#include <ui/ListBox.h>
+#include <ui/Text.h>
 
 #include <algorithm>
 
@@ -20,7 +21,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 {
 	auto t = std::make_shared<UI::Text>(manager, texman);
 	t->Move(GetWidth() / 2, 16);
-	t->SetText(texman, param.title);
+	t->SetText(std::make_shared<UI::StaticText>(param.title));
 	t->SetAlign(alignTextCT);
 	t->SetFont(texman, "font_default");
 	AddFront(t);
@@ -51,7 +52,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(16, 370);
-	text->SetText(texman, lang.get_file_name_title.Get());
+	text->SetText(ConfBind(lang.get_file_name_title));
 	AddFront(text);
 
 	_fileName = std::make_shared<UI::Edit>(manager, texman);
@@ -61,13 +62,13 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	AddFront(_fileName);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.common_ok.Get());
+	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(290, 420);
 	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.common_cancel.Get());
+	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(400, 420);
 	btn->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
 	AddFront(btn);

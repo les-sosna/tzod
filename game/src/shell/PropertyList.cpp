@@ -5,14 +5,15 @@
 #include <gc/WorldCfg.h>
 #include <ui/Combo.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
+#include <ui/GuiManager.h>
+#include <ui/Keys.h>
 #include <ui/List.h>
 #include <ui/ListBase.h>
 #include <ui/ScrollView.h>
 #include <ui/Text.h>
-#include <ui/GuiManager.h>
-#include <ui/Keys.h>
 #include <video/TextureManager.h>
 #include <algorithm>
 
@@ -188,7 +189,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				assert(false);
 			} // end of switch( prop->GetType() )
 
-			label->SetText(texman, labelTextBuffer.str());
+			label->SetText(std::make_shared<UI::StaticText>(labelTextBuffer.str()));
 
 			if( focus == i )
 			{

@@ -29,6 +29,7 @@ add_library(shell
 
 	BotView.h
 	Campaign.h
+	ConfigBinding.h
 	Controller.h
 	Editor.h
 	Game.h
@@ -55,6 +56,7 @@ add_library(shell
 	BotView.cpp
 	Campaign.cpp
 	Config.cpp
+	ConfigBinding.cpp
 	ConfigConsoleHistory.cpp
 	Controller.cpp
 	DefaultCamera.cpp

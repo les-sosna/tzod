@@ -154,6 +154,7 @@ struct FRECT
 
 inline FRECT MakeRectRB(vec2d lt, vec2d rb) { return FRECT{ lt.x, lt.y, rb.x, rb.y }; }
 inline FRECT MakeRectWH(vec2d lt, vec2d size) { return FRECT{ lt.x, lt.y, lt.x + size.x, lt.y + size.y }; }
+inline FRECT MakeRectWH(vec2d size) { return FRECT{ 0, 0, size.x, size.y }; }
 
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
 inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
@@ -237,12 +238,14 @@ inline FRECT RectToFRect(const RectRB &rect)
 	};
 }
 
-inline void FRectToRect(RectRB *lprt, const FRECT *lpfrt)
+inline RectRB FRectToRect(const FRECT &rect)
 {
-	lprt->left   = (int) lpfrt->left;
-	lprt->top    = (int) lpfrt->top;
-	lprt->right  = (int) lpfrt->right;
-	lprt->bottom = (int) lpfrt->bottom;
+	return RectRB{
+		(int)rect.left,
+		(int)rect.top,
+		(int)rect.right,
+		(int)rect.bottom
+	};
 }
 
 inline FRECT RectOffset(const FRECT &rect, vec2d offset)

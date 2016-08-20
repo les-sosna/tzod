@@ -13,3 +13,8 @@ SpriteColor ColorMap::GetColor(const StateContext &sc) const
 	auto found = _colorMap.find(sc.GetState());
 	return _colorMap.end() != found ? found->second : _defaultColor;
 }
+
+const std::string& StaticText::GetText(const StateContext &sc) const
+{
+	return _text;
+}

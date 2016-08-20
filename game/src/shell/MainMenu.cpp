@@ -1,5 +1,5 @@
 #include "MainMenu.h"
-
+#include "ConfigBinding.h"
 #include <loc/Language.h>
 #include <ui/Button.h>
 
@@ -23,21 +23,21 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	std::shared_ptr<UI::Button> button;
 
 	button = std::make_shared<UI::Button>(manager, texman);
-	button->SetText(texman, _lang.single_player_btn.Get());
+	button->SetText(ConfBind(_lang.single_player_btn));
 	button->SetIcon(manager, texman, "ui/play");
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.newDM;
 	AddFront(button);
 
 	button = std::make_shared<UI::Button>(manager, texman);
-	button->SetText(texman, _lang.editor_btn.Get());
+	button->SetText(ConfBind(_lang.editor_btn));
 	button->SetIcon(manager, texman, "ui/editor");
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.openMap;
 	AddFront(button);
 
 	button = std::make_shared<UI::Button>(manager, texman);
-	button->SetText(texman, _lang.settings_btn.Get());
+	button->SetText(ConfBind(_lang.settings_btn));
 	button->SetIcon(manager, texman, "ui/settings");
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.gameSettings;

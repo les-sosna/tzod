@@ -105,18 +105,6 @@ void Window::SetVisible(bool visible)
 	_isVisible = visible;
 }
 
-const std::string& Window::GetText() const
-{
-	return _text;
-}
-
-void Window::SetText(TextureManager &texman, const std::string &text)
-{
-	_text.assign(text);
-	OnTextChange(texman);
-}
-
-
 //
 // size
 //

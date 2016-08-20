@@ -1,4 +1,5 @@
 #include "Campaign.h"
+#include "ConfigBinding.h"
 #include "inc/shell/Config.h"
 
 #include <fs/FileSystem.h>
@@ -16,7 +17,7 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
 {
 	auto t = std::make_shared<UI::Text>(manager, texman);
 	t->Move(GetWidth() / 2, 16);
-	t->SetText(texman, lang.campaign_title.Get());
+	t->SetText(ConfBind(lang.campaign_title));
 	t->SetAlign(alignTextCT);
 	t->SetFont(texman, "font_default");
 	AddFront(t);
@@ -35,13 +36,13 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
 	_files->GetData()->Sort();
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.campaign_ok.Get());
+	btn->SetText(ConfBind(lang.campaign_ok));
 	btn->Move(290, 360);
 	btn->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.campaign_cancel.Get());
+	btn->SetText(ConfBind(lang.campaign_cancel));
 	btn->Move(400, 360);
 	btn->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
 	AddFront(btn);

@@ -1,4 +1,5 @@
 #include "NewMap.h"
+#include "ConfigBinding.h"
 #include "inc/shell/Config.h"
 #include <gc/WorldCfg.h>
 #include <loc/Language.h>
@@ -15,14 +16,14 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCac
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(128, 20);
-	text->SetText(texman, lang.newmap_title.Get());
+	text->SetText(ConfBind(lang.newmap_title));
 	text->SetAlign(alignTextCT);
 	text->SetFont(texman, "font_default");
 	AddFront(text);
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(40, 75);
-	text->SetText(texman, lang.newmap_width.Get());
+	text->SetText(ConfBind(lang.newmap_width));
 	AddFront(text);
 
 	_width = std::make_shared<UI::Edit>(manager, texman);
@@ -33,7 +34,7 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCac
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(40, 115);
-	text->SetText(texman, lang.newmap_height.Get());
+	text->SetText(ConfBind(lang.newmap_height));
 	AddFront(text);
 
 	_height = std::make_shared<UI::Edit>(manager, texman);
@@ -43,13 +44,13 @@ NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCac
 	AddFront(_height);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.common_ok.Get());
+	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(20, 200);
 	btn->eventClick = std::bind(&NewMapDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.common_cancel.Get());
+	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(140, 200);
 	btn->eventClick = std::bind(&NewMapDlg::OnCancel, this);
 	AddFront(btn);

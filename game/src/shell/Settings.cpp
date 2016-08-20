@@ -1,3 +1,4 @@
+#include "ConfigBinding.h"
 #include "Settings.h"
 #include "KeyMapper.h"
 #include "inc/shell/Config.h"
@@ -26,7 +27,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 {
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
-	text->SetText(texman, _lang.settings_title.Get());
+	text->SetText(ConfBind(_lang.settings_title));
 	text->SetAlign(alignTextCT);
 	text->SetFont(texman, "font_default");
 	AddFront(text);
@@ -41,7 +42,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x, y);
-	text->SetText(texman, _lang.settings_player1.Get());
+	text->SetText(ConfBind(_lang.settings_player1));
 	AddFront(text);
 	y += text->GetHeight() + 2;
 
@@ -54,7 +55,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(24, y);
-	text->SetText(texman, _lang.settings_player2.Get());
+	text->SetText(ConfBind(_lang.settings_player2));
 	AddFront(text);
 	y += text->GetHeight() + 2;
 
@@ -67,7 +68,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x, y);
-	text->SetText(texman, _lang.settings_profiles.Get());
+	text->SetText(ConfBind(_lang.settings_profiles));
 	AddFront(text);
 	y += text->GetHeight() + 2;
 
@@ -79,20 +80,20 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	_profiles->GetList()->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, _lang.settings_profile_new.Get());
+	btn->SetText(ConfBind(_lang.settings_profile_new));
 	btn->Move(40, 184);
 	btn->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	AddFront(btn);
 
 	_editProfile = std::make_shared<UI::Button>(manager, texman);
-	_editProfile->SetText(texman, _lang.settings_profile_edit.Get());
+	_editProfile->SetText(ConfBind(_lang.settings_profile_edit));
 	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled(false);
 	AddFront(_editProfile);
 
 	_deleteProfile = std::make_shared<UI::Button>(manager, texman);
-	_deleteProfile->SetText(texman, _lang.settings_profile_delete.Get());
+	_deleteProfile->SetText(ConfBind(_lang.settings_profile_delete));
 	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
 	_deleteProfile->SetEnabled(false);
@@ -129,7 +130,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x + 50, y += 20);
-	text->SetText(texman, _lang.settings_sfx_volume.Get());
+	text->SetText(ConfBind(_lang.settings_sfx_volume));
 	text->SetAlign(alignTextRT);
 	AddFront(text);
 
@@ -145,7 +146,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x + 50, y += 20);
-	text->SetText(texman, _lang.settings_music_volume.Get());
+	text->SetText(ConfBind(_lang.settings_music_volume));
 	text->SetAlign(alignTextRT);
 	AddFront(text);
 
@@ -165,13 +166,13 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	//
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, _lang.common_ok.Get());
+	btn->SetText(ConfBind(_lang.common_ok));
 	btn->Move(304, 256);
 	btn->eventClick = std::bind(&SettingsDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, _lang.common_cancel.Get());
+	btn->SetText(ConfBind(_lang.common_cancel));
 	btn->Move(408, 256);
 	btn->eventClick = std::bind(&SettingsDlg::OnCancel, this);
 	AddFront(btn);
@@ -297,7 +298,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 {
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(20, 15);
-	text->SetText(texman, _lang.profile_name.Get());
+	text->SetText(ConfBind(_lang.profile_name));
 	AddFront(text);
 
 	_nameEdit = std::make_shared<UI::Edit>(manager, texman);
@@ -308,12 +309,12 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(20, 65);
-	text->SetText(texman, _lang.profile_action.Get());
+	text->SetText(ConfBind(_lang.profile_action));
 	AddFront(text);
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(220, 65);
-	text->SetText(texman, _lang.profile_key.Get());
+	text->SetText(ConfBind(_lang.profile_key));
 	AddFront(text);
 
 	_actions = std::make_shared<DefaultListBox>(manager, texman);
@@ -355,13 +356,13 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	AddFront(_arcadeStyleChkBox);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, _lang.common_ok.Get());
+	btn->SetText(ConfBind(_lang.common_ok));
 	btn->Move(240, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, _lang.common_cancel.Get());
+	btn->SetText(ConfBind(_lang.common_cancel));
 	btn->Move(344, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 	AddFront(btn);

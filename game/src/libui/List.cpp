@@ -240,7 +240,9 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 			rs.lc.PushTransform(pxItemSize, true);
 			rs.ic.PushTransform(vec2d{ x, y }, true, true);
 			dc.PushTransform(vec2d{ x, y });
+
 			RenderUIRoot(*_itemTemplate, rs);
+
 			dc.PopTransform();
 			rs.ic.PopTransform();
 			rs.lc.PopTransform();

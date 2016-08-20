@@ -316,6 +316,17 @@ KeyboardSink* Edit::GetKeyboardSink()
 	return this;
 }
 
+const std::string& Edit::GetText() const
+{
+	return _text;
+}
+
+void Edit::SetText(TextureManager &texman, const std::string &text)
+{
+	_text.assign(text);
+	OnTextChange(texman);
+}
+
 void Edit::OnTextChange(TextureManager &texman)
 {
 	SetSel(_selStart, _selEnd);

@@ -8,8 +8,6 @@ using namespace UI;
 
 Text::Text(LayoutManager &manager, TextureManager &texman)
   : Window(manager)
-  , _lineCount(1)
-  , _maxline(0)
   , _align(alignTextLT)
   , _fontTexture(0)
 {
@@ -24,44 +22,50 @@ void Text::SetAlign(enumAlignText align)
 void Text::SetFont(TextureManager &texman, const char *fontName)
 {
 	_fontTexture = texman.FindSprite(fontName);
-	float w = texman.GetFrameWidth(_fontTexture, 0);
-	float h = texman.GetFrameHeight(_fontTexture, 0);
-	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
 }
 
 void Text::SetFontColor(std::shared_ptr<ColorSource> color)
 {
-	_fontColor = color;
+	_fontColor = std::move(color);
+}
+
+void Text::SetText(std::shared_ptr<TextSource> text)
+{
+	_text = std::move(text);
 }
 
 void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	dc.DrawBitmapText(0, 0, _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, GetText(), _align);
+	if (_text)
+	{
+		dc.DrawBitmapText(0, 0, _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, _text->GetText(sc), _align);
+	}
 }
 
-void Text::OnTextChange(TextureManager &texman)
+vec2d Text::GetContentSize(const StateContext &sc, TextureManager &texman) const
 {
 	// update lines
-	_lineCount = 1;
-	_maxline = 0;
+	unsigned int lineCount = 1;
+	unsigned  maxline = 0;
 	size_t count = 0;
-	for( size_t n = 0; n != GetText().size(); ++n )
+	const std::string &text = _text->GetText(sc);
+	for( size_t n = 0; n != text.size(); ++n )
 	{
-		if( '\n' == GetText()[n] )
+		if( '\n' == text[n] )
 		{
-			if( _maxline < count )
-				_maxline = count;
-			++_lineCount;
+			if( maxline < count )
+				maxline = count;
+			++lineCount;
 			count = 0;
 		}
 		++count;
 	}
-	if( 1 == _lineCount )
+	if( 1 == lineCount )
 	{
-		_maxline = GetText().size();
+		maxline = text.size();
 	}
 	float w = texman.GetFrameWidth(_fontTexture, 0);
 	float h = texman.GetFrameHeight(_fontTexture, 0);
-	Resize((w - 1) * (float) _maxline, h * (float) _lineCount);
+	return vec2d{ (w - 1) * (float)maxline, h * (float)lineCount };
 }
 

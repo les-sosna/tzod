@@ -1,4 +1,5 @@
 #include "inc/ui/Combo.h"
+#include "inc/ui/DataSource.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/List.h"
 #include "inc/ui/ListBox.h"
@@ -6,6 +7,7 @@
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
+#include <video/TextureManager.h>
 
 using namespace UI;
 
@@ -26,14 +28,16 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_btn);
 
+	auto fontName = "font_small";
+
 	_text = std::make_shared<TextButton>(manager, texman);
-	_text->SetFont(texman, "font_small");
+	_text->SetFont(texman, fontName);
 	_text->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_text);
 
 	SetDrawBorder(true);
 	SetTexture(texman, "ui/combo", false);
-	Rectangle::Resize(GetWidth(), _text->GetContentSize(texman).y + 2);
+	Rectangle::Resize(GetWidth(), texman.GetSpriteInfo(texman.FindSprite(fontName)).pxFrameHeight + 2);
 }
 
 ListDataSource* ComboBox::GetData() const
@@ -82,7 +86,7 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText(GetManager().GetTextureManager(), _list->GetList()->GetData()->GetItemText(index, 0));
+		_text->SetText(std::make_shared<StaticText>(_list->GetList()->GetData()->GetItemText(index, 0)));
 		_list->SetVisible(false);
 		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
 		SetFocus(nullptr);
@@ -96,7 +100,7 @@ void ComboBox::OnChangeSelection(int index)
 {
 	if( -1 != index )
 	{
-		_text->SetText(GetManager().GetTextureManager(), _list->GetList()->GetData()->GetItemText(index, 0));
+		_text->SetText(std::make_shared<StaticText>(_list->GetList()->GetData()->GetItemText(index, 0)));
 	}
 }
 

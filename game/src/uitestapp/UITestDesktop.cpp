@@ -2,6 +2,10 @@
 #include <ui/Button.h>
 #include <ui/Rectangle.h>
 #include <ui/Text.h>
+#include <ui/DataSource.h>
+
+using namespace UI::DataSourceAliases;
+
 
 UITestDesktop::UITestDesktop(UI::LayoutManager &manager, TextureManager &texman)
 	: UI::Window(manager)
@@ -12,10 +16,10 @@ UITestDesktop::UITestDesktop(UI::LayoutManager &manager, TextureManager &texman)
 	_testRect->SetTexture(texman, "gui_splash", false);
 	AddFront(_testRect);
 
-	_testText->SetText(texman, "Hello World!");
+	_testText->SetText("Hello World!"_txt);
 	AddFront(_testText);
 
-	_testButton->SetText(texman, "Push me");
+	_testButton->SetText("Push me"_txt);
 	AddFront(_testButton);
 }
 

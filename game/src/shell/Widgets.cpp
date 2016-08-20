@@ -3,6 +3,7 @@
 #include <as/AppState.h>
 #include <ctx/GameContext.h>
 #include <gc/World.h>
+#include <ui/DataSource.h>
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
@@ -84,7 +85,7 @@ void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
 			}
 		}*/
 
-		SetText(manager.GetTextureManager(), s.str());
+		SetText(std::make_shared<UI::StaticText>(s.str()));
 	}
 
 	_nSprites = 0;

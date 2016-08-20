@@ -88,8 +88,6 @@ class Window : public std::enable_shared_from_this<Window>
 	// attributes
 	//
 
-	std::string  _text;
-
 	struct
 	{
 		bool _isVisible      : 1;
@@ -140,13 +138,12 @@ public:
 	void SetClipChildren(bool clip)  { _clipChildren = clip; }
 	bool GetClipChildren() const     { return _clipChildren; }
 
-	const std::string& GetText() const;
-	void SetText(TextureManager &texman, const std::string &text);
-
 
 	//
 	// size & position
 	//
+
+	virtual vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const { return vec2d{}; }
 
 	void Move(float x, float y);
 	vec2d GetOffset() const { return vec2d{_x, _y}; }

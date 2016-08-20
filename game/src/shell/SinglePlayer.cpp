@@ -9,10 +9,12 @@
 #include <video/DrawingContext.h>
 #include <ui/StackLayout.h>
 #include <ui/Text.h>
+#include <ui/DataSource.h>
 
 static const float c_tileSize = 180;
 static const float c_tileSpacing = 16;
 
+using namespace UI::DataSourceAliases;
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf)
 	: UI::Dialog(manager, texman, 1, 1)
@@ -22,7 +24,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 {
 	_tierTitle->SetAlign(alignTextCT);
 	_tierTitle->SetFont(texman, "font_default");
-	_tierTitle->SetText(texman, "Tier 1");
+	_tierTitle->SetText("Tier 1"_txt);
 	AddFront(_tierTitle);
 
 	std::vector<std::string> maps = { "dm1", "dm2", "dm3", "dm4" };
@@ -38,7 +40,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	}
 
 	_enemiesTitle->SetFont(texman, "font_default");
-	_enemiesTitle->SetText(texman, "Enemies");
+	_enemiesTitle->SetText("Enemies"_txt);
 	AddFront(_enemiesTitle);
 
 	_enemies = std::make_shared<UI::StackLayout>(manager);

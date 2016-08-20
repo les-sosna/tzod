@@ -13,6 +13,7 @@
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <loc/Language.h>
+#include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
@@ -40,7 +41,7 @@ void TimeElapsed::OnTimeStep(UI::LayoutManager &manager, float dt)
 	if( time % 60 < 10 )
 		text << "0";
 	text << (time % 60);
-	SetText(GetManager().GetTextureManager(), text.str());
+	SetText(std::make_shared<UI::StaticText>(text.str()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

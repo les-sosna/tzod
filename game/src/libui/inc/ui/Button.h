@@ -51,15 +51,16 @@ private:
 
 class Rectangle;
 class Text;
+struct TextSource;
 
 class Button : public ButtonBase
 {
 public:
 	Button(LayoutManager &manager, TextureManager &texman);
 
-	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
-
 	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
+	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
+	void SetText(std::shared_ptr<TextSource> text);
 
 protected:
 	void SetFont(TextureManager &texman, const char *fontName);
@@ -67,7 +68,6 @@ protected:
 	// Window
 	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	void OnTextChange(TextureManager &texman) override;
 
 private:
 	std::shared_ptr<Rectangle> _background;
@@ -83,13 +83,14 @@ public:
 	explicit TextButton(LayoutManager &manager, TextureManager &texman);
 
 	void SetFont(TextureManager &texman, const char *fontName);
-	vec2d GetContentSize(TextureManager &texman) const;
+	void SetText(std::shared_ptr<TextSource> text);
 
-protected:
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	// Window
+	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+	vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const override;
 
 private:
-	size_t _fontTexture;
+	std::shared_ptr<Text> _text;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,6 +103,9 @@ public:
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
+	const std::string& GetText() const;
+	void SetText(TextureManager &texman, const std::string &text);
+
 protected:
 	void AlignSizeToContent(TextureManager &texman);
 
@@ -112,6 +116,7 @@ protected:
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
+	std::string _text;
 	size_t _fontTexture;
 	size_t _boxTexture;
 	bool   _isChecked;

@@ -12,6 +12,7 @@ class Edit
 	, private KeyboardSink
 	, private TextSink
 {
+	std::string _text;
 	int   _selStart;
 	int   _selEnd;
 	int   _offset;
@@ -24,6 +25,9 @@ public:
 	Edit(LayoutManager &manager, TextureManager &texman);
 
 	int GetTextLength() const;
+
+	const std::string& GetText() const;
+	void SetText(TextureManager &texman, const std::string &text);
 
 	void SetInt(int value);
 	int  GetInt() const;

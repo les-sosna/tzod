@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "ConfigBinding.h"
 #include "PropertyList.h"
 #include "GameClassVis.h"
 #include "inc/shell/detail/DefaultCamera.h"
@@ -12,11 +13,12 @@
 #include <loc/Language.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>
-#include <ui/InputContext.h>
-#include <ui/GuiManager.h>
-#include <ui/Text.h>
 #include <ui/Combo.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/DataSource.h>
+#include <ui/GuiManager.h>
+#include <ui/InputContext.h>
+#include <ui/Text.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
 #include <ui/DataSourceAdapters.h>
@@ -144,7 +146,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 {
 	_help = std::make_shared<UI::Text>(manager, texman);
 	_help->Move(10, 10);
-	_help->SetText(texman, _lang.f1_help_editor.Get());
+	_help->SetText(ConfBind(_lang.f1_help_editor));
 	_help->SetAlign(alignTextLT);
 	_help->SetVisible(false);
 	AddFront(_help);
@@ -410,7 +412,7 @@ void EditorLayout::OnChangeObjectType(int index)
 
 	std::ostringstream buf;
 	buf << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(index)).layer << ": ";
-	_layerDisp->SetText(GetManager().GetTextureManager(), buf.str());
+	_layerDisp->SetText(std::make_shared<UI::StaticText>(buf.str()));
 }
 
 void EditorLayout::OnChangeUseLayers()

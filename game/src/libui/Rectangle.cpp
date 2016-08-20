@@ -68,8 +68,7 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 			}
 			else
 			{
-				RectRB clip;
-				FRectToRect(&clip, &client);
+				RectRB clip = FRectToRect(client);
 				dc.PushClippingRect(clip);
 
 				float frameWidth = texman.GetFrameWidth(_texture, _frame);

@@ -1,6 +1,7 @@
 #pragma once
 #include <video/RenderBase.h>
 #include <map>
+#include <memory>
 
 namespace UI
 {
@@ -39,4 +40,36 @@ namespace UI
 		SpriteColor _defaultColor;
 		ColorMapType _colorMap;
 	};
+
+
+	struct TextSource
+	{
+		virtual const std::string& GetText(const StateContext &sc) const = 0;
+	};
+
+	class StaticText : public TextSource
+	{
+	public:
+		StaticText(std::string text) : _text(std::move(text)) {}
+
+		// TextSource
+		const std::string& GetText(const StateContext &sc) const override;
+
+	private:
+		std::string _text;
+	};
+
+	namespace DataSourceAliases
+	{
+		inline std::shared_ptr<TextSource> operator"" _txt(const char* str, size_t len)
+		{
+			return std::make_shared<StaticText>(std::string(str, str + len));
+		}
+
+		inline std::shared_ptr<StaticColor> operator"" _rgba(unsigned long long n)
+		{
+			assert(n <= 0xffffffff); // The number should fit into 32 bits
+			return std::make_shared<StaticColor>(static_cast<SpriteColor>(n & 0xffffffff));
+		}
+	}
 }

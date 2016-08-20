@@ -1,4 +1,5 @@
 #include "MapSettings.h"
+#include "ConfigBinding.h"
 #include <gv/ThemeManager.h>
 #include <gc/World.h>
 #include <loc/Language.h>
@@ -28,7 +29,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
-	text->SetText(texman, lang.map_title.Get());
+	text->SetText(ConfBind(lang.map_title));
 	text->SetAlign(alignTextCT);
 	text->SetFont(texman, "font_default");
 	AddFront(text);
@@ -40,7 +41,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 20);
-	text->SetText(texman, lang.map_author.Get());
+	text->SetText(ConfBind(lang.map_author));
 	AddFront(text);
 
 	_author = std::make_shared<UI::Edit>(manager, texman);
@@ -51,7 +52,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 20);
-	text->SetText(texman, lang.map_email.Get());
+	text->SetText(ConfBind(lang.map_email));
 	AddFront(text);
 
 	_email = std::make_shared<UI::Edit>(manager, texman);
@@ -62,7 +63,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 20);
-	text->SetText(texman, lang.map_url.Get());
+	text->SetText(ConfBind(lang.map_url));
 	AddFront(text);
 
 	_url = std::make_shared<UI::Edit>(manager, texman);
@@ -73,7 +74,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 20);
-	text->SetText(texman, lang.map_desc.Get());
+	text->SetText(ConfBind(lang.map_desc));
 	AddFront(text);
 
 	_desc = std::make_shared<UI::Edit>(manager, texman);
@@ -84,7 +85,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 20);
-	text->SetText(texman, lang.map_init_script.Get());
+	text->SetText(ConfBind(lang.map_init_script));
 	AddFront(text);
 
 	_onInit = std::make_shared<UI::Edit>(manager, texman);
@@ -95,7 +96,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 20);
-	text->SetText(texman, lang.map_theme.Get());
+	text->SetText(ConfBind(lang.map_theme));
 	AddFront(text);
 
 	_theme = std::make_shared<DefaultComboBox>(manager, texman);
@@ -113,13 +114,13 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	// OK & Cancel
 	//
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.common_ok.Get());
+	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(304, 480);
 	btn->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(texman, lang.common_cancel.Get());
+	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(408, 480);
 	btn->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
 	AddFront(btn);
