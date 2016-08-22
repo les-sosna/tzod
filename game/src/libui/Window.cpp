@@ -118,10 +118,6 @@ void Window::OnSize(float width, float height)
 // other
 //
 
-void Window::OnTextChange(TextureManager &texman)
-{
-}
-
 void Window::OnTimeStep(LayoutManager &manager, float dt)
 {
 }

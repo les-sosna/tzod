@@ -50,12 +50,13 @@ public:
 protected:
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	void OnTextChange(TextureManager &texman) override;
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override;
 	TextSink* GetTextSink() override { return this; }
 
 private:
+	void OnTextChange(TextureManager &texman);
+
 	// TextSink
 	bool OnChar(int c) override;
 
@@ -63,8 +64,8 @@ private:
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 	
 	// PointerSink
-	bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
+	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
 };
 
 } // namespace UI

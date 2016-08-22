@@ -35,15 +35,15 @@ enum class FlowDirection
 
 struct ScrollSink
 {
-	virtual void OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) = 0;
+	virtual void OnScroll(InputContext &ic, LayoutContext &lc, vec2d pointerPosition, vec2d scrollOffset) = 0;
 };
 
 struct PointerSink
 {
-	virtual bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) { return false; }
-	virtual void OnPointerUp(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
-	virtual void OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) {}
-	virtual void OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition) {}
+	virtual bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) { return false; }
+	virtual void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) {}
+	virtual void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) {}
+	virtual void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) {}
 };
 
 struct KeyboardSink
@@ -143,7 +143,7 @@ public:
 	// size & position
 	//
 
-	virtual vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const { return vec2d{}; }
+	virtual vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const { return GetSize(); }
 
 	void Move(float x, float y);
 	vec2d GetOffset() const { return vec2d{_x, _y}; }
@@ -194,7 +194,6 @@ private:
 	// other
 	//
 
-	virtual void OnTextChange(TextureManager &texman);
 	virtual void OnTimeStep(LayoutManager &manager, float dt);
 };
 

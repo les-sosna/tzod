@@ -3,14 +3,18 @@
 using namespace UI;
 
 LayoutContext::LayoutContext(float scale, vec2d size, bool enabled)
-	: _layoutStack({ Node{size, enabled} })
+	: _layoutStack({ Node{vec2d{}, size, enabled} })
 	, _scale(scale)
 {}
 
-void LayoutContext::PushTransform(vec2d size, bool enabled)
+void LayoutContext::PushTransform(vec2d offset, vec2d size, bool enabled)
 {
 	assert(!_layoutStack.empty());
-	_layoutStack.push_back(Node{ size, GetEnabled() && enabled });
+	_layoutStack.push_back(Node{
+		GetPixelOffset() + offset,
+		size,
+		GetEnabled() && enabled
+	});
 }
 
 void LayoutContext::PopTransform()

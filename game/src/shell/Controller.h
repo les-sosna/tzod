@@ -18,16 +18,16 @@ public:
 	void SetProfile(ConfControllerProfile &profile);
 	void ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs);
 
-    void OnTap(vec2d worldPos);
-    void Step(float dt);
+	void OnTap(vec2d worldPos);
+	void Step(float dt);
 
 	vec2d GetFireTarget() const { return _tapFireTarget; }
 	float GetRemainingFireTime() const { return _tapFireTime; }
 
 private:
-    float _tapFireTime;
-    vec2d _tapFireTarget;
-    
+	float _tapFireTime;
+	vec2d _tapFireTarget;
+
 	//
 	// cached values from the profile
 	//

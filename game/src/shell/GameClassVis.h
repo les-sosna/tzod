@@ -15,6 +15,7 @@ public:
 	void SetGameClass(unsigned int type);
 	void SetDataBinding(decltype(_dataBinding) dataBinding) { _dataBinding = std::move(dataBinding); }
 
+	// UI::Window
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:

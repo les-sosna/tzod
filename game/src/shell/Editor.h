@@ -77,12 +77,12 @@ private:
 	void OnChangeUseLayers();
 
 	// UI::ScrollSink
-	void OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;
+	void OnScroll(UI::InputContext &ic, UI::LayoutContext &lc, vec2d pointerPosition, vec2d offset) override;
 
 	// UI::PointerSink
-	bool OnPointerDown(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerUp(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerMove(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured) override;
+	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured) override;
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;

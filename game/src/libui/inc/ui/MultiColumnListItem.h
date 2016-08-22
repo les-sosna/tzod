@@ -1,0 +1,26 @@
+#pragma once
+#include "Window.h"
+#include <vector>
+
+namespace UI
+{
+	class Rectangle;
+	class Text;
+
+	class MultiColumnListItem : public Window
+	{
+	public:
+		MultiColumnListItem(LayoutManager &manager, TextureManager &texman);
+
+		void EnsureColumn(LayoutManager &manager, TextureManager &texman, unsigned int columnIndex, float offset);
+
+		// Window
+		vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const override;
+		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+
+
+	private:
+		std::shared_ptr<Rectangle> _selection;
+		std::vector<std::shared_ptr<Text>> _columns;
+	};
+}

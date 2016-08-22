@@ -1,3 +1,4 @@
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/ScrollView.h"
 #include <algorithm>
 using namespace UI;
@@ -39,18 +40,18 @@ FRECT ScrollView::GetChildRect(vec2d size, float scale, const Window &child) con
 	return Window::GetChildRect(size, scale, child);
 }
 
-void ScrollView::OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
+void ScrollView::OnScroll(UI::InputContext &ic, UI::LayoutContext &lc, vec2d pointerPosition, vec2d scrollOffset)
 {
 	if (_content)
 	{
-		if (!_verticalScrollEnabled && _horizontalScrollEnabled && offset.x == 0)
+		if (!_verticalScrollEnabled && _horizontalScrollEnabled && scrollOffset.x == 0)
 		{
-			offset.x = offset.y;
+			scrollOffset.x = scrollOffset.y;
 		}
 
-		_offset -= offset * 30;
-		_offset.x = std::max(0.f, std::min(_content->GetWidth() - size.x / scale, _offset.x));
-		_offset.y = std::max(0.f, std::min(_content->GetHeight() - size.y / scale, _offset.y));
+		_offset -= scrollOffset * 30;
+		_offset.x = std::max(0.f, std::min(_content->GetWidth() - lc.GetPixelSize().x / lc.GetScale(), _offset.x));
+		_offset.y = std::max(0.f, std::min(_content->GetHeight() - lc.GetPixelSize().y / lc.GetScale(), _offset.y));
 	}
 	else
 	{

@@ -9,6 +9,7 @@
 #include <ui/Button.h>
 #include <ui/DataSource.h>
 #include <ui/ListBox.h>
+#include <ui/MultiColumnListItem.h>
 #include <ui/Text.h>
 #include <ui/Edit.h>
 #include <ui/Combo.h>
@@ -51,14 +52,18 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	text->SetText(ConfBind(_lang.choose_map));
 	AddFront(text);
 
+	auto listItemTemplate = std::make_shared<UI::MultiColumnListItem>(manager, texman);
+	listItemTemplate->EnsureColumn(manager, texman, 0, 4); // name
+	listItemTemplate->EnsureColumn(manager, texman, 1, 384); // size
+	listItemTemplate->EnsureColumn(manager, texman, 2, 448); // theme
+
 	_maps = std::make_shared<MapList>(manager, texman, fs, logger);
-	_maps->GetList()->SetTabPos(0,   4); // name
-	_maps->GetList()->SetTabPos(1, 384); // size
-	_maps->GetList()->SetTabPos(2, 448); // theme
 	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
+	_maps->GetList()->SetItemTemplate(listItemTemplate);
 //	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 	_maps->Move(x1, 32);
 	_maps->Resize(x2 - x1, 192);
+
 	AddFront(_maps);
 	SetFocus(_maps);
 

@@ -26,7 +26,7 @@ namespace UI
 		bool _horizontalScrollEnabled = false;
 
 		// ScrollSink
-		void OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset) override;
+		void OnScroll(UI::InputContext &ic, LayoutContext &lc, vec2d pointerPosition, vec2d offset) override;
 	};
 
 }// namespace UI

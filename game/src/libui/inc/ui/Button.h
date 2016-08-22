@@ -38,10 +38,10 @@ private:
 	virtual void OnClick();
 
 	// PointerSink
-	void OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
-	bool OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnPointerUp(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
-	void OnTap(InputContext &ic, vec2d size, float scale, vec2d pointerPosition) override;
+	void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
+	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
+	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// StateGen
 	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const override;
@@ -110,12 +110,13 @@ protected:
 	void AlignSizeToContent(TextureManager &texman);
 
 	void OnClick() override;
-	void OnTextChange(TextureManager &texman) override;
 
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
+	void OnTextChange(TextureManager &texman);
+
 	std::string _text;
 	size_t _fontTexture;
 	size_t _boxTexture;

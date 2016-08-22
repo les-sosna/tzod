@@ -1,6 +1,7 @@
 #include "inc/ui/InputContext.h"
-#include "inc/ui/Window.h"
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/UIInput.h"
+#include "inc/ui/Window.h"
 
 using namespace UI;
 
@@ -130,6 +131,24 @@ SinkType* UI::FindAreaSink(
 	return sink;
 }
 
+static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
+{
+	for (size_t i = path.size() - 1; i > 0; i--)
+		path[i]->SetFocus(path[i - 1]);
+}
+
+static void PushLayoutContext(LayoutContext &lc, const std::vector<std::shared_ptr<Window>> &path)
+{
+	for (size_t i = path.size() - 1; i > 0; i--)
+	{
+		auto &child = path[i - 1];
+		auto &parent = path[i];
+
+		FRECT childRect = parent->GetChildRect(lc.GetPixelSize(), lc.GetScale(), *child);
+		lc.PushTransform(Offset(childRect), Size(childRect), child->GetEnabled());
+	}
+}
+
 bool InputContext::ProcessPointer(
 	std::shared_ptr<Window> wnd,
 	float layoutScale,
@@ -139,7 +158,8 @@ bool InputContext::ProcessPointer(
 	Msg msg,
 	int button,
 	PointerType pointerType,
-	unsigned int pointerID)
+	unsigned int pointerID,
+	TextureManager &texman)
 {
 #ifndef NDEBUG
 	_lastPointerLocation[pointerID] = pxPointerPosition;
@@ -178,25 +198,19 @@ bool InputContext::ProcessPointer(
 	if (pointerSink)
 	{
 		auto &target = sinkPath.front();
-		bool setFocus = (Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get());
 
-		for (size_t i = sinkPath.size() - 1; i > 0; i--)
-		{
-			auto &child = sinkPath[i - 1];
-			auto &parent = sinkPath[i];
+		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get()))
+			PropagateFocus(sinkPath);
 
-			if (setFocus)
-				parent->SetFocus(child);
+		LayoutContext lc(layoutScale, pxSize, wnd->GetEnabled());
+		PushLayoutContext(lc, sinkPath);
 
-			FRECT childRect = parent->GetChildRect(pxSize, layoutScale, *child);
-			pxPointerPosition -= {childRect.left, childRect.top};
-			pxSize = Size(childRect);
-		}
+		pxPointerPosition -= lc.GetPixelOffset();
 
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, pxSize, layoutScale, pxPointerPosition, button, pointerType, pointerID))
+			if (pointerSink->OnPointerDown(*this, lc, texman, pxPointerPosition, button, pointerType, pointerID))
 			{
 				_pointerCaptures[pointerID].capturePath = sinkPath;
 			}
@@ -205,15 +219,15 @@ bool InputContext::ProcessPointer(
 		case Msg::PointerCancel:
 			if (isPointerCaptured)
 			{
-				pointerSink->OnPointerUp(*this, pxSize, layoutScale, pxPointerPosition, button, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, lc, texman, pxPointerPosition, button, pointerType, pointerID);
 				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, pxSize, layoutScale, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
+			pointerSink->OnPointerMove(*this, lc, texman, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
 			break;
 		case Msg::TAP:
-			pointerSink->OnTap(*this, pxSize, layoutScale, pxPointerPosition);
+			pointerSink->OnTap(*this, lc, texman, pxPointerPosition);
 			break;
 		default:
 			assert(false);
@@ -242,16 +256,12 @@ bool InputContext::ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2
 
 	if (scrollSink)
 	{
-		for (size_t i = sinkPath.size() - 1; i > 0; i--)
-		{
-			auto &child = sinkPath[i - 1];
-			auto &parent = sinkPath[i];
-			FRECT childRect = parent->GetChildRect(pxSize, layoutScale, *child);
-			pxPointerPosition -= {childRect.left, childRect.top};
-			pxSize = Size(childRect);
-		}
+		LayoutContext lc(layoutScale, pxSize, wnd->GetEnabled());
+		PushLayoutContext(lc, sinkPath);
 
-		scrollSink->OnScroll(*this, pxSize, layoutScale, pxPointerPosition, offset);
+		pxPointerPosition -= lc.GetPixelOffset();
+
+		scrollSink->OnScroll(*this, lc, pxPointerPosition, offset);
 		return true;
 	}
 

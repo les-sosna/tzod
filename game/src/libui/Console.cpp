@@ -204,9 +204,9 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-void Console::OnScroll(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
+void Console::OnScroll(InputContext &ic, LayoutContext &lc, vec2d pointerPosition, vec2d scrollOffset)
 {
-	_scroll->SetPos(_scroll->GetPos() - offset.y * 3);
+	_scroll->SetPos(_scroll->GetPos() - scrollOffset.y * 3);
 	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
 

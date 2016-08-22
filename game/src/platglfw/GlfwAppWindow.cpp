@@ -77,7 +77,8 @@ try
 			msg,
 			buttons,
 			UI::PointerType::Mouse,
-			0);
+			0,
+			gui->GetTextureManager());
 	}
 }
 catch (const std::exception &e)
@@ -99,7 +100,8 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 			UI::Msg::PointerMove,
 			0,
 			UI::PointerType::Mouse,
-			0);
+			0,
+			gui->GetTextureManager());
 	}
 }
 
@@ -118,7 +120,8 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 			UI::Msg::MOUSEWHEEL,
 			0,
 			UI::PointerType::Mouse,
-			0);
+			0,
+			gui->GetTextureManager());
 	}
 }
 

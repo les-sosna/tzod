@@ -255,7 +255,7 @@ FRECT GameLayout::GetChildRect(vec2d size, float scale, const Window &child) con
 	return UI::Window::GetChildRect(size, scale, child);
 }
 
-bool GameLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if (UI::PointerType::Touch == pointerType)
 	{
@@ -266,12 +266,12 @@ bool GameLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, ve
 	return false;
 }
 
-void GameLayout::OnPointerUp(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	_activeDrags.erase(pointerID);
 }
 
-void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
+void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( captured )
 	{
@@ -286,7 +286,7 @@ void GameLayout::OnPointerMove(UI::InputContext &ic, vec2d size, float scale, ve
 	}
 }
 
-void GameLayout::OnTap(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition)
+void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)

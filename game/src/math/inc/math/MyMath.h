@@ -159,6 +159,7 @@ inline FRECT MakeRectWH(vec2d size) { return FRECT{ 0, 0, size.x, size.y }; }
 inline float WIDTH(const FRECT &rect) { return rect.right - rect.left; }
 inline float HEIGHT(const FRECT &rect) { return rect.bottom - rect.top; }
 inline vec2d Size(const FRECT &rect) { return { WIDTH(rect), HEIGHT(rect) }; }
+inline vec2d Offset(const FRECT &rect) { return{ rect.left, rect.top }; }
 inline vec2d Center(const FRECT &rect) { return vec2d{ rect.left + rect.right, rect.top + rect.bottom} / 2; }
 
 struct RectRB

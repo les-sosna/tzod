@@ -110,7 +110,7 @@ static void DrawWindowRecursive(
 
 				renderSettings.dc.PushTransform(childOffset);
 				renderSettings.ic.PushTransform(childOffset, childFocused, childOnHoverPath);
-				renderSettings.lc.PushTransform(Size(childRect), child->GetEnabled());
+				renderSettings.lc.PushTransform(Offset(childRect), Size(childRect), child->GetEnabled());
 
 				DrawWindowRecursive(
 					renderSettings,

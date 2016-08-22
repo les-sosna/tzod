@@ -287,7 +287,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-bool Edit::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool Edit::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
 	if( 1 == button && !ic.HasCapturedPointers(this) )
 	{
@@ -299,7 +299,7 @@ bool Edit::OnPointerDown(InputContext &ic, vec2d size, float scale, vec2d pointe
 	return false;
 }
 
-void Edit::OnPointerMove(InputContext &ic, vec2d size, float scale, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
+void Edit::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( captured )
 	{

@@ -162,7 +162,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
 	gameClassVis->Resize(64, 64);
 	gameClassVis->SetDataBinding([](const UI::StateContext &sc) -> auto& {
-		return *reinterpret_cast<const std::string*>(sc.GetDataContext());
+		return reinterpret_cast<const UI::ListDataSource*>(sc.GetDataContext())->GetItemText(sc.GetItemIndex(), 0);
 	});
 
 	_typeSelector = std::make_shared<DefaultListBox>(manager, texman);
@@ -243,19 +243,19 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::OnScroll(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, vec2d offset)
+void EditorLayout::OnScroll(UI::InputContext &ic, UI::LayoutContext &lc, vec2d pointerPosition, vec2d offset)
 {
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
 	if( _mbutton )
 	{
-		OnPointerDown(ic, size, scale, pointerPosition, _mbutton, pointerType, pointerID);
+		OnPointerDown(ic, lc, texman, pointerPosition, _mbutton, pointerType, pointerID);
 	}
 }
 
-void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	if( _mbutton == button )
 	{
@@ -264,7 +264,7 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, vec2d size, float scale, ve
 	}
 }
 
-bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
 	bool capture = false;
 	if( 0 == _mbutton )
@@ -280,7 +280,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, vec2d size, float scale, 
 
 	SetFocus(nullptr);
 
-	vec2d mouse = CanvasToWorld(size, pointerPosition);
+	vec2d mouse = CanvasToWorld(lc.GetPixelSize(), pointerPosition);
 
 	ObjectType type = static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 

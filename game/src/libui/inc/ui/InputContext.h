@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+class TextureManager;
+
 namespace UI
 {
 
@@ -41,7 +43,8 @@ public:
 		Msg msg,
 		int button,
 		PointerType pointerType,
-		unsigned int pointerID);
+		unsigned int pointerID,
+		TextureManager &texman);
 	bool ProcessKeys(std::shared_ptr<Window> wnd, Msg msg, UI::Key key);
 	bool ProcessText(std::shared_ptr<Window> wnd, int c);
 
