@@ -7,30 +7,6 @@
 
 using namespace UI;
 
-namespace
-{
-	class DataContextBinding : public TextSource
-	{
-	public:
-		explicit DataContextBinding(int column)
-			: _column(column)
-		{}
-
-		// UI::TextSource
-		const std::string& GetText(const StateContext &sc) const override
-		{
-			static std::string empty;
-			auto listDataSource = reinterpret_cast<const ListDataSource*>(sc.GetDataContext());
-			return _column < listDataSource->GetSubItemCount(sc.GetItemIndex()) ?
-				listDataSource->GetItemText(sc.GetItemIndex(), _column) : empty;
-		}
-
-	private:
-		int _column;
-	};
-}
-
-
 MultiColumnListItem::MultiColumnListItem(LayoutManager &manager, TextureManager &texman)
 	: Window(manager)
 	, _selection(std::make_shared<Rectangle>(manager))
@@ -64,7 +40,7 @@ void MultiColumnListItem::EnsureColumn(LayoutManager &manager, TextureManager &t
 	}
 
 	_columns[columnIndex]->Move(offset, 0);
-	_columns[columnIndex]->SetText(std::make_shared<DataContextBinding>(columnIndex));
+	_columns[columnIndex]->SetText(std::make_shared<ListDataSourceBinding>(columnIndex));
 	_columns[columnIndex]->SetFont(texman, "font_small");
 	_columns[columnIndex]->SetFontColor(textColorMap);
 }

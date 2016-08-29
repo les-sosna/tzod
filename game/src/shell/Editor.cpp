@@ -161,9 +161,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 
 	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
 	gameClassVis->Resize(64, 64);
-	gameClassVis->SetDataBinding([](const UI::StateContext &sc) -> auto& {
-		return reinterpret_cast<const UI::ListDataSource*>(sc.GetDataContext())->GetItemText(sc.GetItemIndex(), 0);
-	});
+	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
 	_typeSelector = std::make_shared<DefaultListBox>(manager, texman);
 	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);

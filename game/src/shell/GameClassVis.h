@@ -5,15 +5,17 @@
 
 class WorldView;
 
+namespace UI
+{
+	struct TextSource;
+}
+
 class GameClassVis : public UI::Window
 {
-	std::function<const std::string&(const UI::StateContext&)> _dataBinding;
-
 public:
 	GameClassVis(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView);
 
-	void SetGameClass(unsigned int type);
-	void SetDataBinding(decltype(_dataBinding) dataBinding) { _dataBinding = std::move(dataBinding); }
+	void SetGameClass(std::shared_ptr<UI::TextSource> className);
 
 	// UI::Window
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
@@ -22,4 +24,5 @@ private:
 	WorldView &_worldView;
 	mutable World _world;
 	size_t _texSelection;
+	std::shared_ptr<UI::TextSource> _className;
 };
