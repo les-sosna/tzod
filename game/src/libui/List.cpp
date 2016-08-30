@@ -212,7 +212,6 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
-		SpriteColor c;
 		vec2d pxItemOffset = isVertical ?
 			vec2d{ 0, (float)i * pxItemSize.y } : vec2d{ (float)i * pxItemSize.x, 0 };
 
@@ -235,21 +234,19 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 			itemState = DISABLED;
 
 		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<LayoutContext&>(lc), const_cast<InputContext&>(ic), dc, texman };
+		UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<InputContext&>(ic), dc, texman };
 
 		static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
 		rs.sc.SetState(itemStateStrings[itemState]);
 		rs.sc.SetDataContext(_data);
 		rs.sc.SetItemIndex(i);
 
-		rs.lc.PushTransform(pxItemOffset, pxItemSize, true);
 		rs.ic.PushTransform(pxItemOffset, true, true);
 		dc.PushTransform(pxItemOffset);
 
-		RenderUIRoot(*_itemTemplate, rs);
+		RenderUIRoot(*_itemTemplate, rs, LayoutContext(lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, true));
 
 		dc.PopTransform();
 		rs.ic.PopTransform();
-		rs.lc.PopTransform();
 	}
 }
