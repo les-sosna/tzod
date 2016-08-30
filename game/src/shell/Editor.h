@@ -88,7 +88,7 @@ private:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::Window
-	FRECT GetChildRect(const UI::LayoutContext &lc, const Window &child) const override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	ScrollSink* GetScrollSink() override { return this; }
 	PointerSink* GetPointerSink() override { return this; }

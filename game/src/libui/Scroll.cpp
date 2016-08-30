@@ -177,7 +177,7 @@ void ScrollBarBase::Draw(const StateContext &sc, const LayoutContext &lc, const 
 	Rectangle::Draw(sc, lc, ic, dc, texman);
 }
 
-FRECT ScrollBarBase::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -191,7 +191,7 @@ FRECT ScrollBarBase::GetChildRect(const LayoutContext &lc, const Window &child) 
 		return CanvasLayout(size / scale - child.GetSize(), child.GetSize(), scale);
 	}
 
-	return Rectangle::GetChildRect(lc, child);
+	return Rectangle::GetChildRect(texman, lc, sc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

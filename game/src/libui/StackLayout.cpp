@@ -8,7 +8,7 @@ StackLayout::StackLayout(LayoutManager &manager)
 {
 }
 
-FRECT StackLayout::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();

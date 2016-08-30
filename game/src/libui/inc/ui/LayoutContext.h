@@ -2,15 +2,18 @@
 #include <math/MyMath.h>
 #include <vector>
 
+class TextureManager;
+
 namespace UI
 {
 	class Window;
+	class StateContext;
 
 	class LayoutContext
 	{
 	public:
 		LayoutContext(float scale, vec2d offset, vec2d size, bool enabled);
-		LayoutContext(const LayoutContext &parent, const Window &parentWindow, const Window &childWindow);
+		LayoutContext(TextureManager &texman, const Window &parentWindow, const LayoutContext &parentLC, const StateContext &parentSC, const Window &childWindow);
 
 		bool GetEnabled() const { return _enabled; }
 		vec2d GetPixelOffset() const { return _offset; }

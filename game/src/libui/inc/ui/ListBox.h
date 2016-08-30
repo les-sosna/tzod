@@ -17,7 +17,7 @@ namespace UI
 		std::shared_ptr<ScrollView> GetScrollView() { return _scrollView; }
 
 		// Window
-		FRECT GetChildRect(const LayoutContext &lc, const Window &child) const override;
+		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 	private:
 		std::shared_ptr<Rectangle> _background;

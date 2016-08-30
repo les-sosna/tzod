@@ -142,7 +142,7 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-FRECT ComboBox::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -161,7 +161,7 @@ FRECT ComboBox::GetChildRect(const LayoutContext &lc, const Window &child) const
 		return FRECT{ 0, 0, size.x - std::floor(_btn->GetWidth() * scale), size.y };
 	}
 
-	return Window::GetChildRect(lc, child);
+	return Window::GetChildRect(texman, lc, sc, child);
 }
 
 void ComboBox::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const

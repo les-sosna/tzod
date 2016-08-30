@@ -3,7 +3,9 @@
 #include "inc/platglfw/GlfwKeys.h"
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
+#include <ui/LayoutContext.h>
 #include <ui/Pointers.h>
+#include <ui/StateContext.h>
 #include <ui/Window.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
@@ -68,17 +70,18 @@ try
 				return;
 		}
 		vec2d pxMousePos = GetCursorPosInPixels(window);
+
 		gui->GetInputContext().ProcessPointer(
+			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			GetLayoutScale(window),
-			GetPixelSize(window),
+			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled()),
+			UI::StateContext(),
 			pxMousePos,
 			0,
 			msg,
 			buttons,
 			UI::PointerType::Mouse,
-			0,
-			gui->GetTextureManager());
+			0);
 	}
 }
 catch (const std::exception &e)
@@ -92,16 +95,16 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
 		gui->GetInputContext().ProcessPointer(
+			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			GetLayoutScale(window),
-			GetPixelSize(window),
+			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled()),
+			UI::StateContext(),
 			pxMousePos,
 			0,
 			UI::Msg::PointerMove,
 			0,
 			UI::PointerType::Mouse,
-			0,
-			gui->GetTextureManager());
+			0);
 	}
 }
 
@@ -112,16 +115,16 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		vec2d pxMousePos = GetCursorPosInPixels(window);
 		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
 		gui->GetInputContext().ProcessPointer(
+			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			GetLayoutScale(window),
-			GetPixelSize(window),
+			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled()),
+			UI::StateContext(),
 			pxMousePos,
 			pxMouseOffset.y,
 			UI::Msg::MOUSEWHEEL,
 			0,
 			UI::PointerType::Mouse,
-			0,
-			gui->GetTextureManager());
+			0);
 	}
 }
 

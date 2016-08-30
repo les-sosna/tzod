@@ -24,7 +24,7 @@ UITestDesktop::UITestDesktop(UI::LayoutManager &manager, TextureManager &texman)
 	AddFront(_testButton);
 }
 
-FRECT UITestDesktop::GetChildRect(const UI::LayoutContext &lc, const Window &child) const
+FRECT UITestDesktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -38,5 +38,5 @@ FRECT UITestDesktop::GetChildRect(const UI::LayoutContext &lc, const Window &chi
 		return MakeRectWH(Vec2dFloor((size - child.GetSize() * scale) / 2), Vec2dFloor(child.GetSize() * scale));
 	}
 
-	return UI::Window::GetChildRect(lc, child);
+	return UI::Window::GetChildRect(texman, lc, sc, child);
 }

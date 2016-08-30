@@ -164,7 +164,7 @@ void Button::SetBackground(TextureManager &texman, const char *tex, bool fitSize
 	}
 }
 
-FRECT Button::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -187,7 +187,7 @@ FRECT Button::GetChildRect(const LayoutContext &lc, const Window &child) const
 		{
 			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
 			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
-			pxChildPos.y -= std::floor(_text->GetHeight() * scale / 2);
+			pxChildPos.y -= std::floor(_text->GetContentSize(sc, texman).y * scale / 2);
 			return MakeRectWH(pxChildPos, pxChildSize);
 		}
 	}
@@ -199,7 +199,7 @@ FRECT Button::GetChildRect(const LayoutContext &lc, const Window &child) const
 		}
 	}
 
-	return Window::GetChildRect(lc, child);
+	return Window::GetChildRect(texman, lc, sc, child);
 }
 
 void Button::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -237,14 +237,14 @@ void TextButton::SetText(std::shared_ptr<TextSource> text)
 	_text->SetText(std::move(text));
 }
 
-FRECT TextButton::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	if (_text.get() == &child)
 	{
 		return MakeRectWH(lc.GetPixelSize());
 	}
 
-	return ButtonBase::GetChildRect(lc, child);
+	return ButtonBase::GetChildRect(texman, lc, sc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

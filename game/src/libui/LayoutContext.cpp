@@ -11,11 +11,11 @@ LayoutContext::LayoutContext(float scale, vec2d offset, vec2d size, bool enabled
 {
 }
 
-LayoutContext::LayoutContext(const LayoutContext &parentContext, const Window &parentWindow, const Window &childWindow)
-	: _scale(parentContext.GetScale())
-	, _enabled(parentContext.GetEnabled() && childWindow.GetEnabled())
+LayoutContext::LayoutContext(TextureManager &texman, const Window &parentWindow, const LayoutContext &parentLC, const StateContext &parentSC, const Window &childWindow)
+	: _scale(parentLC.GetScale())
+	, _enabled(parentLC.GetEnabled() && childWindow.GetEnabled())
 {
-	auto childRect = parentWindow.GetChildRect(parentContext, childWindow);
-	_offset = parentContext.GetPixelOffset() + Offset(childRect);
+	auto childRect = parentWindow.GetChildRect(texman, parentLC, parentSC, childWindow);
+	_offset = parentLC.GetPixelOffset() + Offset(childRect);
 	_size = Size(childRect);
 }

@@ -106,14 +106,14 @@ static void DrawWindowRecursive(
 				bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
 					renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
 
-				vec2d childOffset = Offset(wnd.GetChildRect(lc, *child));
+				vec2d childOffset = Offset(wnd.GetChildRect(renderSettings.texman, lc, renderSettings.sc, *child));
 
 				renderSettings.dc.PushTransform(childOffset);
 				renderSettings.ic.PushTransform(childOffset, childFocused, childOnHoverPath);
 
 				DrawWindowRecursive(
 					renderSettings,
-					LayoutContext(lc, wnd, *child),
+					LayoutContext(renderSettings.texman, wnd, lc, renderSettings.sc, *child),
 					*child,
 					childInsideTopMost,
 					childDepth);
@@ -140,8 +140,8 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ rs.ic.GetMousePos(), topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, desktop.GetTopMost()))
+			AreaSinkSearch search{ rs.texman, rs.ic.GetMousePos(), topMostPass };
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, rs.sc, desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;

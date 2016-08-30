@@ -15,6 +15,8 @@ enum class Key;
 struct IInput;
 struct IClipboard;
 struct PointerSink;
+class LayoutContext;
+class StateContext;
 class Window;
 
 enum class Msg
@@ -35,16 +37,16 @@ public:
 	InputContext(IInput &input, IClipboard &clipboard);
 
 	bool ProcessPointer(
+		TextureManager &texman,
 		std::shared_ptr<Window> wnd,
-		float layoutScale,
-		vec2d pxSize,
+		const LayoutContext &lc,
+		const StateContext &sc,
 		vec2d pxPointerPosition,
 		float z,
 		Msg msg,
 		int button,
 		PointerType pointerType,
-		unsigned int pointerID,
-		TextureManager &texman);
+		unsigned int pointerID);
 	bool ProcessKeys(std::shared_ptr<Window> wnd, Msg msg, UI::Key key);
 	bool ProcessText(std::shared_ptr<Window> wnd, int c);
 
@@ -70,7 +72,7 @@ public:
 private:
 	bool ProcessCharRecursive(std::shared_ptr<Window> wnd, int c);
 	bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
-	bool ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2d pxSize, vec2d pxPointerPosition, float layoutScale);
+	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, vec2d pxPointerPosition, vec2d offset);
 
 	IInput &_input;
 	IClipboard &_clipboard;
@@ -100,6 +102,7 @@ class LayoutContext;
 
 struct AreaSinkSearch
 {
+	TextureManager &texman;
 	vec2d pxGlobalPointerPosition;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;
@@ -110,6 +113,7 @@ SinkType* FindAreaSink(
 	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
+	const StateContext &sc,
 	bool insideTopMost);
 
 } // namespace UI

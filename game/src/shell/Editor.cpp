@@ -390,7 +390,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-FRECT EditorLayout::GetChildRect(const UI::LayoutContext &lc, const Window &child) const
+FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -404,7 +404,7 @@ FRECT EditorLayout::GetChildRect(const UI::LayoutContext &lc, const Window &chil
 		return FRECT{ 0, size.y - std::floor(64 * scale), size.x, size.y };
 	}
 
-	return UI::Window::GetChildRect(lc, child);
+	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
 
 void EditorLayout::OnChangeObjectType(int index)

@@ -25,7 +25,7 @@ ListBox::ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource*
 	_background->SetDrawBorder(true);
 }
 
-FRECT ListBox::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT ListBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -39,6 +39,6 @@ FRECT ListBox::GetChildRect(const LayoutContext &lc, const Window &child) const
 		return FRECT{ 1, 1, size.x - 2, size.y - 2 };
 	}
 
-	return Window::GetChildRect(lc, child);
+	return Window::GetChildRect(texman, lc, sc, child);
 }
 

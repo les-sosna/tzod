@@ -47,7 +47,7 @@ void Window::AddBack(std::shared_ptr<Window> child)
 	_children.push_front(std::move(child));
 }
 
-FRECT Window::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT Window::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	return CanvasLayout(child.GetOffset(), child.GetSize(), lc.GetScale());
 }

@@ -51,7 +51,7 @@ vec2d MultiColumnListItem::GetContentSize(const StateContext &sc, TextureManager
 	return _columns[0]->GetContentSize(sc, texman);
 }
 
-FRECT MultiColumnListItem::GetChildRect(const LayoutContext &lc, const Window &child) const
+FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -62,6 +62,6 @@ FRECT MultiColumnListItem::GetChildRect(const LayoutContext &lc, const Window &c
 		return MakeRectWH(-pxMargins, size + pxMargins * 2);
 	}
 
-	return Window::GetChildRect(lc, child);
+	return Window::GetChildRect(texman, lc, sc, child);
 }
 
