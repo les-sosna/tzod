@@ -77,6 +77,9 @@ RectRB DrawingContext::GetVisibleRegion() const
 
 void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const FRECT &rt = lt.uvFrames[frame];
 
@@ -117,6 +120,9 @@ void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, uns
 
 void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const DEV_TEXTURE &devtex = _tm.GetDeviceTexture(sprite);
 
@@ -322,6 +328,9 @@ void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor col
 
 void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
 {
+	if (color.a == 0)
+		return;
+
 	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
 	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
@@ -407,6 +416,9 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
+	if (color.a == 0)
+		return;
+
 	assert(frame < _tm.GetFrameCount(tex));
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
@@ -453,6 +465,9 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
@@ -531,6 +546,9 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 void DrawingContext::DrawLine(size_t tex, SpriteColor color,
                               float x0, float y0, float x1, float y1, float phase)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
 
