@@ -84,11 +84,18 @@ void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
 
 vec2d List::GetItemSize(TextureManager &texman, float scale) const
 {
-	StateContext sc;
-	sc.SetDataContext(_data);
+	if (_data->GetItemCount() > 0)
+	{
+		StateContext sc;
+		sc.SetDataContext(_data);
 
-	return _itemTemplate ? Vec2dFloor(_itemTemplate->GetContentSize(sc, texman) * scale) :
-		vec2d{ 0.f, std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale) };
+		return _itemTemplate ? Vec2dFloor(_itemTemplate->GetContentSize(sc, texman) * scale) :
+			vec2d{ 0.f, std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale) };
+	}
+	else
+	{
+		return vec2d{};
+	}
 }
 
 int List::GetCurSel() const
@@ -198,6 +205,10 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };
 
 	int advance = isVertical ? (int)pxItemSize.y : (int)pxItemSize.x;
+
+	if (advance == 0) // cannot draw zero-sized elements
+		return;
+
 	int regionBegin = isVertical ? visibleRegion.top : visibleRegion.left;
 	int regionEnd = isVertical ? visibleRegion.bottom : visibleRegion.right;
 
