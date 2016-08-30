@@ -17,7 +17,7 @@ namespace UI
 
 		// Window
 		ScrollSink* GetScrollSink() override { return this; }
-		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+		FRECT GetChildRect(const LayoutContext &lc, const Window &child) const override;
 
 	private:
 		std::shared_ptr<Window> _content;

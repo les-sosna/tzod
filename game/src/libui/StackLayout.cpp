@@ -1,4 +1,5 @@
 #include "inc/ui/StackLayout.h"
+#include "inc/ui/LayoutContext.h"
 #include <algorithm>
 using namespace UI;
 
@@ -7,8 +8,11 @@ StackLayout::StackLayout(LayoutManager &manager)
 {
 }
 
-FRECT StackLayout::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT StackLayout::GetChildRect(const LayoutContext &lc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	// FIXME: O(n^2) complexity
 	float pxOffset = 0;
 	float pxSpacing = std::floor(_spacing * scale);

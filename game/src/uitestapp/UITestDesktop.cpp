@@ -1,8 +1,9 @@
 #include "UITestDesktop.h"
 #include <ui/Button.h>
+#include <ui/DataSource.h>
+#include <ui/LayoutContext.h>
 #include <ui/Rectangle.h>
 #include <ui/Text.h>
-#include <ui/DataSource.h>
 
 using namespace UI::DataSourceAliases;
 
@@ -23,8 +24,11 @@ UITestDesktop::UITestDesktop(UI::LayoutManager &manager, TextureManager &texman)
 	AddFront(_testButton);
 }
 
-FRECT UITestDesktop::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT UITestDesktop::GetChildRect(const UI::LayoutContext &lc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_testRect.get() == &child)
 	{
 		return UI::CanvasLayout({ 0, 42 }, { size.x, 384 }, scale);
@@ -34,5 +38,5 @@ FRECT UITestDesktop::GetChildRect(vec2d size, float scale, const Window &child) 
 		return MakeRectWH(Vec2dFloor((size - child.GetSize() * scale) / 2), Vec2dFloor(child.GetSize() * scale));
 	}
 
-	return UI::Window::GetChildRect(size, scale, child);
+	return UI::Window::GetChildRect(lc, child);
 }

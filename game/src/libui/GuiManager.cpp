@@ -101,7 +101,7 @@ static void DrawWindowRecursive(
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
-				FRECT childRect = wnd.GetChildRect(pxSize, renderSettings.lc.GetScale(), *child);
+				FRECT childRect = wnd.GetChildRect(renderSettings.lc, *child);
 				bool childFocused = wnd.GetFocus() == child;
 				bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
 					renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
@@ -141,8 +141,8 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs)
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ rs.lc.GetScale(), topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), rs.lc.GetPixelSize(), rs.ic.GetMousePos(), desktop.GetTopMost()))
+			AreaSinkSearch search{ rs.lc, rs.ic.GetMousePos(), topMostPass };
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;

@@ -15,7 +15,7 @@ namespace UI
 		FlowDirection GetFlowDirection() const { return _flowDirection; }
 
 		// Window
-		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+		FRECT GetChildRect(const LayoutContext &lc, const Window &child) const override;
 		float GetWidth() const override;
 		float GetHeight() const override;
 

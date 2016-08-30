@@ -1,3 +1,4 @@
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/ListBox.h"
 #include "inc/ui/List.h"
 #include "inc/ui/MultiColumnListItem.h"
@@ -24,8 +25,11 @@ ListBox::ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource*
 	_background->SetDrawBorder(true);
 }
 
-FRECT ListBox::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT ListBox::GetChildRect(const LayoutContext &lc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_background.get() == &child)
 	{
 		return FRECT{ 0, 0, size.x, size.y };
@@ -35,6 +39,6 @@ FRECT ListBox::GetChildRect(vec2d size, float scale, const Window &child) const
 		return FRECT{ 1, 1, size.x - 2, size.y - 2 };
 	}
 
-	return Window::GetChildRect(size, scale, child);
+	return Window::GetChildRect(lc, child);
 }
 

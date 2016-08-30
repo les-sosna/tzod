@@ -164,8 +164,11 @@ void Button::SetBackground(TextureManager &texman, const char *tex, bool fitSize
 	}
 }
 
-FRECT Button::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT Button::GetChildRect(const LayoutContext &lc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_background.get() == &child)
 	{
 		return MakeRectRB(vec2d{}, size);
@@ -196,7 +199,7 @@ FRECT Button::GetChildRect(vec2d size, float scale, const Window &child) const
 		}
 	}
 
-	return Window::GetChildRect(size, scale, child);
+	return Window::GetChildRect(lc, child);
 }
 
 void Button::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -234,14 +237,14 @@ void TextButton::SetText(std::shared_ptr<TextSource> text)
 	_text->SetText(std::move(text));
 }
 
-FRECT TextButton::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT TextButton::GetChildRect(const LayoutContext &lc, const Window &child) const
 {
 	if (_text.get() == &child)
 	{
-		return MakeRectWH(size);
+		return MakeRectWH(lc.GetPixelSize());
 	}
 
-	return ButtonBase::GetChildRect(size, scale, child);
+	return ButtonBase::GetChildRect(lc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

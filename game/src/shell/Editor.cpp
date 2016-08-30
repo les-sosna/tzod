@@ -390,8 +390,11 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-FRECT EditorLayout::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT EditorLayout::GetChildRect(const UI::LayoutContext &lc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_layerDisp.get() == &child)
 	{
 		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
@@ -401,7 +404,7 @@ FRECT EditorLayout::GetChildRect(vec2d size, float scale, const Window &child) c
 		return FRECT{ 0, size.y - std::floor(64 * scale), size.x, size.y };
 	}
 
-	return UI::Window::GetChildRect(size, scale, child);
+	return UI::Window::GetChildRect(lc, child);
 }
 
 void EditorLayout::OnChangeObjectType(int index)

@@ -96,10 +96,12 @@ private:
 #endif
 };
 
+class LayoutContext;
 
 struct AreaSinkSearch
 {
-	float layoutScale;
+	LayoutContext &lc;
+	vec2d pxGlobalPointerPosition;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;
 };
@@ -108,8 +110,6 @@ template<class SinkType>
 SinkType* FindAreaSink(
 	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
-	vec2d pxSize,
-	vec2d pxPointerPosition,
 	bool insideTopMost);
 
 } // namespace UI

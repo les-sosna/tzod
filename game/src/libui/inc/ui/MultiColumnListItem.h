@@ -16,7 +16,7 @@ namespace UI
 
 		// Window
 		vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const override;
-		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+		FRECT GetChildRect(const LayoutContext &lc, const Window &child) const override;
 
 
 	private:

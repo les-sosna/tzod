@@ -1,6 +1,7 @@
-#include "inc/ui/Window.h"
-#include "inc/ui/InputContext.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/InputContext.h"
+#include "inc/ui/LayoutContext.h"
+#include "inc/ui/Window.h"
 #include <algorithm>
 
 using namespace UI;
@@ -46,9 +47,9 @@ void Window::AddBack(std::shared_ptr<Window> child)
 	_children.push_front(std::move(child));
 }
 
-FRECT Window::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT Window::GetChildRect(const LayoutContext &lc, const Window &child) const
 {
-	return CanvasLayout(child.GetOffset(), child.GetSize(), scale);
+	return CanvasLayout(child.GetOffset(), child.GetSize(), lc.GetScale());
 }
 
 void Window::Move(float x, float y)

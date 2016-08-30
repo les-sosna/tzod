@@ -1,5 +1,6 @@
 #include "inc/ui/DataSource.h"
 #include "inc/ui/ListBase.h"
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/MultiColumnListItem.h"
 #include "inc/ui/Rectangle.h"
 #include "inc/ui/StateContext.h"
@@ -50,14 +51,17 @@ vec2d MultiColumnListItem::GetContentSize(const StateContext &sc, TextureManager
 	return _columns[0]->GetContentSize(sc, texman);
 }
 
-FRECT MultiColumnListItem::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT MultiColumnListItem::GetChildRect(const LayoutContext &lc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_selection.get() == &child)
 	{
 		vec2d pxMargins = Vec2dFloor(vec2d{ 1, 2 } * scale);
 		return MakeRectWH(-pxMargins, size + pxMargins * 2);
 	}
 
-	return Window::GetChildRect(size, scale, child);
+	return Window::GetChildRect(lc, child);
 }
 

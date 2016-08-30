@@ -14,7 +14,7 @@ public:
 	UITestDesktop(UI::LayoutManager &manager, TextureManager &texman);
 
 	// UI::Window
-	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+	FRECT GetChildRect(const UI::LayoutContext &lc, const Window &child) const override;
 
 private:
 	std::shared_ptr<UI::Rectangle> _testRect;
