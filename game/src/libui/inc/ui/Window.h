@@ -18,6 +18,7 @@ namespace UI
 class InputContext;
 class LayoutContext;
 class LayoutManager;
+class StateContext;
 enum class Key;
 enum class PointerType;
 
@@ -35,7 +36,7 @@ enum class FlowDirection
 
 struct ScrollSink
 {
-	virtual void OnScroll(InputContext &ic, LayoutContext &lc, vec2d pointerPosition, vec2d scrollOffset) = 0;
+	virtual void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const StateContext &sc, vec2d pointerPosition, vec2d scrollOffset) = 0;
 };
 
 struct PointerSink
@@ -143,7 +144,7 @@ public:
 	// size & position
 	//
 
-	virtual vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const { return GetSize(); }
+	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc) const { return GetSize(); }
 
 	void Move(float x, float y);
 	vec2d GetOffset() const { return vec2d{_x, _y}; }

@@ -187,7 +187,7 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 		{
 			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
 			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
-			pxChildPos.y -= std::floor(_text->GetContentSize(sc, texman).y * scale / 2);
+			pxChildPos.y -= std::floor(_text->GetContentSize(texman, sc).y * scale / 2);
 			return MakeRectWH(pxChildPos, pxChildSize);
 		}
 	}
@@ -222,9 +222,9 @@ TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
 	_text->SetFontColor(c_textColor);
 }
 
-vec2d TextButton::GetContentSize(const StateContext &sc, TextureManager &texman) const
+vec2d TextButton::GetContentSize(TextureManager &texman, const StateContext &sc) const
 {
-	return _text->GetContentSize(sc, texman);
+	return _text->GetContentSize(texman, sc);
 }
 
 void TextButton::SetFont(TextureManager &texman, const char *fontName)

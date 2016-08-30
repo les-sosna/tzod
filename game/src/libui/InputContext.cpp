@@ -266,7 +266,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 
 		pxPointerPosition -= childLC.GetPixelOffset();
 
-		scrollSink->OnScroll(*this, childLC, pxPointerPosition, offset);
+		scrollSink->OnScroll(texman, *this, childLC, sc, pxPointerPosition, offset);
 		return true;
 	}
 

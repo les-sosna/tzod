@@ -31,30 +31,35 @@ FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 
 	if (_content.get() == &child)
 	{
-		vec2d contentOffset = {
-			std::max(0.f, std::min(_content->GetWidth() - size.x / scale, _offset.x)),
-			std::max(0.f, std::min(_content->GetHeight() - size.y / scale, _offset.y)) };
+		vec2d contentMeasuredSize = _content->GetContentSize(texman, sc);
+		vec2d contentOffset = Vec2dConstrain(_offset, MakeRectWH(contentMeasuredSize - size / scale));
 		vec2d contentSize = vec2d{ 
-			_horizontalScrollEnabled ? child.GetSize().x : size.x / scale,
-			_verticalScrollEnabled ? child.GetSize().y : size.y / scale };
+			_horizontalScrollEnabled ? contentMeasuredSize.x : size.x / scale,
+			_verticalScrollEnabled ? contentMeasuredSize.y : size.y / scale };
 		return CanvasLayout(-contentOffset, contentSize, scale);
 	}
 
 	return Window::GetChildRect(texman, lc, sc, child);
 }
 
-void ScrollView::OnScroll(UI::InputContext &ic, UI::LayoutContext &lc, vec2d pointerPosition, vec2d scrollOffset)
+vec2d ScrollView::GetContentSize(TextureManager &texman, const StateContext &sc) const
+{
+	return _content ? _content->GetContentSize(texman, sc) : vec2d{};
+}
+
+void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d scrollOffset)
 {
 	if (_content)
 	{
 		if (!_verticalScrollEnabled && _horizontalScrollEnabled && scrollOffset.x == 0)
 		{
-			scrollOffset.x = scrollOffset.y;
+			std::swap(scrollOffset.x, scrollOffset.y);
 		}
 
+		vec2d contentMeasuredSize = _content->GetContentSize(texman, sc);
+
 		_offset -= scrollOffset * 30;
-		_offset.x = std::max(0.f, std::min(_content->GetWidth() - lc.GetPixelSize().x / lc.GetScale(), _offset.x));
-		_offset.y = std::max(0.f, std::min(_content->GetHeight() - lc.GetPixelSize().y / lc.GetScale(), _offset.y));
+		_offset = Vec2dConstrain(_offset, MakeRectWH(contentMeasuredSize - lc.GetPixelSize() / lc.GetScale()));
 	}
 	else
 	{

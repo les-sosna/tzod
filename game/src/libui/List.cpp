@@ -72,15 +72,14 @@ void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
 	_itemTemplate = itemTemplate;
 }
 
-vec2d List::GetItemSize(TextureManager &texman, float scale) const
+vec2d List::GetItemSize(TextureManager &texman) const
 {
-	if (_data->GetItemCount() > 0)
+	if (_itemTemplate && _data->GetItemCount() > 0)
 	{
 		StateContext sc;
 		sc.SetDataContext(_data);
 
-		return _itemTemplate ? Vec2dFloor(_itemTemplate->GetContentSize(sc, texman) * scale) :
-			vec2d{ 0.f, std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale) };
+		return _itemTemplate->GetContentSize(texman, sc);
 	}
 	else
 	{
@@ -119,7 +118,7 @@ void List::SetCurSel(int sel, bool scroll)
 
 int List::HitTest(vec2d pxPos, TextureManager &texman, float scale) const
 {
-	vec2d which = pxPos / GetItemSize(texman, scale);
+	vec2d which = pxPos / Vec2dFloor(GetItemSize(texman) * scale);
 	int index = _flowDirection == FlowDirection::Vertical ? int(which.y) : int(which.x);
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
@@ -173,14 +172,12 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-float List::GetWidth() const
+vec2d List::GetContentSize(TextureManager &texman, const StateContext &sc) const
 {
-	return _flowDirection == FlowDirection::Vertical ? 0.f : _itemTemplate->GetWidth() * _data->GetItemCount();
-}
-
-float List::GetHeight() const
-{
-	return _flowDirection == FlowDirection::Vertical ? /*GetItemSize(1.f).y*/33 * _data->GetItemCount() : 0.f;
+	vec2d itemSize = GetItemSize(texman);
+	return _flowDirection == FlowDirection::Vertical ?
+		vec2d{ itemSize.x, itemSize.y * _data->GetItemCount() } :
+		vec2d{ itemSize.x * _data->GetItemCount(), itemSize.y };
 }
 
 void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -192,7 +189,7 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
 
-	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScale());
+	vec2d pxItemMinSize = Vec2dFloor(GetItemSize(texman) * lc.GetScale());
 
 	vec2d pxItemSize = isVertical ?
 		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };

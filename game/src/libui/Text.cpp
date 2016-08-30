@@ -42,7 +42,7 @@ void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 	}
 }
 
-vec2d Text::GetContentSize(const StateContext &sc, TextureManager &texman) const
+vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc) const
 {
 	// update lines
 	unsigned int lineCount = 1;

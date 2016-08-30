@@ -87,7 +87,7 @@ public:
 
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
-	vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const override;
+	vec2d GetContentSize(TextureManager &texman, const StateContext &sc) const override;
 
 private:
 	std::shared_ptr<Text> _text;

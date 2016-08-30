@@ -241,7 +241,7 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::OnScroll(UI::InputContext &ic, UI::LayoutContext &lc, vec2d pointerPosition, vec2d offset)
+void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset)
 {
 }
 
@@ -401,7 +401,7 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	}
 	else if (_typeSelector.get() == &child)
 	{
-		return FRECT{ 0, size.y - std::floor(64 * scale), size.x, size.y };
+		return FRECT{ 0, size.y - std::floor(_typeSelector->GetContentSize(texman, sc).y * scale), size.x, size.y };
 	}
 
 	return UI::Window::GetChildRect(texman, lc, sc, child);

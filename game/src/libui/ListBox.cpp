@@ -7,6 +7,8 @@
 
 using namespace UI;
 
+static const vec2d c_borderSize = { 1.f, 1.f };
+
 ListBox::ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource)
 	: Window(manager)
 	, _background(std::make_shared<Rectangle>(manager))
@@ -32,13 +34,19 @@ FRECT ListBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, con
 
 	if (_background.get() == &child)
 	{
-		return FRECT{ 0, 0, size.x, size.y };
+		return MakeRectWH(size);
 	}
 	else if (_scrollView.get() == &child)
 	{
-		return FRECT{ 1, 1, size.x - 2, size.y - 2 };
+		vec2d pxBorderSize = Vec2dFloor(c_borderSize * scale);
+		return MakeRectRB(pxBorderSize, size - pxBorderSize);
 	}
 
 	return Window::GetChildRect(texman, lc, sc, child);
+}
+
+vec2d ListBox::GetContentSize(TextureManager &texman, const StateContext &sc) const
+{
+	return _scrollView->GetContentSize(texman, sc) + c_borderSize * 2;
 }
 
