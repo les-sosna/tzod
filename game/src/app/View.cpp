@@ -121,6 +121,15 @@ void TzodView::Render(AppWindow &appWindow)
 	UI::RenderSettings rs{ stateContext, _impl->gui.GetInputContext(), dc, _impl->textureManager };
 
 	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs, layoutContext);
+
+#ifndef NDEBUG
+	for (auto &id2pos : rs.ic.GetLastPointerLocation())
+	{
+		FRECT dst = { id2pos.second.x - 4, id2pos.second.y - 4, id2pos.second.x + 4, id2pos.second.y + 4 };
+		rs.dc.DrawSprite(dst, 0U, 0xffffffff, 0U);
+	}
+#endif
+
 	appWindow.GetRender().End();
 }
 

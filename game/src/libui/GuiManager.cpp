@@ -163,12 +163,4 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 		);
 	}
 	rs.ic.PopTransform();
-
-#ifndef NDEBUG
-	for (auto &id2pos: rs.ic.GetLastPointerLocation())
-	{
-		FRECT dst = { id2pos.second.x-4, id2pos.second.y-4, id2pos.second.x+4, id2pos.second.y+4 };
-		rs.dc.DrawSprite(dst, 0U, 0xffffffff, 0U);
-	}
-#endif
 }
