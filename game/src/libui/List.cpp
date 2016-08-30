@@ -149,10 +149,20 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	switch( key )
 	{
 	case Key::Up:
-		SetCurSel(std::max(0, GetCurSel() - 1), true);
+		if (_flowDirection == FlowDirection::Vertical)
+			SetCurSel(std::max(0, GetCurSel() - 1), true);
+		break;
+	case Key::Left:
+		if (_flowDirection == FlowDirection::Horizontal)
+			SetCurSel(std::max(0, GetCurSel() - 1), true);
 		break;
 	case Key::Down:
-		SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+		if (_flowDirection == FlowDirection::Vertical)
+			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+		break;
+	case Key::Right:
+		if (_flowDirection == FlowDirection::Horizontal)
+			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
 		break;
 	case Key::Home:
 		SetCurSel(0, true);
