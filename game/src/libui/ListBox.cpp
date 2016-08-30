@@ -1,5 +1,6 @@
 #include "inc/ui/ListBox.h"
 #include "inc/ui/List.h"
+#include "inc/ui/MultiColumnListItem.h"
 #include "inc/ui/Rectangle.h"
 #include "inc/ui/ScrollView.h"
 
@@ -13,6 +14,8 @@ ListBox::ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource*
 {
 	AddFront(_background);
 	AddFront(_scrollView);
+
+	_list->SetItemTemplate(std::make_shared<UI::MultiColumnListItem>(manager, texman));
 
 	_scrollView->SetContent(_list);
 	SetFocus(_scrollView);

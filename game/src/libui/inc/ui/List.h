@@ -25,7 +25,6 @@ public:
 	int  GetCurSel() const;
 	void SetCurSel(int sel, bool scroll = false);
 
-	void SetTabPos(int index, float pos);
 	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
 
 	void SetItemTemplate(std::shared_ptr<Window> itemTemplate);

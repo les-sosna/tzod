@@ -55,7 +55,6 @@ List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataS
     , _font(texman.FindSprite("font_small"))
     , _selection(texman.FindSprite("ui/listsel"))
 {
-	SetTabPos(0, 1); // first column
 	_data->AddListener(&_callbacks);
 }
 
@@ -66,15 +65,6 @@ List::~List()
 ListDataSource* List::GetData() const
 {
 	return _data;
-}
-
-void List::SetTabPos(int index, float pos)
-{
-	assert(index >= 0);
-	if( index >= (int) _tabs.size() )
-		_tabs.insert(_tabs.end(), 1+index - _tabs.size(), pos);
-	else
-		_tabs[index] = pos;
 }
 
 void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
@@ -195,6 +185,9 @@ float List::GetHeight() const
 
 void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
+	if (!_itemTemplate)
+		return;
+
 	RectRB visibleRegion = dc.GetVisibleRegion();
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
@@ -214,7 +207,6 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 	int i_min = std::max(0, regionBegin / advance);
 	int i_max = std::max(0, (regionEnd + advance - 1) / advance);
-	int maxtab = (int) _tabs.size() - 1;
 
 	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos(), texman, lc.GetScale()) : -1;
 
@@ -242,53 +234,22 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 		else
 			itemState = DISABLED;
 
-		if (_itemTemplate)
-		{
-			// TODO: something smarter than const_cast (fork?)
-			UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<LayoutContext&>(lc), const_cast<InputContext&>(ic), dc, texman };
+		// TODO: something smarter than const_cast (fork?)
+		UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<LayoutContext&>(lc), const_cast<InputContext&>(ic), dc, texman };
 
-			static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
-			rs.sc.SetState(itemStateStrings[itemState]);
-			rs.sc.SetDataContext(_data);
-			rs.sc.SetItemIndex(i);
+		static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
+		rs.sc.SetState(itemStateStrings[itemState]);
+		rs.sc.SetDataContext(_data);
+		rs.sc.SetItemIndex(i);
 
-			rs.lc.PushTransform(pxItemOffset, pxItemSize, true);
-			rs.ic.PushTransform(pxItemOffset, true, true);
-			dc.PushTransform(pxItemOffset);
+		rs.lc.PushTransform(pxItemOffset, pxItemSize, true);
+		rs.ic.PushTransform(pxItemOffset, true, true);
+		dc.PushTransform(pxItemOffset);
 
-			RenderUIRoot(*_itemTemplate, rs);
+		RenderUIRoot(*_itemTemplate, rs);
 
-			dc.PopTransform();
-			rs.ic.PopTransform();
-			rs.lc.PopTransform();
-		}
-		else
-		{
-			static SpriteColor itemStateColors[] =
-			// Normal      Unfocused   Focused     Hover        Disabled
-			{ 0xffd0d0d0, 0xffffffff, 0xff000000, 0xffffffff,  0x70707070};
-
-			c = itemStateColors[itemState];
-			FRECT sel = { 1, pxItemOffset.y, lc.GetPixelSize().x - 1, pxItemOffset.y + pxItemSize.y };
-			FRECT border = { -1, pxItemOffset.y - 2, lc.GetPixelSize().x + 1, pxItemOffset.y + pxItemSize.y + 2 };
-
-			switch (itemState)
-			{
-			case FOCUSED:
-				dc.DrawSprite(sel, _selection, 0xffffffff, 0);
-				// fall through
-			case UNFOCUSED:
-				dc.DrawBorder(border, _selection, 0xffffffff, 0);
-				break;
-			default:
-				break;
-			}
-
-			for (int k = _data->GetSubItemCount(i); k--; )
-			{
-				float x = std::floor(_tabs[std::min(k, maxtab)] * lc.GetScale());
-				dc.DrawBitmapText(x, pxItemOffset.y, _font, c, _data->GetItemText(i, k));
-			}
-		}
+		dc.PopTransform();
+		rs.ic.PopTransform();
+		rs.lc.PopTransform();
 	}
 }
