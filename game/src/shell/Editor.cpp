@@ -465,7 +465,8 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	vec2d mouse = CanvasToWorld(lc.GetPixelSize(), ic.GetMousePos());
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-	dc.DrawBitmapText(floor(lc.GetPixelSize().x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	dc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
+		lc.GetScale(), _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }
 
 vec2d EditorLayout::CanvasToWorld(vec2d canvasSize, vec2d canvasPos) const

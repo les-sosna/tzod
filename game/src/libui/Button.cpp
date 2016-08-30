@@ -315,5 +315,5 @@ void CheckBox::Draw(const StateContext &sc, const LayoutContext &lc, const Input
 		SpriteColor(0xffffffff), // Pushed
 		SpriteColor(0xffffffff), // Disabled
 	};
-	dc.DrawBitmapText(bw, (lc.GetPixelSize().y - th) / 2, _fontTexture, colors[state], GetText());
+	dc.DrawBitmapText(vec2d{ bw, (lc.GetPixelSize().y - th) / 2 }, lc.GetScale(), _fontTexture, colors[state], GetText());
 }

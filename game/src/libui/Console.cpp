@@ -1,11 +1,10 @@
-// Console.cpp
-
 #include "inc/ui/Console.h"
 #include "inc/ui/Edit.h"
 #include "inc/ui/Scroll.h"
 #include "inc/ui/ConsoleBuffer.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
+#include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <algorithm>
@@ -240,7 +239,7 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 		{
 			unsigned int sev = _buf->GetSeverity(line);
 			SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
-			dc.DrawBitmapText(4, y, _font, color, _buf->GetLine(line));
+			dc.DrawBitmapText(vec2d{ 4, y }, lc.GetScale(), _font, color, _buf->GetLine(line));
 			y += h;
 		}
 

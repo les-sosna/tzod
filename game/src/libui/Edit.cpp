@@ -129,10 +129,10 @@ void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 	SpriteColor c = lc.GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
-		dc.DrawBitmapText(0, 1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
+		dc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), _font, c, GetText().substr(_offset, GetSelMin() - _offset));
 	}
-	dc.DrawBitmapText((GetSelMin() - _offset) * w, 1, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
-	dc.DrawBitmapText((GetSelMax() - _offset) * w, 1, _font, c, GetText().substr(GetSelMax()));
+	dc.DrawBitmapText(vec2d{ (GetSelMin() - _offset) * w, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
+	dc.DrawBitmapText(vec2d{ (GetSelMax() - _offset) * w, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
 
 	float time = GetManager().GetTime() - _lastCursortime;
 

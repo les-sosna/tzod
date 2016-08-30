@@ -24,8 +24,8 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &
 
 	if( vehicle.GetOwner() )
 	{
-		dc.DrawBitmapText(pos.x, pos.y + radius + 4, // leave space for ammo indicator
-                          _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCT);
+		dc.DrawBitmapText(vec2d{ pos.x, pos.y + radius + 4 }, // leave space for ammo indicator
+			1.f, _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCT);
 	}
 
 #ifndef NDEBUG

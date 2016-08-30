@@ -1,6 +1,7 @@
 #include "inc/ui/Text.h"
 #include "inc/ui/DataSource.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -38,7 +39,7 @@ void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 {
 	if (_text)
 	{
-		dc.DrawBitmapText(0, 0, _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, _text->GetText(sc), _align);
+		dc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, _text->GetText(sc), _align);
 	}
 }
 

@@ -22,5 +22,5 @@ void R_Text::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc)
 		case GC_Text::SCORE_MINUS: font = _fontDigitsRed; break;
 		default: font = _fontDefault;
 	}
-	dc.DrawBitmapText(pos.x, pos.y, font, 0xffffffff, text.GetText(), alignTextCC);
+	dc.DrawBitmapText(pos, 1.f, font, 0xffffffff, text.GetText(), alignTextCC);
 }

@@ -62,7 +62,7 @@ void TextureManager::UnloadAllTextures()
 	_logicalTextures.clear();
 }
 
-std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const std::shared_ptr<Image> &image)
+std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const std::shared_ptr<Image> &image, bool magFilter)
 {
 	auto it = _mapImage_to_TexDescIter.find(image);
 	if( _mapImage_to_TexDescIter.end() != it )
@@ -72,7 +72,7 @@ std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const s
 	else
 	{
 		TexDesc td;
-		if( !_render.TexCreate(td.id, *image) )
+		if( !_render.TexCreate(td.id, *image, magFilter) )
 		{
 			throw std::runtime_error("error in render device");
 		}
@@ -96,7 +96,7 @@ void TextureManager::CreateChecker()
 
 	TexDesc td;
 	CheckerImage c;
-	if( !_render.TexCreate(td.id, c) )
+	if( !_render.TexCreate(td.id, c, false) )
 	{
 		TRACE("ERROR: error in render device");
 		assert(false);
@@ -116,6 +116,7 @@ void TextureManager::CreateChecker()
 	tex.pxFrameWidth = (float) td.width * 8;
 	tex.pxFrameHeight = (float) td.height * 8;
 	tex.pxBorderSize = 0;
+	tex.magFilter = false;
 	tex.uvFrames = { { 0,0,8,8 } };
 
 	_logicalTextures.emplace_back(tex, texDescIter);
@@ -135,6 +136,15 @@ static float getfloat(lua_State *L, int tblidx, const char *field, float def)
 	lua_getfield(L, tblidx, field);
 	if( lua_isnumber(L, -1) )
 		def = (float) lua_tonumber(L, -1);
+	lua_pop(L, 1); // pop result of getfield
+	return def;
+}
+
+static bool getbool(lua_State *L, int tblidx, const char *field, bool def)
+{
+	lua_getfield(L, tblidx, field);
+	if( !lua_isnil(L, -1) )
+		def = !!lua_toboolean(L, -1);
 	lua_pop(L, 1); // pop result of getfield
 	return def;
 }
@@ -169,8 +179,11 @@ static LogicalTexture getlt(lua_State *L, int idx, float pxWidth, float pxHeight
 	tex.pxFrameHeight = pxHeight * scale_y * uvFrameHeight;
 
 	// pivot position
-	tex.uvPivot.x = (float)getfloat(L, idx, "xpivot", pxWidth * uvFrameWidth / 2) / (pxWidth * uvFrameWidth);
-	tex.uvPivot.y = (float)getfloat(L, idx, "ypivot", pxHeight * uvFrameHeight / 2) / (pxHeight * uvFrameHeight);
+	tex.uvPivot.x = getfloat(L, idx, "xpivot", pxWidth * uvFrameWidth / 2) / (pxWidth * uvFrameWidth);
+	tex.uvPivot.y = getfloat(L, idx, "ypivot", pxHeight * uvFrameHeight / 2) / (pxHeight * uvFrameHeight);
+
+	// filter
+	tex.magFilter = getbool(L, idx, "magfilter", true);
 
 	// frames
 	tex.uvFrames.reserve(xframes * yframes);
@@ -273,7 +286,7 @@ int TextureManager::LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, s
 		LogicalTexture &tex = std::get<2>(item);
 		if( !tex.uvFrames.empty() )
 		{
-			std::list<TexDesc>::iterator texDescIter = LoadTexture(std::get<0>(item));
+			std::list<TexDesc>::iterator texDescIter = LoadTexture(std::get<0>(item), std::get<2>(item).magFilter);
 			texDescIter->refCount++;
 
 			auto emplaced = _mapName_to_Index.emplace(std::get<1>(item), _logicalTextures.size());
@@ -347,6 +360,7 @@ ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::Fil
 		tex.pxFrameWidth = (float) image->GetWidth();
 		tex.pxFrameHeight = (float) image->GetHeight();
 		tex.pxBorderSize = 0;
+		tex.magFilter = true;
 		tex.uvFrames = { { 0, 0, 1, 1 } };
 
 		result.emplace_back(image, texName, tex);
