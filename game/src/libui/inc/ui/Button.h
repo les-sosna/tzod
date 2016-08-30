@@ -61,8 +61,6 @@ public:
 	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
 	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<TextSource> text);
-
-protected:
 	void SetFont(TextureManager &texman, const char *fontName);
 
 	// Window

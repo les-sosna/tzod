@@ -23,6 +23,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	std::shared_ptr<UI::Button> button;
 
 	button = std::make_shared<UI::Button>(manager, texman);
+	button->SetFont(texman, "font_default");
 	button->SetText(ConfBind(_lang.single_player_btn));
 	button->SetIcon(manager, texman, "ui/play");
 	button->Resize(c_buttonWidth, c_buttonHeight);
@@ -30,6 +31,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	AddFront(button);
 
 	button = std::make_shared<UI::Button>(manager, texman);
+	button->SetFont(texman, "font_default");
 	button->SetText(ConfBind(_lang.editor_btn));
 	button->SetIcon(manager, texman, "ui/editor");
 	button->Resize(c_buttonWidth, c_buttonHeight);
@@ -37,6 +39,7 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	AddFront(button);
 
 	button = std::make_shared<UI::Button>(manager, texman);
+	button->SetFont(texman, "font_default");
 	button->SetText(ConfBind(_lang.settings_btn));
 	button->SetIcon(manager, texman, "ui/settings");
 	button->Resize(c_buttonWidth, c_buttonHeight);

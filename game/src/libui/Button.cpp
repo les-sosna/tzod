@@ -118,7 +118,7 @@ Button::Button(LayoutManager &manager, TextureManager &texman)
 	_text->SetAlign(alignTextCC);
 	_text->SetFontColor(c_textColor);
 
-	SetFont(texman, "font_default");
+	SetFont(texman, "font_small");
 	SetBackground(texman, "ui/button", true);
 }
 
