@@ -607,17 +607,17 @@ void Desktop::OnSize(float width, float height)
 		_editor->Resize(width, height);
 	if( _game )
 		_game->Resize(width, height);
-	_con->Resize(width - 20, floorf(height * 0.5f + 0.5f));
+	_con->Resize(width - 20, height / 2);
 	_fps->Move(1, height - 1);
 
 	if (!_navStack.empty())
 	{
 		float transition = (1 - std::cos(PI * _navTransitionTime / _conf.ui_foldtime.GetFloat())) / 2;
-		float top = std::floor(_navTransitionStart * transition + GetTransitionTarget() * (1 - transition));
+		float top = _navTransitionStart * transition + GetTransitionTarget() * (1 - transition);
 
 		for (auto wnd : _navStack)
 		{
-			wnd->Move(floorf((width - wnd->GetWidth()) / 2), top);
+			wnd->Move((width - wnd->GetWidth()) / 2, top);
 			top += wnd->GetHeight() + _conf.ui_spacing.GetFloat();
 		}
 	}

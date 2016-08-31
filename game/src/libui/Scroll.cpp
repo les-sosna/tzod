@@ -221,8 +221,8 @@ void ScrollBarVertical::SetPos(float pos)
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(_btnBox->GetWidth(), std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE));
-	_boxPos.y = floor(_btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
-		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f);
+	_boxPos.y = _btnUpLeft->GetHeight() * mult + (GetHeight() - _btnBox->GetHeight()
+		- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult ) * GetPos() / (GetDocumentSize() - GetPageSize());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -252,8 +252,8 @@ void ScrollBarHorizontal::SetPos(float pos)
 
 	float mult = GetShowButtons() ? 1.0f : 0.0f;
 	_btnBox->Resize(std::max(GetScrollPaneLength() * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE), _btnBox->GetHeight());
-	_boxPos.x = floor(_btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
-		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) + 0.5f);
+	_boxPos.x = _btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
+		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize());
 }
 
 } // end of namespace UI
