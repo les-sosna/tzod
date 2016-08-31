@@ -194,6 +194,11 @@ inline vec2d Vec2dFloor(const vec2d &vec)
 	return{ std::floor(vec.x), std::floor(vec.y) };
 }
 
+inline vec2d Vec2dFloor(float x, float y)
+{
+	return{ std::floor(x), std::floor(y) };
+}
+
 inline vec2d Vec2dDirection(float angle)
 {
 	return{ cosf(angle), sinf(angle) };

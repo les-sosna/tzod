@@ -27,6 +27,7 @@
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
+#include <ui/LayoutContext.h>
 #include <ui/UIInput.h>
 
 extern "C"
@@ -135,22 +136,14 @@ void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
 
-	bool update = false;
 	if (_navTransitionTime > 0)
 	{
 		_navTransitionTime = std::max(0.f, _navTransitionTime - dt);
-		update = true;
 	}
 
 	if (_openingTime > 0)
 	{
 		_openingTime = std::max(0.f, _openingTime - dt);
-		update = true;
-	}
-
-	if (update)
-	{
-		OnSize(GetWidth(), GetHeight());
 	}
 
 	if (GameContextBase *gc = GetAppState().GetGameContext())
@@ -478,7 +471,6 @@ void Desktop::PopNavStack(UI::Window *wnd)
 		_navStack.back()->SetEnabled(true);
 	}
 
-	OnSize(GetWidth(), GetHeight());
 	UpdateFocus();
 }
 
@@ -496,7 +488,6 @@ void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
 		_navStack.back()->SetEnabled(false);
 	}
 	_navStack.push_back(wnd);
-	OnSize(GetWidth(), GetHeight());
 	UpdateFocus();
 }
 
@@ -591,25 +582,29 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-void Desktop::OnSize(float width, float height)
+FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
-	if (_background)
+	if (_background.get() == &child)
 	{
 		float transition = (1 - std::cos(PI * _openingTime / _conf.ui_foldtime.GetFloat())) / 2;
 		if (GetAppState().GetGameContext())
 		{
 			transition = 1 - transition;
 		}
-		_background->Resize(width, height);
-		_background->Move(0, -height * transition);
+		return MakeRectWH(vec2d{0, -lc.GetPixelSize().y * transition}, lc.GetPixelSize());
 	}
-	if( _editor )
-		_editor->Resize(width, height);
-	if( _game )
-		_game->Resize(width, height);
-	_con->Resize(width - 20, height / 2);
-	_fps->Move(1, height - 1);
-
+	if (_editor.get() == &child || _game.get() == &child)
+	{
+		return MakeRectWH(lc.GetPixelSize());
+	}
+	if (_con.get() == &child)
+	{
+		return MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } *lc.GetScale()), Vec2dFloor(lc.GetPixelSize().x - 10 * lc.GetScale(), lc.GetPixelSize().y / 2));
+	}
+	if (_fps.get() == &child)
+	{
+		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, sc, lc.GetScale()) / lc.GetScale(), lc.GetScale());
+	}
 	if (!_navStack.empty())
 	{
 		float transition = (1 - std::cos(PI * _navTransitionTime / _conf.ui_foldtime.GetFloat())) / 2;
@@ -617,10 +612,16 @@ void Desktop::OnSize(float width, float height)
 
 		for (auto wnd : _navStack)
 		{
-			wnd->Move((width - wnd->GetWidth()) / 2, top);
+			if (wnd.get() == &child)
+			{
+				vec2d pxChildSize = child.GetContentSize(texman, sc, lc.GetScale());
+				vec2d pxChildOffset = Vec2dFloor((lc.GetPixelSize().x - pxChildSize.x) / 2, top * lc.GetScale());
+				return MakeRectWH(pxChildOffset, pxChildSize);
+			}
 			top += wnd->GetHeight() + _conf.ui_spacing.GetFloat();
 		}
 	}
+	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
 
 void Desktop::OnChangeShowFps()

@@ -47,9 +47,11 @@ public:
 
 	void ShowConsole(bool show);
 
+	// UI::Window
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
+
 protected:
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
-	void OnSize(float width, float height) override;
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
 private:

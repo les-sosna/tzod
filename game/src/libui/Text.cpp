@@ -45,7 +45,9 @@ void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
-	// update lines
+	if (!_text)
+		return vec2d{};
+
 	unsigned int lineCount = 1;
 	unsigned  maxline = 0;
 	size_t count = 0;
