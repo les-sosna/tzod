@@ -35,7 +35,7 @@ public:
 	void  SetFloat(float value);
 	float GetFloat() const;
 
-	void SetSel(int begin, int end); // -1 means end of string
+	void SetSel(int begin, int end, LayoutContext *optionalLC = nullptr); // -1 means end of string
 	int GetSelStart() const;
 	int GetSelEnd() const;
 	int GetSelMin() const;
@@ -53,6 +53,7 @@ protected:
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override;
 	TextSink* GetTextSink() override { return this; }
+	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 
 private:
 	void OnTextChange(TextureManager &texman);
