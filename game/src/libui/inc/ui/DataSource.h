@@ -2,6 +2,7 @@
 #include <video/RenderBase.h>
 #include <map>
 #include <memory>
+#include <string>
 
 namespace UI
 {
