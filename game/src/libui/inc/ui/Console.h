@@ -46,8 +46,6 @@ public:
 	Console(LayoutManager &manager, TextureManager &texman);
 	static std::shared_ptr<Console> Create(Window *parent, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
 
-	float GetInputHeight() const;
-
 	void SetColors(const SpriteColor *colors, size_t count);
 	void SetHistory(IConsoleHistory *history);
 	void SetBuffer(ConsoleBuffer *buf);

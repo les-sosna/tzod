@@ -67,11 +67,6 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
 	SetTimeStep(true); // FIXME: workaround
 }
 
-float Console::GetInputHeight() const
-{
-	return _input->GetHeight();
-}
-
 void Console::SetColors(const SpriteColor *colors, size_t count)
 {
 	_colors.assign(colors, colors + count);
