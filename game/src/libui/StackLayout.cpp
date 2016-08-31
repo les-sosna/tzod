@@ -25,9 +25,9 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + std::floor(item->GetHeight() * scale);
+			pxOffset += pxSpacing + item->GetContentSize(texman, sc, scale).y;
 		}
-		return FRECT{ 0.f, pxOffset, size.x, pxOffset + std::floor(child.GetHeight() * scale) };
+		return FRECT{ 0.f, pxOffset, size.x, pxOffset + child.GetContentSize(texman, sc, scale).y };
 	}
 	else
 	{
@@ -38,9 +38,9 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + std::floor(item->GetWidth() * scale);
+			pxOffset += pxSpacing + item->GetContentSize(texman, sc, scale).x;
 		}
-		return FRECT{ pxOffset, 0.f, pxOffset + std::floor(child.GetWidth() * scale), size.y };
+		return FRECT{ pxOffset, 0.f, pxOffset + child.GetContentSize(texman, sc, scale).x, size.y };
 	}
 }
 

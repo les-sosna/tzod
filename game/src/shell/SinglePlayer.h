@@ -24,13 +24,15 @@ public:
 	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf);
 
 	// UI::Window
-	void OnSize(float width, float height) override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 
 private:
 	void OnClickMap(std::string mapName);
 	ConfCache &_conf;
-	std::array<std::shared_ptr<MapPreview>, 4> _tiles;
+	std::shared_ptr<UI::StackLayout> _content;
+
 	std::shared_ptr<UI::Text> _tierTitle;
+	std::shared_ptr<UI::StackLayout> _tiles;
 	std::shared_ptr<UI::Text> _enemiesTitle;
 	std::shared_ptr<UI::StackLayout> _enemies;
 };
