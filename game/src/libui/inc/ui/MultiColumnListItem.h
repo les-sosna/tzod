@@ -15,7 +15,7 @@ namespace UI
 		void EnsureColumn(LayoutManager &manager, TextureManager &texman, unsigned int columnIndex, float offset);
 
 		// Window
-		vec2d GetContentSize(TextureManager &texman, const StateContext &sc) const override;
+		vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 

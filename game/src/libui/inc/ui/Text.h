@@ -20,7 +20,7 @@ public:
 
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	vec2d GetContentSize(TextureManager &texman, const StateContext &sc) const override;
+	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 
 private:
 	enumAlignText  _align;

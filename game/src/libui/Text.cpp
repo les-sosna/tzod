@@ -43,7 +43,7 @@ void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 	}
 }
 
-vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc) const
+vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
 	// update lines
 	unsigned int lineCount = 1;
@@ -65,8 +65,8 @@ vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc) const
 	{
 		maxline = text.size();
 	}
-	float w = texman.GetFrameWidth(_fontTexture, 0);
-	float h = texman.GetFrameHeight(_fontTexture, 0);
+	float w = std::floor(texman.GetFrameWidth(_fontTexture, 0) * scale);
+	float h = std::floor(texman.GetFrameHeight(_fontTexture, 0) * scale);
 	return vec2d{ (w - 1) * (float)maxline, h * (float)lineCount };
 }
 

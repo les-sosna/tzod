@@ -31,20 +31,20 @@ FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 
 	if (_content.get() == &child)
 	{
-		vec2d contentMeasuredSize = _content->GetContentSize(texman, sc);
-		vec2d contentOffset = Vec2dConstrain(_offset, MakeRectWH(contentMeasuredSize - size / scale));
-		vec2d contentSize = vec2d{ 
-			_horizontalScrollEnabled ? contentMeasuredSize.x : size.x / scale,
-			_verticalScrollEnabled ? contentMeasuredSize.y : size.y / scale };
-		return CanvasLayout(-contentOffset, contentSize, scale);
+		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, sc, scale);
+		vec2d pxContentOffset = Vec2dConstrain(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
+		vec2d pxContentSize = vec2d{
+			_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,
+			_verticalScrollEnabled ? pxContentMeasuredSize.y : size.y };
+		return MakeRectWH(-pxContentOffset, pxContentSize);
 	}
 
 	return Window::GetChildRect(texman, lc, sc, child);
 }
 
-vec2d ScrollView::GetContentSize(TextureManager &texman, const StateContext &sc) const
+vec2d ScrollView::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
-	return _content ? _content->GetContentSize(texman, sc) : vec2d{};
+	return _content ? _content->GetContentSize(texman, sc, scale) : vec2d{};
 }
 
 void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d scrollOffset)
@@ -56,9 +56,9 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 			std::swap(scrollOffset.x, scrollOffset.y);
 		}
 
-		vec2d contentMeasuredSize = _content->GetContentSize(texman, sc);
+		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, sc, lc.GetScale());
 
-		FRECT offsetConstraints = MakeRectWH(contentMeasuredSize - lc.GetPixelSize() / lc.GetScale());
+		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScale());
 		_offset = Vec2dConstrain(_offset, offsetConstraints);
 		_offset -= scrollOffset * 30;
 		_offset = Vec2dConstrain(_offset, offsetConstraints);

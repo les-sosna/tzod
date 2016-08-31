@@ -144,7 +144,7 @@ public:
 	// size & position
 	//
 
-	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc) const { return GetSize(); }
+	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const { return Vec2dFloor(GetSize() *scale); }
 
 	void Move(float x, float y);
 	vec2d GetOffset() const { return vec2d{_x, _y}; }

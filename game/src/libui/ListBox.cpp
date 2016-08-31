@@ -45,8 +45,8 @@ FRECT ListBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, con
 	return Window::GetChildRect(texman, lc, sc, child);
 }
 
-vec2d ListBox::GetContentSize(TextureManager &texman, const StateContext &sc) const
+vec2d ListBox::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
-	return _scrollView->GetContentSize(texman, sc) + c_borderSize * 2;
+	return _scrollView->GetContentSize(texman, sc, scale) + Vec2dFloor(c_borderSize * scale) * 2;
 }
 

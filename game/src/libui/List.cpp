@@ -72,14 +72,14 @@ void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
 	_itemTemplate = itemTemplate;
 }
 
-vec2d List::GetItemSize(TextureManager &texman) const
+vec2d List::GetItemSize(TextureManager &texman, float scale) const
 {
 	if (_itemTemplate && _data->GetItemCount() > 0)
 	{
 		StateContext sc;
 		sc.SetDataContext(_data);
 
-		return _itemTemplate->GetContentSize(texman, sc);
+		return _itemTemplate->GetContentSize(texman, sc, scale);
 	}
 	else
 	{
@@ -118,7 +118,7 @@ void List::SetCurSel(int sel, bool scroll)
 
 int List::HitTest(vec2d pxPos, TextureManager &texman, float scale) const
 {
-	vec2d which = pxPos / Vec2dFloor(GetItemSize(texman) * scale);
+	vec2d which = pxPos / GetItemSize(texman, scale);
 	int index = _flowDirection == FlowDirection::Vertical ? int(which.y) : int(which.x);
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
@@ -182,12 +182,12 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-vec2d List::GetContentSize(TextureManager &texman, const StateContext &sc) const
+vec2d List::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
-	vec2d itemSize = GetItemSize(texman);
+	vec2d pxItemSize = GetItemSize(texman, scale);
 	return _flowDirection == FlowDirection::Vertical ?
-		vec2d{ itemSize.x, itemSize.y * _data->GetItemCount() } :
-		vec2d{ itemSize.x * _data->GetItemCount(), itemSize.y };
+		vec2d{ pxItemSize.x, pxItemSize.y * _data->GetItemCount() } :
+		vec2d{ pxItemSize.x * _data->GetItemCount(), pxItemSize.y };
 }
 
 void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -199,7 +199,7 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
 
-	vec2d pxItemMinSize = Vec2dFloor(GetItemSize(texman) * lc.GetScale());
+	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScale());
 
 	vec2d pxItemSize = isVertical ?
 		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };

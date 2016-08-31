@@ -19,7 +19,7 @@ public:
 
 	ListDataSource* GetData() const;
 
-	vec2d GetItemSize(TextureManager &texman) const;
+	vec2d GetItemSize(TextureManager &texman, float scale) const;
 	int HitTest(vec2d pxPos, TextureManager &texman, float scale) const; // returns item index or -1
 
 	int  GetCurSel() const;
@@ -34,7 +34,7 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc) const;
+	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const;
 
 protected:
 	// callback interface
