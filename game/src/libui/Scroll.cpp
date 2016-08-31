@@ -155,11 +155,6 @@ void ScrollBarBase::OnLimitsChanged()
 	}
 }
 
-void ScrollBarBase::OnSize(float width, float height)
-{
-	SetPos(GetPos());  // to update scroll box position
-}
-
 float ScrollBarBase::GetScrollPaneLength() const
 {
 	float result = Select(GetWidth(), GetHeight());
