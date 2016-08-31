@@ -152,8 +152,8 @@ public:
 	void Resize(float width, float height);
 	void SetHeight(float height) { Resize(GetWidth(), height); }
 	void SetWidth(float width) { Resize(width, GetHeight()); }
-	virtual float GetWidth() const { return _width; }
-	virtual float GetHeight() const { return _height; }
+	float GetWidth() const { return _width; }
+	float GetHeight() const { return _height; }
 	vec2d GetSize() const { return vec2d{GetWidth(), GetHeight()}; }
 
 
