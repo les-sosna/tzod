@@ -34,7 +34,7 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const;
+    vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 
 protected:
 	// callback interface
