@@ -55,7 +55,6 @@ List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataS
     , _font(texman.FindSprite("font_small"))
     , _selection(texman.FindSprite("ui/listsel"))
 {
-	SetTabPos(0, 1); // first column
 	_data->AddListener(&_callbacks);
 }
 
@@ -68,15 +67,6 @@ ListDataSource* List::GetData() const
 	return _data;
 }
 
-void List::SetTabPos(int index, float pos)
-{
-	assert(index >= 0);
-	if( index >= (int) _tabs.size() )
-		_tabs.insert(_tabs.end(), 1+index - _tabs.size(), pos);
-	else
-		_tabs[index] = pos;
-}
-
 void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
 {
 	_itemTemplate = itemTemplate;
@@ -84,11 +74,17 @@ void List::SetItemTemplate(std::shared_ptr<Window> itemTemplate)
 
 vec2d List::GetItemSize(TextureManager &texman, float scale) const
 {
-	StateContext sc;
-	sc.SetDataContext(_data);
+	if (_itemTemplate && _data->GetItemCount() > 0)
+	{
+		StateContext sc;
+		sc.SetDataContext(_data);
 
-	return _itemTemplate ? Vec2dFloor(_itemTemplate->GetContentSize(sc, texman) * scale) :
-		vec2d{ 0.f, std::ceil(GetManager().GetTextureManager().GetFrameHeight(_font, 0) * scale) };
+		return _itemTemplate->GetContentSize(texman, sc, scale);
+	}
+	else
+	{
+		return vec2d{};
+	}
 }
 
 int List::GetCurSel() const
@@ -153,10 +149,20 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	switch( key )
 	{
 	case Key::Up:
-		SetCurSel(std::max(0, GetCurSel() - 1), true);
+		if (_flowDirection == FlowDirection::Vertical)
+			SetCurSel(std::max(0, GetCurSel() - 1), true);
+		break;
+	case Key::Left:
+		if (_flowDirection == FlowDirection::Horizontal)
+			SetCurSel(std::max(0, GetCurSel() - 1), true);
 		break;
 	case Key::Down:
-		SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+		if (_flowDirection == FlowDirection::Vertical)
+			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+		break;
+	case Key::Right:
+		if (_flowDirection == FlowDirection::Horizontal)
+			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
 		break;
 	case Key::Home:
 		SetCurSel(0, true);
@@ -176,18 +182,19 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-float List::GetWidth() const
+vec2d List::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
-	return _flowDirection == FlowDirection::Vertical ? 0.f : _itemTemplate->GetWidth() * _data->GetItemCount();
-}
-
-float List::GetHeight() const
-{
-	return _flowDirection == FlowDirection::Vertical ? /*GetItemSize(1.f).y*/33 * _data->GetItemCount() : 0.f;
+	vec2d pxItemSize = GetItemSize(texman, scale);
+	return _flowDirection == FlowDirection::Vertical ?
+		vec2d{ pxItemSize.x, pxItemSize.y * _data->GetItemCount() } :
+		vec2d{ pxItemSize.x * _data->GetItemCount(), pxItemSize.y };
 }
 
 void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
+	if (!_itemTemplate)
+		return;
+
 	RectRB visibleRegion = dc.GetVisibleRegion();
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
@@ -198,18 +205,20 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };
 
 	int advance = isVertical ? (int)pxItemSize.y : (int)pxItemSize.x;
+
+	if (advance == 0) // cannot draw zero-sized elements
+		return;
+
 	int regionBegin = isVertical ? visibleRegion.top : visibleRegion.left;
 	int regionEnd = isVertical ? visibleRegion.bottom : visibleRegion.right;
 
 	int i_min = std::max(0, regionBegin / advance);
 	int i_max = std::max(0, (regionEnd + advance - 1) / advance);
-	int maxtab = (int) _tabs.size() - 1;
 
 	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos(), texman, lc.GetScale()) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
-		SpriteColor c;
 		vec2d pxItemOffset = isVertical ?
 			vec2d{ 0, (float)i * pxItemSize.y } : vec2d{ (float)i * pxItemSize.x, 0 };
 
@@ -231,53 +240,20 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 		else
 			itemState = DISABLED;
 
-		if (_itemTemplate)
-		{
-			// TODO: something smarter than const_cast (fork?)
-			UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<LayoutContext&>(lc), const_cast<InputContext&>(ic), dc, texman };
+		// TODO: something smarter than const_cast (fork?)
+		UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<InputContext&>(ic), dc, texman };
 
-			static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
-			rs.sc.SetState(itemStateStrings[itemState]);
-			rs.sc.SetDataContext(_data);
-			rs.sc.SetItemIndex(i);
+		static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
+		rs.sc.SetState(itemStateStrings[itemState]);
+		rs.sc.SetDataContext(_data);
+		rs.sc.SetItemIndex(i);
 
-			rs.lc.PushTransform(pxItemOffset, pxItemSize, true);
-			rs.ic.PushTransform(pxItemOffset, true, true);
-			dc.PushTransform(pxItemOffset);
+		rs.ic.PushTransform(pxItemOffset, true, true);
+		dc.PushTransform(pxItemOffset);
 
-			RenderUIRoot(*_itemTemplate, rs);
+		RenderUIRoot(*_itemTemplate, rs, LayoutContext(lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, true));
 
-			dc.PopTransform();
-			rs.ic.PopTransform();
-			rs.lc.PopTransform();
-		}
-		else
-		{
-			static SpriteColor itemStateColors[] =
-			// Normal      Unfocused   Focused     Hover        Disabled
-			{ 0xffd0d0d0, 0xffffffff, 0xff000000, 0xffffffff,  0x70707070};
-
-			c = itemStateColors[itemState];
-			FRECT sel = { 1, pxItemOffset.y, lc.GetPixelSize().x - 1, pxItemOffset.y + pxItemSize.y };
-			FRECT border = { -1, pxItemOffset.y - 2, lc.GetPixelSize().x + 1, pxItemOffset.y + pxItemSize.y + 2 };
-
-			switch (itemState)
-			{
-			case FOCUSED:
-				dc.DrawSprite(sel, _selection, 0xffffffff, 0);
-				// fall through
-			case UNFOCUSED:
-				dc.DrawBorder(border, _selection, 0xffffffff, 0);
-				break;
-			default:
-				break;
-			}
-
-			for (int k = _data->GetSubItemCount(i); k--; )
-			{
-				float x = std::floor(_tabs[std::min(k, maxtab)] * lc.GetScale());
-				dc.DrawBitmapText(x, pxItemOffset.y, _font, c, _data->GetItemText(i, k));
-			}
-		}
+		dc.PopTransform();
+		rs.ic.PopTransform();
 	}
 }

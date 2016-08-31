@@ -81,7 +81,7 @@ private:
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 
 	// ScrollSink
-	void OnScroll(InputContext &ic, LayoutContext &lc, vec2d pointerPosition, vec2d scrollOffset) override;
+	void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const StateContext &sc, vec2d pointerPosition, vec2d scrollOffset) override;
 };
 
 } // namespace UI

@@ -238,8 +238,11 @@ void GameLayout::OnSize(float width, float height)
 	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
-FRECT GameLayout::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_score.get() == &child)
 	{
 		return UI::CanvasLayout((size / scale - _score->GetSize()) / 2, _score->GetSize(), scale);
@@ -252,7 +255,7 @@ FRECT GameLayout::GetChildRect(vec2d size, float scale, const Window &child) con
 	{
 		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
 	}
-	return UI::Window::GetChildRect(size, scale, child);
+	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
 
 bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)

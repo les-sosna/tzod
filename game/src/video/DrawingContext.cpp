@@ -77,6 +77,9 @@ RectRB DrawingContext::GetVisibleRegion() const
 
 void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const FRECT &rt = lt.uvFrames[frame];
 
@@ -117,6 +120,9 @@ void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, uns
 
 void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const DEV_TEXTURE &devtex = _tm.GetDeviceTexture(sprite);
 
@@ -320,8 +326,11 @@ void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor col
 	v[3].y = bottom;
 }
 
-void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
+void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
 {
+	if (color.a == 0)
+		return;
+
 	// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
 	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
@@ -347,8 +356,7 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 
 	if (_mode == RM_INTERFACE)
 	{
-		sx += _transformStack.top().x;
-		sy += _transformStack.top().y;
+		origin += _transformStack.top();
 	}
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
@@ -357,8 +365,10 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 	size_t count = 0;
 	size_t line  = 0;
 
-	float x0 = sx - floorf(dx[align] * (lt.pxFrameWidth - 1) * (float) maxline / 2);
-	float y0 = sy - floorf(dy[align] * lt.pxFrameHeight * (float) lines.size() / 2);
+	vec2d pxCharSize = Vec2dFloor(vec2d{ lt.pxFrameWidth, lt.pxFrameHeight } *scale);
+
+	float x0 = origin.x - std::floor(dx[align] * (pxCharSize.x - 1) * (float) maxline / 2);
+	float y0 = origin.y - std::floor(dy[align] * pxCharSize.y * (float) lines.size() / 2);
 
 	for( const std::string::value_type *tmp = str.c_str(); *tmp; ++tmp )
 	{
@@ -374,8 +384,8 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		}
 
 		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - 32];
-		float x = x0 + (float) ((count++) * (lt.pxFrameWidth - 1));
-		float y = y0 + (float) (line * lt.pxFrameHeight);
+		float x = x0 + (float) ((count++) * (pxCharSize.x - 1));
+		float y = y0 + (float) (line * pxCharSize.y);
 
 		MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
@@ -383,30 +393,33 @@ void DrawingContext::DrawBitmapText(float sx, float sy, size_t tex, SpriteColor 
 		v[0].u = rt.left;
 		v[0].v = rt.top;
 		v[0].x = x;
-		v[0].y = y ;
+		v[0].y = y;
 
 		v[1].color = color;
 		v[1].u = rt.left + WIDTH(rt);
 		v[1].v = rt.top;
-		v[1].x = x + lt.pxFrameWidth;
+		v[1].x = x + pxCharSize.x;
 		v[1].y = y;
 
 		v[2].color = color;
 		v[2].u = rt.left + WIDTH(rt);
 		v[2].v = rt.bottom;
-		v[2].x = x + lt.pxFrameWidth;
-		v[2].y = y + lt.pxFrameHeight;
+		v[2].x = x + pxCharSize.x;
+		v[2].y = y + pxCharSize.y;
 
 		v[3].color = color;
 		v[3].u = rt.left;
 		v[3].v = rt.bottom;
 		v[3].x = x;
-		v[3].y = y + lt.pxFrameHeight;
+		v[3].y = y + pxCharSize.y;
 	}
 }
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
+	if (color.a == 0)
+		return;
+
 	assert(frame < _tm.GetFrameCount(tex));
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
@@ -453,6 +466,9 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
@@ -531,6 +547,9 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 void DrawingContext::DrawLine(size_t tex, SpriteColor color,
                               float x0, float y0, float x1, float y1, float phase)
 {
+	if (color.a == 0)
+		return;
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _tm.GetRender();
 

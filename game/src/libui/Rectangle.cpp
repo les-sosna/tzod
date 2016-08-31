@@ -54,10 +54,10 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 
 void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	FRECT dst = { 0, 0, lc.GetPixelSize().x, lc.GetPixelSize().y };
-
 	if (-1 != _texture)
 	{
+		FRECT dst = MakeRectWH(lc.GetPixelSize());
+
 		if (_drawBackground)
 		{
 			float border = _drawBorder ? texman.GetBorderSize(_texture) : 0.f;

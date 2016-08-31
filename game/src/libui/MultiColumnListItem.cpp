@@ -1,35 +1,12 @@
 #include "inc/ui/DataSource.h"
 #include "inc/ui/ListBase.h"
+#include "inc/ui/LayoutContext.h"
 #include "inc/ui/MultiColumnListItem.h"
 #include "inc/ui/Rectangle.h"
 #include "inc/ui/StateContext.h"
 #include "inc/ui/Text.h"
 
 using namespace UI;
-
-namespace
-{
-	class DataContextBinding : public TextSource
-	{
-	public:
-		explicit DataContextBinding(int column)
-			: _column(column)
-		{}
-
-		// UI::TextSource
-		const std::string& GetText(const StateContext &sc) const override
-		{
-			static std::string empty;
-			auto listDataSource = reinterpret_cast<const ListDataSource*>(sc.GetDataContext());
-			return _column < listDataSource->GetSubItemCount(sc.GetItemIndex()) ?
-				listDataSource->GetItemText(sc.GetItemIndex(), _column) : empty;
-		}
-
-	private:
-		int _column;
-	};
-}
-
 
 MultiColumnListItem::MultiColumnListItem(LayoutManager &manager, TextureManager &texman)
 	: Window(manager)
@@ -64,24 +41,27 @@ void MultiColumnListItem::EnsureColumn(LayoutManager &manager, TextureManager &t
 	}
 
 	_columns[columnIndex]->Move(offset, 0);
-	_columns[columnIndex]->SetText(std::make_shared<DataContextBinding>(columnIndex));
+	_columns[columnIndex]->SetText(std::make_shared<ListDataSourceBinding>(columnIndex));
 	_columns[columnIndex]->SetFont(texman, "font_small");
 	_columns[columnIndex]->SetFontColor(textColorMap);
 }
 
-vec2d MultiColumnListItem::GetContentSize(const StateContext &sc, TextureManager &texman) const
+vec2d MultiColumnListItem::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
-	return _columns[0]->GetContentSize(sc, texman);
+	return _columns[0]->GetContentSize(texman, sc, scale);
 }
 
-FRECT MultiColumnListItem::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_selection.get() == &child)
 	{
 		vec2d pxMargins = Vec2dFloor(vec2d{ 1, 2 } * scale);
 		return MakeRectWH(-pxMargins, size + pxMargins * 2);
 	}
 
-	return Window::GetChildRect(size, scale, child);
+	return Window::GetChildRect(texman, lc, sc, child);
 }
 

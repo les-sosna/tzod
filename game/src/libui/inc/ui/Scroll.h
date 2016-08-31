@@ -35,7 +35,7 @@ public:
 
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 protected:
 	virtual float Select(float x, float y) const = 0;
@@ -48,8 +48,6 @@ protected:
 	std::shared_ptr<Button> _btnDownRight;
 
 private:
-	void OnSize(float width, float height) override;
-
 	void OnBoxMouseDown(float x, float y);
 	void OnBoxMouseUp(float x, float y);
 	void OnBoxMouseMove(float x, float y);

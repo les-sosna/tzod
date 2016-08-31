@@ -13,6 +13,7 @@ namespace UI
 {
 	class ConsoleBuffer;
 	class ScrollView;
+	class StackLayout;
 }
 
 class PropertyList
@@ -23,14 +24,15 @@ public:
 	void ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman);
 	void DoExchange(bool applyToObject, TextureManager &texman);
 
-private:
-	void OnSize(float width, float height) override;
+	// UI::Window
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 
-	std::shared_ptr<UI::Window> _psheet;
+private:
+	std::shared_ptr<UI::StackLayout> _psheet;
 	std::shared_ptr<UI::ScrollView> _scrollView;
 
-	std::shared_ptr<PropertySet>  _ps;
-	std::vector<std::shared_ptr<Window>>  _ctrls;
+	std::shared_ptr<PropertySet> _ps;
+	std::vector<std::shared_ptr<Window>> _ctrls;
 	World &_world;
 	ConfCache &_conf;
 	UI::ConsoleBuffer &_logger;

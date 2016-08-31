@@ -2,31 +2,28 @@
 #include <math/MyMath.h>
 #include <vector>
 
+class TextureManager;
+
 namespace UI
 {
 	class Window;
+	class StateContext;
 
 	class LayoutContext
 	{
 	public:
-		LayoutContext(float scale, vec2d size, bool enabled);
+		LayoutContext(float scale, vec2d offset, vec2d size, bool enabled);
+		LayoutContext(TextureManager &texman, const Window &parentWindow, const LayoutContext &parentLC, const StateContext &parentSC, const Window &childWindow);
 
-		void PushTransform(vec2d offset, vec2d size, bool enabled);
-		void PopTransform();
-
-		bool GetEnabled() const { return _layoutStack.back().enabled; }
-		vec2d GetPixelOffset() const { return _layoutStack.back().offset; }
-		vec2d GetPixelSize() const { return _layoutStack.back().size; }
+		bool GetEnabled() const { return _enabled; }
+		vec2d GetPixelOffset() const { return _offset; }
+		vec2d GetPixelSize() const { return _size; }
 		float GetScale() const { return _scale; }
 
 	private:
-		struct Node
-		{
-			vec2d offset;
-			vec2d size;
-			bool enabled;
-		};
-		std::vector<Node> _layoutStack;
+		vec2d _offset;
+		vec2d _size;
 		float _scale;
+		bool _enabled;
 	};
 }

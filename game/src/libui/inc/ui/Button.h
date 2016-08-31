@@ -61,12 +61,10 @@ public:
 	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
 	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<TextSource> text);
-
-protected:
 	void SetFont(TextureManager &texman, const char *fontName);
 
 	// Window
-	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 private:
@@ -86,8 +84,8 @@ public:
 	void SetText(std::shared_ptr<TextSource> text);
 
 	// Window
-	FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
-	vec2d GetContentSize(const StateContext &sc, TextureManager &texman) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
+	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 
 private:
 	std::shared_ptr<Text> _text;

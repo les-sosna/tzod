@@ -78,6 +78,6 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 		);
 		dc.SetMode(RM_INTERFACE);
 	}
-	dc.DrawBitmapText(0, 0, _font, 0xffffffff, _title);
+	dc.DrawBitmapText(vec2d{}, lc.GetScale(), _font, 0xffffffff, _title);
 }
 

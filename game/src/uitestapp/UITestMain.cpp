@@ -86,10 +86,10 @@ try
 		appWindow.GetRender().Begin();
 
 		UI::StateContext stateContext;
-		UI::LayoutContext layoutContext(layoutScale, vec2d{ static_cast<float>(width), static_cast<float>(height) }, desktop->GetEnabled());
-		UI::RenderSettings rs{ stateContext, layoutContext, gui.GetInputContext(), dc, textureManager };
+		UI::LayoutContext layoutContext(layoutScale, vec2d{}, vec2d{ static_cast<float>(width), static_cast<float>(height) }, desktop->GetEnabled());
+		UI::RenderSettings rs{ stateContext, gui.GetInputContext(), dc, textureManager };
 
-		UI::RenderUIRoot(*desktop, rs);
+		UI::RenderUIRoot(*desktop, rs, layoutContext);
 		appWindow.GetRender().End();
 
 		appWindow.Present();

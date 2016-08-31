@@ -60,6 +60,19 @@ namespace UI
 		std::string _text;
 	};
 
+	class ListDataSourceBinding : public TextSource
+	{
+	public:
+		explicit ListDataSourceBinding(int column): _column(column) {}
+
+		// UI::TextSource
+		const std::string& GetText(const StateContext &sc) const override;
+
+	private:
+		int _column;
+	};
+
+
 	namespace DataSourceAliases
 	{
 		inline std::shared_ptr<TextSource> operator"" _txt(const char* str, size_t len)

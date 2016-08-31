@@ -10,27 +10,26 @@
 #include <ui/Edit.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
+#include <ui/LayoutContext.h>
 #include <ui/List.h>
 #include <ui/ListBase.h>
 #include <ui/ScrollView.h>
+#include <ui/StackLayout.h>
 #include <ui/Text.h>
 #include <video/TextureManager.h>
 #include <algorithm>
 
 PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
-  : Dialog(manager, texman, w, h, false)
-  , _world(world)
-  , _conf(conf)
-  , _logger(logger)
+	: Dialog(manager, texman, w, h, false)
+	, _psheet(std::make_shared<UI::StackLayout>(manager))
+	, _scrollView(std::make_shared<UI::ScrollView>(manager))
+	, _world(world)
+	, _conf(conf)
+	, _logger(logger)
 {
-	_scrollView = std::make_shared<UI::ScrollView>(manager);
 	AddFront(_scrollView);
-
-	_psheet = std::make_shared<UI::Window>(manager);
 	_scrollView->SetContent(_psheet);
-
-	OnSize(w, h);
-	SetClipChildren(true);
+	_psheet->SetSpacing(10);
 }
 
 void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
@@ -42,13 +41,13 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 		assert(_ps);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
-			ObjectProperty *prop = _ps->GetProperty(i);
-			auto &ctrl = _ctrls[i];
-
-			if( _psheet->GetFocus() == ctrl )
+			if (_psheet->GetFocus() == _psheet->GetChildren()[i])
 			{
 				focus = i;
 			}
+
+			ObjectProperty *prop = _ps->GetProperty(i);
+			auto &ctrl = _ctrls[i];
 
 			switch( prop->GetType() )
 			{
@@ -105,60 +104,47 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 	_ctrls.clear();
 
 	// create new controls
-	float y = 0;
 	if( _ps )
 	{
-		y += 5;
 		_ps->Exchange(_world, false);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
 
-			std::ostringstream labelTextBuffer;
-			labelTextBuffer << prop->GetName();
+			auto group = std::make_shared<UI::StackLayout>(GetManager());
+			group->SetSpacing(2);
+			_psheet->AddFront(group);
 
 			auto label = std::make_shared<UI::Text>(GetManager(), texman);
-			label->Move(5, y);
-			_psheet->AddFront(label);
-			y += label->GetHeight();
-			y += 5;
+			label->SetText(std::make_shared<UI::StaticText>(prop->GetName()));
+			group->AddFront(label);
 
 			std::shared_ptr<Window> ctrl;
+
+			std::ostringstream labelTextBuffer;
 
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
 				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
-				ctrl->Move(32, y);
-				ctrl->SetWidth(_psheet->GetWidth() - 64);
-				_psheet->AddFront(ctrl);
 				std::static_pointer_cast<UI::Edit>(ctrl)->SetInt(prop->GetIntValue());
-				labelTextBuffer << " (" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
+				labelTextBuffer << "(" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
 				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
-				ctrl->Move(32, y);
-				ctrl->SetWidth(_psheet->GetWidth() - 64);
-				_psheet->AddFront(ctrl);
 				std::static_pointer_cast<UI::Edit>(ctrl)->SetFloat(prop->GetFloatValue());
-				labelTextBuffer << " (" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
+				labelTextBuffer << "(" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
-				ctrl->Move(32, y);
-				ctrl->SetWidth(_psheet->GetWidth() - 64);
-				_psheet->AddFront(ctrl);
 				std::static_pointer_cast<UI::Edit>(ctrl)->SetText(texman, prop->GetStringValue());
-				labelTextBuffer << " (string)";
+				labelTextBuffer << "(string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
 				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 				ctrl = std::make_shared<DefaultComboBox>(GetManager(), texman);
-				ctrl->Move(32, y);
-				static_cast<DefaultComboBox *>(ctrl.get())->Resize(_psheet->GetWidth() - 64);
-				_psheet->AddFront(ctrl);
 				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
 				{
 					for( size_t index = 0; index < prop->GetListSize(); ++index )
@@ -189,7 +175,15 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				assert(false);
 			} // end of switch( prop->GetType() )
 
-			label->SetText(std::make_shared<UI::StaticText>(labelTextBuffer.str()));
+			if (!labelTextBuffer.str().empty())
+			{
+				auto typeRange = std::make_shared<UI::Text>(GetManager(), texman);
+				typeRange->SetText(std::make_shared<UI::StaticText>(labelTextBuffer.str()));
+				group->AddFront(typeRange);
+			}
+
+			group->AddFront(ctrl);
+			group->SetFocus(ctrl);
 
 			if( focus == i )
 			{
@@ -197,16 +191,13 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				{
 					edit->SetSel(0, -1);
 				}
-				_psheet->SetFocus(ctrl);
+				_psheet->SetFocus(group);
 			}
 
 			assert(nullptr != ctrl);
 			_ctrls.push_back(ctrl);
-			y += ctrl->GetHeight();
-			y += 10;
 		}
 	}
-	_psheet->Resize(_psheet->GetWidth(), y);
 }
 
 void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman)
@@ -216,10 +207,14 @@ void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &te
 	DoExchange(false, texman);
 }
 
-void PropertyList::OnSize(float width, float height)
+FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
-	_psheet->Resize(width, _psheet->GetHeight());
-	_scrollView->Resize(width, height);
+	if (_scrollView.get() == &child)
+	{
+		vec2d pxMargins = { std::floor(4 * lc.GetScale()), 1 };
+		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
+	}
+	return UI::Dialog::GetChildRect(texman, lc, sc, child);
 }
 
 bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)

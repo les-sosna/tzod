@@ -16,6 +16,12 @@ class vec2d
 public:
 	float x, y;
 
+	float operator[](unsigned int i) const
+	{
+		assert(i < 2);
+		return (&x)[i];
+	}
+
 	vec2d& operator-=(const vec2d &v)
 	{
 		x -= v.x;

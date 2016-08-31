@@ -24,6 +24,8 @@ struct LogicalTexture
 	float pxFrameHeight;
 	float pxBorderSize;
 
+	bool magFilter;
+
 	std::vector<FRECT> uvFrames;
 };
 
@@ -51,7 +53,7 @@ public:
 
 	float GetCharHeight(size_t fontTexture) const;
 
-protected:
+private:
 	IRender &_render;
 
 	struct TexDesc
@@ -67,7 +69,7 @@ protected:
 	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
 	std::vector<std::pair<LogicalTexture, std::list<TexDesc>::iterator>> _logicalTextures;
 
-	std::list<TexDesc>::iterator LoadTexture(const std::shared_ptr<Image> &image);
+	std::list<TexDesc>::iterator LoadTexture(const std::shared_ptr<Image> &image, bool magFilter);
 
 	void CreateChecker(); // Create checker texture without name and with index=0
 };

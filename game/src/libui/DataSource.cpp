@@ -1,5 +1,6 @@
 #include "inc/ui/DataSource.h"
 #include "inc/ui/StateContext.h"
+#include "inc/ui/ListBase.h"
 
 using namespace UI;
 
@@ -17,4 +18,12 @@ SpriteColor ColorMap::GetColor(const StateContext &sc) const
 const std::string& StaticText::GetText(const StateContext &sc) const
 {
 	return _text;
+}
+
+const std::string& ListDataSourceBinding::GetText(const StateContext &sc) const
+{
+	static std::string empty;
+	auto listDataSource = reinterpret_cast<const ListDataSource*>(sc.GetDataContext());
+	return _column < listDataSource->GetSubItemCount(sc.GetItemIndex()) ?
+		listDataSource->GetItemText(sc.GetItemIndex(), _column) : empty;
 }

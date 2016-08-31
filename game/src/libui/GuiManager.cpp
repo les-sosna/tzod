@@ -65,22 +65,23 @@ void LayoutManager::TimeStep(float dt)
 
 static void DrawWindowRecursive(
 	RenderSettings &renderSettings,
+	const LayoutContext &lc,
 	const Window &wnd,
 	bool insideTopMost,
 	unsigned int depth = 0)
 {
 	if (insideTopMost == renderSettings.topMostPass)
-		wnd.Draw(renderSettings.sc, renderSettings.lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
+		wnd.Draw(renderSettings.sc, lc, renderSettings.ic, renderSettings.dc, renderSettings.texman);
 
 	if (auto stateGen = wnd.GetStateGen())
 	{
-		stateGen->PushState(renderSettings.sc, renderSettings.lc, renderSettings.ic);
+		stateGen->PushState(renderSettings.sc, lc, renderSettings.ic);
 	}
 
 	// topmost windows escape parents' clip
 	bool clipChildren = wnd.GetClipChildren() && (!renderSettings.topMostPass || insideTopMost);
 
-	vec2d pxSize = renderSettings.lc.GetPixelSize();
+	vec2d pxSize = lc.GetPixelSize();
 
 	if (clipChildren)
 	{
@@ -101,24 +102,22 @@ static void DrawWindowRecursive(
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
-				FRECT childRect = wnd.GetChildRect(pxSize, renderSettings.lc.GetScale(), *child);
 				bool childFocused = wnd.GetFocus() == child;
 				bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
 					renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
 
-				vec2d childOffset{ childRect.left, childRect.top };
+				vec2d childOffset = Offset(wnd.GetChildRect(renderSettings.texman, lc, renderSettings.sc, *child));
 
 				renderSettings.dc.PushTransform(childOffset);
 				renderSettings.ic.PushTransform(childOffset, childFocused, childOnHoverPath);
-				renderSettings.lc.PushTransform(Offset(childRect), Size(childRect), child->GetEnabled());
 
 				DrawWindowRecursive(
 					renderSettings,
+					LayoutContext(renderSettings.texman, wnd, lc, renderSettings.sc, *child),
 					*child,
 					childInsideTopMost,
 					childDepth);
 
-				renderSettings.lc.PopTransform();
 				renderSettings.ic.PopTransform();
 				renderSettings.dc.PopTransform();
 			}
@@ -129,7 +128,7 @@ static void DrawWindowRecursive(
 		renderSettings.dc.PopClippingRect();
 }
 
-void UI::RenderUIRoot(Window &desktop, RenderSettings &rs)
+void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc)
 {
 	// Find pointer sink path for hover
 	// TODO: all pointers
@@ -141,8 +140,8 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs)
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ rs.lc.GetScale(), topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), rs.lc.GetPixelSize(), rs.ic.GetMousePos(), desktop.GetTopMost()))
+			AreaSinkSearch search{ rs.texman, rs.ic.GetMousePos(), topMostPass };
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, rs.sc, desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;
@@ -158,17 +157,10 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs)
 		rs.topMostPass = topMostPass;
 		DrawWindowRecursive(
 			rs,
+			lc,
 			desktop,
 			desktop.GetTopMost()
 		);
 	}
 	rs.ic.PopTransform();
-
-#ifndef NDEBUG
-	for (auto &id2pos: rs.ic.GetLastPointerLocation())
-	{
-		FRECT dst = { id2pos.second.x-4, id2pos.second.y-4, id2pos.second.x+4, id2pos.second.y+4 };
-		rs.dc.DrawSprite(dst, 0U, 0xffffffff, 0U);
-	}
-#endif
 }

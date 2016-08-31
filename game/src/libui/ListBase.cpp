@@ -4,8 +4,7 @@
 #include <cassert>
 #include <algorithm>
 
-namespace UI
-{
+using namespace UI;
 
 ListDataSourceDefault::ListDataSourceDefault()
   : _listener(nullptr)
@@ -110,7 +109,3 @@ void ListDataSourceDefault::Sort()
 	};
 	std::sort(_items.begin(), _items.end(), &helper::compare);
 }
-
-
-} // end of namespace UI
-// end of file

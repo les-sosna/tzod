@@ -27,7 +27,6 @@ Edit::Edit(LayoutManager &manager, TextureManager &texman)
 	SetDrawBorder(true);
 	SetClipChildren(true);
 	SetSel(0, 0);
-	Resize(GetWidth(), texman.GetCharHeight(_font) + 2);
 }
 
 int Edit::GetTextLength() const
@@ -65,7 +64,7 @@ float Edit::GetFloat() const
 	return result;
 }
 
-void Edit::SetSel(int begin, int end)
+void Edit::SetSel(int begin, int end, LayoutContext *optionalLC)
 {
 	assert(begin >= -1 && end >= -1);
 
@@ -73,11 +72,16 @@ void Edit::SetSel(int begin, int end)
 	_selEnd   = end <= GetTextLength() ? end : -1;
 	_lastCursortime = GetManager().GetTime();
 
-	float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
-	float cpos = GetSelEnd() * w;
-	if( cpos - (float) (_offset * w) > GetWidth() - 10 || cpos - (float) (_offset * w) < 10 )
+	if (optionalLC)
 	{
-		_offset = size_t(std::max<float>(0, cpos - GetWidth() * 0.5f) / w);
+		float pxWidth = optionalLC->GetPixelSize().x;
+		float w = std::floor(GetManager().GetTextureManager().GetFrameWidth(_font, 0) * optionalLC->GetScale()) - 1;
+		float cpos = GetSelEnd() * w;
+		const float pxScrollThreshold = 10 * optionalLC->GetScale();
+		if (cpos - (float)(_offset * w) > pxWidth - pxScrollThreshold || cpos - (float)(_offset * w) < pxScrollThreshold)
+		{
+			_offset = size_t(std::max<float>(0, cpos - pxWidth / 2) / w);
+		}
 	}
 }
 
@@ -129,10 +133,10 @@ void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 	SpriteColor c = lc.GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
-		dc.DrawBitmapText(0, 1, _font, c, GetText().substr(_offset, GetSelMin() - _offset));
+		dc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), _font, c, GetText().substr(_offset, GetSelMin() - _offset));
 	}
-	dc.DrawBitmapText((GetSelMin() - _offset) * w, 1, _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
-	dc.DrawBitmapText((GetSelMax() - _offset) * w, 1, _font, c, GetText().substr(GetSelMax()));
+	dc.DrawBitmapText(vec2d{ (GetSelMin() - _offset) * w, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
+	dc.DrawBitmapText(vec2d{ (GetSelMax() - _offset) * w, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
 
 	float time = GetManager().GetTime() - _lastCursortime;
 
@@ -356,3 +360,7 @@ void Edit::Copy(InputContext &ic) const
 	}
 }
 
+vec2d Edit::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+{
+	return vec2d{ 0, std::floor(texman.GetFrameHeight(_font, 0) * scale) + 2 };
+}

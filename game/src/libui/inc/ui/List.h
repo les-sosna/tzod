@@ -25,7 +25,6 @@ public:
 	int  GetCurSel() const;
 	void SetCurSel(int sel, bool scroll = false);
 
-	void SetTabPos(int index, float pos);
 	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
 
 	void SetItemTemplate(std::shared_ptr<Window> itemTemplate);
@@ -35,8 +34,7 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-	float GetWidth() const override;
-	float GetHeight() const override;
+	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const;
 
 protected:
 	// callback interface

@@ -52,14 +52,14 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	text->SetText(ConfBind(_lang.choose_map));
 	AddFront(text);
 
-	auto listItemTemplate = std::make_shared<UI::MultiColumnListItem>(manager, texman);
-	listItemTemplate->EnsureColumn(manager, texman, 0, 4); // name
-	listItemTemplate->EnsureColumn(manager, texman, 1, 384); // size
-	listItemTemplate->EnsureColumn(manager, texman, 2, 448); // theme
+	auto mapListItemTemplate = std::make_shared<UI::MultiColumnListItem>(manager, texman);
+	mapListItemTemplate->EnsureColumn(manager, texman, 0, 4); // name
+	mapListItemTemplate->EnsureColumn(manager, texman, 1, 384); // size
+	mapListItemTemplate->EnsureColumn(manager, texman, 2, 448); // theme
 
 	_maps = std::make_shared<MapList>(manager, texman, fs, logger);
 	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
-	_maps->GetList()->SetItemTemplate(listItemTemplate);
+	_maps->GetList()->SetItemTemplate(mapListItemTemplate);
 //	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 	_maps->Move(x1, 32);
 	_maps->Resize(x2 - x1, 192);
@@ -131,13 +131,16 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	text->SetText(ConfBind(_lang.human_player_list));
 	AddFront(text);
 
+	auto playerListItemTemplate = std::make_shared<UI::MultiColumnListItem>(manager, texman);
+	playerListItemTemplate->EnsureColumn(manager, texman, 0, 4); // name
+	playerListItemTemplate->EnsureColumn(manager, texman, 1, 192); // skin
+	playerListItemTemplate->EnsureColumn(manager, texman, 2, 256); // class
+	playerListItemTemplate->EnsureColumn(manager, texman, 3, 320); // team
+
 	_players = std::make_shared<DefaultListBox>(manager, texman);
 	_players->Move(x1, 256);
 	_players->Resize(x2-x1, 96);
-	_players->GetList()->SetTabPos(0,   4); // name
-	_players->GetList()->SetTabPos(1, 192); // skin
-	_players->GetList()->SetTabPos(2, 256); // class
-	_players->GetList()->SetTabPos(3, 320); // team
+	_players->GetList()->SetItemTemplate(playerListItemTemplate);
 	_players->GetList()->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectPlayer, this, std::placeholders::_1);
 	AddFront(_players);
 
@@ -150,10 +153,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_bots = std::make_shared<DefaultListBox>(manager, texman);
 	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
-	_bots->GetList()->SetTabPos(0,   4); // name
-	_bots->GetList()->SetTabPos(1, 192); // skin
-	_bots->GetList()->SetTabPos(2, 256); // class
-	_bots->GetList()->SetTabPos(3, 320); // team
+	_bots->GetList()->SetItemTemplate(playerListItemTemplate);
 	_bots->GetList()->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectBot, this, std::placeholders::_1);
 	AddFront(_bots);
 

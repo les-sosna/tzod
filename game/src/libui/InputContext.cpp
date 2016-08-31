@@ -1,5 +1,6 @@
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
+#include "inc/ui/StateContext.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/Window.h"
 
@@ -93,14 +94,16 @@ template<class SinkType>
 SinkType* UI::FindAreaSink(
 	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
-	vec2d pxSize,
-	vec2d pxPointerPosition,
+	const LayoutContext &lc,
+	const StateContext &sc,
 	bool insideTopMost)
 {
 	SinkType *sink = nullptr;
 
-	bool pointerInside = (pxPointerPosition.x >= 0 && pxPointerPosition.x < pxSize.x &&
-		pxPointerPosition.y >= 0 && pxPointerPosition.y < pxSize.y);
+	vec2d pxPointerPosition = search.pxGlobalPointerPosition - lc.GetPixelOffset();
+
+	bool pointerInside = (pxPointerPosition.x >= 0 && pxPointerPosition.x < lc.GetPixelSize().x &&
+		pxPointerPosition.y >= 0 && pxPointerPosition.y < lc.GetPixelSize().y);
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
@@ -114,9 +117,7 @@ SinkType* UI::FindAreaSink(
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				if (!childInsideTopMost || search.topMostPass)
 				{
-					FRECT childRect = wnd->GetChildRect(pxSize, search.layoutScale, *child);
-					vec2d childPointerPosition = pxPointerPosition - vec2d{ childRect.left, childRect.top };
-					sink = FindAreaSink<SinkType>(search, child, Size(childRect), childPointerPosition, childInsideTopMost);
+					sink = FindAreaSink<SinkType>(search, child, LayoutContext(search.texman, *wnd, lc, sc, *child), sc, childInsideTopMost);
 				}
 			}
 		}
@@ -137,29 +138,34 @@ static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
 		path[i]->SetFocus(path[i - 1]);
 }
 
-static void PushLayoutContext(LayoutContext &lc, const std::vector<std::shared_ptr<Window>> &path)
+static LayoutContext RestoreLayoutContext(LayoutContext lc, StateContext sc, const InputContext &ic, TextureManager &texman, const std::vector<std::shared_ptr<Window>> &path)
 {
 	for (size_t i = path.size() - 1; i > 0; i--)
 	{
 		auto &child = path[i - 1];
 		auto &parent = path[i];
 
-		FRECT childRect = parent->GetChildRect(lc.GetPixelSize(), lc.GetScale(), *child);
-		lc.PushTransform(Offset(childRect), Size(childRect), child->GetEnabled());
+		if (const StateGen *stateGen = parent->GetStateGen())
+		{
+			stateGen->PushState(sc, lc, ic);
+		}
+
+		lc = LayoutContext(texman, *parent, lc, sc, *child);
 	}
+	return lc;
 }
 
 bool InputContext::ProcessPointer(
+	TextureManager &texman,
 	std::shared_ptr<Window> wnd,
-	float layoutScale,
-	vec2d pxSize,
+	const LayoutContext &lc,
+	const StateContext &sc,
 	vec2d pxPointerPosition,
 	float z,
 	Msg msg,
 	int button,
 	PointerType pointerType,
-	unsigned int pointerID,
-	TextureManager &texman)
+	unsigned int pointerID)
 {
 #ifndef NDEBUG
 	_lastPointerLocation[pointerID] = pxPointerPosition;
@@ -167,7 +173,7 @@ bool InputContext::ProcessPointer(
 
 	if (Msg::MOUSEWHEEL == msg)
 	{
-		return ProcessScroll(wnd, vec2d{ 0, z }, pxSize, pxPointerPosition, layoutScale);
+		return ProcessScroll(texman, wnd, lc, sc, pxPointerPosition, vec2d{ 0, z });
 	}
 
 	PointerSink *pointerSink = nullptr;
@@ -185,8 +191,8 @@ bool InputContext::ProcessPointer(
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ layoutScale, topMostPass };
-			pointerSink = FindAreaSink<PointerSink>(search, wnd, pxSize, pxPointerPosition, wnd->GetTopMost());
+			AreaSinkSearch search{ texman, pxPointerPosition, topMostPass };
+			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, sc, wnd->GetTopMost());
 			if (pointerSink)
 			{
 				sinkPath = std::move(search.outSinkPath);
@@ -202,15 +208,14 @@ bool InputContext::ProcessPointer(
 		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get()))
 			PropagateFocus(sinkPath);
 
-		LayoutContext lc(layoutScale, pxSize, wnd->GetEnabled());
-		PushLayoutContext(lc, sinkPath);
+		LayoutContext childLC = RestoreLayoutContext(lc, sc, *this, texman, sinkPath);
 
-		pxPointerPosition -= lc.GetPixelOffset();
+		pxPointerPosition -= childLC.GetPixelOffset();
 
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, lc, texman, pxPointerPosition, button, pointerType, pointerID))
+			if (pointerSink->OnPointerDown(*this, childLC, texman, pxPointerPosition, button, pointerType, pointerID))
 			{
 				_pointerCaptures[pointerID].capturePath = sinkPath;
 			}
@@ -219,15 +224,15 @@ bool InputContext::ProcessPointer(
 		case Msg::PointerCancel:
 			if (isPointerCaptured)
 			{
-				pointerSink->OnPointerUp(*this, lc, texman, pxPointerPosition, button, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, childLC, texman, pxPointerPosition, button, pointerType, pointerID);
 				_pointerCaptures.erase(pointerID);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, lc, texman, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
+			pointerSink->OnPointerMove(*this, childLC, texman, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
 			break;
 		case Msg::TAP:
-			pointerSink->OnTap(*this, lc, texman, pxPointerPosition);
+			pointerSink->OnTap(*this, childLC, texman, pxPointerPosition);
 			break;
 		default:
 			assert(false);
@@ -237,7 +242,7 @@ bool InputContext::ProcessPointer(
 	return !!pointerSink;
 }
 
-bool InputContext::ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2d pxSize, vec2d pxPointerPosition, float layoutScale)
+bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, vec2d pxPointerPosition, vec2d offset)
 {
 	ScrollSink *scrollSink = nullptr;
 	std::vector<std::shared_ptr<Window>> sinkPath;
@@ -245,8 +250,8 @@ bool InputContext::ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2
 	// look for topmost windows first
 	for (bool topMostPass : {true, false})
 	{
-		AreaSinkSearch search{ layoutScale, topMostPass };
-		scrollSink = FindAreaSink<ScrollSink>(search, wnd, pxSize, pxPointerPosition, wnd->GetTopMost());
+		AreaSinkSearch search{ texman, pxPointerPosition, topMostPass };
+		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc,sc,  wnd->GetTopMost());
 		if (scrollSink)
 		{
 			sinkPath = std::move(search.outSinkPath);
@@ -256,12 +261,12 @@ bool InputContext::ProcessScroll(std::shared_ptr<Window> wnd, vec2d offset, vec2
 
 	if (scrollSink)
 	{
-		LayoutContext lc(layoutScale, pxSize, wnd->GetEnabled());
-		PushLayoutContext(lc, sinkPath);
+		LayoutContext childLC = RestoreLayoutContext(lc, sc, *this, texman, sinkPath);
 
-		pxPointerPosition -= lc.GetPixelOffset();
 
-		scrollSink->OnScroll(*this, lc, pxPointerPosition, offset);
+		pxPointerPosition -= childLC.GetPixelOffset();
+
+		scrollSink->OnScroll(texman, *this, childLC, sc, pxPointerPosition, offset);
 		return true;
 	}
 

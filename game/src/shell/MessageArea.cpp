@@ -2,6 +2,7 @@
 #include "inc/shell/Config.h"
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
+#include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 #include <algorithm>
@@ -48,7 +49,7 @@ void MessageArea::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, 
 		c.b = cc;
 		c.a = cc;
 
-		dc.DrawBitmapText(0, y, _fontTexture, c, it->str);
+		dc.DrawBitmapText(vec2d{ 0, y }, lc.GetScale(), _fontTexture, c, it->str);
 		y -= h;
 	}
 }

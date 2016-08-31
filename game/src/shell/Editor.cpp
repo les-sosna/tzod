@@ -161,9 +161,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 
 	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
 	gameClassVis->Resize(64, 64);
-	gameClassVis->SetDataBinding([](const UI::StateContext &sc) -> auto& {
-		return reinterpret_cast<const UI::ListDataSource*>(sc.GetDataContext())->GetItemText(sc.GetItemIndex(), 0);
-	});
+	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
 	_typeSelector = std::make_shared<DefaultListBox>(manager, texman);
 	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);
@@ -243,7 +241,7 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::OnScroll(UI::InputContext &ic, UI::LayoutContext &lc, vec2d pointerPosition, vec2d offset)
+void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset)
 {
 }
 
@@ -392,18 +390,21 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-FRECT EditorLayout::GetChildRect(vec2d size, float scale, const Window &child) const
+FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
+	float scale = lc.GetScale();
+	vec2d size = lc.GetPixelSize();
+
 	if (_layerDisp.get() == &child)
 	{
 		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
 	}
 	else if (_typeSelector.get() == &child)
 	{
-		return FRECT{ 0, size.y - std::floor(64 * scale), size.x, size.y };
+		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, sc, scale).y, size.x, size.y };
 	}
 
-	return UI::Window::GetChildRect(size, scale, child);
+	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
 
 void EditorLayout::OnChangeObjectType(int index)
@@ -464,7 +465,8 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	vec2d mouse = CanvasToWorld(lc.GetPixelSize(), ic.GetMousePos());
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-	dc.DrawBitmapText(floor(lc.GetPixelSize().x/2+0.5f), 1, _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+	dc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
+		lc.GetScale(), _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }
 
 vec2d EditorLayout::CanvasToWorld(vec2d canvasSize, vec2d canvasPos) const

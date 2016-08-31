@@ -104,7 +104,7 @@ struct IRender
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, const Image &img) = 0;
+	virtual bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) = 0;
 	virtual void TexFree(DEV_TEXTURE tex) = 0;
 
 

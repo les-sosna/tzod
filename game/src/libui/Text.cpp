@@ -1,6 +1,7 @@
 #include "inc/ui/Text.h"
 #include "inc/ui/DataSource.h"
 #include "inc/ui/GuiManager.h"
+#include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -38,11 +39,11 @@ void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 {
 	if (_text)
 	{
-		dc.DrawBitmapText(0, 0, _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, _text->GetText(sc), _align);
+		dc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, _text->GetText(sc), _align);
 	}
 }
 
-vec2d Text::GetContentSize(const StateContext &sc, TextureManager &texman) const
+vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
 {
 	// update lines
 	unsigned int lineCount = 1;
@@ -64,8 +65,8 @@ vec2d Text::GetContentSize(const StateContext &sc, TextureManager &texman) const
 	{
 		maxline = text.size();
 	}
-	float w = texman.GetFrameWidth(_fontTexture, 0);
-	float h = texman.GetFrameHeight(_fontTexture, 0);
+	float w = std::floor(texman.GetFrameWidth(_fontTexture, 0) * scale);
+	float h = std::floor(texman.GetFrameHeight(_fontTexture, 0) * scale);
 	return vec2d{ (w - 1) * (float)maxline, h * (float)lineCount };
 }
 

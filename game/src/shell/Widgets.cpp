@@ -238,7 +238,8 @@ void Oscilloscope::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 			std::ostringstream buf;
 			buf << y;
 			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
-			dc.DrawBitmapText(lc.GetPixelSize().x - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset, _titleFont, 0x77777777, buf.str());
+			dc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset },
+				lc.GetScale(), _titleFont, 0x77777777, buf.str());
 		}
 	}
 	else
@@ -246,5 +247,5 @@ void Oscilloscope::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 		dc.DrawSprite(_barTexture, 0, 0x44444444, 0, labelOffset - _rangeMax * scale, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 	}
 
-	dc.DrawBitmapText(0, labelOffset - labelOffset, _titleFont, 0x77777777, _title);
+	dc.DrawBitmapText(vec2d{ 0, labelOffset - labelOffset }, lc.GetScale(), _titleFont, 0x77777777, _title);
 }

@@ -8,6 +8,7 @@
 #include <ui/Text.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
+#include <ui/MultiColumnListItem.h>
 #include <ui/Button.h>
 #include <ui/Scroll.h>
 #include <ui/Edit.h>
@@ -317,11 +318,14 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	text->SetText(ConfBind(_lang.profile_key));
 	AddFront(text);
 
+	auto itemTemplate = std::make_shared<UI::MultiColumnListItem>(manager, texman);
+	itemTemplate->EnsureColumn(manager, texman, 0, 2);
+	itemTemplate->EnsureColumn(manager, texman, 1, 200);
+
 	_actions = std::make_shared<DefaultListBox>(manager, texman);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
-	_actions->GetList()->SetTabPos(0, 2);
-	_actions->GetList()->SetTabPos(1, 200);
+	_actions->GetList()->SetItemTemplate(itemTemplate);
 	_actions->GetList()->eventClickItem = std::bind(&ControlProfileDlg::OnSelectAction, this, std::placeholders::_1);
 	AddFront(_actions);
 

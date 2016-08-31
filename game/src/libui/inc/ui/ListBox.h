@@ -17,7 +17,8 @@ namespace UI
 		std::shared_ptr<ScrollView> GetScrollView() { return _scrollView; }
 
 		// Window
-		FRECT GetChildRect(vec2d size, float scale, const Window &child) const override;
+		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
+		vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 
 	private:
 		std::shared_ptr<Rectangle> _background;
