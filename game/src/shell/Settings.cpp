@@ -137,7 +137,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(manager, texman);
 	_volumeSfx->Move(x + 60, y);
-	_volumeSfx->SetSize(150);
+	_volumeSfx->SetWidth(150);
 	_volumeSfx->SetDocumentSize(1);
 	_volumeSfx->SetLineSize(0.1f);
 	_volumeSfx->SetPos(expf(_conf.s_volume.GetFloat() / 2171.0f) - 0.01f);
@@ -153,7 +153,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 
 	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(manager, texman);
 	_volumeMusic->Move(x + 60, y);
-	_volumeMusic->SetSize(150);
+	_volumeMusic->SetWidth(150);
 	_volumeMusic->SetDocumentSize(1);
 	_volumeMusic->SetLineSize(0.1f);
 	_volumeMusic->SetPos(expf(_conf.s_musicvolume.GetFloat() / 2171.0f) - 0.01f);

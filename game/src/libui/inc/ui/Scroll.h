@@ -14,9 +14,6 @@ public:
 	void SetShowButtons(bool showButtons);
 	bool GetShowButtons() const;
 
-	virtual void SetSize(float size) = 0;
-	virtual float GetSize() const = 0;
-
 	virtual void SetPos(float pos);
 	float GetPos() const;
 
@@ -70,9 +67,6 @@ class ScrollBarVertical final : public ScrollBarBase
 public:
 	ScrollBarVertical(LayoutManager &manager, TextureManager &texman);
 
-	void SetSize(float size) override;
-	float GetSize() const override;
-
 	void SetPos(float pos) override;
 
 protected:
@@ -83,9 +77,6 @@ class ScrollBarHorizontal final : public ScrollBarBase
 {
 public:
 	ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman);
-
-	void SetSize(float size) override;
-	float GetSize() const override;
 
 	void SetPos(float pos) override;
 

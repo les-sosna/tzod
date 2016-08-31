@@ -7,8 +7,7 @@
 
 static const float MIN_THUMB_SIZE = 10.f;
 
-namespace UI
-{
+using namespace UI;
 
 ScrollBarBase::ScrollBarBase(LayoutManager &manager, TextureManager &texman)
     : Rectangle(manager)
@@ -42,7 +41,6 @@ void ScrollBarBase::SetShowButtons(bool showButtons)
 	_showButtons = showButtons;
 	_btnUpLeft->SetVisible(showButtons);
 	_btnDownRight->SetVisible(showButtons);
-	SetPos(GetPos());  // to update scroll box position
 }
 
 bool ScrollBarBase::GetShowButtons() const
@@ -101,7 +99,6 @@ void ScrollBarBase::SetElementTextures(TextureManager &texman, const char *slide
 	_btnDownRight->SetBackground(texman, downright, true);
 
 	_btnBox->Move((GetWidth() - _btnBox->GetWidth()) / 2, (GetHeight() - _btnBox->GetHeight()) / 2);
-	SetPos(GetPos()); // update scroll position
 }
 
 void ScrollBarBase::OnBoxMouseDown(float x, float y)
@@ -200,16 +197,6 @@ ScrollBarVertical::ScrollBarVertical(LayoutManager &manager, TextureManager &tex
 	SetTexture(texman, "ui/scroll_back_vert", true);
 }
 
-void ScrollBarVertical::SetSize(float size)
-{
-	Resize(GetWidth(), size);
-}
-
-float ScrollBarVertical::GetSize() const
-{
-	return GetHeight();
-}
-
 void ScrollBarVertical::SetPos(float pos)
 {
 	ScrollBarBase::SetPos(pos);
@@ -231,16 +218,6 @@ ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager, TextureManager 
 	SetTexture(texman, "ui/scroll_back_hor", true);
 }
 
-void ScrollBarHorizontal::SetSize(float size)
-{
-	Resize(size, GetHeight());
-}
-
-float ScrollBarHorizontal::GetSize() const
-{
-	return GetWidth();
-}
-
 void ScrollBarHorizontal::SetPos(float pos)
 {
 	ScrollBarBase::SetPos(pos);
@@ -250,5 +227,3 @@ void ScrollBarHorizontal::SetPos(float pos)
 	_boxPos.x = _btnUpLeft->GetWidth() * mult + (GetWidth() - _btnBox->GetWidth()
 		- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize());
 }
-
-} // end of namespace UI
