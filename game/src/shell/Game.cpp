@@ -196,6 +196,8 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 
 void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
+	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize((int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y, lc.GetScale());
+
 	Window::Draw(sc, lc, ic, dc, texman);
 
 	_gameViewHarness.RenderGame(dc, _worldView);
@@ -228,14 +230,6 @@ void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			}
 		}
 	}
-}
-
-void GameLayout::OnSize(float width, float height)
-{
-	float size = GetWidth() > GetHeight() ? GetWidth() : GetHeight();
-	float base = 1024.f;
-	float scale = size > base ? std::floor(size / base + 0.5f) : 1 / std::floor(base / size + 0.5f);
-	_gameViewHarness.SetCanvasSize((int) GetWidth(), (int) GetHeight(), scale);
 }
 
 FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const

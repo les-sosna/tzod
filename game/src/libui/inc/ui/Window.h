@@ -185,13 +185,6 @@ public:
 private:
 
 	//
-	// size
-	//
-
-	virtual void OnSize(float width, float height);
-
-
-	//
 	// other
 	//
 

@@ -64,7 +64,6 @@ void Window::Resize(float width, float height)
 	{
 		_width  = width;
 		_height = height;
-		OnSize(width, height);
 	}
 }
 
@@ -104,14 +103,6 @@ void Window::SetEnabled(bool enable)
 void Window::SetVisible(bool visible)
 {
 	_isVisible = visible;
-}
-
-//
-// size
-//
-
-void Window::OnSize(float width, float height)
-{
 }
 
 

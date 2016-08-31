@@ -52,7 +52,6 @@ public:
 	// Window
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	void OnSize(float width, float height) override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 	PointerSink* GetPointerSink() override { return this; }
 
