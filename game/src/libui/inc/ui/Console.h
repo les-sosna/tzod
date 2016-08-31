@@ -58,7 +58,7 @@ public:
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnTimeStep(LayoutManager &manager, float dt) override;
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	void OnSize(float width, float height) override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 private:
 	std::shared_ptr<ScrollBarVertical> _scroll;

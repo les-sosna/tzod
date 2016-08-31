@@ -47,7 +47,6 @@ public:
 
 	std::function<void()> eventChange;
 
-protected:
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	PointerSink* GetPointerSink() override { return this; }

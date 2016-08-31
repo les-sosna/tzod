@@ -207,6 +207,8 @@ void Console::OnScroll(TextureManager &texman, const InputContext &ic, const Lay
 void Console::OnTimeStep(LayoutManager &manager, float dt)
 {
 	// FIXME: workaround
+	_scroll->SetLineSize(1);
+	_scroll->SetPageSize(20); // textAreaHeight / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() - 1 : 0);
 	if( _autoScroll )
 		_scroll->SetPos(_scroll->GetDocumentSize());
@@ -220,9 +222,10 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 	{
 		_buf->Lock();
 
-		float textAreaHeight = GetHeight() - _input->GetHeight();
+		FRECT inputRect = GetChildRect(texman, lc, sc, *_input);
+		float textAreaHeight = inputRect.top;
 
-		float h = texman.GetFrameHeight(_font, 0);
+		float h = std::floor(texman.GetFrameHeight(_font, 0) * lc.GetScale());
 		size_t visibleLineCount = size_t(textAreaHeight / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;
@@ -242,16 +245,19 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 	}
 }
 
-void Console::OnSize(float width, float height)
+FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
-	float textAreaHeight = height - _input->GetHeight();
-
-	_input->Move(0, textAreaHeight);
-	_input->Resize(width, _input->GetHeight());
-	_scroll->Move(width - _scroll->GetWidth(), 0);
-	_scroll->Resize(_scroll->GetWidth(), height - _input->GetHeight());
-	_scroll->SetPageSize(textAreaHeight / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
-	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);
+	if (_input.get() == &child)
+	{
+		float inputHeight = _input->GetContentSize(texman, sc, lc.GetScale()).y;
+		return MakeRectRB(vec2d{0, lc.GetPixelSize().y - inputHeight}, lc.GetPixelSize());
+	}
+	if (_scroll.get() == &child)
+	{
+		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScale());
+		return MakeRectRB(vec2d{lc.GetPixelSize().x - scrollWidth}, lc.GetPixelSize());
+	}
+	return Rectangle::GetChildRect(texman, lc, sc, child);
 }
 
 void Console::OnScrollBar(float pos)

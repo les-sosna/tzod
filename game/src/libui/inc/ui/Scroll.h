@@ -36,10 +36,9 @@ public:
 
 protected:
 	virtual float Select(float x, float y) const = 0;
-	float GetScrollPaneLength() const;
+	float GetScrollPaneLength(const LayoutContext &lc) const;
 
 	float _tmpBoxPos;
-	vec2d _boxPos = { 0, 0 };
 	std::shared_ptr<Button> _btnBox;
 	std::shared_ptr<Button> _btnUpLeft;
 	std::shared_ptr<Button> _btnDownRight;
@@ -67,7 +66,8 @@ class ScrollBarVertical final : public ScrollBarBase
 public:
 	ScrollBarVertical(LayoutManager &manager, TextureManager &texman);
 
-	void SetPos(float pos) override;
+	// Window
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 protected:
 	float Select(float x, float y) const override { return y; }
@@ -78,7 +78,8 @@ class ScrollBarHorizontal final : public ScrollBarBase
 public:
 	ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman);
 
-	void SetPos(float pos) override;
+	// Window
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 private:
 	float Select(float x, float y) const override { return x; }
