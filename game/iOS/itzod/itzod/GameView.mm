@@ -14,6 +14,7 @@
 }
 
 @property (nonatomic) UITapGestureRecognizer* singleFingerTap;
+@property (nonatomic) UIPanGestureRecognizer* singleFingerPan;
 
 @end
 
@@ -74,6 +75,36 @@ static unsigned int GetPointerID(int touchIndex)
     }
 }
 
+- (void)handlePan:(UIPanGestureRecognizer *)recognizer
+{
+    CGPoint location = [recognizer locationInView: recognizer.view];
+    CGPoint translation = [recognizer translationInView: recognizer.view];
+    [recognizer setTranslation:CGPointMake(0, 0) inView: recognizer.view];
+    
+    if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+    {
+        auto touchIndex = GetFreeTouchIndex(_touches);
+        auto pointerID = GetPointerID(touchIndex);
+        auto desktop = sink->GetDesktop();
+        vec2d desktopSize{
+            static_cast<float>(_appWindow->GetPixelWidth()),
+            static_cast<float>(_appWindow->GetPixelHeight())};
+        vec2d pointerPos{
+            static_cast<float>(location.x * self.contentScaleFactor),
+            static_cast<float>(location.y * self.contentScaleFactor)};
+        sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
+                                               desktop,
+                                               UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                               UI::StateContext(),
+                                               pointerPos,
+                                               translation.y/30, // z
+                                               UI::Msg::MOUSEWHEEL,
+                                               0, // button
+                                               UI::PointerType::Touch,
+                                               pointerID);
+    }
+}
+
 - (AppWindow&)appWindow
 {
     return *_appWindow;
@@ -108,6 +139,12 @@ static unsigned int GetPointerID(int touchIndex)
                             action:@selector(handleSingleTap:)];
     self.singleFingerTap.cancelsTouchesInView = NO;
     [self addGestureRecognizer:self.singleFingerTap];
+    
+    self.singleFingerPan = [[UIPanGestureRecognizer alloc]
+                            initWithTarget:self
+                            action:@selector(handlePan:)];
+//    self.singleFingerPan.cancelsTouchesInView = NO;
+    [self addGestureRecognizer:self.singleFingerPan];
     
     self.multipleTouchEnabled = YES;
     return self;
