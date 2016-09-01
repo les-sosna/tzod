@@ -54,7 +54,7 @@ private:
 
 	void SetAmbient(float ambient) override;
 
-	bool TexCreate(DEV_TEXTURE &tex, const Image &img) override;
+	bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) override;
 	void TexFree(DEV_TEXTURE tex) override;
 
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
@@ -249,7 +249,7 @@ void RenderGLES2::SetMode(const RenderMode mode)
 	_mode = mode;
 }
 
-bool RenderGLES2::TexCreate(DEV_TEXTURE &tex, const Image &img)
+bool RenderGLES2::TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter)
 {
 	glGenTextures(1, &tex.index);
 	glBindTexture(GL_TEXTURE_2D, tex.index);
@@ -266,7 +266,7 @@ bool RenderGLES2::TexCreate(DEV_TEXTURE &tex, const Image &img)
 		img.GetData()                       // pixels
 	);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, /*GL_NEAREST*/ GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter ? GL_LINEAR : GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, /*GL_NEAREST*/ GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

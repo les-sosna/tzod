@@ -2,7 +2,9 @@
 #include "CocoaTouchWindow.h"
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
+#include <ui/LayoutContext.h>
 #include <ui/Pointers.h>
+#include <ui/StateContext.h>
 #include <map>
 
 @interface GameView ()
@@ -59,9 +61,10 @@ static unsigned int GetPointerID(int touchIndex)
         vec2d pointerPos{
             static_cast<float>(location.x * self.contentScaleFactor),
             static_cast<float>(location.y * self.contentScaleFactor)};
-        sink->GetInputContext().ProcessPointer(desktop,
-                                               self.contentScaleFactor,
-                                               desktopSize,
+        sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
+                                               desktop,
+                                               UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                               UI::StateContext(),
                                                pointerPos,
                                                0, // z
                                                UI::Msg::TAP,
@@ -129,9 +132,10 @@ static unsigned int GetPointerID(int touchIndex)
             vec2d pointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(desktop,
-                                                   self.contentScaleFactor,
-                                                   desktopSize,
+            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
+                                                   desktop,
+                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::StateContext(),
                                                    pointerPos,
                                                    0, // z
                                                    UI::Msg::PointerDown,
@@ -159,9 +163,10 @@ static unsigned int GetPointerID(int touchIndex)
             vec2d pointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(desktop,
-                                                   self.contentScaleFactor,
-                                                   desktopSize,
+            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
+                                                   desktop,
+                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::StateContext(),
                                                    pointerPos,
                                                    0, // z
                                                    UI::Msg::PointerMove,
@@ -191,9 +196,10 @@ static unsigned int GetPointerID(int touchIndex)
             vec2d pointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(desktop,
-                                                   self.contentScaleFactor,
-                                                   desktopSize,
+            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
+                                                   desktop,
+                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::StateContext(),
                                                    pointerPos,
                                                    0, // z
                                                    UI::Msg::PointerUp,
@@ -224,9 +230,10 @@ static unsigned int GetPointerID(int touchIndex)
             vec2d pointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(desktop,
-                                                   self.contentScaleFactor,
-                                                   desktopSize,
+            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
+                                                   desktop,
+                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::StateContext(),
                                                    pointerPos,
                                                    0, // z
                                                    UI::Msg::PointerCancel,
