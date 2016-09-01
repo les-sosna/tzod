@@ -76,7 +76,6 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			false, // drawGrid
 			false  // nightMode
 		);
-		dc.SetMode(RM_INTERFACE);
 	}
 	dc.DrawBitmapText(vec2d{}, lc.GetScale(), _font, 0xffffffff, _title);
 }

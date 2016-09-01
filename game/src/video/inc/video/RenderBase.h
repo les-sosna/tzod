@@ -48,11 +48,10 @@ struct DEV_TEXTURE
 
 enum RenderMode
 {
-	RM_LIGHT         = 0,
-	RM_WORLD         = 1,
-	RM_INTERFACE     = 2,
-	//-------------------
-	RM_FORCE32BIT    = 0xffffffff
+	RM_UNDEFINED,
+	RM_LIGHT,
+	RM_WORLD,
+	RM_INTERFACE,
 };
 
 enum DisplayOrientation

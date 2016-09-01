@@ -451,7 +451,6 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
 	// Selection
-	dc.SetMode(RM_INTERFACE);
 	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
 	{
 		FRECT rt = GetSelectionRect(*s); // in world coord

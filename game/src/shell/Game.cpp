@@ -201,7 +201,6 @@ void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 	Window::Draw(sc, lc, ic, dc, texman);
 
 	_gameViewHarness.RenderGame(dc, _worldView);
-	dc.SetMode(RM_INTERFACE);
 
 	vec2d dir = GetDragDirection();
 	bool reversing = GetEffectiveDragCount() > 1;

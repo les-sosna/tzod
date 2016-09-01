@@ -5,6 +5,7 @@
 
 DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)
 	: _tm(tm)
+	, _mode(RM_UNDEFINED)
 {
 	_transformStack.emplace();
 	_viewport.left = 0;
@@ -727,8 +728,11 @@ void DrawingContext::SetAmbient(float ambient)
 	_tm.GetRender().SetAmbient(ambient);
 }
 
-void DrawingContext::SetMode(const RenderMode mode)
+void DrawingContext::SetMode(RenderMode mode)
 {
-	_tm.GetRender().SetMode(mode);
-	_mode = mode;
+	if (_mode != mode)
+	{
+		_tm.GetRender().SetMode(mode);
+		_mode = mode;
+	}
 }
