@@ -278,7 +278,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 
 	SetFocus(nullptr);
 
-	vec2d mouse = CanvasToWorld(lc.GetPixelSize(), pointerPosition);
+	vec2d mouse = CanvasToWorld(lc, pointerPosition);
 
 	ObjectType type = static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(_conf.ed_object.GetInt()) );
 
@@ -447,7 +447,7 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom();
+	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
 	// Selection
@@ -455,38 +455,38 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
 	{
 		FRECT rt = GetSelectionRect(*s); // in world coord
-		FRECT sel = WorldToCanvas(lc.GetPixelSize(), rt);
+		FRECT sel = WorldToCanvas(lc, rt);
 
 		dc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
 		dc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
 	}
 
 	// Mouse coordinates
-	vec2d mouse = CanvasToWorld(lc.GetPixelSize(), ic.GetMousePos());
+	vec2d mouse = CanvasToWorld(lc, ic.GetMousePos());
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	dc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
 		lc.GetScale(), _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }
 
-vec2d EditorLayout::CanvasToWorld(vec2d canvasSize, vec2d canvasPos) const
+vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const
 {
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom();
-	return (canvasPos - canvasSize / 2) / zoom + eye;
+	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	return (canvasPos - lc.GetPixelSize() / 2) / zoom + eye;
 }
 
-vec2d EditorLayout::WorldToCanvas(vec2d canvasSize, vec2d worldPos) const
+vec2d EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, vec2d worldPos) const
 {
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom();
-	return (worldPos - eye) * zoom + canvasSize / 2;
+	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	return (worldPos - eye) * zoom + lc.GetPixelSize() / 2;
 }
 
-FRECT EditorLayout::WorldToCanvas(vec2d canvasSize, FRECT worldRect) const
+FRECT EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) const
 {
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom();
-	vec2d offset = (vec2d{ worldRect.left, worldRect.top } - eye) * zoom + canvasSize / 2;
+	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	vec2d offset = (vec2d{ worldRect.left, worldRect.top } - eye) * zoom + lc.GetPixelSize() / 2;
 	return MakeRectWH(offset, Size(worldRect) * zoom);
 }

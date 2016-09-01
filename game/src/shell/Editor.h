@@ -69,9 +69,9 @@ public:
 	void SelectNone();
 
 private:
-	vec2d CanvasToWorld(vec2d canvasSize, vec2d canvasPos) const;
-	vec2d WorldToCanvas(vec2d canvasSize, vec2d worldPos) const;
-	FRECT WorldToCanvas(vec2d canvasSize, FRECT worldRect) const;
+	vec2d CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const;
+	vec2d WorldToCanvas(const UI::LayoutContext &lc, vec2d worldPos) const;
+	FRECT WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) const;
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();

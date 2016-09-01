@@ -150,7 +150,7 @@ void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 	{
 		assert(dt >= 0);
 		counterDt.Push(dt);
-		_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), gc->GetWorld()._bounds, GetSize());
+		_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), gc->GetWorld()._bounds);
 	}
 }
 

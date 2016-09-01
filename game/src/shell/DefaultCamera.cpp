@@ -13,14 +13,14 @@ static unsigned int GetMilliseconds()
 }
 
 DefaultCamera::DefaultCamera()
-  : _zoom(1)
-  , _dt(50)
-  , _pos()
+	: _zoom(1)
+	, _dt(50)
+	, _pos()
 {
 	_dwTimeX = _dwTimeY = GetMilliseconds();
 }
 
-void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, vec2d screenSize)
+void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds)
 {
 	static char  lastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
@@ -42,7 +42,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 
 	vec2d mouse = input.GetMousePos();
 
-	if( 0 == (int) mouse.x || input.IsKeyPressed(UI::Key::Left) )
+	if( input.IsKeyPressed(UI::Key::Left) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -51,8 +51,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 			_dwTimeX += dt;
 		}
 	}
-	else
-	if(screenSize.x - 1 == (int) mouse.x || input.IsKeyPressed(UI::Key::Right) )
+	else if( input.IsKeyPressed(UI::Key::Right) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeX > dt )
@@ -62,9 +61,11 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 		}
 	}
 	else
+	{
 		_dwTimeX = GetMilliseconds();
-	//---------------------------------------
-	if( 0 == (int) mouse.y || input.IsKeyPressed(UI::Key::Up) )
+	}
+
+	if( input.IsKeyPressed(UI::Key::Up) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -73,8 +74,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 			_dwTimeY += dt;
 		}
 	}
-	else
-	if(screenSize.y - 1 == (int) mouse.y || input.IsKeyPressed(UI::Key::Down) )
+	else if( input.IsKeyPressed(UI::Key::Down) )
 	{
 		bMove = true;
 		while( dwCurTime - _dwTimeY > dt )
@@ -84,18 +84,16 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 		}
 	}
 	else
+	{
 		_dwTimeY = GetMilliseconds();
-	//---------------------------------------
+	}
+
 	if( bMove )
 		_dt = std::max(10.0f, 1.0f / (1.0f / _dt + 0.001f));
 	else
 		_dt = 50.0f;
-	//------------------------------------------------------
-	vec2d halfScreen = screenSize / 2 / _zoom;
-	_pos.x = std::max(_pos.x, worldBounds.left + halfScreen.x);
-	_pos.x = std::min(_pos.x, worldBounds.right - halfScreen.x);
-	_pos.y = std::max(_pos.y, worldBounds.top + halfScreen.y);
-	_pos.y = std::min(_pos.y, worldBounds.bottom - halfScreen.y);
+
+	_pos = Vec2dConstrain(_pos, worldBounds);
 
 	if (input.IsKeyPressed(UI::Key::Home))
 	{
