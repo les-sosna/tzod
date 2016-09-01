@@ -161,7 +161,7 @@ bool InputContext::ProcessPointer(
 	const LayoutContext &lc,
 	const StateContext &sc,
 	vec2d pxPointerPosition,
-	float z,
+	vec2d pxPointerOffset,
 	Msg msg,
 	int button,
 	PointerType pointerType,
@@ -171,9 +171,9 @@ bool InputContext::ProcessPointer(
 	_lastPointerLocation[pointerID] = pxPointerPosition;
 #endif
 
-	if (Msg::MOUSEWHEEL == msg)
+	if (Msg::Scroll == msg)
 	{
-		return ProcessScroll(texman, wnd, lc, sc, pxPointerPosition, vec2d{ 0, z });
+		return ProcessScroll(texman, wnd, lc, sc, pxPointerPosition, pxPointerOffset);
 	}
 
 	PointerSink *pointerSink = nullptr;
