@@ -67,7 +67,7 @@ static unsigned int GetPointerID(int touchIndex)
                                                UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                UI::StateContext(),
                                                pointerPos,
-                                               0, // z
+                                               vec2d{},
                                                UI::Msg::TAP,
                                                0, // button
                                                UI::PointerType::Touch,
@@ -97,8 +97,8 @@ static unsigned int GetPointerID(int touchIndex)
                                                UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                UI::StateContext(),
                                                pointerPos,
-                                               translation.y/30, // z
-                                               UI::Msg::MOUSEWHEEL,
+                                               vec2d{translation.x, translation.y}/30,
+                                               UI::Msg::Scroll,
                                                0, // button
                                                UI::PointerType::Touch,
                                                pointerID);
@@ -174,7 +174,7 @@ static unsigned int GetPointerID(int touchIndex)
                                                    UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                    UI::StateContext(),
                                                    pointerPos,
-                                                   0, // z
+                                                   vec2d{},
                                                    UI::Msg::PointerDown,
                                                    1, // button
                                                    UI::PointerType::Touch,
@@ -205,7 +205,7 @@ static unsigned int GetPointerID(int touchIndex)
                                                    UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                    UI::StateContext(),
                                                    pointerPos,
-                                                   0, // z
+                                                   vec2d{},
                                                    UI::Msg::PointerMove,
                                                    0, // button
                                                    UI::PointerType::Touch,
@@ -238,7 +238,7 @@ static unsigned int GetPointerID(int touchIndex)
                                                    UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                    UI::StateContext(),
                                                    pointerPos,
-                                                   0, // z
+                                                   vec2d{},
                                                    UI::Msg::PointerUp,
                                                    1, // button
                                                    UI::PointerType::Touch,
@@ -272,7 +272,7 @@ static unsigned int GetPointerID(int touchIndex)
                                                    UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                    UI::StateContext(),
                                                    pointerPos,
-                                                   0, // z
+                                                   vec2d{},
                                                    UI::Msg::PointerCancel,
                                                    0, // button
                                                    UI::PointerType::Touch,

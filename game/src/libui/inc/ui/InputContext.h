@@ -27,7 +27,7 @@ enum class Msg
 	PointerMove,
 	PointerUp,
 	PointerCancel,
-	MOUSEWHEEL,
+	Scroll,
 	TAP,
 };
 
@@ -42,7 +42,7 @@ public:
 		const LayoutContext &lc,
 		const StateContext &sc,
 		vec2d pxPointerPosition,
-		float z,
+		vec2d pxPointerOffset,
 		Msg msg,
 		int button,
 		PointerType pointerType,
