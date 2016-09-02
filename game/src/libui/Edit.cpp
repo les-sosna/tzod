@@ -293,7 +293,7 @@ bool Edit::OnKeyPressed(InputContext &ic, Key key)
 
 bool Edit::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
-	if( 1 == button && !ic.HasCapturedPointers(this) )
+	if( pointerType == PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this) )
 	{
 		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
 		int sel = std::min(GetTextLength(), std::max(0, int(pointerPosition.x / w)) + (int) _offset);
