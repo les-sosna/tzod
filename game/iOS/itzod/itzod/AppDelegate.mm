@@ -33,8 +33,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
+    chdir([resourcePath UTF8String]);
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
     _fs = FS::CreateOSFileSystem([dataPath UTF8String]);
     _logger.reset(new UI::ConsoleBuffer(100, 500));

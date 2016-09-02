@@ -244,16 +244,12 @@ void EditorLayout::EraseAt(vec2d worldPos)
 
 void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 {
-	ObjectType type = GetCurrentType();
-	float align = RTTypes::Inst().GetTypeInfo(type).align;
-	vec2d offset = vec2d{ 1, 1 } * RTTypes::Inst().GetTypeInfo(type).offset;
-	vec2d halfAlign = vec2d{ align, align } / 2;
-	vec2d pt = Vec2dFloor((worldPos + halfAlign - offset) / align) * align + offset;
-
-	if (PtInFRect(_world._bounds, pt))
+    vec2d alignedPos = AlignToGrid(worldPos);
+	if (PtInFRect(_world._bounds, alignedPos) &&
+        !PickEdObject(_worldView.GetRenderScheme(), _world, alignedPos))
 	{
 		// create object
-		GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
+		GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, GetCurrentType(), alignedPos);
 		std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
 		if (!defaultProperties)
@@ -265,6 +261,37 @@ void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 		Select(&newobj, true);
 		_isObjectNew = true;
 	}
+}
+
+void EditorLayout::ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties)
+{
+    if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
+    {
+        if( _selectedObject == object )
+        {
+            _quickActions.DoAction(*object);
+            
+            _propList->DoExchange(false, GetManager().GetTextureManager());
+            if( _isObjectNew )
+                SaveToConfig(_conf, *object->GetProperties(_world));
+        }
+        else
+        {
+            Select(object, true);
+        }
+    }
+    else
+    {
+        CreateAt(worldPos, defaultProperties);
+    }
+}
+
+vec2d EditorLayout::AlignToGrid(vec2d worldPos) const
+{
+    auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+    vec2d offset = vec2d{ typeInfo.offset, typeInfo.offset };
+    vec2d halfAlign = vec2d{ typeInfo.align, typeInfo.align } / 2;
+    return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
 }
 
 void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
@@ -281,6 +308,18 @@ void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Te
 {
 	if (_capturedButton)
 	{
+        vec2d worldPos = CanvasToWorld(lc, pointerPosition);
+        if (2 == _capturedButton)
+        {
+            EraseAt(worldPos);
+        }
+        else if (1 == _capturedButton)
+        {
+            // keep default properties if Ctrl key is not pressed
+            bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+            CreateAt(worldPos, defaultProperties);
+        }
+
 		OnPointerDown(ic, lc, texman, pointerPosition, _capturedButton, pointerType, pointerID);
 	}
 }
@@ -289,7 +328,6 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, Text
 {
 	if (_capturedButton == button )
 	{
-		_click = true;
 		_capturedButton = 0;
 	}
 }
@@ -321,37 +359,17 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 	}
 	else if (1 == button)
 	{
-		if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
-		{
-			if( _click && _selectedObject == object )
-			{
-				_quickActions.DoAction(*object);
-
-				_propList->DoExchange(false, GetManager().GetTextureManager());
-				if( _isObjectNew )
-					SaveToConfig(_conf, *object->GetProperties(_world));
-			}
-			else
-			{
-				Select(object, true);
-			}
-		}
-		else
-		{
-			// keep default properties if Ctrl key is not pressed
-			bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
-			CreateAt(worldPos, defaultProperties);
-		}
+        // keep default properties if Ctrl key is not pressed
+        bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+        ActionOrSelectOrCreateAt(worldPos, defaultProperties);
 	}
-
-	_click = false;
 
 	return capture;
 }
 
 void EditorLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
-	CreateAt(CanvasToWorld(lc, pointerPosition), true);
+	ActionOrSelectOrCreateAt(CanvasToWorld(lc, pointerPosition), true);
 }
 
 bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)

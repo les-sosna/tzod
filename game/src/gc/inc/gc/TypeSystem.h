@@ -174,7 +174,7 @@ public:
 	GC_Object* CreateFromFile(World &world, ObjectType type);
 
     // for editor
-	GC_Actor& CreateActor(World &world, ObjectType type, float x, float y);
+	GC_Actor& CreateActor(World &world, ObjectType type, vec2d pos);
     GC_Service& CreateService(World &world, ObjectType type);
 
 

@@ -48,7 +48,6 @@ class EditorLayout
 
 	GC_Object *_selectedObject = nullptr;
 	bool _isObjectNew = false;
-	bool _click = true;
 	int  _capturedButton = 0;
 	World &_world;
 	WorldView &_worldView;
@@ -75,6 +74,8 @@ private:
 	ObjectType GetCurrentType() const;
 	void EraseAt(vec2d worldPos);
 	void CreateAt(vec2d worldPos, bool defaultProperties);
+    void ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties);
+    vec2d AlignToGrid(vec2d worldPos) const;
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
