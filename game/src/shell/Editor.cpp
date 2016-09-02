@@ -183,6 +183,8 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	assert(!_conf.ed_uselayers.eventChange);
 	_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
+
+	SetTimeStep(true);
 }
 
 EditorLayout::~EditorLayout()
