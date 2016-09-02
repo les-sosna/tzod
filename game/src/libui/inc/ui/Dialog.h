@@ -8,6 +8,7 @@ namespace UI
 class Dialog
 	: public Rectangle
 	, private KeyboardSink
+	, private PointerSink
 {
 public:
 	Dialog(LayoutManager &manager, TextureManager &texman);
@@ -24,6 +25,7 @@ public:
 
 	// Window
 	KeyboardSink *GetKeyboardSink() override { return this; }
+	PointerSink *GetPointerSink() override { return this; }
 
 protected:
 	void NextFocus(bool wrap);
