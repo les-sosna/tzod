@@ -116,15 +116,15 @@ void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 
 	Rectangle::Draw(sc, lc, ic, dc, texman);
 
-	float w = texman.GetFrameWidth(_font, 0) - 1;
+    float pxCharWidth = std::floor((texman.GetFrameWidth(_font, 0) - 1) * lc.GetScale());
 
 	// selection
 	if( GetSelLength() && ic.GetFocused() )
 	{
 		FRECT rt;
-		rt.left = 1 + (GetSelMin() - (float) _offset) * w;
+		rt.left = 1 + (GetSelMin() - (float) _offset) * pxCharWidth;
 		rt.top = 0;
-		rt.right = rt.left + w * GetSelLength() - 1;
+		rt.right = rt.left + pxCharWidth * GetSelLength() - 1;
 		rt.bottom = rt.top + lc.GetPixelSize().y;
 		dc.DrawSprite(rt, _selection, 0xffffffff, 0);
 	}
@@ -135,19 +135,17 @@ void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 	{
 		dc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), _font, c, GetText().substr(_offset, GetSelMin() - _offset));
 	}
-	dc.DrawBitmapText(vec2d{ (GetSelMin() - _offset) * w, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
-	dc.DrawBitmapText(vec2d{ (GetSelMax() - _offset) * w, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
+	dc.DrawBitmapText(vec2d{ (GetSelMin() - _offset) * pxCharWidth, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
+	dc.DrawBitmapText(vec2d{ (GetSelMax() - _offset) * pxCharWidth, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
 
 	float time = GetManager().GetTime() - _lastCursortime;
 
 	// cursor
 	if( ic.GetFocused() && fmodf(time, 1.0f) < 0.5f )
 	{
-		FRECT rt;
-		rt.left = (GetSelEnd() - (float) _offset) * w;
-		rt.top = 0;
-		rt.right = rt.left + texman.GetFrameWidth(_cursor, 0);
-		rt.bottom = rt.top + lc.GetPixelSize().y;
+		FRECT rt = MakeRectWH(
+            vec2d{(GetSelEnd() - (float) _offset) * pxCharWidth, 0},
+            vec2d{std::floor(texman.GetFrameWidth(_cursor, 0) * lc.GetScale()), lc.GetPixelSize().y});
 		dc.DrawSprite(rt, _cursor, 0xffffffff, 0);
 	}
 }
@@ -295,8 +293,7 @@ bool Edit::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &te
 {
 	if( pointerType == PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this) )
 	{
-		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
-		int sel = std::min(GetTextLength(), std::max(0, int(pointerPosition.x / w)) + (int) _offset);
+        int sel = HitTest(texman, pointerPosition, lc.GetScale());
 		SetSel(sel, sel);
 		return true;
 	}
@@ -307,8 +304,7 @@ void Edit::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &te
 {
 	if( captured )
 	{
-		float w = GetManager().GetTextureManager().GetFrameWidth(_font, 0) - 1;
-		int sel = std::min(GetTextLength(), std::max(0, int(pointerPosition.x / w)) + (int) _offset);
+        int sel = HitTest(texman, pointerPosition, lc.GetScale());
 		SetSel(GetSelStart(), sel);
 	}
 }
@@ -336,6 +332,12 @@ void Edit::OnTextChange(TextureManager &texman)
 	SetSel(_selStart, _selEnd);
 	if( eventChange )
 		eventChange();
+}
+
+int Edit::HitTest(TextureManager &texman, vec2d px, float scale) const
+{
+    float pxCharWidth = std::floor((texman.GetFrameWidth(_font, 0) - 1) * scale);
+    return std::min(GetTextLength(), std::max(0, int(px.x / pxCharWidth)) + (int) _offset);
 }
 
 void Edit::Paste(TextureManager &texman, InputContext &ic)

@@ -367,8 +367,9 @@ void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprit
 	size_t line  = 0;
 
 	vec2d pxCharSize = Vec2dFloor(vec2d{ lt.pxFrameWidth, lt.pxFrameHeight } * scale);
+    float pxAdvance = std::floor((lt.pxFrameWidth - 1) * scale);
 
-	float x0 = origin.x - std::floor(dx[align] * (pxCharSize.x - 1) * (float) maxline / 2);
+	float x0 = origin.x - std::floor(dx[align] * pxAdvance * (float) maxline / 2);
 	float y0 = origin.y - std::floor(dy[align] * pxCharSize.y * (float) lines.size() / 2);
 
 	for( const std::string::value_type *tmp = str.c_str(); *tmp; ++tmp )
@@ -385,7 +386,7 @@ void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprit
 		}
 
 		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - 32];
-		float x = x0 + (float) ((count++) * (pxCharSize.x - 1));
+		float x = x0 + (float) ((count++) * pxAdvance);
 		float y = y0 + (float) (line * pxCharSize.y);
 
 		MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));

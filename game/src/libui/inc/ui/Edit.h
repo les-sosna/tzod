@@ -56,6 +56,7 @@ public:
 
 private:
 	void OnTextChange(TextureManager &texman);
+    int HitTest(TextureManager &texman, vec2d px, float scale) const;
 
 	// TextSink
 	bool OnChar(int c) override;
