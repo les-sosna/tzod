@@ -247,7 +247,7 @@ void Desktop::OnNewCampaign()
 void Desktop::OnNewDM()
 {
 	for (auto wnd: _navStack)
-		if (dynamic_cast<NewGameDlg*>(wnd.get()))
+		if (dynamic_cast<NewGameDlg*>(wnd.get()) || dynamic_cast<SinglePlayer*>(wnd.get()))
 			return;
 
 	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
