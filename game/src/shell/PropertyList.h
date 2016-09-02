@@ -5,12 +5,14 @@
 #include <vector>
 
 class ConfCache;
+class LangCache;
 class PropertySet;
 class TextureManager;
 class World;
 
 namespace UI
 {
+	class Button;
 	class ConsoleBuffer;
 	class ScrollView;
 	class StackLayout;
@@ -20,7 +22,7 @@ class PropertyList
 	: public UI::Dialog
 {
 public:
-	PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
+	PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	void ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman);
 	void DoExchange(bool applyToObject, TextureManager &texman);
 
@@ -28,8 +30,9 @@ public:
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 
 private:
-	std::shared_ptr<UI::StackLayout> _psheet;
+	std::shared_ptr<UI::Button> _deleteButton;
 	std::shared_ptr<UI::ScrollView> _scrollView;
+	std::shared_ptr<UI::StackLayout> _psheet; // scrollable content
 
 	std::shared_ptr<PropertySet> _ps;
 	std::vector<std::shared_ptr<Window>> _ctrls;

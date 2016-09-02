@@ -150,7 +150,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager, texman, _world, _conf, _logger);
+	_propList = std::make_shared<PropertyList>(manager, texman, world, conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
@@ -299,6 +299,13 @@ vec2d EditorLayout::AlignToGrid(vec2d worldPos) const
 void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), _world._bounds);
+
+	// Workaround: we do not get notifications when the object is killed
+	if (!_selectedObject)
+	{
+		_propList->ConnectTo(nullptr, GetManager().GetTextureManager());
+		_propList->SetVisible(false);
+	}
 }
 
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset)
@@ -479,9 +486,9 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
 	// Selection
-	if( auto *s = dynamic_cast<const GC_Actor *>(_selectedObject) )
+	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )
 	{
-		FRECT rt = GetSelectionRect(*s); // in world coord
+		FRECT rt = GetSelectionRect(*selectedActor); // in world coord
 		FRECT sel = WorldToCanvas(lc, rt);
 
 		dc.DrawSprite(sel, _texSelection, 0xffffffff, 0);

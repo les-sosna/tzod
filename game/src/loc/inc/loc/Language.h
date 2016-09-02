@@ -79,6 +79,8 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( service_type, "Service" )
 	VAR_STR( service_name, "Name" )
 
+	VAR_STR( ed_delete, "Delete")
+
 
 
 	//

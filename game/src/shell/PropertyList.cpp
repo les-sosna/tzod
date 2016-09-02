@@ -1,8 +1,11 @@
 #include "PropertyList.h"
+#include "ConfigBinding.h"
 #include "inc/shell/Config.h"
 #include <gc/Object.h>
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
+#include <loc/Language.h>
+#include <ui/Button.h>
 #include <ui/Combo.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/DataSource.h>
@@ -19,16 +22,28 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
+PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
 	: Dialog(manager, texman)
-	, _psheet(std::make_shared<UI::StackLayout>(manager))
+	, _deleteButton(std::make_shared<UI::Button>(manager, texman))
 	, _scrollView(std::make_shared<UI::ScrollView>(manager))
+	, _psheet(std::make_shared<UI::StackLayout>(manager))
 	, _world(world)
 	, _conf(conf)
 	, _logger(logger)
 {
-	AddFront(_scrollView);
+	SetTexture(texman, "ui/list", false);
+
+	_deleteButton->SetText(ConfBind(lang.ed_delete));
+	_deleteButton->eventClick = [this]
+	{
+		if( _ps && _ps->GetObject() )
+			_ps->GetObject()->Kill(_world);
+	};
+	AddFront(_deleteButton);
+
 	_scrollView->SetContent(_psheet);
+	AddFront(_scrollView);
+
 	_psheet->SetSpacing(10);
 }
 
@@ -209,10 +224,14 @@ void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &te
 
 FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
 {
+	if (_deleteButton.get() == &child)
+	{
+		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, sc, lc.GetScale()).y);
+	}
 	if (_scrollView.get() == &child)
 	{
 		vec2d pxMargins = { std::floor(4 * lc.GetScale()), 1 };
-		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
+		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, sc, lc.GetScale()).y}, lc.GetPixelSize() - pxMargins);
 	}
 	return UI::Dialog::GetChildRect(texman, lc, sc, child);
 }

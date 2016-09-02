@@ -2,6 +2,7 @@
 #include "QuickActions.h"
 #include "DefaultCamera.h"
 #include <gc/Object.h>
+#include <gc/ObjPtr.h>
 #include <ui/Window.h>
 #include <functional>
 
@@ -46,7 +47,7 @@ class EditorLayout
 
 	size_t _texSelection;
 
-	GC_Object *_selectedObject = nullptr;
+	ObjPtr<GC_Object> _selectedObject;
 	bool _isObjectNew = false;
 	int  _capturedButton = 0;
 	World &_world;
