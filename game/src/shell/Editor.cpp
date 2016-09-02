@@ -71,8 +71,14 @@ static bool PtInActor(const GC_Actor &actor, vec2d pt)
 	return false;
 }
 
-static GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt, int layer)
+GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
 {
+	int layer = -1;
+	if (_conf.ed_uselayers.Get())
+	{
+		layer = RTTypes::Inst().GetTypeInfo(GetCurrentType()).layer;
+	}
+
 	GC_Actor* zLayers[Z_COUNT];
 	memset(zLayers, 0, sizeof(zLayers));
 
@@ -133,10 +139,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _logger(logger)
   , _fontSmall(texman.FindSprite("font_small"))
   , _texSelection(texman.FindSprite("ui/selection"))
-  , _selectedObject(nullptr)
-  , _isObjectNew(false)
-  , _click(true)
-  , _mbutton(0)
   , _world(world)
   , _worldView(worldView)
   , _quickActions(logger, world)
@@ -188,16 +190,6 @@ EditorLayout::~EditorLayout()
 	_conf.ed_uselayers.eventChange = nullptr;
 }
 
-void EditorLayout::OnKillSelected(World &world, GC_Object *sender, void *param)
-{
-	Select(sender, false);
-}
-
-void EditorLayout::OnMoveSelected(World &world, GC_Object *sender, void *param)
-{
-	assert(_selectedObject == sender);
-}
-
 void EditorLayout::Select(GC_Object *object, bool bSelect)
 {
 	assert(object);
@@ -238,62 +230,98 @@ void EditorLayout::SelectNone()
 	}
 }
 
+void EditorLayout::EraseAt(vec2d worldPos)
+{
+	while (GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
+	{
+		if (_selectedObject == object)
+		{
+			Select(object, false);
+		}
+		object->Kill(_world);
+	}
+}
+
+void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
+{
+	ObjectType type = GetCurrentType();
+	float align = RTTypes::Inst().GetTypeInfo(type).align;
+	vec2d offset = vec2d{ 1, 1 } * RTTypes::Inst().GetTypeInfo(type).offset;
+	vec2d halfAlign = vec2d{ align, align } / 2;
+	vec2d pt = Vec2dFloor((worldPos + halfAlign - offset) / align) * align + offset;
+
+	if (PtInFRect(_world._bounds, pt))
+	{
+		// create object
+		GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
+		std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
+
+		if (!defaultProperties)
+		{
+			LoadFromConfig(_conf, *properties);
+			properties->Exchange(_world, true);
+		}
+
+		Select(&newobj, true);
+		_isObjectNew = true;
+	}
+}
+
 void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
-    _defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), _world._bounds);
+	_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), _world._bounds);
 }
 
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset)
 {
-    _defaultCamera.Move(offset, _world._bounds);
+	_defaultCamera.Move(offset, _world._bounds);
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
 {
-	if( _mbutton )
+	if (_capturedButton)
 	{
-		OnPointerDown(ic, lc, texman, pointerPosition, _mbutton, pointerType, pointerID);
+		OnPointerDown(ic, lc, texman, pointerPosition, _capturedButton, pointerType, pointerID);
 	}
 }
 
 void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
-	if( _mbutton == button )
+	if (_capturedButton == button )
 	{
 		_click = true;
-		_mbutton = 0;
+		_capturedButton = 0;
 	}
 }
 
 bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
 {
+	if (pointerType == UI::PointerType::Touch)
+		return false; // ignore touch here to not conflict with scroll. handle tap instead
+
 	bool capture = false;
-	if( 0 == _mbutton )
+	if( 0 == _capturedButton )
 	{
 		capture = true;
-		_mbutton = button;
+		_capturedButton = button;
 	}
 
-	if( _mbutton != button )
+	// do not react on other buttons once we captured one
+	if( _capturedButton != button )
 	{
 		return capture;
 	}
 
 	SetFocus(nullptr);
 
-	vec2d mouse = CanvasToWorld(lc, pointerPosition);
-
-	ObjectType type = static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(_conf.ed_object.GetInt()) );
-
-	int layer = -1;
-	if( _conf.ed_uselayers.Get() )
+	vec2d worldPos = CanvasToWorld(lc, pointerPosition);
+	if (2 == button)
 	{
-		layer = RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(_typeSelector->GetList()->GetCurSel())).layer;
+		EraseAt(worldPos);
 	}
-
-	if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, mouse, layer) )
+	else if (1 == button)
 	{
-		if( 1 == button )
+		if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
 		{
 			if( _click && _selectedObject == object )
 			{
@@ -308,45 +336,22 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 				Select(object, true);
 			}
 		}
-
-		if( 2 == button )
+		else
 		{
-			if( _selectedObject == object )
-			{
-				Select(object, false);
-			}
-			object->Kill(_world);
-		}
-	}
-	else if( 1 == button )
-	{
-		float align = RTTypes::Inst().GetTypeInfo(type).align;
-		vec2d offset = vec2d{ 1, 1 } * RTTypes::Inst().GetTypeInfo(type).offset;
-		vec2d halfAlign = vec2d{ align, align } / 2;
-		vec2d pt = Vec2dFloor((mouse + halfAlign - offset) / align) * align + offset;
-
-		if (PtInFRect(_world._bounds, pt))
-		{
-			// create object
-			GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, type, pt.x, pt.y);
-			std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
-
-			// set default properties if Ctrl key is not pressed
-			if (ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
-				ic.GetInput().IsKeyPressed(UI::Key::RightCtrl))
-			{
-				LoadFromConfig(_conf, *properties);
-				properties->Exchange(_world, true);
-			}
-
-			Select(&newobj, true);
-			_isObjectNew = true;
+			// keep default properties if Ctrl key is not pressed
+			bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+			CreateAt(worldPos, defaultProperties);
 		}
 	}
 
 	_click = false;
 
 	return capture;
+}
+
+void EditorLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+{
+	CreateAt(CanvasToWorld(lc, pointerPosition), true);
 }
 
 bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
@@ -436,13 +441,7 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 		else
 			halfSize = { 16, 16 };
 	}
-	FRECT result = {
-		actor.GetPos().x - halfSize.x,
-		actor.GetPos().y - halfSize.y,
-		actor.GetPos().x + halfSize.x,
-		actor.GetPos().y + halfSize.y
-	};
-	return result;
+	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
 }
 
 void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -491,4 +490,10 @@ FRECT EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) 
 	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
 	vec2d offset = (vec2d{ worldRect.left, worldRect.top } - eye) * zoom + lc.GetPixelSize() / 2;
 	return MakeRectWH(offset, Size(worldRect) * zoom);
+}
+
+ObjectType EditorLayout::GetCurrentType() const
+{
+	int selectedIndex = _typeSelector->GetList()->GetCurSel();
+	return static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(selectedIndex >= 0 ? selectedIndex : 0));
 }

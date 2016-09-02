@@ -1,19 +1,21 @@
 #pragma once
 #include "QuickActions.h"
 #include "DefaultCamera.h"
+#include <gc/Object.h>
 #include <ui/Window.h>
 #include <functional>
 
 class LangCache;
 class ConfCache;
 class DefaultCamera;
-class GC_Object;
 class PropertyList;
 class TextureManager;
 class World;
 class WorldView;
-
+class RenderScheme;
 class GameClassVis;
+
+class GC_Actor;
 
 namespace UI
 {
@@ -35,7 +37,7 @@ class EditorLayout
 	ConfCache &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
-    DefaultCamera _defaultCamera;
+	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;
 	std::shared_ptr<UI::Text> _help;
@@ -44,16 +46,13 @@ class EditorLayout
 
 	size_t _texSelection;
 
-	GC_Object *_selectedObject;
-	bool _isObjectNew;
-	bool _click;
-	int  _mbutton;
+	GC_Object *_selectedObject = nullptr;
+	bool _isObjectNew = false;
+	bool _click = true;
+	int  _capturedButton = 0;
 	World &_world;
 	WorldView &_worldView;
 	QuickActions _quickActions;
-
-	void OnKillSelected(World &world, GC_Object *sender, void *param);
-	void OnMoveSelected(World &world, GC_Object *sender, void *param);
 
 public:
 	EditorLayout(UI::LayoutManager &manager,
@@ -72,6 +71,10 @@ private:
 	vec2d CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const;
 	vec2d WorldToCanvas(const UI::LayoutContext &lc, vec2d worldPos) const;
 	FRECT WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) const;
+	GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const;
+	ObjectType GetCurrentType() const;
+	void EraseAt(vec2d worldPos);
+	void CreateAt(vec2d worldPos, bool defaultProperties);
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
@@ -83,12 +86,13 @@ private:
 	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
 	void OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured) override;
+	void OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::Window
-    void OnTimeStep(UI::LayoutManager &manager, float dt) override;
+	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	ScrollSink* GetScrollSink() override { return this; }
