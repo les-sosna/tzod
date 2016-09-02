@@ -145,13 +145,8 @@ void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 	{
 		_openingTime = std::max(0.f, _openingTime - dt);
 	}
-
-	if (GameContextBase *gc = GetAppState().GetGameContext())
-	{
-		assert(dt >= 0);
-		counterDt.Push(dt);
-		_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), gc->GetWorld()._bounds);
-	}
+    
+    counterDt.Push(dt);
 }
 
 bool Desktop::GetEditorMode() const
@@ -750,7 +745,6 @@ void Desktop::OnGameContextChanged()
 			_texman,
 			editorContext->GetWorld(),
 			_worldView,
-			_defaultCamera,
 			_conf,
 			_lang,
 			_logger);

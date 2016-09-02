@@ -97,7 +97,7 @@ static unsigned int GetPointerID(int touchIndex)
                                                UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
                                                UI::StateContext(),
                                                pointerPos,
-                                               vec2d{translation.x, translation.y}/30,
+                                               vec2d{static_cast<float>(translation.x), static_cast<float>(translation.y)}/30,
                                                UI::Msg::Scroll,
                                                0, // button
                                                UI::PointerType::Touch,

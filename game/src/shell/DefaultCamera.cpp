@@ -1,4 +1,4 @@
-#include "inc/shell/detail/DefaultCamera.h"
+#include "DefaultCamera.h"
 #include <gc/WorldCfg.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
@@ -20,6 +20,11 @@ DefaultCamera::DefaultCamera()
 	_dwTimeX = _dwTimeY = GetMilliseconds();
 }
 
+void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
+{
+    _pos = Vec2dConstrain(_pos - offset * 30, worldBounds);
+}
+
 void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds)
 {
 	static char  lastIn   = 0, LastOut = 0;
@@ -39,8 +44,6 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds)
 	bool  bMove     = false;
 	unsigned int dwCurTime = GetMilliseconds();
 	unsigned int dt        = (unsigned int) _dt;
-
-	vec2d mouse = input.GetMousePos();
 
 	if( input.IsKeyPressed(UI::Key::Left) )
 	{

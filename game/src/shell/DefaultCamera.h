@@ -12,6 +12,7 @@ class DefaultCamera
 public:
 	DefaultCamera();
 
+    void Move(vec2d offset, const FRECT &worldBounds);
 	void HandleMovement(UI::IInput &input, const FRECT &worldBounds);
 	float GetZoom() const { return _zoom; }
 	vec2d GetEye() const { return _pos; }

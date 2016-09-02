@@ -1,6 +1,5 @@
 #pragma once
 #include "detail/ConfigConsoleHistory.h"
-#include "detail/DefaultCamera.h"
 #include <as/AppStateListener.h>
 #include <luaetc/LuaDeleter.h>
 #include <render/RenderScheme.h>
@@ -77,7 +76,6 @@ private:
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
-	DefaultCamera _defaultCamera;
 
 	bool _initializing = true;
 

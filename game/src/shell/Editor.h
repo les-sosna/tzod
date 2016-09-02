@@ -1,5 +1,6 @@
 #pragma once
 #include "QuickActions.h"
+#include "DefaultCamera.h"
 #include <ui/Window.h>
 #include <functional>
 
@@ -34,7 +35,7 @@ class EditorLayout
 	ConfCache &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
-	const DefaultCamera &_defaultCamera;
+    DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;
 	std::shared_ptr<UI::Text> _help;
@@ -59,7 +60,6 @@ public:
 		TextureManager &texman,
 		World &world,
 		WorldView &worldView,
-		const DefaultCamera &defaultCamera,
 		ConfCache &conf,
 		LangCache &lang,
 		UI::ConsoleBuffer &logger);
@@ -88,6 +88,7 @@ private:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::Window
+    void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	ScrollSink* GetScrollSink() override { return this; }

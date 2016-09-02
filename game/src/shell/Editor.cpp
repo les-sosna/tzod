@@ -2,7 +2,6 @@
 #include "ConfigBinding.h"
 #include "PropertyList.h"
 #include "GameClassVis.h"
-#include "inc/shell/detail/DefaultCamera.h"
 #include "inc/shell/Config.h"
 #include <gc/Object.h>
 #include <gc/Pickup.h>
@@ -125,7 +124,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            TextureManager &texman,
                            World &world,
                            WorldView &worldView,
-                           const DefaultCamera &defaultCamera,
                            ConfCache &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
@@ -133,7 +131,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
-  , _defaultCamera(defaultCamera)
   , _fontSmall(texman.FindSprite("font_small"))
   , _texSelection(texman.FindSprite("ui/selection"))
   , _selectedObject(nullptr)
@@ -241,8 +238,14 @@ void EditorLayout::SelectNone()
 	}
 }
 
+void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
+{
+    _defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), _world._bounds);
+}
+
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset)
 {
+    _defaultCamera.Move(offset, _world._bounds);
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
