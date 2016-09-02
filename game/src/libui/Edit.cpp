@@ -309,6 +309,15 @@ void Edit::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &te
 	}
 }
 
+void Edit::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+{
+    if (!ic.HasCapturedPointers(this))
+    {
+        int sel = HitTest(texman, pointerPosition, lc.GetScale());
+        SetSel(sel, sel);
+    }
+}
+
 KeyboardSink* Edit::GetKeyboardSink()
 {
 	// FIXME: gross hack
