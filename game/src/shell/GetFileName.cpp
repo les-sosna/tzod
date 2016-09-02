@@ -15,10 +15,12 @@
 #include <algorithm>
 
 GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang)
-  : Dialog(manager, texman, 512, 460)
+  : Dialog(manager, texman)
   , _folder(param.folder)
   , _changing(false)
 {
+    Resize(512, 460);
+    
 	auto t = std::make_shared<UI::Text>(manager, texman);
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(std::make_shared<UI::StaticText>(param.title));

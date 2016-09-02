@@ -19,8 +19,8 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, float w, float h, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
-	: Dialog(manager, texman, w, h, false)
+PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, UI::ConsoleBuffer &logger)
+	: Dialog(manager, texman)
 	, _psheet(std::make_shared<UI::StackLayout>(manager))
 	, _scrollView(std::make_shared<UI::ScrollView>(manager))
 	, _world(world)

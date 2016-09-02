@@ -10,7 +10,7 @@ class Dialog
 	, private KeyboardSink
 {
 public:
-	Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal = true);
+	Dialog(LayoutManager &manager, TextureManager &texman);
 
 	enum
 	{

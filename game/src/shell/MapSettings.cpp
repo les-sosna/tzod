@@ -23,9 +23,11 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 }
 
 MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
-	: Dialog(manager, texman, 512, 512)
+	: Dialog(manager, texman)
 	, _world(world)
 {
+    Resize(512, 512);
+    
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);

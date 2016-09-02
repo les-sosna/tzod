@@ -20,7 +20,7 @@ class PropertyList
 	: public UI::Dialog
 {
 public:
-	PropertyList(UI::LayoutManager &manager, TextureManager &texman, float w, float h, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
+	PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &_conf, UI::ConsoleBuffer &logger);
 	void ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman);
 	void DoExchange(bool applyToObject, TextureManager &texman);
 

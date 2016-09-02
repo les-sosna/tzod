@@ -10,9 +10,11 @@
 #include <algorithm>
 
 NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang)
-	: Dialog(manager, texman, 256, 256)
+	: Dialog(manager, texman)
 	, _conf(conf)
 {
+    Resize(256, 256);
+    
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(128, 20);

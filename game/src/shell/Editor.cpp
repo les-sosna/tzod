@@ -150,7 +150,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager, texman, 120.f, 240.f, _world, _conf, _logger);
+	_propList = std::make_shared<PropertyList>(manager, texman, _world, _conf, _logger);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
@@ -425,10 +425,16 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	{
 		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
 	}
-	else if (_typeSelector.get() == &child)
+	if (_typeSelector.get() == &child)
 	{
 		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, sc, scale).y, size.x, size.y };
 	}
+    if (_propList.get() == &child)
+    {
+        float pxWidth = std::floor(100 * lc.GetScale());
+        float pxBottom = _typeSelector ? GetChildRect(texman, lc, sc, *_typeSelector).top : lc.GetPixelSize().y;
+        return FRECT{ lc.GetPixelSize().x - pxWidth, 0, lc.GetPixelSize().x, pxBottom };
+    }
 
 	return UI::Window::GetChildRect(texman, lc, sc, child);
 }

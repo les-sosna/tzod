@@ -22,10 +22,12 @@
 
 
 SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang)
-  : Dialog(manager, texman, 512, 296)
+  : Dialog(manager, texman)
   , _conf(conf)
   , _lang(lang)
 {
+    Resize(512, 296);
+    
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(_lang.settings_title));
@@ -288,7 +290,7 @@ static std::string GenerateProfileName(const ConfCache &conf, LangCache &lang)
 }
 
 ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ConfCache &conf, LangCache &lang)
-  : Dialog(manager, texman, 448, 416)
+  : Dialog(manager, texman)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)
@@ -297,6 +299,8 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
   , _activeIndex(-1)
   , _createNewProfile(!profileName)
 {
+    Resize(448, 416);
+    
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(20, 15);
 	text->SetText(ConfBind(_lang.profile_name));

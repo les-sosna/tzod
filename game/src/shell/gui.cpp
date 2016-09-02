@@ -31,11 +31,13 @@
 
 
 NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-  : Dialog(manager, texman, 770, 550)
+  : Dialog(manager, texman)
   , _texman(texman)
   , _conf(conf)
   , _lang(lang)
 {
+    Resize(770, 550);
+    
 	_newPlayer = false;
 
 	float x1 = 16;
@@ -456,9 +458,11 @@ bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 ///////////////////////////////////////////////////////////////////////////////
 
 EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ConfCache &conf, LangCache &lang)
-  : Dialog(manager, texman, 384, 220)
+  : Dialog(manager, texman)
   , _info(&info)
 {
+    Resize(384, 220);
+    
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
@@ -661,9 +665,11 @@ static const char s_levels[][16] = {
 };
 
 EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang)
-  : Dialog(manager, texman, 384, 220)
+  : Dialog(manager, texman)
   , _info(&info)
 {
+    Resize(384, 220);
+    
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);

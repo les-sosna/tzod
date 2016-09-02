@@ -18,7 +18,7 @@ static const float c_tileSpacing = 16;
 using namespace UI::DataSourceAliases;
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf)
-	: UI::Dialog(manager, texman, 1, 1)
+	: UI::Dialog(manager, texman)
 	, _conf(conf)
 	, _content(std::make_shared<UI::StackLayout>(manager))
 	, _tierTitle(std::make_shared<UI::Text>(manager, texman))

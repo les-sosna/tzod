@@ -6,11 +6,10 @@
 
 using namespace UI;
 
-Dialog::Dialog(LayoutManager &manager, TextureManager &texman, float width, float height, bool modal)
+Dialog::Dialog(LayoutManager &manager, TextureManager &texman)
   : Rectangle(manager)
 {
 	SetTexture(texman, "ui/window", false);
-	Resize(width, height);
 	SetDrawBorder(true);
 	SetDrawBackground(true);
 }
