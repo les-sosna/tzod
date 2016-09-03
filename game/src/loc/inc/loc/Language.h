@@ -130,6 +130,11 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( campaign_ok, "Let's go!" )
 	VAR_STR( campaign_cancel, "Cancel" )
 
+	VAR_STR( dmcampaign_enemies, "Enemies" )
+	VAR_STR( dmcampaign_player, "Player Info" )
+	VAR_STR( dmcampaign_ok, "Fight" )
+	VAR_STR( dmcampaign_cancel, "Cancel" )
+
 
 	//
 	// network

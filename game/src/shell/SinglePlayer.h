@@ -46,6 +46,5 @@ private:
 
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::List> _tiles;
-	std::shared_ptr<UI::Text> _enemiesTitle;
 	std::shared_ptr<UI::StackLayout> _enemies;
 };

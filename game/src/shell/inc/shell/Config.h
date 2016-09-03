@@ -28,9 +28,9 @@ REFLECTION_BEGIN(ConfControllerProfile)
 REFLECTION_END()
 
 REFLECTION_BEGIN(ConfPlayerBase)
-	VAR_STR(nick, "Unnamed")
-	VAR_INT(team,        0)
-	VAR_STR(skin,       "")
+	VAR_STR(nick, "Player")
+	VAR_INT(team,         0)
+	VAR_STR(skin, "neutral")
 	VAR_STR(platform_class, "default")
 REFLECTION_END()
 

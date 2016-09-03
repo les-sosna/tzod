@@ -1,6 +1,7 @@
 #include "BotView.h"
 #include "ConfigBinding.h"
 #include "MapPreview.h"
+#include "PlayerView.h"
 #include "SinglePlayer.h"
 #include "inc/shell/Config.h"
 #include <MapFile.h>
@@ -28,7 +29,6 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	, _content(std::make_shared<UI::StackLayout>(manager))
 	, _tierTitle(std::make_shared<UI::Text>(manager, texman))
 	, _tiles(std::make_shared<UI::List>(manager, texman, &_tilesSource))
-	, _enemiesTitle(std::make_shared<UI::Text>(manager, texman))
 {
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
 
@@ -53,13 +53,28 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_content->AddFront(_tiles);
 	_content->SetFocus(_tiles);
 
-	_enemiesTitle->SetFont(texman, "font_default");
-	_enemiesTitle->SetText("Enemies"_txt);
-	_content->AddFront(_enemiesTitle);
+	auto enemiesTitle = std::make_shared<UI::Text>(manager, texman);
+	enemiesTitle->SetFont(texman, "font_default");
+	enemiesTitle->SetText(ConfBind(lang.dmcampaign_enemies));
+	_content->AddFront(enemiesTitle);
 
 	_enemies = std::make_shared<UI::StackLayout>(manager);
 	_enemies->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_enemies);
+
+	auto playerTitle = std::make_shared<UI::Text>(manager, texman);
+	playerTitle->SetFont(texman, "font_default");
+	playerTitle->SetText(ConfBind(lang.dmcampaign_player));
+	_content->AddFront(playerTitle);
+
+	auto playerInfo = std::make_shared<UI::StackLayout>(manager);
+	playerInfo->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_content->AddFront(playerInfo);
+
+	auto playerView = std::make_shared<PlayerView>(manager, texman);
+	playerView->SetPlayerConfig(conf.sp_playerinfo, texman);
+	playerView->Resize(64, 64);
+	playerInfo->AddFront(playerView);
 
 	auto buttons = std::make_shared<UI::StackLayout>(manager);
 	buttons->SetFlowDirection(UI::FlowDirection::Horizontal);
@@ -67,12 +82,12 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_content->AddFront(buttons);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(lang.dm_ok));
+	btn->SetText(ConfBind(lang.dmcampaign_ok));
 	btn->eventClick = std::bind(&SinglePlayer::OnOK, this);
 	buttons->AddFront(btn);
 
 	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(lang.dm_cancel));
+	btn->SetText(ConfBind(lang.dmcampaign_cancel));
 	btn->eventClick = std::bind(&SinglePlayer::OnCancel, this);
 	buttons->AddFront(btn);
 

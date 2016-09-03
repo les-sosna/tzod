@@ -46,6 +46,7 @@ add_library(shell
 	MessageArea.h
 	Network.h
 	NewMap.h
+	PlayerView.h
 	PropertyList.h
 	QuickActions.h
 	ScoreTable.h
@@ -78,6 +79,7 @@ add_library(shell
 #	Network.cpp
 	SinglePlayer.cpp
 	NewMap.cpp
+	PlayerView.cpp
 	Profiler.cpp
 	PropertyList.cpp
 	QuickActions.cpp
