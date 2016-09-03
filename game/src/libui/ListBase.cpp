@@ -6,11 +6,6 @@
 
 using namespace UI;
 
-ListDataSourceDefault::ListDataSourceDefault()
-  : _listener(nullptr)
-{
-}
-
 void ListDataSourceDefault::AddListener(ListDataSourceListener *cb)
 {
 	_listener = cb;

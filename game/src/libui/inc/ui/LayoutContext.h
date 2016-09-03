@@ -26,4 +26,19 @@ namespace UI
 		float _scale;
 		bool _enabled;
 	};
+
+	inline float ToPx(float units, const LayoutContext& lc)
+	{
+		return std::floor(units * lc.GetScale());
+	}
+
+	inline vec2d ToPx(vec2d units, const LayoutContext& lc)
+	{
+		return Vec2dFloor(units * lc.GetScale());
+	}
+
+	inline vec2d ToPx(vec2d units, float scale)
+	{
+		return Vec2dFloor(units * scale);
+	}
 }

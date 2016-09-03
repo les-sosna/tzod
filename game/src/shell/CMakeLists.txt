@@ -39,6 +39,7 @@ add_library(shell
 	InputManager.h
 	KeyMapper.h
 	MainMenu.h
+	MapCache.h
 	MapList.h
 	MapPreview.h
 	MapSettings.h
@@ -69,6 +70,7 @@ add_library(shell
 	InputManager.cpp
 	KeyMapper.cpp
 	MainMenu.cpp
+	MapCache.cpp
 	MapList.cpp
 	MapPreview.cpp
 	MapSettings.cpp

@@ -256,8 +256,7 @@ void Desktop::OnNewDM()
 	if (!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _conf);
-		dlg->Resize(800, 600);
+		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _conf, _lang);
 		dlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender, result);
@@ -607,13 +606,13 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 
 		for (auto wnd : _navStack)
 		{
+			vec2d pxWndSize = wnd->GetContentSize(texman, sc, lc.GetScale());
 			if (wnd.get() == &child)
 			{
-				vec2d pxChildSize = child.GetContentSize(texman, sc, lc.GetScale());
-				vec2d pxChildOffset = Vec2dFloor((lc.GetPixelSize().x - pxChildSize.x) / 2, top * lc.GetScale());
-				return MakeRectWH(pxChildOffset, pxChildSize);
+				vec2d pxWndOffset = Vec2dFloor((lc.GetPixelSize().x - pxWndSize.x) / 2, top * lc.GetScale());
+				return MakeRectWH(pxWndOffset, pxWndSize);
 			}
-			top += wnd->GetHeight() + _conf.ui_spacing.GetFloat();
+			top += pxWndSize.y / lc.GetScale() + _conf.ui_spacing.GetFloat();
 		}
 	}
 	return UI::Window::GetChildRect(texman, lc, sc, child);

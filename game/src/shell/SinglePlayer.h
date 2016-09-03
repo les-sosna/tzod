@@ -1,11 +1,14 @@
 #pragma once
+#include "MapCache.h"
 #include <ui/Dialog.h>
+#include <ui/ListBase.h>
 #include <array>
 #include <memory>
 #include <vector>
 
-class MapPreview;
 class ConfCache;
+class LangCache;
+class MapPreview;
 class World;
 class WorldView;
 namespace FS
@@ -14,6 +17,7 @@ namespace FS
 }
 namespace UI
 {
+	class List;
 	class StackLayout;
 	class Text;
 }
@@ -21,18 +25,23 @@ namespace UI
 class SinglePlayer : public UI::Dialog
 {
 public:
-	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf);
+	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang);
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
+	vec2d GetContentSize(TextureManager &texman, const UI::StateContext &sc, float scale) const override;
 
 private:
-	void OnClickMap(std::string mapName);
+	void OnOK();
+	void OnCancel();
 	ConfCache &_conf;
+	MapCache _mapCache;
+	UI::ListDataSourceDefault _tilesSource;
+
 	std::shared_ptr<UI::StackLayout> _content;
 
 	std::shared_ptr<UI::Text> _tierTitle;
-	std::shared_ptr<UI::StackLayout> _tiles;
+	std::shared_ptr<UI::List> _tiles;
 	std::shared_ptr<UI::Text> _enemiesTitle;
 	std::shared_ptr<UI::StackLayout> _enemies;
 };

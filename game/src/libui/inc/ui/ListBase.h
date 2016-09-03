@@ -1,5 +1,3 @@
-// ListBase.h
-
 #pragma once
 
 #include <string>
@@ -31,8 +29,6 @@ struct ListDataSource
 class ListDataSourceDefault : public ListDataSource
 {
 public:
-	ListDataSourceDefault();
-
 	// ListDataSource interface
 	virtual void AddListener(ListDataSourceListener *cb);
 	virtual void RemoveListener(ListDataSourceListener *cb);
@@ -53,14 +49,11 @@ public:
 private:
 	struct Item
 	{
-		std::vector<std::string>  text;
-		size_t                    data;
+		std::vector<std::string> text;
+		size_t data;
 	};
-	std::vector<Item>  _items;
-	ListDataSourceListener *_listener;
+	std::vector<Item> _items;
+	ListDataSourceListener *_listener = nullptr;
 };
 
-///////////////////////////////////////////////////////////////////////////////
 } // end of namespace UI
-
-// end of file
