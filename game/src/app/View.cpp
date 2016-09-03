@@ -51,6 +51,7 @@ struct TzodViewImpl
 			fs,
 			app.GetConf(),
 			app.GetLang(),
+			app.GetDMCampaign(),
 			logger))
 #ifndef NOSOUND
 		, soundView(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState())

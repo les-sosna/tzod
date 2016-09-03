@@ -42,6 +42,23 @@ REFLECTION_BEGIN_(ConfPlayerAI, ConfPlayerBase)
 	VAR_INT(level,  2)
 REFLECTION_END()
 
+///////////////////////////////////////////////////////////////////////////////
+// single player campaign
+
+REFLECTION_BEGIN(DMCampaignMapDesc)
+	VAR_STR(map_name, "")
+	VAR_ARRAY(bot_names, nullptr)
+REFLECTION_END()
+
+REFLECTION_BEGIN(DMCampaignTier)
+	VAR_STR(title, "")
+	VAR_ARRAY(maps, nullptr)
+REFLECTION_END()
+
+REFLECTION_BEGIN(DMCampaign)
+	VAR_ARRAY(tiers, nullptr)
+	VAR_ARRAY(bots, nullptr)
+REFLECTION_END()
 
 ///////////////////////////////////////////////////////////////////////////////
 // config map

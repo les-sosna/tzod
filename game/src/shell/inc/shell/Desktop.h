@@ -41,6 +41,7 @@ public:
 	        FS::FileSystem &fs,
 	        ConfCache &conf,
 	        LangCache &lang,
+	        DMCampaign &dmCampaign,
 	        UI::ConsoleBuffer &logger);
 	virtual ~Desktop();
 
@@ -60,6 +61,7 @@ private:
 	FS::FileSystem &_fs;
 	ConfCache &_conf;
 	LangCache &_lang;
+	DMCampaign &_dmCampaign;
 	UI::ConsoleBuffer &_logger;
 	std::unique_ptr<lua_State, LuaStateDeleter> _globL;
 

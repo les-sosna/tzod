@@ -21,22 +21,25 @@ static const float c_tileSpacing = 16;
 
 using namespace UI::DataSourceAliases;
 
-SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang)
+SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Dialog(manager, texman)
 	, _conf(conf)
+	, _dmCampaign(dmCampaign)
 	, _content(std::make_shared<UI::StackLayout>(manager))
 	, _tierTitle(std::make_shared<UI::Text>(manager, texman))
 	, _tiles(std::make_shared<UI::List>(manager, texman, &_tilesSource))
 	, _enemiesTitle(std::make_shared<UI::Text>(manager, texman))
 {
+	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(0));
+
 	_tierTitle->SetFont(texman, "font_default");
-	_tierTitle->SetText("Tier 1"_txt);
+	_tierTitle->SetText(ConfBind(tierDesc.title));
 	_content->AddFront(_tierTitle);
 
-	std::vector<std::string> maps = { "dm1", "dm2", "dm3", "dm4" };
-	for (auto &mapName: maps)
+	for (size_t i = 0; i < tierDesc.maps.GetSize(); i++)
 	{
-		_tilesSource.AddItem(mapName);
+		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(i));
+		_tilesSource.AddItem(mapDesc.map_name.Get());
 	}
 
 	auto mp = std::make_shared<MapPreview>(manager, texman, fs, worldView, _mapCache);

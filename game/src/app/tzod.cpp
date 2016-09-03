@@ -8,6 +8,7 @@
 
 #define FILE_CONFIG      "config.cfg"
 #define FILE_LANGUAGE    "data/lang.cfg"
+#define FILE_DMCAMPAIGN  "data/dmcampaign.cfg"
 
 struct TzodAppImpl
 {
@@ -16,6 +17,7 @@ struct TzodAppImpl
 	{}
 
 	ConfCache conf;
+	DMCampaign dmCampaign;
 	LangCache lang;
 	AppState appState;
 	AppController appController;
@@ -42,6 +44,7 @@ TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger)
 {
 	LoadConfigNoThrow(_impl->conf, logger, FILE_CONFIG),
 	LoadConfigNoThrow(_impl->lang, logger, FILE_LANGUAGE),
+	LoadConfigNoThrow(_impl->dmCampaign, logger, FILE_DMCAMPAIGN),
 	setlocale(LC_CTYPE, _impl->lang.c_locale.Get().c_str());
 }
 
@@ -67,6 +70,11 @@ ConfCache& TzodApp::GetConf()
 LangCache& TzodApp::GetLang()
 {
 	return _impl->lang;
+}
+
+DMCampaign& TzodApp::GetDMCampaign()
+{
+	return _impl->dmCampaign;
 }
 
 void TzodApp::Step(float dt)

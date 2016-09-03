@@ -49,6 +49,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
                  FS::FileSystem &fs,
                  ConfCache &conf,
                  LangCache &lang,
+                 DMCampaign &dmCampaign,
                  UI::ConsoleBuffer &logger)
   : Window(manager)
   , AppStateListener(appState)
@@ -58,6 +59,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
   , _fs(fs)
   , _conf(conf)
   , _lang(lang)
+  , _dmCampaign(dmCampaign)
   , _logger(logger)
   , _globL(luaL_newstate())
   , _renderScheme(texman)
@@ -145,8 +147,8 @@ void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 	{
 		_openingTime = std::max(0.f, _openingTime - dt);
 	}
-    
-    counterDt.Push(dt);
+
+	counterDt.Push(dt);
 }
 
 bool Desktop::GetEditorMode() const
@@ -256,7 +258,7 @@ void Desktop::OnNewDM()
 	if (!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _conf, _lang);
+		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _conf, _lang, _dmCampaign);
 		dlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender, result);

@@ -8,6 +8,7 @@
 
 class ConfCache;
 class LangCache;
+class DMCampaign;
 class MapPreview;
 class World;
 class WorldView;
@@ -25,7 +26,7 @@ namespace UI
 class SinglePlayer : public UI::Dialog
 {
 public:
-	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang);
+	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign);
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
@@ -35,6 +36,7 @@ private:
 	void OnOK();
 	void OnCancel();
 	ConfCache &_conf;
+	DMCampaign &_dmCampaign;
 	MapCache _mapCache;
 	UI::ListDataSourceDefault _tilesSource;
 

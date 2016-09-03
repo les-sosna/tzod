@@ -18,6 +18,7 @@ class AppState;
 class AppController;
 class ConfCache;
 class LangCache;
+class DMCampaign;
 
 class TzodApp
 {
@@ -29,6 +30,7 @@ public:
 	AppController& GetAppController();
 	ConfCache& GetConf();
 	LangCache& GetLang();
+	DMCampaign &GetDMCampaign();
 
 	void Step(float dt);
 	void Exit();
