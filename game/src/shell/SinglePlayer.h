@@ -35,6 +35,8 @@ public:
 private:
 	void OnOK();
 	void OnCancel();
+	void OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index);
+
 	ConfCache &_conf;
 	DMCampaign &_dmCampaign;
 	MapCache _mapCache;

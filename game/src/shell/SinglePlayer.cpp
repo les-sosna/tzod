@@ -30,7 +30,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	, _tiles(std::make_shared<UI::List>(manager, texman, &_tilesSource))
 	, _enemiesTitle(std::make_shared<UI::Text>(manager, texman))
 {
-	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(0));
+	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
 
 	_tierTitle->SetFont(texman, "font_default");
 	_tierTitle->SetText(ConfBind(tierDesc.title));
@@ -49,7 +49,9 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_tiles->SetItemTemplate(mp);
 	_tiles->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_tiles->eventChangeCurSel = std::bind(&SinglePlayer::OnSelectMap, this, std::ref(manager), std::ref(texman), std::placeholders::_1);
 	_content->AddFront(_tiles);
+	_content->SetFocus(_tiles);
 
 	_enemiesTitle->SetFont(texman, "font_default");
 	_enemiesTitle->SetText("Enemies"_txt);
@@ -58,14 +60,6 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_enemies = std::make_shared<UI::StackLayout>(manager);
 	_enemies->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_enemies);
-
-	for (size_t i = 0; i < _conf.dm_bots.GetSize(); ++i)
-	{
-		auto botView = std::make_shared<BotView>(manager, texman);
-		botView->SetBotConfig(_conf.dm_bots.GetAt(i).AsTable(), texman);
-		botView->Resize(64, 64);
-		_enemies->AddFront(botView);
-	}
 
 	auto buttons = std::make_shared<UI::StackLayout>(manager);
 	buttons->SetFlowDirection(UI::FlowDirection::Horizontal);
@@ -84,6 +78,9 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_content->SetSpacing(c_tileSpacing);
 	AddFront(_content);
+	SetFocus(_content);
+
+	_tiles->SetCurSel(GetCurrentMap(conf, dmCampaign));
 
 	Resize(800, 400);
 }
@@ -101,6 +98,26 @@ void SinglePlayer::OnOK()
 void SinglePlayer::OnCancel()
 {
 	Close(_resultCancel);
+}
+
+void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index)
+{
+	_enemies->UnlinkAllChildren();
+	if (-1 != index)
+	{
+		_conf.sp_map.SetInt(index);
+
+		DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(GetCurrentTier(_conf, _dmCampaign)));
+		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(index));
+
+		for (size_t i = 0; i < mapDesc.bot_names.GetSize(); ++i)
+		{
+			auto botView = std::make_shared<BotView>(manager, texman);
+			botView->SetBotConfig(_dmCampaign.bots.GetTable(mapDesc.bot_names.GetStr(i).Get()), texman);
+			botView->Resize(64, 64);
+			_enemies->AddFront(botView);
+		}
+	}
 }
 
 FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const

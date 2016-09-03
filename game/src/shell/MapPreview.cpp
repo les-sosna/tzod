@@ -64,7 +64,7 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 	}
 	else if (sc.GetState() == "Hover")
 	{
-		dc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
+		dc.DrawSprite(sel, _texSelection, 0x44444444, 0);
 	}
 }
 

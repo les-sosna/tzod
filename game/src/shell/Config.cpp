@@ -34,3 +34,16 @@ static void InitLobbyList(ConfVarArray &lobby_servers)
 #define CONFIG_CACHE_PASS 2
 #include "inc/shell/Config.h"
 
+#include <algorithm>
+
+int GetCurrentTier(const ConfCache &conf, const DMCampaign &dmCampaign)
+{
+	return std::max(0, std::min((int)dmCampaign.tiers.GetSize(), conf.sp_tier.GetInt()));
+}
+
+int GetCurrentMap(const ConfCache &conf, const DMCampaign &dmCampaign)
+{
+	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
+	return std::max(0, std::min((int)tierDesc.maps.GetSize(), conf.sp_map.GetInt()));
+}
+

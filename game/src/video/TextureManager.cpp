@@ -112,12 +112,12 @@ void TextureManager::CreateChecker()
 	texDescIter->refCount++;
 
 	LogicalTexture tex;
-	tex.uvPivot = { 0, 0 };
+	tex.uvPivot = vec2d{ .5f, .5f };
 	tex.pxFrameWidth = (float) td.width * 8;
 	tex.pxFrameHeight = (float) td.height * 8;
 	tex.pxBorderSize = 0;
 	tex.magFilter = false;
-	tex.uvFrames = { { 0,0,8,8 } };
+	tex.uvFrames = { { 0,0,2,2 } };
 
 	_logicalTextures.emplace_back(tex, texDescIter);
 }

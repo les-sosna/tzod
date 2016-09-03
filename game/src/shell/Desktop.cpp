@@ -218,6 +218,27 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 	return settings;
 }
 
+static DMSettings GetCampaignDMSettings(const ConfCache &conf, const DMCampaign &dmCampaign)
+{
+	DMSettings settings;
+
+	settings.players.push_back(GetPlayerDescFromConf(conf.sp_playerinfo));
+
+	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
+	DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(GetCurrentMap(conf, dmCampaign)));
+
+	for (size_t i = 0; i < mapDesc.bot_names.GetSize(); ++i)
+	{
+		ConfPlayerAI p(&dmCampaign.bots.GetTable(mapDesc.bot_names.GetStr(i).Get()));
+		settings.bots.push_back(GetPlayerDescFromConf(p));
+	}
+
+	settings.timeLimit = conf.sv_timelimit.GetFloat() * 60;
+	settings.fragLimit = conf.sv_fraglimit.GetInt();
+
+	return settings;
+}
+
 void Desktop::OnNewCampaign()
 {
 	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _texman, _fs, _lang);
@@ -266,7 +287,10 @@ void Desktop::OnNewDM()
 			{
 				try
 				{
-					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
+					DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(GetCurrentTier(_conf, _dmCampaign)));
+					DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(GetCurrentMap(_conf, _dmCampaign)));
+
+					_appController.NewGameDM(GetAppState(), mapDesc.map_name.Get(), GetCampaignDMSettings(_conf, _dmCampaign));
 					ClearNavStack();
 				}
 				catch (const std::exception &e)

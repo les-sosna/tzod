@@ -57,7 +57,7 @@ REFLECTION_END()
 
 REFLECTION_BEGIN(DMCampaign)
 	VAR_ARRAY(tiers, nullptr)
-	VAR_ARRAY(bots, nullptr)
+	VAR_TABLE(bots, nullptr)
 REFLECTION_END()
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -140,5 +140,12 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_ARRAY( dm_bots,                   nullptr )
 	VAR_ARRAY( lobby_servers,    InitLobbyList )
 
+	VAR_INT(sp_tier, 0)
+	VAR_INT(sp_map, 0)
+	VAR_REFLECTION(sp_playerinfo, ConfPlayerLocal)
+
 REFLECTION_END()
+
+int GetCurrentTier(const ConfCache &conf, const DMCampaign &dmCampaign);
+int GetCurrentMap(const ConfCache &conf, const DMCampaign &dmCampaign);
 
