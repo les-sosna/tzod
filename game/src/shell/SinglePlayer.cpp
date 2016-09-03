@@ -16,6 +16,7 @@
 #include <ui/List.h>
 #include <ui/StackLayout.h>
 #include <ui/Text.h>
+#include <sstream>
 
 static const float c_tileSize = 180;
 static const float c_tileSpacing = 16;
@@ -25,10 +26,13 @@ using namespace UI::DataSourceAliases;
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Dialog(manager, texman)
 	, _conf(conf)
+	, _lang(lang)
 	, _dmCampaign(dmCampaign)
 	, _content(std::make_shared<UI::StackLayout>(manager))
 	, _tierTitle(std::make_shared<UI::Text>(manager, texman))
 	, _tiles(std::make_shared<UI::List>(manager, texman, &_tilesSource))
+	, _description(std::make_shared<UI::StackLayout>(manager))
+	, _enemies(std::make_shared<UI::StackLayout>(manager))
 {
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
 
@@ -53,12 +57,19 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_content->AddFront(_tiles);
 	_content->SetFocus(_tiles);
 
+	auto descriptionTitle = std::make_shared<UI::Text>(manager, texman);
+	descriptionTitle->SetFont(texman, "font_default");
+	descriptionTitle->SetText(ConfBind(lang.dmcampaign_description));
+	_content->AddFront(descriptionTitle);
+
+	_description->SetSpacing(2);
+	_content->AddFront(_description);
+
 	auto enemiesTitle = std::make_shared<UI::Text>(manager, texman);
 	enemiesTitle->SetFont(texman, "font_default");
 	enemiesTitle->SetText(ConfBind(lang.dmcampaign_enemies));
 	_content->AddFront(enemiesTitle);
 
-	_enemies = std::make_shared<UI::StackLayout>(manager);
 	_enemies->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_enemies);
 
@@ -97,7 +108,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_tiles->SetCurSel(GetCurrentMap(conf, dmCampaign));
 
-	Resize(800, 400);
+	Resize(800, 600);
 }
 
 void SinglePlayer::OnOK()
@@ -118,6 +129,8 @@ void SinglePlayer::OnCancel()
 void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index)
 {
 	_enemies->UnlinkAllChildren();
+	_description->UnlinkAllChildren();
+
 	if (-1 != index)
 	{
 		_conf.sp_map.SetInt(index);
@@ -131,6 +144,26 @@ void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texma
 			botView->SetBotConfig(_dmCampaign.bots.GetTable(mapDesc.bot_names.GetStr(i).Get()), texman);
 			botView->Resize(64, 64);
 			_enemies->AddFront(botView);
+		}
+
+		{
+			auto timelimit = std::make_shared<UI::Text>(manager, texman);
+
+			std::ostringstream formatter;
+			formatter << _lang.dmcampaign_timelimit.Get() << mapDesc.timelimit.GetFloat();
+			timelimit->SetText(std::make_shared<UI::StaticText>(formatter.str()));
+
+			_description->AddFront(timelimit);
+		}
+
+		{
+			auto fraglimit = std::make_shared<UI::Text>(manager, texman);
+
+			std::ostringstream formatter;
+			formatter << _lang.dmcampaign_fraglimit.Get() << mapDesc.fraglimit.GetInt();
+			fraglimit->SetText(std::make_shared<UI::StaticText>(formatter.str()));
+
+			_description->AddFront(fraglimit);
 		}
 	}
 }

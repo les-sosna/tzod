@@ -233,8 +233,8 @@ static DMSettings GetCampaignDMSettings(const ConfCache &conf, const DMCampaign 
 		settings.bots.push_back(GetPlayerDescFromConf(p));
 	}
 
-	settings.timeLimit = conf.sv_timelimit.GetFloat() * 60;
-	settings.fragLimit = conf.sv_fraglimit.GetInt();
+	settings.timeLimit = mapDesc.timelimit.GetFloat() * 60;
+	settings.fragLimit = mapDesc.fraglimit.GetInt();
 
 	return settings;
 }

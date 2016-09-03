@@ -38,6 +38,7 @@ private:
 	void OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index);
 
 	ConfCache &_conf;
+	LangCache &_lang;
 	DMCampaign &_dmCampaign;
 	MapCache _mapCache;
 	UI::ListDataSourceDefault _tilesSource;
@@ -46,5 +47,6 @@ private:
 
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::List> _tiles;
+	std::shared_ptr<UI::StackLayout> _description;
 	std::shared_ptr<UI::StackLayout> _enemies;
 };
