@@ -16,6 +16,7 @@ class DefaultCamera;
 
 class MessageArea;
 class ScoreTable;
+class CampaignControls;
 
 class TimeElapsed : public UI::Text
 {
@@ -62,6 +63,7 @@ private:
 
 	std::shared_ptr<MessageArea> _msg;
 	std::shared_ptr<ScoreTable> _score;
+	std::shared_ptr<CampaignControls> _campaignControls;
 	std::shared_ptr<TimeElapsed> _time;
 
 	GameContext &_gameContext;

@@ -5,10 +5,10 @@
 #include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
+#include <ui/Rating.h>
 #include <ui/StateContext.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
-#include <thread>
 
 MapPreview::MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache)
 	: UI::Window(manager)
@@ -17,7 +17,9 @@ MapPreview::MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	, _mapCache(mapCache)
 	, _font(texman.FindSprite("font_default"))
 	, _texSelection(texman.FindSprite("ui/selection"))
+	, _rating(std::make_shared<UI::Rating>(manager, texman))
 {
+	AddFront(_rating);
 }
 
 void MapPreview::SetMapName(std::shared_ptr<UI::TextSource> mapName)
@@ -66,5 +68,14 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 	{
 		dc.DrawSprite(sel, _texSelection, 0x44444444, 0);
 	}
+}
+
+FRECT MapPreview::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+{
+	if (_rating.get() == &child)
+	{
+		return MakeRectWH(lc.GetPixelSize() / 2);
+	}
+	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
 

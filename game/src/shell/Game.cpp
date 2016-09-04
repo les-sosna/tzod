@@ -1,3 +1,4 @@
+#include "CampaignControls.h"
 #include "Controller.h"
 #include "Game.h"
 #include "InputManager.h"
@@ -70,6 +71,9 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
 	_score->SetVisible(false);
 	AddFront(_score);
+
+	_campaignControls = std::make_shared<CampaignControls>(manager, texman);
+	AddFront(_campaignControls);
 
 	_time = std::make_shared<TimeElapsed>(manager, texman, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
 	AddFront(_time);

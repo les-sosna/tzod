@@ -11,6 +11,7 @@ namespace FS
 }
 namespace UI
 {
+	class Rating;
 	struct TextSource;
 }
 
@@ -24,6 +25,7 @@ public:
 
 	// UI::Window
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
 
 private:
 	FS::FileSystem &_fs;
@@ -31,6 +33,7 @@ private:
 	MapCache &_mapCache;
 	size_t _font;
 	size_t _texSelection;
+	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<UI::TextSource> _mapName;
 	float _padding = 0;
 };
