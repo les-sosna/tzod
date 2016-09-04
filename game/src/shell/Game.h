@@ -32,6 +32,7 @@ private:
 namespace UI
 {
 	class ConsoleBuffer;
+	class StackLayout;
 }
 
 class GameLayout
@@ -62,6 +63,7 @@ private:
 	unsigned int GetEffectiveDragCount() const;
 
 	std::shared_ptr<MessageArea> _msg;
+	std::shared_ptr<UI::StackLayout> _scoreAndControls;
 	std::shared_ptr<ScoreTable> _score;
 	std::shared_ptr<CampaignControls> _campaignControls;
 	std::shared_ptr<TimeElapsed> _time;

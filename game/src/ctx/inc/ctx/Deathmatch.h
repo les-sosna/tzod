@@ -10,7 +10,7 @@ struct Gameplay
 {
 	virtual ~Gameplay() {}
 	virtual void Step() = 0;
-	virtual bool IsGameOver() = 0;
+	virtual bool IsGameOver() const = 0;
 	virtual void Serialize(SaveFile &f) = 0;
 };
 
@@ -28,9 +28,11 @@ public:
 	float GetTimeLimit() const { return _timeLimit; }
 	void SetTimeLimit(float timeLimit) { _timeLimit = timeLimit; }
 
+	int GetRating() const;
+
 	// Gameplay
 	void Step() override;
-	bool IsGameOver() override;
+	bool IsGameOver() const override;
 	void Serialize(SaveFile &f) override;
 
 private:

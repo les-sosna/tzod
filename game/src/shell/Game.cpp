@@ -18,6 +18,7 @@
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
+#include <ui/StackLayout.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
 #include <video/TextureManager.h>
@@ -64,16 +65,21 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _inputMgr(conf, logger)
   , _texDrag(texman.FindSprite("ui/direction"))
   , _texTarget(texman.FindSprite("ui/target"))
+  , _scoreAndControls(std::make_shared<UI::StackLayout>(manager))
 {
+	_scoreAndControls->SetSpacing(10);
+	AddFront(_scoreAndControls);
+
 	_msg = std::make_shared<MessageArea>(manager, texman, _conf, logger);
 	AddFront(_msg);
 
 	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
 	_score->SetVisible(false);
-	AddFront(_score);
+	_scoreAndControls->AddFront(_score);
 
-	_campaignControls = std::make_shared<CampaignControls>(manager, texman);
-	AddFront(_campaignControls);
+	_campaignControls = std::make_shared<CampaignControls>(manager, texman, gameContext.GetGameplay());
+	_campaignControls->SetVisible(false);
+	_scoreAndControls->AddFront(_campaignControls);
 
 	_time = std::make_shared<TimeElapsed>(manager, texman, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
 	AddFront(_time);
@@ -151,6 +157,7 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	for (auto player : _gameContext.GetWorldController().GetLocalPlayers())
 		allDead &= !player->GetVehicle();
 	_score->SetVisible(tab || gameOver || (allDead && _gameContext.GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
+	_campaignControls->SetVisible(gameOver);
 
 	_gameViewHarness.Step(dt);
 
@@ -201,8 +208,6 @@ void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 {
 	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize((int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y, lc.GetScale());
 
-	Window::Draw(sc, lc, ic, dc, texman);
-
 	_gameViewHarness.RenderGame(dc, _worldView);
 
 	vec2d dir = GetDragDirection();
@@ -239,15 +244,16 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
 
-	if (_score.get() == &child)
+	if (_scoreAndControls.get() == &child)
 	{
-		return UI::CanvasLayout((size / scale - _score->GetSize()) / 2, _score->GetSize(), scale);
+		vec2d pxChildSize = child.GetContentSize(texman, sc, lc.GetScale());
+		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
 	}
-	else if (_time.get() == &child)
+	if (_time.get() == &child)
 	{
 		return UI::CanvasLayout(size / scale, _time->GetSize(), scale);
 	}
-	else if (_msg.get() == &child)
+	if (_msg.get() == &child)
 	{
 		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
 	}

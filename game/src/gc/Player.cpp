@@ -186,6 +186,7 @@ void GC_Player::TimeStep(World &world, float dt)
 
 void GC_Player::OnVehicleDestroy(World &world)
 {
+	_numDeaths++;
 	_vehicle = nullptr;
 	for( auto ls: world.eGC_Player._listeners )
 		ls->OnDie(*this);

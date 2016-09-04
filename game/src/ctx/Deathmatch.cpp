@@ -29,7 +29,28 @@ void Deathmatch::Step()
 //	}
 }
 
-bool Deathmatch::IsGameOver()
+int Deathmatch::GetRating() const
+{
+	int maxRating = 0;
+
+	if (IsGameOver())
+	{
+		for (auto player : _worldController.GetLocalPlayers())
+		{
+			if (player->GetScore() == _maxScore)
+			{
+				int rating = 1;
+				rating += (player->GetNumDeaths() == 0);
+				rating += (_world.GetTime() < _timeLimit);
+				maxRating = std::max(maxRating, rating);
+			}
+		}
+	}
+
+	return maxRating;
+}
+
+bool Deathmatch::IsGameOver() const
 {
 	return (_timeLimit > 0 && _world.GetTime() >= _timeLimit) ||
 		(_fragLimit > 0 && _maxScore >= _fragLimit);

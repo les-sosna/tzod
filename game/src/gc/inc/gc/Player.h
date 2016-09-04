@@ -42,6 +42,9 @@ public:
 	void SetScore(int score);
 	int GetScore() const { return _score; }
 
+	void SetNumDeaths(int numDeaths) { _numDeaths = numDeaths; }
+	int GetNumDeaths() const { return _numDeaths; }
+
 	void SetIsHuman(bool isHuman) { SetFlags(GC_FLAG_PLAYER_ISHUMAN, isHuman); }
 	bool GetIsHuman() const { return CheckFlags(GC_FLAG_PLAYER_ISHUMAN); }
 
@@ -74,12 +77,13 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-    PropertySet* NewPropertySet() override;
+	PropertySet* NewPropertySet() override;
 
 private:
 	float     _timeRespawn;
 	int       _team;
 	int       _score;
+	int       _numDeaths = 0;
 	std::string  _nick;
 	std::string  _class;
 	std::string  _skin;
