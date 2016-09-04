@@ -27,7 +27,17 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			}
 			pxOffset += pxSpacing + item->GetContentSize(texman, sc, scale).y;
 		}
-		return FRECT{ 0.f, pxOffset, size.x, pxOffset + child.GetContentSize(texman, sc, scale).y };
+		vec2d pxChildSize = child.GetContentSize(texman, sc, scale);
+		if (_align == Align::LT)
+		{
+			return FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y };
+		}
+		else
+		{
+			assert(_align == Align::CT); // TODO: support others
+			float pxMargin = std::floor(size.x - pxChildSize.x) / 2;
+			return FRECT{ pxMargin, pxOffset, size.x - pxMargin, pxOffset + pxChildSize.y };
+		}
 	}
 	else
 	{

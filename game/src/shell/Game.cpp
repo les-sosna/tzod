@@ -67,7 +67,8 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _texTarget(texman.FindSprite("ui/target"))
   , _scoreAndControls(std::make_shared<UI::StackLayout>(manager))
 {
-	_scoreAndControls->SetSpacing(10);
+	_scoreAndControls->SetSpacing(20);
+	_scoreAndControls->SetAlign(UI::Align::CT);
 	AddFront(_scoreAndControls);
 
 	_msg = std::make_shared<MessageArea>(manager, texman, _conf, logger);

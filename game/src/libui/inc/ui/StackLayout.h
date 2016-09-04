@@ -3,6 +3,13 @@
 
 namespace UI
 {
+	enum class Align
+	{
+		LT, CT, RT,
+		LC, CC, RC,
+		LB, CB, RB,
+	};
+
 	class StackLayout : public Window
 	{
 	public:
@@ -14,6 +21,9 @@ namespace UI
 		void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
 		FlowDirection GetFlowDirection() const { return _flowDirection; }
 
+		void SetAlign(Align align) { _align = align; }
+		Align GetAlign() const { return _align; }
+
 		// Window
 		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
@@ -21,5 +31,6 @@ namespace UI
 	private:
 		float _spacing = 0.f;
 		FlowDirection _flowDirection = FlowDirection::Vertical;
+		Align _align = Align::LT;
 	};
 }
