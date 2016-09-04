@@ -1,5 +1,6 @@
 #include "PlayerView.h"
 #include "inc/shell/Config.h"
+#include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
 #include <video/DrawingContext.h>
 
@@ -18,8 +19,8 @@ void PlayerView::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 {
 	if (_playerConfCache)
 	{
-		FRECT rect = { 0, 0, 64, 64 };
-		dc.DrawSprite(rect, _texSkin, 0xffffffff, 0);
+		vec2d pxSize = UI::ToPx(vec2d{ 64, 64 }, lc);
+		dc.DrawSprite(MakeRectWH(pxSize), _texSkin, 0xffffffff, 0);
 	}
 }
 
