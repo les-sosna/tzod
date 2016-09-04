@@ -12,7 +12,7 @@ namespace FS
 namespace UI
 {
 	class Rating;
-	struct TextSource;
+	template<class T> struct DataSource;
 }
 
 class MapPreview: public UI::Window
@@ -20,7 +20,7 @@ class MapPreview: public UI::Window
 public:
 	MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
 
-	void SetMapName(std::shared_ptr<UI::TextSource> mapName);
+	void SetMapName(std::shared_ptr<UI::DataSource<std::string>> mapName);
 	void SetPadding(float padding) { _padding = padding; }
 
 	// UI::Window
@@ -34,6 +34,6 @@ private:
 	size_t _font;
 	size_t _texSelection;
 	std::shared_ptr<UI::Rating> _rating;
-	std::shared_ptr<UI::TextSource> _mapName;
+	std::shared_ptr<UI::DataSource<std::string>> _mapName;
 	float _padding = 0;
 };

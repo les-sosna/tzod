@@ -22,7 +22,7 @@ MapPreview::MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	AddFront(_rating);
 }
 
-void MapPreview::SetMapName(std::shared_ptr<UI::TextSource> mapName)
+void MapPreview::SetMapName(std::shared_ptr<UI::DataSource<std::string>> mapName)
 {
 	_mapName = std::move(mapName);
 }
@@ -31,7 +31,7 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 {
 	if (_mapName)
 	{
-		const World &world = _mapCache.GetCachedWorld(_fs, _mapName->GetText(sc));
+		const World &world = _mapCache.GetCachedWorld(_fs, _mapName->GetValue(sc));
 
 		vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
 		vec2d pxViewSize = lc.GetPixelSize() - pxPadding * 2;
@@ -51,7 +51,7 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			false  // nightMode
 		);
 
-		dc.DrawBitmapText(Vec2dFloor(lc.GetPixelSize() / 2), lc.GetScale(), _font, 0xffffffff, _mapName->GetText(sc), alignTextCC);
+		dc.DrawBitmapText(Vec2dFloor(lc.GetPixelSize() / 2), lc.GetScale(), _font, 0xffffffff, _mapName->GetValue(sc), alignTextCC);
 	}
 
 	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());

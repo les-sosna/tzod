@@ -1,10 +1,11 @@
 #pragma once
 #include <memory>
+#include <string>
 
 class ConfVarString;
 namespace UI
 {
-	struct TextSource;
+	template<class T> struct DataSource;
 }
 
-std::shared_ptr<UI::TextSource> ConfBind(ConfVarString &confString);
+std::shared_ptr<UI::DataSource<std::string>> ConfBind(ConfVarString &confString);

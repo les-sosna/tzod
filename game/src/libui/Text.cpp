@@ -25,12 +25,12 @@ void Text::SetFont(TextureManager &texman, const char *fontName)
 	_fontTexture = texman.FindSprite(fontName);
 }
 
-void Text::SetFontColor(std::shared_ptr<ColorSource> color)
+void Text::SetFontColor(std::shared_ptr<DataSource<SpriteColor>> color)
 {
 	_fontColor = std::move(color);
 }
 
-void Text::SetText(std::shared_ptr<TextSource> text)
+void Text::SetText(std::shared_ptr<DataSource<std::string>> text)
 {
 	_text = std::move(text);
 }
@@ -39,7 +39,7 @@ void Text::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 {
 	if (_text)
 	{
-		dc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture, _fontColor ? _fontColor->GetColor(sc) : 0xffffffff, _text->GetText(sc), _align);
+		dc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture, _fontColor ? _fontColor->GetValue(sc) : 0xffffffff, _text->GetValue(sc), _align);
 	}
 }
 
@@ -51,7 +51,7 @@ vec2d Text::GetContentSize(TextureManager &texman, const StateContext &sc, float
 	unsigned int lineCount = 1;
 	unsigned  maxline = 0;
 	size_t count = 0;
-	const std::string &text = _text->GetText(sc);
+	const std::string &text = _text->GetValue(sc);
 	for( size_t n = 0; n != text.size(); ++n )
 	{
 		if( '\n' == text[n] )

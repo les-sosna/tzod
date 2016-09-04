@@ -4,8 +4,7 @@
 
 namespace UI
 {
-struct ColorSource;
-struct TextSource;
+template<class T> struct DataSource;
 
 class Text : public Window
 {
@@ -14,9 +13,9 @@ public:
 
 	void SetAlign(enumAlignText align);
 	void SetFont(TextureManager &texman, const char *fontName);
-	void SetFontColor(std::shared_ptr<ColorSource> color);
+	void SetFontColor(std::shared_ptr<DataSource<SpriteColor>> color);
 
-	void SetText(std::shared_ptr<TextSource> text);
+	void SetText(std::shared_ptr<DataSource<std::string>> text);
 
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
@@ -25,8 +24,8 @@ public:
 private:
 	enumAlignText  _align;
 	size_t         _fontTexture;
-	std::shared_ptr<ColorSource> _fontColor;
-	std::shared_ptr<TextSource> _text;
+	std::shared_ptr<DataSource<SpriteColor>> _fontColor;
+	std::shared_ptr<DataSource<std::string>> _text;
 };
 
 } // namespace UI

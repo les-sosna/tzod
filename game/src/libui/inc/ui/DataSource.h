@@ -8,24 +8,25 @@ namespace UI
 {
 	class StateContext;
 
-	struct ColorSource
+	template <class ValueType>
+	struct DataSource
 	{
-		virtual SpriteColor GetColor(const StateContext &sc) const = 0;
+		virtual const ValueType& GetValue(const StateContext &sc) const = 0;
 	};
 
-	class StaticColor : public ColorSource
+	class StaticColor : public DataSource<SpriteColor>
 	{
 	public:
 		StaticColor(SpriteColor color) : _color(color) {}
 
-		// ColorSource
-		SpriteColor GetColor(const StateContext &sc) const override;
+		// DataSource<SpriteColor>
+		const SpriteColor& GetValue(const StateContext &sc) const override;
 
 	private:
 		SpriteColor _color;
 	};
 
-	class ColorMap : public ColorSource
+	class ColorMap : public DataSource<SpriteColor>
 	{
 	public:
 		typedef std::map<std::string, SpriteColor> ColorMapType;
@@ -34,8 +35,8 @@ namespace UI
 			, _colorMap(std::move(colorMap))
 		{}
 
-		// ColorSource
-		SpriteColor GetColor(const StateContext &sc) const override;
+		// DataSource<SpriteColor>
+		const SpriteColor& GetValue(const StateContext &sc) const override;
 
 	private:
 		SpriteColor _defaultColor;
@@ -43,30 +44,25 @@ namespace UI
 	};
 
 
-	struct TextSource
-	{
-		virtual const std::string& GetText(const StateContext &sc) const = 0;
-	};
-
-	class StaticText : public TextSource
+	class StaticText : public DataSource<std::string>
 	{
 	public:
 		StaticText(std::string text) : _text(std::move(text)) {}
 
-		// TextSource
-		const std::string& GetText(const StateContext &sc) const override;
+		// DataSource<std::string>
+		const std::string& GetValue(const StateContext &sc) const override;
 
 	private:
 		std::string _text;
 	};
 
-	class ListDataSourceBinding : public TextSource
+	class ListDataSourceBinding : public DataSource<std::string>
 	{
 	public:
 		explicit ListDataSourceBinding(int column): _column(column) {}
 
-		// UI::TextSource
-		const std::string& GetText(const StateContext &sc) const override;
+		// DataSource<std::string>
+		const std::string& GetValue(const StateContext &sc) const override;
 
 	private:
 		int _column;
@@ -75,12 +71,12 @@ namespace UI
 
 	namespace DataSourceAliases
 	{
-		inline std::shared_ptr<TextSource> operator"" _txt(const char* str, size_t len)
+		inline std::shared_ptr<DataSource<std::string>> operator"" _txt(const char* str, size_t len)
 		{
 			return std::make_shared<StaticText>(std::string(str, str + len));
 		}
 
-		inline std::shared_ptr<StaticColor> operator"" _rgba(unsigned long long n)
+		inline std::shared_ptr<DataSource<SpriteColor>> operator"" _rgba(unsigned long long n)
 		{
 			assert(n <= 0xffffffff); // The number should fit into 32 bits
 			return std::make_shared<StaticColor>(static_cast<SpriteColor>(n & 0xffffffff));

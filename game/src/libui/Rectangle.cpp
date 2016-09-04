@@ -16,9 +16,9 @@ Rectangle::Rectangle(LayoutManager &manager)
 {
 }
 
-void Rectangle::SetBackColor(std::shared_ptr<ColorSource> color)
+void Rectangle::SetBackColor(std::shared_ptr<DataSource<SpriteColor>> color)
 {
-	_backColor = color;
+	_backColor = std::move(color);
 }
 
 float Rectangle::GetTextureWidth(TextureManager &texman) const
@@ -64,7 +64,7 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				dc.DrawSprite(client, _texture, _backColor->GetColor(sc), _frame);
+				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), _frame);
 			}
 			else
 			{
@@ -87,14 +87,14 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 					client.right = client.left + newWidth;
 				}
 
-				dc.DrawSprite(client, _texture, _backColor->GetColor(sc), _frame);
+				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), _frame);
 
 				dc.PopClippingRect();
 			}
 		}
 		if (_drawBorder)
 		{
-			dc.DrawBorder(dst, _texture, _borderColor->GetColor(sc), _frame);
+			dc.DrawBorder(dst, _texture, _borderColor->GetValue(sc), _frame);
 		}
 	}
 }

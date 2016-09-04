@@ -3,18 +3,18 @@
 
 namespace UI
 {
-	struct ColorSource;
+	template<class T> struct DataSource;
 
 	class Rectangle : public Window
 	{
 	public:
 		explicit Rectangle(LayoutManager &manager);
 
-		void SetBackColor(std::shared_ptr<ColorSource> color);
-		const ColorSource& GetBackColor() const { return *_backColor; }
+		void SetBackColor(std::shared_ptr<DataSource<SpriteColor>> color);
+		const DataSource<SpriteColor>& GetBackColor() const { return *_backColor; }
 
-		void SetBorderColor(std::shared_ptr<ColorSource> color) { _borderColor = color; }
-		const ColorSource& GetBorderColor() const { return *_borderColor; }
+		void SetBorderColor(std::shared_ptr<DataSource<SpriteColor>> color) { _borderColor = color; }
+		const DataSource<SpriteColor>& GetBorderColor() const { return *_borderColor; }
 
 		void SetDrawBorder(bool enable) { _drawBorder = enable; }
 		bool GetDrawBorder() const { return _drawBorder; }
@@ -34,8 +34,8 @@ namespace UI
 		void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 
 	private:
-		std::shared_ptr<ColorSource> _backColor;
-		std::shared_ptr<ColorSource> _borderColor;
+		std::shared_ptr<DataSource<SpriteColor>> _backColor;
+		std::shared_ptr<DataSource<SpriteColor>> _borderColor;
 		size_t _texture = -1;
 		StretchMode _textureStretchMode = StretchMode::Stretch;
 		unsigned int _frame = 0;

@@ -7,7 +7,7 @@ class WorldView;
 
 namespace UI
 {
-	struct TextSource;
+	template<class T> struct DataSource;
 }
 
 class GameClassVis : public UI::Window
@@ -15,7 +15,7 @@ class GameClassVis : public UI::Window
 public:
 	GameClassVis(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView);
 
-	void SetGameClass(std::shared_ptr<UI::TextSource> className);
+	void SetGameClass(std::shared_ptr<UI::DataSource<std::string>> className);
 
 	// UI::Window
 	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
@@ -24,5 +24,5 @@ private:
 	WorldView &_worldView;
 	mutable World _world;
 	size_t _texSelection;
-	std::shared_ptr<UI::TextSource> _className;
+	std::shared_ptr<UI::DataSource<std::string>> _className;
 };

@@ -51,7 +51,7 @@ private:
 
 class Rectangle;
 class Text;
-struct TextSource;
+template<class T> struct DataSource;
 
 class Button : public ButtonBase
 {
@@ -60,7 +60,7 @@ public:
 
 	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
 	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
-	void SetText(std::shared_ptr<TextSource> text);
+	void SetText(std::shared_ptr<DataSource<std::string>> text);
 	void SetFont(TextureManager &texman, const char *fontName);
 
 	// Window
@@ -81,7 +81,7 @@ public:
 	explicit TextButton(LayoutManager &manager, TextureManager &texman);
 
 	void SetFont(TextureManager &texman, const char *fontName);
-	void SetText(std::shared_ptr<TextSource> text);
+	void SetText(std::shared_ptr<DataSource<std::string>> text);
 
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
