@@ -16,6 +16,7 @@ protected:
 
 private:
 	size_t _font;
+	size_t _texHighlight;
 	World &_world;
 	Deathmatch &_deathmatch;
 	LangCache &_lang;
