@@ -14,7 +14,6 @@
 #include <sstream>
 #include <iomanip>
 
-
 #define SCORE_POS_NUMBER     16
 #define SCORE_POS_NAME       48
 #define SCORE_POS_SCORE      16 // from the right side
@@ -86,19 +85,19 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 
 	const size_t maxLines = 8;
 
-	float h = ToPx(texman.GetCharHeight(_font) - 1, lc);
+	float pxLineHeight = ToPx(texman.GetCharHeight(_font) - 1, lc);
 	for (size_t i = 0; i < players.size(); ++i)
 	{
 		if (i == maxLines)
 			break;
 
-		vec2d pxOffset = vec2d{ 0, h * (float)i };
+		vec2d pxOffset = vec2d{ 0, pxLineHeight * (float)i };
 		if (players[i]->GetIsHuman())
 		{
 			vec2d lt = ToPx(vec2d{ SCORE_POS_NUMBER, SCORE_NAMES_TOP }, lc) + pxOffset;
 			float pxWidth = lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc) - lt.x;
 			vec2d pxMargin = ToPx(vec2d{ 3, 3 }, lc);
-			FRECT pxRect = MakeRectWH(lt - pxMargin, vec2d{ pxWidth, h } + pxMargin * 2);
+			FRECT pxRect = MakeRectWH(lt - pxMargin, vec2d{ pxWidth, pxLineHeight } + pxMargin * 2);
 			dc.DrawSprite(pxRect, _texHighlight, 0xffffffff, 0);
 			dc.DrawBorder(pxRect, _texHighlight, 0xffffffff, 0);
 		}
@@ -106,7 +105,7 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 
 	for (size_t i = 0; i < players.size(); ++i)
 	{
-		vec2d pxOffset = vec2d{ 0, h * (float)i };
+		vec2d pxOffset = vec2d{ 0, pxLineHeight * (float)i };
 		if( i < maxLines)
 		{
 			dc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, players[i]->GetNick());

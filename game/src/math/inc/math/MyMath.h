@@ -229,6 +229,16 @@ inline float Vec2dDot(const vec2d &a, const vec2d &b)
 	return a.x*b.x + a.y*b.y;
 }
 
+inline vec2d Vec2dMulX(vec2d v, float m)
+{
+	return vec2d{ v.x * m, v.y };
+}
+
+inline vec2d Vec2dMulY(vec2d v, float m)
+{
+	return vec2d{ v.x, v.y * m };
+}
+
 inline bool PtInFRect(const FRECT &rect, const vec2d &pt)
 {
 	return rect.left <= pt.x && pt.x < rect.right &&

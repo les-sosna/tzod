@@ -25,10 +25,11 @@ add_library(ui
 	ListBase.cpp
 	ListBox.cpp
 	MultiColumnListItem.cpp
+	Rating.cpp
+	Rectangle.cpp
 	Scroll.cpp
 	ScrollView.cpp
 	StackLayout.cpp
-	Rectangle.cpp
 	Text.cpp
 	Window.cpp
 
@@ -48,9 +49,10 @@ add_library(ui
 	inc/ui/List.h
 	inc/ui/ListBase.h
 	inc/ui/ListBox.h
-	inc/ui/Pointers.h
-	inc/ui/Rectangle.h
 	inc/ui/MultiColumnListItem.h
+	inc/ui/Pointers.h
+	inc/ui/Rating.h
+	inc/ui/Rectangle.h
 	inc/ui/Scroll.h
 	inc/ui/ScrollView.h
 	inc/ui/StackLayout.h

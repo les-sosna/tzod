@@ -276,6 +276,7 @@ return {
      ["ui/direction"]={left=112, top=0, right=176, bottom=64, xpivot=32, ypivot=32, xframes=1, yframes=1},
      ["ui/target"]={left=192, top=0, right=256, bottom=64, xpivot=32, ypivot=32, xframes=1, yframes=1},
      ["ui/play"]={left=16, top=208, right=96, bottom=256, xpivot=40, ypivot=24, xframes=1, yframes=1, xscale=2, yscale=2},
+     ["ui/star"]={left=96, top=192, right=192, bottom=240, xpivot=24, ypivot=24, xframes=2, yframes=1},
    }
 },
 {
