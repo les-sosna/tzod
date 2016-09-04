@@ -30,7 +30,7 @@ void Text::SetFontColor(std::shared_ptr<DataSource<SpriteColor>> color)
 	_fontColor = std::move(color);
 }
 
-void Text::SetText(std::shared_ptr<DataSource<std::string>> text)
+void Text::SetText(std::shared_ptr<DataSource<const std::string&>> text)
 {
 	_text = std::move(text);
 }

@@ -11,7 +11,7 @@ namespace UI
 	template <class ValueType>
 	struct DataSource
 	{
-		virtual const ValueType& GetValue(const StateContext &sc) const = 0;
+		virtual ValueType GetValue(const StateContext &sc) const = 0;
 	};
 
 	class StaticColor : public DataSource<SpriteColor>
@@ -20,7 +20,7 @@ namespace UI
 		StaticColor(SpriteColor color) : _color(color) {}
 
 		// DataSource<SpriteColor>
-		const SpriteColor& GetValue(const StateContext &sc) const override;
+		SpriteColor GetValue(const StateContext &sc) const override;
 
 	private:
 		SpriteColor _color;
@@ -36,7 +36,7 @@ namespace UI
 		{}
 
 		// DataSource<SpriteColor>
-		const SpriteColor& GetValue(const StateContext &sc) const override;
+		SpriteColor GetValue(const StateContext &sc) const override;
 
 	private:
 		SpriteColor _defaultColor;
@@ -44,24 +44,24 @@ namespace UI
 	};
 
 
-	class StaticText : public DataSource<std::string>
+	class StaticText : public DataSource<const std::string&>
 	{
 	public:
 		StaticText(std::string text) : _text(std::move(text)) {}
 
-		// DataSource<std::string>
+		// DataSource<const std::string&>
 		const std::string& GetValue(const StateContext &sc) const override;
 
 	private:
 		std::string _text;
 	};
 
-	class ListDataSourceBinding : public DataSource<std::string>
+	class ListDataSourceBinding : public DataSource<const std::string&>
 	{
 	public:
 		explicit ListDataSourceBinding(int column): _column(column) {}
 
-		// DataSource<std::string>
+		// DataSource<const std::string&>
 		const std::string& GetValue(const StateContext &sc) const override;
 
 	private:
@@ -71,7 +71,7 @@ namespace UI
 
 	namespace DataSourceAliases
 	{
-		inline std::shared_ptr<DataSource<std::string>> operator"" _txt(const char* str, size_t len)
+		inline std::shared_ptr<DataSource<const std::string&>> operator"" _txt(const char* str, size_t len)
 		{
 			return std::make_shared<StaticText>(std::string(str, str + len));
 		}

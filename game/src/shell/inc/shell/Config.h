@@ -145,6 +145,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 	VAR_INT(sp_tier, 0)
 	VAR_INT(sp_map, 0)
 	VAR_REFLECTION(sp_playerinfo, ConfPlayerLocal)
+	VAR_ARRAY(sp_tierprogress, nullptr)
 
 REFLECTION_END()
 

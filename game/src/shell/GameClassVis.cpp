@@ -15,7 +15,7 @@ GameClassVis::GameClassVis(UI::LayoutManager &manager, TextureManager &texman, W
 {
 }
 
-void GameClassVis::SetGameClass(std::shared_ptr<UI::DataSource<std::string>> className)
+void GameClassVis::SetGameClass(std::shared_ptr<UI::DataSource<const std::string&>> className)
 {
 	_className = std::move(className);
 }

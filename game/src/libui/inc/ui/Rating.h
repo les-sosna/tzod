@@ -3,13 +3,15 @@
 
 namespace UI
 {
+	template <class T> struct DataSource;
+
 	class Rating : public Window
 	{
 	public:
 		Rating(LayoutManager &manager, TextureManager &texman);
 
 		void SetMaxRating(unsigned int maxRating) { _maxRating = maxRating; }
-		void SetRating(unsigned int rating) { _rating = rating; }
+		void SetRating(std::shared_ptr<DataSource<unsigned int>> rating);
 
 		// Window
 		void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
@@ -18,6 +20,6 @@ namespace UI
 	private:
 		size_t _texture;
 		unsigned int _maxRating = 3;
-		unsigned int _rating = 0;
+		std::shared_ptr<DataSource<unsigned int>> _rating;
 	};
 }

@@ -20,7 +20,9 @@ class MapPreview: public UI::Window
 public:
 	MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
 
-	void SetMapName(std::shared_ptr<UI::DataSource<std::string>> mapName);
+	void SetMapName(std::shared_ptr<UI::DataSource<const std::string&>> mapName);
+	void SetRating(std::shared_ptr<UI::DataSource<unsigned int>> rating);
+
 	void SetPadding(float padding) { _padding = padding; }
 
 	// UI::Window
@@ -34,6 +36,6 @@ private:
 	size_t _font;
 	size_t _texSelection;
 	std::shared_ptr<UI::Rating> _rating;
-	std::shared_ptr<UI::DataSource<std::string>> _mapName;
+	std::shared_ptr<UI::DataSource<const std::string&>> _mapName;
 	float _padding = 0;
 };

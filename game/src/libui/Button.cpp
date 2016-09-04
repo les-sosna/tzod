@@ -150,7 +150,7 @@ void Button::SetIcon(LayoutManager &manager, TextureManager &texman, const char 
 	}
 }
 
-void Button::SetText(std::shared_ptr<DataSource<std::string>> text)
+void Button::SetText(std::shared_ptr<DataSource<const std::string&>> text)
 {
 	_text->SetText(std::move(text));
 }
@@ -232,7 +232,7 @@ void TextButton::SetFont(TextureManager &texman, const char *fontName)
 	_text->SetFont(texman, fontName);
 }
 
-void TextButton::SetText(std::shared_ptr<DataSource<std::string>> text)
+void TextButton::SetText(std::shared_ptr<DataSource<const std::string&>> text)
 {
 	_text->SetText(std::move(text));
 }

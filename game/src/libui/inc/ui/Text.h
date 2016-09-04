@@ -15,7 +15,7 @@ public:
 	void SetFont(TextureManager &texman, const char *fontName);
 	void SetFontColor(std::shared_ptr<DataSource<SpriteColor>> color);
 
-	void SetText(std::shared_ptr<DataSource<std::string>> text);
+	void SetText(std::shared_ptr<DataSource<const std::string&>> text);
 
 	// Window
 	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
@@ -25,7 +25,7 @@ private:
 	enumAlignText  _align;
 	size_t         _fontTexture;
 	std::shared_ptr<DataSource<SpriteColor>> _fontColor;
-	std::shared_ptr<DataSource<std::string>> _text;
+	std::shared_ptr<DataSource<const std::string&>> _text;
 };
 
 } // namespace UI

@@ -22,9 +22,14 @@ MapPreview::MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	AddFront(_rating);
 }
 
-void MapPreview::SetMapName(std::shared_ptr<UI::DataSource<std::string>> mapName)
+void MapPreview::SetMapName(std::shared_ptr<UI::DataSource<const std::string&>> mapName)
 {
 	_mapName = std::move(mapName);
+}
+
+void MapPreview::SetRating(std::shared_ptr<UI::DataSource<unsigned int>> rating)
+{
+	_rating->SetRating(std::move(rating));
 }
 
 void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
@@ -74,7 +79,8 @@ FRECT MapPreview::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 {
 	if (_rating.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize() / 2);
+		vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
+		return MakeRectWH(pxPadding, lc.GetPixelSize() / 2);
 	}
 	return UI::Window::GetChildRect(texman, lc, sc, child);
 }

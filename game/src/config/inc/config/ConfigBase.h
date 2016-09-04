@@ -154,6 +154,7 @@ public:
 	ConfVarArray& GetArray(size_t index);
 	ConfVarTable& GetTable(size_t index);
 
+	void      EnsureIndex(size_t index);
 	void      Resize(size_t newSize);
 	size_t    GetSize() const;
 

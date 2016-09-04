@@ -4,12 +4,12 @@
 
 using namespace UI;
 
-const SpriteColor& StaticColor::GetValue(const StateContext &sc) const
+SpriteColor StaticColor::GetValue(const StateContext &sc) const
 {
 	return _color;
 }
 
-const SpriteColor& ColorMap::GetValue(const StateContext &sc) const
+SpriteColor ColorMap::GetValue(const StateContext &sc) const
 {
 	auto found = _colorMap.find(sc.GetState());
 	return _colorMap.end() != found ? found->second : _defaultColor;

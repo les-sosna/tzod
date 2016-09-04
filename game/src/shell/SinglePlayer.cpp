@@ -15,6 +15,7 @@
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
 #include <ui/StackLayout.h>
+#include <ui/StateContext.h>
 #include <ui/Text.h>
 #include <sstream>
 
@@ -22,6 +23,26 @@ static const float c_tileSize = 180;
 static const float c_tileSpacing = 16;
 
 using namespace UI::DataSourceAliases;
+
+namespace
+{
+	class TierProgressBinding : public UI::DataSource<unsigned int>
+	{
+	public:
+		TierProgressBinding(ConfVarArray &tierProgress)
+			: _tierProgress(tierProgress)
+		{}
+
+		unsigned int GetValue(const UI::StateContext &sc) const override
+		{
+			unsigned int index = sc.GetItemIndex();
+			return index < _tierProgress.GetSize() ? _tierProgress.GetNum(index).GetInt() : 0;
+		}
+
+	private:
+		ConfVarArray &_tierProgress;
+	};
+}
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Dialog(manager, texman)
@@ -34,7 +55,8 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	, _description(std::make_shared<UI::StackLayout>(manager))
 	, _enemies(std::make_shared<UI::StackLayout>(manager))
 {
-	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
+	int currentTier = GetCurrentTier(conf, dmCampaign);
+	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(currentTier));
 
 	_tierTitle->SetFont(texman, "font_default");
 	_tierTitle->SetText(ConfBind(tierDesc.title));
@@ -50,6 +72,8 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	mp->Resize(c_tileSize, c_tileSize);
 	mp->SetPadding(c_tileSpacing / 2);
 	mp->SetMapName(std::make_shared<UI::ListDataSourceBinding>(0));
+	conf.sp_tierprogress.EnsureIndex(currentTier);
+	mp->SetRating(std::make_shared<TierProgressBinding>(conf.sp_tierprogress.GetArray(currentTier)));
 
 	_tiles->SetItemTemplate(mp);
 	_tiles->SetFlowDirection(UI::FlowDirection::Horizontal);

@@ -495,6 +495,12 @@ ConfVarTable& ConfVarArray::GetTable(size_t index)
 	return GetVar(index, ConfVar::typeTable).first->AsTable();
 }
 
+void ConfVarArray::EnsureIndex(size_t index)
+{
+	if (index + 1 > GetSize())
+		Resize(index + 1);
+}
+
 void ConfVarArray::Resize(size_t newSize)
 {
 	assert(typeArray == _type);
