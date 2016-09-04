@@ -17,6 +17,7 @@ public:
 
 	// GameContextBase
 	World& GetWorld() override { return *_world; }
+	Gameplay* GetGameplay() override { return nullptr; }
 	void Step(float dt) override;
 
 private:

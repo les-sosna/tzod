@@ -61,14 +61,22 @@ GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
 	}
 
 	_worldController.reset(new WorldController(*_world));
-	_gameplay.reset(new Deathmatch(*_world, *_worldController, _gameEventsBroadcaster));
-	_gameplay->SetFragLimit(settings.fragLimit);
-	_gameplay->SetTimeLimit(settings.timeLimit);
+
+	std::unique_ptr<Deathmatch> gameplay(new Deathmatch(*_world, *_worldController, _gameEventsBroadcaster));
+	gameplay->SetFragLimit(settings.fragLimit);
+	gameplay->SetTimeLimit(settings.timeLimit);
+	_gameplay = std::move(gameplay);
+
 	_scriptHarness.reset(new ScriptHarness(*_world, _scriptMessageBroadcaster));
 }
 
 GameContext::~GameContext()
 {
+}
+
+Gameplay* GameContext::GetGameplay()
+{
+	return _gameplay.get();
 }
 
 void GameContext::Step(float dt)

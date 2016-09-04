@@ -79,10 +79,7 @@ DMCampaign& TzodApp::GetDMCampaign()
 
 void TzodApp::Step(float dt)
 {
-	if (GameContextBase *gc = _impl->appState.GetGameContext())
-	{
-		gc->Step(dt);
-	}
+	_impl->appController.Step(_impl->conf, _impl->dmCampaign, _impl->appState, dt);
 }
 
 void TzodApp::Exit()

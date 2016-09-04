@@ -23,7 +23,7 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, Deathmatch &deathmatch, LangCache &lang)
+ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, const Deathmatch *deathmatch, LangCache &lang)
   : UI::Rectangle(manager)
   , _font(texman.FindSprite("font_default"))
   , _texHighlight(texman.FindSprite("ui/selection"))
@@ -61,10 +61,10 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 		max_score = players[0]->GetScore();
 	}
 
-	if( _deathmatch.GetTimeLimit() > 0 )
+	if( _deathmatch && _deathmatch->GetTimeLimit() > 0 )
 	{
 		std::ostringstream text;
-		int timeleft = int(_deathmatch.GetTimeLimit() - _world.GetTime());
+		int timeleft = int(_deathmatch->GetTimeLimit() - _world.GetTime());
 		if( timeleft > 0 )
 			text << _lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else
@@ -72,10 +72,10 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 		dc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_TIMELIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
 	}
 
-	if( _deathmatch.GetFragLimit() > 0 )
+	if( _deathmatch && _deathmatch->GetFragLimit() > 0 )
 	{
 		std::ostringstream text;
-		int scoreleft = _deathmatch.GetFragLimit() - max_score;
+		int scoreleft = _deathmatch->GetFragLimit() - max_score;
 		if( scoreleft > 0 )
 			text << _lang.score_frags_left.Get() << " " << scoreleft;
 		else

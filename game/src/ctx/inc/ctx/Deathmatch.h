@@ -1,18 +1,10 @@
 #pragma once
+#include "Gameplay.h"
 #include <gc/WorldEvents.h>
 
-class SaveFile;
 class World;
 class WorldController;
 struct GameListener;
-
-struct Gameplay
-{
-	virtual ~Gameplay() {}
-	virtual void Step() = 0;
-	virtual bool IsGameOver() const = 0;
-	virtual void Serialize(SaveFile &f) = 0;
-};
 
 class Deathmatch
 	: public Gameplay
@@ -28,11 +20,11 @@ public:
 	float GetTimeLimit() const { return _timeLimit; }
 	void SetTimeLimit(float timeLimit) { _timeLimit = timeLimit; }
 
-	int GetRating() const;
 
 	// Gameplay
 	void Step() override;
 	bool IsGameOver() const override;
+	int GetRating() const override;
 	void Serialize(SaveFile &f) override;
 
 private:

@@ -74,13 +74,17 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 	_msg = std::make_shared<MessageArea>(manager, texman, _conf, logger);
 	AddFront(_msg);
 
-	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), _gameContext.GetGameplay(), _lang);
+	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext.GetGameplay());
+	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
 
-	_campaignControls = std::make_shared<CampaignControls>(manager, texman, gameContext.GetGameplay());
-	_campaignControls->SetVisible(false);
-	_scoreAndControls->AddFront(_campaignControls);
+	if (deathmatch)
+	{
+		_campaignControls = std::make_shared<CampaignControls>(manager, texman, *deathmatch);
+		_campaignControls->SetVisible(false);
+		_scoreAndControls->AddFront(_campaignControls);
+	}
 
 	_time = std::make_shared<TimeElapsed>(manager, texman, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
 	AddFront(_time);
@@ -153,12 +157,13 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	bool tab = manager.GetInputContext().GetInput().IsKeyPressed(UI::Key::Tab);
-	bool gameOver = _gameContext.GetGameplay().IsGameOver();
+	bool gameOver = _gameContext.GetGameplay() ? _gameContext.GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext.GetWorldController().GetLocalPlayers().empty();
 	for (auto player : _gameContext.GetWorldController().GetLocalPlayers())
 		allDead &= !player->GetVehicle();
 	_score->SetVisible(tab || gameOver || (allDead && _gameContext.GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
-	_campaignControls->SetVisible(gameOver);
+	if (_campaignControls)
+		_campaignControls->SetVisible(gameOver);
 
 	_gameViewHarness.Step(dt);
 
