@@ -143,7 +143,7 @@ static unsigned int GetPointerID(int touchIndex)
     self.singleFingerPan = [[UIPanGestureRecognizer alloc]
                             initWithTarget:self
                             action:@selector(handlePan:)];
-//    self.singleFingerPan.cancelsTouchesInView = NO;
+    self.singleFingerPan.cancelsTouchesInView = NO;
     [self addGestureRecognizer:self.singleFingerPan];
     
     self.multipleTouchEnabled = YES;
@@ -188,8 +188,13 @@ static unsigned int GetPointerID(int touchIndex)
 {
     for (UITouch *touch in touches)
     {
-        assert(_touches.count(touch));
-        auto pointerID = GetPointerID(_touches[touch]);
+        auto it = _touches.find(touch);
+        
+        // Workaround: we may miss touchesBegan due to gesture recognizers
+        if (_touches.end() == it)
+            continue;
+            
+        auto pointerID = GetPointerID(it->second);
         if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
@@ -221,7 +226,11 @@ static unsigned int GetPointerID(int touchIndex)
     for (UITouch *touch in touches)
     {
         auto it = _touches.find(touch);
-        assert(it != _touches.end());
+
+        // Workaround: we may miss touchesBegan due to gesture recognizers
+        if (_touches.end() == it)
+            continue;
+        
         auto pointerID = GetPointerID(it->second);
         if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
@@ -255,7 +264,11 @@ static unsigned int GetPointerID(int touchIndex)
     for (UITouch *touch in touches)
     {
         auto it = _touches.find(touch);
-        assert(it != _touches.end());
+        
+        // Workaround: we may miss touchesBegan due to gesture recognizers
+        if (_touches.end() == it)
+            continue;
+        
         auto pointerID = GetPointerID(it->second);
         if (UI::LayoutManager *sink = _appWindow->GetInputSink())
         {
