@@ -92,7 +92,7 @@ add_library(shell
 )
 
 target_link_libraries(shell
-	app
+	as
 	config
 	loc
 	gc

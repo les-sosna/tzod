@@ -13,8 +13,8 @@
 #include "inc/shell/Desktop.h"
 #include "inc/shell/Profiler.h"
 
+#include <as/AppConstants.h>
 #include <as/AppController.h>
-#include <as/AppCfg.h>
 #include <as/AppState.h>
 #include <ctx/EditorContext.h>
 #include <gc/World.h>
@@ -45,6 +45,7 @@ static CounterBase counterDt("dt", "dt, ms");
 Desktop::Desktop(UI::LayoutManager &manager,
                  TextureManager &texman,
                  AppState &appState,
+                 AppConfig &appConfig,
                  AppController &appController,
                  FS::FileSystem &fs,
                  ConfCache &conf,
@@ -55,6 +56,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
   , AppStateListener(appState)
   , _history(conf)
   , _texman(texman)
+  , _appConfig(appConfig)
   , _appController(appController)
   , _fs(fs)
   , _conf(conf)
@@ -185,17 +187,7 @@ void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child, int result)
 	UnlinkChild(*child);
 	PopNavStack(child.get());
 }
-
-static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
-{
-	PlayerDesc result;
-	result.nick = p.nick.Get();
-	result.cls = p.platform_class.Get();
-	result.skin = p.skin.Get();
-	result.team = p.team.GetInt();
-	return result;
-}
-
+/*
 static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 {
 	DMSettings settings;
@@ -217,27 +209,7 @@ static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
 
 	return settings;
 }
-
-static DMSettings GetCampaignDMSettings(const ConfCache &conf, const DMCampaign &dmCampaign)
-{
-	DMSettings settings;
-
-	settings.players.push_back(GetPlayerDescFromConf(conf.sp_playerinfo));
-
-	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
-	DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(GetCurrentMap(conf, dmCampaign)));
-
-	for (size_t i = 0; i < mapDesc.bot_names.GetSize(); ++i)
-	{
-		ConfPlayerAI p(&dmCampaign.bots.GetTable(mapDesc.bot_names.GetStr(i).Get()));
-		settings.bots.push_back(GetPlayerDescFromConf(p));
-	}
-
-	settings.timeLimit = mapDesc.timelimit.GetFloat() * 60;
-	settings.fragLimit = mapDesc.fraglimit.GetInt();
-
-	return settings;
-}
+*/
 
 void Desktop::OnNewCampaign()
 {
@@ -279,7 +251,7 @@ void Desktop::OnNewDM()
 	if (!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _conf, _lang, _dmCampaign);
+		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);
 		dlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender, result);
@@ -287,10 +259,7 @@ void Desktop::OnNewDM()
 			{
 				try
 				{
-					DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(GetCurrentTier(_conf, _dmCampaign)));
-					DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(GetCurrentMap(_conf, _dmCampaign)));
-
-					_appController.NewGameDM(GetAppState(), mapDesc.map_name.Get(), GetCampaignDMSettings(_conf, _dmCampaign));
+					_appController.StartMapDMCampaign(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
 					ClearNavStack();
 				}
 				catch (const std::exception &e)
@@ -311,7 +280,7 @@ void Desktop::OnNewDM()
 			{
 				try
 				{
-					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
+//					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
 					ClearNavStack();
 				}
 				catch (const std::exception &e)

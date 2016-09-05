@@ -22,6 +22,9 @@ include_directories(
 )
 
 add_library(app
+	inc/app/tzod.h
+	inc/app/View.h
+
 	tzod.cpp
 	View.cpp
 )
@@ -34,8 +37,9 @@ else()
 endif()
 
 target_link_libraries(app
-	video
-	shell
 	as
 	ctx
+	loc
+	shell
+	video
 )

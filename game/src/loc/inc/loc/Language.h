@@ -1,6 +1,12 @@
-#ifndef CONFIG_CACHE_PASS
- #define CONFIG_CACHE_PASS 1
- #pragma once
+// This file is designed to be included twice
+// Do not use pragma once
+
+#if defined(CONFIG_CACHE_PASS2) && !defined(LOC_LANGUAGE_PASS2_INCLUDED) || \
+   !defined(CONFIG_CACHE_PASS2) && !defined(LOC_LANGUAGE_PASS1_INCLUDED)
+#ifdef CONFIG_CACHE_PASS2
+# define LOC_LANGUAGE_PASS2_INCLUDED
+#else
+# define LOC_LANGUAGE_PASS1_INCLUDED
 #endif
 
 #include <config/ConfigCache.h>
@@ -283,3 +289,4 @@ REFLECTION_BEGIN(LangCache)
 
 REFLECTION_END()
 
+#endif

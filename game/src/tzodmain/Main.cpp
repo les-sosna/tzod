@@ -1,6 +1,6 @@
 #include <app/tzod.h>
 #include <app/View.h>
-#include <as/AppCfg.h>
+#include <as/AppConstants.h>
 #include <fs/FileSystem.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>

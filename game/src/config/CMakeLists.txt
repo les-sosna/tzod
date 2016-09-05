@@ -12,6 +12,7 @@ include_directories(
 
 add_library(config
 	ConfigBase.cpp
+	ConfigCache.cpp
 )
 
 target_link_libraries(config

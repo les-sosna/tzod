@@ -14,6 +14,7 @@ namespace UI
 struct EventPump;
 struct AppWindow;
 
+class AppConfig;
 class AppState;
 class AppController;
 class ConfCache;
@@ -28,6 +29,7 @@ public:
 
 	AppState& GetAppState();
 	AppController& GetAppController();
+	AppConfig& GetAppConfig();
 	ConfCache& GetConf();
 	LangCache& GetLang();
 	DMCampaign &GetDMCampaign();

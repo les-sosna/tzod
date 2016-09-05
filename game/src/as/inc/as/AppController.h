@@ -2,22 +2,22 @@
 #include <string>
 
 class AppState;
-class ConfCache;
+class AppConfig;
 class DMCampaign;
-struct DMSettings;
 
 namespace FS
 {
-    class FileSystem;
+	class FileSystem;
 }
 
 class AppController
 {
 public:
-    AppController(FS::FileSystem &fs);
-    void Step(ConfCache &conf, DMCampaign &dmCampaign, AppState &appState, float dt);
-    void NewGameDM(AppState &appState, const std::string &mapName, const DMSettings &settings);
+	AppController(FS::FileSystem &fs);
+	void Step(AppState &appState, AppConfig &appConfig, float dt);
+//    void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
+	void StartMapDMCampaign(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
 
 private:
-    FS::FileSystem &_fs;
+	FS::FileSystem &_fs;
 };

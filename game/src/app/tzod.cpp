@@ -1,4 +1,5 @@
 #include "inc/app/tzod.h"
+#include <as/AppConfig.h>
 #include <as/AppController.h>
 #include <as/AppState.h>
 #include <ctx/GameContextBase.h>
@@ -16,6 +17,7 @@ struct TzodAppImpl
 		: appController(fs)
 	{}
 
+	AppConfig appConfig;
 	ConfCache conf;
 	DMCampaign dmCampaign;
 	LangCache lang;
@@ -62,6 +64,11 @@ AppController& TzodApp::GetAppController()
 	return _impl->appController;
 }
 
+AppConfig& TzodApp::GetAppConfig()
+{
+	return _impl->appConfig;
+}
+
 ConfCache& TzodApp::GetConf()
 {
 	return _impl->conf;
@@ -79,7 +86,7 @@ DMCampaign& TzodApp::GetDMCampaign()
 
 void TzodApp::Step(float dt)
 {
-	_impl->appController.Step(_impl->conf, _impl->dmCampaign, _impl->appState, dt);
+	_impl->appController.Step(_impl->appState, _impl->appConfig, dt);
 }
 
 void TzodApp::Exit()

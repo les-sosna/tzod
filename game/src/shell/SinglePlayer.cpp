@@ -29,22 +29,32 @@ namespace
 	class TierProgressBinding : public UI::DataSource<unsigned int>
 	{
 	public:
-		TierProgressBinding(ConfVarArray &tierProgress)
-			: _tierProgress(tierProgress)
+		TierProgressBinding(unsigned int tier, ConfVarArray &tiersProgress)
+			: _tier(tier)
+			, _tiersProgress(tiersProgress)
 		{}
 
 		unsigned int GetValue(const UI::StateContext &sc) const override
 		{
-			unsigned int index = sc.GetItemIndex();
-			return index < _tierProgress.GetSize() ? _tierProgress.GetNum(index).GetInt() : 0;
+			if (_tier < _tiersProgress.GetSize())
+			{
+				ConfVarArray &tierProgress = _tiersProgress.GetArray(_tier);
+				unsigned int index = sc.GetItemIndex();
+				return index < tierProgress.GetSize() ? tierProgress.GetNum(index).GetInt() : 0;
+			}
+			else
+			{
+				return 0;
+			}
 		}
 
 	private:
-		ConfVarArray &_tierProgress;
+		unsigned int _tier;
+		ConfVarArray &_tiersProgress; // array of arrays
 	};
 }
 
-SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign)
+SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Dialog(manager, texman)
 	, _conf(conf)
 	, _lang(lang)
@@ -72,8 +82,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	mp->Resize(c_tileSize, c_tileSize);
 	mp->SetPadding(c_tileSpacing / 2);
 	mp->SetMapName(std::make_shared<UI::ListDataSourceBinding>(0));
-	conf.sp_tierprogress.EnsureIndex(currentTier);
-	mp->SetRating(std::make_shared<TierProgressBinding>(conf.sp_tierprogress.GetArray(currentTier)));
+	mp->SetRating(std::make_shared<TierProgressBinding>(currentTier, appConfig.sp_tiersprogress));
 
 	_tiles->SetItemTemplate(mp);
 	_tiles->SetFlowDirection(UI::FlowDirection::Horizontal);
@@ -107,7 +116,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_content->AddFront(playerInfo);
 
 	auto playerView = std::make_shared<PlayerView>(manager, texman);
-	playerView->SetPlayerConfig(conf.sp_playerinfo, texman);
+	playerView->SetPlayerConfig(appConfig.sp_playerinfo, texman);
 	playerView->Resize(64, 64);
 	playerInfo->AddFront(playerView);
 

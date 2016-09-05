@@ -1,7 +1,6 @@
 #include <config/ConfigBase.h>
 
-// first time include it to define the structure
-#define CONFIG_CACHE_PASS 1
+// first pass to define the structure
 #include "inc/shell/Config.h"
 
 static void InitProfiles(ConfVarTable &profiles)
@@ -31,9 +30,14 @@ static void InitLobbyList(ConfVarArray &lobby_servers)
 }
 
 // second time include it to implement initialize function
-#define CONFIG_CACHE_PASS 2
+#define CONFIG_CACHE_PASS2
 #include "inc/shell/Config.h"
+#undef CONFIG_CACHE_PASS2
 
+/////////////////////////////////////////////
+// Utility access functions
+
+#include <as/AppConfig.h>
 #include <algorithm>
 
 int GetCurrentTier(const ConfCache &conf, const DMCampaign &dmCampaign)

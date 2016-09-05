@@ -13,7 +13,9 @@
 #define AI_MAX_LEVEL   4U
 
 
-GameContext::GameContext(FS::Stream &map, const DMSettings &settings)
+GameContext::GameContext(FS::Stream &map, const DMSettings &settings, int campaignTier, int campaignMap)
+	: _campaignTier(campaignTier)
+	, _campaignMap(campaignMap)
 {
 	MapFile file(map, false);
 

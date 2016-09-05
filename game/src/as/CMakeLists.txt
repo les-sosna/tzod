@@ -6,6 +6,7 @@ if(APPLE)
 endif()
 
 include_directories(
+	${Config_SOURCE_DIR}/inc
 	${Ctx_SOURCE_DIR}/inc
 #	${AI_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
@@ -16,12 +17,20 @@ include_directories(
 )
 
 add_library(as
+	inc/as/AppConfig.h
+	inc/as/AppConstants.h
+	inc/as/AppController.h
+	inc/as/AppState.h
+	inc/as/AppStateListener.h
+
+	AppConfig.cpp
 	AppController.cpp
 	AppState.cpp
 	AppStateListener.cpp
 )
 
 target_link_libraries(as
+	config
 	ctx
 	filesystem
 )

@@ -1,14 +1,16 @@
 // This file is designed to be included twice
 // Do not use pragma once
 
-
-#ifndef CONFIG_CACHE_PASS
- #define CONFIG_CACHE_PASS 1
- #pragma once
+#if defined(CONFIG_CACHE_PASS2) && !defined(SHELL_CONFIG_PASS2_INCLUDED) || \
+   !defined(CONFIG_CACHE_PASS2) && !defined(SHELL_CONFIG_PASS1_INCLUDED)
+#ifdef CONFIG_CACHE_PASS2
+# define SHELL_CONFIG_PASS2_INCLUDED
+#else
+# define SHELL_CONFIG_PASS1_INCLUDED
 #endif
 
+#include <as/AppConfig.h>
 #include <config/ConfigCache.h>
-
 
 REFLECTION_BEGIN(ConfControllerProfile)
 	VAR_STR(key_forward,      "W")
@@ -25,41 +27,6 @@ REFLECTION_BEGIN(ConfControllerProfile)
 	VAR_BOOL(aim_to_mouse,   true)
 	VAR_BOOL(move_to_mouse, false)
 	VAR_BOOL(arcade_style,   true)
-REFLECTION_END()
-
-REFLECTION_BEGIN(ConfPlayerBase)
-	VAR_STR(nick, "Player")
-	VAR_INT(team,         0)
-	VAR_STR(skin, "neutral")
-	VAR_STR(platform_class, "default")
-REFLECTION_END()
-
-REFLECTION_BEGIN_(ConfPlayerLocal, ConfPlayerBase)
-	VAR_STR(profile,   "")
-REFLECTION_END()
-
-REFLECTION_BEGIN_(ConfPlayerAI, ConfPlayerBase)
-	VAR_INT(level,  2)
-REFLECTION_END()
-
-///////////////////////////////////////////////////////////////////////////////
-// single player campaign
-
-REFLECTION_BEGIN(DMCampaignMapDesc)
-	VAR_STR(map_name, "")
-	VAR_FLOAT(timelimit, 10)  HELPSTRING("minutes")
-	VAR_INT(fraglimit, 10)
-	VAR_ARRAY(bot_names, nullptr)
-REFLECTION_END()
-
-REFLECTION_BEGIN(DMCampaignTier)
-	VAR_STR(title, "")
-	VAR_ARRAY(maps, nullptr)
-REFLECTION_END()
-
-REFLECTION_BEGIN(DMCampaign)
-	VAR_ARRAY(tiers, nullptr)
-	VAR_TABLE(bots, nullptr)
 REFLECTION_END()
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -144,11 +111,11 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 
 	VAR_INT(sp_tier, 0)
 	VAR_INT(sp_map, 0)
-	VAR_REFLECTION(sp_playerinfo, ConfPlayerLocal)
-	VAR_ARRAY(sp_tierprogress, nullptr)
 
 REFLECTION_END()
 
+class DMCampaign;
 int GetCurrentTier(const ConfCache &conf, const DMCampaign &dmCampaign);
 int GetCurrentMap(const ConfCache &conf, const DMCampaign &dmCampaign);
 
+#endif

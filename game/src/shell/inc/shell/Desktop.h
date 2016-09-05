@@ -20,6 +20,7 @@ namespace UI
 	class Button;
 }
 
+class AppConfig;
 class AppController;
 class MainMenuDlg;
 class EditorLayout;
@@ -37,6 +38,7 @@ public:
 	Desktop(UI::LayoutManager &manager,
 	        TextureManager &texman,
 	        AppState &appState,
+	        AppConfig &appConfig,
 	        AppController &appController,
 	        FS::FileSystem &fs,
 	        ConfCache &conf,
@@ -57,6 +59,7 @@ protected:
 private:
 	ConfigConsoleHistory  _history;
 	TextureManager &_texman;
+	AppConfig &_appConfig;
 	AppController &_appController;
 	FS::FileSystem &_fs;
 	ConfCache &_conf;

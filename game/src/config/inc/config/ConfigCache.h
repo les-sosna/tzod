@@ -6,11 +6,10 @@
 #include <cassert>
 
 
-#if CONFIG_CACHE_PASS == 1
+#ifndef CONFIG_CACHE_PASS2
 
-// pass one may be included several times as part of different headers so we need guard here
-#ifndef CONFIG_CACHE_PASS_ONE_INCLUDED
-#define CONFIG_CACHE_PASS_ONE_INCLUDED
+#ifndef CONFIG_CACHE_PASS1_INCLUDED
+#define CONFIG_CACHE_PASS1_INCLUDED
 
 namespace config_detail
 {
@@ -77,7 +76,12 @@ namespace config_detail
 #endif //CONFIG_CACHE_PASS_ONE_INCLUDED
 
 ///////////////////////////////////////////////////////////////////////////////
-#elif CONFIG_CACHE_PASS == 2
+#else // CONFIG_CACHE_PASS2
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef CONFIG_CACHE_PASS2_INCLUDED
+#define CONFIG_CACHE_PASS2_INCLUDED
+
 
 #undef NO_HELP
 #undef HELPSTRING
@@ -97,76 +101,14 @@ namespace config_detail
  #undef VAR_REFLECTION
 #undef REFLECTION_END
 
-static ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type, const char *help = nullptr)
-{
-//	if( type )
-//	{
-//		ConfVarNumber::NumberMeta meta;
-//		meta.type = type;
-//		var->SetMeta(&meta);
-//	}
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax, const char *help = nullptr)
-{
-//	ConfVarNumber::NumberMeta meta;
-//	meta.type = "integer";
-//	meta.fMin = (float) iMin;
-//	meta.fMax = (float) iMax;
-//	var->SetMeta(&meta);
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarNumber& InitFloat(ConfVarNumber &var, const char *help = nullptr)
-{
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarBool& InitBool(ConfVarBool &var, const char *help = nullptr)
-{
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarArray& InitArray(ConfVarArray &var, const char *help = nullptr)
-{
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarTable& InitTable(ConfVarTable &var, const char *help = nullptr)
-{
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax, const char *help = nullptr)
-{
-//	ConfVarNumber::NumberMeta meta;
-//	meta.type = "float";
-//	meta.fMin = fMin;
-//	meta.fMax = fMax;
-//	var->SetMeta(&meta);
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
-static ConfVarString& InitStrType(ConfVarString &var, const char *type, const char *help = nullptr)
-{
-//	if( type )
-//	{
-//		ConfVarString::StringMeta meta;
-//		meta.type = type;
-//		var->SetMeta(&meta);
-//	}
-//	if( help ) var->SetHelpString(help);
-	return var;
-}
-
+ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type, const char *help = nullptr);
+ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax, const char *help = nullptr);
+ConfVarNumber& InitFloat(ConfVarNumber &var, const char *help = nullptr);
+ConfVarBool& InitBool(ConfVarBool &var, const char *help = nullptr);
+ConfVarArray& InitArray(ConfVarArray &var, const char *help = nullptr);
+ConfVarTable& InitTable(ConfVarTable &var, const char *help = nullptr);
+ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax, const char *help = nullptr);
+ConfVarString& InitStrType(ConfVarString &var, const char *type, const char *help = nullptr);
 
 #define HELPSTRING(h)     ,(h)
 
@@ -187,11 +129,5 @@ static ConfVarString& InitStrType(ConfVarString &var, const char *type, const ch
 
 #define REFLECTION_END()                    )) { if (freeze) _root->Freeze(true); }
 
-#else
- #error define CONFIG_CACHE_PASS as 1 or 2 before including this file
-#endif
-
-#undef CONFIG_CACHE_PASS
-
-
-// end of file
+#endif // CONFIG_CACHE_PASS2_INCLUDED
+#endif // CONFIG_CACHE_PASS2

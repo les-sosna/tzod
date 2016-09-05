@@ -1,6 +1,6 @@
 #include "inc/app/View.h"
 #include "inc/app/tzod.h"
-#include <as/AppCfg.h>
+#include <as/AppConstants.h>
 #include <fs/FileSystem.h>
 #include <shell/Desktop.h>
 #include <ui/AppWindow.h>
@@ -47,6 +47,7 @@ struct TzodViewImpl
 			gui,
 			textureManager,
 			app.GetAppState(),
+			app.GetAppConfig(),
 			app.GetAppController(),
 			fs,
 			app.GetConf(),
