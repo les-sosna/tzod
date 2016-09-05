@@ -245,6 +245,12 @@ inline bool PtInFRect(const FRECT &rect, const vec2d &pt)
 		rect.top <= pt.y && pt.y < rect.bottom;
 }
 
+inline bool PtOnFRect(const FRECT &rect, const vec2d &pt)
+{
+	return rect.left <= pt.x && pt.x <= rect.right &&
+		rect.top <= pt.y && pt.y <= rect.bottom;
+}
+
 inline bool PtInRect(const RectRB &rect, int x, int y)
 {
 	return rect.left <= x && x < rect.right &&

@@ -12,7 +12,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 {
-	ED_ITEM( "trigger", "obj_trigger", 6 );
+	ED_ITEM( "trigger", "obj_trigger", 6 /*layer*/ );
 	return true;
 }
 

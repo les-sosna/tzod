@@ -192,7 +192,7 @@ void GC_Pickup::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 {
-	ED_ITEM( "pu_health", "obj_health", 4 );
+	ED_ITEM( "pu_health", "obj_health", 4 /*layer*/ );
 	return true;
 }
 
@@ -225,7 +225,7 @@ void GC_pu_Health::OnAttached(World &world, GC_Vehicle &vehicle)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Mine)
 {
-	ED_ITEM( "pu_mine", "obj_mine", 5 );
+	ED_ITEM( "pu_mine", "obj_mine", 5 /*layer*/ );
 	return true;
 }
 
@@ -255,7 +255,7 @@ void GC_pu_Mine::OnAttached(World &world, GC_Vehicle &vehicle)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shield)
 {
-	ED_ITEM( "pu_shield", "obj_shield", 4 );
+	ED_ITEM( "pu_shield", "obj_shield", 4 /*layer*/ );
 	return true;
 }
 
@@ -351,7 +351,7 @@ void GC_pu_Shield::Serialize(World &world, SaveFile &f)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 {
-	ED_ITEM( "pu_shock", "obj_shock", 4 );
+	ED_ITEM( "pu_shock", "obj_shock", 4 /*layer*/ );
 	return true;
 }
 
@@ -506,7 +506,7 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 {
-	ED_ITEM( "pu_booster", "obj_booster", 4 );
+	ED_ITEM( "pu_booster", "obj_booster", 4 /*layer*/ );
 	return true;
 }
 

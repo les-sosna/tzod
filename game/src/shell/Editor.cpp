@@ -51,24 +51,14 @@ static bool PtInPickup(const GC_Pickup &pickup, vec2d delta)
 	return true;
 }
 
-static bool PtInDefaultRadius(vec2d delta)
-{
-	float r = 8;
-	if (Vec2dDot(delta, delta) > r*r)
-		return false;
-	return true;
-}
 
-static bool PtInActor(const GC_Actor &actor, vec2d pt)
+static bool PtOnActor(const GC_Actor &actor, vec2d pt)
 {
 	vec2d delta = pt - actor.GetPos();
-	if (PtInDefaultRadius(delta))
-		return true;
 	if (auto rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
 		return PtInRigidBody(*rbs, delta);
-	if (auto pickup = dynamic_cast<const GC_Pickup*>(&actor))
-		return PtInPickup(*pickup, delta);
-	return false;
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
+	return PtOnFRect(MakeRectRB(-halfSize, halfSize), delta);
 }
 
 GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
@@ -89,15 +79,15 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 		ObjectList *ls = *rit;
 		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			auto *object = static_cast<GC_Actor*>(ls->at(it));
-			if (PtInActor(*object, pt))
+			auto actor = static_cast<GC_Actor*>(ls->at(it));
+			if (RTTypes::Inst().IsRegistered(actor->GetType()) && PtOnActor(*actor, pt))
 			{
 				enumZOrder maxZ = Z_NONE;
-				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*object, true, false) )
+				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*actor, true, false) )
 				{
 					for (auto &view: *views)
 					{
-						maxZ = std::max(maxZ, view.zfunc->GetZ(world, *object));
+						maxZ = std::max(maxZ, view.zfunc->GetZ(world, *actor));
 					}
 				}
 
@@ -105,10 +95,10 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 				{
 					for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 					{
-						if( object->GetType() == RTTypes::Inst().GetTypeByIndex(i)
+						if( actor->GetType() == RTTypes::Inst().GetTypeByIndex(i)
 							&& (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
 						{
-							zLayers[maxZ] = object;
+							zLayers[maxZ] = actor;
 						}
 					}
 				}
@@ -465,15 +455,6 @@ void EditorLayout::OnChangeUseLayers()
 static FRECT GetSelectionRect(const GC_Actor &actor)
 {
 	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
-	if (halfSize.sqr() < 16*16*2 - 1)
-	{
-		if (auto *pickup = dynamic_cast<const GC_Pickup*>(&actor))
-			halfSize = { pickup->GetRadius(), pickup->GetRadius() };
-		else if (auto *rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
-			halfSize = { rbs->GetRadius(), rbs->GetRadius() };
-		else
-			halfSize = { 16, 16 };
-	}
 	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
 }
 

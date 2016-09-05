@@ -75,7 +75,7 @@ void GC_Light::SetActive(bool activate)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 {
-	ED_ITEM( "spotlight", "obj_spotlight", 3 );
+	ED_ITEM( "spotlight", "obj_spotlight", 3 /*layer*/ );
 	return true;
 }
 

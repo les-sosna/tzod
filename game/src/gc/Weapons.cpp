@@ -20,7 +20,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_RocketLauncher)
 {
-	ED_ITEM("weap_rockets", "obj_weap_rockets", 4);
+	ED_ITEM("weap_rockets", "obj_weap_rockets", 4 /*layer*/ );
 	return true;
 }
 
@@ -84,7 +84,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_AutoCannon)
 {
-	ED_ITEM( "weap_autocannon", "obj_weap_autocannon", 4 );
+	ED_ITEM( "weap_autocannon", "obj_weap_autocannon", 4 /*layer*/ );
 	return true;
 }
 
@@ -159,7 +159,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Cannon)
 {
-	ED_ITEM( "weap_cannon", "obj_weap_cannon", 4 );
+	ED_ITEM( "weap_cannon", "obj_weap_cannon", 4 /*layer*/ );
 	return true;
 }
 
@@ -239,7 +239,7 @@ void GC_Weap_Cannon::TimeStep(World &world, float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Plazma)
 {
-	ED_ITEM( "weap_plazma", "obj_weap_plazma", 4 );
+	ED_ITEM( "weap_plazma", "obj_weap_plazma", 4 /*layer*/ );
 	return true;
 }
 
@@ -280,7 +280,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Gauss)
 {
-	ED_ITEM( "weap_gauss", "obj_weap_gauss", 4 );
+	ED_ITEM( "weap_gauss", "obj_weap_gauss", 4 /*layer*/ );
 	return true;
 }
 
@@ -325,7 +325,7 @@ void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ram)
 {
-	ED_ITEM( "weap_ram", "obj_weap_ram", 4 );
+	ED_ITEM( "weap_ram", "obj_weap_ram", 4 /*layer*/ );
 	return true;
 }
 
@@ -519,7 +519,7 @@ void GC_Weap_Ram::TimeStep(World &world, float dt)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_BFG)
 {
-	ED_ITEM( "weap_bfg", "obj_weap_bfg", 4 );
+	ED_ITEM( "weap_bfg", "obj_weap_bfg", 4 /*layer*/ );
 	return true;
 }
 
@@ -562,7 +562,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Ripper)
 {
-	ED_ITEM( "weap_ripper", "obj_weap_ripper", 4 );
+	ED_ITEM( "weap_ripper", "obj_weap_ripper", 4 /*layer*/ );
 	return true;
 }
 
@@ -604,7 +604,7 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Minigun)
 {
-	ED_ITEM( "weap_minigun", "obj_weap_minigun", 4 );
+	ED_ITEM( "weap_minigun", "obj_weap_minigun", 4 /*layer*/ );
 	return true;
 }
 
@@ -683,7 +683,7 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Weap_Zippo)
 {
-	ED_ITEM( "weap_zippo", "obj_weap_zippo", 4 );
+	ED_ITEM( "weap_zippo", "obj_weap_zippo", 4 /*layer*/);
 	return true;
 }
 

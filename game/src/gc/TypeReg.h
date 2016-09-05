@@ -14,8 +14,8 @@
 	(name), (desc), (layer), (width), (height), (align), (offset) )
 
 #define ED_ITEM(name, desc, layer) ED_ACTOR(name, desc, layer, \
-	2 /*width*/, \
-	2 /*height*/, \
+	32 /*width*/, \
+	32 /*height*/, \
 	CELL_SIZE/2 /*align*/, \
 	0 /*offset*/)
 
