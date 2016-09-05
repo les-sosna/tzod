@@ -25,6 +25,8 @@ add_library(app
 	inc/app/tzod.h
 	inc/app/View.h
 
+	CombinedConfig.cpp
+	CombinedConfig.h
 	tzod.cpp
 	View.cpp
 )

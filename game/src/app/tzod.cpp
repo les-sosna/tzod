@@ -1,4 +1,5 @@
 #include "inc/app/tzod.h"
+#include "CombinedConfig.h"
 #include <as/AppConfig.h>
 #include <as/AppController.h>
 #include <as/AppState.h>
@@ -17,8 +18,7 @@ struct TzodAppImpl
 		: appController(fs)
 	{}
 
-	AppConfig appConfig;
-	ConfCache conf;
+	CombinedConfig combinedConfig;
 	DMCampaign dmCampaign;
 	LangCache lang;
 	AppState appState;
@@ -44,7 +44,7 @@ TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger)
 	: _logger(logger)
 	, _impl(new TzodAppImpl(fs))
 {
-	LoadConfigNoThrow(_impl->conf, logger, FILE_CONFIG),
+	LoadConfigNoThrow(_impl->combinedConfig, logger, FILE_CONFIG),
 	LoadConfigNoThrow(_impl->lang, logger, FILE_LANGUAGE),
 	LoadConfigNoThrow(_impl->dmCampaign, logger, FILE_DMCAMPAIGN),
 	setlocale(LC_CTYPE, _impl->lang.c_locale.Get().c_str());
@@ -66,12 +66,12 @@ AppController& TzodApp::GetAppController()
 
 AppConfig& TzodApp::GetAppConfig()
 {
-	return _impl->appConfig;
+	return _impl->combinedConfig.game;
 }
 
 ConfCache& TzodApp::GetConf()
 {
-	return _impl->conf;
+	return _impl->combinedConfig.shell;
 }
 
 LangCache& TzodApp::GetLang()
@@ -86,13 +86,13 @@ DMCampaign& TzodApp::GetDMCampaign()
 
 void TzodApp::Step(float dt)
 {
-	_impl->appController.Step(_impl->appState, _impl->appConfig, dt);
+	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt);
 }
 
 void TzodApp::Exit()
 {
 	_logger.Printf(0, "Saving config to '" FILE_CONFIG "'");
-	if (!_impl->conf->Save(FILE_CONFIG))
+	if (!_impl->combinedConfig->Save(FILE_CONFIG))
 	{
 		_logger.Printf(1, "Failed to save config file");
 	}
