@@ -580,14 +580,15 @@ bool ConfVarArray::Write(FILE *file, int indent) const
 	{
 		if( delim ) fprintf(file, ",\n");
 		for( int n = 0; n < indent; ++n )
-		{
 			fprintf(file, "  ");
-		}
 		delim = true;
 		if( !GetAt(i).Write(file, indent+1) )
 			return false;
 	}
-	fprintf(file, "\n}");
+	fprintf(file, "\n");
+	for (int n = 0; n < indent - 1; ++n)
+		fprintf(file, "  ");
+	fprintf(file, "}");
 	return true;
 }
 
@@ -880,7 +881,8 @@ bool ConfVarTable::Rename(const std::string &oldName, std::string newName)
 
 bool ConfVarTable::Write(FILE *file, int indent) const
 {
-	if( indent ) fprintf(file, "{%s\n", GetHelpString().empty() ? "" : (std::string(" -- ") + GetHelpString()).c_str());
+	if( indent )
+		fprintf(file, "{%s\n", GetHelpString().empty() ? "" : (std::string(" -- ") + GetHelpString()).c_str());
 
 	for( auto it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
 	{
