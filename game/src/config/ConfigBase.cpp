@@ -153,10 +153,10 @@ ConfVarTable& ConfVar::AsTable()
 	return static_cast<ConfVarTable&>(*this);
 }
 
-bool ConfVar::Write(FILE *, int) const
+bool ConfVar::Write(FILE *file, int indent) const
 {
-	assert(false);
-	return false;
+	fprintf(file, "nil");
+	return true;
 }
 
 bool ConfVar::Assign(lua_State *)
