@@ -38,6 +38,6 @@ vec2d Rating::GetContentSize(TextureManager &texman, const StateContext &sc, flo
 {
 	auto &spriteInfo = texman.GetSpriteInfo(_texture);
 	vec2d spriteSize = { spriteInfo.pxFrameWidth, spriteInfo.pxFrameHeight };
-	return Vec2dMulX(spriteSize, (float) _maxRating);
+	return Vec2dMulX(ToPx(spriteSize, scale), (float) _maxRating);
 }
 
