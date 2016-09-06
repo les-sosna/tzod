@@ -3,6 +3,7 @@
 #include "PropertyList.h"
 #include "GameClassVis.h"
 #include "inc/shell/Config.h"
+#include <ctx/EditorContext.h>
 #include <gc/Object.h>
 #include <gc/Pickup.h>
 #include <gc/RigidBody.h>
@@ -118,7 +119,7 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 
 EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            TextureManager &texman,
-                           World &world,
+                           EditorContext &editorContext,
                            WorldView &worldView,
                            ConfCache &conf,
                            LangCache &lang,
@@ -127,11 +128,12 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
+  , _defaultCamera(Center(editorContext.GetOriginalBounds()))
   , _fontSmall(texman.FindSprite("font_small"))
   , _texSelection(texman.FindSprite("ui/selection"))
-  , _world(world)
+  , _world(editorContext.GetWorld())
   , _worldView(worldView)
-  , _quickActions(logger, world)
+  , _quickActions(logger, _world)
 {
 	_help = std::make_shared<UI::Text>(manager, texman);
 	_help->Move(10, 10);
@@ -140,7 +142,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager, texman, world, conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(manager, texman, _world, conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 

@@ -1,5 +1,6 @@
 #include "inc/ctx/EditorContext.h"
 #include <gc/World.h>
+#include <gc/WorldCfg.h>
 #include <MapFile.h>
 
 EditorContext::EditorContext(int width, int height, FS::Stream *stream)
@@ -19,6 +20,15 @@ EditorContext::EditorContext(int width, int height, FS::Stream *stream)
 			throw std::runtime_error("unknown map size");
 		}
 
+		int left = 0;
+		int top = 0;
+		mf.getMapAttribute("west_bound", left);
+		mf.getMapAttribute("north_bound", top);
+
+		_originalBounds = MakeRectWH(vec2d{ (float)left, (float)top }, vec2d{ (float)width, (float)height }) * CELL_SIZE;
+
+		bounds.left = std::min(bounds.left, left);
+		bounds.top = std::min(bounds.top, top);
 		bounds.right = std::max(bounds.right, width);
 		bounds.bottom = std::max(bounds.bottom, height);
 

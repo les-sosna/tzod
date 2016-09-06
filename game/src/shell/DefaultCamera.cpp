@@ -12,10 +12,10 @@ static unsigned int GetMilliseconds()
 	return duration_cast<duration<unsigned int, std::milli>>(high_resolution_clock::now().time_since_epoch()).count();
 }
 
-DefaultCamera::DefaultCamera()
+DefaultCamera::DefaultCamera(vec2d pos)
 	: _zoom(1)
 	, _dt(50)
-	, _pos()
+	, _pos(pos)
 {
 	_dwTimeX = _dwTimeY = GetMilliseconds();
 }

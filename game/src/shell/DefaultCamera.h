@@ -10,7 +10,7 @@ namespace UI
 class DefaultCamera
 {
 public:
-	DefaultCamera();
+	explicit DefaultCamera(vec2d pos);
 
     void Move(vec2d offset, const FRECT &worldBounds);
 	void HandleMovement(UI::IInput &input, const FRECT &worldBounds);

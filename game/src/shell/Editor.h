@@ -11,6 +11,7 @@ class ConfCache;
 class DefaultCamera;
 class PropertyList;
 class TextureManager;
+class EditorContext;
 class World;
 class WorldView;
 class RenderScheme;
@@ -57,7 +58,7 @@ class EditorLayout
 public:
 	EditorLayout(UI::LayoutManager &manager,
 		TextureManager &texman,
-		World &world,
+		EditorContext &editorContext,
 		WorldView &worldView,
 		ConfCache &conf,
 		LangCache &lang,
@@ -75,8 +76,8 @@ private:
 	ObjectType GetCurrentType() const;
 	void EraseAt(vec2d worldPos);
 	void CreateAt(vec2d worldPos, bool defaultProperties);
-    void ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties);
-    vec2d AlignToGrid(vec2d worldPos) const;
+	void ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties);
+	vec2d AlignToGrid(vec2d worldPos) const;
 
 	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();

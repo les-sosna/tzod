@@ -737,7 +737,7 @@ void Desktop::OnGameContextChanged()
 		_editor = std::make_shared<EditorLayout>(
 			GetManager(),
 			_texman,
-			editorContext->GetWorld(),
+			*editorContext,
 			_worldView,
 			_conf,
 			_lang,
