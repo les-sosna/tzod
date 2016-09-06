@@ -320,8 +320,6 @@ void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Te
             bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
             CreateAt(worldPos, defaultProperties);
         }
-
-		OnPointerDown(ic, lc, texman, pointerPosition, _capturedButton, pointerType, pointerID);
 	}
 }
 
