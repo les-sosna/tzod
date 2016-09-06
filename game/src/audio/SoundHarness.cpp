@@ -133,8 +133,11 @@ static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, SoundTemplate
 	return sound;
 }
 
-void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
+void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool asInitial)
 {
+	if (asInitial)
+		return;
+
 	ObjectType type = obj.GetType();
 	static std::unordered_map<ObjectType, SoundTemplate> sounds = {
 		{GC_pu_Health::GetTypeStatic(), SoundTemplate::Pickup},

@@ -4,6 +4,7 @@
 #include "inc/gc/Indicators.h"
 #include "inc/gc/Macros.h"
 #include "inc/gc/Particles.h"
+#include "inc/gc/Pickup.h"
 #include "inc/gc/TypeSystem.h"
 #include "inc/gc/Vehicle.h"
 #include "inc/gc/VehicleClasses.h"
@@ -159,6 +160,9 @@ void GC_Player::TimeStep(World &world, float dt)
 				world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
 
 				_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
+
+				world.New<GC_pu_Shield>(pBestPoint->GetPos()).Attach(world, *_vehicle, true);
+
 				GC_Object* found = world.FindObject(_vehname);
 				if( found && _vehicle != found )
 				{

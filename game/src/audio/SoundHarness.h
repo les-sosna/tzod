@@ -37,36 +37,36 @@ private:
 	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
 
 	// ObjectListener<GC_Pickup>
-    void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
-    void OnDetach(GC_Pickup &obj) override;
-    void OnRespawn(GC_Pickup &obj) override;
-    void OnDisappear(GC_Pickup &obj) override;
+	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool pickedUp) override;
+	void OnDetach(GC_Pickup &obj) override;
+	void OnRespawn(GC_Pickup &obj) override;
+	void OnDisappear(GC_Pickup &obj) override;
 
 	// ObjectListener<GC_Projectile>
-    void OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit) override;
+	void OnHit(GC_Projectile &obj, GC_RigidBodyStatic &target, vec2d hit) override;
 
 	// ObjectListener<GC_ProjectileBasedWeapon>
-    void OnShoot(GC_ProjectileBasedWeapon &obj) override;
+	void OnShoot(GC_ProjectileBasedWeapon &obj) override;
 
 	// ObjectListener<GC_pu_Shield>
-    void OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd) override;
-    void OnExpiring(GC_pu_Shield &obj) override;
+	void OnOwnerDamage(GC_pu_Shield &obj, DamageDesc &dd) override;
+	void OnExpiring(GC_pu_Shield &obj) override;
 
 	// ObjectListener<GC_RigidBodyStatic>
-    void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
-    void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
+	void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
+	void OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;
 
 	// ObjectListener<GC_RigidBodyDynamic>
-    void OnContact(vec2d pos, float np, float tp) override;
+	void OnContact(vec2d pos, float np, float tp) override;
 
 	// ObjectListener<GC_Turret>
-    void OnShoot(GC_Turret &obj) override;
-    void OnStateChange(GC_Turret &obj) override;
-    void OnRotationStateChange(GC_Turret &obj) override;
-    void OnFireStateChange(GC_Turret &obj) override;
+	void OnShoot(GC_Turret &obj) override;
+	void OnStateChange(GC_Turret &obj) override;
+	void OnRotationStateChange(GC_Turret &obj) override;
+	void OnFireStateChange(GC_Turret &obj) override;
 
 	// ObjectListener<GC_Vehicle>
-    void OnLight(GC_Vehicle &obj) override;
+	void OnLight(GC_Vehicle &obj) override;
 
 	// ObjectListener<World>
 	void OnGameStarted() override {}

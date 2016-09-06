@@ -292,12 +292,12 @@ static int object_equip(lua_State *L)
 
 	GC_Vehicle *target = checkobject<GC_Vehicle>(L, 1);
 	GC_Pickup *pickup = checkobject<GC_Pickup>(L, 2);
-    World &world = luaT_getworld(L);
+	World &world = luaT_getworld(L);
 
 	if( pickup->GetAttached() )
 		pickup->Detach(world);
 
-	pickup->Attach(world, *target);
+	pickup->Attach(world, *target, false);
 
 	return 0;
 }

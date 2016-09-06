@@ -199,14 +199,11 @@ void GC_Weapon::TimeStep(World &world, float dt)
 	{
 		ProcessRotate(world, dt);
 	}
-	else
+	else if( GetRespawn() && GetVisible() )
 	{
-		if( GetRespawn() && GetVisible() )
+		if( world.GetTime() >= GetDetachedTime() + GetStayTimeout() )
 		{
-			if( world.GetTime() >= GetDetachedTime() + GetStayTimeout() )
-			{
-				Disappear(world);
-			}
+			Disappear(world);
 		}
 	}
 }

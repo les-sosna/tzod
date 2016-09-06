@@ -60,14 +60,19 @@ void GC_Pickup::Serialize(World &world, SaveFile &f)
 	f.Serialize(_label);
 }
 
-void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle)
+void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle, bool asInitial)
 {
+	if (asInitial)
+	{
+		SAFE_KILL(world, _label);
+	}
+
 	assert(!GetAttached());
 	_timeAttached = 0;
 	SetFlags(GC_FLAG_PICKUP_ATTACHED, true);
 	MoveTo(world, vehicle.GetPos());
 	for( auto ls: world.eGC_Pickup._listeners )
-		ls->OnAttach(*this, vehicle);
+		ls->OnAttach(*this, vehicle, asInitial);
 	OnAttached(world, vehicle);
 }
 
@@ -86,10 +91,13 @@ void GC_Pickup::Disappear(World &world)
 
 	if( GetAttached() )
 		Detach(world);
-    SetVisible(false);
-    _timeAttached = 0;
-    if( _label )
-        MoveTo(world, _label->GetPos());
+	SetVisible(false);
+	_timeAttached = 0;
+
+	if (_label)
+		MoveTo(world, _label->GetPos());
+	else
+		Kill(world);
 }
 
 void GC_Pickup::SetRespawnTime(float respawnTime)
@@ -336,7 +344,7 @@ void GC_pu_Shield::OnOwnerDamage(World &world, DamageDesc &dd)
 			world.New<GC_Particle>(pos + dir * 26.0f - p * (float) (i<<1), v, PARTICLE_TYPE3, frand(0.4f)+0.1f);
 		}
 	}
-	dd.damage *= 0.1f;
+	dd.damage *= 0.2f;
 	_timeHit = world.GetTime();
 }
 

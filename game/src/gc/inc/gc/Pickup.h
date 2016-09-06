@@ -62,7 +62,9 @@ public:
 	explicit GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
 
-	void Attach(World &world, GC_Vehicle &vehicle);
+	bool IsInitial() const { return !_label; } // initials do not have the label to respawn at
+
+	void Attach(World &world, GC_Vehicle &vehicle, bool asInitial);
 
 	const std::string& GetOnPickup() const { return _scriptOnPickup; }
 

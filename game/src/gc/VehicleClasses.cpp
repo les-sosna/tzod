@@ -11,7 +11,7 @@ static VehicleClass s_vehicleClasses[] = {
 	{
 		"Default",  // displayName
 
-		400.0f,     // health
+		100.0f,     // health
 		1.0f,       // percussion
 		1.0f,       // fragility
 

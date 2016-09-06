@@ -223,6 +223,9 @@ void GC_Vehicle::SetWeapon(World &world, GC_Weapon *weapon)
 {
 	if( _weapon != weapon )
 	{
+		if (GetShield() && GetShield()->IsInitial())
+			GetShield()->Disappear(world);
+
 		_weapon = weapon;
 		if( _weapon )
 		{
@@ -292,7 +295,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 				float sumRadius = GetRadius() + pickup.GetRadius();
 				if (dist2 < sumRadius*sumRadius)
 				{
-					pickup.Attach(world, *this);
+					pickup.Attach(world, *this, false);
 				}
 			}
 		});

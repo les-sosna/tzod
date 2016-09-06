@@ -36,7 +36,7 @@ GC_Weap_RocketLauncher::GC_Weap_RocketLauncher(FromFile)
 
 static float AdjustHealth(float value)
 {
-	const float defaultVehicleClassHealth = 400;
+	const float defaultVehicleClassHealth = 100;
 	return value / defaultVehicleClassHealth;
 }
 

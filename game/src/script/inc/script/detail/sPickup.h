@@ -15,7 +15,7 @@ private:
 	lua_State *_L;
 
 	// ObjectListener<GC_Pickup>
-	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
+	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool asInitial) override;
 	void OnDetach(GC_Pickup &obj) override {}
 	void OnRespawn(GC_Pickup &obj) override {}
 	void OnDisappear(GC_Pickup &obj) override {}
