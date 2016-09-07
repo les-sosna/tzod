@@ -37,7 +37,7 @@ public:
 
 	void SetAmbient(float ambient) override;
 
-	bool TexCreate(DEV_TEXTURE &tex, const Image &img) override;
+	bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) override;
 	void TexFree(DEV_TEXTURE tex) override;
 
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
@@ -504,7 +504,7 @@ void RenderD3D11::SetMode(const RenderMode mode)
 	_mode = mode;
 }
 
-bool RenderD3D11::TexCreate(DEV_TEXTURE &tex, const Image &img)
+bool RenderD3D11::TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter)
 {
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;

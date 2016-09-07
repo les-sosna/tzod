@@ -12,8 +12,10 @@ else()
 	set(WITH_SOUND ${OPENAL_FOUND})
 endif()
 
+# external libs
 add_subdirectory(external)
 
+# libs
 add_subdirectory(luaetc)
 add_subdirectory(fs)
 add_subdirectory(config)
@@ -31,15 +33,18 @@ add_subdirectory(render)
 add_subdirectory(gv)
 add_subdirectory(libui)
 add_subdirectory(shell)
-add_subdirectory(app)
-
 if(WITH_SOUND)
 	add_subdirectory(audio)
 endif()
 
+# top level lib - the only one the application links with
+add_subdirectory(app)
+
+# applications
 if((NOT IOS) AND (NOT WINRT))
 	add_subdirectory(platglfw)
 	add_subdirectory(tzodmain)
 	add_subdirectory(gc_tests)
 	add_subdirectory(uitestapp)
 endif()
+

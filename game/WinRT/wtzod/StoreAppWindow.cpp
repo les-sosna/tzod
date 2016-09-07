@@ -8,6 +8,8 @@
 #include <video/RenderD3D11.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
+#include <ui/LayoutContext.h>
+#include <ui/StateContext.h>
 #include <ui/Window.h>
 
 using namespace Windows::ApplicationModel;
@@ -99,7 +101,7 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 	default:
 		switch (msgHint)
 		{
-		case UI::Msg::MOUSEWHEEL:
+		case UI::Msg::Scroll:
 		case UI::Msg::PointerMove:
 			msg = msgHint;
 			break;
@@ -115,11 +117,12 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 	                       PixelsFromDips(args->CurrentPoint->Position.Y, dpi) };
 
 	return inputSink.GetInputContext().ProcessPointer(
+		inputSink.GetTextureManager(),
 		inputSink.GetDesktop(),
-		dpi / c_defaultDpi, // layoutScale
-		pxWndSize,
+		UI::LayoutContext(dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
+		UI::StateContext(),
 		pxPointerPos,
-		(float)delta / 120.f,
+		vec2d{ 0, (float)delta / 120.f },
 		msg,
 		button,
 		pointerType,
@@ -202,7 +205,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		{
 			float dpi = displayInformation->LogicalDpi;
 			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
-			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::MOUSEWHEEL);
+			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::Scroll);
 		}
 	});
 
@@ -218,11 +221,12 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 			unsigned int pointerID = 111; // should be unique enough :)
 			(*inputSink)->GetInputContext().ProcessPointer(
+				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
-				dpi / c_defaultDpi, // layoutScale
-				pxWndSize,
+				UI::LayoutContext(dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
+				UI::StateContext(),
 				pxPointerPosition,
-				0, // z delta
+				vec2d{}, // scroll offset
 				UI::Msg::TAP,
 				1,
 				UI::PointerType::Touch,

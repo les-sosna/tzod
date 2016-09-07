@@ -122,8 +122,8 @@ bool DX::SwapChainResources::ResizeSwapChain(Windows::Foundation::Size logicalSi
 	// Calculate the necessary render target size in pixels.
 	// Prevent zero size DirectX content from being created.
 	Windows::Foundation::Size outputSize;
-	outputSize.Width = max(floorf(DX::ConvertDipsToPixels(logicalSize.Width, dpi)), 1);
-	outputSize.Height = max(floorf(DX::ConvertDipsToPixels(logicalSize.Height, dpi)), 1);
+	outputSize.Width = std::max(std::floor(DX::ConvertDipsToPixels(logicalSize.Width, dpi)), 1.f);
+	outputSize.Height = std::max(std::floor(DX::ConvertDipsToPixels(logicalSize.Height, dpi)), 1.f);
 
 	// The width and height of the swap chain must be based on the window's
 	// natively-oriented width and height. If the window is not in the native

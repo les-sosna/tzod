@@ -9,8 +9,11 @@
 # define SHELL_CONFIG_PASS1_INCLUDED
 #endif
 
-#include <as/AppConfig.h>
 #include <config/ConfigCache.h>
+
+#ifndef CONFIG_CACHE_PASS2
+#include <as/AppConfig.h>
+#endif
 
 REFLECTION_BEGIN(ConfControllerProfile)
 	VAR_STR(key_forward,      "W")

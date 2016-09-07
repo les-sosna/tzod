@@ -1,7 +1,7 @@
 #pragma once
 #include "StoreAppClipboard.h"
 #include "StoreAppInput.h"
-#include <app/AppWindow.h>
+#include <ui/AppWindow.h>
 
 namespace DX
 {
