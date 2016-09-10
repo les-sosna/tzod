@@ -248,7 +248,8 @@ void Desktop::OnNewDM()
 	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
 		PopNavStack();
 
-	if (!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
+	if (_dmCampaign.tiers.GetSize() > 0 &&
+		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
 		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);

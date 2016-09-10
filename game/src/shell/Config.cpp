@@ -42,12 +42,12 @@ static void InitLobbyList(ConfVarArray &lobby_servers)
 
 int GetCurrentTier(const ConfCache &conf, const DMCampaign &dmCampaign)
 {
-	return std::max(0, std::min((int)dmCampaign.tiers.GetSize(), conf.sp_tier.GetInt()));
+	return std::max(0, std::min((int)dmCampaign.tiers.GetSize() - 1, conf.sp_tier.GetInt()));
 }
 
 int GetCurrentMap(const ConfCache &conf, const DMCampaign &dmCampaign)
 {
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
-	return std::max(0, std::min((int)tierDesc.maps.GetSize(), conf.sp_map.GetInt()));
+	return std::max(0, std::min((int)tierDesc.maps.GetSize() - 1, conf.sp_map.GetInt()));
 }
 
