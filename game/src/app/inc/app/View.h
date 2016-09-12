@@ -26,7 +26,7 @@ public:
 	~TzodView();
 
 	void Step(float dt);
-	void Render(AppWindow &appWindow);
+	void Render(float pxWidth, float pxHeight, float scale);
 
 private:
 	AppWindow &_appWindow;

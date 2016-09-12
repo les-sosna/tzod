@@ -82,7 +82,7 @@ try
 		unsigned int height = appWindow.GetPixelHeight();
 		float layoutScale = appWindow.GetLayoutScale();
 
-		DrawingContext dc(textureManager, width, height);
+		DrawingContext dc(textureManager, appWindow.GetRender(), width, height);
 		appWindow.GetRender().Begin();
 
 		UI::StateContext stateContext;

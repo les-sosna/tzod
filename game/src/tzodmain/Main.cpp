@@ -103,7 +103,7 @@ try
 		app.Step(dt);
 
 		// view pass
-		view.Render(appWindow);
+		view.Render(appWindow.GetPixelWidth(), appWindow.GetPixelHeight(), appWindow.GetLayoutScale());
 		appWindow.Present();
 	}
 

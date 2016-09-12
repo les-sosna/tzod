@@ -16,21 +16,34 @@ include_directories(
 )
 
 set(video_SOURCES
+	inc/video/DrawingContext.h
+	inc/video/ImageLoader.h
+	inc/video/RenderBase.h
+	inc/video/TextureManager.h
+
 	DrawingContext.cpp
 	ImageLoader.cpp
-#	RenderDirect3D.cpp
 	TextureManager.cpp
 )
 
 if(IOS)
 	list(APPEND video_SOURCES
+		inc/video/RenderOpenGL.h
 		GLESProgram.cpp
 		RenderGLES2.cpp
 	)
 elseif(WINRT)
-	list(APPEND video_SOURCES RenderD3D11.cpp)
+	list(APPEND video_SOURCES
+		inc/video/RenderDirect3D.h
+		inc/video/RenderD3D11.h
+		RenderD3D11.cpp
+#		RenderDirect3D.cpp
+	)
 else()
-	list(APPEND video_SOURCES RenderOpenGL.cpp)
+	list(APPEND video_SOURCES
+		inc/video/RenderOpenGL.h
+		RenderOpenGL.cpp
+	)
 endif()
 
 add_library(video ${video_SOURCES})

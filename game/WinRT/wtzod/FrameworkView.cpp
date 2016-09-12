@@ -102,7 +102,7 @@ void FrameworkView::Run()
 			// TODO: for night mode use DirectX::Colors::Transparent
 			context->ClearRenderTargetView(m_swapChainResources->GetBackBufferRenderTargetView(), DirectX::XMVECTORF32{ 0, 0, 0, 1 });
 
-			_view->Render(*_appWindow);
+			_view->Render(*_appWindow, _appWindow->GetPixelWidth(), _appWindow->GetPixelHeight(), _appWindow->GetLayoutScale());
 
 			// The first argument instructs DXGI to block until VSync, putting the application
 			// to sleep until the next VSync. This ensures we don't waste any cycles rendering

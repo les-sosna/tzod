@@ -300,19 +300,17 @@ IRender& StoreAppWindow::GetRender()
 	return *_render;
 }
 
-unsigned int StoreAppWindow::GetPixelWidth()
+float StoreAppWindow::GetPixelWidth() const
 {
-	float dpi = _displayInformation->LogicalDpi;
-	return (unsigned int)PixelsFromDips(_coreWindow->Bounds.Width, dpi);
+	return PixelsFromDips(_coreWindow->Bounds.Width, _displayInformation->LogicalDpi);
 }
 
-unsigned int StoreAppWindow::GetPixelHeight()
+float StoreAppWindow::GetPixelHeight() const
 {
-	float dpi = _displayInformation->LogicalDpi;
-	return (unsigned int)PixelsFromDips(_coreWindow->Bounds.Height, dpi);
+	return PixelsFromDips(_coreWindow->Bounds.Height, _displayInformation->LogicalDpi);
 }
 
-float StoreAppWindow::GetLayoutScale()
+float StoreAppWindow::GetLayoutScale() const
 {
 	return _displayInformation->LogicalDpi / c_defaultDpi;
 }
@@ -320,5 +318,12 @@ float StoreAppWindow::GetLayoutScale()
 void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
 	*_inputSink = inputSink;
+
+	if (inputSink)
+	{
+		float width = GetPixelWidth() / GetLayoutScale();
+		float height = GetPixelHeight() / GetLayoutScale();
+		inputSink->GetDesktop()->Resize(width, height);
+	}
 }
 

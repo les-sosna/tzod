@@ -72,11 +72,6 @@ TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, 
 	: _appWindow(EnsureCurrent(appWindow))
 	, _impl(new TzodViewImpl(fs, logger, app, appWindow))
 {
-	int width = appWindow.GetPixelWidth();
-	int height = appWindow.GetPixelHeight();
-	float layoutScale = appWindow.GetLayoutScale();
-	_impl->desktop->Resize((float)width / layoutScale, (float)height / layoutScale);
-
 	//	ThemeManager themeManager(appState, *fs, texman);
 
 	_appWindow.SetInputSink(&_impl->gui);
@@ -94,7 +89,7 @@ void TzodView::Step(float dt)
 	_impl->gui.TimeStep(dt); // this also sends user controller state to WorldController
 }
 
-void TzodView::Render(AppWindow &appWindow)
+void TzodView::Render(float pxWidth, float pxHeight, float scale)
 {
 	_appWindow.MakeCurrent();
 
@@ -111,15 +106,11 @@ void TzodView::Render(AppWindow &appWindow)
 	_impl->soundView.Step();
 #endif
 
-	unsigned int width = appWindow.GetPixelWidth();
-	unsigned int height = appWindow.GetPixelHeight();
-	float layoutScale = appWindow.GetLayoutScale();
-
-	DrawingContext dc(_impl->textureManager, width, height);
-	appWindow.GetRender().Begin();
+	DrawingContext dc(_impl->textureManager, _appWindow.GetRender(), (unsigned int) pxWidth, (unsigned int)pxHeight);
+	_appWindow.GetRender().Begin();
 
 	UI::StateContext stateContext;
-	UI::LayoutContext layoutContext(layoutScale, vec2d{}, vec2d{ static_cast<float>(width), static_cast<float>(height) }, _impl->gui.GetDesktop()->GetEnabled());
+	UI::LayoutContext layoutContext(scale, vec2d{}, vec2d{ pxWidth, pxHeight }, _impl->gui.GetDesktop()->GetEnabled());
 	UI::RenderSettings rs{ stateContext, _impl->gui.GetInputContext(), dc, _impl->textureManager };
 
 	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs, layoutContext);
@@ -132,6 +123,6 @@ void TzodView::Render(AppWindow &appWindow)
 	}
 #endif
 
-	appWindow.GetRender().End();
+	_appWindow.GetRender().End();
 }
 

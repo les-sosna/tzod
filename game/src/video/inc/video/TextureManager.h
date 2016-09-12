@@ -33,10 +33,8 @@ class TextureManager
 {
 public:
 	TextureManager(TextureManager&&) = default;
-	TextureManager(IRender &render);
+	explicit TextureManager(IRender &render);
 	~TextureManager();
-
-	IRender& GetRender() const { return _render; }
 
 	int LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions);
 	void UnloadAllTextures();

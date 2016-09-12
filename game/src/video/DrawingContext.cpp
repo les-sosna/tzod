@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <cstring> // memset
 
-DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height)
+DrawingContext::DrawingContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
 	: _tm(tm)
+	, _render(render)
 	, _mode(RM_UNDEFINED)
 {
 	_transformStack.emplace();
@@ -12,7 +13,7 @@ DrawingContext::DrawingContext(const TextureManager &tm, unsigned int width, uns
 	_viewport.top = 0;
 	_viewport.right = width;
 	_viewport.bottom = height;
-	_tm.GetRender().OnResizeWnd(width, height);
+	_render.OnResizeWnd(width, height);
 }
 
 void DrawingContext::PushClippingRect(RectRB rect)
@@ -25,7 +26,7 @@ void DrawingContext::PushClippingRect(RectRB rect)
 	if( _clipStack.empty() )
 	{
 		_clipStack.push(rect);
-		_tm.GetRender().SetScissor(&rect);
+		_render.SetScissor(&rect);
 	}
 	else
 	{
@@ -36,7 +37,7 @@ void DrawingContext::PushClippingRect(RectRB rect)
 		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
 		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
 		_clipStack.push(tmp);
-		_tm.GetRender().SetScissor(&tmp);
+		_render.SetScissor(&tmp);
 	}
 }
 
@@ -46,11 +47,11 @@ void DrawingContext::PopClippingRect()
 	_clipStack.pop();
 	if( _clipStack.empty() )
 	{
-		_tm.GetRender().SetScissor(&_viewport);
+		_render.SetScissor(&_viewport);
 	}
 	else
 	{
-		_tm.GetRender().SetScissor(&_clipStack.top());
+		_render.SetScissor(&_clipStack.top());
 	}
 }
 
@@ -84,7 +85,7 @@ void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, uns
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	MyVertex *v = _tm.GetRender().DrawQuad(_tm.GetDeviceTexture(sprite));
+	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(sprite));
 
 	if (_mode == RM_INTERFACE)
 	{
@@ -140,7 +141,7 @@ void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor col
 	const float bottom = dst.bottom + _transformStack.top().y;
 
 	MyVertex *v;
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 
 	// left edge
 	v = render.DrawQuad(devtex);
@@ -361,7 +362,7 @@ void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprit
 	}
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 
 	size_t count = 0;
 	size_t line  = 0;
@@ -425,7 +426,7 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	assert(frame < _tm.GetFrameCount(tex));
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
@@ -474,7 +475,7 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	MyVertex *v = _tm.GetRender().DrawQuad(_tm.GetDeviceTexture(tex));
+	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(tex));
 
 	if (_mode == RM_INTERFACE)
 	{
@@ -514,7 +515,7 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[0];
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 
 	float px = lt.uvPivot.x * lt.pxFrameWidth;
 	float py = lt.uvPivot.y * lt.pxFrameHeight;
@@ -553,7 +554,7 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 		return;
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
@@ -591,7 +592,7 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 void DrawingContext::DrawBackground(size_t tex, FRECT bounds) const
 {
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 	v[0].color = 0xffffffff;
 	v[0].u = bounds.left / lt.pxFrameWidth;
@@ -635,7 +636,7 @@ void DrawingContext::DrawPointLight(float intensity, float radius, vec2d pos)
 	color.color = 0x00000000;
 	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * intensity)));
 
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 	MyVertex *v = render.DrawFan(SINTABLE_SIZE>>1);
 	v[0].color = color;
 	v[0].x = pos.x;
@@ -654,7 +655,7 @@ void DrawingContext::DrawSpotLight(float intensity, float radius, vec2d pos, vec
 	color.color = 0x00000000;
 	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * intensity)));
 
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 	MyVertex *v = render.DrawFan(SINTABLE_SIZE);
 	v[0].color = color;
 	v[0].x = pos.x;
@@ -675,7 +676,7 @@ void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, v
 	color.color = 0x00000000;
 	color.a = (unsigned char) std::max(0, std::min(255, int(255.0f * intensity)));
 
-	IRender &render = _tm.GetRender();
+	IRender &render = _render;
 	MyVertex *v = render.DrawFan((SINTABLE_SIZE>>2)+4);
 	v[0].color = color;
 	v[0].x = pos.x;
@@ -721,19 +722,19 @@ void DrawingContext::Camera(RectRB viewport, float x, float y, float scale)
 	viewport.top += (int) _transformStack.top().y;
 	viewport.right += (int) _transformStack.top().x;
 	viewport.bottom += (int) _transformStack.top().y;
-	_tm.GetRender().Camera(&viewport, x, y, scale);
+	_render.Camera(&viewport, x, y, scale);
 }
 
 void DrawingContext::SetAmbient(float ambient)
 {
-	_tm.GetRender().SetAmbient(ambient);
+	_render.SetAmbient(ambient);
 }
 
 void DrawingContext::SetMode(RenderMode mode)
 {
 	if (_mode != mode)
 	{
-		_tm.GetRender().SetMode(mode);
+		_render.SetMode(mode);
 		_mode = mode;
 	}
 }

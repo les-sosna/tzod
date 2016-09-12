@@ -15,13 +15,15 @@ public:
 	StoreAppWindow(Windows::UI::Core::CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources);
 	~StoreAppWindow();
 
+	float GetPixelWidth() const;
+	float GetPixelHeight() const;
+	float GetLayoutScale() const;
+
+
 	// AppWindow
 	UI::IClipboard& GetClipboard() override;
 	UI::IInput& GetInput() override;
 	IRender& GetRender() override;
-	unsigned int GetPixelWidth() override;
-	unsigned int GetPixelHeight() override;
-	float GetLayoutScale() override;
 	void SetInputSink(UI::LayoutManager *inputSink) override;
 	void MakeCurrent() override {}
 

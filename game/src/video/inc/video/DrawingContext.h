@@ -15,7 +15,7 @@ enum enumAlignText {
 class DrawingContext
 {
 public:
-	DrawingContext(const TextureManager &tm, unsigned int width, unsigned int height);
+	DrawingContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height);
 
 	void PushClippingRect(RectRB rect);
 	void PopClippingRect();
@@ -44,6 +44,7 @@ public:
 
 private:
 	const TextureManager &_tm;
+	IRender &_render;
 	std::stack<RectRB> _clipStack;
 	std::stack<vec2d> _transformStack;
 	RectRB _viewport;

@@ -211,21 +211,21 @@ IRender& GlfwAppWindow::GetRender()
 	return *_render;
 }
 
-unsigned int GlfwAppWindow::GetPixelWidth()
+float GlfwAppWindow::GetPixelWidth() const
 {
 	int width;
 	glfwGetFramebufferSize(_window.get(), &width, nullptr);
-	return width;
+	return (float)width;
 }
 
-unsigned int GlfwAppWindow::GetPixelHeight()
+float GlfwAppWindow::GetPixelHeight() const
 {
 	int height;
 	glfwGetFramebufferSize(_window.get(), nullptr, &height);
-	return height;
+	return (float)height;
 }
 
-float GlfwAppWindow::GetLayoutScale()
+float GlfwAppWindow::GetLayoutScale() const
 {
 	return ::GetLayoutScale(_window.get());
 }
@@ -233,6 +233,13 @@ float GlfwAppWindow::GetLayoutScale()
 void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
 	glfwSetWindowUserPointer(_window.get(), inputSink);
+
+	if (inputSink)
+	{
+		float width = GetPixelWidth() / GetLayoutScale();
+		float height = GetPixelHeight() / GetLayoutScale();
+		inputSink->GetDesktop()->Resize(width, height);
+	}
 }
 
 void GlfwAppWindow::MakeCurrent()
