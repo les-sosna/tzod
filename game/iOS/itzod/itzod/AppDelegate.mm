@@ -36,9 +36,10 @@
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     chdir([resourcePath UTF8String]);
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
+    NSString *language = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
     _fs = FS::CreateOSFileSystem([dataPath UTF8String]);
     _logger.reset(new UI::ConsoleBuffer(100, 500));
-    _app.reset(new TzodApp(*_fs, *_logger));
+    _app.reset(new TzodApp(*_fs, *_logger, [language UTF8String]));
     return YES;
 }
 

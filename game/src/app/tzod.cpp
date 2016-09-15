@@ -9,8 +9,11 @@
 #include <ui/ConsoleBuffer.h>
 
 #define FILE_CONFIG      "config.cfg"
-#define FILE_LANGUAGE    "data/lang.cfg"
 #define FILE_DMCAMPAIGN  "data/dmcampaign.cfg"
+
+static std::map<std::string, std::string> s_localizations = {
+    {"ru", "data/lang.cfg"}
+};
 
 struct TzodAppImpl
 {
@@ -40,13 +43,20 @@ catch (const std::exception &e)
 	logger.Printf(1, "Could not load config '%s': %s", filename, e.what());
 }
 
-TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger)
+TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *language)
 	: _logger(logger)
 	, _impl(new TzodAppImpl(fs))
 {
-	LoadConfigNoThrow(_impl->combinedConfig, logger, FILE_CONFIG),
-	LoadConfigNoThrow(_impl->lang, logger, FILE_LANGUAGE),
-	LoadConfigNoThrow(_impl->dmCampaign, logger, FILE_DMCAMPAIGN),
+    LoadConfigNoThrow(_impl->combinedConfig, logger, FILE_CONFIG);
+    LoadConfigNoThrow(_impl->dmCampaign, logger, FILE_DMCAMPAIGN);
+    if (language)
+    {
+        auto it = s_localizations.find(language);
+        if (s_localizations.end() != it)
+        {
+            LoadConfigNoThrow(_impl->lang, logger, it->second.c_str());
+        }
+    }
 	setlocale(LC_CTYPE, _impl->lang.c_locale.Get().c_str());
 }
 

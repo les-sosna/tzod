@@ -24,7 +24,7 @@ class DMCampaign;
 class TzodApp
 {
 public:
-	TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger);
+	TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *language = nullptr);
 	~TzodApp();
 
 	AppState& GetAppState();
