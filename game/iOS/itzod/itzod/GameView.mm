@@ -56,17 +56,15 @@ static unsigned int GetPointerID(int touchIndex)
         auto touchIndex = GetFreeTouchIndex(_touches);
         auto pointerID = GetPointerID(touchIndex);
         auto desktop = sink->GetDesktop();
-        vec2d desktopSize{
-            static_cast<float>(_appWindow->GetPixelWidth()),
-            static_cast<float>(_appWindow->GetPixelHeight())};
-        vec2d pointerPos{
+        vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
+        vec2d pxPointerPos{
             static_cast<float>(location.x * self.contentScaleFactor),
             static_cast<float>(location.y * self.contentScaleFactor)};
         sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                desktop,
-                                               UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                               UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
                                                UI::StateContext(),
-                                               pointerPos,
+                                               pxPointerPos,
                                                vec2d{},
                                                UI::Msg::TAP,
                                                0, // button
@@ -86,18 +84,16 @@ static unsigned int GetPointerID(int touchIndex)
         auto touchIndex = GetFreeTouchIndex(_touches);
         auto pointerID = GetPointerID(touchIndex);
         auto desktop = sink->GetDesktop();
-        vec2d desktopSize{
-            static_cast<float>(_appWindow->GetPixelWidth()),
-            static_cast<float>(_appWindow->GetPixelHeight())};
-        vec2d pointerPos{
+        vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
+        vec2d pxPointerPos{
             static_cast<float>(location.x * self.contentScaleFactor),
             static_cast<float>(location.y * self.contentScaleFactor)};
         sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                desktop,
-                                               UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                               UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
                                                UI::StateContext(),
-                                               pointerPos,
-                                               vec2d{static_cast<float>(translation.x), static_cast<float>(translation.y)}/30,
+                                               pxPointerPos,
+                                               vec2d{static_cast<float>(translation.x), static_cast<float>(translation.y)}/30 * self.contentScaleFactor / _appWindow->GetLayoutScale(),
                                                UI::Msg::Scroll,
                                                0, // button
                                                UI::PointerType::Touch,
@@ -105,7 +101,7 @@ static unsigned int GetPointerID(int touchIndex)
     }
 }
 
-- (AppWindow&)appWindow
+- (CocoaTouchWindow&)appWindow
 {
     return *_appWindow;
 }
@@ -163,17 +159,15 @@ static unsigned int GetPointerID(int touchIndex)
         {
             CGPoint location = [touch locationInView:self];
             auto desktop = sink->GetDesktop();
-            vec2d desktopSize{
-                static_cast<float>(_appWindow->GetPixelWidth()),
-                static_cast<float>(_appWindow->GetPixelHeight())};
-            vec2d pointerPos{
+            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
+            vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
                                                    UI::StateContext(),
-                                                   pointerPos,
+                                                   pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerDown,
                                                    1, // button
@@ -199,17 +193,15 @@ static unsigned int GetPointerID(int touchIndex)
         {
             CGPoint location = [touch locationInView:self];
             auto desktop = sink->GetDesktop();
-            vec2d desktopSize{
-                static_cast<float>(_appWindow->GetPixelWidth()),
-                static_cast<float>(_appWindow->GetPixelHeight())};
-            vec2d pointerPos{
+            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
+            vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
                                                    UI::StateContext(),
-                                                   pointerPos,
+                                                   pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerMove,
                                                    0, // button
@@ -236,17 +228,15 @@ static unsigned int GetPointerID(int touchIndex)
         {
             CGPoint location = [touch locationInView:self];
             auto desktop = sink->GetDesktop();
-            vec2d desktopSize{
-                static_cast<float>(_appWindow->GetPixelWidth()),
-                static_cast<float>(_appWindow->GetPixelHeight())};
-            vec2d pointerPos{
+            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
+            vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
                                                    UI::StateContext(),
-                                                   pointerPos,
+                                                   pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerUp,
                                                    1, // button
@@ -274,17 +264,15 @@ static unsigned int GetPointerID(int touchIndex)
         {
             CGPoint location = [touch locationInView:self];
             auto desktop = sink->GetDesktop();
-            vec2d desktopSize{
-                static_cast<float>(_appWindow->GetPixelWidth()),
-                static_cast<float>(_appWindow->GetPixelHeight())};
-            vec2d pointerPos{
+            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
+            vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(self.contentScaleFactor, vec2d{}, desktopSize, true),
+                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
                                                    UI::StateContext(),
-                                                   pointerPos,
+                                                   pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerCancel,
                                                    0, // button

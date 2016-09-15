@@ -35,12 +35,18 @@ CocoaTouchWindow::~CocoaTouchWindow()
 
 void CocoaTouchWindow::SetSizeAndScale(float width, float height, float scale)
 {
-    if (_inputSink && (_width != width || _height != height || _scale != scale))
+    float newPxWidth = width * scale;
+    float newPxHeight = height * scale;
+    
+    if (_pxWidth != newPxWidth || _pxHeight != newPxHeight || _scale != scale)
     {
-        _width = width;
-        _height = height;
+        _pxWidth = newPxWidth;
+        _pxHeight = newPxHeight;
         _scale = scale;
-        _inputSink->GetDesktop()->Resize(width, height);
+        if (_inputSink)
+        {
+            _inputSink->GetDesktop()->Resize(GetPixelWidth() / GetLayoutScale(), GetPixelHeight() / GetLayoutScale());
+        }
     }
 }
 
@@ -61,22 +67,26 @@ IRender& CocoaTouchWindow::GetRender()
     return *_render;
 }
 
-unsigned int CocoaTouchWindow::GetPixelWidth()
+float CocoaTouchWindow::GetPixelWidth() const
 {
-    return static_cast<unsigned int>(_width * _scale);
+    return _pxWidth;
 }
 
-unsigned int CocoaTouchWindow::GetPixelHeight()
+float CocoaTouchWindow::GetPixelHeight() const
 {
-    return static_cast<unsigned int>(_height * _scale);
+    return _pxHeight;
 }
 
-float CocoaTouchWindow::GetLayoutScale()
+float CocoaTouchWindow::GetLayoutScale() const
 {
-    return _scale;
+    return _pxWidth / _scale < 800 || _pxHeight / _scale < 600 ? _scale / 2 : _scale;
 }
 
 void CocoaTouchWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
     _inputSink = inputSink;
+    if (_inputSink)
+    {
+        _inputSink->GetDesktop()->Resize(GetPixelWidth() / GetLayoutScale(), GetPixelHeight() / GetLayoutScale());
+    }
 }

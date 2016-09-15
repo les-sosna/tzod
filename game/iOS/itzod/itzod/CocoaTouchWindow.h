@@ -16,13 +16,14 @@ public:
     UI::LayoutManager* GetInputSink() const { return _inputSink; }
     void SetSizeAndScale(float width, float height, float scale);
     
+    float GetPixelWidth() const;
+    float GetPixelHeight() const;
+    float GetLayoutScale() const;
+
     // AppWindow
     UI::IClipboard& GetClipboard() override;
     UI::IInput& GetInput() override;
     IRender& GetRender() override;
-    unsigned int GetPixelWidth() override;
-    unsigned int GetPixelHeight() override;
-    float GetLayoutScale() override;
     void SetInputSink(UI::LayoutManager *inputSink) override;
     void MakeCurrent() override {}
 
@@ -30,7 +31,7 @@ private:
     GLKView *_glkView;
     std::unique_ptr<IRender> _render;
     UI::LayoutManager *_inputSink = nullptr;
-    float _width = 110.f;
-    float _height = 110.f;
-    float _scale = 1.f;
+    float _pxWidth = 0;
+    float _pxHeight = 0;
+    float _scale = 1;
 };

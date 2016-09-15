@@ -1,8 +1,8 @@
 #import <GLKit/GLKit.h>
-struct AppWindow;
+class CocoaTouchWindow;
 
 @interface GameView : GLKView
 
-@property (readonly, nonatomic) AppWindow& appWindow;
+@property (readonly, nonatomic) CocoaTouchWindow& appWindow;
 
 @end

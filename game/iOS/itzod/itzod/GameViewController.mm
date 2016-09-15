@@ -2,6 +2,7 @@
 #import "AppDelegate.h"
 #import "GameView.h"
 #import <OpenGLES/ES2/glext.h>
+#include "CocoaTouchWindow.h"
 #include <app/tzod.h>
 #include <app/View.h>
 #include <memory>
@@ -88,7 +89,10 @@
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     if (_tzodView)
-        _tzodView->Render(((GameView *)view).appWindow);
+    {
+        auto &appWindow = ((GameView *)view).appWindow;
+        _tzodView->Render(appWindow.GetPixelWidth(), appWindow.GetPixelHeight(), appWindow.GetLayoutScale());
+    }
 }
 
 @end // @implementation GameViewController
