@@ -78,15 +78,15 @@ try
 
 		gui.TimeStep(dt);
 
-		unsigned int width = appWindow.GetPixelWidth();
-		unsigned int height = appWindow.GetPixelHeight();
+		float width = appWindow.GetPixelWidth();
+		float height = appWindow.GetPixelHeight();
 		float layoutScale = appWindow.GetLayoutScale();
 
-		DrawingContext dc(textureManager, appWindow.GetRender(), width, height);
+		DrawingContext dc(textureManager, appWindow.GetRender(), static_cast<unsigned int>(width), static_cast<unsigned int>(height));
 		appWindow.GetRender().Begin();
 
 		UI::StateContext stateContext;
-		UI::LayoutContext layoutContext(layoutScale, vec2d{}, vec2d{ static_cast<float>(width), static_cast<float>(height) }, desktop->GetEnabled());
+		UI::LayoutContext layoutContext(layoutScale, vec2d{}, vec2d{ width, height }, desktop->GetEnabled());
 		UI::RenderSettings rs{ stateContext, gui.GetInputContext(), dc, textureManager };
 
 		UI::RenderUIRoot(*desktop, rs, layoutContext);

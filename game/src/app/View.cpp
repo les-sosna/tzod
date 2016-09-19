@@ -106,7 +106,7 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 	_impl->soundView.Step();
 #endif
 
-	DrawingContext dc(_impl->textureManager, _appWindow.GetRender(), (unsigned int) pxWidth, (unsigned int)pxHeight);
+	DrawingContext dc(_impl->textureManager, _appWindow.GetRender(), static_cast<unsigned int>(pxWidth), static_cast<unsigned int>(pxHeight));
 	_appWindow.GetRender().Begin();
 
 	UI::StateContext stateContext;

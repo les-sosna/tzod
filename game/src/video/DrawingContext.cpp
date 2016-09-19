@@ -1,7 +1,6 @@
 #include "inc/video/DrawingContext.h"
 #include "inc/video/TextureManager.h"
 #include <algorithm>
-#include <cstring> // memset
 
 DrawingContext::DrawingContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
 	: _tm(tm)
