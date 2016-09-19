@@ -15,8 +15,8 @@ struct VehicleClass;
 
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_RigidBodyDynamic base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_RigidBodyDynamic base;
 
 public:
 	explicit GC_Vehicle(vec2d pos);
@@ -61,17 +61,17 @@ public:
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
-    unsigned char GetPassability() const override { return 0; } // not an obstacle
-    GC_Player* GetOwner() const override { return _player; }
+	unsigned char GetPassability() const override { return 0; } // not an obstacle
+	GC_Player* GetOwner() const override { return _player; }
 
 	// GC_Actor
-    void MoveTo(World &world, const vec2d &pos) override;
+	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-    void Init(World &world) override;
-    void Kill(World &world) override;
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -104,8 +104,6 @@ public:
 	explicit GC_Tank_Light(vec2d pos);
 	explicit GC_Tank_Light(FromFile);
 
-    float GetDefaultHealth() const override { return 100; }
-    void OnDestroy(World &world, const DamageDesc &dd) override;
+	float GetDefaultHealth() const override { return 100; }
+	void OnDestroy(World &world, const DamageDesc &dd) override;
 };
-
-// end of file

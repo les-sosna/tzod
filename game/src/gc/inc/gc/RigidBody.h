@@ -17,7 +17,7 @@ struct DamageDesc
 class GC_RigidBodyStatic : public GC_Actor
 {
 	DECLARE_GRID_MEMBER();
-    typedef GC_Actor base;
+	typedef GC_Actor base;
 
 public:
 	explicit GC_RigidBodyStatic(vec2d pos);
@@ -50,14 +50,14 @@ public:
 	virtual unsigned char GetPassability() const = 0;
 	virtual GC_Player* GetOwner() const { return nullptr; }
 
-    // GC_Actor
-    void MoveTo(World &world, const vec2d &pos) override;
+	// GC_Actor
+	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-    void Init(World &world) override;
-    void Kill(World &world) override;
-    void MapExchange(MapFile &f) override;
-    void Serialize(World &world, SaveFile &f) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -82,7 +82,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-    PropertySet* NewPropertySet() override;
+	PropertySet* NewPropertySet() override;
 	virtual void OnDestroy(World &world, const DamageDesc &dd);
 	virtual void OnDamage(World &world, DamageDesc &damageDesc);
 

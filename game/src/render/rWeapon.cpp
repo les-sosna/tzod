@@ -1,5 +1,7 @@
 #include "rWeapon.h"
 #include "rWeaponBase.h"
+#include <gc/Player.h>
+#include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/World.h>
 #include <video/DrawingContext.h>
@@ -95,7 +97,7 @@ void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
-	if (weapon.GetAttached())
+	if (weapon.GetVehicle() && weapon.GetVehicle()->GetOwner() && weapon.GetVehicle()->GetOwner()->GetIsHuman())
 	{
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;
 		vec2d dir = Vec2dDirection(world.GetTime() * 5);
