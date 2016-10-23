@@ -795,7 +795,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 
 
 	//
-	// create and fill the levels list
+	// create and fill the difficulty list
 	//
 
 	text = std::make_shared<UI::Text>(manager, texman);
