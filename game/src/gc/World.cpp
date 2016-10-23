@@ -349,7 +349,7 @@ bool World::CalcOutstrip( const vec2d &fp, // fire point
 	return true;
 }
 
-GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
+GC_RigidBodyStatic* World::TraceNearest( const Grid<ObjectList> &list,
                                          const GC_RigidBodyStatic* ignore,
                                          const vec2d &x0,      // origin
                                          const vec2d &a,       // direction with length
@@ -404,7 +404,7 @@ GC_RigidBodyStatic* World::TraceNearest( Grid<ObjectList> &list,
 	return selector.result;
 }
 
-void World::TraceAll( Grid<ObjectList> &list,
+void World::TraceAll( const Grid<ObjectList> &list,
                       const vec2d &x0,      // origin
                       const vec2d &a,       // direction with length
                       std::vector<CollisionPoint> &result) const

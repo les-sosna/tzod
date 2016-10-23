@@ -3,7 +3,7 @@
 #include <cmath>
 
 template<class SelectorType>
-void World::RayTrace(Grid<ObjectList> &list, SelectorType &s) const
+void World::RayTrace(const Grid<ObjectList> &list, SelectorType &s) const
 {
 	//
 	// overlap line

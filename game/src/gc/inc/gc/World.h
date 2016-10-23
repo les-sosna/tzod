@@ -193,20 +193,20 @@ public:
 		float exit;
 	};
 
-	GC_RigidBodyStatic* TraceNearest( Grid<PtrList<GC_Object>> &list,
+	GC_RigidBodyStatic* TraceNearest( const Grid<PtrList<GC_Object>> &list,
 	                             const GC_RigidBodyStatic* ignore,
 	                             const vec2d &x0,      // origin
 	                             const vec2d &a,       // direction and length
 	                             vec2d *ht   = nullptr,
 	                             vec2d *norm = nullptr) const;
 
-	void TraceAll( Grid<PtrList<GC_Object>> &list,
+	void TraceAll( const Grid<PtrList<GC_Object>> &list,
 	               const vec2d &x0,      // origin
 	               const vec2d &a,       // direction and length
 	               std::vector<CollisionPoint> &result) const;
 
 	template<class SelectorType>
-	void RayTrace(Grid<PtrList<GC_Object>> &list, SelectorType &s) const;
+	void RayTrace(const Grid<PtrList<GC_Object>> &list, SelectorType &s) const;
 
 public:
 	void Clear();
