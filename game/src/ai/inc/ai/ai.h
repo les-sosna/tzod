@@ -6,7 +6,6 @@
 
 struct VehicleState;
 struct AIWEAPSETTINGS;
-class FieldCell;
 class GC_Actor;
 class GC_RigidBodyStatic;
 class GC_Pickup;
@@ -15,6 +14,8 @@ class GC_Vehicle;
 class SaveFile;
 class World;
 
+class DrivingAgent;
+class ShootingAgent;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -28,40 +29,6 @@ struct AIITEMINFO
 
 class AIController
 {
-	typedef std::list<ObjPtr<GC_RigidBodyStatic> > AttackListType;
-
-	struct PathNode
-	{
-		vec2d coord;
-	};
-
-
-	// current path settings
-	vec2d _arrivalPoint;
-	std::list<PathNode> _path;
-	AttackListType _attackList;
-
-
-	//-------------------------------------------------------------------------
-	//  to           - coordinates of the arrival point
-	//  max_depth    - maximum search depth
-	//  bTest        - if true then path cost is evaluated only; current path remains unchanged
-	// Return: path cost or -1 if path was not found
-	//-------------------------------------------------------------------------
-	float CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
-
-
-	// clears the current path and the attack list
-	void ClearPath();
-
-
-	// create additional path nodes to make it more smooth
-	void SmoothPath();
-
-
-	// find the nearest node to the vehicle
-	std::list<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
-
 	struct TargetDesc
 	{
 		GC_Vehicle *target;
@@ -84,11 +51,14 @@ class AIController
 		L1_STICK,
 	} _aiState_l1;
 
-protected:
+	std::unique_ptr<DrivingAgent> _drivingAgent;
+	std::unique_ptr<ShootingAgent> _shootingAgent;
+
+
 	ObjPtr<GC_Pickup>          _pickupCurrent;
 	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
-	bool IsTargetVisible(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
+	bool IsTargetVisible(const World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
 	AIPRIORITY GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target);
 
 	bool FindTarget(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
@@ -96,25 +66,15 @@ protected:
 
 	void SelectFavoriteWeapon(World &world);
 
-	// for aim jitter
-	float _desiredOffset;
-	float _currentOffset;
 
 	ObjectType _favoriteWeaponType;
 
-	int _level; // that is difficulty setting
+	int _difficulty;
 
-	float _backTime;
-	float _stickTime;
 
 	bool _isActive;
 
 protected:
-	void TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws);
-
-	// calculates the position of a fake target for more accurate shooting
-	// Vp - projectile speed
-	void CalcOutstrip(World &world, vec2d origin, const GC_Vehicle &target, float Vp, vec2d &fake);
 
 	void ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
 
@@ -122,7 +82,7 @@ protected:
 	void SetL2(aiState_l2 new_state);
 
 	void SelectState(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
-	void DoState(World &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws);
+	void DoState(const World &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
 	void SetActive(bool active);
 	bool GetActive() const { return _isActive; }
@@ -139,8 +99,8 @@ public:
 
 	void debug_draw(World &world);
 
-	void SetLevel(int level) { _level = level; }
-	int  GetLevel() const { return _level; }
+	void SetLevel(int level) { _difficulty = level; }
+	int  GetLevel() const { return _difficulty; }
 
 	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);
 	bool Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
@@ -149,5 +109,3 @@ public:
 
     void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc);
 };
-
-// end of file

@@ -12,7 +12,13 @@ include_directories(
 )
 
 add_library(ai
+	inc/ai/ai.h
+
 	ai.cpp
+	DrivingAgent.cpp
+	DrivingAgent.h
+	ShootingAgent.cpp
+	ShootingAgent.h
 )
 
 target_link_libraries(ai
