@@ -6,8 +6,10 @@
 class FieldCell;
 class SaveFile;
 class GC_RigidBodyStatic;
+class GC_Vehicle;
 class World;
 struct AIWEAPSETTINGS;
+struct VehicleState;
 
 class DrivingAgent
 {
@@ -25,6 +27,7 @@ public:
 
 	float _backTime = 0;
 	float _stickTime = 0;
+	bool _attackFriendlyTurrets = false;
 
 	//-------------------------------------------------------------------------
 	//  to           - coordinates of the arrival point
@@ -43,9 +46,9 @@ public:
 	// find the nearest node to the vehicle
 	std::list<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
 
-	void StayAway(vec2d center, float radius);
+	void StayAway(const GC_Vehicle &vehicle, vec2d fromCenter, float radius);
 
-	void ComputeState();
+	void ComputeState(World &world, const GC_Vehicle &vehicle, float dt, VehicleState &vs);
 	void Serialize(SaveFile &f);
 };
 

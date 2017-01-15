@@ -45,9 +45,9 @@ void AIController::Serialize(SaveFile &f)
 	f.Serialize(_isActive);
 }
 
-void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc)
+void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &outVehicleState, bool allowExtraCalc)
 {
-	memset(&vs, 0, sizeof(VehicleState));
+	memset(&outVehicleState, 0, sizeof(VehicleState));
 
 	// clean the attack list
 	_drivingAgent->_attackList.remove_if( [](const ObjPtr<GC_RigidBodyStatic> &arg) -> bool { return !arg; } );
@@ -61,7 +61,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		else if( (_pickupCurrent->GetPos() - vehicle.GetPos()).sqr() <
 		         std::pow(_pickupCurrent->GetRadius() + vehicle.GetRadius(), 2) )
 		{
-			vs._bState_AllowDrop = true;
+			outVehicleState._bState_AllowDrop = true;
 		}
 	}
 
@@ -75,8 +75,40 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		SelectState(world, vehicle, vehicle.GetWeapon() ? &weapSettings : nullptr);
 
 
-	// realize the decision
-	DoState(world, vehicle, &vs, &weapSettings);
+	if (L1_NONE == _aiState_l1)
+	{
+		_drivingAgent->ComputeState(world, vehicle, dt, outVehicleState);
+
+
+		// check if the primary target is still alive
+		//	if( !_target && IsAttacking() )
+		//	{
+		//		FreeTarget(); // free killed target
+		//		ClearPath();
+		//	}
+
+		if (!vehicle.GetWeapon())
+		{
+			// no targets if no weapon
+			_target = nullptr;
+			_drivingAgent->_attackList.clear();
+		}
+
+
+		if (_target && IsTargetVisible(world, vehicle, _target))
+		{
+			// attack the primary target
+			_shootingAgent->AttackTarget(world, vehicle, *_target, dt, outVehicleState);
+			_drivingAgent->StayAway(vehicle, _target->GetPos(), weapSettings.fAttackRadius_min);
+		}
+		else if (!_drivingAgent->_attackList.empty() && IsTargetVisible(world, vehicle, _drivingAgent->_attackList.front()))
+		{
+			// attack secondary targets
+			_shootingAgent->AttackTarget(world, vehicle, *_drivingAgent->_attackList.front(), dt, outVehicleState);
+		}
+
+//		DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
+	}
 
 
 	//
@@ -86,14 +118,14 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	{
 	case 0:
 	case 1:
-		vs._bLight = true;
+		outVehicleState._bLight = true;
 		break;
 	case 2:
 	case 3:
-		vs._bLight = (nullptr != _target);
+		outVehicleState._bLight = (nullptr != _target);
 		break;
 	default:
-		vs._bLight = false;
+		outVehicleState._bLight = false;
 	}
 }
 
@@ -120,7 +152,7 @@ AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &ta
 bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
 {
 	if( !vehicle.GetWeapon() )
-        return false;
+		return false;
 
 	AIPRIORITY optimal = AIP_NOTREQUIRED;
 	GC_Vehicle *pOptTarget = nullptr;
@@ -382,6 +414,12 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 	}
 }
 
+void AIController::SetLevel(int level)
+{
+	_difficulty = level;
+	_drivingAgent->_attackFriendlyTurrets = (level == 0); // be totally stupid
+}
+
 bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float y)
 {
     AIWEAPSETTINGS ws;
@@ -481,48 +519,6 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 void AIController::SetActive(bool active)
 {
 	_isActive = active;
-}
-
-void AIController::DoState(const World &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws)
-{
-	if( L1_NONE != _aiState_l1 )
-		return;
-
-	_drivingAgent->ComputeState();
-
-
-	// check if the primary target is still alive
-//	if( !_target && IsAttacking() )
-//	{
-//		FreeTarget(); // free killed target
-//		ClearPath();
-//	}
-
-	if( !vehicle.GetWeapon() )
-	{
-		// no targets if no weapon
-		_target = nullptr;
-		_drivingAgent->_attackList.clear();
-	}
-
-
-	if( _target && IsTargetVisible(world, vehicle, _target))
-	{
-		// attack the primary target
-		_shootingAgent->AttackTarget(world, vehicle, *_target, pVehState);
-		_drivingAgent->StayAway(_target->GetPos(), ws->fAttackRadius_min);
-	}
-	else if( !_drivingAgent->_attackList.empty() && IsTargetVisible(world, vehicle, _drivingAgent->_attackList.front()) )
-	{
-		// attack secondary targets
-		_shootingAgent->AttackTarget(world, vehicle, *_drivingAgent->_attackList.front(), pVehState);
-	}
-
-
-
-//	DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
-
-
 }
 
 bool AIController::IsTargetVisible(const World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle)

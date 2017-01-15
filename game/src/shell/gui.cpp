@@ -656,12 +656,12 @@ bool EditPlayerDlg::OnClose(int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char s_levels[][16] = {
-	"bot_level_0",
-	"bot_level_1",
-	"bot_level_2",
-	"bot_level_3",
-	"bot_level_4",
+static const char* s_levels[16] = {
+	"bot_difficulty_0",
+	"bot_difficulty_1",
+	"bot_difficulty_2",
+	"bot_difficulty_3",
+	"bot_difficulty_4",
 };
 
 EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang)
@@ -800,7 +800,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 
 	text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(x1, y += 24);
-	text->SetText(ConfBind(lang.bot_level));
+	text->SetText(ConfBind(lang.bot_difficulty));
 	AddFront(text);
 
 	_levels = std::make_shared<DefaultComboBox>(manager, texman);

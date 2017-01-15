@@ -82,7 +82,6 @@ protected:
 	void SetL2(aiState_l2 new_state);
 
 	void SelectState(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
-	void DoState(const World &world, const GC_Vehicle &vehicle, VehicleState *pVehState, const AIWEAPSETTINGS *ws);
 
 	void SetActive(bool active);
 	bool GetActive() const { return _isActive; }
@@ -99,7 +98,7 @@ public:
 
 	void debug_draw(World &world);
 
-	void SetLevel(int level) { _difficulty = level; }
+	void SetLevel(int level);
 	int  GetLevel() const { return _difficulty; }
 
 	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);

@@ -1,6 +1,9 @@
 #include "DrivingAgent.h"
 #include <gc/Field.h>
 #include <gc/SaveFile.h>
+#include <gc/Turrets.h>
+#include <gc/Vehicle.h>
+#include <gc/VehicleState.h>
 #include <gc/WeaponBase.h>
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
@@ -75,7 +78,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	FieldCell &start = field(start_x, start_y);
 
-	if( !CheckCell(start, !!ws) ) return -1;
+	if( !CheckCell(start, !!ws) )
+		return -1;
 
 	start.Check();
 	start.UpdatePath(0, end_x, end_y);
@@ -188,14 +192,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 					GC_RigidBodyStatic *object = cell->GetObject(i);
 
-					//
-					// this piece of code protects friendly turrets.
-					//  (could be implemented better)
-					//
-					if( team && _difficulty > 0 )
+					if( team && !_attackFriendlyTurrets)
 					{
-						GC_Turret *pIsTurret = dynamic_cast<GC_Turret*>(object);
-						if( pIsTurret && (pIsTurret->GetTeam() == team) )
+						auto turret = dynamic_cast<GC_Turret*>(object);
+						if( turret && (turret->GetTeam() == team) )
 						{
 							continue;
 						}
@@ -389,7 +389,7 @@ static void RotateTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2
 	pState->_fBodyAngle = tmp.Angle();
 }
 
-void DrivingAgent::ComputeState()
+void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float dt, VehicleState &vs)
 {
 	vec2d brake = vehicle.GetBrakingLength();
 	//	float brake_len = brake.len();
@@ -478,9 +478,9 @@ void DrivingAgent::ComputeState()
 	destPoint = _path.front().coord;
 	*/
 
-	pVehState->_bExplicitBody = false;
-	pVehState->_bExplicitTower = false;
-	pVehState->_bState_TowerCenter = true;
+	vs._bExplicitBody = false;
+	vs._bExplicitTower = false;
+	vs._bState_TowerCenter = true;
 
 
 	//
@@ -549,11 +549,11 @@ void DrivingAgent::ComputeState()
 	{
 		if (_backTime <= 0)
 		{
-			RotateTo(vehicle, pVehState, _arrivalPoint, dst > brakeSqr, false);
+			RotateTo(vehicle, &vs, _arrivalPoint, dst > brakeSqr, false);
 		}
 		else
 		{
-			pVehState->_bState_MoveBack = true;
+			vs._bState_MoveBack = true;
 		}
 	}
 
@@ -574,9 +574,9 @@ void DrivingAgent::ComputeState()
 	}
 }
 
-void DrivingAgent::StayAway(vec2d center, float radius)
+void DrivingAgent::StayAway(const GC_Vehicle &vehicle, vec2d fromCenter, float radius)
 {
-	vec2d d = center - vehicle.GetPos();
+	vec2d d = fromCenter - vehicle.GetPos();
 	float d_len = d.len();
 	if (d_len < radius)
 	{
@@ -587,5 +587,4 @@ void DrivingAgent::StayAway(vec2d center, float radius)
 		}
 		_arrivalPoint = vehicle.GetPos() + d * (1 - radius / d_len);
 	}
-
 }

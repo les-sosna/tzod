@@ -10,19 +10,19 @@ void ShootingAgent::Serialize(SaveFile &f)
 	f.Serialize(_desiredOffset);
 }
 
-void ShootingAgent::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &x, bool bFire, const AIWEAPSETTINGS *ws)
+static void TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &at, bool bFire, const AIWEAPSETTINGS &weapSettings, float offsetAngle)
 {
 	assert(vehicle.GetWeapon());
 
-	vec2d tmp = x - vehicle.GetPos();
-	if (tmp.x && tmp.y)
+	vec2d direction = at - vehicle.GetPos();
+	direction.Normalize();
+	if (!direction.IsZero())
 	{
-		tmp.Normalize();
-		tmp = Vec2dAddDirection(tmp, Vec2dDirection(_currentOffset));
-		float cosDiff = Vec2dDot(tmp, vehicle.GetWeapon()->GetDirection());
-		pState->_bState_Fire = bFire && cosDiff >= ws->fMaxAttackAngleCos;
+		direction = Vec2dAddDirection(direction, Vec2dDirection(offsetAngle));
+		float cosDiff = Vec2dDot(direction, vehicle.GetWeapon()->GetDirection());
+		pState->_bState_Fire = bFire && cosDiff >= weapSettings.fMaxAttackAngleCos;
 		pState->_bExplicitTower = true;
-		pState->_fTowerAngle = Vec2dSubDirection(tmp, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
+		pState->_fTowerAngle = Vec2dSubDirection(direction, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
 		assert(!std::isnan(pState->_fTowerAngle) && std::isfinite(pState->_fTowerAngle));
 	}
 	else
@@ -36,39 +36,14 @@ void ShootingAgent::TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, con
 	}
 }
 
-// calculates the position of a fake target for more accurate shooting
-void ShootingAgent::CalcOutstrip(const World &world, vec2d origin, const GC_Vehicle &target, float Vp, vec2d &fake)
+void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, const GC_RigidBodyStatic &target, float dt, VehicleState &outVehicleState)
 {
-	float Vt = target._lv.len();
-	if (Vt < Vp)
-	{
-		float c = target.GetDirection().x;
-		float s = target.GetDirection().y;
+	auto targetAsVehicle = PtrDynCast<const GC_Vehicle>(&target);
 
-		float x = (target.GetPos().x - origin.x) * c +
-			(target.GetPos().y - origin.y) * s;
-		float y = (target.GetPos().y - origin.y) * c -
-			(target.GetPos().x - origin.x) * s;
-
-		float fx = x + Vt * (x * Vt + sqrt(Vp*Vp * (y*y + x*x) - Vt*Vt * y*y)) / (Vp*Vp - Vt*Vt);
-
-		fake.x = origin.x + fx * c - y * s;
-		fake.y = origin.y + fx * s + y * c;
-
-		fake = Vec2dConstrain(fake, world._bounds);
-	}
-	else
-	{
-		fake = origin;
-	}
-}
-
-void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, const GC_RigidBodyStatic &target, VehicleState *pVehState)
-{
 	// select a _currentOffset to reduce shooting accuracy
-	const float acc_speed = 0.4f; // angular velocity of a fake target
-	if (auto targetVehicle = PtrDynCast<GC_Vehicle>(&target))
+	if (targetAsVehicle)
 	{
+		const float acc_speed = 0.4f; // angular velocity of a fake target
 		float len = fabsf(_desiredOffset - _currentOffset);
 		if (acc_speed * dt >= len)
 		{
@@ -76,11 +51,11 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 
 			static float d_array[5] = { 0.186f, 0.132f, 0.09f, 0.05f, 0.00f };
 
-			float d = d_array[_difficulty];
+			float d = d_array[_accuracy];
 
-			if (_difficulty > 2)
+			if (_accuracy > 2)
 			{
-				d = d_array[_difficulty] * fabs(targetVehicle->_lv.len()) / targetVehicle->GetMaxSpeed();
+				d = d_array[_accuracy] * fabs(targetAsVehicle->_lv.len()) / targetAsVehicle->GetMaxSpeed();
 			}
 
 			_desiredOffset = (d > 0) ? (world.net_frand(d) - d * 0.5f) : 0;
@@ -96,15 +71,22 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 		_currentOffset = 0;
 	}
 
+	AIWEAPSETTINGS weapSettings;
 	assert(myVehicle.GetWeapon());
+	myVehicle.GetWeapon()->SetupAI(&weapSettings);
 
 	vec2d fake = target.GetPos();
-	GC_Vehicle *enemy = PtrDynCast<GC_Vehicle>(&target);
-	if (ws->bNeedOutstrip && _difficulty > 1 && enemy)
+	if (weapSettings.bNeedOutstrip && _accuracy > 1 && targetAsVehicle)
 	{
-		CalcOutstrip(world, myVehicle.GetPos(), *enemy, ws->fProjectileSpeed, fake);
+		world.CalcOutstrip(myVehicle.GetPos(), weapSettings.fProjectileSpeed, targetAsVehicle->GetPos(), targetAsVehicle->_lv, fake);
 	}
 
 	float len = (target.GetPos() - myVehicle.GetPos()).len();
-	TowerTo(vehicle, pVehState, fake, len > ws->fAttackRadius_crit, ws);
+	TowerTo(myVehicle, &outVehicleState, fake, len > weapSettings.fAttackRadius_crit, weapSettings, _currentOffset);
+}
+
+void ShootingAgent::SetAccuracy(int accuracy)
+{
+	assert(accuracy >= 0 && accuracy < 5);
+	_accuracy = accuracy;
 }

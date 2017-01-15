@@ -10,12 +10,12 @@ class ObjPtr
 public:
 	ObjPtr() : _ptr(nullptr) {}
 	ObjPtr(T *f)
-    : _ptr(f)
+		: _ptr(f)
 	{
 		if( _ptr ) ++((unsigned int *) _ptr)[-1];
 	}
-	ObjPtr(const ObjPtr &f) // overwrite default copy constructor
-    : _ptr(f._ptr)
+	ObjPtr(const ObjPtr &f)
+		: _ptr(f._ptr)
 	{
 		if( _ptr ) ++((unsigned int *) _ptr)[-1];
 	}

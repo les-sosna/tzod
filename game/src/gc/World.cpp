@@ -322,30 +322,30 @@ vec2d World::net_vrand(float len)
 	return Vec2dDirection(net_frand(PI2)) * len;
 }
 
-bool World::CalcOutstrip( const vec2d &fp, // fire point
-                          float vp,        // speed of the projectile
-                          const vec2d &tx, // target position
-                          const vec2d &tv, // target velocity
+bool World::CalcOutstrip( vec2d origin,
+                          float projectileSpeed,
+                          vec2d targetPos,
+                          vec2d targetVelocity,
                           vec2d &out_fake) // out: fake target position
 {
-	float vt = tv.len();
+	float vt = targetVelocity.len();
 
-	if( vt >= vp || vt < 1e-7 )
+	if( vt >= projectileSpeed || vt < 1e-7 )
 	{
-		out_fake = tx;
+		out_fake = targetPos;
 		return false;
 	}
 
-	float cg = tv.x / vt;
-	float sg = tv.y / vt;
+	float cg = targetVelocity.x / vt;
+	float sg = targetVelocity.y / vt;
 
-	float x   = (tx.x - fp.x) * cg + (tx.y - fp.y) * sg;
-	float y   = (tx.y - fp.y) * cg - (tx.x - fp.x) * sg;
-	float tmp = vp*vp - vt*vt;
+	float x   = (targetPos.x - origin.x) * cg + (targetPos.y - origin.y) * sg;
+	float y   = (targetPos.y - origin.y) * cg - (targetPos.x - origin.x) * sg;
+	float tmp = projectileSpeed*projectileSpeed - vt*vt;
 
-	float fx = x + vt * (x*vt + sqrt(x*x * vp*vp + y*y * tmp)) / tmp;
+	float fx = x + vt * (x*vt + sqrt(x*x * projectileSpeed*projectileSpeed + y*y * tmp)) / tmp;
 
-	out_fake = Vec2dConstrain(fp + vec2d{ fx*cg - y*sg, fx*sg + y*cg }, _bounds);
+	out_fake = Vec2dConstrain(origin + vec2d{ fx*cg - y*sg, fx*sg + y*cg }, _bounds);
 	return true;
 }
 

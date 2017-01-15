@@ -52,8 +52,8 @@ private:
 class ResumableObject
 {
 	DECLARE_POOLED_ALLOCATION(ResumableObject);
-    ResumableObject(const ResumableObject&) = delete;
-    ResumableObject& operator = (const ResumableObject&) = delete;
+	ResumableObject(const ResumableObject&) = delete;
+	ResumableObject& operator = (const ResumableObject&) = delete;
 public:
 	void Cancel() { ptr = nullptr; }
 
@@ -80,7 +80,7 @@ class World
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 
 public:
-    DECLARE_EVENTS(GC_Explosion);
+	DECLARE_EVENTS(GC_Explosion);
 	DECLARE_EVENTS(GC_Pickup);
 	DECLARE_EVENTS(GC_pu_Shield);
 	DECLARE_EVENTS(GC_Player);
@@ -111,7 +111,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_rigid_s;
 	Grid<PtrList<GC_Object>>  grid_walls;
 	Grid<PtrList<GC_Object>>  grid_pickup;
-    Grid<PtrList<GC_Object>>  grid_actors;
+	Grid<PtrList<GC_Object>>  grid_actors;
 
 	std::vector<bool> _waterTiles;
 	std::vector<bool> _woodTiles;
@@ -171,11 +171,11 @@ public:
 	float net_frand(float max);
 	vec2d net_vrand(float len);
 
-	bool CalcOutstrip( const vec2d &fp,    // fire point
-                       float vp,           // speed of the projectile
-                       const vec2d &tx,    // target position
-                       const vec2d &tv,    // target velocity
-                       vec2d &out_fake );  // out: fake target position
+	bool CalcOutstrip( vec2d origin,
+	                   float projectileSpeed,
+	                   vec2d targetPos,
+	                   vec2d targetVelocity,
+	                   vec2d &out_fake );  // out: fake target position
 
 	int GetTileIndex(vec2d pos) const;
 	int GetTileIndex(int blockX, int blockY) const;
@@ -211,13 +211,13 @@ public:
 public:
 	void Clear();
 	GC_Player* GetPlayerByIndex(size_t playerIndex);
-    void Seed(unsigned long seed);
+	void Seed(unsigned long seed);
 
 	float GetTime() const { return _time; }
 
 #ifdef NETWORK_DEBUG
-    uint32_t GetChecksum() const { return _checksum; }
-    unsigned int GetFrame() const { return _frame; }
+	uint32_t GetChecksum() const { return _checksum; }
+	unsigned int GetFrame() const { return _frame; }
 #endif
 
 	ResumableObject* Timeout(GC_Object &obj, float timeout);
@@ -225,9 +225,9 @@ public:
 private:
 	struct Resumable
 	{
-        std::unique_ptr<ResumableObject> obj;
+		std::unique_ptr<ResumableObject> obj;
 		float time;
-        bool operator<(const Resumable &other) const
+		bool operator<(const Resumable &other) const
 		{
 			return time > other.time;
 		}
@@ -236,17 +236,17 @@ private:
 			, time(time_)
 		{}
 #ifdef _MSC_VER
-        Resumable(Resumable && other)
-            : obj(std::move(other.obj))
-            , time(other.time)
-        {}
-        void operator=(Resumable && other)
-        {
-            obj = std::move(other.obj);
-            time = other.time;
-        }
+		Resumable(Resumable && other)
+			: obj(std::move(other.obj))
+			, time(other.time)
+		{}
+		void operator=(Resumable && other)
+		{
+			obj = std::move(other.obj);
+			time = other.time;
+		}
 #endif
-    };
+	};
 	std::priority_queue<Resumable> _resumables;
 	float _time;
 };
