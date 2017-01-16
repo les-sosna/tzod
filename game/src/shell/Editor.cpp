@@ -62,6 +62,39 @@ static bool PtOnActor(const GC_Actor &actor, vec2d pt)
 	return PtOnFRect(MakeRectRB(-halfSize, halfSize), delta);
 }
 
+namespace
+{
+	class LayerDisplay : public UI::DataSource<const std::string&>
+	{
+	public:
+		LayerDisplay(LangCache &lang, std::shared_ptr<UI::List> typeSelector)
+			: _lang(lang)
+			, _typeSelector(std::move(typeSelector))
+		{}
+
+		// DataSource<const std::string&>
+		const std::string& GetValue(const UI::StateContext &sc) const override
+		{
+			int index = _typeSelector->GetCurSel();
+			if (_cachedIndex != index)
+			{
+				std::ostringstream oss;
+				oss << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(index)).layer << ": ";
+				_cachedString = oss.str();
+				_cachedIndex = index;
+			}
+			return _cachedString;
+		}
+
+	private:
+		LangCache &_lang;
+		std::shared_ptr<UI::List> _typeSelector;
+		mutable int _cachedIndex = -1;
+		mutable std::string _cachedString;
+	};
+
+}
+
 GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
 {
 	int layer = -1;
@@ -146,10 +179,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
-	_layerDisp = std::make_shared<UI::Text>(manager, texman);
-	_layerDisp->SetAlign(alignTextRT);
-	AddFront(_layerDisp);
-
 	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
 	gameClassVis->Resize(64, 64);
 	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
@@ -171,6 +200,11 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	}
 	_typeSelector->GetList()->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
 	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
+
+	_layerDisp = std::make_shared<UI::Text>(manager, texman);
+	_layerDisp->SetAlign(alignTextRT);
+	_layerDisp->SetText(std::make_shared<LayerDisplay>(_lang, _typeSelector->GetList()));
+	AddFront(_layerDisp);
 
 	assert(!_conf.ed_uselayers.eventChange);
 	_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
@@ -441,10 +475,6 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 void EditorLayout::OnChangeObjectType(int index)
 {
 	_conf.ed_object.SetInt(index);
-
-	std::ostringstream buf;
-	buf << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(index)).layer << ": ";
-	_layerDisp->SetText(std::make_shared<UI::StaticText>(buf.str()));
 }
 
 void EditorLayout::OnChangeUseLayers()
