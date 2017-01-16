@@ -79,7 +79,6 @@ private:
 	void ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties);
 	vec2d AlignToGrid(vec2d worldPos) const;
 
-	void OnChangeObjectType(int index);
 	void OnChangeUseLayers();
 
 	// UI::ScrollSink

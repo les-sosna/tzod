@@ -198,7 +198,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 			_typeSelector->GetData()->AddItem(typeInfo.name, RTTypes::Inst().GetTypeByIndex(i));
 		}
 	}
-	_typeSelector->GetList()->eventChangeCurSel = std::bind(&EditorLayout::OnChangeObjectType, this, std::placeholders::_1);
 	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
 
 	_layerDisp = std::make_shared<UI::Text>(manager, texman);
@@ -272,9 +271,9 @@ void EditorLayout::EraseAt(vec2d worldPos)
 
 void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 {
-    vec2d alignedPos = AlignToGrid(worldPos);
+	vec2d alignedPos = AlignToGrid(worldPos);
 	if (PtInFRect(_world._bounds, alignedPos) &&
-        !PickEdObject(_worldView.GetRenderScheme(), _world, alignedPos))
+		!PickEdObject(_worldView.GetRenderScheme(), _world, alignedPos))
 	{
 		// create object
 		GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, GetCurrentType(), alignedPos);
@@ -293,33 +292,33 @@ void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 
 void EditorLayout::ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties)
 {
-    if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
-    {
-        if( _selectedObject == object )
-        {
-            _quickActions.DoAction(*object);
-            
-            _propList->DoExchange(false, GetManager().GetTextureManager());
-            if( _isObjectNew )
-                SaveToConfig(_conf, *object->GetProperties(_world));
-        }
-        else
-        {
-            Select(object, true);
-        }
-    }
-    else
-    {
-        CreateAt(worldPos, defaultProperties);
-    }
+	if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
+	{
+		if( _selectedObject == object )
+		{
+			_quickActions.DoAction(*object);
+			
+			_propList->DoExchange(false, GetManager().GetTextureManager());
+			if( _isObjectNew )
+				SaveToConfig(_conf, *object->GetProperties(_world));
+		}
+		else
+		{
+			Select(object, true);
+		}
+	}
+	else
+	{
+		CreateAt(worldPos, defaultProperties);
+	}
 }
 
 vec2d EditorLayout::AlignToGrid(vec2d worldPos) const
 {
-    auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
-    vec2d offset = vec2d{ typeInfo.offset, typeInfo.offset };
-    vec2d halfAlign = vec2d{ typeInfo.align, typeInfo.align } / 2;
-    return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
+	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+	vec2d offset = vec2d{ typeInfo.offset, typeInfo.offset };
+	vec2d halfAlign = vec2d{ typeInfo.align, typeInfo.align } / 2;
+	return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
 }
 
 void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
@@ -343,17 +342,17 @@ void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Te
 {
 	if (_capturedButton)
 	{
-        vec2d worldPos = CanvasToWorld(lc, pointerPosition);
-        if (2 == _capturedButton)
-        {
-            EraseAt(worldPos);
-        }
-        else if (1 == _capturedButton)
-        {
-            // keep default properties if Ctrl key is not pressed
-            bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
-            CreateAt(worldPos, defaultProperties);
-        }
+		vec2d worldPos = CanvasToWorld(lc, pointerPosition);
+		if (2 == _capturedButton)
+		{
+			EraseAt(worldPos);
+		}
+		else if (1 == _capturedButton)
+		{
+			// keep default properties if Ctrl key is not pressed
+			bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+			CreateAt(worldPos, defaultProperties);
+		}
 	}
 }
 
@@ -392,9 +391,9 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 	}
 	else if (1 == button)
 	{
-        // keep default properties if Ctrl key is not pressed
-        bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
-        ActionOrSelectOrCreateAt(worldPos, defaultProperties);
+		// keep default properties if Ctrl key is not pressed
+		bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+		ActionOrSelectOrCreateAt(worldPos, defaultProperties);
 	}
 
 	return capture;
@@ -472,11 +471,6 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
 
-void EditorLayout::OnChangeObjectType(int index)
-{
-	_conf.ed_object.SetInt(index);
-}
-
 void EditorLayout::OnChangeUseLayers()
 {
 	_layerDisp->SetVisible(_conf.ed_uselayers.Get());
@@ -538,6 +532,7 @@ FRECT EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) 
 
 ObjectType EditorLayout::GetCurrentType() const
 {
-	int selectedIndex = _typeSelector->GetList()->GetCurSel();
-	return static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(selectedIndex >= 0 ? selectedIndex : 0));
+	int selectedIndex = std::max(0, _typeSelector->GetList()->GetCurSel()); // ignore -1
+	_conf.ed_object.SetInt(selectedIndex);
+	return static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(selectedIndex));
 }
