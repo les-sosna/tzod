@@ -15,8 +15,8 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
   : UI::Dialog(manager, texman)
   , _fs(fs)
 {
-    Resize(512, 400);
-    
+	Resize(512, 400);
+
 	auto t = std::make_shared<UI::Text>(manager, texman);
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(ConfBind(lang.campaign_title));
