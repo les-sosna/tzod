@@ -20,7 +20,7 @@ ButtonBase::ButtonBase(LayoutManager &manager)
 
 ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic) const
 {
-	if (!lc.GetEnabled())
+	if (!lc.GetEnabledCombined())
 		return stateDisabled;
 
 	vec2d pointerPosition = ic.GetMousePos();

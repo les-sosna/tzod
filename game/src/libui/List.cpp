@@ -223,7 +223,7 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 			vec2d{ 0, (float)i * pxItemSize.y } : vec2d{ (float)i * pxItemSize.x, 0 };
 
 		enum ItemState { NORMAL, UNFOCUSED, FOCUSED, HOVER, DISABLED } itemState;
-		if (lc.GetEnabled())
+		if (lc.GetEnabledCombined())
 		{
 			if (_curSel == i)
 			{

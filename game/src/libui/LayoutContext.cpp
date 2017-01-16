@@ -13,7 +13,7 @@ LayoutContext::LayoutContext(float scale, vec2d offset, vec2d size, bool enabled
 
 LayoutContext::LayoutContext(TextureManager &texman, const Window &parentWindow, const LayoutContext &parentLC, const StateContext &parentSC, const Window &childWindow)
 	: _scale(parentLC.GetScale())
-	, _enabled(parentLC.GetEnabled() && childWindow.GetEnabled())
+	, _enabled(parentLC.GetEnabledCombined() && childWindow.GetEnabled())
 {
 	auto childRect = parentWindow.GetChildRect(texman, parentLC, parentSC, childWindow);
 	_offset = parentLC.GetPixelOffset() + Offset(childRect);

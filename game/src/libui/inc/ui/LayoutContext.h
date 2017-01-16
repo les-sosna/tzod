@@ -15,7 +15,7 @@ namespace UI
 		LayoutContext(float scale, vec2d offset, vec2d size, bool enabled);
 		LayoutContext(TextureManager &texman, const Window &parentWindow, const LayoutContext &parentLC, const StateContext &parentSC, const Window &childWindow);
 
-		bool GetEnabled() const { return _enabled; }
+		bool GetEnabledCombined() const { return _enabled; }
 		vec2d GetPixelOffset() const { return _offset; }
 		vec2d GetPixelSize() const { return _size; }
 		float GetScale() const { return _scale; }

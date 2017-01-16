@@ -112,7 +112,7 @@ int Edit::GetSelMax() const
 
 void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	const_cast<Edit*>(this)->SetFrame(lc.GetEnabled() ? 0 : 1);
+	const_cast<Edit*>(this)->SetFrame(lc.GetEnabledCombined() ? 0 : 1);
 
 	Rectangle::Draw(sc, lc, ic, dc, texman);
 
@@ -130,7 +130,7 @@ void Edit::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 	}
 
 	// text
-	SpriteColor c = lc.GetEnabled() ? 0xffffffff : 0xaaaaaaaa;
+	SpriteColor c = lc.GetEnabledCombined() ? 0xffffffff : 0xaaaaaaaa;
 	if( _offset < GetSelMin() )
 	{
 		dc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), _font, c, GetText().substr(_offset, GetSelMin() - _offset));
