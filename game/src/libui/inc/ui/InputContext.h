@@ -114,6 +114,7 @@ SinkType* FindAreaSink(
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
 	const StateContext &sc,
+	const InputContext &ic,
 	bool insideTopMost);
 
 } // namespace UI

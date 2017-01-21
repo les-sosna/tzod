@@ -21,6 +21,7 @@ class LayoutManager;
 class StateContext;
 enum class Key;
 enum class PointerType;
+template <class> struct DataSource;
 
 enum class StretchMode
 {
@@ -74,6 +75,7 @@ class Window : public std::enable_shared_from_this<Window>
 
 	std::list<Window*>::iterator _timeStepReg;
 
+	std::shared_ptr<DataSource<bool>> _enabled;
 
 	//
 	// size and position
@@ -92,7 +94,6 @@ class Window : public std::enable_shared_from_this<Window>
 	struct
 	{
 		bool _isVisible      : 1;
-		bool _isEnabled      : 1;
 		bool _isTopMost      : 1;
 		bool _isTimeStep     : 1;
 		bool _clipChildren   : 1;
@@ -161,8 +162,8 @@ public:
 	// Behavior
 	//
 
-	void SetEnabled(bool enable);
-	bool GetEnabled() const { return _isEnabled; }
+	void SetEnabled(std::shared_ptr<DataSource<bool>> enabled);
+	bool GetEnabled(const StateContext &sc) const;
 
 	void SetTimeStep(bool enable);
 	bool GetTimeStep() const { return _isTimeStep; }

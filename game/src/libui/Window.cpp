@@ -1,3 +1,4 @@
+#include "inc/ui/DataSource.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
@@ -9,7 +10,6 @@ using namespace UI;
 Window::Window(LayoutManager &manager)
   : _manager(manager)
   , _isVisible(true)
-  , _isEnabled(true)
   , _isTopMost(false)
   , _isTimeStep(false)
   , _clipChildren(false)
@@ -95,9 +95,14 @@ std::shared_ptr<Window> Window::GetFocus() const
 	return _focusChild;
 }
 
-void Window::SetEnabled(bool enable)
+void Window::SetEnabled(std::shared_ptr<DataSource<bool>> enabled)
 {
-	_isEnabled = enable;
+	_enabled = std::move(enabled);
+}
+
+bool Window::GetEnabled(const StateContext &sc) const
+{
+	return _enabled ? _enabled->GetValue(sc) : true;
 }
 
 void Window::SetVisible(bool visible)

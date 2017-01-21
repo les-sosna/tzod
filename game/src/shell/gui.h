@@ -62,14 +62,12 @@ protected:
 	void OnEditPlayer();
 	void OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnRemovePlayer();
-	void OnSelectPlayer(int index);
 
 	void OnAddBot();
 	void OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnEditBot();
 	void OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnRemoveBot();
-	void OnSelectBot(int index);
 
 	void OnOK();
 	void OnCancel();

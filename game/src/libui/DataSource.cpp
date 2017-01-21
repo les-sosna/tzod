@@ -4,9 +4,16 @@
 
 using namespace UI;
 
-SpriteColor StaticColor::GetValue(const StateContext &sc) const
+const std::shared_ptr<StaticValue<bool>>& detail::StaticConstants<bool>::True()
 {
-	return _color;
+	static auto value = std::make_shared<StaticValue<bool>>(true);
+	return value;
+}
+
+const std::shared_ptr<StaticValue<bool>>& detail::StaticConstants<bool>::False()
+{
+	static auto value = std::make_shared<StaticValue<bool>>(false);
+	return value;
 }
 
 SpriteColor ColorMap::GetValue(const StateContext &sc) const

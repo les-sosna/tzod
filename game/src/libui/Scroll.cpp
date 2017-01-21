@@ -1,5 +1,6 @@
 #include "inc/ui/Scroll.h"
 #include "inc/ui/Button.h"
+#include "inc/ui/DataSource.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include <algorithm>
@@ -142,8 +143,8 @@ void ScrollBarBase::OnLimitsChanged()
 {
 	bool needScroll = _documentSize > _pageSize;
 	_btnBox->SetVisible(needScroll);
-	_btnUpLeft->SetEnabled(needScroll);
-	_btnDownRight->SetEnabled(needScroll);
+	_btnUpLeft->SetEnabled(std::make_shared<StaticValue<bool>>(needScroll));
+	_btnDownRight->SetEnabled(std::make_shared<StaticValue<bool>>(needScroll));
 	if( !needScroll )
 	{
 		SetPos(0);

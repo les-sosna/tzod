@@ -24,6 +24,7 @@ add_library(ui
 	List.cpp
 	ListBase.cpp
 	ListBox.cpp
+	ListSelectionBinding.cpp
 	MultiColumnListItem.cpp
 	Rating.cpp
 	Rectangle.cpp
@@ -49,6 +50,7 @@ add_library(ui
 	inc/ui/List.h
 	inc/ui/ListBase.h
 	inc/ui/ListBox.h
+	inc/ui/ListSelectionBinding.h
 	inc/ui/MultiColumnListItem.h
 	inc/ui/Pointers.h
 	inc/ui/Rating.h

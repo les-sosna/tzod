@@ -8,6 +8,7 @@
 #include <ui/Text.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
+#include <ui/ListSelectionBinding.h>
 #include <ui/MultiColumnListItem.h>
 #include <ui/Button.h>
 #include <ui/Scroll.h>
@@ -80,7 +81,6 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	_profiles->Resize(128, 52);
 	AddFront(_profiles);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
-	_profiles->GetList()->eventChangeCurSel = std::bind(&SettingsDlg::OnSelectProfile, this, std::placeholders::_1);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
 	btn->SetText(ConfBind(_lang.settings_profile_new));
@@ -92,14 +92,14 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, Con
 	_editProfile->SetText(ConfBind(_lang.settings_profile_edit));
 	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
-	_editProfile->SetEnabled(false);
+	_editProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_editProfile);
 
 	_deleteProfile = std::make_shared<UI::Button>(manager, texman);
 	_deleteProfile->SetText(ConfBind(_lang.settings_profile_delete));
 	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
-	_deleteProfile->SetEnabled(false);
+	_deleteProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_deleteProfile);
 
 
@@ -227,12 +227,6 @@ void SettingsDlg::OnDeleteProfile()
 	}
 	_conf.dm_profiles.Remove(_profilesDataSource.GetItemText(i, 0));
 	UpdateProfilesList();
-}
-
-void SettingsDlg::OnSelectProfile(int index)
-{
-	_editProfile->SetEnabled( -1 != index );
-	_deleteProfile->SetEnabled( -1 != index );
 }
 
 void SettingsDlg::OnOK()

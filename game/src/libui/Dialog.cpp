@@ -69,7 +69,9 @@ void Dialog::PrevFocus(bool wrap)
 
 bool Dialog::TrySetFocus(const std::shared_ptr<Window> &child)
 {
-	if (child->GetVisible() && child->GetEnabled() && NeedsFocus(child.get()))
+	if (child->GetVisible() &&
+		//child->GetEnabled() &&
+		NeedsFocus(child.get()))
 	{
 		SetFocus(child);
 		return true;

@@ -96,28 +96,36 @@ SinkType* UI::FindAreaSink(
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
 	const StateContext &sc,
+	const InputContext &ic,
 	bool insideTopMost)
 {
 	SinkType *sink = nullptr;
 
 	vec2d pxPointerPosition = search.pxGlobalPointerPosition - lc.GetPixelOffset();
-
-	bool pointerInside = (pxPointerPosition.x >= 0 && pxPointerPosition.x < lc.GetPixelSize().x &&
-		pxPointerPosition.y >= 0 && pxPointerPosition.y < lc.GetPixelSize().y);
+	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pxPointerPosition);
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
+		auto stateGen = wnd->GetStateGen();
+		StateContext childSC;
+		if (stateGen)
+		{
+			childSC = sc;
+			stateGen->PushState(childSC, lc, ic);
+		}
+
 		auto &children = wnd->GetChildren();
 		for (auto it = children.rbegin(); it != children.rend() && !sink; ++it)
 		{
 			auto &child = *it;
-			if (child->GetEnabled() && child->GetVisible())
+			if (child->GetEnabled(stateGen ? childSC : sc) && child->GetVisible())
 			{
 				// early skip topmost subtree
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				if (!childInsideTopMost || search.topMostPass)
 				{
-					sink = FindAreaSink<SinkType>(search, child, LayoutContext(search.texman, *wnd, lc, sc, *child), sc, childInsideTopMost);
+					LayoutContext childLC(search.texman, *wnd, lc, sc, *child, stateGen ? childSC : sc);
+					sink = FindAreaSink<SinkType>(search, child, childLC, stateGen ? childSC : sc, ic, childInsideTopMost);
 				}
 			}
 		}
@@ -145,12 +153,15 @@ static LayoutContext RestoreLayoutContext(LayoutContext lc, StateContext sc, con
 		auto &child = path[i - 1];
 		auto &parent = path[i];
 
-		if (const StateGen *stateGen = parent->GetStateGen())
+		StateContext childSC;
+		auto stateGen = parent->GetStateGen();
+		if (stateGen)
 		{
-			stateGen->PushState(sc, lc, ic);
+			childSC = sc;
+			stateGen->PushState(childSC, lc, ic);
 		}
 
-		lc = LayoutContext(texman, *parent, lc, sc, *child);
+		lc = LayoutContext(texman, *parent, lc, sc, *child, stateGen ? childSC : sc);
 	}
 	return lc;
 }
@@ -192,7 +203,7 @@ bool InputContext::ProcessPointer(
 		for (bool topMostPass : {true, false})
 		{
 			AreaSinkSearch search{ texman, pxPointerPosition, topMostPass };
-			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, sc, wnd->GetTopMost());
+			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, sc, *this, wnd->GetTopMost());
 			if (pointerSink)
 			{
 				sinkPath = std::move(search.outSinkPath);
@@ -251,7 +262,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	for (bool topMostPass : {true, false})
 	{
 		AreaSinkSearch search{ texman, pxPointerPosition, topMostPass };
-		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc,sc,  wnd->GetTopMost());
+		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc, sc, *this, wnd->GetTopMost());
 		if (scrollSink)
 		{
 			sinkPath = std::move(search.outSinkPath);

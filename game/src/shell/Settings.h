@@ -53,7 +53,6 @@ protected:
 	void OnAddProfile();
 	void OnEditProfile();
 	void OnDeleteProfile();
-	void OnSelectProfile(int index);
 
 	void OnOK();
 	void OnCancel();

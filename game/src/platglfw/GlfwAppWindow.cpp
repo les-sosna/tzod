@@ -71,11 +71,12 @@ try
 		}
 		vec2d pxMousePos = GetCursorPosInPixels(window);
 
+		UI::StateContext sc;
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled()),
-			UI::StateContext(),
+			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			sc,
 			pxMousePos,
 			vec2d{},
 			msg,
@@ -94,11 +95,12 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
+		UI::StateContext sc;
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled()),
-			UI::StateContext(),
+			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			sc,
 			pxMousePos,
 			vec2d{},
 			UI::Msg::PointerMove,
@@ -114,11 +116,12 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window);
 		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
+		UI::StateContext sc;
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled()),
-			UI::StateContext(),
+			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			sc,
 			pxMousePos,
 			pxMouseOffset,
 			UI::Msg::Scroll,

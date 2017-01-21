@@ -24,6 +24,7 @@
 #include <ui/Button.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
@@ -458,7 +459,7 @@ void Desktop::PopNavStack(UI::Window *wnd)
 
 	if (!_navStack.empty())
 	{
-		_navStack.back()->SetEnabled(true);
+		_navStack.back()->SetEnabled(nullptr);
 	}
 
 	UpdateFocus();
@@ -475,7 +476,7 @@ void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
 
 	if (!_navStack.empty())
 	{
-		_navStack.back()->SetEnabled(false);
+		_navStack.back()->SetEnabled(UI::StaticValue<bool>::False());
 	}
 	_navStack.push_back(wnd);
 	UpdateFocus();

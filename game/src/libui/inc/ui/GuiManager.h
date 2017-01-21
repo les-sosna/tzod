@@ -18,7 +18,6 @@ class Window;
 
 struct RenderSettings
 {
-	StateContext &sc;
 	InputContext &ic;
 	DrawingContext &dc;
 	TextureManager &texman;
@@ -26,7 +25,7 @@ struct RenderSettings
 	std::vector<std::shared_ptr<Window>> hoverPath;
 };
 
-void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc);
+void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const StateContext &sc);
 
 class LayoutManager
 {

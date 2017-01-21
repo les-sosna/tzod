@@ -14,17 +14,42 @@ namespace UI
 		virtual ValueType GetValue(const StateContext &sc) const = 0;
 	};
 
-	class StaticColor : public DataSource<SpriteColor>
+	namespace detail
+	{
+		template <class T>
+		struct StaticConstants {};
+	}
+
+	template <class T>
+	class StaticValue
+		: public DataSource<T>
+		, public detail::StaticConstants<T>
 	{
 	public:
-		StaticColor(SpriteColor color) : _color(color) {}
+		template <class V>
+		StaticValue(V && value)
+			: _value(std::forward<V>(value))
+		{}
 
-		// DataSource<SpriteColor>
-		SpriteColor GetValue(const StateContext &sc) const override;
+		// DataSource<T>
+		T GetValue(const StateContext &sc) const override
+		{
+			return _value;
+		}
 
 	private:
-		SpriteColor _color;
+		T _value;
 	};
+
+	namespace detail
+	{
+		template <>
+		struct StaticConstants<bool>
+		{
+			static const std::shared_ptr<StaticValue<bool>>& True();
+			static const std::shared_ptr<StaticValue<bool>>& False();
+		};
+	}
 
 	class ColorMap : public DataSource<SpriteColor>
 	{
@@ -79,7 +104,7 @@ namespace UI
 		inline std::shared_ptr<DataSource<SpriteColor>> operator"" _rgba(unsigned long long n)
 		{
 			assert(n <= 0xffffffff); // The number should fit into 32 bits
-			return std::make_shared<StaticColor>(static_cast<SpriteColor>(n & 0xffffffff));
+			return std::make_shared<StaticValue<SpriteColor>>(static_cast<SpriteColor>(n & 0xffffffff));
 		}
 	}
 }

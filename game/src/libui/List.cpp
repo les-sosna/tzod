@@ -241,17 +241,21 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 			itemState = DISABLED;
 
 		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<StateContext&>(sc), const_cast<InputContext&>(ic), dc, texman };
+		UI::RenderSettings rs{ const_cast<InputContext&>(ic), dc, texman };
 
-		static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
-		rs.sc.SetState(itemStateStrings[itemState]);
-		rs.sc.SetDataContext(_data);
-		rs.sc.SetItemIndex(i);
+		StateContext itemSC;
+		{
+			static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
+			itemSC.SetState(itemStateStrings[itemState]);
+			itemSC.SetDataContext(_data);
+			itemSC.SetItemIndex(i);
+		}
 
 		rs.ic.PushTransform(pxItemOffset, true, true);
 		dc.PushTransform(pxItemOffset);
 
-		RenderUIRoot(*_itemTemplate, rs, LayoutContext(lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, true));
+		LayoutContext itemLC(lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, true);
+		RenderUIRoot(*_itemTemplate, rs, itemLC, itemSC);
 
 		dc.PopTransform();
 		rs.ic.PopTransform();

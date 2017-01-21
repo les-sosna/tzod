@@ -9,6 +9,7 @@
 #include <ui/Button.h>
 #include <ui/DataSource.h>
 #include <ui/ListBox.h>
+#include <ui/ListSelectionBinding.h>
 #include <ui/MultiColumnListItem.h>
 #include <ui/Text.h>
 #include <ui/Edit.h>
@@ -28,7 +29,6 @@
 
 #define MAX_TIMELIMIT   1000
 #define MAX_FRAGLIMIT   10000
-
 
 NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
   : Dialog(manager, texman)
@@ -143,7 +143,6 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_players->Move(x1, 256);
 	_players->Resize(x2-x1, 96);
 	_players->GetList()->SetItemTemplate(playerListItemTemplate);
-	_players->GetList()->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectPlayer, this, std::placeholders::_1);
 	AddFront(_players);
 
 
@@ -156,7 +155,6 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
 	_bots->GetList()->SetItemTemplate(playerListItemTemplate);
-	_bots->GetList()->eventChangeCurSel = std::bind(&NewGameDlg::OnSelectBot, this, std::placeholders::_1);
 	AddFront(_bots);
 
 
@@ -177,14 +175,14 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_removePlayer->SetText(ConfBind(_lang.human_player_remove));
 		_removePlayer->Move(x3, 286);
 		_removePlayer->eventClick = std::bind(&NewGameDlg::OnRemovePlayer, this);
-		_removePlayer->SetEnabled(false);
+		_removePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_removePlayer);
 
 		_changePlayer = std::make_shared<UI::Button>(manager, texman);
 		_changePlayer->SetText(ConfBind(_lang.human_player_modify));
 		_changePlayer->Move(x3, 316);
 		_changePlayer->eventClick = std::bind(&NewGameDlg::OnEditPlayer, this);
-		_changePlayer->SetEnabled(false);
+		_changePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_changePlayer);
 
 		btn = std::make_shared<UI::Button>(manager, texman);
@@ -197,14 +195,14 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_removeBot->SetText(ConfBind(_lang.AI_player_remove));
 		_removeBot->Move(x3, 414);
 		_removeBot->eventClick = std::bind(&NewGameDlg::OnRemoveBot, this);
-		_removeBot->SetEnabled(false);
+		_removeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_removeBot);
 
 		_changeBot = std::make_shared<UI::Button>(manager, texman);
 		_changeBot->SetText(ConfBind(_lang.AI_player_modify));
 		_changeBot->Move(x3, 444);
 		_changeBot->eventClick = std::bind(&NewGameDlg::OnEditBot, this);
-		_changeBot->SetEnabled(false);
+		_changeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_changeBot);
 
 
@@ -421,18 +419,6 @@ void NewGameDlg::OnOK()
 void NewGameDlg::OnCancel()
 {
 	Close(_resultCancel);
-}
-
-void NewGameDlg::OnSelectPlayer(int index)
-{
-	_removePlayer->SetEnabled( -1 != index );
-	_changePlayer->SetEnabled( -1 != index );
-}
-
-void NewGameDlg::OnSelectBot(int index)
-{
-	_removeBot->SetEnabled( -1 != index );
-	_changeBot->SetEnabled( -1 != index );
 }
 
 bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
