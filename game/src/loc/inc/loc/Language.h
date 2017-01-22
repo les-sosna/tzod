@@ -38,7 +38,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( get_file_name_save_game, "Save Game" )
 	VAR_STR( get_file_name_load_game, "Load Game" )
 	VAR_STR( get_file_name_save_map, "Save map" )
-	VAR_STR( get_file_name_load_map, "Select map for edit" )
+	VAR_STR( get_file_name_load_map, "Select map to edit" )
 	VAR_STR( get_file_name_new_map, "<Create new map>" )
 
 

@@ -18,17 +18,6 @@ class MessageArea;
 class ScoreTable;
 class CampaignControls;
 
-class TimeElapsed : public UI::Text
-{
-public:
-	TimeElapsed(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, World &world);
-
-private:
-	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
-
-	World &_world;
-};
-
 namespace UI
 {
 	class ConsoleBuffer;
@@ -66,7 +55,7 @@ private:
 	std::shared_ptr<UI::StackLayout> _scoreAndControls;
 	std::shared_ptr<ScoreTable> _score;
 	std::shared_ptr<CampaignControls> _campaignControls;
-	std::shared_ptr<TimeElapsed> _time;
+	std::shared_ptr<UI::Text> _timerDisplay;
 
 	GameContext &_gameContext;
 	GameViewHarness _gameViewHarness;

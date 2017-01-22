@@ -25,24 +25,34 @@
 
 #include <sstream>
 
-TimeElapsed::TimeElapsed(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, World &world)
-  : Text(manager, texman)
-  , _world(world)
+namespace
 {
-	SetTimeStep(true);
-	Move(x, y);
-	SetAlign(align);
-}
+	class TimerDisplay : public UI::DataSource<const std::string&>
+	{
+	public:
+		TimerDisplay(World &world)
+			: _world(world)
+		{}
 
-void TimeElapsed::OnTimeStep(UI::LayoutManager &manager, float dt)
-{
-	std::ostringstream text;
-	int time = (int) _world.GetTime();
-	text << (time / 60) << ":";
-	if( time % 60 < 10 )
-		text << "0";
-	text << (time % 60);
-	SetText(std::make_shared<UI::StaticText>(text.str()));
+		// UI::DataSource<const std::string&>
+		const std::string& GetValue(const UI::StateContext &sc) const override
+		{
+			std::ostringstream text;
+			int time = (int)_world.GetTime();
+			text << (time / 60) << ":";
+			if (time % 60 < 10)
+				text << "0";
+			text << (time % 60);
+
+			_cachedString = text.str();
+
+			return _cachedString;
+		}
+
+	private:
+		World &_world;
+		mutable std::string _cachedString;
+	};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,8 +96,11 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 		_scoreAndControls->AddFront(_campaignControls);
 	}
 
-	_time = std::make_shared<TimeElapsed>(manager, texman, 0.f, 0.f, alignTextRB, _gameContext.GetWorld());
-	AddFront(_time);
+	_timerDisplay = std::make_shared<UI::Text>(manager, texman);
+	_timerDisplay->SetAlign(alignTextRB);
+	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext.GetWorld()));
+	AddFront(_timerDisplay);
+
 	_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
@@ -255,9 +268,9 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 		vec2d pxChildSize = child.GetContentSize(texman, sc, lc.GetScale());
 		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
 	}
-	if (_time.get() == &child)
+	if (_timerDisplay.get() == &child)
 	{
-		return UI::CanvasLayout(size / scale, _time->GetSize(), scale);
+		return UI::CanvasLayout(size / scale, _timerDisplay->GetSize(), scale);
 	}
 	if (_msg.get() == &child)
 	{
@@ -315,7 +328,7 @@ void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManag
 
 void GameLayout::OnChangeShowTime()
 {
-	_time->SetVisible(_conf.ui_showtime.Get());
+	_timerDisplay->SetVisible(_conf.ui_showtime.Get());
 }
 
 void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)
