@@ -1,5 +1,6 @@
 #pragma once
 #include "ScriptMessageBroadcaster.h"
+#include "GameContextBase.h"
 #include "GameEvents.h"
 #include <functional>
 #include <memory>
@@ -8,15 +9,6 @@
 
 class World;
 struct Gameplay;
-
-struct GameContextBase
-{
-	virtual ~GameContextBase() {}
-	virtual World& GetWorld() = 0;
-	virtual Gameplay* GetGameplay() = 0;
-	virtual void Step(float dt) = 0;
-};
-
 
 namespace FS
 {

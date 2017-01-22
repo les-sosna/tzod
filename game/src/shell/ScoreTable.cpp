@@ -64,7 +64,7 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 	if( _deathmatch && _deathmatch->GetTimeLimit() > 0 )
 	{
 		std::ostringstream text;
-		int timeleft = int(_deathmatch->GetTimeLimit() - _world.GetTime());
+		int timeleft = (int)std::ceil(_deathmatch->GetTimeLimit() - _world.GetTime());
 		if( timeleft > 0 )
 			text << _lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else

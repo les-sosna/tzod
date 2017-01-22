@@ -48,6 +48,7 @@ enum class SoundTemplate
 	InvHit1,
 	InvHit2,
 	LightSwitch,
+	Beep,
 	Impact1,
 	Impact2,
 	Slide1,

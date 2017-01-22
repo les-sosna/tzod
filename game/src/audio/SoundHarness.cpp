@@ -1,6 +1,7 @@
 #include "SoundHarness.h"
 #include "SoundTemplates.h"
 #include "inc/audio/SoundRender.h"
+#include <ctx/Deathmatch.h>
 #include <gc/Crate.h>
 #include <gc/Explosion.h>
 #include <gc/Pickup.h>
@@ -13,8 +14,9 @@
 #include <gc/World.h>
 
 
-SoundHarness::SoundHarness(SoundRender &soundRender, World &world)
+SoundHarness::SoundHarness(SoundRender &soundRender, World &world, const Gameplay *gameplay)
 	: _world(world)
+	, _gameplay(gameplay)
 	, _soundRender(soundRender)
 {
 	_world.eGC_Pickup.AddListener(*this);
@@ -56,6 +58,20 @@ void SoundHarness::SetListenerPos(vec2d pos)
 
 void SoundHarness::Step()
 {
+	if (_gameplay && _gameplay->GetTimeLimit() > 0)
+	{
+		int secondsLeft = (int)std::ceil(_gameplay->GetTimeLimit() - _world.GetTime());
+		if (-1 == _secondsLeftLastStep)
+			_secondsLeftLastStep = secondsLeft;
+
+		if (secondsLeft < _secondsLeftLastStep && secondsLeft < 5)
+		{
+			_soundRender.PlayOnce(SoundTemplate::Beep, vec2d{});
+		}
+
+		_secondsLeftLastStep = secondsLeft;
+	}
+
 	for (auto &p: _attached)
 		p.second->SetPos(p.first->GetPos());
 	

@@ -16,14 +16,13 @@ public:
 
 	int GetFragLimit() const { return _fragLimit; }
 	void SetFragLimit(int fragLimit) { _fragLimit = fragLimit; }
-
-	float GetTimeLimit() const { return _timeLimit; }
 	void SetTimeLimit(float timeLimit) { _timeLimit = timeLimit; }
 
 
 	// Gameplay
 	void Step() override;
 	bool IsGameOver() const override;
+	float GetTimeLimit() const override { return _timeLimit; }
 	int GetRating() const override;
 	void Serialize(SaveFile &f) override;
 

@@ -42,7 +42,7 @@ namespace
 			std::ostringstream text;
 			if (_deathmatch && _deathmatch->GetTimeLimit() > 0)
 			{
-				int secondsLeft = int(_deathmatch->GetTimeLimit() - _world.GetTime());
+				int secondsLeft = (int)std::ceil(_deathmatch->GetTimeLimit() - _world.GetTime());
 				text << (secondsLeft / 60) << ":" << std::setfill('0') << std::setw(2) << (secondsLeft % 60);
 			}
 			else

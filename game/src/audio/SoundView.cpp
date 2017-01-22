@@ -74,6 +74,7 @@ SoundView::SoundView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, AppState &ap
 	LoadBuffer(fs, SoundTemplate::Screenshot, "misc/screenshot.ogg"); //
 	LoadBuffer(fs, SoundTemplate::Limit, "misc/limit.ogg");
 	LoadBuffer(fs, SoundTemplate::LightSwitch, "misc/light1.ogg"); //
+	LoadBuffer(fs, SoundTemplate::Beep, "misc/beep.ogg"); // http://soundbible.com/1133-Beep-Ping.html
 
 	OnGameContextChanged();
 }
@@ -114,6 +115,7 @@ void SoundView::OnGameContextChanged()
 {
 	if (GameContextBase *gc = GetAppState().GetGameContext())
 	{
-		_soundHarness.reset(new SoundHarness(*_soundRender, gc->GetWorld()));
+
+		_soundHarness.reset(new SoundHarness(*_soundRender, gc->GetWorld(), gc->GetGameplay()));
 	}
 }
