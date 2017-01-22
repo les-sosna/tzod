@@ -30,7 +30,7 @@
 #define AI_MAX_LEVEL   4U
 
 
-CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger)
+CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ShellConfig &conf, LangCache &lang, UI::ConsoleBuffer &logger)
   : Dialog(manager, texman, 770, 450)
   , _world(world)
   , _fs(fs)
@@ -302,7 +302,7 @@ void CreateServerDlg::OnCloseChild(std::shared_ptr<UI::Dialog> sender, int resul
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang)
+ConnectDlg::ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const std::string &defaultName, World &world, ShellConfig &conf, LangCache &lang)
   : Dialog(manager, texman, 512, 384)
   , _world(world)
   , _conf(conf)
@@ -406,7 +406,7 @@ void ConnectDlg::OnClientDestroy()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, LangCache &lang)
+InternetDlg::InternetDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, LangCache &lang)
   : Dialog(manager, texman, 450, 384)
   , _world(world)
   , _conf(conf)
@@ -554,7 +554,7 @@ void InternetDlg::OnCloseChild(std::shared_ptr<UI::Dialog> sender, int result)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, LangCache &lang)
+WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, LangCache &lang)
   : Dialog(manager, texman, 680, 512)
   , _players(nullptr)
   , _bots(nullptr)

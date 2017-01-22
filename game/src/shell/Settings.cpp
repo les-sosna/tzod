@@ -22,7 +22,7 @@
 #include <sstream>
 
 
-SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang)
+SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang)
   : Dialog(manager, texman)
   , _conf(conf)
   , _lang(lang)
@@ -270,7 +270,7 @@ void SettingsDlg::OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int 
 ///////////////////////////////////////////////////////////////////////////////
 // class ControlProfileDlg
 
-static std::string GenerateProfileName(const ConfCache &conf, LangCache &lang)
+static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 {
 	int i = 0;
 	std::ostringstream buf;
@@ -283,7 +283,7 @@ static std::string GenerateProfileName(const ConfCache &conf, LangCache &lang)
 	return buf.str();
 }
 
-ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ConfCache &conf, LangCache &lang)
+ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang)
   : Dialog(manager, texman)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))

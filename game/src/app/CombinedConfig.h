@@ -17,7 +17,7 @@
 #endif
 
 REFLECTION_BEGIN(CombinedConfig)
-	VAR_REFLECTION(shell, ConfCache)
+	VAR_REFLECTION(shell, ShellConfig)
 	VAR_REFLECTION(game, AppConfig)
 REFLECTION_END()
 

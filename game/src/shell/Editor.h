@@ -7,7 +7,7 @@
 #include <functional>
 
 class LangCache;
-class ConfCache;
+class ShellConfig;
 class DefaultCamera;
 class PropertyList;
 class TextureManager;
@@ -36,7 +36,7 @@ class EditorLayout
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 	DefaultCamera _defaultCamera;
@@ -60,7 +60,7 @@ public:
 		TextureManager &texman,
 		EditorContext &editorContext,
 		WorldView &worldView,
-		ConfCache &conf,
+		ShellConfig &conf,
 		LangCache &lang,
 		UI::ConsoleBuffer &logger);
 	virtual ~EditorLayout();

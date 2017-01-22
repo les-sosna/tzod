@@ -54,7 +54,7 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign)
+SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Dialog(manager, texman)
 	, _conf(conf)
 	, _lang(lang)

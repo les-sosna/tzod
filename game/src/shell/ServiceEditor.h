@@ -45,7 +45,7 @@ private:
 	LangCache &_lang;
 };
 
-class ConfCache;
+class ShellConfig;
 class EditorLayout;
 class TextureManager;
 
@@ -62,11 +62,11 @@ class ServiceEditor : public UI::Dialog
 
 	float _margins;
 	World &_world;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 
 public:
-	ServiceEditor(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang);
+	ServiceEditor(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ShellConfig &conf, LangCache &lang);
 	virtual ~ServiceEditor();
 
 	void OnChangeSelectionGlobal(GC_Object *obj);

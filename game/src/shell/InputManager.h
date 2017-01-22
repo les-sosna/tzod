@@ -3,7 +3,7 @@
 #include <gc/WorldEvents.h>
 #include <vector>
 
-class ConfCache;
+class ShellConfig;
 
 namespace UI
 {
@@ -13,7 +13,7 @@ namespace UI
 class InputManager
 {
 public:
-	InputManager(ConfCache &conf, UI::ConsoleBuffer &logger);
+	InputManager(ShellConfig &conf, UI::ConsoleBuffer &logger);
 	~InputManager();
 	Controller* GetController(unsigned int index);
 	const Controller* GetController(unsigned int index) const;
@@ -21,7 +21,7 @@ public:
     void Step(float dt);
 
 private:
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	UI::ConsoleBuffer &_logger;
 	std::vector<Controller> _controllers;
 	void OnProfilesChange();

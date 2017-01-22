@@ -30,7 +30,7 @@
 #define MAX_TIMELIMIT   1000
 #define MAX_FRAGLIMIT   10000
 
-NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
   : Dialog(manager, texman)
   , _texman(texman)
   , _conf(conf)
@@ -443,7 +443,7 @@ bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ConfCache &conf, LangCache &lang)
+EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang)
   : Dialog(manager, texman)
   , _info(&info)
 {

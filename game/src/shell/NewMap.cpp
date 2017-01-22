@@ -9,7 +9,7 @@
 #include <ui/Text.h>
 #include <algorithm>
 
-NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang)
+NewMapDlg::NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang)
 	: Dialog(manager, texman)
 	, _conf(conf)
 {

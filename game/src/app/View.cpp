@@ -50,7 +50,7 @@ struct TzodViewImpl
 			app.GetAppConfig(),
 			app.GetAppController(),
 			fs,
-			app.GetConf(),
+			app.GetShellConfig(),
 			app.GetLang(),
 			app.GetDMCampaign(),
 			logger))

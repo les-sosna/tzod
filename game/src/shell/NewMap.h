@@ -1,7 +1,7 @@
 #pragma once
 #include <ui/Dialog.h>
 
-class ConfCache;
+class ShellConfig;
 class LangCache;
 class TextureManager;
 namespace UI
@@ -11,12 +11,12 @@ namespace UI
 
 class NewMapDlg : public UI::Dialog
 {
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	std::shared_ptr<UI::Edit> _width;
 	std::shared_ptr<UI::Edit> _height;
 
 public:
-	NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang);
+	NewMapDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang);
 
 	void OnOK();
 	void OnCancel();

@@ -3,7 +3,7 @@
 #include "inc/shell/Config.h"
 #include <ui/ConsoleBuffer.h>
 
-InputManager::InputManager(ConfCache &conf, UI::ConsoleBuffer &logger)
+InputManager::InputManager(ShellConfig &conf, UI::ConsoleBuffer &logger)
 	: _conf(conf)
 	, _logger(logger)
 {

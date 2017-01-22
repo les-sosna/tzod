@@ -17,7 +17,7 @@ struct AppWindow;
 class AppConfig;
 class AppState;
 class AppController;
-class ConfCache;
+class ShellConfig;
 class LangCache;
 class DMCampaign;
 
@@ -30,7 +30,7 @@ public:
 	AppState& GetAppState();
 	AppController& GetAppController();
 	AppConfig& GetAppConfig();
-	ConfCache& GetConf();
+	ShellConfig& GetShellConfig();
 	LangCache& GetLang();
 	DMCampaign &GetDMCampaign();
 

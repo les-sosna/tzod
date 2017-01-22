@@ -7,7 +7,7 @@
 #include <video/DrawingContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, UI::ConsoleBuffer &logger)
+MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger)
   : Window(manager)
   , _fontTexture(texman.FindSprite("font_small"))
   , _conf(conf)

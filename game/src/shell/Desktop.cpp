@@ -49,7 +49,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
                  AppConfig &appConfig,
                  AppController &appController,
                  FS::FileSystem &fs,
-                 ConfCache &conf,
+                 ShellConfig &conf,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
                  UI::ConsoleBuffer &logger)
@@ -189,7 +189,7 @@ void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child, int result)
 	PopNavStack(child.get());
 }
 /*
-static DMSettings GetDMSettingsFromConfig(const ConfCache &conf)
+static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 {
 	DMSettings settings;
 

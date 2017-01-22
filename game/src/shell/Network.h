@@ -43,12 +43,12 @@ class CreateServerDlg : public UI::Dialog
 	std::shared_ptr<UI::Button> _lobbyAdd;
     World &_world;
 	FS::FileSystem &_fs;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 	UI::ConsoleBuffer &_logger;
 
 public:
-	CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ConfCache &conf, LangCache &lang, UI::ConsoleBuffer &logger);
+	CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ShellConfig &conf, LangCache &lang, UI::ConsoleBuffer &logger);
 	virtual ~CreateServerDlg();
 
 protected:
@@ -70,11 +70,11 @@ class ConnectDlg
 	std::shared_ptr<UI::Edit>   _name;
 //	std::unique_ptr<Subscribtion> _clientSubscribtion;
 	World &_world;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 
 public:
-	ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const std::string &defaultName, World &world, ConfCache &conf, LangCache &lang);
+	ConnectDlg(UI::LayoutManager &manager, TextureManager &texman, const std::string &defaultName, World &world, ShellConfig &conf, LangCache &lang);
 	virtual ~ConnectDlg();
 
 protected:
@@ -101,11 +101,11 @@ class InternetDlg : public UI::Dialog
 	std::shared_ptr<UI::Edit>   _name;
 	std::shared_ptr<UI::Text>   _status;
 	World &_world;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 
 public:
-	InternetDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, LangCache &lang);
+	InternetDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, LangCache &lang);
 	virtual ~InternetDlg();
 
 protected:
@@ -142,11 +142,11 @@ class WaitingForPlayersDlg
 	static const size_t _maxPings = 5;
 	std::vector<unsigned int> _pings;
 	World &_world;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 
 public:
-	WaitingForPlayersDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, LangCache &lang);
+	WaitingForPlayersDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, LangCache &lang);
 	virtual ~WaitingForPlayersDlg();
 
 protected:

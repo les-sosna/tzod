@@ -6,7 +6,7 @@
 #include <ui/Text.h>
 #include <unordered_map>
 
-class ConfCache;
+class ShellConfig;
 class LangCache;
 class GameContext;
 class World;
@@ -35,7 +35,7 @@ public:
 	           GameContext &gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,
-	           ConfCache &conf,
+	           ShellConfig &conf,
 	           LangCache &lang,
 	           UI::ConsoleBuffer &logger);
 	virtual ~GameLayout();
@@ -61,7 +61,7 @@ private:
 	GameViewHarness _gameViewHarness;
 	WorldView &_worldView;
 	WorldController &_worldController;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 	InputManager _inputMgr;
 	size_t _texDrag;

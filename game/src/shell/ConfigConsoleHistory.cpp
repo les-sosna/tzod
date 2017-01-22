@@ -1,7 +1,7 @@
 #include "inc/shell/detail/ConfigConsoleHistory.h"
 #include "inc/shell/Config.h"
 
-ConfigConsoleHistory::ConfigConsoleHistory(ConfCache &conf)
+ConfigConsoleHistory::ConfigConsoleHistory(const ShellConfig &conf)
 	: _conf(conf)
 {
 }

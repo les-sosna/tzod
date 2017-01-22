@@ -35,7 +35,7 @@ REFLECTION_END()
 ///////////////////////////////////////////////////////////////////////////////
 // config map
 
-REFLECTION_BEGIN(ConfCache) //  var_name  def_value
+REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 
 	// display settings
 	VAR_INT(  r_render,           0 )  HELPSTRING("0 - opengl, 1 - d3d")
@@ -118,7 +118,7 @@ REFLECTION_BEGIN(ConfCache) //  var_name  def_value
 REFLECTION_END()
 
 class DMCampaign;
-int GetCurrentTier(const ConfCache &conf, const DMCampaign &dmCampaign);
-int GetCurrentMap(const ConfCache &conf, const DMCampaign &dmCampaign);
+int GetCurrentTier(const ShellConfig &conf, const DMCampaign &dmCampaign);
+int GetCurrentMap(const ShellConfig &conf, const DMCampaign &dmCampaign);
 
 #endif

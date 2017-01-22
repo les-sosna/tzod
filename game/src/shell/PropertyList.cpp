@@ -22,7 +22,7 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
 	: Dialog(manager, texman)
 	, _deleteButton(std::make_shared<UI::Button>(manager, texman))
 	, _scrollView(std::make_shared<UI::ScrollView>(manager))
@@ -256,7 +256,7 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SaveToConfig(ConfCache &conf, const PropertySet &ps)
+void SaveToConfig(ShellConfig &conf, const PropertySet &ps)
 {
 	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
 	for (int i = 0; i < ps.GetCount(); ++i)
@@ -284,7 +284,7 @@ void SaveToConfig(ConfCache &conf, const PropertySet &ps)
 	}
 }
 
-void LoadFromConfig(const ConfCache &conf, PropertySet &ps)
+void LoadFromConfig(const ShellConfig &conf, PropertySet &ps)
 {
 	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
 	for (int i = 0; i < ps.GetCount(); ++i)

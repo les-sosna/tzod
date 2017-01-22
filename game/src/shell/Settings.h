@@ -39,11 +39,11 @@ class SettingsDlg : public UI::Dialog
 	std::shared_ptr<UI::ScrollBarHorizontal> _volumeMusic;
 	int _initialVolumeMusic;
 
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 
 public:
-	SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, LangCache &lang);
+	SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang);
 	virtual ~SettingsDlg();
 
 protected:
@@ -64,7 +64,7 @@ protected:
 class ControlProfileDlg : public UI::Dialog
 {
 public:
-	ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ConfCache &conf, LangCache &lang);
+	ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window
@@ -89,7 +89,7 @@ private:
 	std::string _nameOrig;
 	std::vector<UI::Key> _keyBindings;
 	ConfControllerProfile _profile;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 
 	float _time;

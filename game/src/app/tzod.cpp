@@ -79,7 +79,7 @@ AppConfig& TzodApp::GetAppConfig()
 	return _impl->combinedConfig.game;
 }
 
-ConfCache& TzodApp::GetConf()
+ShellConfig& TzodApp::GetShellConfig()
 {
 	return _impl->combinedConfig.shell;
 }

@@ -29,7 +29,7 @@ class NewGameDlg : public UI::Dialog
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 
 	TextureManager &_texman;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 	std::shared_ptr<MapList> _maps;
 	std::shared_ptr<DefaultListBox> _players;
@@ -47,7 +47,7 @@ class NewGameDlg : public UI::Dialog
 	bool _newPlayer;
 
 public:
-	NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ConfCache &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
@@ -91,7 +91,7 @@ class EditPlayerDlg : public UI::Dialog
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ConfCache &conf, LangCache &lang);
+	EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang);
 
 protected:
 	void OnChangeSkin(int index);

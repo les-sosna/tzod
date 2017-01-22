@@ -26,7 +26,7 @@ class MainMenuDlg;
 class EditorLayout;
 class GameLayout;
 class FpsCounter;
-class ConfCache;
+class ShellConfig;
 class LangCache;
 
 class Desktop
@@ -41,7 +41,7 @@ public:
 	        AppConfig &appConfig,
 	        AppController &appController,
 	        FS::FileSystem &fs,
-	        ConfCache &conf,
+	        ShellConfig &conf,
 	        LangCache &lang,
 	        DMCampaign &dmCampaign,
 	        UI::ConsoleBuffer &logger);
@@ -62,7 +62,7 @@ private:
 	AppConfig &_appConfig;
 	AppController &_appController;
 	FS::FileSystem &_fs;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
 	UI::ConsoleBuffer &_logger;

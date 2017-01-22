@@ -154,7 +154,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            TextureManager &texman,
                            EditorContext &editorContext,
                            WorldView &worldView,
-                           ConfCache &conf,
+                           ShellConfig &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
   : Window(manager)

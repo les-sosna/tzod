@@ -111,7 +111,7 @@ void ServiceListDataSource::OnKill(GC_Object &obj)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ConfCache &conf, LangCache &lang)
+ServiceEditor::ServiceEditor(UI::LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, World &world, ShellConfig &conf, LangCache &lang)
 	: Dialog(manager, texman, h, w, false)
 	, _listData(world, lang)
 	, _margins(5)

@@ -23,6 +23,7 @@ include_directories(
 )
 
 add_library(shell
+	inc/shell/detail/ConfigConsoleHistory.h
 	inc/shell/Config.h
 	inc/shell/Desktop.h
 	inc/shell/Profiler.h

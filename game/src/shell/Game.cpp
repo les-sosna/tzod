@@ -73,7 +73,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        GameContext &gameContext,
                        WorldView &worldView,
                        WorldController &worldController,
-                       ConfCache &conf,
+                       ShellConfig &conf,
                        LangCache &lang,
                        UI::ConsoleBuffer &logger)
   : Window(manager)

@@ -7,7 +7,7 @@
 #include <vector>
 
 class AppConfig;
-class ConfCache;
+class ShellConfig;
 class LangCache;
 class DMCampaign;
 class MapPreview;
@@ -27,7 +27,7 @@ namespace UI
 class SinglePlayer : public UI::Dialog
 {
 public:
-	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ConfCache &conf, LangCache &lang, DMCampaign &dmCampaign);
+	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
@@ -38,7 +38,7 @@ private:
 	void OnCancel();
 	void OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index);
 
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
 	MapCache _mapCache;

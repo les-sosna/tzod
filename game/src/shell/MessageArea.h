@@ -3,7 +3,7 @@
 #include <string>
 #include <deque>
 
-class ConfCache;
+class ShellConfig;
 class TextureManager;
 
 namespace UI
@@ -14,7 +14,7 @@ namespace UI
 class MessageArea : public UI::Window
 {
 public:
-	MessageArea(UI::LayoutManager &manager, TextureManager &texman, ConfCache &conf, UI::ConsoleBuffer &logger);
+	MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger);
 
 	void WriteLine(const std::string &text);
 	void Clear();
@@ -32,6 +32,6 @@ private:
 	typedef std::deque<Line> LineList;
 	LineList _lines;
 	size_t _fontTexture;
-	ConfCache &_conf;
+	ShellConfig &_conf;
 	UI::ConsoleBuffer &_logger;
 };
