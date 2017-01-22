@@ -24,25 +24,35 @@
 #include <video/TextureManager.h>
 
 #include <sstream>
+#include <iomanip>
 
 namespace
 {
 	class TimerDisplay : public UI::DataSource<const std::string&>
 	{
 	public:
-		TimerDisplay(World &world)
+		TimerDisplay(World &world, const Deathmatch *deathmatch)
 			: _world(world)
+			, _deathmatch(deathmatch)
 		{}
 
 		// UI::DataSource<const std::string&>
 		const std::string& GetValue(const UI::StateContext &sc) const override
 		{
 			std::ostringstream text;
-			int time = (int)_world.GetTime();
-			text << (time / 60) << ":";
-			if (time % 60 < 10)
-				text << "0";
-			text << (time % 60);
+			if (_deathmatch && _deathmatch->GetTimeLimit() > 0)
+			{
+				int secondsLeft = int(_deathmatch->GetTimeLimit() - _world.GetTime());
+				text << (secondsLeft / 60) << ":" << std::setfill('0') << std::setw(2) << (secondsLeft % 60);
+			}
+			else
+			{
+				int seconds = (int)_world.GetTime();
+				text << (seconds / 60) << ":";
+				if (seconds % 60 < 10)
+					text << "0";
+				text << (seconds % 60);
+			}
 
 			_cachedString = text.str();
 
@@ -51,6 +61,7 @@ namespace
 
 	private:
 		World &_world;
+		const Deathmatch *_deathmatch;
 		mutable std::string _cachedString;
 	};
 }
@@ -98,7 +109,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 
 	_timerDisplay = std::make_shared<UI::Text>(manager, texman);
 	_timerDisplay->SetAlign(alignTextRB);
-	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext.GetWorld()));
+	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext.GetWorld(), deathmatch));
 	AddFront(_timerDisplay);
 
 	_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
