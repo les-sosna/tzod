@@ -1,4 +1,5 @@
 #pragma once
+#include "CampaignControlCommands.h"
 #include "InputManager.h"
 #include <ctx/GameEvents.h>
 #include <gv/GameViewHarness.h>
@@ -17,6 +18,7 @@ class DefaultCamera;
 class MessageArea;
 class ScoreTable;
 class CampaignControls;
+
 
 namespace UI
 {
@@ -37,7 +39,8 @@ public:
 	           WorldController &worldController,
 	           ShellConfig &conf,
 	           LangCache &lang,
-	           UI::ConsoleBuffer &logger);
+	           UI::ConsoleBuffer &logger,
+	           CampaignControlCommands campaignControlCommands);
 	virtual ~GameLayout();
 
 	// Window

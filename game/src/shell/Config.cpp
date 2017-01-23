@@ -45,9 +45,14 @@ int GetCurrentTier(const ShellConfig &conf, const DMCampaign &dmCampaign)
 	return std::max(0, std::min((int)dmCampaign.tiers.GetSize() - 1, conf.sp_tier.GetInt()));
 }
 
-int GetCurrentMap(const ShellConfig &conf, const DMCampaign &dmCampaign)
+int GetCurrentTierMapCount(const ShellConfig &conf, const DMCampaign &dmCampaign)
 {
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(GetCurrentTier(conf, dmCampaign)));
-	return std::max(0, std::min((int)tierDesc.maps.GetSize() - 1, conf.sp_map.GetInt()));
+	return static_cast<int>(tierDesc.maps.GetSize());
+}
+
+int GetCurrentMap(const ShellConfig &conf, const DMCampaign &dmCampaign)
+{
+	return std::max(0, std::min(GetCurrentTierMapCount(conf, dmCampaign) - 1, conf.sp_map.GetInt()));
 }
 

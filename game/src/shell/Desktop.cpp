@@ -718,6 +718,27 @@ void Desktop::OnGameContextChanged()
 	if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
 	{
 		assert(!_game);
+
+		CampaignControlCommands campaignControlCommands;
+		campaignControlCommands.replayCurrent = [this, weakThis = std::weak_ptr<Window>(shared_from_this())]
+		{
+			if (!weakThis.expired())
+				_appController.StartMapDMCampaign(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
+		};
+		campaignControlCommands.playNext = [this, weakThis = std::weak_ptr<Window>(shared_from_this())]
+		{
+			if (!weakThis.expired())
+			{
+				int tierIndex = GetCurrentTier(_conf, _dmCampaign);
+				int nextMapIndex = (GetCurrentMap(_conf, _dmCampaign) + 1) % GetCurrentTierMapCount(_conf, _dmCampaign);
+				if (nextMapIndex == 0 && IsTierComplete(_appConfig, _dmCampaign, tierIndex))
+					tierIndex++;
+				_conf.sp_map.SetInt(nextMapIndex);
+				_conf.sp_tier.SetInt(tierIndex);
+				_appController.StartMapDMCampaign(GetAppState(), _appConfig, _dmCampaign, tierIndex, nextMapIndex);
+			}
+		};
+
 		_game = std::make_shared<GameLayout>(
 			GetManager(),
 			_texman,
@@ -726,7 +747,8 @@ void Desktop::OnGameContextChanged()
 			gameContext->GetWorldController(),
 			_conf,
 			_lang,
-			_logger);
+			_logger,
+			std::move(campaignControlCommands));
 		_game->Resize(GetWidth(), GetHeight());
 		AddBack(_game);
 

@@ -119,6 +119,7 @@ REFLECTION_END()
 
 class DMCampaign;
 int GetCurrentTier(const ShellConfig &conf, const DMCampaign &dmCampaign);
+int GetCurrentTierMapCount(const ShellConfig &conf, const DMCampaign &dmCampaign);
 int GetCurrentMap(const ShellConfig &conf, const DMCampaign &dmCampaign);
 
 #endif

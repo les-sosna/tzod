@@ -30,6 +30,7 @@ add_library(shell
 
 	BotView.h
 	Campaign.h
+	CampaignControlCommands.h
 	CampaignControls.h
 	ConfigBinding.h
 	Controller.h

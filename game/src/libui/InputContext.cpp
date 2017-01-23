@@ -228,15 +228,18 @@ bool InputContext::ProcessPointer(
 		case Msg::PointerDown:
 			if (pointerSink->OnPointerDown(*this, childLC, texman, pxPointerPosition, button, pointerType, pointerID))
 			{
-				_pointerCaptures[pointerID].capturePath = sinkPath;
+				_pointerCaptures[pointerID].capturePath = std::move(sinkPath);
 			}
 			break;
 		case Msg::PointerUp:
 		case Msg::PointerCancel:
 			if (isPointerCaptured)
 			{
-				pointerSink->OnPointerUp(*this, childLC, texman, pxPointerPosition, button, pointerType, pointerID);
+				// hold strong ref to sink target and let everyhing else go away
+				auto target = std::move(sinkPath.front());
+				sinkPath.clear();
 				_pointerCaptures.erase(pointerID);
+				pointerSink->OnPointerUp(*this, childLC, texman, pxPointerPosition, button, pointerType, pointerID);
 			}
 			break;
 		case Msg::PointerMove:

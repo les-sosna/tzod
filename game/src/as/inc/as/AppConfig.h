@@ -48,4 +48,6 @@ REFLECTION_BEGIN(AppConfig)
 	VAR_REFLECTION(sp_playerinfo, ConfPlayerLocal)
 REFLECTION_END()
 
+bool IsTierComplete(AppConfig &appConfig, const DMCampaign &dmCampaign, int tierIndex);
+
 #endif

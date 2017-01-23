@@ -1,4 +1,5 @@
 #pragma once
+#include "CampaignControlCommands.h"
 #include <ui/Window.h>
 
 namespace UI
@@ -12,7 +13,7 @@ class Deathmatch;
 class CampaignControls : public UI::Window
 {
 public:
-	CampaignControls(UI::LayoutManager &manager, TextureManager &texman, const Deathmatch &deathmatch);
+	CampaignControls(UI::LayoutManager &manager, TextureManager &texman, const Deathmatch &deathmatch, CampaignControlCommands commands);
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;

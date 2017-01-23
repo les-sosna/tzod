@@ -75,7 +75,8 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        WorldController &worldController,
                        ShellConfig &conf,
                        LangCache &lang,
-                       UI::ConsoleBuffer &logger)
+                       UI::ConsoleBuffer &logger,
+                       CampaignControlCommands campaignControlCommands)
   : Window(manager)
   , _gameContext(gameContext)
   , _gameViewHarness(gameContext.GetWorld(), worldController)
@@ -102,7 +103,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 
 	if (deathmatch)
 	{
-		_campaignControls = std::make_shared<CampaignControls>(manager, texman, *deathmatch);
+		_campaignControls = std::make_shared<CampaignControls>(manager, texman, *deathmatch, std::move(campaignControlCommands));
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
 	}

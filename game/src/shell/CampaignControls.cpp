@@ -28,7 +28,7 @@ namespace
 	};
 }
 
-CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &texman, const Deathmatch &deathmatch)
+CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &texman, const Deathmatch &deathmatch, CampaignControlCommands commands)
 	: UI::Window(manager)
 	, _content(std::make_shared<UI::StackLayout>(manager))
 	, _rating(std::make_shared<UI::Rating>(manager, texman))
@@ -39,6 +39,7 @@ CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &t
 
 	auto replay = std::make_shared<UI::Button>(manager, texman);
 	replay->SetText("Replay"_txt);
+	replay->eventClick = std::move(commands.replayCurrent);
 	_content->AddFront(replay);
 
 	_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(deathmatch));
@@ -46,6 +47,7 @@ CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &t
 
 	auto next = std::make_shared<UI::Button>(manager, texman);
 	next->SetText("Next"_txt);
+	next->eventClick = std::move(commands.playNext);
 	_content->AddFront(next);
 
 }

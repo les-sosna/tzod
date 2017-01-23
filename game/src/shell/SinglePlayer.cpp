@@ -149,7 +149,6 @@ void SinglePlayer::OnOK()
 	int index = _tiles->GetCurSel();
 	if (-1 != index)
 	{
-		_conf.cl_map.Set(_tilesSource.GetItemText(index, 0));
 		Close(_resultOK);
 	}
 }
