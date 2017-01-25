@@ -235,35 +235,52 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	});
 
 	_regKeyDown = _coreWindow->KeyDown += ref new TypedEventHandler<CoreWindow ^, KeyEventArgs ^>(
-		[inputSink = _inputSink](CoreWindow^ sender, KeyEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, coreWindow = _coreWindow](CoreWindow^ sender, KeyEventArgs^ args)
 	{
 		if (*inputSink)
 		{
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
 			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
+				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
+				UI::LayoutContext(dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
+				UI::StateContext(),
 				UI::Msg::KEYDOWN,
 				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
 	});
 
 	_regKeyUp = _coreWindow->KeyUp += ref new TypedEventHandler<CoreWindow ^, KeyEventArgs ^>(
-		[inputSink = _inputSink](CoreWindow^ sender, KeyEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, coreWindow = _coreWindow](CoreWindow^ sender, KeyEventArgs^ args)
 	{
 		if (*inputSink)
 		{
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
 			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
+				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
+				UI::LayoutContext(dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
+				UI::StateContext(),
 				UI::Msg::KEYUP,
 				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
 	});
 
 	_regCharacterReceived = _coreWindow->CharacterReceived += ref new TypedEventHandler<CoreWindow ^, CharacterReceivedEventArgs ^>(
-		[inputSink = _inputSink](CoreWindow^ sender, CharacterReceivedEventArgs^ args)
+		[inputSink = _inputSink, displayInformation = _displayInformation, coreWindow = _coreWindow](CoreWindow^ sender, CharacterReceivedEventArgs^ args)
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->GetInputContext().ProcessText((*inputSink)->GetDesktop(), args->KeyCode);
+			float dpi = displayInformation->LogicalDpi;
+			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
+			args->Handled = (*inputSink)->GetInputContext().ProcessText(
+				(*inputSink)->GetTextureManager(),
+				(*inputSink)->GetDesktop(),
+				UI::LayoutContext(dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
+				UI::StateContext(),
+				args->KeyCode);
 		}
 	});
 }

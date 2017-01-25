@@ -47,8 +47,8 @@ public:
 		int button,
 		PointerType pointerType,
 		unsigned int pointerID);
-	bool ProcessKeys(std::shared_ptr<Window> wnd, Msg msg, UI::Key key);
-	bool ProcessText(std::shared_ptr<Window> wnd, int c);
+	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, Msg msg, UI::Key key);
+	bool ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, int c);
 
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
@@ -70,8 +70,6 @@ public:
 #endif
 
 private:
-	bool ProcessCharRecursive(std::shared_ptr<Window> wnd, int c);
-	bool ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key);
 	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, vec2d pxPointerPosition, vec2d offset);
 
 	IInput &_input;
