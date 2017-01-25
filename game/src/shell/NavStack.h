@@ -22,13 +22,15 @@ public:
 	template <class T>
 	bool IsOnStack() const
 	{
-		auto navFront = GetNavFront();
-		for (auto wnd : GetChildren())
+		if (auto navFront = GetNavFront())
 		{
-			if (dynamic_cast<T*>(wnd.get()))
-				return true;
-			if (wnd == navFront)
-				break;
+			for (auto wnd : GetChildren())
+			{
+				if (dynamic_cast<T*>(wnd.get()))
+					return true;
+				if (wnd == navFront)
+					break;
+			}
 		}
 		return false;
 	}
