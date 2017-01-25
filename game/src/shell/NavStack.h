@@ -37,6 +37,7 @@ public:
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
+	float GetChildOpacity(const Window &child) const override;
 
 private:
 	enum class State

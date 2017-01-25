@@ -115,6 +115,7 @@ public:
 	LayoutManager& GetManager() const { return _manager;  } // to remove
 
 	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const;
+	virtual float GetChildOpacity(const Window &child) const { return 1; }
 
 	//
 	// Input

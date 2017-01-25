@@ -139,3 +139,18 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
+
+float NavStack::GetChildOpacity(const Window &child) const
+{
+	auto &children = GetChildren();
+	if (!children.empty() && children.back().get() == &child)
+	{
+		float transition = GetTransitionTimeLeft() / _foldTime;
+		if (_state == State::GoingForward)
+		{
+			transition = 1 - transition;
+		}
+		return transition;
+	}
+	return 1;
+}
