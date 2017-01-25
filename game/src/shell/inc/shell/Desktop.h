@@ -28,6 +28,7 @@ class GameLayout;
 class FpsCounter;
 class ShellConfig;
 class LangCache;
+class NavStack;
 
 class Desktop
 	: public UI::Window
@@ -74,9 +75,7 @@ private:
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
-	std::vector<std::shared_ptr<UI::Window>> _navStack;
-	float _navTransitionTime = 0;
-	float _navTransitionStart = 0;
+	std::shared_ptr<NavStack> _navStack;
 	float _openingTime = 0;
 
 	RenderScheme _renderScheme;
@@ -101,20 +100,8 @@ private:
 	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
 
 	void OnCloseChild(std::shared_ptr<UI::Window> child, int result);
-	void ClearNavStack();
-	void PopNavStack(UI::Window *wnd = nullptr);
-	void PushNavStack(std::shared_ptr<UI::Window> wnd);
 
 	void UpdateFocus();
-
-	template <class T>
-	bool IsOnTop() const
-	{
-		return !_navStack.empty() && !!dynamic_cast<T*>(_navStack.back().get());
-	}
-
-	float GetNavStackSize() const;
-	float GetTransitionTarget() const;
 
 	// AppStateListener
 	void OnGameContextChanging() override;

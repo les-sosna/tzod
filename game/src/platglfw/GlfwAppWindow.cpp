@@ -75,7 +75,7 @@ try
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
 			sc,
 			pxMousePos,
 			vec2d{},
@@ -99,7 +99,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
 			sc,
 			pxMousePos,
 			vec2d{},
@@ -120,7 +120,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
 			sc,
 			pxMousePos,
 			pxMouseOffset,
@@ -136,7 +136,14 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action,
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		UI::Key key = MapGlfwKeyCode(platformKey);
-		gui->GetInputContext().ProcessKeys(gui->GetDesktop(), GLFW_RELEASE == action ? UI::Msg::KEYUP : UI::Msg::KEYDOWN, key);
+		UI::StateContext sc;
+		gui->GetInputContext().ProcessKeys(
+			gui->GetTextureManager(),
+			gui->GetDesktop(),
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+			sc,
+			GLFW_RELEASE == action ? UI::Msg::KEYUP : UI::Msg::KEYDOWN,
+			key);
 	}
 }
 
@@ -146,7 +153,13 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
 	{
 		if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
 		{
-			gui->GetInputContext().ProcessText(gui->GetDesktop(), codepoint);
+			UI::StateContext sc;
+			gui->GetInputContext().ProcessText(
+				gui->GetTextureManager(), 
+				gui->GetDesktop(),
+				UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
+				sc,
+				codepoint);
 		}
 	}
 }

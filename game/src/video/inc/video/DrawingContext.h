@@ -20,7 +20,7 @@ public:
 	void PushClippingRect(RectRB rect);
 	void PopClippingRect();
 
-	void PushTransform(vec2d offset);
+	void PushTransform(vec2d offset, float opacityCombined = 1);
 	void PopTransform();
 
 	RectRB GetVisibleRegion() const;
@@ -43,10 +43,15 @@ public:
 	void SetMode(const RenderMode mode);
 
 private:
+	struct Transform
+	{
+		vec2d offset;
+		uint32_t opacity;
+	};
 	const TextureManager &_tm;
 	IRender &_render;
 	std::stack<RectRB> _clipStack;
-	std::stack<vec2d> _transformStack;
+	std::stack<Transform> _transformStack;
 	RectRB _viewport;
 	RenderMode _mode;
 };

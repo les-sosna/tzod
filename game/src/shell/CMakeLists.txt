@@ -47,6 +47,7 @@ add_library(shell
 	MapPreview.h
 	MapSettings.h
 	MessageArea.h
+	NavStack.h
 	Network.h
 	NewMap.h
 	PlayerView.h
@@ -80,6 +81,7 @@ add_library(shell
 	MapPreview.cpp
 	MapSettings.cpp
 	MessageArea.cpp
+	NavStack.cpp
 #	Network.cpp
 	SinglePlayer.cpp
 	NewMap.cpp

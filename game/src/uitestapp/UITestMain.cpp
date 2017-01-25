@@ -86,7 +86,7 @@ try
 		appWindow.GetRender().Begin();
 
 		UI::StateContext stateContext;
-		UI::LayoutContext layoutContext(layoutScale, vec2d{}, vec2d{ width, height }, desktop->GetEnabled(stateContext));
+		UI::LayoutContext layoutContext(1.f, layoutScale, vec2d{}, vec2d{ width, height }, desktop->GetEnabled(stateContext));
 		UI::RenderSettings rs{ gui.GetInputContext(), dc, textureManager };
 
 		UI::RenderUIRoot(*desktop, rs, layoutContext, stateContext);

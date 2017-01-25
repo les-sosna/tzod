@@ -276,10 +276,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	if (scrollSink)
 	{
 		LayoutContext childLC = RestoreLayoutContext(lc, sc, *this, texman, sinkPath);
-
-
 		pxPointerPosition -= childLC.GetPixelOffset();
-
 		scrollSink->OnScroll(texman, *this, childLC, sc, pxPointerPosition, offset);
 		return true;
 	}
@@ -287,32 +284,58 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	return false;
 }
 
-bool InputContext::ProcessKeyPressedRecursive(std::shared_ptr<Window> wnd, Key key)
-{
-	if (auto focus = wnd->GetFocus())
-	{
-		if (ProcessKeyPressedRecursive(std::move(focus), key))
-		{
-			return true;
-		}
-	}
 
-	if (KeyboardSink *keyboardSink = wnd->GetKeyboardSink())
+struct TraverseFocusPathSettings
+{
+	TextureManager &texman;
+	InputContext &ic;
+	std::function<bool(std::shared_ptr<Window>)> visitor;
+};
+
+static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, const TraverseFocusPathSettings &settings)
+{
+	if (lc.GetEnabledCombined() && wnd->GetVisible())
 	{
-		return keyboardSink->OnKeyPressed(*this, key);
+		if (auto focusedChild = wnd->GetFocus())
+		{
+			auto stateGen = wnd->GetStateGen();
+			StateContext childSC;
+			if (stateGen)
+			{
+				childSC = sc;
+				stateGen->PushState(childSC, lc, settings.ic);
+			}
+
+			LayoutContext childLC(settings.texman, *wnd, lc, sc, *focusedChild, stateGen ? childSC : sc);
+
+			if (TraverseFocusPath(std::move(focusedChild), childLC, stateGen ? childSC : sc, settings))
+			{
+				return true;
+			}
+		}
+
+		return settings.visitor(std::move(wnd));
 	}
 
 	return false;
 }
 
-bool InputContext::ProcessKeys(std::shared_ptr<Window> wnd, Msg msg, Key key)
+bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, Msg msg, Key key)
 {
 	switch (msg)
 	{
 	case Msg::KEYUP:
 		break;
 	case Msg::KEYDOWN:
-		return ProcessKeyPressedRecursive(wnd, key);
+		return TraverseFocusPath(wnd, lc, sc, TraverseFocusPathSettings {
+			texman,
+			*this,
+			[key, this](std::shared_ptr<Window> wnd) // visitor
+			{
+				KeyboardSink *keyboardSink = wnd->GetKeyboardSink();
+				return keyboardSink ? keyboardSink->OnKeyPressed(*this, key) : false;
+			}
+		});
 	default:
 		assert(false);
 	}
@@ -320,25 +343,15 @@ bool InputContext::ProcessKeys(std::shared_ptr<Window> wnd, Msg msg, Key key)
 	return false;
 }
 
-bool InputContext::ProcessCharRecursive(std::shared_ptr<Window> wnd, int c)
+bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, int c)
 {
-	if (auto focus = wnd->GetFocus())
-	{
-		if (ProcessCharRecursive(std::move(focus), c))
+	return TraverseFocusPath(wnd, lc, sc, TraverseFocusPathSettings {
+		texman,
+		*this,
+		[c](std::shared_ptr<Window> wnd) // visitor
 		{
-			return true;
+			TextSink *textSink = wnd->GetTextSink();
+			return textSink ? textSink->OnChar(c) : false;
 		}
-	}
-
-	if (TextSink *textSink = wnd->GetTextSink())
-	{
-		return textSink->OnChar(c);
-	}
-
-	return false;
-}
-
-bool InputContext::ProcessText(std::shared_ptr<Window> wnd, int c)
-{
-	return ProcessCharRecursive(wnd, c);
+	});
 }
