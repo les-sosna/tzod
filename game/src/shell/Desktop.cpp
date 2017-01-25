@@ -5,6 +5,7 @@
 #include "gui.h"
 #include "MainMenu.h"
 #include "MapSettings.h"
+#include "NavStack.h"
 #include "NewMap.h"
 #include "Settings.h"
 #include "SinglePlayer.h"
@@ -115,16 +116,23 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
-		if (_navStack.empty())
+		if (!_navStack->GetNavFront())
 		{
 			ShowMainMenu();
 		}
 		else
 		{
-			ClearNavStack();
+			while (auto wnd = _navStack->GetNavFront())
+			{
+				_navStack->PopNavStack(wnd.get());
+			}
 		}
 	};
 	AddFront(_pauseButton);
+
+	_navStack = std::make_shared<NavStack>(manager);
+	_navStack->SetSpacing(_conf.ui_spacing.GetFloat());
+	AddFront(_navStack);
 
 	SetTimeStep(true);
 	OnGameContextChanged();
@@ -140,11 +148,6 @@ Desktop::~Desktop()
 void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
-
-	if (_navTransitionTime > 0)
-	{
-		_navTransitionTime = std::max(0.f, _navTransitionTime - dt);
-	}
 
 	if (_openingTime > 0)
 	{
@@ -185,8 +188,7 @@ void Desktop::ShowConsole(bool show)
 
 void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child, int result)
 {
-	UnlinkChild(*child);
-	PopNavStack(child.get());
+	_navStack->PopNavStack(child.get());
 }
 /*
 static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
@@ -237,17 +239,16 @@ void Desktop::OnNewCampaign()
 			OnCloseChild(sender, UI::Dialog::_resultCancel);
 		}
 	};
-	PushNavStack(dlg);
+	_navStack->PushNavStack(dlg);
 }
 
 void Desktop::OnNewDM()
 {
-	for (auto wnd: _navStack)
-		if (dynamic_cast<NewGameDlg*>(wnd.get()) || dynamic_cast<SinglePlayer*>(wnd.get()))
-			return;
+	if (_navStack->IsOnStack<NewGameDlg>() || _navStack->IsOnStack<SinglePlayer>())
+		return;
 
-	if (!_navStack.empty() && dynamic_cast<SettingsDlg*>(_navStack.back().get()) )
-		PopNavStack();
+//	if (_navStack->IsOnTop<SettingsDlg>())
+//		_navStack->PopNavStack();
 
 	if (_dmCampaign.tiers.GetSize() > 0 &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
@@ -262,7 +263,10 @@ void Desktop::OnNewDM()
 				try
 				{
 					_appController.StartMapDMCampaign(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
-					ClearNavStack();
+					while (auto wnd = _navStack->GetNavFront())
+					{
+						_navStack->PopNavStack(wnd.get());
+					}
 				}
 				catch (const std::exception &e)
 				{
@@ -270,7 +274,7 @@ void Desktop::OnNewDM()
 				}
 			}
 		};
-		PushNavStack(dlg);
+		_navStack->PushNavStack(dlg);
 	}
 	else
 	{
@@ -283,7 +287,10 @@ void Desktop::OnNewDM()
 				try
 				{
 //					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-					ClearNavStack();
+					while (auto wnd = _navStack->GetNavFront())
+					{
+						_navStack->PopNavStack(wnd.get());
+					}
 				}
 				catch (const std::exception &e)
 				{
@@ -291,7 +298,7 @@ void Desktop::OnNewDM()
 				}
 			}
 		};
-		PushNavStack(dlg);
+		_navStack->PushNavStack(dlg);
 	}
 }
 
@@ -305,10 +312,13 @@ void Desktop::OnNewMap()
 		{
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
 			GetAppState().SetGameContext(std::move(gc));
-			ClearNavStack();
+			while (auto wnd = _navStack->GetNavFront())
+			{
+				_navStack->PopNavStack(wnd.get());
+			}
 		}
 	};
-	PushNavStack(dlg);
+	_navStack->PushNavStack(dlg);
 }
 
 void Desktop::OnOpenMap()
@@ -347,10 +357,13 @@ void Desktop::OnOpenMap()
 			}
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt(), stream.get()));
 			GetAppState().SetGameContext(std::move(gc));
-			ClearNavStack();
+			while (auto wnd = _navStack->GetNavFront())
+			{
+				_navStack->PopNavStack(wnd.get());
+			}
 		}
 	};
-	PushNavStack(fileDlg);
+	_navStack->PushNavStack(fileDlg);
 }
 
 void Desktop::OnExportMap()
@@ -382,7 +395,7 @@ void Desktop::OnExportMap()
 			//	_conf.cl_map.Set(fileDlg->GetFileTitle());
 			}
 		};
-		PushNavStack(fileDlg);
+		_navStack->PushNavStack(fileDlg);
 	}
 }
 
@@ -390,7 +403,7 @@ void Desktop::OnGameSettings()
 {
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
-	PushNavStack(dlg);
+	_navStack->PushNavStack(dlg);
 }
 
 void Desktop::OnMapSettings()
@@ -400,7 +413,7 @@ void Desktop::OnMapSettings()
 		//ThemeManager themeManager(GetAppState(), _fs, _texman);
 		auto dlg = std::make_shared<MapSettingsDlg>(GetManager(), _texman, gameContext->GetWorld()/*, themeManager*/, _lang);
 		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
-		PushNavStack(dlg);
+		_navStack->PushNavStack(dlg);
 	}
 }
 
@@ -418,68 +431,13 @@ void Desktop::ShowMainMenu()
 	{
 		if (GetAppState().GetGameContext()) // do not return to nothing
 		{
-			ClearNavStack();
+			while (auto wnd = _navStack->GetNavFront())
+			{
+				_navStack->PopNavStack(wnd.get());
+			}
 		}
 	};
-	PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _lang, std::move(commands)));
-}
-
-void Desktop::ClearNavStack()
-{
-	for (auto &wnd: _navStack)
-	{
-		UnlinkChild(*wnd);
-	}
-	_navStack.clear();
-	UpdateFocus();
-}
-
-void Desktop::PopNavStack(UI::Window *wnd)
-{
-	if (wnd)
-	{
-		_navTransitionStart = GetTransitionTarget();
-		_navTransitionTime = _conf.ui_foldtime.GetFloat();
-
-		auto it = std::find_if(_navStack.begin(), _navStack.end(), [wnd](auto &other)
-		{
-			return other.get() == wnd;
-		});
-		assert(_navStack.end() != it);
-		_navStack.erase(it);
-	}
-	else if (!_navStack.empty())
-	{
-		_navTransitionStart = GetTransitionTarget();
-		_navTransitionTime = _conf.ui_foldtime.GetFloat();
-
-		UnlinkChild(*_navStack.back());
-		_navStack.pop_back();
-	}
-
-	if (!_navStack.empty())
-	{
-		_navStack.back()->SetEnabled(nullptr);
-	}
-
-	UpdateFocus();
-}
-
-void Desktop::PushNavStack(std::shared_ptr<UI::Window> wnd)
-{
-	AddFront(wnd);
-	_navTransitionStart = GetTransitionTarget();
-	if (!_initializing)
-	{
-		_navTransitionTime = _conf.ui_foldtime.GetFloat();
-	}
-
-	if (!_navStack.empty())
-	{
-		_navStack.back()->SetEnabled(UI::StaticValue<bool>::False());
-	}
-	_navStack.push_back(wnd);
-	UpdateFocus();
+	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _lang, std::move(commands)));
 }
 
 void Desktop::UpdateFocus()
@@ -488,33 +446,14 @@ void Desktop::UpdateFocus()
 	{
 		SetFocus(_con);
 	}
-	else if(!_navStack.empty())
+	else if(_navStack->GetNavFront())
 	{
-		SetFocus(_navStack.back());
+		SetFocus(_navStack);
 	}
 	else
 	{
-		SetFocus(_game);
+		SetFocus(_game); // may be null
 	}
-}
-
-float Desktop::GetNavStackSize() const
-{
-	float navStackHeight = 0;
-	if (!_navStack.empty())
-	{
-		for (auto wnd : _navStack)
-		{
-			navStackHeight += wnd->GetHeight();
-		}
-		navStackHeight += (float)(_navStack.size() - 1) * _conf.ui_spacing.GetFloat();
-	}
-	return navStackHeight;
-}
-
-float Desktop::GetTransitionTarget() const
-{
-	return (GetHeight() + (_navStack.empty() ? 0 : _navStack.back()->GetHeight())) / 2 - GetNavStackSize();
 }
 
 bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
@@ -534,15 +473,15 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		}
 		else
 		{
-			if (_navStack.empty())
+			if (!_navStack->GetNavFront())
 			{
 				ShowMainMenu();
 			}
-			else if(!IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
+			else if(!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
 			{
-				PopNavStack();
+				_navStack->PopNavStack();
 			}
-			if (_navStack.empty() && !GetAppState().GetGameContext())
+			if (!_navStack->GetNavFront() && !GetAppState().GetGameContext())
 			{
 				ShowMainMenu();
 			}
@@ -562,7 +501,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		break;
 
 	case UI::Key::F5:
-		if (_navStack.empty())
+		if (!_navStack->GetNavFront())
 			SetEditorMode(!GetEditorMode());
 		break;
 
@@ -584,7 +523,7 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 		}
 		return MakeRectWH(vec2d{0, -lc.GetPixelSize().y * transition}, lc.GetPixelSize());
 	}
-	if (_editor.get() == &child || _game.get() == &child)
+	if (_editor.get() == &child || _game.get() == &child || _navStack.get() == &child)
 	{
 		return MakeRectWH(lc.GetPixelSize());
 	}
@@ -595,22 +534,6 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 	if (_fps.get() == &child)
 	{
 		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, sc, lc.GetScale()) / lc.GetScale(), lc.GetScale());
-	}
-	if (!_navStack.empty())
-	{
-		float transition = (1 - std::cos(PI * _navTransitionTime / _conf.ui_foldtime.GetFloat())) / 2;
-		float top = _navTransitionStart * transition + GetTransitionTarget() * (1 - transition);
-
-		for (auto wnd : _navStack)
-		{
-			vec2d pxWndSize = wnd->GetContentSize(texman, sc, lc.GetScale());
-			if (wnd.get() == &child)
-			{
-				vec2d pxWndOffset = Vec2dFloor((lc.GetPixelSize().x - pxWndSize.x) / 2, top * lc.GetScale());
-				return MakeRectWH(pxWndOffset, pxWndSize);
-			}
-			top += pxWndSize.y / lc.GetScale() + _conf.ui_spacing.GetFloat();
-		}
 	}
 	return UI::Window::GetChildRect(texman, lc, sc, child);
 }
@@ -676,7 +599,7 @@ bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &r
 	if( lua_pcall(_globL.get(), 1, 1, 0) )
 	{
 		_logger.WriteLine(1, lua_tostring(_globL.get(), -1));
-        lua_pop(_globL.get(), 1); // pop error message
+		lua_pop(_globL.get(), 1); // pop error message
 	}
 	else
 	{
