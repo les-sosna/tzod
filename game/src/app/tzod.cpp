@@ -1,11 +1,9 @@
 #include "inc/app/tzod.h"
 #include "CombinedConfig.h"
-#include <as/AppConfig.h>
 #include <as/AppController.h>
 #include <as/AppState.h>
 #include <ctx/GameContextBase.h>
 #include <loc/Language.h>
-#include <shell/Config.h>
 #include <ui/ConsoleBuffer.h>
 
 #define FILE_CONFIG      "config.cfg"
