@@ -16,7 +16,7 @@ public:
 	AppController(FS::FileSystem &fs);
 	void Step(AppState &appState, AppConfig &appConfig, float dt);
 //    void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
-	void StartMapDMCampaign(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
+	void StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
 
 private:
 	FS::FileSystem &_fs;

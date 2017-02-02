@@ -78,7 +78,7 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt)
 //    appState.SetGameContext(std::move(gc));
 //}
 
-void AppController::StartMapDMCampaign(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map)
+void AppController::StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map)
 {
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(tier));
 	DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(map));
