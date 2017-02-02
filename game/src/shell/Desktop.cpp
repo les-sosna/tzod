@@ -126,6 +126,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 			{
 				_navStack->PopNavStack(wnd.get());
 			}
+			UpdateFocus();
 		}
 	};
 	AddFront(_pauseButton);
@@ -189,6 +190,7 @@ void Desktop::ShowConsole(bool show)
 void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child, int result)
 {
 	_navStack->PopNavStack(child.get());
+	UpdateFocus();
 }
 /*
 static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
@@ -240,6 +242,7 @@ void Desktop::OnNewCampaign()
 		}
 	};
 	_navStack->PushNavStack(dlg);
+	UpdateFocus();
 }
 
 void Desktop::OnNewDM()
@@ -267,6 +270,7 @@ void Desktop::OnNewDM()
 					{
 						_navStack->PopNavStack(wnd.get());
 					}
+					UpdateFocus();
 				}
 				catch (const std::exception &e)
 				{
@@ -275,6 +279,7 @@ void Desktop::OnNewDM()
 			}
 		};
 		_navStack->PushNavStack(dlg);
+		UpdateFocus();
 	}
 	else
 	{
@@ -291,6 +296,7 @@ void Desktop::OnNewDM()
 					{
 						_navStack->PopNavStack(wnd.get());
 					}
+					UpdateFocus();
 				}
 				catch (const std::exception &e)
 				{
@@ -299,6 +305,7 @@ void Desktop::OnNewDM()
 			}
 		};
 		_navStack->PushNavStack(dlg);
+		UpdateFocus();
 	}
 }
 
@@ -316,9 +323,11 @@ void Desktop::OnNewMap()
 			{
 				_navStack->PopNavStack(wnd.get());
 			}
+			UpdateFocus();
 		}
 	};
 	_navStack->PushNavStack(dlg);
+	UpdateFocus();
 }
 
 void Desktop::OnOpenMap()
@@ -361,9 +370,11 @@ void Desktop::OnOpenMap()
 			{
 				_navStack->PopNavStack(wnd.get());
 			}
+			UpdateFocus();
 		}
 	};
 	_navStack->PushNavStack(fileDlg);
+	UpdateFocus();
 }
 
 void Desktop::OnExportMap()
@@ -396,6 +407,7 @@ void Desktop::OnExportMap()
 			}
 		};
 		_navStack->PushNavStack(fileDlg);
+		UpdateFocus();
 	}
 }
 
@@ -404,6 +416,7 @@ void Desktop::OnGameSettings()
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
 	_navStack->PushNavStack(dlg);
+	UpdateFocus();
 }
 
 void Desktop::OnMapSettings()
@@ -414,6 +427,7 @@ void Desktop::OnMapSettings()
 		auto dlg = std::make_shared<MapSettingsDlg>(GetManager(), _texman, gameContext->GetWorld()/*, themeManager*/, _lang);
 		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
 		_navStack->PushNavStack(dlg);
+		UpdateFocus();
 	}
 }
 
@@ -435,9 +449,11 @@ void Desktop::ShowMainMenu()
 			{
 				_navStack->PopNavStack(wnd.get());
 			}
+			UpdateFocus();
 		}
 	};
 	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _lang, std::move(commands)));
+	UpdateFocus();
 }
 
 void Desktop::UpdateFocus()
@@ -480,6 +496,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 			else if(!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
 			{
 				_navStack->PopNavStack();
+				UpdateFocus();
 			}
 			if (!_navStack->GetNavFront() && !GetAppState().GetGameContext())
 			{
