@@ -18,6 +18,7 @@ namespace UI
 	class Console;
 	class Oscilloscope;
 	class Button;
+	class Text;
 }
 
 class AppConfig;
@@ -52,6 +53,7 @@ public:
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
+	float GetChildOpacity(const UI::Window &child) const override;
 
 protected:
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
@@ -76,6 +78,7 @@ private:
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
 	std::shared_ptr<NavStack> _navStack;
+	std::shared_ptr<UI::Text> _tierTitle;
 	float _openingTime = 0;
 
 	RenderScheme _renderScheme;

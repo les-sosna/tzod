@@ -30,7 +30,9 @@
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
+#include <ui/Text.h>
 #include <ui/UIInput.h>
+#include <video/DrawingContext.h>
 
 extern "C"
 {
@@ -134,6 +136,13 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_navStack = std::make_shared<NavStack>(manager);
 	_navStack->SetSpacing(_conf.ui_spacing.GetFloat());
 	AddFront(_navStack);
+
+	using namespace UI::DataSourceAliases;
+	_tierTitle = std::make_shared<UI::Text>(manager, texman);
+	_tierTitle->SetAlign(alignTextCC);
+	_tierTitle->SetFont(texman, "font_default");
+	_tierTitle->SetText("Tier 1"_txt);
+	AddFront(_tierTitle);
 
 	SetTimeStep(true);
 	OnGameContextChanged();
@@ -552,7 +561,23 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 	{
 		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, sc, lc.GetScale()) / lc.GetScale(), lc.GetScale());
 	}
+	if (_tierTitle.get() == &child)
+	{
+		return MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{});
+	}
 	return UI::Window::GetChildRect(texman, lc, sc, child);
+}
+
+float Desktop::GetChildOpacity(const UI::Window &child) const
+{
+	if (_tierTitle.get() == &child)
+	{
+		if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
+			return std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
+		else
+			return 0;
+	}
+	return UI::Window::GetChildOpacity(child);
 }
 
 void Desktop::OnChangeShowFps()
