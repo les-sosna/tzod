@@ -110,7 +110,7 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 	_appWindow.GetRender().Begin();
 
 	UI::StateContext stateContext;
-	UI::LayoutContext layoutContext(scale, vec2d{}, vec2d{ pxWidth, pxHeight }, _impl->gui.GetDesktop()->GetEnabled(stateContext));
+	UI::LayoutContext layoutContext(1.f, scale, vec2d{}, vec2d{ pxWidth, pxHeight }, _impl->gui.GetDesktop()->GetEnabled(stateContext));
 	UI::RenderSettings rs{ _impl->gui.GetInputContext(), dc, _impl->textureManager };
 
 	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs, layoutContext, stateContext);
