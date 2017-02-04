@@ -78,11 +78,9 @@ RectRB DrawingContext::GetVisibleRegion() const
 
 static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
 {
-	color.r = (uint16_t(color.r) * opacity) >> 8;
-	color.g = (uint16_t(color.g) * opacity) >> 8;
-	color.b = (uint16_t(color.b) * opacity) >> 8;
-	color.a = (uint16_t(color.a) * opacity) >> 8;
-	return color;
+	auto colorAG = (((color.color & 0xff00ff00) >> 8) * opacity) & 0xff00ff00;
+	auto colorBR = (((color.color & 0x00ff00ff) * opacity) >> 8) & 0x00ff00ff;
+	return colorAG | colorBR;
 }
 
 void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
