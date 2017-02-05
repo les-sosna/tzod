@@ -106,26 +106,29 @@ static void DrawWindowRecursive(
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
-				bool childFocused = wnd.GetFocus() == child;
-				bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
-					renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
-
-				vec2d childOffset = Offset(wnd.GetChildRect(renderSettings.texman, lc, sc, *child));
 				LayoutContext childLC(renderSettings.texman, wnd, lc, sc, *child, stateGen ? childCS : sc);
+				if (childLC.GetOpacityCombined() != 0)
+				{
+					bool childFocused = wnd.GetFocus() == child;
+					bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
+						renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
 
-				renderSettings.dc.PushTransform(childOffset, childLC.GetOpacityCombined());
-				renderSettings.ic.PushTransform(childOffset, childFocused, childOnHoverPath);
+					vec2d childOffset = Offset(wnd.GetChildRect(renderSettings.texman, lc, sc, *child));
 
-				DrawWindowRecursive(
-					renderSettings,
-					*child,
-					childLC,
-					stateGen ? childCS : sc,
-					childInsideTopMost,
-					childDepth);
+					renderSettings.dc.PushTransform(childOffset, childLC.GetOpacityCombined());
+					renderSettings.ic.PushTransform(childOffset, childFocused, childOnHoverPath);
 
-				renderSettings.ic.PopTransform();
-				renderSettings.dc.PopTransform();
+					DrawWindowRecursive(
+						renderSettings,
+						*child,
+						childLC,
+						stateGen ? childCS : sc,
+						childInsideTopMost,
+						childDepth);
+
+					renderSettings.ic.PopTransform();
+					renderSettings.dc.PopTransform();
+				}
 			}
 		}
 	}
