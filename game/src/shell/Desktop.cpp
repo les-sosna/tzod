@@ -1,4 +1,5 @@
 #include "Campaign.h"
+#include "ConfigBinding.h"
 #include "Editor.h"
 #include "Game.h"
 #include "GetFileName.h"
@@ -137,11 +138,9 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_navStack->SetSpacing(_conf.ui_spacing.GetFloat());
 	AddFront(_navStack);
 
-	using namespace UI::DataSourceAliases;
 	_tierTitle = std::make_shared<UI::Text>(manager, texman);
 	_tierTitle->SetAlign(alignTextCC);
 	_tierTitle->SetFont(texman, "font_default");
-	_tierTitle->SetText("Tier 1"_txt);
 	AddFront(_tierTitle);
 
 	SetTimeStep(true);
@@ -274,7 +273,10 @@ void Desktop::OnNewDM()
 			{
 				try
 				{
-					_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
+					int currentTier = GetCurrentTier(_conf, _dmCampaign);
+					int currentMap = GetCurrentMap(_conf, _dmCampaign);
+					_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
+
 					while (auto wnd = _navStack->GetNavFront())
 					{
 						_navStack->PopNavStack(wnd.get());
@@ -716,6 +718,10 @@ void Desktop::OnGameContextChanged()
 			std::move(campaignControlCommands));
 		_game->Resize(GetWidth(), GetHeight());
 		AddBack(_game);
+
+		int currentTier = GetCurrentTier(_conf, _dmCampaign);
+		DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(currentTier));
+		_tierTitle->SetText(ConfBind(tierDesc.title));
 
 		SetEditorMode(false);
 	}
