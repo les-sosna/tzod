@@ -38,6 +38,8 @@ CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &t
 	AddFront(_content);
 
 	auto replay = std::make_shared<UI::Button>(manager, texman);
+	replay->Resize(130, 30);
+	replay->SetFont(texman, "font_default");
 	replay->SetText("Replay"_txt);
 	replay->eventClick = std::move(commands.replayCurrent);
 	_content->AddFront(replay);
@@ -46,6 +48,8 @@ CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &t
 	_content->AddFront(_rating);
 
 	auto next = std::make_shared<UI::Button>(manager, texman);
+	next->Resize(130, 30);
+	next->SetFont(texman, "font_default");
 	next->SetText("Next"_txt);
 	next->eventClick = std::move(commands.playNext);
 	_content->AddFront(next);
