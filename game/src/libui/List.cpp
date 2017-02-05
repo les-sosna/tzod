@@ -252,7 +252,7 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 		}
 
 		rs.ic.PushTransform(pxItemOffset, true, true);
-		dc.PushTransform(pxItemOffset);
+		dc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, lc.GetEnabledCombined());
 		RenderUIRoot(*_itemTemplate, rs, itemLC, itemSC);
