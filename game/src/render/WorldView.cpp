@@ -19,13 +19,13 @@ WorldView::~WorldView()
 }
 
 void WorldView::Render(DrawingContext &dc,
-					   const World &world,
-					   const RectRB &viewport,
-					   vec2d eye,
-					   float zoom,
-					   bool editorMode,
-					   bool drawGrid,
-					   bool nightMode) const
+                       const World &world,
+                       const RectRB &viewport,
+                       vec2d eye,
+                       float zoom,
+                       bool editorMode,
+                       bool drawGrid,
+                       bool nightMode) const
 {
 	eye.x = floor(eye.x * zoom) / zoom;
 	eye.y = floor(eye.y * zoom) / zoom;

@@ -142,15 +142,15 @@ void RenderOpenGL::Camera(const RectRB *vp, float x, float y, float scale)
 
 void RenderOpenGL::Begin()
 {
-    glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 
-    glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
-    glColorPointer   (4, GL_UNSIGNED_BYTE, sizeof(MyVertex), &_VertexArray->color);
-    glVertexPointer  (2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->x    );
+	glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
+	glColorPointer   (4, GL_UNSIGNED_BYTE, sizeof(MyVertex), &_VertexArray->color);
+	glVertexPointer  (2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->x    );
 
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
 
 	glClearColor(0, 0, 0, _ambient);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -170,7 +170,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 	{
 	case RM_LIGHT:
 		glClearColor(0, 0, 0, _ambient);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);

@@ -529,6 +529,8 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 
 void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
+	SpriteColor color = ApplyOpacity(0xffffffff, _transformStack.top().opacity);
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[0];
 	IRender &render = _render;
@@ -538,25 +540,25 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	v[0].color = 0xffffffff;
+	v[0].color = color;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
 	v[0].x = x - px;
 	v[0].y = y - py;
 
-	v[1].color = 0xffffffff;
+	v[1].color = color;
 	v[1].u = rt.left + WIDTH(rt) * value;
 	v[1].v = rt.top;
 	v[1].x = x - px + lt.pxFrameWidth * value;
 	v[1].y = y - py;
 
-	v[2].color = 0xffffffff;
+	v[2].color = color;
 	v[2].u = rt.left + WIDTH(rt) * value;
 	v[2].v = rt.bottom;
 	v[2].x = x - px + lt.pxFrameWidth * value;
 	v[2].y = y - py + lt.pxFrameHeight;
 
-	v[3].color = 0xffffffff;
+	v[3].color = color;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
 	v[3].x = x - px;
@@ -609,25 +611,27 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 
 void DrawingContext::DrawBackground(size_t tex, FRECT bounds) const
 {
+	SpriteColor color = ApplyOpacity(0xffffffff, _transformStack.top().opacity);
+
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _render;
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
-	v[0].color = 0xffffffff;
+	v[0].color = color;
 	v[0].u = bounds.left / lt.pxFrameWidth;
 	v[0].v = bounds.top / lt.pxFrameHeight;
 	v[0].x = bounds.left;
 	v[0].y = bounds.top;
-	v[1].color = 0xffffffff;
+	v[1].color = color;
 	v[1].u = bounds.right / lt.pxFrameWidth;
 	v[1].v = bounds.top / lt.pxFrameHeight;
 	v[1].x = bounds.right;
 	v[1].y = bounds.top;
-	v[2].color = 0xffffffff;
+	v[2].color = color;
 	v[2].u = bounds.right / lt.pxFrameWidth;
 	v[2].v = bounds.bottom / lt.pxFrameHeight;
 	v[2].x = bounds.right;
 	v[2].y = bounds.bottom;
-	v[3].color = 0xffffffff;
+	v[3].color = color;
 	v[3].u = bounds.left / lt.pxFrameWidth;
 	v[3].v = bounds.bottom / lt.pxFrameHeight;
 	v[3].x = bounds.left;
