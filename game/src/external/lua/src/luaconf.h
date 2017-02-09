@@ -702,7 +702,8 @@ union luai_Cast { double l_d; long l_l; };
 #endif
 
 #if defined(LUA_WIN)
-#define LUA_DL_DLL
+// LoadLibrary is not available on WinRT
+//#define LUA_DL_DLL
 #endif
 
 

@@ -29,3 +29,5 @@ game/WinRT/ipch/
 *.VC.opendb
 *.opensdf
 *.sdf
+game/WinRT/AppPackages/
+game/WinRT/wtzod/BundleArtifacts/
