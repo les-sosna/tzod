@@ -141,7 +141,6 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_tiles->SetCurSel(GetCurrentMap(conf, dmCampaign));
 
-	Resize(800, 600);
 }
 
 void SinglePlayer::OnOK()

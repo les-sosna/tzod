@@ -14,6 +14,7 @@ public:
 	void PushNavStack(std::shared_ptr<UI::Window> wnd);
 
 	std::shared_ptr<UI::Window> GetNavFront() const;
+	float GetNavigationDepth() const;
 
 	template <class T>
 	bool IsOnTop() const

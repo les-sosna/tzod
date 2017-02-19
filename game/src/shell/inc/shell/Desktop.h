@@ -79,12 +79,9 @@ private:
 	std::shared_ptr<UI::Button> _pauseButton;
 	std::shared_ptr<NavStack> _navStack;
 	std::shared_ptr<UI::Text> _tierTitle;
-	float _openingTime = 0;
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
-
-	bool _initializing = true;
 
 	void OnNewCampaign();
 	void OnNewDM();

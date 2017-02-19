@@ -36,8 +36,8 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
   , _conf(conf)
   , _lang(lang)
 {
-    Resize(770, 550);
-    
+	Resize(770, 550);
+
 	_newPlayer = false;
 
 	float x1 = 16;

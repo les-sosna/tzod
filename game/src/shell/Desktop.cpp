@@ -73,6 +73,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
   , _worldView(texman, _renderScheme)
 {
 	using namespace std::placeholders;
+	using namespace UI::DataSourceAliases;
 
 	if (!_globL)
 		throw std::bad_alloc();
@@ -81,6 +82,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_background->SetTexture(texman, "gui_splash", false);
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
 	_background->SetDrawBorder(false);
+	_background->SetBackColor(0xff505050_rgba);
 	AddFront(_background);
 
 	_con = UI::Console::Create(this, texman, 10, 0, 100, 100, &_logger);
@@ -145,8 +147,6 @@ Desktop::Desktop(UI::LayoutManager &manager,
 
 	SetTimeStep(true);
 	OnGameContextChanged();
-
-	_initializing = false;
 }
 
 Desktop::~Desktop()
@@ -157,11 +157,6 @@ Desktop::~Desktop()
 void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
-
-	if (_openingTime > 0)
-	{
-		_openingTime = std::max(0.f, _openingTime - dt);
-	}
 
 	counterDt.Push(dt);
 }
@@ -544,11 +539,8 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 {
 	if (_background.get() == &child)
 	{
-		float transition = (1 - std::cos(PI * _openingTime / _conf.ui_foldtime.GetFloat())) / 2;
-		if (GetAppState().GetGameContext())
-		{
-			transition = 1 - transition;
-		}
+		float navDepth = _navStack->GetNavigationDepth();
+		float transition = 1 - (1 - std::cos(PI * std::min(1.f, navDepth))) / 2;
 		return MakeRectWH(vec2d{0, -lc.GetPixelSize().y * transition}, lc.GetPixelSize());
 	}
 	if (_editor.get() == &child || _game.get() == &child || _navStack.get() == &child)
@@ -742,11 +734,6 @@ void Desktop::OnGameContextChanged()
 		AddBack(_editor);
 
 		SetEditorMode(true);
-	}
-
-	if (!_initializing)
-	{
-		_openingTime = _conf.ui_foldtime.GetFloat();
 	}
 
 	if (!GetAppState().GetGameContext())

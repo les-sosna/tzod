@@ -26,6 +26,15 @@ std::shared_ptr<UI::Window> NavStack::GetNavFront() const
 	return nullptr;
 }
 
+float NavStack::GetNavigationDepth() const
+{
+	float transition = GetTransitionTimeLeft() / _foldTime;
+	if (_state == State::GoingForward)
+		return (float)GetChildren().size() - transition;
+	else
+		return (float)GetChildren().size() - 1 + transition;
+}
+
 void NavStack::PopNavStack(UI::Window *wnd)
 {
 	auto navFront = GetNavFront();
