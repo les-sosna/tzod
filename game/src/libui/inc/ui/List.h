@@ -27,6 +27,7 @@ public:
 
 	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
 
+	std::shared_ptr<Window> GetItemTemplate() const { return _itemTemplate; }
 	void SetItemTemplate(std::shared_ptr<Window> itemTemplate);
 
 	// list events
@@ -34,7 +35,7 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-    vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
 
 protected:
 	// callback interface

@@ -7,6 +7,7 @@
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
+#include "inc/ui/StateContext.h"
 #include <video/TextureManager.h>
 
 using namespace UI;
@@ -19,7 +20,6 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
 	_list->GetList()->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
-	_list->GetList()->eventChangeCurSel = std::bind(&ComboBox::OnChangeSelection, this, std::placeholders::_1);
 	_list->GetList()->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
 	AddFront(_list);
 
@@ -29,12 +29,6 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	AddFront(_btn);
 
 	auto fontName = "font_small";
-
-	_text = std::make_shared<TextButton>(manager, texman);
-	_text->SetFont(texman, fontName);
-	_text->eventClick = std::bind(&ComboBox::DropList, this);
-	AddFront(_text);
-
 	SetDrawBorder(true);
 	SetTexture(texman, "ui/combo", false);
 	Rectangle::Resize(GetWidth(), texman.GetSpriteInfo(texman.FindSprite(fontName)).pxFrameHeight + 2);
@@ -86,21 +80,12 @@ void ComboBox::OnClickItem(int index)
 	if( -1 != index )
 	{
 		_curSel = index;
-		_text->SetText(std::make_shared<StaticText>(_list->GetList()->GetData()->GetItemText(index, 0)));
 		_list->SetVisible(false);
 		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
 		SetFocus(nullptr);
 
 		if( eventChangeCurSel )
 			eventChangeCurSel(index);
-	}
-}
-
-void ComboBox::OnChangeSelection(int index)
-{
-	if( -1 != index )
-	{
-		_text->SetText(std::make_shared<StaticText>(_list->GetList()->GetData()->GetItemText(index, 0)));
 	}
 }
 
@@ -156,10 +141,6 @@ FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 		float top = std::floor((size.y - child.GetHeight() * scale) / 2);
 		return FRECT{ size.x - std::floor(child.GetWidth() * scale), top, size.x, top + std::floor(child.GetHeight() * scale) };
 	}
-	else if (_text.get() == &child)
-	{
-		return FRECT{ 0, 0, size.x - std::floor(_btn->GetWidth() * scale), size.y };
-	}
 
 	return Window::GetChildRect(texman, lc, sc, child);
 }
@@ -169,5 +150,21 @@ void ComboBox::Draw(const StateContext &sc, const LayoutContext &lc, const Input
 	const_cast<ComboBox*>(this)->SetFrame(lc.GetEnabledCombined() ? 0 : 3);
 
 	Rectangle::Draw(sc, lc, ic, dc, texman);
+
+	if (_list->GetList()->GetCurSel() != -1)
+	{
+		// TODO: something smarter than const_cast (fork?)
+		UI::RenderSettings rs{ const_cast<InputContext&>(ic), dc, texman };
+
+		StateContext itemSC;
+		{
+			itemSC.SetDataContext(_list->GetList()->GetData());
+			itemSC.SetItemIndex(_list->GetList()->GetCurSel());
+		}
+
+		vec2d pxItemSize = { lc.GetPixelSize().x - ToPx(_btn->GetWidth(), lc), lc.GetPixelSize().y };
+		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), lc.GetPixelOffset(), pxItemSize, lc.GetEnabledCombined());
+		RenderUIRoot(*_list->GetList()->GetItemTemplate(), rs, itemLC, itemSC);
+	}
 }
 

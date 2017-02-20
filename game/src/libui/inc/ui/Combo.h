@@ -10,7 +10,6 @@ namespace UI
 struct ListDataSource;
 class List;
 class ListBox;
-class TextButton;
 class Button;
 
 class ComboBox
@@ -40,11 +39,9 @@ protected:
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
 	void OnClickItem(int index);
-	void OnChangeSelection(int index);
 	void OnListLostFocus();
 
 private:
-	std::shared_ptr<TextButton> _text;
 	std::shared_ptr<Button> _btn;
 	std::shared_ptr<ListBox> _list;
 	int _curSel;
