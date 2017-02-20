@@ -23,12 +23,6 @@ return {
    }
 },
 {
-   file="textures/background/scoretbl.tga",
-   content={
-     scoretbl={xpivot=0, ypivot=0},
-   }
-},
-{
    file="textures/editor/grid.tga",
    content={
      grid={xpivot=0, ypivot=0},

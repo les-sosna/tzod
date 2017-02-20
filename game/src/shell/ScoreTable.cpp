@@ -17,7 +17,7 @@
 #define SCORE_POS_NUMBER     16
 #define SCORE_POS_NAME       48
 #define SCORE_POS_SCORE      16 // from the right side
-#define SCORE_LIMITS_LEFT    64
+#define SCORE_LIMITS_LEFT    96
 #define SCORE_TIMELIMIT_TOP  16
 #define SCORE_FRAGLIMIT_TOP  36
 #define SCORE_NAMES_TOP      64
@@ -31,8 +31,9 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
   , _deathmatch(deathmatch)
   , _lang(lang)
 {
-	SetTexture(texman, "scoretbl", true);
-	SetDrawBorder(false);
+	Resize(512, 256);
+	SetTexture(texman, "ui/window", false);
+	SetDrawBorder(true);
 }
 
 void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
