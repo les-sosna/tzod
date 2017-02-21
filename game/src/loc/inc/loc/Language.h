@@ -138,7 +138,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( dmcampaign_timelimit, "Time limit: " )
 	VAR_STR( dmcampaign_fraglimit, "Frag limit: " )
 	VAR_STR( dmcampaign_enemies, "Enemies" )
-	VAR_STR( dmcampaign_player, "Player Info" )
+	VAR_STR( dmcampaign_player, "You" )
 	VAR_STR( dmcampaign_ok, "Fight" )
 
 

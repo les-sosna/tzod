@@ -19,6 +19,7 @@ namespace FS
 }
 namespace UI
 {
+	class Button;
 	class List;
 	class StackLayout;
 	class Text;
@@ -34,6 +35,9 @@ public:
 	vec2d GetContentSize(TextureManager &texman, const UI::StateContext &sc, float scale) const override;
 
 private:
+	void UpdateTier();
+	void OnPrevTier();
+	void OnNextTier();
 	void OnOK();
 	void OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index);
 
@@ -46,7 +50,9 @@ private:
 	std::shared_ptr<UI::StackLayout> _content;
 
 	std::shared_ptr<UI::Text> _tierTitle;
-	std::shared_ptr<UI::List> _tiles;
+	std::shared_ptr<UI::List> _mapTiles;
+	std::shared_ptr<UI::Button> _prevTier;
+	std::shared_ptr<UI::Button> _nextTier;
 	std::shared_ptr<UI::StackLayout> _description;
 	std::shared_ptr<UI::StackLayout> _enemies;
 };
