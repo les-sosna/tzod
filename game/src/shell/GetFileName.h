@@ -50,5 +50,4 @@ protected:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key);
 
 	void OnOK();
-	void OnCancel();
 };

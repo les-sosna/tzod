@@ -65,14 +65,8 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
 	btn->SetText(ConfBind(lang.common_ok));
-	btn->Move(290, 420);
-	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
-	AddFront(btn);
-
-	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(400, 420);
-	btn->eventClick = std::bind(&GetFileNameDlg::OnCancel, this);
+	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
 	AddFront(btn);
 
 	SetFocus(_fileName);
@@ -146,9 +140,4 @@ bool GetFileNameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 void GetFileNameDlg::OnOK()
 {
 	Close(_resultOK);
-}
-
-void GetFileNameDlg::OnCancel()
-{
-	Close(_resultCancel);
 }
