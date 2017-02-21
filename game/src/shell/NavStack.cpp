@@ -151,17 +151,18 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 float NavStack::GetChildOpacity(const Window &child) const
 {
+	float transition = GetTransitionTimeLeft() / _foldTime;
+	if (_state == State::GoingForward)
+	{
+		transition = 1 - transition;
+	}
+
 	auto &children = GetChildren();
 	if (!children.empty() && children.back().get() == &child)
 	{
-		float transition = GetTransitionTimeLeft() / _foldTime;
-		if (_state == State::GoingForward)
-		{
-			transition = 1 - transition;
-		}
 		return transition;
 	}
-	return 1;
+	return 1 - transition;
 }
 
 void NavStack::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
