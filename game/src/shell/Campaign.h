@@ -24,7 +24,6 @@ public:
 
 private:
 	void OnOK();
-	void OnCancel();
 
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::List> DefaultListBox;
 	std::shared_ptr<DefaultListBox> _files;

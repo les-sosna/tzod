@@ -211,12 +211,6 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		btn->Move(544, 510);
 		btn->eventClick = std::bind(&NewGameDlg::OnOK, this);
 		AddFront(btn);
-
-		btn = std::make_shared<UI::Button>(manager, texman);
-		btn->SetText(ConfBind(_lang.dm_cancel));
-		btn->Move(656, 510);
-		btn->eventClick = std::bind(&NewGameDlg::OnCancel, this);
-		AddFront(btn);
 	}
 
 	// call this after creation of buttons
@@ -414,11 +408,6 @@ void NewGameDlg::OnOK()
 	_conf.cl_map.Set(fn);
 
 	Close(_resultOK);
-}
-
-void NewGameDlg::OnCancel()
-{
-	Close(_resultCancel);
 }
 
 bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)

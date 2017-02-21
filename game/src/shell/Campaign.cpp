@@ -42,12 +42,6 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
 	btn->Move(290, 360);
 	btn->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
 	AddFront(btn);
-
-	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(lang.campaign_cancel));
-	btn->Move(400, 360);
-	btn->eventClick = std::bind(&NewCampaignDlg::OnCancel, this);
-	AddFront(btn);
 }
 
 NewCampaignDlg::~NewCampaignDlg()
@@ -61,10 +55,4 @@ void NewCampaignDlg::OnOK()
 		if( eventCampaignSelected )
 			eventCampaignSelected(std::static_pointer_cast<NewCampaignDlg>(shared_from_this()), _files->GetData()->GetItemText(_files->GetCurSel(), 0));
 	}
-}
-
-void NewCampaignDlg::OnCancel()
-{
-	if( eventCampaignSelected )
-		eventCampaignSelected(std::static_pointer_cast<NewCampaignDlg>(shared_from_this()), std::string());
 }

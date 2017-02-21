@@ -35,7 +35,6 @@ public:
 
 private:
 	void OnOK();
-	void OnCancel();
 	void OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index);
 
 	ShellConfig &_conf;

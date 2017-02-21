@@ -130,11 +130,6 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	btn->eventClick = std::bind(&SinglePlayer::OnOK, this);
 	buttons->AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(lang.dmcampaign_cancel));
-	btn->eventClick = std::bind(&SinglePlayer::OnCancel, this);
-	buttons->AddFront(btn);
-
 	_content->SetSpacing(c_tileSpacing);
 	AddFront(_content);
 	SetFocus(_content);
@@ -152,11 +147,6 @@ void SinglePlayer::OnOK()
 	{
 		Close(_resultOK);
 	}
-}
-
-void SinglePlayer::OnCancel()
-{
-	Close(_resultCancel);
 }
 
 void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index)

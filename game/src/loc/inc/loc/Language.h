@@ -112,7 +112,6 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( AI_player_modify, "Modify" )
 
 	VAR_STR( dm_ok, "Go!" )
-	VAR_STR( dm_cancel, "Cancel" )
 
 	VAR_STR( player_settings, "Player settings" )
 	VAR_STR( player_nick, "Nickname" )
@@ -134,7 +133,6 @@ REFLECTION_BEGIN(LangCache)
 
 	VAR_STR( campaign_title, "Start a new campaign" )
 	VAR_STR( campaign_ok, "Let's go!" )
-	VAR_STR( campaign_cancel, "Cancel" )
 
 	VAR_STR( dmcampaign_description, "Description" )
 	VAR_STR( dmcampaign_timelimit, "Time limit: " )
@@ -142,7 +140,6 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( dmcampaign_enemies, "Enemies" )
 	VAR_STR( dmcampaign_player, "Player Info" )
 	VAR_STR( dmcampaign_ok, "Fight" )
-	VAR_STR( dmcampaign_cancel, "Cancel" )
 
 
 	//
