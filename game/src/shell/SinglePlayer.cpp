@@ -141,7 +141,7 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	auto btn = std::make_shared<UI::Button>(manager, texman);
 	btn->SetText(ConfBind(lang.dmcampaign_ok));
 	btn->SetFont(texman, "font_default");
-	btn->Resize(200, 50);
+	btn->Resize(200, 60);
 	btn->eventClick = std::bind(&SinglePlayer::OnOK, this);
 //	buttons->AddFront(btn);
 	_content->AddFront(btn);
