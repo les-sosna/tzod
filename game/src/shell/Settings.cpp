@@ -27,8 +27,8 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
   , _conf(conf)
   , _lang(lang)
 {
-    Resize(512, 296);
-    
+	Resize(512, 296);
+
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(_lang.settings_title));
@@ -111,23 +111,35 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	y = 48;
 
 	_showFps = std::make_shared<UI::CheckBox>(manager, texman);
-	_showFps->SetCheck(_conf.ui_showfps.Get());
 	_showFps->Move(x, y);
 	_showFps->SetText(texman, _lang.settings_show_fps.Get());
+	_showFps->SetCheck(_conf.ui_showfps.Get());
+	_showFps->eventClick = [=]
+	{
+		_conf.ui_showfps.Set(_showFps->GetCheck());
+	};
 	AddFront(_showFps);
 	y += _showFps->GetHeight();
 
 	_showTime = std::make_shared<UI::CheckBox>(manager, texman);
-	_showTime->SetCheck(_conf.ui_showtime.Get());
 	_showTime->Move(x, y);
 	_showTime->SetText(texman, _lang.settings_show_time.Get());
+	_showTime->SetCheck(_conf.ui_showtime.Get());
+	_showTime->eventClick = [=]
+	{
+		_conf.ui_showtime.Set(_showTime->GetCheck());
+	};
 	AddFront(_showTime);
 	y += _showTime->GetHeight();
 
 	_showNames = std::make_shared<UI::CheckBox>(manager, texman);
-	_showNames->SetCheck(_conf.g_shownames.Get());
 	_showNames->Move(x, y);
 	_showNames->SetText(texman, _lang.settings_show_names.Get());
+	_showNames->SetCheck(_conf.g_shownames.Get());
+	_showNames->eventClick = [=]
+	{
+		_conf.g_shownames.Set(_showNames->GetCheck());
+	};
 	AddFront(_showNames);
 	y += _showNames->GetHeight();
 
@@ -162,23 +174,6 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_volumeMusic->eventScroll = std::bind(&SettingsDlg::OnVolumeMusic, this, std::placeholders::_1);
 	AddFront(_volumeMusic);
 	_initialVolumeMusic = _conf.s_musicvolume.GetInt();
-
-
-	//
-	// OK & Cancel
-	//
-
-	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(_lang.common_ok));
-	btn->Move(304, 256);
-	btn->eventClick = std::bind(&SettingsDlg::OnOK, this);
-	AddFront(btn);
-
-	btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(_lang.common_cancel));
-	btn->Move(408, 256);
-	btn->eventClick = std::bind(&SettingsDlg::OnCancel, this);
-	AddFront(btn);
 
 	_profiles->GetList()->SetCurSel(0, true);
 	SetFocus(_profiles);
@@ -227,22 +222,6 @@ void SettingsDlg::OnDeleteProfile()
 	}
 	_conf.dm_profiles.Remove(_profilesDataSource.GetItemText(i, 0));
 	UpdateProfilesList();
-}
-
-void SettingsDlg::OnOK()
-{
-	_conf.ui_showfps.Set(_showFps->GetCheck());
-	_conf.ui_showtime.Set(_showTime->GetCheck());
-	_conf.g_shownames.Set(_showNames->GetCheck());
-
-	Close(_resultCancel); // return cancel to show back the main menu
-}
-
-void SettingsDlg::OnCancel()
-{
-	_conf.s_volume.SetInt(_initialVolumeSfx);
-	_conf.s_musicvolume.SetInt(_initialVolumeMusic);
-	Close(_resultCancel);
 }
 
 void SettingsDlg::UpdateProfilesList()

@@ -54,9 +54,6 @@ protected:
 	void OnEditProfile();
 	void OnDeleteProfile();
 
-	void OnOK();
-	void OnCancel();
-
 	void UpdateProfilesList();
 	void OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result);
 };
