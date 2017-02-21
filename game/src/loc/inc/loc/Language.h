@@ -23,10 +23,9 @@ REFLECTION_BEGIN(LangCache)
 	// Main menu
 	//
 
-	VAR_STR( single_player_btn, "Play" )
+	VAR_STR( single_player_btn, "1 Player" )
 
-	VAR_STR( editor_btn, "Editor" )
-	VAR_STR( editor_title, "Map editor" )
+	VAR_STR( editor_btn, "Sandbox" )
 	VAR_STR( editor_new_map, "New map" )
 	VAR_STR( editor_load_map, "Load map" )
 	VAR_STR( editor_save_map, "Save map" )
