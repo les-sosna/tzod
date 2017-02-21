@@ -416,6 +416,9 @@ void Desktop::OnExportMap()
 
 void Desktop::OnGameSettings()
 {
+	if (_navStack->IsOnStack<SettingsDlg>())
+		return;
+
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
 	_navStack->PushNavStack(dlg);
