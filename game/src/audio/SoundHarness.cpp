@@ -2,6 +2,7 @@
 #include "SoundTemplates.h"
 #include "inc/audio/SoundRender.h"
 #include <ctx/Deathmatch.h>
+#include <ctx/GameContextBase.h>
 #include <gc/Crate.h>
 #include <gc/Explosion.h>
 #include <gc/Pickup.h>
@@ -14,33 +15,33 @@
 #include <gc/World.h>
 
 
-SoundHarness::SoundHarness(SoundRender &soundRender, World &world, const Gameplay *gameplay)
-	: _world(world)
+SoundHarness::SoundHarness(SoundRender &soundRender, GameContextBase &gameContext, const Gameplay *gameplay)
+	: _gameContext(gameContext)
 	, _gameplay(gameplay)
 	, _soundRender(soundRender)
 {
-	_world.eGC_Pickup.AddListener(*this);
-	_world.eGC_Projectile.AddListener(*this);
-	_world.eGC_ProjectileBasedWeapon.AddListener(*this);
-	_world.eGC_pu_Shield.AddListener(*this);
-	_world.eGC_RigidBodyStatic.AddListener(*this);
-	_world.eGC_RigidBodyDynamic.AddListener(*this);
-	_world.eGC_Turret.AddListener(*this);
-	_world.eGC_Vehicle.AddListener(*this);
-	_world.eWorld.AddListener(*this);
+	_gameContext.GetWorld().eGC_Pickup.AddListener(*this);
+	_gameContext.GetWorld().eGC_Projectile.AddListener(*this);
+	_gameContext.GetWorld().eGC_ProjectileBasedWeapon.AddListener(*this);
+	_gameContext.GetWorld().eGC_pu_Shield.AddListener(*this);
+	_gameContext.GetWorld().eGC_RigidBodyStatic.AddListener(*this);
+	_gameContext.GetWorld().eGC_RigidBodyDynamic.AddListener(*this);
+	_gameContext.GetWorld().eGC_Turret.AddListener(*this);
+	_gameContext.GetWorld().eGC_Vehicle.AddListener(*this);
+	_gameContext.GetWorld().eWorld.AddListener(*this);
 }
 
 SoundHarness::~SoundHarness()
 {
-	_world.eWorld.RemoveListener(*this);
-	_world.eGC_Vehicle.RemoveListener(*this);
-	_world.eGC_Turret.RemoveListener(*this);
-	_world.eGC_RigidBodyDynamic.RemoveListener(*this);
-	_world.eGC_RigidBodyStatic.RemoveListener(*this);
-	_world.eGC_pu_Shield.RemoveListener(*this);
-	_world.eGC_ProjectileBasedWeapon.RemoveListener(*this);
-	_world.eGC_Projectile.RemoveListener(*this);
-	_world.eGC_Pickup.RemoveListener(*this);
+	_gameContext.GetWorld().eWorld.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_Vehicle.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_Turret.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_RigidBodyDynamic.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_RigidBodyStatic.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_pu_Shield.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_ProjectileBasedWeapon.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_Projectile.RemoveListener(*this);
+	_gameContext.GetWorld().eGC_Pickup.RemoveListener(*this);
 }
 
 static void SetupVehicleMoveSound(const GC_Vehicle &vehicle, Sound &sound)
@@ -60,7 +61,7 @@ void SoundHarness::Step()
 {
 	if (_gameplay && _gameplay->GetTimeLimit() > 0)
 	{
-		int secondsLeft = (int)std::ceil(_gameplay->GetTimeLimit() - _world.GetTime());
+		int secondsLeft = (int)std::ceil(_gameplay->GetTimeLimit() - _gameContext.GetWorld().GetTime());
 		if (-1 == _secondsLeftLastStep)
 			_secondsLeftLastStep = secondsLeft;
 
@@ -72,13 +73,21 @@ void SoundHarness::Step()
 		_secondsLeftLastStep = secondsLeft;
 	}
 
-	for (auto &p: _attached)
+	bool isActive = _gameContext.IsActive();
+
+	for (auto &p : _attached)
+	{
 		p.second->SetPos(p.first->GetPos());
+		p.second->SetPlaying(isActive);
+	}
 	
-	for (auto &p: _vehicleMove)
+	for (auto &p : _vehicleMove)
+	{
 		SetupVehicleMoveSound(*p.first, *p.second);
+		p.second->SetPlaying(isActive);
+	}
 	
-	for (auto &weapSound: _weaponRotate)
+	for (auto &weapSound : _weaponRotate)
 	{
 		const GC_Weapon &weapon = *weapSound.first;
 		Sound &sound = *weapSound.second;
@@ -88,7 +97,7 @@ void SoundHarness::Step()
 			sound.SetVolume(absRate);
 			sound.SetPitch(0.5f + 0.5f * absRate);
 			sound.SetPos(weapon.GetPos());
-			sound.SetPlaying(true);
+			sound.SetPlaying(isActive);
 		}
 		else
 		{
@@ -96,14 +105,14 @@ void SoundHarness::Step()
 		}
 	}
 
-	for (auto &fireSound: _weaponFire)
+	for (auto &fireSound : _weaponFire)
 	{
 		const GC_Weapon &weapon = *fireSound.first;
 		Sound &sound = *fireSound.second;
 		if (weapon.GetFire())
 		{
 			sound.SetPos(weapon.GetPos());
-			sound.SetPlaying(true);
+			sound.SetPlaying(isActive);
 		}
 		else
 		{
@@ -111,7 +120,7 @@ void SoundHarness::Step()
 		}
 	}
 
-	for (auto &p: _turretFire)
+	for (auto &p : _turretFire)
 	{
 		const GC_Turret &turret = *p.first;
 		Sound &sound = *p.second;
@@ -119,7 +128,7 @@ void SoundHarness::Step()
 		if (turret.GetFire())
 		{
 			sound.SetPos(turret.GetPos());
-			sound.SetPlaying(true);
+			sound.SetPlaying(isActive);
 		}
 		else
 		{
@@ -136,7 +145,7 @@ void SoundHarness::Step()
 		sound.SetVolume(absRate);
 		sound.SetPitch(0.5f + 0.5f * absRate);
 		sound.SetPos(turret.GetPos());
-		sound.SetPlaying(true);
+		sound.SetPlaying(isActive);
 	}
 }
 

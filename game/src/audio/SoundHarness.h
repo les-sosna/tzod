@@ -5,6 +5,7 @@
 
 class GC_Actor;
 class GC_Weapon;
+struct GameContextBase;
 struct Gameplay;
 struct Sound;
 struct SoundRender;
@@ -21,16 +22,16 @@ class SoundHarness
 	, ObjectListener<World>
 {
 public:
-	SoundHarness(SoundRender &soundRender, World &world, const Gameplay *gameplay);
+	SoundHarness(SoundRender &soundRender, GameContextBase &gameContext, const Gameplay *gameplay);
 	~SoundHarness();
 
 	void SetListenerPos(vec2d pos);
 	void Step();
 
 private:
-	World &_world;
+	GameContextBase &_gameContext;
 	const Gameplay *_gameplay;
-	SoundRender &_soundRender;
+		SoundRender &_soundRender;
 	int _secondsLeftLastStep = -1;
 	std::unordered_map<const GC_Actor*, std::unique_ptr<Sound>> _attached;
 	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretFire;

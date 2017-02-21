@@ -115,7 +115,6 @@ void SoundView::OnGameContextChanged()
 {
 	if (GameContextBase *gc = GetAppState().GetGameContext())
 	{
-
-		_soundHarness.reset(new SoundHarness(*_soundRender, gc->GetWorld(), gc->GetGameplay()));
+		_soundHarness.reset(new SoundHarness(*_soundRender, *gc, gc->GetGameplay()));
 	}
 }

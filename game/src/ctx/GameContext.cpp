@@ -83,6 +83,16 @@ Gameplay* GameContext::GetGameplay()
 
 void GameContext::Step(float dt)
 {
+	if (IsActive())
+	{
+		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
+		_world->Step(dt);
+		_scriptHarness->Step(dt);
+	}
+}
+
+bool GameContext::IsActive() const
+{
 	bool isActive = !_gameplay->IsGameOver();
 
 	if (isActive)
@@ -97,12 +107,7 @@ void GameContext::Step(float dt)
 		}
 	}
 
-	if (isActive)
-	{
-		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
-		_world->Step(dt);
-		_scriptHarness->Step(dt);
-	}
+	return isActive;
 }
 
 void GameContext::Serialize(FS::Stream &stream)
