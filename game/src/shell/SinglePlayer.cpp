@@ -39,7 +39,7 @@ namespace
 		{
 			int tier = GetCurrentTier(_conf, _dmCampaign);
 
-			if (tier < _appConfig.sp_tiersprogress.GetSize())
+			if (tier < (int)_appConfig.sp_tiersprogress.GetSize())
 			{
 				ConfVarArray &tierProgress = _appConfig.sp_tiersprogress.GetArray(tier);
 				unsigned int index = sc.GetItemIndex();
@@ -163,7 +163,7 @@ void SinglePlayer::UpdateTier()
 	_tierTitle->SetText(ConfBind(tierDesc.title));
 
 	_prevTier->SetVisible(currentTier > 0);
-	_nextTier->SetVisible(currentTier + 1 < _dmCampaign.tiers.GetSize());
+	_nextTier->SetVisible(currentTier + 1 < (int)_dmCampaign.tiers.GetSize());
 
 	_tilesSource.DeleteAllItems();
 
@@ -188,7 +188,7 @@ void SinglePlayer::OnPrevTier()
 
 void SinglePlayer::OnNextTier()
 {
-	if (_conf.sp_tier.GetInt() + 1 < _dmCampaign.tiers.GetSize())
+	if (_conf.sp_tier.GetInt() + 1 < (int)_dmCampaign.tiers.GetSize())
 	{
 		_conf.sp_tier.SetInt(_conf.sp_tier.GetInt() + 1);
 		_conf.sp_map.SetInt(0);
