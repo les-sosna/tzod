@@ -141,6 +141,8 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_tiles->SetCurSel(GetCurrentMap(conf, dmCampaign));
 
+	SetDrawBackground(false);
+	SetDrawBorder(false);
 }
 
 void SinglePlayer::OnOK()
