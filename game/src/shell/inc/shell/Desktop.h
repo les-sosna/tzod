@@ -73,12 +73,12 @@ private:
 
 	std::shared_ptr<EditorLayout> _editor;
 	std::shared_ptr<GameLayout> _game;
+	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
 	std::shared_ptr<NavStack> _navStack;
-	std::shared_ptr<UI::Text> _tierTitle;
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;

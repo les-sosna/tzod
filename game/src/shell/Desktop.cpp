@@ -78,6 +78,11 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	if (!_globL)
 		throw std::bad_alloc();
 
+	_tierTitle = std::make_shared<UI::Text>(manager, texman);
+	_tierTitle->SetAlign(alignTextCC);
+	_tierTitle->SetFont(texman, "font_default");
+	AddFront(_tierTitle);
+
 	_background = std::make_shared<UI::Rectangle>(manager);
 	_background->SetTexture(texman, "gui_splash", false);
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
@@ -139,11 +144,6 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_navStack = std::make_shared<NavStack>(manager);
 	_navStack->SetSpacing(_conf.ui_spacing.GetFloat());
 	AddFront(_navStack);
-
-	_tierTitle = std::make_shared<UI::Text>(manager, texman);
-	_tierTitle->SetAlign(alignTextCC);
-	_tierTitle->SetFont(texman, "font_default");
-	AddFront(_tierTitle);
 
 	SetTimeStep(true);
 	OnGameContextChanged();
