@@ -132,10 +132,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		}
 		else
 		{
-			while (auto wnd = _navStack->GetNavFront())
-			{
-				_navStack->PopNavStack(wnd.get());
-			}
+			_navStack->PopNavStack();
 			UpdateFocus();
 		}
 	};
@@ -464,6 +461,8 @@ void Desktop::ShowMainMenu()
 
 void Desktop::UpdateFocus()
 {
+	_pauseButton->SetVisible(!!GetAppState().GetGameContext() || !_navStack->IsOnTop<MainMenuDlg>());
+
 	if (_con->GetVisible())
 	{
 		SetFocus(_con);
@@ -493,21 +492,14 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 			_con->SetVisible(false);
 			UpdateFocus();
 		}
-		else
+		else if (!_navStack->GetNavFront())
 		{
-			if (!_navStack->GetNavFront())
-			{
-				ShowMainMenu();
-			}
-			else if(!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
-			{
-				_navStack->PopNavStack();
-				UpdateFocus();
-			}
-			if (!_navStack->GetNavFront() && !GetAppState().GetGameContext())
-			{
-				ShowMainMenu();
-			}
+			ShowMainMenu();
+		}
+		else if(!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
+		{
+			_navStack->PopNavStack();
+			UpdateFocus();
 		}
 		break;
 
@@ -740,8 +732,6 @@ void Desktop::OnGameContextChanged()
 	{
 		ShowMainMenu();
 	}
-
-	_pauseButton->SetVisible(!!GetAppState().GetGameContext());
 
 	UpdateFocus();
 }
