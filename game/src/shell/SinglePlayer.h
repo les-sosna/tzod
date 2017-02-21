@@ -41,6 +41,7 @@ private:
 	void OnOK();
 	void OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index);
 
+	AppConfig &_appConfig;
 	ShellConfig &_conf;
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
@@ -54,5 +55,5 @@ private:
 	std::shared_ptr<UI::Button> _prevTier;
 	std::shared_ptr<UI::Button> _nextTier;
 	std::shared_ptr<UI::StackLayout> _description;
-	std::shared_ptr<UI::StackLayout> _enemies;
+	std::shared_ptr<UI::StackLayout> _players;
 };

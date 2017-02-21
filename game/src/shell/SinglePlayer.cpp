@@ -18,6 +18,7 @@
 #include <ui/StateContext.h>
 #include <ui/Text.h>
 #include <sstream>
+#include <iomanip>
 
 static const float c_tileSize = 180;
 static const float c_tileSpacing = 16;
@@ -60,6 +61,7 @@ namespace
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Dialog(manager, texman)
+	, _appConfig(appConfig)
 	, _conf(conf)
 	, _lang(lang)
 	, _dmCampaign(dmCampaign)
@@ -69,18 +71,19 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	, _nextTier(std::make_shared<UI::Button>(manager, texman))
 	, _mapTiles(std::make_shared<UI::List>(manager, texman, &_tilesSource))
 	, _description(std::make_shared<UI::StackLayout>(manager))
-	, _enemies(std::make_shared<UI::StackLayout>(manager))
+	, _players(std::make_shared<UI::StackLayout>(manager))
 {
 	_tierTitle->SetFont(texman, "font_default");
 	_content->AddFront(_tierTitle);
 
 	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>(manager);
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
-	mapTilesWithTierButtons->SetSpacing(c_tileSpacing / 2);
 
 	_prevTier->SetText("<<<"_txt);
 	_prevTier->eventClick = std::bind(&SinglePlayer::OnPrevTier, this);
 	_prevTier->SetBackground(texman, nullptr, false);
+	_prevTier->SetFont(texman, "font_default");
+	_prevTier->Resize(c_tileSize / 2, c_tileSize / 2);
 	mapTilesWithTierButtons->AddFront(_prevTier);
 
 	auto mp = std::make_shared<MapPreview>(manager, texman, fs, worldView, _mapCache);
@@ -98,55 +101,29 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_nextTier->SetText(">>>"_txt);
 	_nextTier->eventClick = std::bind(&SinglePlayer::OnNextTier, this);
 	_nextTier->SetBackground(texman, nullptr, false);
+	_nextTier->SetFont(texman, "font_default");
+	_nextTier->Resize(c_tileSize / 2, c_tileSize / 2);
 	mapTilesWithTierButtons->AddFront(_nextTier);
 
 	_content->AddFront(mapTilesWithTierButtons);
 	_content->SetFocus(mapTilesWithTierButtons);
 
-	auto descriptionTitle = std::make_shared<UI::Text>(manager, texman);
-	descriptionTitle->SetFont(texman, "font_default");
-	descriptionTitle->SetText(ConfBind(lang.dmcampaign_description));
-	_content->AddFront(descriptionTitle);
-
 	_description->SetSpacing(2);
 	_content->AddFront(_description);
 
-	auto enemiesTitle = std::make_shared<UI::Text>(manager, texman);
-	enemiesTitle->SetFont(texman, "font_default");
-	enemiesTitle->SetText(ConfBind(lang.dmcampaign_enemies));
-	_content->AddFront(enemiesTitle);
-
-	_enemies->SetFlowDirection(UI::FlowDirection::Horizontal);
-	_content->AddFront(_enemies);
-
-	auto playerTitle = std::make_shared<UI::Text>(manager, texman);
-	playerTitle->SetFont(texman, "font_default");
-	playerTitle->SetText(ConfBind(lang.dmcampaign_player));
-	_content->AddFront(playerTitle);
-
-	auto playerInfo = std::make_shared<UI::StackLayout>(manager);
-	playerInfo->SetFlowDirection(UI::FlowDirection::Horizontal);
-	_content->AddFront(playerInfo);
-
-	auto playerView = std::make_shared<PlayerView>(manager, texman);
-	playerView->SetPlayerConfig(appConfig.sp_playerinfo, texman);
-	playerView->Resize(64, 64);
-	playerInfo->AddFront(playerView);
-
-	auto buttons = std::make_shared<UI::StackLayout>(manager);
-	buttons->SetFlowDirection(UI::FlowDirection::Horizontal);
-	buttons->SetSpacing(c_tileSpacing);
-	_content->AddFront(buttons);
+	_players->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_content->AddFront(_players);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
 	btn->SetText(ConfBind(lang.dmcampaign_ok));
+//	btn->SetBackground(texman, nullptr, false);
 	btn->SetFont(texman, "font_default");
 	btn->Resize(200, 60);
 	btn->eventClick = std::bind(&SinglePlayer::OnOK, this);
-//	buttons->AddFront(btn);
 	_content->AddFront(btn);
 
-	_content->SetSpacing(c_tileSpacing);
+	_content->SetSpacing(32);
+	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
 	SetFocus(_content);
 
@@ -207,7 +184,7 @@ void SinglePlayer::OnOK()
 
 void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index)
 {
-	_enemies->UnlinkAllChildren();
+	_players->UnlinkAllChildren();
 	_description->UnlinkAllChildren();
 
 	if (-1 != index)
@@ -217,20 +194,34 @@ void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texma
 		DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(GetCurrentTier(_conf, _dmCampaign)));
 		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(index));
 
+		auto playerView = std::make_shared<PlayerView>(manager, texman);
+		playerView->SetPlayerConfig(_appConfig.sp_playerinfo, texman);
+		playerView->Resize(64, 64);
+		_players->AddFront(playerView);
+
+		auto versus = std::make_shared<UI::Text>(manager, texman);
+		versus->SetFont(texman, "font_default");
+		versus->SetText(ConfBind(_lang.dmcampaign_versus));
+		_players->AddFront(versus);
+
 		for (size_t i = 0; i < mapDesc.bot_names.GetSize(); ++i)
 		{
 			auto botView = std::make_shared<BotView>(manager, texman);
 			botView->SetBotConfig(_dmCampaign.bots.GetTable(mapDesc.bot_names.GetStr(i).Get()), texman);
 			botView->Resize(64, 64);
-			_enemies->AddFront(botView);
+			_players->AddFront(botView);
 		}
 
 		{
-			auto timelimit = std::make_shared<UI::Text>(manager, texman);
+			int seconds = (int)std::ceil(mapDesc.timelimit.GetFloat() * 60);
 
 			std::ostringstream formatter;
-			formatter << _lang.dmcampaign_timelimit.Get() << mapDesc.timelimit.GetFloat();
+			formatter << _lang.dmcampaign_timelimit.Get();
+			formatter << (seconds / 60) << ":" << std::setfill('0') << std::setw(2) << (seconds % 60);
+
+			auto timelimit = std::make_shared<UI::Text>(manager, texman);
 			timelimit->SetText(std::make_shared<UI::StaticText>(formatter.str()));
+			timelimit->SetFont(texman, "font_default");
 
 			_description->AddFront(timelimit);
 		}
@@ -241,6 +232,7 @@ void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texma
 			std::ostringstream formatter;
 			formatter << _lang.dmcampaign_fraglimit.Get() << mapDesc.fraglimit.GetInt();
 			fraglimit->SetText(std::make_shared<UI::StaticText>(formatter.str()));
+			fraglimit->SetFont(texman, "font_default");
 
 			_description->AddFront(fraglimit);
 		}
