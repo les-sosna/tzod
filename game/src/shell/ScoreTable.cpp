@@ -31,8 +31,8 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
   , _deathmatch(deathmatch)
   , _lang(lang)
 {
-	Resize(512, 256);
-	SetTexture(texman, "ui/window", false);
+	Resize(420, 256);
+	SetTexture(texman, "ui/list", false);
 	SetDrawBorder(true);
 }
 

@@ -18,6 +18,7 @@
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
+#include <ui/Rating.h>
 #include <ui/StackLayout.h>
 #include <ui/UIInput.h>
 #include <video/DrawingContext.h>
@@ -64,6 +65,23 @@ namespace
 		const Deathmatch *_deathmatch;
 		mutable std::string _cachedString;
 	};
+
+	class DeathmatchRatingBinding : public UI::DataSource<unsigned int>
+	{
+	public:
+		DeathmatchRatingBinding(const Deathmatch &deathmatch)
+			: _deathmatch(deathmatch)
+		{}
+
+		// UI::DataSource<unsigned int>
+		unsigned int GetValue(const UI::StateContext &sc) const override
+		{
+			return _deathmatch.GetRating();
+		}
+
+	private:
+		const Deathmatch &_deathmatch;
+	};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,6 +115,15 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 	AddFront(_msg);
 
 	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext.GetGameplay());
+
+	if (deathmatch)
+	{
+		_rating = std::make_shared<UI::Rating>(manager, texman);
+		_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(*deathmatch));
+		_rating->SetVisible(false);
+		_scoreAndControls->AddFront(_rating);
+	}
+
 	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
@@ -189,6 +216,8 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	_score->SetVisible(tab || gameOver || (allDead && _gameContext.GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
 	if (_campaignControls)
 		_campaignControls->SetVisible(gameOver);
+	if (_rating)
+		_rating->SetVisible(gameOver);
 
 	_gameViewHarness.Step(dt);
 

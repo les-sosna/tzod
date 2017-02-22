@@ -39,6 +39,7 @@ void Window::UnlinkChild(Window &child)
 
 void Window::AddFront(std::shared_ptr<Window> child)
 {
+	assert(child);
 	_children.push_back(std::move(child));
 }
 

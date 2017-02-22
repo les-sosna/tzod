@@ -4,7 +4,6 @@
 
 namespace UI
 {
-	class Rating;
 	class StackLayout;
 }
 
@@ -21,5 +20,4 @@ public:
 
 private:
 	std::shared_ptr<UI::StackLayout> _content;
-	std::shared_ptr<UI::Rating> _rating;
 };

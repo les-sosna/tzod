@@ -8,47 +8,23 @@
 
 using namespace UI::DataSourceAliases;
 
-namespace
-{
-	class DeathmatchRatingBinding : public UI::DataSource<unsigned int>
-	{
-	public:
-		DeathmatchRatingBinding(const Deathmatch &deathmatch)
-			: _deathmatch(deathmatch)
-		{}
-
-		// UI::DataSource<unsigned int>
-		unsigned int GetValue(const UI::StateContext &sc) const override
-		{
-			return _deathmatch.GetRating();
-		}
-
-	private:
-		const Deathmatch &_deathmatch;
-	};
-}
-
 CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &texman, const Deathmatch &deathmatch, CampaignControlCommands commands)
 	: UI::Window(manager)
 	, _content(std::make_shared<UI::StackLayout>(manager))
-	, _rating(std::make_shared<UI::Rating>(manager, texman))
 {
 	_content->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->SetSpacing(20);
 	AddFront(_content);
 
 	auto replay = std::make_shared<UI::Button>(manager, texman);
-	replay->Resize(130, 30);
+	replay->Resize(200, 50);
 	replay->SetFont(texman, "font_default");
 	replay->SetText("Replay"_txt);
 	replay->eventClick = std::move(commands.replayCurrent);
 	_content->AddFront(replay);
 
-	_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(deathmatch));
-	_content->AddFront(_rating);
-
 	auto next = std::make_shared<UI::Button>(manager, texman);
-	next->Resize(130, 30);
+	next->Resize(200, 50);
 	next->SetFont(texman, "font_default");
 	next->SetText("Next"_txt);
 	next->eventClick = std::move(commands.playNext);
