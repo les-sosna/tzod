@@ -274,13 +274,6 @@ return {
    }
 },
 {
-   file="textures/gui/mainmenu.tga",
-   content={
-     ["ui/editor"]={left=0, top=0, right=176, bottom=96},
-     ["ui/settings"]={left=0, top=96, right=152, bottom=192},
-   }
-},
-{
    file="textures/gui/splash.tga",
    content={
      gui_splash={left=0, top=0, right=1024, bottom=768, xpivot=0, ypivot=0},

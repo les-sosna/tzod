@@ -4,7 +4,7 @@
 #include <ui/Button.h>
 
 static const float c_buttonWidth = 200;
-static const float c_buttonHeight = 128;
+static const float c_buttonHeight = 50;
 
 
 MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
@@ -15,17 +15,14 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
   , _lang(lang)
   , _commands(std::move(commands))
 {
-	SetFlowDirection(UI::FlowDirection::Horizontal);
+	SetFlowDirection(UI::FlowDirection::Vertical);
 	SetSpacing(20);
-
-	Resize(640, c_buttonHeight);
 
 	std::shared_ptr<UI::Button> button;
 
 	button = std::make_shared<UI::Button>(manager, texman);
 	button->SetFont(texman, "font_default");
 	button->SetText(ConfBind(_lang.single_player_btn));
-	button->SetIcon(manager, texman, "ui/play");
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.newDM;
 	AddFront(button);
@@ -33,7 +30,6 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button = std::make_shared<UI::Button>(manager, texman);
 	button->SetFont(texman, "font_default");
 	button->SetText(ConfBind(_lang.editor_btn));
-	button->SetIcon(manager, texman, "ui/editor");
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.openMap;
 	AddFront(button);
@@ -41,7 +37,6 @@ MainMenuDlg::MainMenuDlg(UI::LayoutManager &manager,
 	button = std::make_shared<UI::Button>(manager, texman);
 	button->SetFont(texman, "font_default");
 	button->SetText(ConfBind(_lang.settings_btn));
-	button->SetIcon(manager, texman, "ui/settings");
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.gameSettings;
 	AddFront(button);
