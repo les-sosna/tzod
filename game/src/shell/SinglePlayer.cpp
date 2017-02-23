@@ -20,7 +20,7 @@
 #include <sstream>
 #include <iomanip>
 
-static const float c_tileSize = 180;
+static const float c_tileSize = 200;
 static const float c_tileSpacing = 16;
 
 using namespace UI::DataSourceAliases;
