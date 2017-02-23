@@ -55,8 +55,6 @@ void MapPreview::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			false, // drawGrid
 			false  // nightMode
 		);
-
-		dc.DrawBitmapText(Vec2dFloor(lc.GetPixelSize() / 2), lc.GetScale(), _font, 0xffffffff, _mapName->GetValue(sc), alignTextCC);
 	}
 
 	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
