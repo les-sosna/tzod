@@ -23,15 +23,15 @@ REFLECTION_BEGIN(LangCache)
 	// Main menu
 	//
 
-	VAR_STR( single_player_btn, "1 Player" )
+	VAR_STR( single_player_btn, "1 PLAYER" )
 
-	VAR_STR( editor_btn, "Sandbox" )
+	VAR_STR( editor_btn, "CONSTRUCTION" )
 	VAR_STR( editor_new_map, "New map" )
 	VAR_STR( editor_load_map, "Load map" )
 	VAR_STR( editor_save_map, "Save map" )
 	VAR_STR( editor_map_settings, "Map settings" )
 
-	VAR_STR( settings_btn, "Settings" )
+	VAR_STR( settings_btn, "SETTINGS" )
 
 	VAR_STR( get_file_name_title, "File name" )
 	VAR_STR( get_file_name_save_game, "Save Game" )
@@ -136,7 +136,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( dmcampaign_timelimit, "Time limit: " )
 	VAR_STR( dmcampaign_fraglimit, "Frag limit: " )
 	VAR_STR( dmcampaign_versus, "VS." )
-	VAR_STR( dmcampaign_ok, "Fight" )
+	VAR_STR( dmcampaign_ok, "PLAY" )
 
 
 	//
