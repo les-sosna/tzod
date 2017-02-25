@@ -81,7 +81,6 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_prevTier->SetText("<<<"_txt);
 	_prevTier->eventClick = std::bind(&SinglePlayer::OnPrevTier, this);
-	_prevTier->SetBackground(texman, nullptr, false);
 	_prevTier->SetFont(texman, "font_default");
 	_prevTier->Resize(c_tileSize / 2, c_tileSize / 2);
 	mapTilesWithTierButtons->AddFront(_prevTier);
@@ -100,7 +99,6 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 
 	_nextTier->SetText(">>>"_txt);
 	_nextTier->eventClick = std::bind(&SinglePlayer::OnNextTier, this);
-	_nextTier->SetBackground(texman, nullptr, false);
 	_nextTier->SetFont(texman, "font_default");
 	_nextTier->Resize(c_tileSize / 2, c_tileSize / 2);
 	mapTilesWithTierButtons->AddFront(_nextTier);

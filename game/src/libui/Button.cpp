@@ -105,7 +105,7 @@ void ButtonBase::OnClick()
 ///////////////////////////////////////////////////////////////////////////////
 
 static const auto c_textColor = std::make_shared<ColorMap>(0xffffffff, // default
-	ColorMap::ColorMapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffccccff } });
+	ColorMap::ColorMapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
 
 Button::Button(LayoutManager &manager, TextureManager &texman)
 	: ButtonBase(manager)
