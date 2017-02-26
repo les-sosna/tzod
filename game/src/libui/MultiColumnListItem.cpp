@@ -12,10 +12,10 @@ MultiColumnListItem::MultiColumnListItem(LayoutManager &manager, TextureManager 
 	: Window(manager)
 	, _selection(std::make_shared<Rectangle>(manager))
 {
-	static const auto selectionFillColorMap = std::make_shared<UI::ColorMap>(0x00000000, // default
-		UI::ColorMap::ColorMapType{ { "Focused", 0xffffffff } });
-	static const auto selectionBorderColorMap = std::make_shared<UI::ColorMap>(0x00000000, // default
-		UI::ColorMap::ColorMapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff } });
+	static const auto selectionFillColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
+		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff } });
+	static const auto selectionBorderColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
+		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff } });
 
 	AddBack(_selection);
 	_selection->SetTexture(texman, "ui/listsel", false);
@@ -27,8 +27,8 @@ MultiColumnListItem::MultiColumnListItem(LayoutManager &manager, TextureManager 
 
 void MultiColumnListItem::EnsureColumn(LayoutManager &manager, TextureManager &texman, unsigned int columnIndex, float offset)
 {
-	static const auto textColorMap = std::make_shared<UI::ColorMap>(0xffffffff, // default
-		UI::ColorMap::ColorMapType{ { "Disabled", 0xbbbbbbbb },{ "Hover", 0xffccccff },{ "Focused", 0xff000000 } });
+	static const auto textColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0xffffffff, // default
+		UI::StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb },{ "Hover", 0xffccccff },{ "Focused", 0xff000000 } });
 
 	if (columnIndex >= _columns.size())
 		_columns.insert(_columns.end(), 1 + columnIndex - _columns.size(), nullptr);

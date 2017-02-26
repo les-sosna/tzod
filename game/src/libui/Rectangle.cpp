@@ -21,14 +21,19 @@ void Rectangle::SetBackColor(std::shared_ptr<DataSource<SpriteColor>> color)
 	_backColor = std::move(color);
 }
 
+void Rectangle::SetBorderColor(std::shared_ptr<DataSource<SpriteColor>> color)
+{
+	_borderColor = std::move(color);
+}
+
 float Rectangle::GetTextureWidth(TextureManager &texman) const
 {
-	return (-1 != _texture) ? texman.GetFrameWidth(_texture, _frame) : 1;
+	return (-1 != _texture) ? texman.GetFrameWidth(_texture, 0) : 1;
 }
 
 float Rectangle::GetTextureHeight(TextureManager &texman) const
 {
-	return (-1 != _texture) ? texman.GetFrameHeight(_texture, _frame) : 1;
+	return (-1 != _texture) ? texman.GetFrameHeight(_texture, 0) : 1;
 }
 
 void Rectangle::SetTexture(TextureManager &texman, const char *tex, bool fitSize)
@@ -57,6 +62,7 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 	if (-1 != _texture)
 	{
 		FRECT dst = MakeRectWH(lc.GetPixelSize());
+		unsigned int frame = _frame ? _frame->GetValue(sc) : 0;
 
 		if (_drawBackground)
 		{
@@ -64,15 +70,15 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), _frame);
+				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), frame);
 			}
 			else
 			{
 				RectRB clip = FRectToRect(client);
 				dc.PushClippingRect(clip);
 
-				float frameWidth = texman.GetFrameWidth(_texture, _frame);
-				float frameHeight = texman.GetFrameHeight(_texture, _frame);
+				float frameWidth = texman.GetFrameWidth(_texture, frame);
+				float frameHeight = texman.GetFrameHeight(_texture, frame);
 
 				if (WIDTH(client) * frameHeight > HEIGHT(client) * frameWidth)
 				{
@@ -87,14 +93,14 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 					client.right = client.left + newWidth;
 				}
 
-				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), _frame);
+				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), frame);
 
 				dc.PopClippingRect();
 			}
 		}
 		if (_drawBorder)
 		{
-			dc.DrawBorder(dst, _texture, _borderColor->GetValue(sc), _frame);
+			dc.DrawBorder(dst, _texture, _borderColor->GetValue(sc), frame);
 		}
 	}
 }

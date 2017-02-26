@@ -31,7 +31,6 @@ public:
 	std::function<void(float)> eventScroll;
 
 	// Window
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
 
 protected:

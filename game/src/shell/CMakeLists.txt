@@ -49,7 +49,6 @@ add_library(shell
 	MessageArea.h
 	NavStack.h
 	Network.h
-	NewMap.h
 	PlayerView.h
 	PropertyList.h
 	QuickActions.h
@@ -84,7 +83,6 @@ add_library(shell
 	NavStack.cpp
 #	Network.cpp
 	SinglePlayer.cpp
-	NewMap.cpp
 	PlayerView.cpp
 	Profiler.cpp
 	PropertyList.cpp

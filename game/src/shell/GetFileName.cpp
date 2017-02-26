@@ -6,6 +6,7 @@
 #include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
+#include <ui/EditableText.h>
 #include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/List.h>
@@ -60,7 +61,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	_fileName = std::make_shared<UI::Edit>(manager, texman);
 	_fileName->Move(20, 385);
 	_fileName->Resize(472, _fileName->GetHeight());
-	_fileName->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
+	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);
@@ -83,25 +84,25 @@ bool GetFileNameDlg::IsBlank() const
 
 std::string GetFileNameDlg::GetFileName() const
 {
-	return _fileName->GetText() + "." + _ext;
+	return _fileName->GetEditable()->GetText() + "." + _ext;
 }
 
 std::string GetFileNameDlg::GetFileTitle() const
 {
-	return _fileName->GetText();
+	return _fileName->GetEditable()->GetText();
 }
 
 void GetFileNameDlg::OnSelect(int index)
 {
 	if( _changing || -1 == index ) return;
-	_fileName->SetText(GetManager().GetTextureManager(), _files->GetData()->GetItemText(index, 0));
+	_fileName->GetEditable()->SetText(GetManager().GetTextureManager(), _files->GetData()->GetItemText(index, 0));
 }
 
 void GetFileNameDlg::OnChangeName()
 {
 	_changing = true;
 	size_t match = 0;
-	std::string txt = _fileName->GetText();
+	std::string txt = _fileName->GetEditable()->GetText();
 	for( int i = 0; i < _files->GetData()->GetItemCount(); ++i )
 	{
 		std::string fn = _files->GetData()->GetItemText(i, 0);

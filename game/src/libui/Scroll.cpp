@@ -162,12 +162,6 @@ float ScrollBarBase::GetScrollPaneLength(const LayoutContext &lc) const
 	return result;
 }
 
-void ScrollBarBase::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
-{
-	const_cast<ScrollBarBase*>(this)->SetFrame(lc.GetEnabledCombined() ? 0 : 1);
-	Rectangle::Draw(sc, lc, ic, dc, texman);
-}
-
 FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
 {
 	float scale = lc.GetScale();

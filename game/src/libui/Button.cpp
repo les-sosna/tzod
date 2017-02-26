@@ -104,8 +104,11 @@ void ButtonBase::OnClick()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const auto c_textColor = std::make_shared<ColorMap>(0xffffffff, // default
-	ColorMap::ColorMapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
+static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xffffffff, // default
+	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
+
+static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
+	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, {"Pushed", 2} });
 
 Button::Button(LayoutManager &manager, TextureManager &texman)
 	: ButtonBase(manager)
@@ -114,6 +117,8 @@ Button::Button(LayoutManager &manager, TextureManager &texman)
 {
 	AddFront(_background);
 	AddFront(_text);
+
+	_background->SetFrame(c_backgroundFrame);
 
 	_text->SetAlign(alignTextCC);
 	_text->SetFontColor(c_textColor);
@@ -205,9 +210,6 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 void Button::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
 	ButtonBase::Draw(sc, lc, ic, dc, texman);
-
-	State state = GetState(lc, ic);
-	_background->SetFrame(state);
 }
 
 

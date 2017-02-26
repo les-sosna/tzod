@@ -7,7 +7,6 @@
 #include "MainMenu.h"
 #include "MapSettings.h"
 #include "NavStack.h"
-#include "NewMap.h"
 #include "Settings.h"
 #include "SinglePlayer.h"
 #include "Widgets.h"
@@ -312,27 +311,6 @@ void Desktop::OnNewDM()
 	}
 }
 
-void Desktop::OnNewMap()
-{
-	auto dlg = std::make_shared<NewMapDlg>(GetManager(), _texman, _conf, _lang);
-	dlg->eventClose = [this](auto sender, int result)
-	{
-		OnCloseChild(sender, result);
-		if (UI::Dialog::_resultOK == result)
-		{
-			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt()));
-			GetAppState().SetGameContext(std::move(gc));
-			while (auto wnd = _navStack->GetNavFront())
-			{
-				_navStack->PopNavStack(wnd.get());
-			}
-			UpdateFocus();
-		}
-	};
-	_navStack->PushNavStack(dlg);
-	UpdateFocus();
-}
-
 void Desktop::OnOpenMap()
 {
 	if (GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
@@ -442,7 +420,6 @@ void Desktop::ShowMainMenu()
 	MainMenuCommands commands;
 	commands.newCampaign = [this]() { OnNewCampaign(); };
 	commands.newDM = std::bind(&Desktop::OnNewDM, this);
-	commands.newMap = std::bind(&Desktop::OnNewMap, this);
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);

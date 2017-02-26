@@ -13,6 +13,7 @@
 #include <ui/MultiColumnListItem.h>
 #include <ui/Text.h>
 #include <ui/Edit.h>
+#include <ui/EditableText.h>
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
@@ -91,7 +92,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_gameSpeed = std::make_shared<UI::Edit>(manager, texman);
 		_gameSpeed->Move(x3 + 20, y += 15);
 		_gameSpeed->SetWidth(80);
-		_gameSpeed->SetInt(conf.cl_speed.GetInt());
+		_gameSpeed->GetEditable()->SetInt(conf.cl_speed.GetInt());
 		AddFront(_gameSpeed);
 
 		text = std::make_shared<UI::Text>(manager, texman);
@@ -102,7 +103,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_fragLimit = std::make_shared<UI::Edit>(manager, texman);
 		_fragLimit->Move(x3 + 20, y += 15);
 		_fragLimit->SetWidth(80);
-		_fragLimit->SetInt(conf.cl_fraglimit.GetInt());
+		_fragLimit->GetEditable()->SetInt(conf.cl_fraglimit.GetInt());
 		AddFront(_fragLimit);
 
 		text = std::make_shared<UI::Text>(manager, texman);
@@ -113,7 +114,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_timeLimit = std::make_shared<UI::Edit>(manager, texman);
 		_timeLimit->Move(x3 + 20, y += 15);
 		_timeLimit->SetWidth(80);
-		_timeLimit->SetInt(conf.cl_timelimit.GetInt());
+		_timeLimit->GetEditable()->SetInt(conf.cl_timelimit.GetInt());
 		AddFront(_timeLimit);
 
 		text = std::make_shared<UI::Text>(manager, texman);
@@ -395,9 +396,9 @@ void NewGameDlg::OnOK()
 		return;
 	}
 
-	_conf.cl_speed.SetInt(std::max(MIN_GAMESPEED, std::min(MAX_GAMESPEED, _gameSpeed->GetInt())));
-	_conf.cl_fraglimit.SetInt(std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetInt())));
-	_conf.cl_timelimit.SetInt(std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetInt())));
+	_conf.cl_speed.SetInt(std::max(MIN_GAMESPEED, std::min(MAX_GAMESPEED, _gameSpeed->GetEditable()->GetInt())));
+	_conf.cl_fraglimit.SetInt(std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetEditable()->GetInt())));
+	_conf.cl_timelimit.SetInt(std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetEditable()->GetInt())));
 	_conf.cl_nightmode.Set(_nightMode->GetCheck());
 
 	_conf.sv_speed.SetInt(_conf.cl_speed.GetInt());
@@ -468,7 +469,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->SetText(texman, _info.nick.Get() );
+	_name->GetEditable()->SetText(texman, _info.nick.Get() );
 	AddFront(_name);
 	SetFocus(_name);
 
@@ -620,7 +621,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 
 bool EditPlayerDlg::OnClose(int result)
 {
-	_info.nick.Set(_name->GetText());
+	_info.nick.Set(_name->GetEditable()->GetText());
 	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0));
 	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0));
 	_info.team.SetInt(_teams->GetCurSel());
@@ -676,7 +677,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->SetText(texman, _info.nick.Get().empty() ? "player" : _info.nick.Get());
+	_name->GetEditable()->SetText(texman, _info.nick.Get().empty() ? "player" : _info.nick.Get());
 	AddFront(_name);
 	SetFocus(_name);
 
@@ -816,7 +817,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 
 void EditBotDlg::OnOK()
 {
-	_info.nick.Set(_name->GetText());
+	_info.nick.Set(_name->GetEditable()->GetText());
 	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
 	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0));
 	_info.team.SetInt(_teams->GetCurSel());

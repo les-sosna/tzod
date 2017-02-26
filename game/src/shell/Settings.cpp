@@ -13,6 +13,7 @@
 #include <ui/Button.h>
 #include <ui/Scroll.h>
 #include <ui/Edit.h>
+#include <ui/EditableText.h>
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
@@ -282,7 +283,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_nameEdit = std::make_shared<UI::Edit>(manager, texman);
 	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
-	_nameEdit->SetText(texman, _nameOrig);
+	_nameEdit->GetEditable()->SetText(texman, _nameOrig);
 	AddFront(_nameEdit);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -395,7 +396,7 @@ void ControlProfileDlg::AddAction(ConfVarString &keyName, std::string actionDisp
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetText().empty() || !_conf.dm_profiles.Rename(_profile, _nameEdit->GetText()) )
+	if( _nameEdit->GetEditable()->GetText().empty() || !_conf.dm_profiles.Rename(_profile, _nameEdit->GetEditable()->GetText()) )
 	{
 		return;
 	}

@@ -147,8 +147,6 @@ FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 
 void ComboBox::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
 {
-	const_cast<ComboBox*>(this)->SetFrame(lc.GetEnabledCombined() ? 0 : 3);
-
 	Rectangle::Draw(sc, lc, ic, dc, texman);
 
 	if (_list->GetList()->GetCurSel() != -1)

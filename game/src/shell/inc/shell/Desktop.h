@@ -85,7 +85,6 @@ private:
 
 	void OnNewCampaign();
 	void OnNewDM();
-	void OnNewMap();
 	void OnOpenMap();
 	void OnExportMap();
 	void OnGameSettings();

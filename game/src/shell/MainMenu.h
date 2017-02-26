@@ -18,7 +18,6 @@ struct MainMenuCommands
 {
 	std::function<void()> newCampaign;
 	std::function<void()> newDM;
-	std::function<void()> newMap;
 	std::function<void()> openMap;
 	std::function<void()> exportMap;
 	std::function<void()> mapSettings;

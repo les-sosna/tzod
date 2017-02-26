@@ -51,23 +51,29 @@ namespace UI
 		};
 	}
 
-	class ColorMap : public DataSource<SpriteColor>
+	template <class T>
+	class StateBinding : public DataSource<T>
 	{
 	public:
-		typedef std::map<std::string, SpriteColor> ColorMapType;
-		ColorMap(SpriteColor defaultColor, ColorMapType &&colorMap)
-			: _defaultColor(defaultColor)
-			, _colorMap(std::move(colorMap))
+		typedef std::map<std::string, T> MapType;
+
+		template <class T_, class M_>
+		StateBinding(T_ &&defaultValue, M_ &&valueMap)
+			: _defaultValue(std::forward<T_>(defaultValue))
+			, _valueMap(std::forward<M_>(valueMap))
 		{}
 
-		// DataSource<SpriteColor>
-		SpriteColor GetValue(const StateContext &sc) const override;
+		// DataSource<T>
+		T GetValue(const StateContext &sc) const override
+		{
+			auto found = _valueMap.find(sc.GetState());
+			return _valueMap.end() != found ? found->second : _defaultValue;
+		}
 
 	private:
-		SpriteColor _defaultColor;
-		ColorMapType _colorMap;
+		T _defaultValue;
+		MapType _valueMap;
 	};
-
 
 	class StaticText : public DataSource<const std::string&>
 	{

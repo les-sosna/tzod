@@ -18,6 +18,7 @@ add_library(ui
 	DataSource.cpp
 	Dialog.cpp
 	Edit.cpp
+	EditableText.cpp
 	GuiManager.cpp
 	InputContext.cpp
 	LayoutContext.cpp
@@ -43,6 +44,7 @@ add_library(ui
 	inc/ui/DataSourceAdapters.h
 	inc/ui/Dialog.h
 	inc/ui/Edit.h
+	inc/ui/EditableText.h
 	inc/ui/GuiManager.h
 	inc/ui/InputContext.h
 	inc/ui/Keys.h

@@ -6,6 +6,7 @@
 #include <ui/Button.h>
 #include <ui/Combo.h>
 #include <ui/Edit.h>
+#include <ui/EditableText.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Text.h>
 #include <ui/List.h>
@@ -49,7 +50,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_author = std::make_shared<UI::Edit>(manager, texman);
 	_author->Move(x2, y += 15);
 	_author->SetWidth(256);
-	_author->SetText(texman, world._infoAuthor);
+	_author->GetEditable()->SetText(texman, world._infoAuthor);
 	AddFront(_author);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -60,7 +61,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_email = std::make_shared<UI::Edit>(manager, texman);
 	_email->Move(x2, y += 15);
 	_email->SetWidth(256);
-	_email->SetText(texman, world._infoEmail);
+	_email->GetEditable()->SetText(texman, world._infoEmail);
 	AddFront(_email);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -71,7 +72,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_url = std::make_shared<UI::Edit>(manager, texman);
 	_url->Move(x2, y += 15);
 	_url->SetWidth(256);
-	_url->SetText(texman, world._infoUrl);
+	_url->GetEditable()->SetText(texman, world._infoUrl);
 	AddFront(_url);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -82,7 +83,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_desc = std::make_shared<UI::Edit>(manager, texman);
 	_desc->Move(x2, y += 15);
 	_desc->SetWidth(256);
-	_desc->SetText(texman, world._infoDesc);
+	_desc->GetEditable()->SetText(texman, world._infoDesc);
 	AddFront(_url);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -93,7 +94,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_onInit = std::make_shared<UI::Edit>(manager, texman);
 	_onInit->Move(x2, y += 15);
 	_onInit->SetWidth(256);
-	_onInit->SetText(texman, world._infoOnInit);
+	_onInit->GetEditable()->SetText(texman, world._infoOnInit);
 	AddFront(_onInit);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -134,11 +135,11 @@ MapSettingsDlg::~MapSettingsDlg()
 
 void MapSettingsDlg::OnOK()
 {
-	_world._infoAuthor = _author->GetText();
-	_world._infoEmail = _email->GetText();
-	_world._infoUrl = _url->GetText();
-	_world._infoDesc = _desc->GetText();
-	_world._infoOnInit = _onInit->GetText();
+	_world._infoAuthor = _author->GetEditable()->GetText();
+	_world._infoEmail = _email->GetEditable()->GetText();
+	_world._infoUrl = _url->GetEditable()->GetText();
+	_world._infoDesc = _desc->GetEditable()->GetText();
+	_world._infoOnInit = _onInit->GetEditable()->GetText();
 
 	int i = _theme->GetCurSel();
 	if (0 != i)
