@@ -53,8 +53,8 @@ public:
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
 
-	void PushTransform(vec2d offset, bool focused, bool hovered);
-	void PopTransform();
+	void PushInputTransform(vec2d offset, bool focused, bool hovered);
+	void PopInputTransform();
 
 	vec2d GetMousePos() const;
 	bool GetFocused() const;

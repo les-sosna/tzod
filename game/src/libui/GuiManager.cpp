@@ -116,7 +116,7 @@ static void DrawWindowRecursive(
 					vec2d childOffset = Offset(wnd.GetChildRect(renderSettings.texman, lc, sc, *child));
 
 					renderSettings.dc.PushTransform(childOffset, childLC.GetOpacityCombined());
-					renderSettings.ic.PushTransform(childOffset, childFocused, childOnHoverPath);
+					renderSettings.ic.PushInputTransform(childOffset, childFocused, childOnHoverPath);
 
 					DrawWindowRecursive(
 						renderSettings,
@@ -126,7 +126,7 @@ static void DrawWindowRecursive(
 						childInsideTopMost,
 						childDepth);
 
-					renderSettings.ic.PopTransform();
+					renderSettings.ic.PopInputTransform();
 					renderSettings.dc.PopTransform();
 				}
 			}
@@ -160,7 +160,7 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 
 	rs.dc.SetMode(RM_INTERFACE);
 
-	rs.ic.PushTransform(vec2d{}, rs.ic.GetMainWindowActive(), !rs.hoverPath.empty());
+	rs.ic.PushInputTransform(vec2d{}, rs.ic.GetMainWindowActive(), !rs.hoverPath.empty());
 	for (bool topMostPass : {false, true})
 	{
 		rs.topMostPass = topMostPass;
@@ -172,5 +172,5 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 			desktop.GetTopMost()
 		);
 	}
-	rs.ic.PopTransform();
+	rs.ic.PopInputTransform();
 }

@@ -17,7 +17,7 @@ InputContext::InputContext(IInput &input, IClipboard &clipboard)
 	_transformStack.emplace(InputStackFrame{vec2d{}, true, true});
 }
 
-void InputContext::PushTransform(vec2d offset, bool focused, bool hovered)
+void InputContext::PushInputTransform(vec2d offset, bool focused, bool hovered)
 {
 	assert(!_transformStack.empty());
 	_transformStack.push(InputStackFrame{
@@ -27,7 +27,7 @@ void InputContext::PushTransform(vec2d offset, bool focused, bool hovered)
 	});
 }
 
-void InputContext::PopTransform()
+void InputContext::PopInputTransform()
 {
 	assert(_transformStack.size() > 1);
 	_transformStack.pop();
@@ -104,7 +104,7 @@ SinkType* UI::FindAreaSink(
 	vec2d pxPointerPosition = search.pxGlobalPointerPosition - lc.GetPixelOffset();
 	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pxPointerPosition);
 
-	if (pointerInside || !wnd->GetClipChildren())
+	if (pointerInside || (!wnd->GetChildren().empty() && !wnd->GetClipChildren()))
 	{
 		auto stateGen = wnd->GetStateGen();
 		StateContext childSC;

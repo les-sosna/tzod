@@ -251,13 +251,13 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 			itemSC.SetItemIndex(i);
 		}
 
-		rs.ic.PushTransform(pxItemOffset, true, true);
+		rs.ic.PushInputTransform(pxItemOffset, true, true);
 		dc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, lc.GetEnabledCombined());
 		RenderUIRoot(*_itemTemplate, rs, itemLC, itemSC);
 
 		dc.PopTransform();
-		rs.ic.PopTransform();
+		rs.ic.PopInputTransform();
 	}
 }
