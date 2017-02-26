@@ -137,7 +137,7 @@ static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
 		path[i]->SetFocus(path[i - 1]);
 }
 
-static std::pair<vec2d, LayoutContext> RestoreOffsetAndLayoutContext(LayoutContext lc, const DataContext &dc, const InputContext &ic, TextureManager &texman, const std::vector<std::shared_ptr<Window>> &path)
+static std::pair<vec2d, LayoutContext> RestoreOffsetAndLayoutContext(LayoutContext lc, const DataContext &dc, TextureManager &texman, const std::vector<std::shared_ptr<Window>> &path)
 {
 	vec2d offset{};
 	for (size_t i = path.size() - 1; i > 0; i--)
@@ -149,7 +149,7 @@ static std::pair<vec2d, LayoutContext> RestoreOffsetAndLayoutContext(LayoutConte
 		offset += Offset(childRect);
 		lc = LayoutContext(*parent, lc, *child, Size(childRect), dc);
 	}
-	return{ offset, lc};
+	return{ offset, lc };
 }
 
 bool InputContext::ProcessPointer(
@@ -205,7 +205,7 @@ bool InputContext::ProcessPointer(
 		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get()))
 			PropagateFocus(sinkPath);
 
-		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, *this, texman, sinkPath);
+		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
 
 		pxPointerPosition -= childOffsetAndLC.first;
 
@@ -261,7 +261,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 
 	if (scrollSink)
 	{
-		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, *this, texman, sinkPath);
+		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
 		pxPointerPosition -= childOffsetAndLC.first;
 		scrollSink->OnScroll(texman, *this, childOffsetAndLC.second, dc, pxPointerPosition, offset);
 		return true;
