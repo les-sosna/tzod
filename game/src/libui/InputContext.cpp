@@ -95,7 +95,6 @@ SinkType* UI::FindAreaSink(
 	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
-	const DataContext &dc,
 	vec2d pxPointerPosition,
 	bool insideTopMost)
 {
@@ -109,15 +108,15 @@ SinkType* UI::FindAreaSink(
 		for (auto it = children.rbegin(); it != children.rend() && !sink; ++it)
 		{
 			auto &child = *it;
-			if (child->GetEnabled(dc) && child->GetVisible())
+			if (child->GetEnabled(search.dc) && child->GetVisible())
 			{
 				// early skip topmost subtree
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				if (!childInsideTopMost || search.topMostPass)
 				{
-					auto childRect = wnd->GetChildRect(search.texman, lc, dc, *child);
-					LayoutContext childLC(*wnd, lc, *child, Size(childRect), dc);
-					sink = FindAreaSink<SinkType>(search, child, childLC, dc, pxPointerPosition - Offset(childRect), childInsideTopMost);
+					auto childRect = wnd->GetChildRect(search.texman, lc, search.dc, *child);
+					LayoutContext childLC(*wnd, lc, *child, Size(childRect), search.dc);
+					sink = FindAreaSink<SinkType>(search, child, childLC, pxPointerPosition - Offset(childRect), childInsideTopMost);
 				}
 			}
 		}
@@ -189,8 +188,8 @@ bool InputContext::ProcessPointer(
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ texman, topMostPass };
-			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, dc, pxPointerPosition, wnd->GetTopMost());
+			AreaSinkSearch search{ texman, dc, topMostPass };
+			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, pxPointerPosition, wnd->GetTopMost());
 			if (pointerSink)
 			{
 				sinkPath = std::move(search.outSinkPath);
@@ -251,8 +250,8 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	// look for topmost windows first
 	for (bool topMostPass : {true, false})
 	{
-		AreaSinkSearch search{ texman, topMostPass };
-		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc, dc, pxPointerPosition, wnd->GetTopMost());
+		AreaSinkSearch search{ texman, dc, topMostPass };
+		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc, pxPointerPosition, wnd->GetTopMost());
 		if (scrollSink)
 		{
 			sinkPath = std::move(search.outSinkPath);

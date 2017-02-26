@@ -151,8 +151,8 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ rs.texman, topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, dc, rs.ic.GetMousePos(), desktop.GetTopMost()))
+			AreaSinkSearch search{ rs.texman, dc, topMostPass };
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, rs.ic.GetMousePos(), desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;
