@@ -75,7 +75,7 @@ try
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
 			dc,
 			pxMousePos,
 			vec2d{},
@@ -99,7 +99,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
 			dc,
 			pxMousePos,
 			vec2d{},
@@ -120,7 +120,7 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
 			dc,
 			pxMousePos,
 			pxMouseOffset,
@@ -140,7 +140,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action,
 		gui->GetInputContext().ProcessKeys(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
 			dc,
 			GLFW_RELEASE == action ? UI::Msg::KEYUP : UI::Msg::KEYDOWN,
 			key);
@@ -157,7 +157,7 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
 			gui->GetInputContext().ProcessText(
 				gui->GetTextureManager(), 
 				gui->GetDesktop(),
-				UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+				UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
 				dc,
 				codepoint);
 		}

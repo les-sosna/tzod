@@ -12,17 +12,15 @@ namespace UI
 	class LayoutContext
 	{
 	public:
-		LayoutContext(float opacity, float scale, vec2d offset, vec2d size, bool enabled);
-		LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const DataContext &childDC);
+		LayoutContext(float opacity, float scale, vec2d size, bool enabled);
+		LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, vec2d size, const DataContext &childDC);
 
 		bool GetEnabledCombined() const { return _enabled; }
-		vec2d GetPixelOffset() const { return _offset; }
 		vec2d GetPixelSize() const { return _size; }
 		float GetScale() const { return _scale; }
 		float GetOpacityCombined() const { return _opacityCombined; }
 
 	private:
-		vec2d _offset;
 		vec2d _size;
 		float _scale;
 		float _opacityCombined;

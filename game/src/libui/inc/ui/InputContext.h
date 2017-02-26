@@ -101,7 +101,6 @@ class LayoutContext;
 struct AreaSinkSearch
 {
 	TextureManager &texman;
-	vec2d pxGlobalPointerPosition;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;
 };
@@ -112,7 +111,7 @@ SinkType* FindAreaSink(
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
 	const DataContext &dc,
-	const InputContext &ic,
+	vec2d pxPointerPosition,
 	bool insideTopMost);
 
 } // namespace UI

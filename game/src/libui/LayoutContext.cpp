@@ -3,18 +3,16 @@
 
 using namespace UI;
 
-LayoutContext::LayoutContext(float opacity, float scale, vec2d offset, vec2d size, bool enabled)
-	: _offset(offset)
-	, _size(size)
+LayoutContext::LayoutContext(float opacity, float scale, vec2d size, bool enabled)
+	: _size(size)
 	, _scale(scale)
 	, _opacityCombined(opacity)
 	, _enabled(enabled)
 {
 }
 
-LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const DataContext &childDC)
-	: _offset(parentLC._offset + Offset(childRect))
-	, _size(Size(childRect))
+LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, vec2d size, const DataContext &childDC)
+	: _size(size)
 	, _scale(parentLC.GetScale())
 	, _opacityCombined(parentLC.GetOpacityCombined() * parentWindow.GetChildOpacity(childWindow))
 	, _enabled(parentLC.GetEnabledCombined() && childWindow.GetEnabled(childDC))

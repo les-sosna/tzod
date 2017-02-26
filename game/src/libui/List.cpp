@@ -130,7 +130,7 @@ int List::HitTest(vec2d pxPos, TextureManager &texman, float scale) const
 
 bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
 {
-    if( 1 == button && pointerType == PointerType::Mouse )
+	if( 1 == button && pointerType == PointerType::Mouse )
 	{
 		OnTap(ic, lc, texman, pointerPosition);
 	}
@@ -259,7 +259,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 		rs.ic.PushInputTransform(pxItemOffset, true, true);
 		rc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
-		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), {}, pxItemSize, lc.GetEnabledCombined());
+		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), pxItemSize, lc.GetEnabledCombined());
 		RenderUIRoot(*_itemTemplate, rs, itemLC, itemDC, itemSC);
 
 		rc.PopTransform();

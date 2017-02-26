@@ -107,13 +107,14 @@ public:
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 
+	LayoutManager& GetManager() const { return _manager;  } // to remove
+
 	void UnlinkAllChildren();
 	void UnlinkChild(Window &child);
 	void AddFront(std::shared_ptr<Window> child);
 	void AddBack(std::shared_ptr<Window> child);
 
 	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
-	LayoutManager& GetManager() const { return _manager;  } // to remove
 
 	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
 	virtual float GetChildOpacity(const Window &child) const { return 1; }
