@@ -118,7 +118,9 @@ SinkType* UI::FindAreaSink(
 				{
 					auto childRect = wnd->GetChildRect(search.texman, lc, dc, *child);
 					LayoutContext childLC(*wnd, lc, *child, childRect, dc);
+					const_cast<InputContext&>(ic).PushInputTransform(Offset(childRect), true, true);
 					sink = FindAreaSink<SinkType>(search, child, childLC, dc, ic, childInsideTopMost);
+					const_cast<InputContext&>(ic).PopInputTransform();
 				}
 			}
 		}
