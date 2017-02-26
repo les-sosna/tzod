@@ -51,6 +51,11 @@ public:
 		return vec2d{ -x, -y };
 	}
 
+	const vec2d& operator + () const
+	{
+		return *this;
+	}
+
 	vec2d operator * (float a) const
 	{
 		return vec2d{ x * a, y * a };
