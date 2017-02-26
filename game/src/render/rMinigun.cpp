@@ -4,7 +4,7 @@
 #include <gc/WeapCfg.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 R_WeaponMinigun::R_WeaponMinigun(TextureManager &tm)
 	: _texId1(tm.FindSprite("weap_mg1"))
@@ -12,7 +12,7 @@ R_WeaponMinigun::R_WeaponMinigun(TextureManager &tm)
 {
 }
 
-void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Weap_Minigun*>(&actor));
 	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
@@ -20,8 +20,8 @@ void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, DrawingCon
 	vec2d pos = minigun.GetPos();
 	vec2d dir = GetWeapSpriteDirection(world, minigun);
 	size_t texId = minigun.GetFire() ? ((fmod(world.GetTime(), 0.1f) < 0.05f) ? _texId1 : _texId2) : _texId2;
-	DrawWeaponShadow(world, minigun, dc, texId);
-	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	DrawWeaponShadow(world, minigun, rc, texId);
+	rc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }
 
 
@@ -30,7 +30,7 @@ R_Crosshair2::R_Crosshair2(TextureManager &tm)
 {
 }
 
-void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Weap_Minigun*>(&actor));
 	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
@@ -41,7 +41,7 @@ void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, DrawingContex
 		vec2d dir2 = Vec2dSubDirection(minigun.GetDirection(), delta);
 		vec2d pos1 = minigun.GetPos() + dir1 * 150.0f;
 		vec2d pos2 = minigun.GetPos() + dir2 * 150.0f;
-		dc.DrawSprite(_texId, 0, 0xffffffff, pos1.x, pos1.y, dir1);
-		dc.DrawSprite(_texId, 0, 0xffffffff, pos2.x, pos2.y, dir2);
+		rc.DrawSprite(_texId, 0, 0xffffffff, pos1.x, pos1.y, dir1);
+		rc.DrawSprite(_texId, 0, 0xffffffff, pos2.x, pos2.y, dir2);
 	}
 }

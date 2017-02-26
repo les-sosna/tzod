@@ -6,12 +6,19 @@
 
 namespace UI
 {
+	class DataContext;
 	class StateContext;
 
 	template <class ValueType>
-	struct DataSource
+	struct LayoutData
 	{
-		virtual ValueType GetValue(const StateContext &sc) const = 0;
+		virtual ValueType GetValue(const DataContext &dc) const = 0;
+	};
+
+	template <class ValueType>
+	struct RenderData
+	{
+		virtual ValueType GetValue(const DataContext &dc, const StateContext &sc) const = 0;
 	};
 
 	namespace detail
@@ -22,7 +29,8 @@ namespace UI
 
 	template <class T>
 	class StaticValue
-		: public DataSource<T>
+		: public LayoutData<T>
+		, public RenderData<T>
 		, public detail::StaticConstants<T>
 	{
 	public:
@@ -31,8 +39,14 @@ namespace UI
 			: _value(std::forward<V>(value))
 		{}
 
-		// DataSource<T>
-		T GetValue(const StateContext &sc) const override
+		// LayoutData<T>
+		T GetValue(const DataContext &dc) const override
+		{
+			return _value;
+		}
+
+		// RenderData<T>
+		T GetValue(const DataContext &dc, const StateContext &sc) const override
 		{
 			return _value;
 		}
@@ -52,7 +66,7 @@ namespace UI
 	}
 
 	template <class T>
-	class StateBinding : public DataSource<T>
+	class StateBinding : public RenderData<T>
 	{
 	public:
 		typedef std::map<std::string, T> MapType;
@@ -63,8 +77,8 @@ namespace UI
 			, _valueMap(std::forward<M_>(valueMap))
 		{}
 
-		// DataSource<T>
-		T GetValue(const StateContext &sc) const override
+		// RenderData<T>
+		T GetValue(const DataContext &dc, const StateContext &sc) const override
 		{
 			auto found = _valueMap.find(sc.GetState());
 			return _valueMap.end() != found ? found->second : _defaultValue;
@@ -75,25 +89,35 @@ namespace UI
 		MapType _valueMap;
 	};
 
-	class StaticText : public DataSource<const std::string&>
+	class StaticText
+		: public LayoutData<const std::string&>
+		, public RenderData<const std::string&>
 	{
 	public:
 		StaticText(std::string text) : _text(std::move(text)) {}
 
-		// DataSource<const std::string&>
-		const std::string& GetValue(const StateContext &sc) const override;
+		// LayoutData<const std::string&>
+		const std::string& GetValue(const DataContext &dc) const override;
+
+		// RenderData<const std::string&>
+		const std::string& GetValue(const DataContext &dc, const StateContext &sc) const override;
 
 	private:
 		std::string _text;
 	};
 
-	class ListDataSourceBinding : public DataSource<const std::string&>
+	class ListDataSourceBinding
+		: public LayoutData<const std::string&>
+		, public RenderData<const std::string&>
 	{
 	public:
 		explicit ListDataSourceBinding(int column): _column(column) {}
 
-		// DataSource<const std::string&>
-		const std::string& GetValue(const StateContext &sc) const override;
+		// LayoutData<const std::string&>
+		const std::string& GetValue(const DataContext &dc) const override;
+
+		// RenderData<const std::string&>
+		const std::string& GetValue(const DataContext &dc, const StateContext &sc) const override;
 
 	private:
 		int _column;
@@ -102,12 +126,12 @@ namespace UI
 
 	namespace DataSourceAliases
 	{
-		inline std::shared_ptr<DataSource<const std::string&>> operator"" _txt(const char* str, size_t len)
+		inline std::shared_ptr<StaticText> operator"" _txt(const char* str, size_t len)
 		{
 			return std::make_shared<StaticText>(std::string(str, str + len));
 		}
 
-		inline std::shared_ptr<DataSource<SpriteColor>> operator"" _rgba(unsigned long long n)
+		inline std::shared_ptr<StaticValue<SpriteColor>> operator"" _rgba(unsigned long long n)
 		{
 			assert(n <= 0xffffffff); // The number should fit into 32 bits
 			return std::make_shared<StaticValue<SpriteColor>>(static_cast<SpriteColor>(n & 0xffffffff));

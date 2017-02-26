@@ -2,7 +2,7 @@
 #include "inc/shell/Config.h"
 #include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 BotView::BotView(UI::LayoutManager &manager, TextureManager &texman)
 	: UI::Window(manager)
@@ -17,14 +17,14 @@ void BotView::SetBotConfig(ConfVarTable &botConf, TextureManager &texman)
 	_texSkin = texman.FindSprite(std::string("skin/") + _botConfCache->skin.Get());
 }
 
-void BotView::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void BotView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	if (_botConfCache)
 	{
 		float pxTextHeight = ToPx(texman.GetSpriteInfo(_font).pxFrameHeight, lc);
 		vec2d pxSize = UI::ToPx(vec2d{ 64, 64 }, lc);
-		dc.DrawSprite(MakeRectWH(vec2d{0, -pxTextHeight}, pxSize), _texSkin, 0xffffffff, 0);
-		dc.DrawBitmapText(vec2d{ std::floor(pxSize.x / 2), pxSize.y - pxTextHeight }, lc.GetScale(), _font, 0x7f7f7f7f, _botConfCache->nick.Get(), alignTextCB);
+		rc.DrawSprite(MakeRectWH(vec2d{0, -pxTextHeight}, pxSize), _texSkin, 0xffffffff, 0);
+		rc.DrawBitmapText(vec2d{ std::floor(pxSize.x / 2), pxSize.y - pxTextHeight }, lc.GetScale(), _font, 0x7f7f7f7f, _botConfCache->nick.Get(), alignTextCB);
 	}
 }
 

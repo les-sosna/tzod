@@ -3,8 +3,9 @@
 #include <fs/FileSystem.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <video/TextureManager.h>
+#include <ui/DataContext.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
@@ -82,14 +83,14 @@ try
 		float height = appWindow.GetPixelHeight();
 		float layoutScale = appWindow.GetLayoutScale();
 
-		DrawingContext dc(textureManager, appWindow.GetRender(), static_cast<unsigned int>(width), static_cast<unsigned int>(height));
+		RenderContext rc(textureManager, appWindow.GetRender(), static_cast<unsigned int>(width), static_cast<unsigned int>(height));
 		appWindow.GetRender().Begin();
 
-		UI::StateContext stateContext;
-		UI::LayoutContext layoutContext(1.f, layoutScale, vec2d{}, vec2d{ width, height }, desktop->GetEnabled(stateContext));
-		UI::RenderSettings rs{ gui.GetInputContext(), dc, textureManager };
+		UI::DataContext dataContext;
+		UI::LayoutContext layoutContext(1.f, layoutScale, vec2d{}, vec2d{ width, height }, desktop->GetEnabled(dataContext));
+		UI::RenderSettings rs{ gui.GetInputContext(), rc, textureManager };
 
-		UI::RenderUIRoot(*desktop, rs, layoutContext, stateContext);
+		UI::RenderUIRoot(*desktop, rs, layoutContext, dataContext, UI::StateContext());
 		appWindow.GetRender().End();
 
 		appWindow.Present();

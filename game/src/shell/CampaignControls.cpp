@@ -32,16 +32,16 @@ CampaignControls::CampaignControls(UI::LayoutManager &manager, TextureManager &t
 
 }
 
-FRECT CampaignControls::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+FRECT CampaignControls::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_content.get() == &child)
 	{
 		return MakeRectWH(lc.GetPixelSize());
 	}
-	return UI::Window::GetChildRect(texman, lc, sc, child);
+	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::StateContext &sc, float scale) const
+vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const
 {
-	return _content->GetContentSize(texman, sc, scale);
+	return _content->GetContentSize(texman, dc, scale);
 }

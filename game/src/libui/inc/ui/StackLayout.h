@@ -25,8 +25,8 @@ namespace UI
 		Align GetAlign() const { return _align; }
 
 		// Window
-		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
-		vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 	private:
 		float _spacing = 0.f;

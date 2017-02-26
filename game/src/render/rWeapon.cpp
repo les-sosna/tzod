@@ -4,7 +4,7 @@
 #include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/World.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
 R_Weapon::R_Weapon(TextureManager &tm, const char *tex)
@@ -12,15 +12,15 @@ R_Weapon::R_Weapon(TextureManager &tm, const char *tex)
 {
 }
 
-void R_Weapon::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Weapon::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
 
-	DrawWeaponShadow(world, weapon, dc, _texId);
+	DrawWeaponShadow(world, weapon, rc, _texId);
 	vec2d pos = weapon.GetPos();
 	vec2d dir = GetWeapSpriteDirection(world, weapon);
-	dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 }
 
 
@@ -33,7 +33,7 @@ R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float du
 {
 }
 
-void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
 	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
@@ -58,7 +58,7 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, DrawingCo
 			hash ^= (hash >> 16) | (hash << 16);
 			dir = Vec2dDirection((float) hash);
 		}
-		dc.DrawSprite(_texId, frame, color, pos.x, pos.y, dir);
+		rc.DrawSprite(_texId, frame, color, pos.x, pos.y, dir);
 	}
 }
 
@@ -75,7 +75,7 @@ R_RipperDisk::R_RipperDisk(TextureManager &tm)
 {
 }
 
-void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Weap_Ripper*>(&actor));
 	auto &ripper = static_cast<const GC_Weap_Ripper&>(actor);
@@ -83,7 +83,7 @@ void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, DrawingContex
 	{
 		vec2d pos = ripper.GetPos() - ripper.GetDirection() * 8;
 		vec2d dir = Vec2dDirection(world.GetTime() * 10);
-		dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
+		rc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	}
 }
 
@@ -93,7 +93,7 @@ R_Crosshair::R_Crosshair(TextureManager &tm)
 {
 }
 
-void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Crosshair::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Weapon*>(&actor));
 	auto &weapon = static_cast<const GC_Weapon&>(actor);
@@ -101,6 +101,6 @@ void R_Crosshair::Draw(const World &world, const GC_Actor &actor, DrawingContext
 	{
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;
 		vec2d dir = Vec2dDirection(world.GetTime() * 5);
-		dc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
+		rc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
 	}
 }

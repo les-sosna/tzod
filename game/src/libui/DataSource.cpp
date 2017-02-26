@@ -1,5 +1,5 @@
 #include "inc/ui/DataSource.h"
-#include "inc/ui/StateContext.h"
+#include "inc/ui/DataContext.h"
 #include "inc/ui/ListBase.h"
 
 using namespace UI;
@@ -16,15 +16,25 @@ const std::shared_ptr<StaticValue<bool>>& detail::StaticConstants<bool>::False()
 	return value;
 }
 
-const std::string& StaticText::GetValue(const StateContext &sc) const
+const std::string& StaticText::GetValue(const DataContext &dc) const
 {
 	return _text;
 }
 
-const std::string& ListDataSourceBinding::GetValue(const StateContext &sc) const
+const std::string& StaticText::GetValue(const DataContext &dc, const StateContext &sc) const
+{
+	return _text;
+}
+
+const std::string& ListDataSourceBinding::GetValue(const DataContext &dc) const
 {
 	static std::string empty;
-	auto listDataSource = reinterpret_cast<const ListDataSource*>(sc.GetDataContext());
-	return _column < listDataSource->GetSubItemCount(sc.GetItemIndex()) ?
-		listDataSource->GetItemText(sc.GetItemIndex(), _column) : empty;
+	auto listDataSource = reinterpret_cast<const ListDataSource*>(dc.GetDataContext());
+	return _column < listDataSource->GetSubItemCount(dc.GetItemIndex()) ?
+		listDataSource->GetItemText(dc.GetItemIndex(), _column) : empty;
+}
+
+const std::string& ListDataSourceBinding::GetValue(const DataContext &dc, const StateContext &sc) const
+{
+	return ListDataSourceBinding::GetValue(dc);
 }

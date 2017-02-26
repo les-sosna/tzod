@@ -1,3 +1,4 @@
+#include "inc/ui/DataContext.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/List.h"
 #include "inc/ui/GuiManager.h"
@@ -5,7 +6,7 @@
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/StateContext.h"
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 #include <algorithm>
 
@@ -76,10 +77,10 @@ vec2d List::GetItemSize(TextureManager &texman, float scale) const
 {
 	if (_itemTemplate && _data->GetItemCount() > 0)
 	{
-		StateContext sc;
-		sc.SetDataContext(_data);
+		DataContext dc;
+		dc.SetDataContext(_data);
 
-		return _itemTemplate->GetContentSize(texman, sc, scale);
+		return _itemTemplate->GetContentSize(texman, dc, scale);
 	}
 	else
 	{
@@ -182,7 +183,7 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-vec2d List::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
 	vec2d pxItemSize = GetItemSize(texman, scale);
 	return _flowDirection == FlowDirection::Vertical ?
@@ -190,12 +191,12 @@ vec2d List::GetContentSize(TextureManager &texman, const StateContext &sc, float
 		vec2d{ pxItemSize.x * _data->GetItemCount(), pxItemSize.y };
 }
 
-void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	if (!_itemTemplate)
 		return;
 
-	RectRB visibleRegion = dc.GetVisibleRegion();
+	RectRB visibleRegion = rc.GetVisibleRegion();
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
 
@@ -241,23 +242,27 @@ void List::Draw(const StateContext &sc, const LayoutContext &lc, const InputCont
 			itemState = DISABLED;
 
 		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<InputContext&>(ic), dc, texman };
+		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman };
 
 		StateContext itemSC;
 		{
 			static const char* itemStateStrings[] = { "Normal", "Unfocused", "Focused", "Hover", "Disabled" };
 			itemSC.SetState(itemStateStrings[itemState]);
-			itemSC.SetDataContext(_data);
-			itemSC.SetItemIndex(i);
+		}
+
+		DataContext itemDC;
+		{
+			itemDC.SetDataContext(_data);
+			itemDC.SetItemIndex(i);
 		}
 
 		rs.ic.PushInputTransform(pxItemOffset, true, true);
-		dc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
+		rc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), lc.GetPixelOffset() + pxItemOffset, pxItemSize, lc.GetEnabledCombined());
-		RenderUIRoot(*_itemTemplate, rs, itemLC, itemSC);
+		RenderUIRoot(*_itemTemplate, rs, itemLC, itemDC, itemSC);
 
-		dc.PopTransform();
+		rc.PopTransform();
 		rs.ic.PopInputTransform();
 	}
 }

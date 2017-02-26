@@ -12,10 +12,10 @@ enum enumAlignText {
 	alignTextLB = 6, alignTextCB = 7, alignTextRB = 8,
 };
 
-class DrawingContext
+class RenderContext
 {
 public:
-	DrawingContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height);
+	RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height);
 
 	void PushClippingRect(RectRB rect);
 	void PopClippingRect();

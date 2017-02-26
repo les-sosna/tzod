@@ -82,7 +82,7 @@ private:
 	void OnChangeUseLayers();
 
 	// UI::ScrollSink
-	void OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset) override;
+	void OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d pointerPosition, vec2d offset) override;
 
 	// UI::PointerSink
 	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID) override;
@@ -95,8 +95,8 @@ private:
 
 	// UI::Window
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
-	void Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
 	ScrollSink* GetScrollSink() override { return this; }
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }

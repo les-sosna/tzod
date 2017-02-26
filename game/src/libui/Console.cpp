@@ -7,7 +7,7 @@
 #include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <algorithm>
 
 using namespace UI;
@@ -199,7 +199,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 	return true;
 }
 
-void Console::OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const StateContext &sc, vec2d pointerPosition, vec2d scrollOffset)
+void Console::OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d pointerPosition, vec2d scrollOffset)
 {
 	_scroll->SetPos(_scroll->GetPos() - scrollOffset.y * 3);
 	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
@@ -215,15 +215,15 @@ void Console::OnTimeStep(LayoutManager &manager, float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
-	Rectangle::Draw(sc, lc, ic, dc, texman);
+	Rectangle::Draw(dc, sc, lc, ic, rc, texman);
 
 	if( _buf )
 	{
 		_buf->Lock();
 
-		FRECT inputRect = GetChildRect(texman, lc, sc, *_input);
+		FRECT inputRect = GetChildRect(texman, lc, dc, *_input);
 		float textAreaHeight = inputRect.top;
 
 		float h = std::floor(texman.GetFrameHeight(_font, 0) * lc.GetScale());
@@ -238,7 +238,7 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 		{
 			unsigned int sev = _buf->GetSeverity(line);
 			SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
-			dc.DrawBitmapText(vec2d{ 4, y }, lc.GetScale(), _font, color, _buf->GetLine(line));
+			rc.DrawBitmapText(vec2d{ 4, y }, lc.GetScale(), _font, color, _buf->GetLine(line));
 			y += h;
 		}
 
@@ -246,11 +246,11 @@ void Console::Draw(const StateContext &sc, const LayoutContext &lc, const InputC
 	}
 }
 
-FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	if (_input.get() == &child)
 	{
-		float inputHeight = _input->GetContentSize(texman, sc, lc.GetScale()).y;
+		float inputHeight = _input->GetContentSize(texman, dc, lc.GetScale()).y;
 		return MakeRectRB(vec2d{0, lc.GetPixelSize().y - inputHeight}, lc.GetPixelSize());
 	}
 	if (_scroll.get() == &child)
@@ -258,7 +258,7 @@ FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, con
 		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScale());
 		return MakeRectRB(vec2d{lc.GetPixelSize().x - scrollWidth}, lc.GetPixelSize());
 	}
-	return Rectangle::GetChildRect(texman, lc, sc, child);
+	return Rectangle::GetChildRect(texman, lc, dc, child);
 }
 
 void Console::OnScrollBar(float pos)

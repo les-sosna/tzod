@@ -27,7 +27,7 @@ public:
 	void DoExchange(bool applyToObject, TextureManager &texman);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 
 private:
 	std::shared_ptr<UI::Button> _deleteButton;

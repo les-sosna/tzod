@@ -40,6 +40,7 @@ add_library(ui
 	inc/ui/Combo.h
 	inc/ui/Console.h
 	inc/ui/ConsoleBuffer.h
+	inc/ui/DataContext.h
 	inc/ui/DataSource.h
 	inc/ui/DataSourceAdapters.h
 	inc/ui/Dialog.h

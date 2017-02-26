@@ -3,7 +3,7 @@
 #include <gc/Actor.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 
 R_BrickFragment::R_BrickFragment(TextureManager &tm)
@@ -12,7 +12,7 @@ R_BrickFragment::R_BrickFragment(TextureManager &tm)
 {
 }
 
-void R_BrickFragment::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_BrickFragment::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	auto idAsSeed = actor.GetId();
 	uint32_t seed = reinterpret_cast<const uint32_t&>(idAsSeed);
@@ -21,5 +21,5 @@ void R_BrickFragment::Draw(const World &world, const GC_Actor &actor, DrawingCon
 	vec2d pos = actor.GetPos();
 	vec2d dir = Vec2dDirection((float) (int32_t) rand);
 	unsigned int frame = (rand + static_cast<unsigned int>(world.GetTime() * ANIMATION_FPS)) % _tm.GetFrameCount(_texId);
-	dc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, dir);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <gc/Z.h>
 
-class DrawingContext;
+class RenderContext;
 class GC_Actor;
 class World;
 
@@ -13,6 +13,6 @@ struct ObjectZFunc
 
 struct ObjectRFunc
 {
-	virtual void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const = 0;
+	virtual void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const = 0;
 	virtual ~ObjectRFunc() {}
 };

@@ -1,11 +1,11 @@
 #include "inc/platglfw/GlfwAppWindow.h"
 #include "inc/platglfw/GlfwPlatform.h"
 #include "inc/platglfw/GlfwKeys.h"
-#include <ui/InputContext.h>
+#include <ui/DataContext.h>
 #include <ui/GuiManager.h>
+#include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
 #include <ui/Pointers.h>
-#include <ui/StateContext.h>
 #include <ui/Window.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
@@ -71,12 +71,12 @@ try
 		}
 		vec2d pxMousePos = GetCursorPosInPixels(window);
 
-		UI::StateContext sc;
+		UI::DataContext dc;
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
-			sc,
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			dc,
 			pxMousePos,
 			vec2d{},
 			msg,
@@ -95,12 +95,12 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
-		UI::StateContext sc;
+		UI::DataContext dc;
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
-			sc,
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			dc,
 			pxMousePos,
 			vec2d{},
 			UI::Msg::PointerMove,
@@ -116,12 +116,12 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 	{
 		vec2d pxMousePos = GetCursorPosInPixels(window);
 		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-		UI::StateContext sc;
+		UI::DataContext dc;
 		gui->GetInputContext().ProcessPointer(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
-			sc,
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			dc,
 			pxMousePos,
 			pxMouseOffset,
 			UI::Msg::Scroll,
@@ -136,12 +136,12 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action,
 	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
 	{
 		UI::Key key = MapGlfwKeyCode(platformKey);
-		UI::StateContext sc;
+		UI::DataContext dc;
 		gui->GetInputContext().ProcessKeys(
 			gui->GetTextureManager(),
 			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
-			sc,
+			UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+			dc,
 			GLFW_RELEASE == action ? UI::Msg::KEYUP : UI::Msg::KEYDOWN,
 			key);
 	}
@@ -153,12 +153,12 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
 	{
 		if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
 		{
-			UI::StateContext sc;
+			UI::DataContext dc;
 			gui->GetInputContext().ProcessText(
 				gui->GetTextureManager(), 
 				gui->GetDesktop(),
-				UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(sc)),
-				sc,
+				UI::LayoutContext(1.f, GetLayoutScale(window), vec2d{}, GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
+				dc,
 				codepoint);
 		}
 	}

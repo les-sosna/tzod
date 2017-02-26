@@ -38,11 +38,11 @@ namespace UI
 		std::function<void()> eventChange;
 
 		// Window
-		void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
 		PointerSink* GetPointerSink() override { return this; }
 		KeyboardSink *GetKeyboardSink() override;
 		TextSink* GetTextSink() override { return this; }
-		vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 	private:
 		std::string _text;

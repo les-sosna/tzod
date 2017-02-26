@@ -21,7 +21,7 @@
 #include <ui/Rating.h>
 #include <ui/StackLayout.h>
 #include <ui/UIInput.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
 #include <sstream>
@@ -29,7 +29,7 @@
 
 namespace
 {
-	class TimerDisplay : public UI::DataSource<const std::string&>
+	class TimerDisplay : public UI::LayoutData<const std::string&>
 	{
 	public:
 		TimerDisplay(World &world, const Deathmatch *deathmatch)
@@ -37,8 +37,8 @@ namespace
 			, _deathmatch(deathmatch)
 		{}
 
-		// UI::DataSource<const std::string&>
-		const std::string& GetValue(const UI::StateContext &sc) const override
+		// UI::LayoutData<const std::string&>
+		const std::string& GetValue(const UI::DataContext &dc) const override
 		{
 			std::ostringstream text;
 			if (_deathmatch && _deathmatch->GetTimeLimit() > 0)
@@ -66,15 +66,15 @@ namespace
 		mutable std::string _cachedString;
 	};
 
-	class DeathmatchRatingBinding : public UI::DataSource<unsigned int>
+	class DeathmatchRatingBinding : public UI::RenderData<unsigned int>
 	{
 	public:
 		DeathmatchRatingBinding(const Deathmatch &deathmatch)
 			: _deathmatch(deathmatch)
 		{}
 
-		// UI::DataSource<unsigned int>
-		unsigned int GetValue(const UI::StateContext &sc) const override
+		// UI::RenderData<unsigned int>
+		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
 			return _deathmatch.GetRating();
 		}
@@ -264,11 +264,11 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize((int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y, lc.GetScale());
 
-	_gameViewHarness.RenderGame(dc, _worldView);
+	_gameViewHarness.RenderGame(rc, _worldView);
 
 	vec2d dir = GetDragDirection();
 	bool reversing = GetEffectiveDragCount() > 1;
@@ -283,7 +283,7 @@ void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 				pos += dir;
 				uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
 				uint32_t rgb = reversing ? opacity : opacity << 8;
-				dc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
+				rc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
 			}
 		}
 		
@@ -293,20 +293,20 @@ void GameLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			if (time > 0)
 			{
 				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
-				dc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
+				rc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
 			}
 		}
 	}
 }
 
-FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
 
 	if (_scoreAndControls.get() == &child)
 	{
-		vec2d pxChildSize = child.GetContentSize(texman, sc, lc.GetScale());
+		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScale());
 		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
 	}
 	if (_timerDisplay.get() == &child)
@@ -317,7 +317,7 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	{
 		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
 	}
-	return UI::Window::GetChildRect(texman, lc, sc, child);
+	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
 bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)

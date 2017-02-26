@@ -64,7 +64,7 @@ static bool PtOnActor(const GC_Actor &actor, vec2d pt)
 
 namespace
 {
-	class LayerDisplay : public UI::DataSource<const std::string&>
+	class LayerDisplay : public UI::LayoutData<const std::string&>
 	{
 	public:
 		LayerDisplay(LangCache &lang, std::shared_ptr<UI::List> typeSelector)
@@ -72,8 +72,8 @@ namespace
 			, _typeSelector(std::move(typeSelector))
 		{}
 
-		// DataSource<const std::string&>
-		const std::string& GetValue(const UI::StateContext &sc) const override
+		// LayoutData<const std::string&>
+		const std::string& GetValue(const UI::DataContext &dc) const override
 		{
 			int index = _typeSelector->GetCurSel();
 			if (_cachedIndex != index)
@@ -117,7 +117,7 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 			if (RTTypes::Inst().IsRegistered(actor->GetType()) && PtOnActor(*actor, pt))
 			{
 				enumZOrder maxZ = Z_NONE;
-				if( const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*actor, true, false) )
+				if(const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*actor, true, false) )
 				{
 					for (auto &view: *views)
 					{
@@ -333,7 +333,7 @@ void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d offset)
+void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d pointerPosition, vec2d offset)
 {
 	_defaultCamera.Move(offset, _world._bounds);
 }
@@ -448,7 +448,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -459,16 +459,16 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	}
 	if (_typeSelector.get() == &child)
 	{
-		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, sc, scale).y, size.x, size.y };
+		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, dc, scale).y, size.x, size.y };
 	}
     if (_propList.get() == &child)
     {
         float pxWidth = std::floor(100 * lc.GetScale());
-        float pxBottom = _typeSelector ? GetChildRect(texman, lc, sc, *_typeSelector).top : lc.GetPixelSize().y;
+        float pxBottom = _typeSelector ? GetChildRect(texman, lc, dc, *_typeSelector).top : lc.GetPixelSize().y;
         return FRECT{ lc.GetPixelSize().x - pxWidth, 0, lc.GetPixelSize().x, pxBottom };
     }
 
-	return UI::Window::GetChildRect(texman, lc, sc, child);
+	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
 void EditorLayout::OnChangeUseLayers()
@@ -482,13 +482,13 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
 }
 
-void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
 	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	_worldView.Render(dc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
+	_worldView.Render(rc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
 
 	// Selection
 	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )
@@ -496,15 +496,15 @@ void EditorLayout::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc,
 		FRECT rt = GetSelectionRect(*selectedActor); // in world coord
 		FRECT sel = WorldToCanvas(lc, rt);
 
-		dc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
-		dc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
 	}
 
 	// Mouse coordinates
 	vec2d mouse = CanvasToWorld(lc, ic.GetMousePos());
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
-	dc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
+	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
 		lc.GetScale(), _fontSmall, 0xffffffff, buf.str(), alignTextCT);
 }
 

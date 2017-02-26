@@ -1,7 +1,7 @@
 #include "inc/ui/DataSource.h"
 #include "inc/ui/Rating.h"
 #include "inc/ui/LayoutContext.h"
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
 using namespace UI;
@@ -12,12 +12,12 @@ Rating::Rating(LayoutManager &manager, TextureManager &texman)
 {
 }
 
-void Rating::SetRating(std::shared_ptr<DataSource<unsigned int>> rating)
+void Rating::SetRating(std::shared_ptr<RenderData<unsigned int>> rating)
 {
 	_rating = std::move(rating);
 }
 
-void Rating::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Rating::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	auto &spriteInfo = texman.GetSpriteInfo(_texture);
 	vec2d spriteSize = { spriteInfo.pxFrameWidth, spriteInfo.pxFrameHeight };
@@ -27,14 +27,14 @@ void Rating::Draw(const StateContext &sc, const LayoutContext &lc, const InputCo
 
 	vec2d pxItemSize = ToPx(spriteSize, minScale);
 
-	unsigned int rating = _rating ? _rating->GetValue(sc) : 0;
+	unsigned int rating = _rating ? _rating->GetValue(dc, sc) : 0;
 	for (unsigned int i = 0; i < _maxRating; i++)
 	{
-		dc.DrawSprite(MakeRectWH(vec2d{ pxItemSize.x * (float)i, 0 }, pxItemSize), _texture, 0xffffffff, i >= rating);
+		rc.DrawSprite(MakeRectWH(vec2d{ pxItemSize.x * (float)i, 0 }, pxItemSize), _texture, 0xffffffff, i >= rating);
 	}
 }
 
-vec2d Rating::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+vec2d Rating::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
 	auto &spriteInfo = texman.GetSpriteInfo(_texture);
 	vec2d spriteSize = { spriteInfo.pxFrameWidth, spriteInfo.pxFrameHeight };

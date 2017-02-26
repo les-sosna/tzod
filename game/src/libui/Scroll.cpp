@@ -162,7 +162,7 @@ float ScrollBarBase::GetScrollPaneLength(const LayoutContext &lc) const
 	return result;
 }
 
-FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -172,7 +172,7 @@ FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &l
 		return CanvasLayout(size / scale - child.GetSize(), child.GetSize(), scale);
 	}
 
-	return Rectangle::GetChildRect(texman, lc, sc, child);
+	return Rectangle::GetChildRect(texman, lc, dc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ ScrollBarVertical::ScrollBarVertical(LayoutManager &manager, TextureManager &tex
 	SetTexture(texman, "ui/scroll_back_vert", true);
 }
 
-FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	if (_btnBox.get() == &child)
 	{
@@ -199,7 +199,7 @@ FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContex
 		return CanvasLayout(thumbOffset, thumbSize, lc.GetScale());
 	}
 
-	return ScrollBarBase::GetChildRect(texman, lc, sc, child);
+	return ScrollBarBase::GetChildRect(texman, lc, dc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager, TextureManager 
 	SetTexture(texman, "ui/scroll_back_hor", true);
 }
 
-FRECT ScrollBarHorizontal::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT ScrollBarHorizontal::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	if (_btnBox.get() == &child)
 	{
@@ -226,5 +226,5 @@ FRECT ScrollBarHorizontal::GetChildRect(TextureManager &texman, const LayoutCont
 		return CanvasLayout(thumbOffset, thumbSize, lc.GetScale());
 	}
 
-	return ScrollBarBase::GetChildRect(texman, lc, sc, child);
+	return ScrollBarBase::GetChildRect(texman, lc, dc, child);
 }

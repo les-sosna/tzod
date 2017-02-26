@@ -8,7 +8,7 @@
 #include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <algorithm>
 
 using namespace UI;
@@ -155,7 +155,7 @@ void Button::SetIcon(LayoutManager &manager, TextureManager &texman, const char 
 	}
 }
 
-void Button::SetText(std::shared_ptr<DataSource<const std::string&>> text)
+void Button::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 {
 	_text->SetText(std::move(text));
 }
@@ -169,7 +169,7 @@ void Button::SetBackground(TextureManager &texman, const char *tex, bool fitSize
 	}
 }
 
-FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -192,7 +192,7 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 		{
 			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
 			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
-			pxChildPos.y -= std::floor(_text->GetContentSize(texman, sc, scale).y / 2);
+			pxChildPos.y -= std::floor(_text->GetContentSize(texman, dc, scale).y / 2);
 			return MakeRectWH(pxChildPos, pxChildSize);
 		}
 	}
@@ -204,14 +204,8 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 		}
 	}
 
-	return Window::GetChildRect(texman, lc, sc, child);
+	return Window::GetChildRect(texman, lc, dc, child);
 }
-
-void Button::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
-{
-	ButtonBase::Draw(sc, lc, ic, dc, texman);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // TextButton
@@ -224,9 +218,9 @@ TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
 	_text->SetFontColor(c_textColor);
 }
 
-vec2d TextButton::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+vec2d TextButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-	return _text->GetContentSize(texman, sc, scale);
+	return _text->GetContentSize(texman, dc, scale);
 }
 
 void TextButton::SetFont(TextureManager &texman, const char *fontName)
@@ -234,19 +228,19 @@ void TextButton::SetFont(TextureManager &texman, const char *fontName)
 	_text->SetFont(texman, fontName);
 }
 
-void TextButton::SetText(std::shared_ptr<DataSource<const std::string&>> text)
+void TextButton::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 {
 	_text->SetText(std::move(text));
 }
 
-FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	if (_text.get() == &child)
 	{
 		return MakeRectWH(lc.GetPixelSize());
 	}
 
-	return ButtonBase::GetChildRect(texman, lc, sc, child);
+	return ButtonBase::GetChildRect(texman, lc, dc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -295,9 +289,9 @@ void CheckBox::SetText(TextureManager &texman, const std::string &text)
 	OnTextChange(texman);
 }
 
-void CheckBox::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
-	ButtonBase::Draw(sc, lc, ic, dc, texman);
+	ButtonBase::Draw(dc, sc, lc, ic, rc, texman);
 
 	State state = GetState(lc, ic);
 	size_t frame = _isChecked ? state + 4 : state;
@@ -307,7 +301,7 @@ void CheckBox::Draw(const StateContext &sc, const LayoutContext &lc, const Input
 	float th = texman.GetFrameHeight(_fontTexture, 0);
 
 	FRECT box = {0, (lc.GetPixelSize().y - bh) / 2, bw, (lc.GetPixelSize().y - bh) / 2 + bh};
-	dc.DrawSprite(box, _boxTexture, 0xffffffff, frame);
+	rc.DrawSprite(box, _boxTexture, 0xffffffff, frame);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -317,5 +311,5 @@ void CheckBox::Draw(const StateContext &sc, const LayoutContext &lc, const Input
 		SpriteColor(0xffffffff), // Pushed
 		SpriteColor(0xffffffff), // Disabled
 	};
-	dc.DrawBitmapText(vec2d{ bw, (lc.GetPixelSize().y - th) / 2 }, lc.GetScale(), _fontTexture, colors[state], GetText());
+	rc.DrawBitmapText(vec2d{ bw, (lc.GetPixelSize().y - th) / 2 }, lc.GetScale(), _fontTexture, colors[state], GetText());
 }

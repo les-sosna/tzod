@@ -24,14 +24,14 @@ void ScrollView::SetContent(std::shared_ptr<Window> content)
 	}
 }
 
-FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
 
 	if (_content.get() == &child)
 	{
-		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, sc, scale);
+		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, scale);
 		vec2d pxContentOffset = Vec2dConstrain(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
 		vec2d pxContentSize = vec2d{
 			_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,
@@ -39,15 +39,15 @@ FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 		return MakeRectWH(-pxContentOffset, pxContentSize);
 	}
 
-	return Window::GetChildRect(texman, lc, sc, child);
+	return Window::GetChildRect(texman, lc, dc, child);
 }
 
-vec2d ScrollView::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+vec2d ScrollView::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-	return _content ? _content->GetContentSize(texman, sc, scale) : vec2d{};
+	return _content ? _content->GetContentSize(texman, dc, scale) : vec2d{};
 }
 
-void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::StateContext &sc, vec2d pointerPosition, vec2d scrollOffset)
+void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d pointerPosition, vec2d scrollOffset)
 {
 	if (_content)
 	{
@@ -56,7 +56,7 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 			std::swap(scrollOffset.x, scrollOffset.y);
 		}
 
-		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, sc, lc.GetScale());
+		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, lc.GetScale());
 
 		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScale());
 		_offset = Vec2dConstrain(_offset, offsetConstraints);

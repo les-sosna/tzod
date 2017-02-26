@@ -32,7 +32,7 @@
 #include <ui/LayoutContext.h>
 #include <ui/Text.h>
 #include <ui/UIInput.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 extern "C"
 {
@@ -507,7 +507,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_background.get() == &child)
 	{
@@ -525,13 +525,13 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, sc, lc.GetScale()) / lc.GetScale(), lc.GetScale());
+		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScale()) / lc.GetScale(), lc.GetScale());
 	}
 	if (_tierTitle.get() == &child)
 	{
 		return MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{});
 	}
-	return UI::Window::GetChildRect(texman, lc, sc, child);
+	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
 float Desktop::GetChildOpacity(const UI::Window &child) const

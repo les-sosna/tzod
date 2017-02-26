@@ -5,7 +5,7 @@
 class ConfVarString;
 namespace UI
 {
-	template<class T> struct DataSource;
+	template<class T> struct LayoutData;
 }
 
-std::shared_ptr<UI::DataSource<const std::string&>> ConfBind(ConfVarString &confString);
+std::shared_ptr<UI::LayoutData<const std::string&>> ConfBind(ConfVarString &confString);

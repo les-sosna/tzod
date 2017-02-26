@@ -16,13 +16,13 @@ include_directories(
 )
 
 set(video_SOURCES
-	inc/video/DrawingContext.h
 	inc/video/ImageLoader.h
 	inc/video/RenderBase.h
+	inc/video/RenderContext.h
 	inc/video/TextureManager.h
 
-	DrawingContext.cpp
 	ImageLoader.cpp
+	RenderContext.cpp
 	TextureManager.cpp
 )
 

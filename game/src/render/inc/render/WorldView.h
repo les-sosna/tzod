@@ -3,7 +3,7 @@
 #include "Terrain.h"
 #include <math/MyMath.h>
 
-class DrawingContext;
+class RenderContext;
 class TextureManager;
 class RenderScheme;
 class World;
@@ -11,16 +11,16 @@ class World;
 class WorldView
 {
 public:
-    WorldView(TextureManager &tm, RenderScheme &rs);
+	WorldView(TextureManager &tm, RenderScheme &rs);
 	~WorldView();
-	void Render(DrawingContext &dc,
-				const World &world,
-				const RectRB &viewport,
-				vec2d eye,
-				float zoom,
-				bool editorMode,
-				bool drawGrid,
-				bool nightMode) const;
+	void Render(RenderContext &rc,
+	            const World &world,
+	            const RectRB &viewport,
+	            vec2d eye,
+	            float zoom,
+	            bool editorMode,
+	            bool drawGrid,
+	            bool nightMode) const;
 	RenderScheme &GetRenderScheme() const { return _renderScheme; }
 
 private:

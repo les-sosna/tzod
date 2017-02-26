@@ -1,4 +1,5 @@
 #include "inc/ui/Combo.h"
+#include "inc/ui/DataContext.h"
 #include "inc/ui/DataSource.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/List.h"
@@ -127,7 +128,7 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -142,27 +143,27 @@ FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 		return FRECT{ size.x - std::floor(child.GetWidth() * scale), top, size.x, top + std::floor(child.GetHeight() * scale) };
 	}
 
-	return Window::GetChildRect(texman, lc, sc, child);
+	return Window::GetChildRect(texman, lc, dc, child);
 }
 
-void ComboBox::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
-	Rectangle::Draw(sc, lc, ic, dc, texman);
+	Rectangle::Draw(dc, sc, lc, ic, rc, texman);
 
 	if (_list->GetList()->GetCurSel() != -1)
 	{
 		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<InputContext&>(ic), dc, texman };
+		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman };
 
-		StateContext itemSC;
+		DataContext itemDC;
 		{
-			itemSC.SetDataContext(_list->GetList()->GetData());
-			itemSC.SetItemIndex(_list->GetList()->GetCurSel());
+			itemDC.SetDataContext(_list->GetList()->GetData());
+			itemDC.SetItemIndex(_list->GetList()->GetCurSel());
 		}
 
 		vec2d pxItemSize = { lc.GetPixelSize().x - ToPx(_btn->GetWidth(), lc), lc.GetPixelSize().y };
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), lc.GetPixelOffset(), pxItemSize, lc.GetEnabledCombined());
-		RenderUIRoot(*_list->GetList()->GetItemTemplate(), rs, itemLC, itemSC);
+		RenderUIRoot(*_list->GetList()->GetItemTemplate(), rs, itemLC, itemDC, sc);
 	}
 }
 

@@ -9,8 +9,9 @@
 #include <gc/World.h>
 #include <loc/Language.h>
 #include <render/WorldView.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <ui/Button.h>
+#include <ui/DataContext.h>
 #include <ui/DataSource.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
@@ -27,7 +28,7 @@ using namespace UI::DataSourceAliases;
 
 namespace
 {
-	class TierProgressBinding : public UI::DataSource<unsigned int>
+	class TierProgressBinding : public UI::RenderData<unsigned int>
 	{
 	public:
 		TierProgressBinding(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign)
@@ -36,14 +37,14 @@ namespace
 			, _dmCampaign(dmCampaign)
 		{}
 
-		unsigned int GetValue(const UI::StateContext &sc) const override
+		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
 			int tier = GetCurrentTier(_conf, _dmCampaign);
 
 			if (tier < (int)_appConfig.sp_tiersprogress.GetSize())
 			{
 				ConfVarArray &tierProgress = _appConfig.sp_tiersprogress.GetArray(tier);
-				unsigned int index = sc.GetItemIndex();
+				unsigned int index = dc.GetItemIndex();
 				return index < tierProgress.GetSize() ? tierProgress.GetNum(index).GetInt() : 0;
 			}
 			else
@@ -237,7 +238,7 @@ void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texma
 	}
 }
 
-FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_content.get() == &child)
 	{
@@ -245,11 +246,11 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
 	}
 
-	return UI::Dialog::GetChildRect(texman, lc, sc, child);
+	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }
 
-vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::StateContext &sc, float scale) const
+vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const
 {
 	vec2d pxMargins = UI::ToPx(vec2d{ c_tileSpacing, c_tileSpacing }, scale);
-	return _content->GetContentSize(texman, sc, scale) + pxMargins * 2;
+	return _content->GetContentSize(texman, dc, scale) + pxMargins * 2;
 }

@@ -49,16 +49,16 @@ void Edit::PushState(StateContext &sc, const LayoutContext &lc, const InputConte
 	sc.SetState(lc.GetEnabledCombined() ? "" : "Disabled");
 }
 
-FRECT Edit::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT Edit::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	if (_background.get() == &child)
 	{
 		return MakeRectWH(lc.GetPixelSize());
 	}
-	return Window::GetChildRect(texman, lc, sc, child);
+	return Window::GetChildRect(texman, lc, dc, child);
 }
 
-vec2d Edit::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+vec2d Edit::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-	return _editable->GetContentSize(texman, sc, scale);
+	return _editable->GetContentSize(texman, dc, scale);
 }

@@ -3,7 +3,7 @@
 #include <gc/Wall.h>
 #include <gc/WorldCfg.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 R_Wall::R_Wall(TextureManager &tm, const char *tex)
 	: _tm(tm)
@@ -15,7 +15,7 @@ R_Wall::R_Wall(TextureManager &tm, const char *tex)
 	_texId[LB] = tm.FindSprite(std::string(tex) + "_lb");
 }
 
-void R_Wall::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Wall::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Wall*>(&actor));
 	auto &wall = static_cast<const GC_Wall&>(actor);
@@ -25,7 +25,7 @@ void R_Wall::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc)
 	assert(corner < 5);
 	unsigned int fcount = _tm.GetFrameCount(_texId[corner]);
 	unsigned int frame = fcount - 1 - (unsigned int) ((float) (fcount - 1) * wall.GetHealth() / wall.GetHealthMax());
-	dc.DrawSprite(_texId[corner], frame, 0xffffffff, pos.x, pos.y, CELL_SIZE, CELL_SIZE, dir);
+	rc.DrawSprite(_texId[corner], frame, 0xffffffff, pos.x, pos.y, CELL_SIZE, CELL_SIZE, dir);
 }
 
 

@@ -1,10 +1,11 @@
 #pragma once
 #include "Window.h"
-#include "video/DrawingContext.h"
+#include "video/RenderContext.h"
 
 namespace UI
 {
-template<class T> struct DataSource;
+template<class T> struct LayoutData;
+template<class T> struct RenderData;
 
 class Text : public Window
 {
@@ -13,19 +14,19 @@ public:
 
 	void SetAlign(enumAlignText align);
 	void SetFont(TextureManager &texman, const char *fontName);
-	void SetFontColor(std::shared_ptr<DataSource<SpriteColor>> color);
+	void SetFontColor(std::shared_ptr<RenderData<SpriteColor>> color);
 
-	void SetText(std::shared_ptr<DataSource<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 
 	// Window
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
+	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 private:
-	enumAlignText  _align;
-	size_t         _fontTexture;
-	std::shared_ptr<DataSource<SpriteColor>> _fontColor;
-	std::shared_ptr<DataSource<const std::string&>> _text;
+	enumAlignText _align;
+	size_t _fontTexture;
+	std::shared_ptr<RenderData<SpriteColor>> _fontColor;
+	std::shared_ptr<LayoutData<const std::string&>> _text;
 };
 
 } // namespace UI

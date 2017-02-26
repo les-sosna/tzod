@@ -40,7 +40,7 @@ public:
 
 	// UI::Window
 	UI::PointerSink* GetPointerSink() override { return GetNavFront() ? this : nullptr; }
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	float GetChildOpacity(const Window &child) const override;
 
 private:
@@ -55,7 +55,7 @@ private:
 	float _navTransitionStartTime = 0;
 	float _foldTime = 0.25f;
 
-	float GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc) const;
+	float GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const;
 	float GetTransitionTimeLeft() const;
 
 	// PointerSink

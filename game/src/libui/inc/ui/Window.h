@@ -9,19 +9,20 @@
 #include <string>
 #include <deque>
 
-class DrawingContext;
+class RenderContext;
 class TextureManager;
 
 namespace UI
 {
 
+class DataContext;
 class InputContext;
 class LayoutContext;
 class LayoutManager;
 class StateContext;
 enum class Key;
 enum class PointerType;
-template <class> struct DataSource;
+template <class> struct LayoutData;
 
 enum class StretchMode
 {
@@ -37,7 +38,7 @@ enum class FlowDirection
 
 struct ScrollSink
 {
-	virtual void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const StateContext &sc, vec2d pointerPosition, vec2d scrollOffset) = 0;
+	virtual void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d pointerPosition, vec2d scrollOffset) = 0;
 };
 
 struct PointerSink
@@ -75,7 +76,7 @@ class Window : public std::enable_shared_from_this<Window>
 
 	std::list<Window*>::iterator _timeStepReg;
 
-	std::shared_ptr<DataSource<bool>> _enabled;
+	std::shared_ptr<LayoutData<bool>> _enabled;
 
 	//
 	// size and position
@@ -114,7 +115,7 @@ public:
 	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
 	LayoutManager& GetManager() const { return _manager;  } // to remove
 
-	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const;
+	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
 	virtual float GetChildOpacity(const Window &child) const { return 1; }
 
 	//
@@ -146,7 +147,7 @@ public:
 	// size & position
 	//
 
-	virtual vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const { return Vec2dFloor(GetSize() *scale); }
+	virtual vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const { return Vec2dFloor(GetSize() *scale); }
 
 	void Move(float x, float y);
 	vec2d GetOffset() const { return vec2d{_x, _y}; }
@@ -163,8 +164,8 @@ public:
 	// Behavior
 	//
 
-	void SetEnabled(std::shared_ptr<DataSource<bool>> enabled);
-	bool GetEnabled(const StateContext &sc) const;
+	void SetEnabled(std::shared_ptr<LayoutData<bool>> enabled);
+	bool GetEnabled(const DataContext &dc) const;
 
 	void SetTimeStep(bool enable);
 	bool GetTimeStep() const { return _isTimeStep; }
@@ -182,7 +183,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const {}
+	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const {}
 
 private:
 

@@ -9,7 +9,7 @@ class R_AnimatedSprite : public ObjectRFunc
 {
 public:
 	R_AnimatedSprite(TextureManager &tm, const char *tex, float frameRate);
-	void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
 
 private:
 	TextureManager &_tm;

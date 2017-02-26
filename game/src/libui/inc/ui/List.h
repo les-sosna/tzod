@@ -35,7 +35,7 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 protected:
 	// callback interface
@@ -56,7 +56,7 @@ protected:
 	// Window
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
 
 private:
 	List(const List &) = delete;

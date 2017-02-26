@@ -12,10 +12,10 @@ LayoutContext::LayoutContext(float opacity, float scale, vec2d offset, vec2d siz
 {
 }
 
-LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const StateContext &childSC)
+LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const DataContext &childDC)
 	: _scale(parentLC.GetScale())
 	, _opacityCombined(parentLC.GetOpacityCombined() * parentWindow.GetChildOpacity(childWindow))
-	, _enabled(parentLC.GetEnabledCombined() && childWindow.GetEnabled(childSC))
+	, _enabled(parentLC.GetEnabledCombined() && childWindow.GetEnabled(childDC))
 {
 	_offset = parentLC.GetPixelOffset() + Offset(childRect);
 	_size = Size(childRect);

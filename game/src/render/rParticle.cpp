@@ -1,7 +1,7 @@
 #include "rParticle.h"
 #include <gc/Particles.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <algorithm>
 
 static std::pair<ParticleType, const char*> textures[] = {
@@ -43,7 +43,7 @@ R_Particle::R_Particle(TextureManager &tm)
 		_ptype2texId[p.first] = tm.FindSprite(p.second);
 }
 
-void R_Particle::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Particle::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Particle*>(&actor));
 	const GC_Particle &particle = static_cast<const GC_Particle&>(actor);
@@ -70,8 +70,8 @@ void R_Particle::Draw(const World &world, const GC_Actor &actor, DrawingContext 
 		}
 		float size = particle.GetSizeOverride();
 		if( size < 0 )
-			dc.DrawSprite(texId, frame, color, pos.x, pos.y, dir);
+			rc.DrawSprite(texId, frame, color, pos.x, pos.y, dir);
 		else
-			dc.DrawSprite(texId, frame, color, pos.x, pos.y, size, size, dir);
+			rc.DrawSprite(texId, frame, color, pos.x, pos.y, size, size, dir);
 	}
 }

@@ -3,7 +3,7 @@
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 using namespace UI;
 
@@ -16,12 +16,12 @@ Rectangle::Rectangle(LayoutManager &manager)
 {
 }
 
-void Rectangle::SetBackColor(std::shared_ptr<DataSource<SpriteColor>> color)
+void Rectangle::SetBackColor(std::shared_ptr<RenderData<SpriteColor>> color)
 {
 	_backColor = std::move(color);
 }
 
-void Rectangle::SetBorderColor(std::shared_ptr<DataSource<SpriteColor>> color)
+void Rectangle::SetBorderColor(std::shared_ptr<RenderData<SpriteColor>> color)
 {
 	_borderColor = std::move(color);
 }
@@ -57,12 +57,12 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 	_textureStretchMode = stretchMode;
 }
 
-void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	if (-1 != _texture)
 	{
 		FRECT dst = MakeRectWH(lc.GetPixelSize());
-		unsigned int frame = _frame ? _frame->GetValue(sc) : 0;
+		unsigned int frame = _frame ? _frame->GetValue(dc, sc) : 0;
 
 		if (_drawBackground)
 		{
@@ -70,12 +70,12 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), frame);
+				rc.DrawSprite(client, _texture, _backColor->GetValue(dc, sc), frame);
 			}
 			else
 			{
 				RectRB clip = FRectToRect(client);
-				dc.PushClippingRect(clip);
+				rc.PushClippingRect(clip);
 
 				float frameWidth = texman.GetFrameWidth(_texture, frame);
 				float frameHeight = texman.GetFrameHeight(_texture, frame);
@@ -93,14 +93,14 @@ void Rectangle::Draw(const StateContext &sc, const LayoutContext &lc, const Inpu
 					client.right = client.left + newWidth;
 				}
 
-				dc.DrawSprite(client, _texture, _backColor->GetValue(sc), frame);
+				rc.DrawSprite(client, _texture, _backColor->GetValue(dc, sc), frame);
 
-				dc.PopClippingRect();
+				rc.PopClippingRect();
 			}
 		}
 		if (_drawBorder)
 		{
-			dc.DrawBorder(dst, _texture, _borderColor->GetValue(sc), frame);
+			rc.DrawBorder(dst, _texture, _borderColor->GetValue(dc, sc), frame);
 		}
 	}
 }

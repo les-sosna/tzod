@@ -1,7 +1,7 @@
 #include "rVehicle.h"
 #include <gc/Vehicle.h>
 #include <gc/Player.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
 R_Vehicle::R_Vehicle(TextureManager &tm)
@@ -10,7 +10,7 @@ R_Vehicle::R_Vehicle(TextureManager &tm)
 {
 }
 
-void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Vehicle::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Vehicle*>(&actor));
 	auto &vehicle = static_cast<const GC_Vehicle&>(actor);
@@ -19,12 +19,12 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, DrawingContext &
 	vec2d dir = vehicle.GetDirection();
 	float radius = vehicle.GetRadius();
 	size_t texId = _tm.FindSprite(vehicle.GetSkin());
-	dc.DrawSprite(texId, 0, 0x40000000, pos.x + 4, pos.y + 4, dir);
-	dc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(texId, 0, 0x40000000, pos.x + 4, pos.y + 4, dir);
+	rc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
 
 	if( vehicle.GetOwner() )
 	{
-		dc.DrawBitmapText(vec2d{ pos.x, pos.y + radius + 4 }, // leave space for ammo indicator
+		rc.DrawBitmapText(vec2d{ pos.x, pos.y + radius + 4 }, // leave space for ammo indicator
 			1.f, _nameFont, 0x7f7f7f7f, vehicle.GetOwner()->GetNick(), alignTextCT);
 	}
 

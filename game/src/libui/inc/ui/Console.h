@@ -57,8 +57,8 @@ public:
 	ScrollSink* GetScrollSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnTimeStep(LayoutManager &manager, float dt) override;
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 private:
 	std::shared_ptr<ScrollBarVertical> _scroll;
@@ -79,7 +79,7 @@ private:
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 
 	// ScrollSink
-	void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const StateContext &sc, vec2d pointerPosition, vec2d scrollOffset) override;
+	void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d pointerPosition, vec2d scrollOffset) override;
 };
 
 } // namespace UI

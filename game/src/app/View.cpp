@@ -5,12 +5,13 @@
 #include <shell/Desktop.h>
 #include <ui/AppWindow.h>
 #include <ui/ConsoleBuffer.h>
+#include <ui/DataContext.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
 #include <ui/StateContext.h>
 #include <ui/Window.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <video/RenderOpenGL.h>
 #include <video/TextureManager.h>
 #ifndef NOSOUND
@@ -106,20 +107,20 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 	_impl->soundView.Step();
 #endif
 
-	DrawingContext dc(_impl->textureManager, _appWindow.GetRender(), static_cast<unsigned int>(pxWidth), static_cast<unsigned int>(pxHeight));
+	RenderContext rc(_impl->textureManager, _appWindow.GetRender(), static_cast<unsigned int>(pxWidth), static_cast<unsigned int>(pxHeight));
 	_appWindow.GetRender().Begin();
 
-	UI::StateContext stateContext;
-	UI::LayoutContext layoutContext(1.f, scale, vec2d{}, vec2d{ pxWidth, pxHeight }, _impl->gui.GetDesktop()->GetEnabled(stateContext));
-	UI::RenderSettings rs{ _impl->gui.GetInputContext(), dc, _impl->textureManager };
+	UI::DataContext dataContext;
+	UI::LayoutContext layoutContext(1.f, scale, vec2d{}, vec2d{ pxWidth, pxHeight }, _impl->gui.GetDesktop()->GetEnabled(dataContext));
+	UI::RenderSettings rs{ _impl->gui.GetInputContext(), rc, _impl->textureManager };
 
-	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs, layoutContext, stateContext);
+	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs, layoutContext, dataContext, UI::StateContext());
 
 #ifndef NDEBUG
 	for (auto &id2pos : rs.ic.GetLastPointerLocation())
 	{
 		FRECT dst = { id2pos.second.x - 4, id2pos.second.y - 4, id2pos.second.x + 4, id2pos.second.y + 4 };
-		rs.dc.DrawSprite(dst, 0U, 0xffffffff, 0U);
+		rs.rc.DrawSprite(dst, 0U, 0xffffffff, 0U);
 	}
 #endif
 

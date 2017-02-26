@@ -110,19 +110,19 @@ void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)
     }
 }
 
-void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView) const
+void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) const
 {
     if( !_cameras.empty() )
     {
         if (IsSingleCamera())
         {
             vec2d eye = GetMaxShakeCamera().GetCameraPos();
-            worldView.Render(dc, _world, GetMaxShakeCamera().GetViewport(), eye, _scale, false, false, _world.GetNightMode());
+            worldView.Render(rc, _world, GetMaxShakeCamera().GetViewport(), eye, _scale, false, false, _world.GetNightMode());
         }
         else for( auto &camera: _cameras )
         {
             vec2d eye = camera.GetCameraPos();
-            worldView.Render(dc, _world, camera.GetViewport(), eye, _scale, false, false, _world.GetNightMode());
+            worldView.Render(rc, _world, camera.GetViewport(), eye, _scale, false, false, _world.GetNightMode());
         }
     }
     else
@@ -131,7 +131,7 @@ void GameViewHarness::RenderGame(DrawingContext &dc, const WorldView &worldView)
         float zoom = std::max(_pxWidth / WIDTH(_world._bounds), _pxHeight / HEIGHT(_world._bounds));
 
         RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
-        worldView.Render(dc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
+        worldView.Render(rc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
     }
 }
 

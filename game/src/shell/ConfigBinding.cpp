@@ -9,13 +9,13 @@ namespace UI
 
 namespace
 {
-	class ConfTextSourceAdapter : public UI::DataSource<const std::string&>
+	class ConfTextSourceAdapter : public UI::LayoutData<const std::string&>
 	{
 	public:
 		ConfTextSourceAdapter(ConfVarString &confString) : _confString(confString) {}
 
-		// UI::DataSource<const std::string&>
-		const std::string& GetValue(const UI::StateContext &sc) const override
+		// UI::LayoutData<const std::string&>
+		const std::string& GetValue(const UI::DataContext &dc) const override
 		{
 			return _confString.Get();
 		}
@@ -25,7 +25,7 @@ namespace
 	};
 }
 
-std::shared_ptr<UI::DataSource<const std::string&>> ConfBind(ConfVarString &confString)
+std::shared_ptr<UI::LayoutData<const std::string&>> ConfBind(ConfVarString &confString)
 {
 	return std::make_shared<ConfTextSourceAdapter>(confString);
 }

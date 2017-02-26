@@ -31,8 +31,8 @@ public:
 	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const override;
-	vec2d GetContentSize(TextureManager &texman, const UI::StateContext &sc, float scale) const override;
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	vec2d GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const override;
 
 private:
 	void UpdateTier();

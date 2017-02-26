@@ -3,11 +3,11 @@
 #include <math/MyMath.h>
 #include <stddef.h>
 
-class DrawingContext;
+class RenderContext;
 class GC_Weapon;
 
 vec2d GetWeapSpriteDirection(const World &world, const GC_Weapon &weapon);
-void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, DrawingContext &dc, size_t texId);
+void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, RenderContext &rc, size_t texId);
 
 class Z_Weapon : public ObjectZFunc
 {

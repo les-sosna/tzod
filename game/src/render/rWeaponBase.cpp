@@ -1,7 +1,7 @@
 #include "rWeaponBase.h"
 #include <gc/Weapons.h>
 #include <gc/World.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 vec2d GetWeapSpriteDirection(const World &world, const GC_Weapon &weapon)
 {
@@ -10,12 +10,12 @@ vec2d GetWeapSpriteDirection(const World &world, const GC_Weapon &weapon)
 	return dir;
 }
 
-void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, DrawingContext &dc, size_t texId)
+void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, RenderContext &rc, size_t texId)
 {
 	vec2d pos = weapon.GetPos();
 	vec2d dir = GetWeapSpriteDirection(world, weapon);
 	float shadow = weapon.GetAttached() ? 2.0f : 4.0f;
-	dc.DrawSprite(texId, 0, 0x40000000, pos.x + shadow, pos.y + shadow, dir);
+	rc.DrawSprite(texId, 0, 0x40000000, pos.x + shadow, pos.y + shadow, dir);
 }
 
 

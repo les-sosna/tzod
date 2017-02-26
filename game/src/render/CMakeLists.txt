@@ -12,6 +12,32 @@ include_directories(
 )
 
 add_library(render
+	inc/render/ObjectView.h
+	inc/render/ObjectViewsSelector.h
+	inc/render/RenderScheme.h
+	inc/render/Terrain.h
+	inc/render/WorldView.h
+
+	rAnimatedSprite.h
+	rBrickFragment.h
+	rBooster.h
+	rDecoration.h
+	rFireSpark.h
+	rIndicator.h
+	rLight.h
+	rMinigun.h
+	rParticle.h
+	rShock.h
+	rSprite.h
+	rText.h
+	rTile.h
+	rTurret.h
+	rUserObject.h
+	rVehicle.h
+	rWall.h
+	rWeapon.h
+	rWeaponBase.h
+
 	WorldView.cpp
 	ObjectViewsSelector.cpp
 	RenderScheme.cpp

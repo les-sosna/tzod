@@ -4,7 +4,7 @@
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 #include <algorithm>
 
 MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger)
@@ -29,14 +29,14 @@ void MessageArea::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 }
 
-void MessageArea::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
 	if( _lines.empty() )
 	{
 		return;
 	}
 
-	Window::Draw(sc, lc, ic, dc, texman);
+	Window::Draw(dc, sc, lc, ic, rc, texman);
 
 	float h = texman.GetCharHeight(_fontTexture);
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
@@ -49,7 +49,7 @@ void MessageArea::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, 
 		c.b = cc;
 		c.a = cc;
 
-		dc.DrawBitmapText(vec2d{ 0, y }, lc.GetScale(), _fontTexture, c, it->str);
+		rc.DrawBitmapText(vec2d{ 0, y }, lc.GetScale(), _fontTexture, c, it->str);
 		y -= h;
 	}
 }

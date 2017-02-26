@@ -8,7 +8,7 @@ StackLayout::StackLayout(LayoutManager &manager)
 {
 }
 
-FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
@@ -25,9 +25,9 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + item->GetContentSize(texman, sc, scale).y;
+			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale).y;
 		}
-		vec2d pxChildSize = child.GetContentSize(texman, sc, scale);
+		vec2d pxChildSize = child.GetContentSize(texman, dc, scale);
 		if (_align == Align::LT)
 		{
 			return FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y };
@@ -48,13 +48,13 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + item->GetContentSize(texman, sc, scale).x;
+			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale).x;
 		}
-		return FRECT{ pxOffset, 0.f, pxOffset + child.GetContentSize(texman, sc, scale).x, size.y };
+		return FRECT{ pxOffset, 0.f, pxOffset + child.GetContentSize(texman, dc, scale).x, size.y };
 	}
 }
 
-vec2d StackLayout::GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const
+vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
 	float pxTotalSize = 0; // in flow direction
 	unsigned int sumComponent = FlowDirection::Vertical == _flowDirection;
@@ -65,7 +65,7 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const StateContext &sc
 	auto &children = GetChildren();
 	for (auto &item : children)
 	{
-		vec2d pxItemSize = item->GetContentSize(texman, sc, scale);
+		vec2d pxItemSize = item->GetContentSize(texman, dc, scale);
 		pxTotalSize += pxItemSize[sumComponent];
 		pxMaxSize = std::max(pxMaxSize, pxItemSize[maxComponent]);
 	}

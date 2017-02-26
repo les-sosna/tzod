@@ -51,7 +51,7 @@ private:
 
 class Rectangle;
 class Text;
-template<class T> struct DataSource;
+template<class T> struct LayoutData;
 
 class Button : public ButtonBase
 {
@@ -60,12 +60,11 @@ public:
 
 	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
 	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
-	void SetText(std::shared_ptr<DataSource<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 	void SetFont(TextureManager &texman, const char *fontName);
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 private:
 	std::shared_ptr<Rectangle> _background;
@@ -81,11 +80,11 @@ public:
 	explicit TextButton(LayoutManager &manager, TextureManager &texman);
 
 	void SetFont(TextureManager &texman, const char *fontName);
-	void SetText(std::shared_ptr<DataSource<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
-	vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 private:
 	std::shared_ptr<Text> _text;
@@ -110,7 +109,7 @@ protected:
 	void OnClick() override;
 
 	// Window
-	void Draw(const StateContext &sc, const LayoutContext &lc, const InputContext &ic, DrawingContext &dc, TextureManager &texman) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
 
 private:
 	void OnTextChange(TextureManager &texman);

@@ -17,8 +17,8 @@ namespace UI
 
 		// Window
 		ScrollSink* GetScrollSink() override { return this; }
-		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const override;
-		vec2d GetContentSize(TextureManager &texman, const StateContext &sc, float scale) const override;
+		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 	private:
 		std::shared_ptr<Window> _content;
@@ -27,7 +27,7 @@ namespace UI
 		bool _horizontalScrollEnabled = false;
 
 		// ScrollSink
-		void OnScroll(TextureManager &texman, const UI::InputContext &ic, const LayoutContext &lc, const StateContext &sc, vec2d pointerPosition, vec2d offset) override;
+		void OnScroll(TextureManager &texman, const UI::InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d pointerPosition, vec2d offset) override;
 	};
 
 }// namespace UI

@@ -1,8 +1,8 @@
-#include "inc/video/DrawingContext.h"
+#include "inc/video/RenderContext.h"
 #include "inc/video/TextureManager.h"
 #include <algorithm>
 
-DrawingContext::DrawingContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
+RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
 	: _tm(tm)
 	, _render(render)
 	, _mode(RM_UNDEFINED)
@@ -15,7 +15,7 @@ DrawingContext::DrawingContext(const TextureManager &tm, IRender &render, unsign
 	_render.OnResizeWnd(width, height);
 }
 
-void DrawingContext::PushClippingRect(RectRB rect)
+void RenderContext::PushClippingRect(RectRB rect)
 {
 	rect.left += (int) _transformStack.top().offset.x;
 	rect.top += (int) _transformStack.top().offset.y;
@@ -40,7 +40,7 @@ void DrawingContext::PushClippingRect(RectRB rect)
 	}
 }
 
-void DrawingContext::PopClippingRect()
+void RenderContext::PopClippingRect()
 {
 	assert(!_clipStack.empty());
 	_clipStack.pop();
@@ -54,19 +54,19 @@ void DrawingContext::PopClippingRect()
 	}
 }
 
-void DrawingContext::PushTransform(vec2d offset, float opacityCombined)
+void RenderContext::PushTransform(vec2d offset, float opacityCombined)
 {
 	assert(!_transformStack.empty());
 	_transformStack.push({ _transformStack.top().offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f) });
 }
 
-void DrawingContext::PopTransform()
+void RenderContext::PopTransform()
 {
 	assert(_transformStack.size() > 1);
 	_transformStack.pop();
 }
 
-RectRB DrawingContext::GetVisibleRegion() const
+RectRB RenderContext::GetVisibleRegion() const
 {
 	RectRB visibleRegion = _clipStack.empty() ? _viewport : _clipStack.top();
 	visibleRegion.left -= (int)_transformStack.top().offset.x;
@@ -83,7 +83,7 @@ static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
 	return colorAG | colorBR;
 }
 
-void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
+void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -128,7 +128,7 @@ void DrawingContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, uns
 	v[3].y = dst.bottom;
 }
 
-void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
+void RenderContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -338,7 +338,7 @@ void DrawingContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor col
 	v[3].y = bottom;
 }
 
-void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
+void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -354,7 +354,7 @@ void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprit
 	if( align )
 	{
 		size_t count = 0;
-		for( const std::string::value_type *tmp = str.c_str(); *tmp; )
+		for(const std::string::value_type *tmp = str.c_str(); *tmp; )
 		{
 			++count;
 			++tmp;
@@ -385,7 +385,7 @@ void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprit
 	float x0 = origin.x - std::floor(dx[align] * pxAdvance * (float) maxline / 2);
 	float y0 = origin.y - std::floor(dy[align] * pxCharSize.y * (float) lines.size() / 2);
 
-	for( const std::string::value_type *tmp = str.c_str(); *tmp; ++tmp )
+	for(const std::string::value_type *tmp = str.c_str(); *tmp; ++tmp )
 	{
 		if( '\n' == *tmp )
 		{
@@ -430,7 +430,7 @@ void DrawingContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprit
 	}
 }
 
-void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
+void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -481,7 +481,7 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	v[3].y = y - px * dir.y + (height - py) * dir.x;
 }
 
-void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
+void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -527,7 +527,7 @@ void DrawingContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor colo
 	v[3].y = y - px * dir.y + (height - py) * dir.x;
 }
 
-void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
+void RenderContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
 	SpriteColor color = ApplyOpacity(0xffffffff, _transformStack.top().opacity);
 
@@ -565,7 +565,7 @@ void DrawingContext::DrawIndicator(size_t tex, float x, float y, float value)
 	v[3].y = y - py + lt.pxFrameHeight;
 }
 
-void DrawingContext::DrawLine(size_t tex, SpriteColor color,
+void RenderContext::DrawLine(size_t tex, SpriteColor color,
                               float x0, float y0, float x1, float y1, float phase)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
@@ -609,7 +609,7 @@ void DrawingContext::DrawLine(size_t tex, SpriteColor color,
 	v[3].y = y0 + py * c;
 }
 
-void DrawingContext::DrawBackground(size_t tex, FRECT bounds) const
+void RenderContext::DrawBackground(size_t tex, FRECT bounds) const
 {
 	SpriteColor color = ApplyOpacity(0xffffffff, _transformStack.top().opacity);
 
@@ -652,7 +652,7 @@ static float sintable[SINTABLE_SIZE] = {
 	-0.707106f,-0.555570f,-0.382683f,-0.195090f,
 };
 
-void DrawingContext::DrawPointLight(float intensity, float radius, vec2d pos)
+void RenderContext::DrawPointLight(float intensity, float radius, vec2d pos)
 {
 	SpriteColor color;
 	color.color = 0x00000000;
@@ -671,7 +671,7 @@ void DrawingContext::DrawPointLight(float intensity, float radius, vec2d pos)
 	}
 }
 
-void DrawingContext::DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect)
+void RenderContext::DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect)
 {
 	SpriteColor color;
 	color.color = 0x00000000;
@@ -692,7 +692,7 @@ void DrawingContext::DrawSpotLight(float intensity, float radius, vec2d pos, vec
 	}
 }
 
-void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length)
+void RenderContext::DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length)
 {
 	SpriteColor color;
 	color.color = 0x00000000;
@@ -738,7 +738,7 @@ void DrawingContext::DrawDirectLight(float intensity, float radius, vec2d pos, v
 	}
 }
 
-void DrawingContext::Camera(RectRB viewport, float x, float y, float scale)
+void RenderContext::Camera(RectRB viewport, float x, float y, float scale)
 {
 	viewport.left += (int) _transformStack.top().offset.x;
 	viewport.top += (int) _transformStack.top().offset.y;
@@ -747,12 +747,12 @@ void DrawingContext::Camera(RectRB viewport, float x, float y, float scale)
 	_render.Camera(&viewport, x, y, scale);
 }
 
-void DrawingContext::SetAmbient(float ambient)
+void RenderContext::SetAmbient(float ambient)
 {
 	_render.SetAmbient(ambient);
 }
 
-void DrawingContext::SetMode(RenderMode mode)
+void RenderContext::SetMode(RenderMode mode)
 {
 	if (_mode != mode)
 	{

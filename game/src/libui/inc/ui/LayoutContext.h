@@ -7,13 +7,13 @@ class TextureManager;
 namespace UI
 {
 	class Window;
-	class StateContext;
+	class DataContext;
 
 	class LayoutContext
 	{
 	public:
 		LayoutContext(float opacity, float scale, vec2d offset, vec2d size, bool enabled);
-		LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const StateContext &childSC);
+		LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const DataContext &childDC);
 
 		bool GetEnabledCombined() const { return _enabled; }
 		vec2d GetPixelOffset() const { return _offset; }

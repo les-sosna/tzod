@@ -6,7 +6,7 @@
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
     : _renderScheme(rs)
@@ -18,7 +18,7 @@ WorldView::~WorldView()
 {
 }
 
-void WorldView::Render(DrawingContext &dc,
+void WorldView::Render(RenderContext &rc,
                        const World &world,
                        const RectRB &viewport,
                        vec2d eye,
@@ -30,7 +30,7 @@ void WorldView::Render(DrawingContext &dc,
 	eye.x = floor(eye.x * zoom) / zoom;
 	eye.y = floor(eye.y * zoom) / zoom;
 
-	dc.Camera(viewport, eye.x, eye.y, zoom);
+	rc.Camera(viewport, eye.x, eye.y, zoom);
 
 	float left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
 	float top = floor((eye.y - (float)HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
@@ -41,8 +41,8 @@ void WorldView::Render(DrawingContext &dc,
 	// draw lights to alpha channel
 	//
 
-	dc.SetAmbient(nightMode ? (editorMode ? 0.5f : 0) : 1);
-	dc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
+	rc.SetAmbient(nightMode ? (editorMode ? 0.5f : 0) : 1);
+	rc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( nightMode )
 	{
 		float xmin = std::max(world._bounds.left, left);
@@ -67,15 +67,15 @@ void WorldView::Render(DrawingContext &dc,
 				switch (pLight->GetLightType())
 				{
 					case GC_Light::LIGHT_POINT:
-						dc.DrawPointLight(intensity, pLight->GetRadius(), pLight->GetPos());
+						rc.DrawPointLight(intensity, pLight->GetRadius(), pLight->GetPos());
 						break;
 					case GC_Light::LIGHT_SPOT:
-						dc.DrawSpotLight(intensity, pLight->GetRadius(), pLight->GetPos(),
-										 pLight->GetLightDirection(), pLight->GetOffset(), pLight->GetAspect());
+						rc.DrawSpotLight(intensity, pLight->GetRadius(), pLight->GetPos(),
+						                 pLight->GetLightDirection(), pLight->GetOffset(), pLight->GetAspect());
 						break;
 					case GC_Light::LIGHT_DIRECT:
-						dc.DrawDirectLight(intensity, pLight->GetRadius(), pLight->GetPos(),
-										   pLight->GetLightDirection(), pLight->GetLength());
+						rc.DrawDirectLight(intensity, pLight->GetRadius(), pLight->GetPos(),
+						                   pLight->GetLightDirection(), pLight->GetLength());
 						break;
 					default:
 						assert(false);
@@ -126,16 +126,16 @@ void WorldView::Render(DrawingContext &dc,
 	// draw world to rgb
 	//
 
-	dc.SetMode(RM_WORLD);
+	rc.SetMode(RM_WORLD);
 
-	_terrain.Draw(dc, world._bounds, drawGrid);
+	_terrain.Draw(rc, world._bounds, drawGrid);
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{
 		for( auto &actorWithView: zLayers[z] )
-			actorWithView.second->Draw(world, *actorWithView.first, dc);
+			actorWithView.second->Draw(world, *actorWithView.first, rc);
 		zLayers[z].clear();
 	}
 
-	dc.SetMode(RM_INTERFACE);
+	rc.SetMode(RM_INTERFACE);
 }

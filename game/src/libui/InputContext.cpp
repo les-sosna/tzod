@@ -1,6 +1,6 @@
+#include "inc/ui/DataContext.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
-#include "inc/ui/StateContext.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/Window.h"
 
@@ -95,7 +95,7 @@ SinkType* UI::FindAreaSink(
 	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
-	const StateContext &sc,
+	const DataContext &dc,
 	const InputContext &ic,
 	bool insideTopMost)
 {
@@ -104,29 +104,21 @@ SinkType* UI::FindAreaSink(
 	vec2d pxPointerPosition = search.pxGlobalPointerPosition - lc.GetPixelOffset();
 	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pxPointerPosition);
 
-	if (pointerInside || (!wnd->GetChildren().empty() && !wnd->GetClipChildren()))
+	if (pointerInside || !wnd->GetClipChildren())
 	{
-		auto stateGen = wnd->GetStateGen();
-		StateContext childSC;
-		if (stateGen)
-		{
-			childSC = sc;
-			stateGen->PushState(childSC, lc, ic);
-		}
-
 		auto &children = wnd->GetChildren();
 		for (auto it = children.rbegin(); it != children.rend() && !sink; ++it)
 		{
 			auto &child = *it;
-			if (child->GetEnabled(stateGen ? childSC : sc) && child->GetVisible())
+			if (child->GetEnabled(dc) && child->GetVisible())
 			{
 				// early skip topmost subtree
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				if (!childInsideTopMost || search.topMostPass)
 				{
-					auto childRect = wnd->GetChildRect(search.texman, lc, sc, *child);
-					LayoutContext childLC(*wnd, lc, *child, childRect, stateGen ? childSC : sc);
-					sink = FindAreaSink<SinkType>(search, child, childLC, stateGen ? childSC : sc, ic, childInsideTopMost);
+					auto childRect = wnd->GetChildRect(search.texman, lc, dc, *child);
+					LayoutContext childLC(*wnd, lc, *child, childRect, dc);
+					sink = FindAreaSink<SinkType>(search, child, childLC, dc, ic, childInsideTopMost);
 				}
 			}
 		}
@@ -147,23 +139,15 @@ static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
 		path[i]->SetFocus(path[i - 1]);
 }
 
-static LayoutContext RestoreLayoutContext(LayoutContext lc, StateContext sc, const InputContext &ic, TextureManager &texman, const std::vector<std::shared_ptr<Window>> &path)
+static LayoutContext RestoreLayoutContext(LayoutContext lc, const DataContext &dc, const InputContext &ic, TextureManager &texman, const std::vector<std::shared_ptr<Window>> &path)
 {
 	for (size_t i = path.size() - 1; i > 0; i--)
 	{
 		auto &child = path[i - 1];
 		auto &parent = path[i];
 
-		StateContext childSC;
-		auto stateGen = parent->GetStateGen();
-		if (stateGen)
-		{
-			childSC = sc;
-			stateGen->PushState(childSC, lc, ic);
-		}
-
-		auto childRect = parent->GetChildRect(texman, lc, sc, *child);
-		lc = LayoutContext(*parent, lc, *child, childRect, stateGen ? childSC : sc);
+		auto childRect = parent->GetChildRect(texman, lc, dc, *child);
+		lc = LayoutContext(*parent, lc, *child, childRect, dc);
 	}
 	return lc;
 }
@@ -172,7 +156,7 @@ bool InputContext::ProcessPointer(
 	TextureManager &texman,
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
-	const StateContext &sc,
+	const DataContext &dc,
 	vec2d pxPointerPosition,
 	vec2d pxPointerOffset,
 	Msg msg,
@@ -186,7 +170,7 @@ bool InputContext::ProcessPointer(
 
 	if (Msg::Scroll == msg)
 	{
-		return ProcessScroll(texman, wnd, lc, sc, pxPointerPosition, pxPointerOffset);
+		return ProcessScroll(texman, wnd, lc, dc, pxPointerPosition, pxPointerOffset);
 	}
 
 	PointerSink *pointerSink = nullptr;
@@ -205,7 +189,7 @@ bool InputContext::ProcessPointer(
 		for (bool topMostPass : {true, false})
 		{
 			AreaSinkSearch search{ texman, pxPointerPosition, topMostPass };
-			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, sc, *this, wnd->GetTopMost());
+			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, dc, *this, wnd->GetTopMost());
 			if (pointerSink)
 			{
 				sinkPath = std::move(search.outSinkPath);
@@ -221,7 +205,7 @@ bool InputContext::ProcessPointer(
 		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get()))
 			PropagateFocus(sinkPath);
 
-		LayoutContext childLC = RestoreLayoutContext(lc, sc, *this, texman, sinkPath);
+		LayoutContext childLC = RestoreLayoutContext(lc, dc, *this, texman, sinkPath);
 
 		pxPointerPosition -= childLC.GetPixelOffset();
 
@@ -258,7 +242,7 @@ bool InputContext::ProcessPointer(
 	return !!pointerSink;
 }
 
-bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, vec2d pxPointerPosition, vec2d offset)
+bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset)
 {
 	ScrollSink *scrollSink = nullptr;
 	std::vector<std::shared_ptr<Window>> sinkPath;
@@ -267,7 +251,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	for (bool topMostPass : {true, false})
 	{
 		AreaSinkSearch search{ texman, pxPointerPosition, topMostPass };
-		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc, sc, *this, wnd->GetTopMost());
+		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc, dc, *this, wnd->GetTopMost());
 		if (scrollSink)
 		{
 			sinkPath = std::move(search.outSinkPath);
@@ -277,9 +261,9 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 
 	if (scrollSink)
 	{
-		LayoutContext childLC = RestoreLayoutContext(lc, sc, *this, texman, sinkPath);
+		LayoutContext childLC = RestoreLayoutContext(lc, dc, *this, texman, sinkPath);
 		pxPointerPosition -= childLC.GetPixelOffset();
-		scrollSink->OnScroll(texman, *this, childLC, sc, pxPointerPosition, offset);
+		scrollSink->OnScroll(texman, *this, childLC, dc, pxPointerPosition, offset);
 		return true;
 	}
 
@@ -294,24 +278,16 @@ struct TraverseFocusPathSettings
 	std::function<bool(std::shared_ptr<Window>)> visitor;
 };
 
-static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, const TraverseFocusPathSettings &settings)
+static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, const TraverseFocusPathSettings &settings)
 {
 	if (lc.GetEnabledCombined() && wnd->GetVisible())
 	{
 		if (auto focusedChild = wnd->GetFocus())
 		{
-			auto stateGen = wnd->GetStateGen();
-			StateContext childSC;
-			if (stateGen)
-			{
-				childSC = sc;
-				stateGen->PushState(childSC, lc, settings.ic);
-			}
+			auto childRect = wnd->GetChildRect(settings.texman, lc, dc, *focusedChild);
+			LayoutContext childLC(*wnd, lc, *focusedChild, childRect, dc);
 
-			auto childRect = wnd->GetChildRect(settings.texman, lc, sc, *focusedChild);
-			LayoutContext childLC(*wnd, lc, *focusedChild, childRect, stateGen ? childSC : sc);
-
-			if (TraverseFocusPath(std::move(focusedChild), childLC, stateGen ? childSC : sc, settings))
+			if (TraverseFocusPath(std::move(focusedChild), childLC, dc, settings))
 			{
 				return true;
 			}
@@ -323,14 +299,14 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
-bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, Msg msg, Key key)
+bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, Key key)
 {
 	switch (msg)
 	{
 	case Msg::KEYUP:
 		break;
 	case Msg::KEYDOWN:
-		return TraverseFocusPath(wnd, lc, sc, TraverseFocusPathSettings {
+		return TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
 			[key, this](std::shared_ptr<Window> wnd) // visitor
@@ -346,9 +322,9 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	return false;
 }
 
-bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, int c)
+bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c)
 {
-	return TraverseFocusPath(wnd, lc, sc, TraverseFocusPathSettings {
+	return TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 		texman,
 		*this,
 		[c](std::shared_ptr<Window> wnd) // visitor

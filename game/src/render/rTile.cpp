@@ -2,7 +2,7 @@
 #include <gc/Actor.h>
 #include <gc/NeighborAware.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 static const float dx[8]   = { 32, 32,  0,-32,-32,-32,  0, 32 };
 static const float dy[8]   = {  0, 32, 32, 32,  0,-32,-32,-32 };
@@ -16,7 +16,7 @@ R_Tile::R_Tile(TextureManager &tm, const char *tex, SpriteColor color, vec2d off
 	assert(9 == tm.GetFrameCount(_texId));
 }
 
-void R_Tile::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Tile::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GI_NeighborAware*>(&actor));
 	auto &na = dynamic_cast<const GI_NeighborAware&>(actor);
@@ -29,8 +29,8 @@ void R_Tile::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc)
 	{
 		if( 0 == (tile & (1 << i)) )
 		{
-			dc.DrawSprite(_texId, frames[i], _color, pos.x + dx[i], pos.y + dy[i], dir);
+			rc.DrawSprite(_texId, frames[i], _color, pos.x + dx[i], pos.y + dy[i], dir);
 		}
 	}
-	dc.DrawSprite(_texId, 4, _color, pos.x, pos.y, dir);
+	rc.DrawSprite(_texId, 4, _color, pos.x, pos.y, dir);
 }

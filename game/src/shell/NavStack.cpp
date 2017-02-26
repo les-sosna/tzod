@@ -44,7 +44,7 @@ void NavStack::PopNavStack(UI::Window *wnd)
 
 	if (wnd == navFront.get())
 	{
-		wnd ->SetEnabled(UI::StaticValue<bool>::False());
+		wnd->SetEnabled(UI::StaticValue<bool>::False());
 
 		switch (_state)
 		{
@@ -92,14 +92,14 @@ void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
 	SetFocus(GetChildren().back());
 }
 
-float NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc) const
+float NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
 	float pxNavStackHeight = 0;
 	if (!GetChildren().empty())
 	{
 		for (auto wnd : GetChildren())
 		{
-			pxNavStackHeight += wnd->GetContentSize(texman, sc, lc.GetScale()).y;
+			pxNavStackHeight += wnd->GetContentSize(texman, dc, lc.GetScale()).y;
 		}
 		pxNavStackHeight += (float)(GetChildren().size() - 1) * UI::ToPx(_spacing, lc);
 	}
@@ -111,19 +111,19 @@ float NavStack::GetTransitionTimeLeft() const
 	return std::max(0.f, _navTransitionStartTime + _foldTime - GetManager().GetTime());
 }
 
-FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::StateContext &sc, const UI::Window &child) const
+FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	float transition = (1 - std::cos(PI * GetTransitionTimeLeft() / _foldTime)) / 2;
 
 	auto &children = GetChildren();
 
-	float pxTotalStackHeight = GetNavStackPixelSize(texman, lc, sc);
-	float pxStagingHeight = children.empty() ? 0 : children.back()->GetContentSize(texman, sc, lc.GetScale()).y;
+	float pxTotalStackHeight = GetNavStackPixelSize(texman, lc, dc);
+	float pxStagingHeight = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScale()).y;
 	float pxTransitionTarget = (lc.GetPixelSize().y + pxStagingHeight) / 2 - pxTotalStackHeight;
 
 	const UI::Window *preStaging = children.size() > 1 ? children[children.size() - 2].get() : nullptr;
 	float pxSpacing = UI::ToPx(_spacing, lc);
-	float pxPreStagingHeight = preStaging ? preStaging->GetContentSize(texman, sc, lc.GetScale()).y : 0;
+	float pxPreStagingHeight = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScale()).y : 0;
 	float pxTransitionStart = (lc.GetPixelSize().y + pxPreStagingHeight) / 2 - (pxTotalStackHeight - pxStagingHeight - pxSpacing);
 
 	if (_state == State::GoingBack)
@@ -135,7 +135,7 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 	for (auto wnd : children)
 	{
-		vec2d pxWndSize = wnd->GetContentSize(texman, sc, lc.GetScale());
+		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScale());
 		if (wnd.get() == &child)
 		{
 			vec2d pxWndOffset = Vec2dFloor((lc.GetPixelSize().x - pxWndSize.x) / 2, pxTop);
@@ -146,7 +146,7 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 	assert(false);
 
-	return UI::Window::GetChildRect(texman, lc, sc, child);
+	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
 float NavStack::GetChildOpacity(const Window &child) const

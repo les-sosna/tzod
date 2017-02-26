@@ -2,7 +2,7 @@
 #include <gc/projectiles.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 R_FireSpark::R_FireSpark(TextureManager &tm)
 	: _tm(tm)
@@ -10,7 +10,7 @@ R_FireSpark::R_FireSpark(TextureManager &tm)
 {
 }
 
-void R_FireSpark::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_FireSpark::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_FireSpark*>(&actor));
 	auto &fire = static_cast<const GC_FireSpark&>(actor);
@@ -23,5 +23,5 @@ void R_FireSpark::Draw(const World &world, const GC_Actor &actor, DrawingContext
 	vec2d dir = fire.GetDirection();
 	float size = fire.GetRadius();
 	unsigned int frame = rand % _tm.GetFrameCount(_texId);
-	dc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, size, size, dir);
+	rc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, size, size, dir);
 }

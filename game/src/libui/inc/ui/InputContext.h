@@ -11,13 +11,13 @@ class TextureManager;
 namespace UI
 {
 
+class DataContext;
+class LayoutContext;
+class Window;
 enum class Key;
 struct IInput;
 struct IClipboard;
 struct PointerSink;
-class LayoutContext;
-class StateContext;
-class Window;
 
 enum class Msg
 {
@@ -40,15 +40,15 @@ public:
 		TextureManager &texman,
 		std::shared_ptr<Window> wnd,
 		const LayoutContext &lc,
-		const StateContext &sc,
+		const DataContext &dc,
 		vec2d pxPointerPosition,
 		vec2d pxPointerOffset,
 		Msg msg,
 		int button,
 		PointerType pointerType,
 		unsigned int pointerID);
-	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, Msg msg, UI::Key key);
-	bool ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, int c);
+	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, UI::Key key);
+	bool ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c);
 
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
@@ -70,7 +70,7 @@ public:
 #endif
 
 private:
-	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const StateContext &sc, vec2d pxPointerPosition, vec2d offset);
+	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset);
 
 	IInput &_input;
 	IClipboard &_clipboard;
@@ -111,7 +111,7 @@ SinkType* FindAreaSink(
 	AreaSinkSearch &search,
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
-	const StateContext &sc,
+	const DataContext &dc,
 	const InputContext &ic,
 	bool insideTopMost);
 

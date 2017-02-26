@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 class TextureManager;
-class DrawingContext;
+class RenderContext;
 
 namespace math
 {
@@ -14,7 +14,7 @@ class Terrain
 {
 public:
 	Terrain(TextureManager &tm);
-	void Draw(DrawingContext &dc, const math::FRECT &bounds, bool drawGrid) const;
+	void Draw(RenderContext &rc, const math::FRECT &bounds, bool drawGrid) const;
 
 private:
 	size_t _texBack;

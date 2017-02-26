@@ -5,12 +5,13 @@
 #include <memory>
 #include <vector>
 
-class DrawingContext;
+class RenderContext;
 class TextureManager;
 
 namespace UI
 {
 
+class DataContext;
 class InputContext;
 class LayoutContext;
 class StateContext;
@@ -19,13 +20,13 @@ class Window;
 struct RenderSettings
 {
 	InputContext &ic;
-	DrawingContext &dc;
+	RenderContext &rc;
 	TextureManager &texman;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> hoverPath;
 };
 
-void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const StateContext &sc);
+void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc);
 
 class LayoutManager
 {

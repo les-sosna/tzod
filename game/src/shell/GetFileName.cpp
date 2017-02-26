@@ -20,8 +20,8 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
   , _folder(param.folder)
   , _changing(false)
 {
-    Resize(512, 460);
-    
+	Resize(512, 460);
+
 	auto t = std::make_shared<UI::Text>(manager, texman);
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(std::make_shared<UI::StaticText>(param.title));

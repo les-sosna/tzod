@@ -48,7 +48,7 @@ void Window::AddBack(std::shared_ptr<Window> child)
 	_children.push_front(std::move(child));
 }
 
-FRECT Window::GetChildRect(TextureManager &texman, const LayoutContext &lc, const StateContext &sc, const Window &child) const
+FRECT Window::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	return CanvasLayout(child.GetOffset(), child.GetSize(), lc.GetScale());
 }
@@ -96,14 +96,14 @@ std::shared_ptr<Window> Window::GetFocus() const
 	return _focusChild;
 }
 
-void Window::SetEnabled(std::shared_ptr<DataSource<bool>> enabled)
+void Window::SetEnabled(std::shared_ptr<LayoutData<bool>> enabled)
 {
 	_enabled = std::move(enabled);
 }
 
-bool Window::GetEnabled(const StateContext &sc) const
+bool Window::GetEnabled(const DataContext &dc) const
 {
-	return _enabled ? _enabled->GetValue(sc) : true;
+	return _enabled ? _enabled->GetValue(dc) : true;
 }
 
 void Window::SetVisible(bool visible)

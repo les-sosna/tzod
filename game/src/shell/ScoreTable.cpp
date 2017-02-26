@@ -9,7 +9,7 @@
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 #include <sstream>
 #include <iomanip>
@@ -36,9 +36,9 @@ ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World
 	SetDrawBorder(true);
 }
 
-void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, DrawingContext &dc, TextureManager &texman) const
+void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
-	UI::Rectangle::Draw(sc, lc, ic, dc, texman);
+	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
@@ -70,7 +70,7 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			text << _lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else
 			text << _lang.score_time_limit_hit.Get();
-		dc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_TIMELIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
+		rc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_TIMELIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
 	}
 
 	if( _deathmatch && _deathmatch->GetFragLimit() > 0 )
@@ -81,7 +81,7 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			text << _lang.score_frags_left.Get() << " " << scoreleft;
 		else
 			text << _lang.score_frag_limit_hit.Get();
-		dc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_FRAGLIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
+		rc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_FRAGLIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
 	}
 
 	const size_t maxLines = 8;
@@ -99,8 +99,8 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 			float pxWidth = lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc) - lt.x;
 			vec2d pxMargin = ToPx(vec2d{ 3, 3 }, lc);
 			FRECT pxRect = MakeRectWH(lt - pxMargin, vec2d{ pxWidth, pxLineHeight } + pxMargin * 2);
-			dc.DrawSprite(pxRect, _texHighlight, 0xffffffff, 0);
-			dc.DrawBorder(pxRect, _texHighlight, 0xffffffff, 0);
+			rc.DrawSprite(pxRect, _texHighlight, 0xffffffff, 0);
+			rc.DrawBorder(pxRect, _texHighlight, 0xffffffff, 0);
 		}
 	}
 
@@ -109,18 +109,18 @@ void ScoreTable::Draw(const UI::StateContext &sc, const UI::LayoutContext &lc, c
 		vec2d pxOffset = vec2d{ 0, pxLineHeight * (float)i };
 		if( i < maxLines)
 		{
-			dc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, players[i]->GetNick());
+			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, players[i]->GetNick());
 
 			std::ostringstream text;
 			text << (int) (i + 1);
-			dc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NUMBER, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, text.str());
+			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NUMBER, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, text.str());
 			text.str(std::string());
 			text << players[i]->GetScore();
-			dc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc), ToPx(SCORE_NAMES_TOP, lc) } + pxOffset, lc.GetScale(), _font, 0xffffffff, text.str(), alignTextRT);
+			rc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc), ToPx(SCORE_NAMES_TOP, lc) } + pxOffset, lc.GetScale(), _font, 0xffffffff, text.str(), alignTextRT);
 		}
 		else
 		{
-			dc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, "...");
+			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, "...");
 			break;
 		}
 	}

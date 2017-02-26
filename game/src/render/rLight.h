@@ -10,7 +10,7 @@ class R_Light : public ObjectRFunc
 {
 public:
 	R_Light(TextureManager &tm);
-	void Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const override;
+	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
 
 private:
 	size_t _texId;

@@ -1,7 +1,7 @@
 #include "rTurret.h"
 #include <gc/Turrets.h>
 #include <video/TextureManager.h>
-#include <video/DrawingContext.h>
+#include <video/RenderContext.h>
 
 R_Turret::R_Turret(TextureManager &tm, const char *texPlatform, const char *texWeapon)
 	: _tm(tm)
@@ -10,7 +10,7 @@ R_Turret::R_Turret(TextureManager &tm, const char *texPlatform, const char *texW
 {
 }
 
-void R_Turret::Draw(const World &world, const GC_Actor &actor, DrawingContext &dc) const
+void R_Turret::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
 {
 	assert(dynamic_cast<const GC_Turret*>(&actor));
 	auto &turret = static_cast<const GC_Turret&>(actor);
@@ -22,14 +22,14 @@ void R_Turret::Draw(const World &world, const GC_Actor &actor, DrawingContext &d
 	unsigned int nFrames = _tm.GetFrameCount(_texPlatform);
 	if (ready == 1)
 	{
-		dc.DrawSprite(_texPlatform, nFrames - 1, 0xffffffff, pos.x, pos.y, dir);
-		dc.DrawSprite(_texWeapon, 0, 0x40000000, pos.x + 4, pos.y + 4, weapDir); // shadow
-		dc.DrawSprite(_texWeapon, 0, 0xffffffff, pos.x, pos.y, weapDir);
+		rc.DrawSprite(_texPlatform, nFrames - 1, 0xffffffff, pos.x, pos.y, dir);
+		rc.DrawSprite(_texWeapon, 0, 0x40000000, pos.x + 4, pos.y + 4, weapDir); // shadow
+		rc.DrawSprite(_texWeapon, 0, 0xffffffff, pos.x, pos.y, weapDir);
 	}
 	else
 	{
 		assert(nFrames > 1);
 		unsigned int frame = (unsigned int) ((float) (nFrames - 1) * ready);
-		dc.DrawSprite(_texPlatform, frame, 0xffffffff, pos.x, pos.y, dir);
+		rc.DrawSprite(_texPlatform, frame, 0xffffffff, pos.x, pos.y, dir);
 	}
 }
