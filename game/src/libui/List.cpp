@@ -241,8 +241,8 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 		else
 			itemState = DISABLED;
 
-		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman };
+		InputContext childIC(ic);
+		UI::RenderSettings rs{ childIC, rc, texman };
 
 		StateContext itemSC;
 		{
