@@ -124,7 +124,8 @@ SinkType* UI::FindAreaSink(
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				if (!childInsideTopMost || search.topMostPass)
 				{
-					LayoutContext childLC(search.texman, *wnd, lc, sc, *child, stateGen ? childSC : sc);
+					auto childRect = wnd->GetChildRect(search.texman, lc, sc, *child);
+					LayoutContext childLC(*wnd, lc, *child, childRect, stateGen ? childSC : sc);
 					sink = FindAreaSink<SinkType>(search, child, childLC, stateGen ? childSC : sc, ic, childInsideTopMost);
 				}
 			}
@@ -161,7 +162,8 @@ static LayoutContext RestoreLayoutContext(LayoutContext lc, StateContext sc, con
 			stateGen->PushState(childSC, lc, ic);
 		}
 
-		lc = LayoutContext(texman, *parent, lc, sc, *child, stateGen ? childSC : sc);
+		auto childRect = parent->GetChildRect(texman, lc, sc, *child);
+		lc = LayoutContext(*parent, lc, *child, childRect, stateGen ? childSC : sc);
 	}
 	return lc;
 }
@@ -306,7 +308,8 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 				stateGen->PushState(childSC, lc, settings.ic);
 			}
 
-			LayoutContext childLC(settings.texman, *wnd, lc, sc, *focusedChild, stateGen ? childSC : sc);
+			auto childRect = wnd->GetChildRect(settings.texman, lc, sc, *focusedChild);
+			LayoutContext childLC(*wnd, lc, *focusedChild, childRect, stateGen ? childSC : sc);
 
 			if (TraverseFocusPath(std::move(focusedChild), childLC, stateGen ? childSC : sc, settings))
 			{

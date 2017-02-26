@@ -13,7 +13,7 @@ namespace UI
 	{
 	public:
 		LayoutContext(float opacity, float scale, vec2d offset, vec2d size, bool enabled);
-		LayoutContext(TextureManager &texman, const Window &parentWindow, const LayoutContext &parentLC, const StateContext &parentSC, const Window &childWindow, const StateContext &childSC);
+		LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const FRECT &childRect, const StateContext &childSC);
 
 		bool GetEnabledCombined() const { return _enabled; }
 		vec2d GetPixelOffset() const { return _offset; }

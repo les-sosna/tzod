@@ -106,15 +106,15 @@ static void DrawWindowRecursive(
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
-				LayoutContext childLC(renderSettings.texman, wnd, lc, sc, *child, stateGen ? childCS : sc);
+				auto childRect = wnd.GetChildRect(renderSettings.texman, lc, sc, *child);
+				LayoutContext childLC(wnd, lc, *child, childRect, stateGen ? childCS : sc);
 				if (childLC.GetOpacityCombined() != 0)
 				{
 					bool childFocused = wnd.GetFocus() == child;
 					bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
 						renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
 
-					vec2d childOffset = Offset(wnd.GetChildRect(renderSettings.texman, lc, sc, *child));
-
+					vec2d childOffset = Offset(childRect);
 					renderSettings.dc.PushTransform(childOffset, childLC.GetOpacityCombined());
 					renderSettings.ic.PushInputTransform(childOffset, childFocused, childOnHoverPath);
 
