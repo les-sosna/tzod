@@ -164,15 +164,6 @@ static void OnChar(GLFWwindow *window, unsigned int codepoint)
 	}
 }
 
-static void OnFramebufferSize(GLFWwindow *window, int width, int height)
-{
-	if (auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window))
-	{
-		float layoutScale = GetLayoutScale(window);
-		gui->GetDesktop()->Resize((float)width / layoutScale, (float)height / layoutScale);
-	}
-}
-
 static std::unique_ptr<GLFWwindow, GlfwWindowDeleter> NewWindow(const char *title, bool fullscreen, int width, int height)
 {
 	std::unique_ptr<GLFWwindow, GlfwWindowDeleter> result(glfwCreateWindow(
@@ -199,7 +190,6 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 	glfwSetScrollCallback(_window.get(), OnScroll);
 	glfwSetKeyCallback(_window.get(), OnKey);
 	glfwSetCharCallback(_window.get(), OnChar);
-	glfwSetFramebufferSizeCallback(_window.get(), OnFramebufferSize);
 
 	glfwMakeContextCurrent(_window.get());
 	glfwSwapInterval(1);
