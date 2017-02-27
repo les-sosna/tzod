@@ -6,6 +6,7 @@
 
 #include <video/RenderBase.h>
 #include <video/RenderD3D11.h>
+#include <ui/DataContext.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
@@ -119,8 +120,8 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 	return inputSink.GetInputContext().ProcessPointer(
 		inputSink.GetTextureManager(),
 		inputSink.GetDesktop(),
-		UI::LayoutContext(1.f, dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
-		UI::StateContext(),
+		UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
+		UI::DataContext(),
 		pxPointerPos,
 		vec2d{ 0, (float)delta / 120.f },
 		msg,
@@ -223,8 +224,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			(*inputSink)->GetInputContext().ProcessPointer(
 				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
-				UI::StateContext(),
+				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
+				UI::DataContext(),
 				pxPointerPosition,
 				vec2d{}, // scroll offset
 				UI::Msg::TAP,
@@ -244,8 +245,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
 				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
-				UI::StateContext(),
+				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
+				UI::DataContext(),
 				UI::Msg::KEYDOWN,
 				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
@@ -261,8 +262,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
 				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
-				UI::StateContext(),
+				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
+				UI::DataContext(),
 				UI::Msg::KEYUP,
 				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
 		}
@@ -278,8 +279,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			args->Handled = (*inputSink)->GetInputContext().ProcessText(
 				(*inputSink)->GetTextureManager(),
 				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, vec2d{}, pxWndSize, true),
-				UI::StateContext(),
+				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
+				UI::DataContext(),
 				args->KeyCode);
 		}
 	});
