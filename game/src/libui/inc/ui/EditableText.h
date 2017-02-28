@@ -5,6 +5,8 @@ class TextureManager;
 
 namespace UI
 {
+	struct IClipboard;
+
 	class EditableText
 		: public Window
 		, private PointerSink
@@ -32,8 +34,8 @@ namespace UI
 		int GetSelMax() const;
 		int GetSelLength() const;
 
-		void Paste(TextureManager &texman, InputContext &ic);
-		void Copy(InputContext &ic) const;
+		void Paste(TextureManager &texman, const IClipboard &clipboard);
+		void Copy(IClipboard &clipboard) const;
 
 		std::function<void()> eventChange;
 
