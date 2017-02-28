@@ -13,6 +13,7 @@
 #include <ui/Button.h>
 #include <ui/DataContext.h>
 #include <ui/DataSource.h>
+#include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
 #include <ui/StackLayout.h>
@@ -28,10 +29,25 @@ using namespace UI::DataSourceAliases;
 
 namespace
 {
-	class TierProgressBinding : public UI::RenderData<unsigned int>
+	int GetTierProgress(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, size_t mapIndex)
+	{
+		int tier = GetCurrentTier(conf, dmCampaign);
+
+		if (tier < (int)appConfig.sp_tiersprogress.GetSize())
+		{
+			ConfVarArray &tierProgress = appConfig.sp_tiersprogress.GetArray(tier);
+			return mapIndex < tierProgress.GetSize() ? tierProgress.GetNum(mapIndex).GetInt() : 0;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	class TierProgressListBinding : public UI::RenderData<unsigned int>
 	{
 	public:
-		TierProgressBinding(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign)
+		TierProgressListBinding(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign)
 			: _appConfig(appConfig)
 			, _conf(conf)
 			, _dmCampaign(dmCampaign)
@@ -39,18 +55,7 @@ namespace
 
 		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
-			int tier = GetCurrentTier(_conf, _dmCampaign);
-
-			if (tier < (int)_appConfig.sp_tiersprogress.GetSize())
-			{
-				ConfVarArray &tierProgress = _appConfig.sp_tiersprogress.GetArray(tier);
-				unsigned int index = dc.GetItemIndex();
-				return index < tierProgress.GetSize() ? tierProgress.GetNum(index).GetInt() : 0;
-			}
-			else
-			{
-				return 0;
-			}
+			return GetTierProgress(_appConfig, _conf, _dmCampaign, dc.GetItemIndex());
 		}
 
 	private:
@@ -58,25 +63,44 @@ namespace
 		ShellConfig &_conf;
 		DMCampaign &_dmCampaign;
 	};
+
+	class TierProgressIndexBinding : public UI::RenderData<unsigned int>
+	{
+	public:
+		TierProgressIndexBinding(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, size_t mapIndex)
+			: _appConfig(appConfig)
+			, _conf(conf)
+			, _dmCampaign(dmCampaign)
+			, _mapIndex(mapIndex)
+		{}
+
+		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
+		{
+			return GetTierProgress(_appConfig, _conf, _dmCampaign, _mapIndex);
+		}
+
+	private:
+		AppConfig &_appConfig;
+		ShellConfig &_conf;
+		DMCampaign &_dmCampaign;
+		size_t _mapIndex;
+	};
 }
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
-	: UI::Dialog(manager, texman)
+	: UI::Window(manager)
+	, _worldView(worldView)
+	, _fs(fs)
 	, _appConfig(appConfig)
 	, _conf(conf)
 	, _lang(lang)
 	, _dmCampaign(dmCampaign)
+	, _mapCache()
 	, _content(std::make_shared<UI::StackLayout>(manager))
-	, _tierTitle(std::make_shared<UI::Text>(manager, texman))
 	, _prevTier(std::make_shared<UI::Button>(manager, texman))
+	, _mapTiles(std::make_shared<UI::StackLayout>(manager))
 	, _nextTier(std::make_shared<UI::Button>(manager, texman))
-	, _mapTiles(std::make_shared<UI::List>(manager, texman, &_tilesSource))
-	, _description(std::make_shared<UI::StackLayout>(manager))
-	, _players(std::make_shared<UI::StackLayout>(manager))
 {
-	_tierTitle->SetFont(texman, "font_default");
-	_content->AddFront(_tierTitle);
-
 	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>(manager);
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
 
@@ -86,48 +110,25 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	_prevTier->Resize(c_tileSize / 2, c_tileSize / 2);
 	mapTilesWithTierButtons->AddFront(_prevTier);
 
-	auto mp = std::make_shared<MapPreview>(manager, texman, fs, worldView, _mapCache);
-	mp->Resize(c_tileSize, c_tileSize);
-	mp->SetPadding(c_tileSpacing / 2);
-	mp->SetMapName(std::make_shared<UI::ListDataSourceBinding>(0));
-	mp->SetRating(std::make_shared<TierProgressBinding>(appConfig, conf, dmCampaign));
-
-	_mapTiles->SetItemTemplate(mp);
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
-	_mapTiles->eventChangeCurSel = std::bind(&SinglePlayer::OnSelectMap, this, std::ref(manager), std::ref(texman), std::placeholders::_1);
 	mapTilesWithTierButtons->AddFront(_mapTiles);
 	mapTilesWithTierButtons->SetFocus(_mapTiles);
+
+	mapTilesWithTierButtons->AddFront(_nextTier);
 
 	_nextTier->SetText(">>>"_txt);
 	_nextTier->eventClick = std::bind(&SinglePlayer::OnNextTier, this);
 	_nextTier->SetFont(texman, "font_default");
 	_nextTier->Resize(c_tileSize / 2, c_tileSize / 2);
-	mapTilesWithTierButtons->AddFront(_nextTier);
 
 	_content->AddFront(mapTilesWithTierButtons);
 	_content->SetFocus(mapTilesWithTierButtons);
-
-	_description->SetSpacing(2);
-	_content->AddFront(_description);
-
-	_players->SetFlowDirection(UI::FlowDirection::Horizontal);
-	_content->AddFront(_players);
-
-	auto btn = std::make_shared<UI::Button>(manager, texman);
-	btn->SetText(ConfBind(lang.dmcampaign_ok));
-//	btn->SetBackground(texman, nullptr, false);
-	btn->SetFont(texman, "font_default");
-	btn->Resize(200, 60);
-	btn->eventClick = std::bind(&SinglePlayer::OnOK, this);
-	_content->AddFront(btn);
 
 	_content->SetSpacing(32);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
 	SetFocus(_content);
 
-	SetDrawBackground(false);
-	SetDrawBorder(false);
 	UpdateTier();
 }
 
@@ -136,20 +137,28 @@ void SinglePlayer::UpdateTier()
 	int currentTier = GetCurrentTier(_conf, _dmCampaign);
 	DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(currentTier));
 
-	_tierTitle->SetText(ConfBind(tierDesc.title));
-
 	_prevTier->SetVisible(currentTier > 0);
 	_nextTier->SetVisible(currentTier + 1 < (int)_dmCampaign.tiers.GetSize());
 
-	_tilesSource.DeleteAllItems();
+	_mapTiles->UnlinkAllChildren();
 
-	for (size_t i = 0; i < tierDesc.maps.GetSize(); i++)
+	for (size_t mapIndex = 0; mapIndex < tierDesc.maps.GetSize(); mapIndex++)
 	{
-		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(i));
-		_tilesSource.AddItem(mapDesc.map_name.Get());
-	}
+		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(mapIndex));
 
-	_mapTiles->SetCurSel(GetCurrentMap(_conf, _dmCampaign));
+		auto mapPreview = std::make_shared<MapPreview>(GetManager(), GetManager().GetTextureManager(), _fs, _worldView, _mapCache);
+		mapPreview->Resize(c_tileSize, c_tileSize);
+		mapPreview->SetPadding(c_tileSpacing / 2);
+		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
+		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
+
+		auto mpButton = std::make_shared<UI::ButtonBase>(GetManager());
+		mpButton->AddFront(mapPreview);
+		mpButton->Resize(c_tileSize, c_tileSize);
+		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
+
+		_mapTiles->AddFront(mpButton);
+	}
 }
 
 void SinglePlayer::OnPrevTier()
@@ -172,69 +181,11 @@ void SinglePlayer::OnNextTier()
 	}
 }
 
-void SinglePlayer::OnOK()
+void SinglePlayer::OnOK(int index)
 {
-	int index = _mapTiles->GetCurSel();
-	if (-1 != index)
+	if (-1 != index && eventSelectMap)
 	{
-		Close(_resultOK);
-	}
-}
-
-void SinglePlayer::OnSelectMap(UI::LayoutManager &manager, TextureManager &texman, int index)
-{
-	_players->UnlinkAllChildren();
-	_description->UnlinkAllChildren();
-
-	if (-1 != index)
-	{
-		_conf.sp_map.SetInt(index);
-
-		DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(GetCurrentTier(_conf, _dmCampaign)));
-		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(index));
-
-		auto playerView = std::make_shared<PlayerView>(manager, texman);
-		playerView->SetPlayerConfig(_appConfig.sp_playerinfo, texman);
-		playerView->Resize(64, 64);
-		_players->AddFront(playerView);
-
-		auto versus = std::make_shared<UI::Text>(manager, texman);
-		versus->SetFont(texman, "font_default");
-		versus->SetText(ConfBind(_lang.dmcampaign_versus));
-		_players->AddFront(versus);
-
-		for (size_t i = 0; i < mapDesc.bot_names.GetSize(); ++i)
-		{
-			auto botView = std::make_shared<BotView>(manager, texman);
-			botView->SetBotConfig(_dmCampaign.bots.GetTable(mapDesc.bot_names.GetStr(i).Get()), texman);
-			botView->Resize(64, 64);
-			_players->AddFront(botView);
-		}
-
-		{
-			int seconds = (int)std::ceil(mapDesc.timelimit.GetFloat() * 60);
-
-			std::ostringstream formatter;
-			formatter << _lang.dmcampaign_timelimit.Get();
-			formatter << (seconds / 60) << ":" << std::setfill('0') << std::setw(2) << (seconds % 60);
-
-			auto timelimit = std::make_shared<UI::Text>(manager, texman);
-			timelimit->SetText(std::make_shared<UI::StaticText>(formatter.str()));
-			timelimit->SetFont(texman, "font_default");
-
-			_description->AddFront(timelimit);
-		}
-
-		{
-			auto fraglimit = std::make_shared<UI::Text>(manager, texman);
-
-			std::ostringstream formatter;
-			formatter << _lang.dmcampaign_fraglimit.Get() << mapDesc.fraglimit.GetInt();
-			fraglimit->SetText(std::make_shared<UI::StaticText>(formatter.str()));
-			fraglimit->SetFont(texman, "font_default");
-
-			_description->AddFront(fraglimit);
-		}
+		eventSelectMap(std::static_pointer_cast<SinglePlayer>(shared_from_this()), index);
 	}
 }
 
@@ -246,7 +197,7 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
 	}
 
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const

@@ -186,7 +186,7 @@ void Desktop::ShowConsole(bool show)
 	}
 }
 
-void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child, int result)
+void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child)
 {
 	_navStack->PopNavStack(child.get());
 	UpdateFocus();
@@ -220,10 +220,9 @@ void Desktop::OnNewCampaign()
 	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _texman, _fs, _lang);
 	dlg->eventCampaignSelected = [this](auto sender, std::string name)
 	{
+		OnCloseChild(sender);
 		if( !name.empty() )
 		{
-			OnCloseChild(sender, UI::Dialog::_resultOK);
-
             try
             {
 //                script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
@@ -234,10 +233,6 @@ void Desktop::OnNewCampaign()
                 _logger.WriteLine(1, e.what());
                 ShowConsole(true);
             }
-		}
-		else
-		{
-			OnCloseChild(sender, UI::Dialog::_resultCancel);
 		}
 	};
 	_navStack->PushNavStack(dlg);
@@ -257,27 +252,25 @@ void Desktop::OnNewDM()
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
 		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);
-		dlg->eventClose = [this](auto sender, int result)
+		dlg->eventSelectMap = [this](auto sender, int index)
 		{
-			OnCloseChild(sender, result);
-			if (UI::Dialog::_resultOK == result)
+			_conf.sp_map.SetInt(index);
+			OnCloseChild(sender);
+			try
 			{
-				try
-				{
-					int currentTier = GetCurrentTier(_conf, _dmCampaign);
-					int currentMap = GetCurrentMap(_conf, _dmCampaign);
-					_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
+				int currentTier = GetCurrentTier(_conf, _dmCampaign);
+				int currentMap = GetCurrentMap(_conf, _dmCampaign);
+				_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
 
-					while (auto wnd = _navStack->GetNavFront())
-					{
-						_navStack->PopNavStack(wnd.get());
-					}
-					UpdateFocus();
-				}
-				catch (const std::exception &e)
+				while (auto wnd = _navStack->GetNavFront())
 				{
-					_logger.Printf(1, "Could not start new game - %s", e.what());
+					_navStack->PopNavStack(wnd.get());
 				}
+				UpdateFocus();
+			}
+			catch (const std::exception &e)
+			{
+				_logger.Printf(1, "Could not start new game - %s", e.what());
 			}
 		};
 		_navStack->PushNavStack(dlg);
@@ -288,7 +281,7 @@ void Desktop::OnNewDM()
 		auto dlg = std::make_shared<NewGameDlg>(GetManager(), _texman, _fs, _conf, _logger, _lang);
 		dlg->eventClose = [this](auto sender, int result)
 		{
-			OnCloseChild(sender, result);
+			OnCloseChild(sender);
 			if (UI::Dialog::_resultOK == result)
 			{
 				try
@@ -336,7 +329,7 @@ void Desktop::OnOpenMap()
 	auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), _texman, param, _lang);
 	fileDlg->eventClose = [this](auto sender, int result)
 	{
-		OnCloseChild(sender, result);
+		OnCloseChild(sender);
 		if (UI::Dialog::_resultOK == result)
 		{
 			std::shared_ptr<FS::Stream> stream;
@@ -377,7 +370,7 @@ void Desktop::OnExportMap()
 		auto fileDlg = std::make_shared<GetFileNameDlg>(GetManager(), _texman, param, _lang);
 		fileDlg->eventClose = [this](auto sender, int result)
 		{
-			OnCloseChild(sender, result);
+			OnCloseChild(sender);
 			GameContextBase *gameContext = GetAppState().GetGameContext();
 			if (UI::Dialog::_resultOK == result && gameContext)
 			{
@@ -398,7 +391,7 @@ void Desktop::OnGameSettings()
 		return;
 
 	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
-	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
+	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender);};
 	_navStack->PushNavStack(dlg);
 	UpdateFocus();
 }
@@ -409,7 +402,7 @@ void Desktop::OnMapSettings()
 	{
 		//ThemeManager themeManager(GetAppState(), _fs, _texman);
 		auto dlg = std::make_shared<MapSettingsDlg>(GetManager(), _texman, gameContext->GetWorld()/*, themeManager*/, _lang);
-		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender, result);};
+		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender);};
 		_navStack->PushNavStack(dlg);
 		UpdateFocus();
 	}

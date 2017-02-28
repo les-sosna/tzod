@@ -58,7 +58,7 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	}
 
 	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
-	if (sc.GetState() == "Focused")
+	if (sc.GetState() == "Pushed")
 	{
 		rc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
 		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
