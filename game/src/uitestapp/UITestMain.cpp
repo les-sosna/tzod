@@ -65,7 +65,7 @@ try
 	UI::InputContext inputContext(appWindow.GetInput(), appWindow.GetClipboard());
 	UI::LayoutManager gui(textureManager, inputContext);
 
-	auto desktop = std::make_shared<UITestDesktop>(gui, textureManager);
+	auto desktop = std::make_shared<UITestDesktop>(textureManager);
 	gui.SetDesktop(desktop);
 
 	InputBinding inputBinding(appWindow, gui);

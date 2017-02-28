@@ -19,7 +19,9 @@ namespace UI
 	enum class Key;
 }
 
-class SettingsDlg : public UI::Dialog
+class SettingsDlg
+	: public UI::Dialog
+	, public UI::Managerful
 {
 	UI::ListDataSourceDefault _profilesDataSource;
 
@@ -58,7 +60,9 @@ protected:
 	void OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result);
 };
 
-class ControlProfileDlg : public UI::Dialog
+class ControlProfileDlg
+	: public UI::Dialog
+	, private UI::Managerful
 {
 public:
 	ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang);

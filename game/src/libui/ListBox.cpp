@@ -9,16 +9,15 @@ using namespace UI;
 
 static const vec2d c_borderSize = { 1.f, 1.f };
 
-ListBox::ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource)
-	: Window(manager)
-	, _background(std::make_shared<Rectangle>(manager))
-	, _scrollView(std::make_shared<ScrollView>(manager))
-	, _list(std::make_shared<List>(manager, texman, dataSource))
+ListBox::ListBox(TextureManager &texman, ListDataSource* dataSource)
+	: _background(std::make_shared<Rectangle>())
+	, _scrollView(std::make_shared<ScrollView>())
+	, _list(std::make_shared<List>(texman, dataSource))
 {
 	AddFront(_background);
 	AddFront(_scrollView);
 
-	_list->SetItemTemplate(std::make_shared<UI::MultiColumnListItem>(manager, texman));
+	_list->SetItemTemplate(std::make_shared<UI::MultiColumnListItem>(texman));
 
 	_scrollView->SetContent(_list);
 	SetFocus(_scrollView);

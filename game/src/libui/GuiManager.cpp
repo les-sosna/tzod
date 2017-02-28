@@ -22,13 +22,13 @@ LayoutManager::~LayoutManager()
 {
 }
 
-std::list<Window*>::iterator LayoutManager::TimeStepRegister(Window* wnd)
+std::list<Managerful*>::iterator LayoutManager::TimeStepRegister(Managerful* wnd)
 {
 	_timestep.push_front(wnd);
 	return _timestep.begin();
 }
 
-void LayoutManager::TimeStepUnregister(std::list<Window*>::iterator it)
+void LayoutManager::TimeStepUnregister(std::list<Managerful*>::iterator it)
 {
 	if( _tsCurrent == it )
 	{

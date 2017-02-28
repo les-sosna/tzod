@@ -12,7 +12,8 @@
 #include <iomanip>
 
 FpsCounter::FpsCounter(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, AppState &appState)
-  : Text(manager, texman)
+  : UI::Text(texman)
+  , UI::Managerful(manager)
   , _nSprites(0)
   , _nLights(0)
   , _nBatches(0)
@@ -95,9 +96,8 @@ void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Oscilloscope::Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, float x, float y)
-  : UI::Rectangle(manager)
-  , _barTexture(texman.FindSprite("ui/bar"))
+Oscilloscope::Oscilloscope(TextureManager &texman, float x, float y)
+  : _barTexture(texman.FindSprite("ui/bar"))
   , _titleFont(texman.FindSprite("font_small"))
   , _rangeMin(-0.1f)
   , _rangeMax(0.1f)
@@ -111,7 +111,7 @@ Oscilloscope::Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, f
 	SetClipChildren(true);
 }
 
-void Oscilloscope::Push(float value)
+void Oscilloscope::Push(TextureManager &texman, float value)
 {
 	_data.push_back(value);
 	size_t size = (size_t) (GetWidth() / _scale);
@@ -120,7 +120,7 @@ void Oscilloscope::Push(float value)
 		_data.erase(_data.begin(), _data.begin() + (_data.size() - size));
 	}
 
-	AutoGrid();
+	AutoGrid(texman);
 	AutoRange();
 }
 
@@ -141,7 +141,7 @@ void Oscilloscope::SetGridStep(float stepX, float stepY)
 	_gridStepX = stepX;
 }
 
-void Oscilloscope::AutoGrid()
+void Oscilloscope::AutoGrid(TextureManager &texman)
 {
 	assert(!_data.empty());
 
@@ -156,7 +156,7 @@ void Oscilloscope::AutoGrid()
 	float range = valMax - valMin;
 	if( range != 0 )
 	{
-		float cheight = GetManager().GetTextureManager().GetCharHeight(_titleFont);
+		float cheight = texman.GetCharHeight(_titleFont);
 		float count = floor((GetHeight() - cheight) / cheight / 2);
 		float dy = range / count;
 		if( dy < 1 )

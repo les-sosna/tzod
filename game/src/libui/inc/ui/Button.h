@@ -21,8 +21,6 @@ public:
 		stateDisabled,
 	};
 
-	explicit ButtonBase(LayoutManager &manager);
-
 	std::function<void(void)> eventClick;
 	std::function<void(float, float)> eventMouseDown;
 	std::function<void(float, float)> eventMouseUp;
@@ -56,10 +54,10 @@ template<class T> struct LayoutData;
 class Button : public ButtonBase
 {
 public:
-	Button(LayoutManager &manager, TextureManager &texman);
+	explicit Button(TextureManager &texman);
 
 	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
-	void SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName);
+	void SetIcon(TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 	void SetFont(TextureManager &texman, const char *fontName);
 
@@ -77,7 +75,7 @@ private:
 class TextButton : public ButtonBase
 {
 public:
-	explicit TextButton(LayoutManager &manager, TextureManager &texman);
+	explicit TextButton(TextureManager &texman);
 
 	void SetFont(TextureManager &texman, const char *fontName);
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);

@@ -56,7 +56,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
                  UI::ConsoleBuffer &logger)
-  : Window(manager)
+  : Managerful(manager)
   , AppStateListener(appState)
   , _history(conf)
   , _texman(texman)
@@ -77,19 +77,19 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	if (!_globL)
 		throw std::bad_alloc();
 
-	_tierTitle = std::make_shared<UI::Text>(manager, texman);
+	_tierTitle = std::make_shared<UI::Text>(texman);
 	_tierTitle->SetAlign(alignTextCC);
 	_tierTitle->SetFont(texman, "font_default");
 	AddFront(_tierTitle);
 
-	_background = std::make_shared<UI::Rectangle>(manager);
+	_background = std::make_shared<UI::Rectangle>();
 	_background->SetTexture(texman, "gui_splash", false);
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
 	_background->SetDrawBorder(false);
 	_background->SetBackColor(0xff505050_rgba);
 	AddFront(_background);
 
-	_con = UI::Console::Create(this, texman, 10, 0, 100, 100, &_logger);
+	_con = UI::Console::Create(this, manager, texman, 10, 0, 100, 100, &_logger);
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
 	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
 	_con->SetVisible(false);
@@ -110,17 +110,17 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		float hh = 50;
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
-			auto os = std::make_shared<Oscilloscope>(manager, texman, xx, yy);
+			auto os = std::make_shared<Oscilloscope>(texman, xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
 			AddFront(os);
-			CounterBase::SetMarkerCallbackStatic(i, std::bind(&Oscilloscope::Push, os, std::placeholders::_1));
+			CounterBase::SetMarkerCallbackStatic(i, std::bind(&Oscilloscope::Push, os, std::ref(texman), std::placeholders::_1));
 			yy += hh+5;
 		}
 	}
 
-	_pauseButton = std::make_shared<UI::Button>(manager, texman);
+	_pauseButton = std::make_shared<UI::Button>(texman);
 	_pauseButton->SetBackground(texman, "ui/pause", true);
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
@@ -217,7 +217,7 @@ static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 
 void Desktop::OnNewCampaign()
 {
-	auto dlg = std::make_shared<NewCampaignDlg>(GetManager(), _texman, _fs, _lang);
+	auto dlg = std::make_shared<NewCampaignDlg>(_texman, _fs, _lang);
 	dlg->eventCampaignSelected = [this](auto sender, std::string name)
 	{
 		OnCloseChild(sender);
@@ -428,7 +428,7 @@ void Desktop::ShowMainMenu()
 			UpdateFocus();
 		}
 	};
-	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(GetManager(), _texman, _lang, std::move(commands)));
+	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_texman, _lang, std::move(commands)));
 	UpdateFocus();
 }
 

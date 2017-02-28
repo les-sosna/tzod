@@ -13,11 +13,6 @@
 
 using namespace UI;
 
-ButtonBase::ButtonBase(LayoutManager &manager)
-  : Window(manager)
-{
-}
-
 ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic) const
 {
 	if (!lc.GetEnabledCombined())
@@ -110,10 +105,9 @@ static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xff
 static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
 	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, {"Pushed", 2} });
 
-Button::Button(LayoutManager &manager, TextureManager &texman)
-	: ButtonBase(manager)
-	, _background(std::make_shared<Rectangle>(manager))
-	, _text(std::make_shared<Text>(manager, texman))
+Button::Button(TextureManager &texman)
+	: _background(std::make_shared<Rectangle>())
+	, _text(std::make_shared<Text>(texman))
 {
 	AddFront(_background);
 	AddFront(_text);
@@ -132,13 +126,13 @@ void Button::SetFont(TextureManager &texman, const char *fontName)
 	_text->SetFont(texman, fontName);
 }
 
-void Button::SetIcon(LayoutManager &manager, TextureManager &texman, const char *spriteName)
+void Button::SetIcon(TextureManager &texman, const char *spriteName)
 {
 	if (spriteName)
 	{
 		if (!_icon)
 		{
-			_icon = std::make_shared<Rectangle>(manager);
+			_icon = std::make_shared<Rectangle>();
 			_icon->SetBackColor(c_textColor);
 			_icon->SetBorderColor(c_textColor);
 			AddFront(_icon);
@@ -210,9 +204,8 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 ///////////////////////////////////////////////////////////////////////////////
 // TextButton
 
-TextButton::TextButton(LayoutManager &manager, TextureManager &texman)
-	: ButtonBase(manager)
-	, _text(std::make_shared<Text>(manager, texman))
+TextButton::TextButton(TextureManager &texman)
+	: _text(std::make_shared<Text>(texman))
 {
 	AddFront(_text);
 	_text->SetFontColor(c_textColor);
@@ -246,8 +239,7 @@ FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 ///////////////////////////////////////////////////////////////////////////////
 
 CheckBox::CheckBox(LayoutManager &manager, TextureManager &texman)
-  : ButtonBase(manager)
-  , _fontTexture(texman.FindSprite("font_small"))
+  : _fontTexture(texman.FindSprite("font_small"))
   , _boxTexture(texman.FindSprite("ui/checkbox"))
   , _isChecked(false)
 {

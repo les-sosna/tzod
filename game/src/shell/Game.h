@@ -29,6 +29,7 @@ namespace UI
 
 class GameLayout
 	: public UI::Window
+	, private UI::Managerful
 	, private UI::PointerSink
 	, private GameListener
 {

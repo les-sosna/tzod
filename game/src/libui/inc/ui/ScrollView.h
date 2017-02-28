@@ -9,7 +9,7 @@ namespace UI
 		, private ScrollSink
 	{
 	public:
-		ScrollView(LayoutManager &manager);
+		ScrollView();
 
 		void SetContent(std::shared_ptr<Window> content);
 		void SetVerticalScrollEnabled(bool enabled) { _verticalScrollEnabled = enabled; }

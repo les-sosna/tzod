@@ -8,7 +8,7 @@ namespace UI
 	class Rating : public Window
 	{
 	public:
-		Rating(LayoutManager &manager, TextureManager &texman);
+		Rating(TextureManager &texman);
 
 		void SetMaxRating(unsigned int maxRating) { _maxRating = maxRating; }
 		void SetRating(std::shared_ptr<RenderData<unsigned int>> rating);

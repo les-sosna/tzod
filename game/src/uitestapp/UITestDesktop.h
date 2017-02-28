@@ -11,7 +11,7 @@ namespace UI
 class UITestDesktop : public UI::Window
 {
 public:
-	UITestDesktop(UI::LayoutManager &manager, TextureManager &texman);
+	explicit UITestDesktop(TextureManager &texman);
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;

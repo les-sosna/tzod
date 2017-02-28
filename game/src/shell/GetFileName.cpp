@@ -16,13 +16,13 @@
 #include <algorithm>
 
 GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang)
-  : Dialog(manager, texman)
+  : Dialog(texman)
   , _folder(param.folder)
   , _changing(false)
 {
 	Resize(512, 460);
 
-	auto t = std::make_shared<UI::Text>(manager, texman);
+	auto t = std::make_shared<UI::Text>(texman);
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(std::make_shared<UI::StaticText>(param.title));
 	t->SetAlign(alignTextCT);
@@ -30,7 +30,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	AddFront(t);
 
 	_ext = param.extension;
-	_files = std::make_shared<DefaultListBox>(manager, texman);
+	_files = std::make_shared<DefaultListBox>(texman);
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
 	AddFront(_files);
@@ -53,7 +53,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	_files->GetList()->SetCurSel(0, true);
 	_files->GetList()->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
-	auto text = std::make_shared<UI::Text>(manager, texman);
+	auto text = std::make_shared<UI::Text>(texman);
 	text->Move(16, 370);
 	text->SetText(ConfBind(lang.get_file_name_title));
 	AddFront(text);
@@ -64,7 +64,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 
-	auto btn = std::make_shared<UI::Button>(manager, texman);
+	auto btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(400, 420);
 	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);

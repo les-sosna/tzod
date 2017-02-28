@@ -4,11 +4,6 @@
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
-PlayerView::PlayerView(UI::LayoutManager &manager, TextureManager &texman)
-	: UI::Window(manager)
-{
-}
-
 void PlayerView::SetPlayerConfig(ConfVarTable &playerConf, TextureManager &texman)
 {
 	_playerConfCache.reset(new ConfPlayerLocal(&playerConf));

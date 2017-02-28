@@ -3,8 +3,7 @@
 #include <algorithm>
 using namespace UI;
 
-ScrollView::ScrollView(LayoutManager &manager)
-	: Window(manager)
+ScrollView::ScrollView()
 {
 	SetClipChildren(true);
 }

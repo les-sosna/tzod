@@ -8,7 +8,7 @@ namespace UI
 	class Rectangle : public Window
 	{
 	public:
-		explicit Rectangle(LayoutManager &manager);
+		Rectangle();
 
 		void SetBackColor(std::shared_ptr<RenderData<SpriteColor>> color);
 		const RenderData<SpriteColor>& GetBackColor() const { return *_backColor; }

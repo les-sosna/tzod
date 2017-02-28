@@ -3,11 +3,6 @@
 #include <algorithm>
 using namespace UI;
 
-StackLayout::StackLayout(LayoutManager &manager)
-	: Window(manager)
-{
-}
-
 FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();

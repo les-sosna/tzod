@@ -11,7 +11,7 @@ class Dialog
 	, private PointerSink
 {
 public:
-	Dialog(LayoutManager &manager, TextureManager &texman);
+	explicit Dialog(TextureManager &texman);
 
 	enum
 	{

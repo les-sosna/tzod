@@ -11,7 +11,7 @@ namespace UI
 	class ListBox : public Window
 	{
 	public:
-		ListBox(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource);
+		ListBox(TextureManager &texman, ListDataSource* dataSource);
 
 		std::shared_ptr<List> GetList() { return _list; }
 		std::shared_ptr<ScrollView> GetScrollView() { return _scrollView; }

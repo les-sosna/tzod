@@ -157,7 +157,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            ShellConfig &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
-  : Window(manager)
+  : UI::Managerful(manager)
   , _conf(conf)
   , _lang(lang)
   , _logger(logger)
@@ -168,7 +168,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _worldView(worldView)
   , _quickActions(logger, _world)
 {
-	_help = std::make_shared<UI::Text>(manager, texman);
+	_help = std::make_shared<UI::Text>(texman);
 	_help->Move(10, 10);
 	_help->SetText(ConfBind(_lang.f1_help_editor));
 	_help->SetAlign(alignTextLT);
@@ -179,11 +179,11 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
-	auto gameClassVis = std::make_shared<GameClassVis>(manager, texman, _worldView);
+	auto gameClassVis = std::make_shared<GameClassVis>(texman, _worldView);
 	gameClassVis->Resize(64, 64);
 	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
-	_typeSelector = std::make_shared<DefaultListBox>(manager, texman);
+	_typeSelector = std::make_shared<DefaultListBox>(texman);
 	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);
 	_typeSelector->GetScrollView()->SetVerticalScrollEnabled(false);
 	_typeSelector->GetList()->SetFlowDirection(UI::FlowDirection::Horizontal);
@@ -200,7 +200,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	}
 	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
 
-	_layerDisp = std::make_shared<UI::Text>(manager, texman);
+	_layerDisp = std::make_shared<UI::Text>(texman);
 	_layerDisp->SetAlign(alignTextRT);
 	_layerDisp->SetText(std::make_shared<LayerDisplay>(_lang, _typeSelector->GetList()));
 	AddFront(_layerDisp);

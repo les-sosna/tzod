@@ -11,7 +11,9 @@ namespace UI
 	class ConsoleBuffer;
 }
 
-class MessageArea : public UI::Window
+class MessageArea
+	: public UI::Window
+	, private UI::Managerful
 {
 public:
 	MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger);

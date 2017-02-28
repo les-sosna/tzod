@@ -8,7 +8,7 @@ class ConfPlayerAI;
 class BotView : public UI::Window
 {
 public:
-	BotView(UI::LayoutManager &manager, TextureManager &texman);
+	explicit BotView(TextureManager &texman);
 
 	void SetBotConfig(ConfVarTable &botConf, TextureManager &texman);
 

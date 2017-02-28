@@ -24,10 +24,11 @@
 #include <algorithm>
 
 PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-	: Dialog(manager, texman)
-	, _deleteButton(std::make_shared<UI::Button>(manager, texman))
-	, _scrollView(std::make_shared<UI::ScrollView>(manager))
-	, _psheet(std::make_shared<UI::StackLayout>(manager))
+	: UI::Dialog(texman)
+	, UI::Managerful(manager)
+	, _deleteButton(std::make_shared<UI::Button>(texman))
+	, _scrollView(std::make_shared<UI::ScrollView>())
+	, _psheet(std::make_shared<UI::StackLayout>())
 	, _world(world)
 	, _conf(conf)
 	, _logger(logger)
@@ -127,11 +128,11 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 		{
 			ObjectProperty *prop = _ps->GetProperty(i);
 
-			auto group = std::make_shared<UI::StackLayout>(GetManager());
+			auto group = std::make_shared<UI::StackLayout>();
 			group->SetSpacing(2);
 			_psheet->AddFront(group);
 
-			auto label = std::make_shared<UI::Text>(GetManager(), texman);
+			auto label = std::make_shared<UI::Text>(texman);
 			label->SetText(std::make_shared<UI::StaticText>(prop->GetName()));
 			group->AddFront(label);
 
@@ -159,7 +160,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			case ObjectProperty::TYPE_MULTISTRING:
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
-				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+				typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 				ctrl = std::make_shared<DefaultComboBox>(GetManager(), texman);
 				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
 				{
@@ -193,7 +194,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 
 			if (!labelTextBuffer.str().empty())
 			{
-				auto typeRange = std::make_shared<UI::Text>(GetManager(), texman);
+				auto typeRange = std::make_shared<UI::Text>(texman);
 				typeRange->SetText(std::make_shared<UI::StaticText>(labelTextBuffer.str()));
 				group->AddFront(typeRange);
 			}

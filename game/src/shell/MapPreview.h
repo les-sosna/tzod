@@ -18,7 +18,7 @@ namespace UI
 class MapPreview: public UI::Window
 {
 public:
-	MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
+	MapPreview(TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
 
 	void SetMapName(std::shared_ptr<UI::RenderData<const std::string&>> mapName);
 	void SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating);

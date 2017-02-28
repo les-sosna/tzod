@@ -6,9 +6,8 @@
 
 using namespace UI;
 
-Rating::Rating(LayoutManager &manager, TextureManager &texman)
-	: Window(manager)
-	, _texture(texman.FindSprite("ui/star"))
+Rating::Rating(TextureManager &texman)
+	: _texture(texman.FindSprite("ui/star"))
 {
 }
 

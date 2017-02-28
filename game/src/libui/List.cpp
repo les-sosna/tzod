@@ -48,9 +48,8 @@ void List::ListCallbackImpl::OnAddItem()
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
-List::List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource)
-    : Window(manager)
-    , _callbacks(this)
+List::List(TextureManager &texman, ListDataSource* dataSource)
+    : _callbacks(this)
     , _data(dataSource)
     , _curSel(-1)
     , _font(texman.FindSprite("font_small"))

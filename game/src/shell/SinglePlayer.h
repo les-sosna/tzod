@@ -24,7 +24,9 @@ namespace UI
 	class Text;
 }
 
-class SinglePlayer : public UI::Window
+class SinglePlayer
+	: public UI::Window
+	, private UI::Managerful
 {
 public:
 	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);

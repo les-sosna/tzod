@@ -20,6 +20,7 @@ namespace UI
 
 class PropertyList
 	: public UI::Dialog
+	, private UI::Managerful
 {
 public:
 	PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);

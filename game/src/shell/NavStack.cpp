@@ -4,7 +4,7 @@
 #include <ui/LayoutContext.h>
 
 NavStack::NavStack(UI::LayoutManager &manager)
-	: UI::Window(manager)
+	: UI::Managerful(manager)
 {
 }
 

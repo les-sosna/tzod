@@ -4,6 +4,7 @@
 
 class NavStack
 	: public UI::Window
+	, private UI::Managerful
 	, private UI::PointerSink
 {
 public:

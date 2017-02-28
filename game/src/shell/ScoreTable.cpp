@@ -23,9 +23,8 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-ScoreTable::ScoreTable(UI::LayoutManager &manager, TextureManager &texman, World &world, const Deathmatch *deathmatch, LangCache &lang)
-  : UI::Rectangle(manager)
-  , _font(texman.FindSprite("font_default"))
+ScoreTable::ScoreTable(TextureManager &texman, World &world, const Deathmatch *deathmatch, LangCache &lang)
+  : _font(texman.FindSprite("font_default"))
   , _texHighlight(texman.FindSprite("ui/selection"))
   , _world(world)
   , _deathmatch(deathmatch)

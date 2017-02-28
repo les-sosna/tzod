@@ -14,7 +14,7 @@ class List
 	, private KeyboardSink
 {
 public:
-	List(LayoutManager &manager, TextureManager &texman, ListDataSource* dataSource);
+	List(TextureManager &texman, ListDataSource* dataSource);
 	virtual ~List();
 
 	ListDataSource* GetData() const;

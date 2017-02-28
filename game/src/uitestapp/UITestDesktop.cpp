@@ -8,11 +8,10 @@
 using namespace UI::DataSourceAliases;
 
 
-UITestDesktop::UITestDesktop(UI::LayoutManager &manager, TextureManager &texman)
-	: UI::Window(manager)
-	, _testRect(std::make_shared<UI::Rectangle>(manager))
-	, _testText(std::make_shared<UI::Text>(manager, texman))
-	, _testButton(std::make_shared<UI::Button>(manager, texman))
+UITestDesktop::UITestDesktop(TextureManager &texman)
+	: _testRect(std::make_shared<UI::Rectangle>())
+	, _testText(std::make_shared<UI::Text>(texman))
+	, _testButton(std::make_shared<UI::Button>(texman))
 {
 	_testRect->SetTexture(texman, "gui_splash", false);
 	AddFront(_testRect);

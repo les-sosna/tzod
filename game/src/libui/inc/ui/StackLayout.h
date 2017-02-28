@@ -13,8 +13,6 @@ namespace UI
 	class StackLayout : public Window
 	{
 	public:
-		explicit StackLayout(LayoutManager &manager);
-
 		void SetSpacing(float spacing) { _spacing = spacing; }
 		float GetSpacing() const { return _spacing; }
 

@@ -51,7 +51,7 @@ class TextureManager;
 
 class ServiceEditor : public UI::Dialog
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	ServiceListDataSource _listData;
 	std::shared_ptr<UI::List> _list;

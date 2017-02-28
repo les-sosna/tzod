@@ -17,8 +17,7 @@ static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int
 	StateBinding<unsigned int>::MapType{ { "Disabled", 1 } });
 
 Edit::Edit(LayoutManager &manager, TextureManager &texman)
-  : Window(manager)
-  , _background(std::make_shared<Rectangle>(manager))
+  : _background(std::make_shared<Rectangle>())
   , _editable(std::make_shared<EditableText>(manager, texman))
 {
 	_background->SetTexture(texman, "ui/edit", true);

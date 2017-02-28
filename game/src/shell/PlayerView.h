@@ -8,8 +8,6 @@ class ConfPlayerLocal;
 class PlayerView : public UI::Window
 {
 public:
-	PlayerView(UI::LayoutManager &manager, TextureManager &texman);
-
 	void SetPlayerConfig(ConfVarTable &playerConf, TextureManager &texman);
 
 	// UI::Window

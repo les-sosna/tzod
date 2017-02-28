@@ -10,14 +10,13 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-MapPreview::MapPreview(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache)
-	: UI::Window(manager)
-	, _fs(fs)
+MapPreview::MapPreview(TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache)
+	: _fs(fs)
 	, _worldView(worldView)
 	, _mapCache(mapCache)
 	, _font(texman.FindSprite("font_default"))
 	, _texSelection(texman.FindSprite("ui/selection"))
-	, _rating(std::make_shared<UI::Rating>(manager, texman))
+	, _rating(std::make_shared<UI::Rating>(texman))
 {
 	AddFront(_rating);
 }

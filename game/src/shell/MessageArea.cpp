@@ -8,7 +8,7 @@
 #include <algorithm>
 
 MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger)
-  : Window(manager)
+  : UI::Managerful(manager)
   , _fontTexture(texman.FindSprite("font_small"))
   , _conf(conf)
   , _logger(logger)

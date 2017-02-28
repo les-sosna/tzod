@@ -7,18 +7,32 @@
 
 using namespace UI;
 
-Window::Window(LayoutManager &manager)
-  : _manager(manager)
-  , _isVisible(true)
+Managerful::~Managerful()
+{
+	SetTimeStep(false);
+}
+
+void Managerful::SetTimeStep(bool enable)
+{
+	if (enable != _isTimeStep)
+	{
+		if (_isTimeStep)
+			GetManager().TimeStepUnregister(_timeStepReg);
+		else
+			_timeStepReg = GetManager().TimeStepRegister(this);
+		_isTimeStep = enable;
+	}
+}
+
+Window::Window()
+  : _isVisible(true)
   , _isTopMost(false)
-  , _isTimeStep(false)
   , _clipChildren(false)
 {
 }
 
 Window::~Window()
 {
-	SetTimeStep(false);
 	UnlinkAllChildren();
 }
 
@@ -73,18 +87,6 @@ void Window::SetTopMost(bool topmost)
 	_isTopMost = topmost;
 }
 
-void Window::SetTimeStep(bool enable)
-{
-	if( enable != _isTimeStep )
-	{
-		if( _isTimeStep )
-			GetManager().TimeStepUnregister(_timeStepReg);
-		else
-			_timeStepReg = GetManager().TimeStepRegister(this);
-		_isTimeStep = enable;
-	}
-}
-
 void Window::SetFocus(std::shared_ptr<Window> child)
 {
 	assert(!child || _children.end() != std::find(_children.begin(), _children.end(), child));
@@ -109,15 +111,6 @@ bool Window::GetEnabled(const DataContext &dc) const
 void Window::SetVisible(bool visible)
 {
 	_isVisible = visible;
-}
-
-
-//
-// other
-//
-
-void Window::OnTimeStep(LayoutManager &manager, float dt)
-{
 }
 
 

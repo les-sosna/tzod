@@ -11,20 +11,20 @@
 #include <ui/GuiManager.h>
 
 
-NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, LangCache &lang)
-  : UI::Dialog(manager, texman)
+NewCampaignDlg::NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangCache &lang)
+  : UI::Dialog(texman)
   , _fs(fs)
 {
 	Resize(512, 400);
 
-	auto t = std::make_shared<UI::Text>(manager, texman);
+	auto t = std::make_shared<UI::Text>(texman);
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(ConfBind(lang.campaign_title));
 	t->SetAlign(alignTextCT);
 	t->SetFont(texman, "font_default");
 	AddFront(t);
 
-	_files = std::make_shared<DefaultListBox>(manager, texman);
+	_files = std::make_shared<DefaultListBox>(texman);
 	_files->Move(20, 56);
 	_files->Resize(472, 280);
 	AddFront(_files);
@@ -37,7 +37,7 @@ NewCampaignDlg::NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texma
 	}
 	_files->GetData()->Sort();
 
-	auto btn = std::make_shared<UI::Button>(manager, texman);
+	auto btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(lang.campaign_ok));
 	btn->Move(290, 360);
 	btn->eventClick = std::bind(&NewCampaignDlg::OnOK, this);

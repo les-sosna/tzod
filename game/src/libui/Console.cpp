@@ -38,9 +38,9 @@ const std::string& ConsoleHistoryDefault::GetItem(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Console> Console::Create(Window *parent, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf)
+std::shared_ptr<Console> Console::Create(Window *parent, LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf)
 {
-	auto res = std::make_shared<Console>(parent->GetManager(), texman);
+	auto res = std::make_shared<Console>(manager, texman);
 	res->Move(x, y);
 	res->Resize(w, h);
 	res->SetBuffer(buf);
@@ -49,7 +49,7 @@ std::shared_ptr<Console> Console::Create(Window *parent, TextureManager &texman,
 }
 
 Console::Console(LayoutManager &manager, TextureManager &texman)
-  : Rectangle(manager)
+  : Managerful(manager)
   , _cmdIndex(0)
   , _font(texman.FindSprite("font_small"))
   , _buf(nullptr)
@@ -60,7 +60,7 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
 	_input = std::make_shared<Edit>(manager, texman);
 	AddFront(_input);
 	SetFocus(_input);
-	_scroll = std::make_shared<ScrollBarVertical>(manager, texman);
+	_scroll = std::make_shared<ScrollBarVertical>(texman);
 	_scroll->eventScroll = std::bind(&Console::OnScrollBar, this, std::placeholders::_1);
 	AddFront(_scroll);
 	SetTexture(texman, "ui/console", false);

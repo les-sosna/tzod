@@ -28,7 +28,7 @@ class ListDataSourceMaps;
 class CreateServerDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<ListDataSourceMaps, UI::List> MapListBox;
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<MapListBox> _maps;
 	std::shared_ptr<UI::CheckBox> _nightMode;

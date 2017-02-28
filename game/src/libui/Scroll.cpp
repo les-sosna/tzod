@@ -10,20 +10,19 @@ static const float MIN_THUMB_SIZE = 10.f;
 
 using namespace UI;
 
-ScrollBarBase::ScrollBarBase(LayoutManager &manager, TextureManager &texman)
-    : Rectangle(manager)
-    , _tmpBoxPos(-1)
+ScrollBarBase::ScrollBarBase(TextureManager &texman)
+    : _tmpBoxPos(-1)
     , _pos(0)
     , _lineSize(0.1f)
     , _pageSize(0)
     , _documentSize(1.0f)
     , _showButtons(true)
 {
-	_btnBox = std::make_shared<Button>(manager, texman);
+	_btnBox = std::make_shared<Button>(texman);
 	AddFront(_btnBox);
-	_btnUpLeft = std::make_shared<Button>(manager, texman);
+	_btnUpLeft = std::make_shared<Button>(texman);
 	AddFront(_btnUpLeft);
-	_btnDownRight = std::make_shared<Button>(manager, texman);
+	_btnDownRight = std::make_shared<Button>(texman);
 	AddFront(_btnDownRight);
 
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
@@ -177,8 +176,8 @@ FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &l
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ScrollBarVertical::ScrollBarVertical(LayoutManager &manager, TextureManager &texman)
-	: ScrollBarBase(manager, texman)
+ScrollBarVertical::ScrollBarVertical(TextureManager &texman)
+	: ScrollBarBase(texman)
 {
 	_btnBox->SetBackground(texman, "ui/scroll_vert", true);
 	_btnUpLeft->SetBackground(texman, "ui/scroll_up", true);
@@ -204,8 +203,8 @@ FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContex
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ScrollBarHorizontal::ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman)
-	: ScrollBarBase(manager, texman)
+ScrollBarHorizontal::ScrollBarHorizontal(TextureManager &texman)
+	: ScrollBarBase(texman)
 {
 	_btnBox->SetBackground(texman, "ui/scroll_hor", true);
 	_btnUpLeft->SetBackground(texman, "ui/scroll_left", true);

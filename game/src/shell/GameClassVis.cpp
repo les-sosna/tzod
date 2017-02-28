@@ -7,9 +7,8 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-GameClassVis::GameClassVis(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView)
-	: UI::Window(manager)
-	, _worldView(worldView)
+GameClassVis::GameClassVis(TextureManager &texman, WorldView &worldView)
+	: _worldView(worldView)
 	, _world(RectRB{-2, -2, 2, 2})
 	, _texSelection(texman.FindSprite("ui/selection"))
 {

@@ -88,7 +88,7 @@ namespace
 }
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
-	: UI::Window(manager)
+	: UI::Managerful(manager)
 	, _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
@@ -96,12 +96,12 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	, _lang(lang)
 	, _dmCampaign(dmCampaign)
 	, _mapCache()
-	, _content(std::make_shared<UI::StackLayout>(manager))
-	, _prevTier(std::make_shared<UI::Button>(manager, texman))
-	, _mapTiles(std::make_shared<UI::StackLayout>(manager))
-	, _nextTier(std::make_shared<UI::Button>(manager, texman))
+	, _content(std::make_shared<UI::StackLayout>())
+	, _prevTier(std::make_shared<UI::Button>(texman))
+	, _mapTiles(std::make_shared<UI::StackLayout>())
+	, _nextTier(std::make_shared<UI::Button>(texman))
 {
-	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>(manager);
+	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>();
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
 
 	_prevTier->SetText("<<<"_txt);
@@ -146,13 +146,13 @@ void SinglePlayer::UpdateTier()
 	{
 		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(mapIndex));
 
-		auto mapPreview = std::make_shared<MapPreview>(GetManager(), GetManager().GetTextureManager(), _fs, _worldView, _mapCache);
+		auto mapPreview = std::make_shared<MapPreview>(GetManager().GetTextureManager(), _fs, _worldView, _mapCache);
 		mapPreview->Resize(c_tileSize, c_tileSize);
 		mapPreview->SetPadding(c_tileSpacing / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
 		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
 
-		auto mpButton = std::make_shared<UI::ButtonBase>(GetManager());
+		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
 		mpButton->Resize(c_tileSize, c_tileSize);
 		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);

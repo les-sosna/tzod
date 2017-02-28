@@ -18,7 +18,6 @@ namespace UI
 class DataContext;
 class InputContext;
 class LayoutContext;
-class LayoutManager;
 class StateContext;
 enum class Key;
 enum class PointerType;
@@ -68,13 +67,8 @@ struct StateGen
 
 class Window : public std::enable_shared_from_this<Window>
 {
-	friend class LayoutManager;
-	LayoutManager &_manager;
-
 	std::shared_ptr<Window> _focusChild;
 	std::deque<std::shared_ptr<Window>> _children;
-
-	std::list<Window*>::iterator _timeStepReg;
 
 	std::shared_ptr<LayoutData<bool>> _enabled;
 
@@ -96,18 +90,15 @@ class Window : public std::enable_shared_from_this<Window>
 	{
 		bool _isVisible      : 1;
 		bool _isTopMost      : 1;
-		bool _isTimeStep     : 1;
 		bool _clipChildren   : 1;
 	};
 
 public:
-	explicit Window(LayoutManager &manager);
+	Window();
 	virtual ~Window();
 
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
-
-	LayoutManager& GetManager() const { return _manager;  } // to remove
 
 	void UnlinkAllChildren();
 	void UnlinkChild(Window &child);
@@ -168,9 +159,6 @@ public:
 	void SetEnabled(std::shared_ptr<LayoutData<bool>> enabled);
 	bool GetEnabled(const DataContext &dc) const;
 
-	void SetTimeStep(bool enable);
-	bool GetTimeStep() const { return _isTimeStep; }
-
 	void SetFocus(std::shared_ptr<Window> child);
 	std::shared_ptr<Window> GetFocus() const;
 
@@ -185,14 +173,6 @@ public:
 	//
 
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const {}
-
-private:
-
-	//
-	// other
-	//
-
-	virtual void OnTimeStep(LayoutManager &manager, float dt);
 };
 
 inline bool NeedsFocus(Window *wnd)
@@ -201,5 +181,27 @@ inline bool NeedsFocus(Window *wnd)
 }
 
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
+
+//////////////////////// to remove ////////////////////
+class LayoutManager;
+class Managerful
+{
+public:
+	virtual void OnTimeStep(LayoutManager &manager, float dt) {}
+
+protected:
+	explicit Managerful(LayoutManager &manager) : _manager(manager) {}
+	~Managerful();
+
+	LayoutManager& GetManager() const { return _manager; }
+
+	void SetTimeStep(bool enable);
+
+private:
+	LayoutManager &_manager;
+	std::list<Managerful*>::iterator _timeStepReg;
+	bool _isTimeStep = false;
+};
+
 
 } // namespace UI

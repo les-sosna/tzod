@@ -39,12 +39,13 @@ private:
 
 class Console
 	: public Rectangle
+	, private Managerful
 	, private ScrollSink
 	, private KeyboardSink
 {
 public:
 	Console(LayoutManager &manager, TextureManager &texman);
-	static std::shared_ptr<Console> Create(Window *parent, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
+	static std::shared_ptr<Console> Create(Window *parent, LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
 
 	void SetColors(const SpriteColor *colors, size_t count);
 	void SetHistory(IConsoleHistory *history);
@@ -56,9 +57,11 @@ public:
 	// Window
 	ScrollSink* GetScrollSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
-	void OnTimeStep(LayoutManager &manager, float dt) override;
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+
+	// Managerful
+	void OnTimeStep(LayoutManager &manager, float dt) override;
 
 private:
 	std::shared_ptr<ScrollBarVertical> _scroll;

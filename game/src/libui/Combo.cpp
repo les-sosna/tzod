@@ -14,17 +14,17 @@
 using namespace UI;
 
 ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource)
-  : Rectangle(manager)
+  : Managerful(manager)
   , _curSel(-1)
 {
-	_list = std::make_shared<ListBox>(manager, texman, dataSource);
+	_list = std::make_shared<ListBox>(texman, dataSource);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
 	_list->GetList()->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
 	_list->GetList()->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
 	AddFront(_list);
 
-	_btn = std::make_shared<Button>(manager, texman);
+	_btn = std::make_shared<Button>(texman);
 	_btn->SetBackground(texman, "ui/scroll_down", true);
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_btn);

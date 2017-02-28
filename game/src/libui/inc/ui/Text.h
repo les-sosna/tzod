@@ -10,7 +10,7 @@ template<class T> struct RenderData;
 class Text : public Window
 {
 public:
-	Text(LayoutManager &manager, TextureManager &texman);
+	explicit Text(TextureManager &texman);
 
 	void SetAlign(enumAlignText align);
 	void SetFont(TextureManager &texman, const char *fontName);

@@ -9,7 +9,7 @@ class Button;
 class ScrollBarBase : public Rectangle
 {
 public:
-	ScrollBarBase(LayoutManager &manager, TextureManager &texman);
+	explicit ScrollBarBase(TextureManager &texman);
 
 	void SetShowButtons(bool showButtons);
 	bool GetShowButtons() const;
@@ -63,7 +63,7 @@ private:
 class ScrollBarVertical final : public ScrollBarBase
 {
 public:
-	ScrollBarVertical(LayoutManager &manager, TextureManager &texman);
+	explicit ScrollBarVertical(TextureManager &texman);
 
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
@@ -75,7 +75,7 @@ protected:
 class ScrollBarHorizontal final : public ScrollBarBase
 {
 public:
-	ScrollBarHorizontal(LayoutManager &manager, TextureManager &texman);
+	explicit ScrollBarHorizontal(TextureManager &texman);
 
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;

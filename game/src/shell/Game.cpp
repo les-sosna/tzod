@@ -95,7 +95,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        LangCache &lang,
                        UI::ConsoleBuffer &logger,
                        CampaignControlCommands campaignControlCommands)
-  : Window(manager)
+  : UI::Managerful(manager)
   , _gameContext(gameContext)
   , _gameViewHarness(gameContext.GetWorld(), worldController)
   , _worldView(worldView)
@@ -105,7 +105,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _inputMgr(conf, logger)
   , _texDrag(texman.FindSprite("ui/direction"))
   , _texTarget(texman.FindSprite("ui/target"))
-  , _scoreAndControls(std::make_shared<UI::StackLayout>(manager))
+  , _scoreAndControls(std::make_shared<UI::StackLayout>())
 {
 	_scoreAndControls->SetSpacing(20);
 	_scoreAndControls->SetAlign(UI::Align::CT);
@@ -118,24 +118,24 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 
 	if (deathmatch)
 	{
-		_rating = std::make_shared<UI::Rating>(manager, texman);
+		_rating = std::make_shared<UI::Rating>(texman);
 		_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(*deathmatch));
 		_rating->SetVisible(false);
 		_scoreAndControls->AddFront(_rating);
 	}
 
-	_score = std::make_shared<ScoreTable>(manager, texman, _gameContext.GetWorld(), deathmatch, _lang);
+	_score = std::make_shared<ScoreTable>(texman, _gameContext.GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
 
 	if (deathmatch)
 	{
-		_campaignControls = std::make_shared<CampaignControls>(manager, texman, *deathmatch, std::move(campaignControlCommands));
+		_campaignControls = std::make_shared<CampaignControls>(texman, *deathmatch, std::move(campaignControlCommands));
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
 	}
 
-	_timerDisplay = std::make_shared<UI::Text>(manager, texman);
+	_timerDisplay = std::make_shared<UI::Text>(texman);
 	_timerDisplay->SetAlign(alignTextRB);
 	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext.GetWorld(), deathmatch));
 	AddFront(_timerDisplay);

@@ -15,6 +15,7 @@ class Button;
 class ComboBox
 	: public Rectangle
 	, private KeyboardSink
+	, private Managerful
 {
 public:
 	ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource);

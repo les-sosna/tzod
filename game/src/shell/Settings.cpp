@@ -24,13 +24,14 @@
 
 
 SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang)
-  : Dialog(manager, texman)
+  : Dialog(texman)
+  , Managerful(manager)
   , _conf(conf)
   , _lang(lang)
 {
 	Resize(512, 296);
 
-	auto text = std::make_shared<UI::Text>(manager, texman);
+	auto text = std::make_shared<UI::Text>(texman);
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(_lang.settings_title));
 	text->SetAlign(alignTextCT);
@@ -45,7 +46,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	float x = 24;
 	float y = 48;
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x, y);
 	text->SetText(ConfBind(_lang.settings_player1));
 	AddFront(text);
@@ -58,7 +59,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_player1);
 	y += _player1->GetHeight() + 5;
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(24, y);
 	text->SetText(ConfBind(_lang.settings_player2));
 	AddFront(text);
@@ -71,32 +72,32 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_player2);
 	y += _player2->GetHeight() + 5;
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x, y);
 	text->SetText(ConfBind(_lang.settings_profiles));
 	AddFront(text);
 	y += text->GetHeight() + 2;
 
-	_profiles = std::make_shared<UI::ListBox>(manager, texman, &_profilesDataSource);
+	_profiles = std::make_shared<UI::ListBox>(texman, &_profilesDataSource);
 	_profiles->Move(x, y);
 	_profiles->Resize(128, 52);
 	AddFront(_profiles);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 
-	auto btn = std::make_shared<UI::Button>(manager, texman);
+	auto btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(_lang.settings_profile_new));
 	btn->Move(40, 184);
 	btn->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	AddFront(btn);
 
-	_editProfile = std::make_shared<UI::Button>(manager, texman);
+	_editProfile = std::make_shared<UI::Button>(texman);
 	_editProfile->SetText(ConfBind(_lang.settings_profile_edit));
 	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_editProfile);
 
-	_deleteProfile = std::make_shared<UI::Button>(manager, texman);
+	_deleteProfile = std::make_shared<UI::Button>(texman);
 	_deleteProfile->SetText(ConfBind(_lang.settings_profile_delete));
 	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
@@ -144,13 +145,13 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_showNames);
 	y += _showNames->GetHeight();
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x + 50, y += 20);
 	text->SetText(ConfBind(_lang.settings_sfx_volume));
 	text->SetAlign(alignTextRT);
 	AddFront(text);
 
-	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(manager, texman);
+	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(texman);
 	_volumeSfx->Move(x + 60, y);
 	_volumeSfx->SetWidth(150);
 	_volumeSfx->SetDocumentSize(1);
@@ -160,13 +161,13 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_volumeSfx);
 	_initialVolumeSfx = _conf.s_volume.GetInt();
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x + 50, y += 20);
 	text->SetText(ConfBind(_lang.settings_music_volume));
 	text->SetAlign(alignTextRT);
 	AddFront(text);
 
-	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(manager, texman);
+	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(texman);
 	_volumeMusic->Move(x + 60, y);
 	_volumeMusic->SetWidth(150);
 	_volumeMusic->SetDocumentSize(1);
@@ -264,7 +265,8 @@ static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 }
 
 ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang)
-  : Dialog(manager, texman)
+  : Dialog(texman)
+  , UI::Managerful(manager)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)
@@ -275,7 +277,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 {
 	Resize(448, 416);
 
-	auto text = std::make_shared<UI::Text>(manager, texman);
+	auto text = std::make_shared<UI::Text>(texman);
 	text->Move(20, 15);
 	text->SetText(ConfBind(_lang.profile_name));
 	AddFront(text);
@@ -286,21 +288,21 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_nameEdit->GetEditable()->SetText(_nameOrig);
 	AddFront(_nameEdit);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(20, 65);
 	text->SetText(ConfBind(_lang.profile_action));
 	AddFront(text);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(220, 65);
 	text->SetText(ConfBind(_lang.profile_key));
 	AddFront(text);
 
-	auto itemTemplate = std::make_shared<UI::MultiColumnListItem>(manager, texman);
-	itemTemplate->EnsureColumn(manager, texman, 0, 2);
-	itemTemplate->EnsureColumn(manager, texman, 1, 200);
+	auto itemTemplate = std::make_shared<UI::MultiColumnListItem>(texman);
+	itemTemplate->EnsureColumn(texman, 0, 2);
+	itemTemplate->EnsureColumn(texman, 1, 200);
 
-	_actions = std::make_shared<DefaultListBox>(manager, texman);
+	_actions = std::make_shared<DefaultListBox>(texman);
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
 	_actions->GetList()->SetItemTemplate(itemTemplate);
@@ -337,13 +339,13 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_arcadeStyleChkBox->SetText(_lang.profile_arcade_style.Get());
 	AddFront(_arcadeStyleChkBox);
 
-	auto btn = std::make_shared<UI::Button>(manager, texman);
+	auto btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(_lang.common_ok));
 	btn->Move(240, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(manager, texman);
+	btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(_lang.common_cancel));
 	btn->Move(344, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);

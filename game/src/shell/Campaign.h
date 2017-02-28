@@ -18,7 +18,7 @@ namespace UI
 class NewCampaignDlg : public UI::Dialog
 {
 public:
-	NewCampaignDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, LangCache &lang);
+	NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangCache &lang);
 	~NewCampaignDlg();
 	std::function<void(std::shared_ptr<NewCampaignDlg>, std::string)> eventCampaignSelected;
 

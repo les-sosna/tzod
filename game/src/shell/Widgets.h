@@ -8,7 +8,9 @@
 class AppState;
 class TextureManager;
 
-class FpsCounter : public UI::Text
+class FpsCounter
+	: public UI::Text
+	, private UI::Managerful
 {
 	std::list<float> _dts;
 	std::list<float> _dts_net;
@@ -27,13 +29,13 @@ protected:
 class Oscilloscope : public UI::Rectangle
 {
 public:
-	Oscilloscope(UI::LayoutManager &manager, TextureManager &texman, float x, float y);
-	void Push(float value);
+	Oscilloscope(TextureManager &texman, float x, float y);
+	void Push(TextureManager &texman, float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(const std::string &title);
 	void SetGridStep(float stepX, float stepY);
 
-	void AutoGrid();
+	void AutoGrid(TextureManager &texman);
 	void AutoRange();
 
 protected:

@@ -7,9 +7,8 @@
 
 using namespace UI;
 
-Text::Text(LayoutManager &manager, TextureManager &texman)
-  : Window(manager)
-  , _align(alignTextLT)
+Text::Text(TextureManager &texman)
+  : _align(alignTextLT)
   , _fontTexture(0)
 {
 	SetFont(texman, "font_small");

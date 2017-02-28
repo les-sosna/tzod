@@ -4,9 +4,8 @@
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
-BotView::BotView(UI::LayoutManager &manager, TextureManager &texman)
-	: UI::Window(manager)
-	, _texRank(texman.FindSprite("rank_mark"))
+BotView::BotView(TextureManager &texman)
+	: _texRank(texman.FindSprite("rank_mark"))
 	, _font(texman.FindSprite("font_small"))
 {
 }

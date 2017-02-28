@@ -13,7 +13,7 @@ namespace UI
 class GameClassVis : public UI::Window
 {
 public:
-	GameClassVis(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView);
+	GameClassVis(TextureManager &texman, WorldView &worldView);
 
 	void SetGameClass(std::shared_ptr<UI::RenderData<const std::string&>> className);
 

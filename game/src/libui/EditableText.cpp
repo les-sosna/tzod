@@ -16,7 +16,7 @@
 using namespace UI;
 
 EditableText::EditableText(LayoutManager &manager, TextureManager &texman)
-	: Window(manager)
+	: Managerful(manager)
 	, _selStart(-1)
 	, _selEnd(-1)
 	, _offset(0)

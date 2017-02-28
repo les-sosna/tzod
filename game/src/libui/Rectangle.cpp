@@ -7,9 +7,8 @@
 
 using namespace UI;
 
-Rectangle::Rectangle(LayoutManager &manager)
-	: Window(manager)
-	, _backColor(std::make_shared<StaticValue<SpriteColor>>(0xffffffff))
+Rectangle::Rectangle()
+	: _backColor(std::make_shared<StaticValue<SpriteColor>>(0xffffffff))
 	, _borderColor(std::make_shared<StaticValue<SpriteColor>>(0xffffffff))
 	, _drawBorder(true)
 	, _drawBackground(true)

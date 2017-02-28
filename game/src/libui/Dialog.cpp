@@ -6,8 +6,7 @@
 
 using namespace UI;
 
-Dialog::Dialog(LayoutManager &manager, TextureManager &texman)
-  : Rectangle(manager)
+Dialog::Dialog(TextureManager &texman)
 {
 	SetTexture(texman, "ui/window", false);
 	SetDrawBorder(true);

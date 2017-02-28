@@ -20,10 +20,13 @@ namespace UI
 	class ListDataSourceDefault;
 	class Text;
 	template<class, class> class ListAdapter;
+	template<class, class> class ListAdapterM;
 }
 class ListDataSourceMaps;
 
-class NewGameDlg : public UI::Dialog
+class NewGameDlg
+	: public UI::Dialog
+	, private UI::Managerful
 {
 	typedef UI::ListAdapter<ListDataSourceMaps, UI::ListBox> MapList;
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
@@ -74,9 +77,11 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditPlayerDlg : public UI::Dialog
+class EditPlayerDlg
+	: public UI::Dialog
+	, private UI::Managerful
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Rectangle> _skinPreview;
 	std::shared_ptr<UI::Edit> _name;
@@ -101,9 +106,11 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditBotDlg : public UI::Dialog
+class EditBotDlg
+	: public UI::Dialog
+	, private UI::Managerful
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Edit> _name;
 	std::shared_ptr<UI::Rectangle> _skinPreview;

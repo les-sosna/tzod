@@ -9,6 +9,7 @@ namespace UI
 
 	class EditableText
 		: public Window
+		, private Managerful
 		, private PointerSink
 		, private KeyboardSink
 		, private TextSink

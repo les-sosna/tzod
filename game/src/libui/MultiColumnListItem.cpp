@@ -8,9 +8,8 @@
 
 using namespace UI;
 
-MultiColumnListItem::MultiColumnListItem(LayoutManager &manager, TextureManager &texman)
-	: Window(manager)
-	, _selection(std::make_shared<Rectangle>(manager))
+MultiColumnListItem::MultiColumnListItem(TextureManager &texman)
+	: _selection(std::make_shared<Rectangle>())
 {
 	static const auto selectionFillColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
 		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff } });
@@ -22,10 +21,10 @@ MultiColumnListItem::MultiColumnListItem(LayoutManager &manager, TextureManager 
 	_selection->SetBackColor(selectionFillColorMap);
 	_selection->SetBorderColor(selectionBorderColorMap);
 
-	EnsureColumn(manager, texman, 0u, 0.f);
+	EnsureColumn(texman, 0u, 0.f);
 }
 
-void MultiColumnListItem::EnsureColumn(LayoutManager &manager, TextureManager &texman, unsigned int columnIndex, float offset)
+void MultiColumnListItem::EnsureColumn(TextureManager &texman, unsigned int columnIndex, float offset)
 {
 	static const auto textColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0xffffffff, // default
 		UI::StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb },{ "Hover", 0xffccccff },{ "Focused", 0xff000000 } });
@@ -36,7 +35,7 @@ void MultiColumnListItem::EnsureColumn(LayoutManager &manager, TextureManager &t
 	if (!_columns[columnIndex])
 	{
 		// TODO: reuse the text object
-		_columns[columnIndex] = std::make_shared<UI::Text>(manager, texman);
+		_columns[columnIndex] = std::make_shared<UI::Text>(texman);
 		AddFront(_columns[columnIndex]);
 	}
 

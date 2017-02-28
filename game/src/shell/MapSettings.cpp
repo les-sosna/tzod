@@ -24,13 +24,13 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 }
 
 MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
-	: Dialog(manager, texman)
+	: Dialog(texman)
 	, _world(world)
 {
 	Resize(512, 512);
 
 	// Title
-	auto text = std::make_shared<UI::Text>(manager, texman);
+	auto text = std::make_shared<UI::Text>(texman);
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(lang.map_title));
 	text->SetAlign(alignTextCT);
@@ -42,7 +42,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	float y = 32;
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_author));
 	AddFront(text);
@@ -53,7 +53,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_author->GetEditable()->SetText(world._infoAuthor);
 	AddFront(_author);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_email));
 	AddFront(text);
@@ -64,7 +64,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_email->GetEditable()->SetText(world._infoEmail);
 	AddFront(_email);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_url));
 	AddFront(text);
@@ -75,7 +75,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_url->GetEditable()->SetText(world._infoUrl);
 	AddFront(_url);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_desc));
 	AddFront(text);
@@ -86,7 +86,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_desc->GetEditable()->SetText(world._infoDesc);
 	AddFront(_url);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_init_script));
 	AddFront(text);
@@ -97,7 +97,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_onInit->GetEditable()->SetText(world._infoOnInit);
 	AddFront(_onInit);
 
-	text = std::make_shared<UI::Text>(manager, texman);
+	text = std::make_shared<UI::Text>(texman);
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_theme));
 	AddFront(text);
@@ -116,13 +116,13 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	//
 	// OK & Cancel
 	//
-	auto btn = std::make_shared<UI::Button>(manager, texman);
+	auto btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(304, 480);
 	btn->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
 	AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(manager, texman);
+	btn = std::make_shared<UI::Button>(texman);
 	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(408, 480);
 	btn->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);
