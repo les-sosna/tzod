@@ -24,7 +24,7 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 		return stateDisabled;
 
 	vec2d pointerPosition = ic.GetMousePos();
-	bool pointerInside = pointerPosition.x >= 0 && pointerPosition.y >= 0 && pointerPosition.x < lc.GetPixelSize().x && pointerPosition.y < lc.GetPixelSize().y;
+	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pointerPosition);
 	bool pointerPressed = ic.GetInput().IsMousePressed(1);
 
 	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this))
