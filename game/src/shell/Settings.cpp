@@ -113,7 +113,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 
 	_showFps = std::make_shared<UI::CheckBox>(manager, texman);
 	_showFps->Move(x, y);
-	_showFps->SetText(texman, _lang.settings_show_fps.Get());
+	_showFps->SetText(_lang.settings_show_fps.Get());
 	_showFps->SetCheck(_conf.ui_showfps.Get());
 	_showFps->eventClick = [=]
 	{
@@ -124,7 +124,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 
 	_showTime = std::make_shared<UI::CheckBox>(manager, texman);
 	_showTime->Move(x, y);
-	_showTime->SetText(texman, _lang.settings_show_time.Get());
+	_showTime->SetText(_lang.settings_show_time.Get());
 	_showTime->SetCheck(_conf.ui_showtime.Get());
 	_showTime->eventClick = [=]
 	{
@@ -135,7 +135,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 
 	_showNames = std::make_shared<UI::CheckBox>(manager, texman);
 	_showNames->Move(x, y);
-	_showNames->SetText(texman, _lang.settings_show_names.Get());
+	_showNames->SetText(_lang.settings_show_names.Get());
 	_showNames->SetCheck(_conf.g_shownames.Get());
 	_showNames->eventClick = [=]
 	{
@@ -273,8 +273,8 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
   , _activeIndex(-1)
   , _createNewProfile(!profileName)
 {
-    Resize(448, 416);
-    
+	Resize(448, 416);
+
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(20, 15);
 	text->SetText(ConfBind(_lang.profile_name));
@@ -283,7 +283,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_nameEdit = std::make_shared<UI::Edit>(manager, texman);
 	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
-	_nameEdit->GetEditable()->SetText(texman, _nameOrig);
+	_nameEdit->GetEditable()->SetText(_nameOrig);
 	AddFront(_nameEdit);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -322,19 +322,19 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_aimToMouseChkBox = std::make_shared<UI::CheckBox>(manager, texman);
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
 	_aimToMouseChkBox->Move(16, 345);
-	_aimToMouseChkBox->SetText(texman, _lang.profile_mouse_aim.Get());
+	_aimToMouseChkBox->SetText(_lang.profile_mouse_aim.Get());
 	AddFront(_aimToMouseChkBox);
 
 	_moveToMouseChkBox = std::make_shared<UI::CheckBox>(manager, texman);
 	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
 	_moveToMouseChkBox->Move(146, 345);
-	_moveToMouseChkBox->SetText(texman, _lang.profile_mouse_move.Get());
+	_moveToMouseChkBox->SetText(_lang.profile_mouse_move.Get());
 	AddFront(_moveToMouseChkBox);
 
 	_arcadeStyleChkBox = std::make_shared<UI::CheckBox>(manager, texman);
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
 	_arcadeStyleChkBox->Move(276, 345);
-	_arcadeStyleChkBox->SetText(texman, _lang.profile_arcade_style.Get());
+	_arcadeStyleChkBox->SetText(_lang.profile_arcade_style.Get());
 	AddFront(_arcadeStyleChkBox);
 
 	auto btn = std::make_shared<UI::Button>(manager, texman);

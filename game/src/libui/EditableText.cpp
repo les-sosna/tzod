@@ -38,7 +38,7 @@ void EditableText::SetInt(int value)
 {
 	std::ostringstream tmp;
 	tmp << value;
-	SetText(GetManager().GetTextureManager(), tmp.str());
+	SetText(tmp.str());
 }
 
 int EditableText::GetInt() const
@@ -53,7 +53,7 @@ void EditableText::SetFloat(float value)
 {
 	std::ostringstream tmp;
 	tmp << value;
-	SetText(GetManager().GetTextureManager(), tmp.str());
+	SetText(tmp.str());
 }
 
 float EditableText::GetFloat() const
@@ -151,7 +151,7 @@ bool EditableText::OnChar(int c)
 	if (isprint((unsigned char)c) && '\t' != c)
 	{
 		int start = GetSelMin();
-		SetText(GetManager().GetTextureManager(), GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
+		SetText(GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
 		SetSel(start + 1, start + 1);
 		return true;
 	}
@@ -160,7 +160,6 @@ bool EditableText::OnChar(int c)
 
 bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 {
-	TextureManager &texman = GetManager().GetTextureManager();
 	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
 		ic.GetInput().IsKeyPressed(Key::RightShift);
 	bool control = ic.GetInput().IsKeyPressed(Key::LeftCtrl) ||
@@ -171,7 +170,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Insert:
 		if (shift)
 		{
-			Paste(texman, ic.GetClipboard());
+			Paste(ic.GetClipboard());
 			return true;
 		}
 		else if (control)
@@ -183,7 +182,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 	case Key::V:
 		if (control)
 		{
-			Paste(texman, ic.GetClipboard());
+			Paste(ic.GetClipboard());
 			return true;
 		}
 		break;
@@ -198,7 +197,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		if (0 != GetSelLength() && control)
 		{
 			Copy(ic.GetClipboard());
-			SetText(texman, GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 			SetSel(GetSelMin(), GetSelMin());
 			return true;
 		}
@@ -206,7 +205,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Delete:
 		if (0 == GetSelLength() && GetSelEnd() < GetTextLength())
 		{
-			SetText(texman, GetText().substr(0, GetSelStart())
+			SetText(GetText().substr(0, GetSelStart())
 				+ GetText().substr(GetSelEnd() + 1, GetTextLength() - GetSelEnd() - 1));
 		}
 		else
@@ -215,7 +214,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 			{
 				Copy(ic.GetClipboard());
 			}
-			SetText(texman, GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 		}
 		SetSel(GetSelMin(), GetSelMin());
 		return true;
@@ -223,12 +222,11 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		tmp = std::max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		if (0 == GetSelLength() && GetSelStart() > 0)
 		{
-			SetText(texman, GetText().substr(0, GetSelStart() - 1)
-				+ GetText().substr(GetSelEnd(), GetTextLength() - GetSelEnd()));
+			SetText(GetText().substr(0, GetSelStart() - 1) + GetText().substr(GetSelEnd(), GetTextLength() - GetSelEnd()));
 		}
 		else
 		{
-			SetText(texman, GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
 		}
 		SetSel(tmp, tmp);
 		return true;
@@ -326,14 +324,9 @@ const std::string& EditableText::GetText() const
 	return _text;
 }
 
-void EditableText::SetText(TextureManager &texman, const std::string &text)
+void EditableText::SetText(const std::string &text)
 {
 	_text.assign(text);
-	OnTextChange(texman);
-}
-
-void EditableText::OnTextChange(TextureManager &texman)
-{
 	SetSel(_selStart, _selEnd);
 	if (eventChange)
 		eventChange();
@@ -345,7 +338,7 @@ int EditableText::HitTest(TextureManager &texman, vec2d px, float scale) const
 	return std::min(GetTextLength(), std::max(0, int(px.x / pxCharWidth)) + (int)_offset);
 }
 
-void EditableText::Paste(TextureManager &texman, const IClipboard &clipboard)
+void EditableText::Paste(const IClipboard &clipboard)
 {
 	if (const char *data = clipboard.GetClipboardText())
 	{
@@ -353,7 +346,7 @@ void EditableText::Paste(TextureManager &texman, const IClipboard &clipboard)
 		buf << GetText().substr(0, GetSelMin());
 		buf << data;
 		buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
-		SetText(texman, buf.str());
+		SetText(buf.str());
 		SetSel(GetSelMin() + std::strlen(data), GetSelMin() + std::strlen(data));
 	}
 }

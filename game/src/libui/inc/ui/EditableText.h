@@ -19,7 +19,7 @@ namespace UI
 		int GetTextLength() const;
 
 		const std::string& GetText() const;
-		void SetText(TextureManager &texman, const std::string &text);
+		void SetText(const std::string &text);
 
 		void SetInt(int value);
 		int  GetInt() const;
@@ -34,7 +34,7 @@ namespace UI
 		int GetSelMax() const;
 		int GetSelLength() const;
 
-		void Paste(TextureManager &texman, const IClipboard &clipboard);
+		void Paste(const IClipboard &clipboard);
 		void Copy(IClipboard &clipboard) const;
 
 		std::function<void()> eventChange;
@@ -56,7 +56,6 @@ namespace UI
 		size_t _cursor;
 		size_t _selection;
 
-		void OnTextChange(TextureManager &texman);
 		int HitTest(TextureManager &texman, vec2d px, float scale) const;
 
 		// TextSink

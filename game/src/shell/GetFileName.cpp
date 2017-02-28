@@ -95,7 +95,7 @@ std::string GetFileNameDlg::GetFileTitle() const
 void GetFileNameDlg::OnSelect(int index)
 {
 	if( _changing || -1 == index ) return;
-	_fileName->GetEditable()->SetText(GetManager().GetTextureManager(), _files->GetData()->GetItemText(index, 0));
+	_fileName->GetEditable()->SetText(_files->GetData()->GetItemText(index, 0));
 }
 
 void GetFileNameDlg::OnChangeName()

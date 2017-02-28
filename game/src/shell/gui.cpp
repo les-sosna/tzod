@@ -80,7 +80,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 
 		_nightMode = std::make_shared<UI::CheckBox>(manager, texman);
 		_nightMode->Move(x3, y);
-		_nightMode->SetText(texman, _lang.night_mode.Get());
+		_nightMode->SetText(_lang.night_mode.Get());
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
 		AddFront(_nightMode);
 
@@ -469,7 +469,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->GetEditable()->SetText(texman, _info.nick.Get() );
+	_name->GetEditable()->SetText(_info.nick.Get() );
 	AddFront(_name);
 	SetFocus(_name);
 
@@ -677,7 +677,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	_name = std::make_shared<UI::Edit>(manager, texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->GetEditable()->SetText(texman, _info.nick.Get().empty() ? "player" : _info.nick.Get());
+	_name->GetEditable()->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
 	AddFront(_name);
 	SetFocus(_name);
 

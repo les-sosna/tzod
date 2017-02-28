@@ -101,19 +101,16 @@ public:
 	bool GetCheck() const { return _isChecked; }
 
 	const std::string& GetText() const;
-	void SetText(TextureManager &texman, const std::string &text);
+	void SetText(const std::string &text);
 
 protected:
-	void AlignSizeToContent(TextureManager &texman);
-
 	void OnClick() override;
 
 	// Window
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
+	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 private:
-	void OnTextChange(TextureManager &texman);
-
 	std::string _text;
 	size_t _fontTexture;
 	size_t _boxTexture;

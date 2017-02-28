@@ -27,8 +27,8 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	: Dialog(manager, texman)
 	, _world(world)
 {
-    Resize(512, 512);
-    
+	Resize(512, 512);
+
 	// Title
 	auto text = std::make_shared<UI::Text>(manager, texman);
 	text->Move(GetWidth() / 2, 16);
@@ -50,7 +50,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_author = std::make_shared<UI::Edit>(manager, texman);
 	_author->Move(x2, y += 15);
 	_author->SetWidth(256);
-	_author->GetEditable()->SetText(texman, world._infoAuthor);
+	_author->GetEditable()->SetText(world._infoAuthor);
 	AddFront(_author);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -61,7 +61,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_email = std::make_shared<UI::Edit>(manager, texman);
 	_email->Move(x2, y += 15);
 	_email->SetWidth(256);
-	_email->GetEditable()->SetText(texman, world._infoEmail);
+	_email->GetEditable()->SetText(world._infoEmail);
 	AddFront(_email);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -72,7 +72,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_url = std::make_shared<UI::Edit>(manager, texman);
 	_url->Move(x2, y += 15);
 	_url->SetWidth(256);
-	_url->GetEditable()->SetText(texman, world._infoUrl);
+	_url->GetEditable()->SetText(world._infoUrl);
 	AddFront(_url);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -83,7 +83,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_desc = std::make_shared<UI::Edit>(manager, texman);
 	_desc->Move(x2, y += 15);
 	_desc->SetWidth(256);
-	_desc->GetEditable()->SetText(texman, world._infoDesc);
+	_desc->GetEditable()->SetText(world._infoDesc);
 	AddFront(_url);
 
 	text = std::make_shared<UI::Text>(manager, texman);
@@ -94,7 +94,7 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	_onInit = std::make_shared<UI::Edit>(manager, texman);
 	_onInit->Move(x2, y += 15);
 	_onInit->SetWidth(256);
-	_onInit->GetEditable()->SetText(texman, world._infoOnInit);
+	_onInit->GetEditable()->SetText(world._infoOnInit);
 	AddFront(_onInit);
 
 	text = std::make_shared<UI::Text>(manager, texman);

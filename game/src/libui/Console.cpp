@@ -107,7 +107,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			if( _cmdIndex > 0 )
 			{
 				--_cmdIndex;
-				_input->GetEditable()->SetText(GetManager().GetTextureManager(), _history->GetItem(_cmdIndex));
+				_input->GetEditable()->SetText(_history->GetItem(_cmdIndex));
 			}
 		}
 		break;
@@ -123,11 +123,11 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )
 			{
-				_input->GetEditable()->SetText(GetManager().GetTextureManager(), _history->GetItem(_cmdIndex));
+				_input->GetEditable()->SetText(_history->GetItem(_cmdIndex));
 			}
 			else
 			{
-				_input->GetEditable()->SetText(GetManager().GetTextureManager(), std::string());
+				_input->GetEditable()->SetText(std::string());
 				_cmdIndex = _history->GetItemCount();
 			}
 		}
@@ -156,7 +156,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			}
 			if( eventOnSendCommand )
 				eventOnSendCommand(cmd.c_str());
-			_input->GetEditable()->SetText(GetManager().GetTextureManager(), std::string());
+			_input->GetEditable()->SetText(std::string());
 		}
 		_scroll->SetPos(_scroll->GetDocumentSize());
 		_autoScroll = true;
@@ -177,7 +177,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Escape:
 		if( _input->GetEditable()->GetText().empty() )
 			return false;
-		_input->GetEditable()->SetText(GetManager().GetTextureManager(), std::string());
+		_input->GetEditable()->SetText(std::string());
 		break;
 	case Key::Tab:
 		if( eventOnRequestCompleteCommand )
@@ -186,7 +186,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			int pos = _input->GetEditable()->GetSelEnd();
 			if( eventOnRequestCompleteCommand(_input->GetEditable()->GetText(), pos, result) )
 			{
-				_input->GetEditable()->SetText(GetManager().GetTextureManager(), result);
+				_input->GetEditable()->SetText(result);
 				_input->GetEditable()->SetSel(pos, pos);
 			}
 			_scroll->SetPos(_scroll->GetDocumentSize());

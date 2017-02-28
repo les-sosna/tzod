@@ -251,16 +251,6 @@ CheckBox::CheckBox(LayoutManager &manager, TextureManager &texman)
   , _boxTexture(texman.FindSprite("ui/checkbox"))
   , _isChecked(false)
 {
-	AlignSizeToContent(texman);
-}
-
-void CheckBox::AlignSizeToContent(TextureManager &texman)
-{
-	float th = texman.GetFrameHeight(_fontTexture, 0);
-	float tw = texman.GetFrameWidth(_fontTexture, 0);
-	float bh = texman.GetFrameHeight(_boxTexture, 0);
-	float bw = texman.GetFrameWidth(_boxTexture, 0);
-	Resize(bw + (tw - 1) * (float) GetText().length(), std::max(th + 1, bh));
 }
 
 void CheckBox::SetCheck(bool checked)
@@ -273,20 +263,14 @@ void CheckBox::OnClick()
 	SetCheck(!GetCheck());
 }
 
-void CheckBox::OnTextChange(TextureManager &texman)
-{
-	AlignSizeToContent(texman);
-}
-
 const std::string& CheckBox::GetText() const
 {
 	return _text;
 }
 
-void CheckBox::SetText(TextureManager &texman, const std::string &text)
+void CheckBox::SetText(const std::string &text)
 {
 	_text.assign(text);
-	OnTextChange(texman);
 }
 
 void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
@@ -312,4 +296,13 @@ void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 		SpriteColor(0xffffffff), // Disabled
 	};
 	rc.DrawBitmapText(vec2d{ bw, (lc.GetPixelSize().y - th) / 2 }, lc.GetScale(), _fontTexture, colors[state], GetText());
+}
+
+vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+{
+	float th = texman.GetFrameHeight(_fontTexture, 0);
+	float tw = texman.GetFrameWidth(_fontTexture, 0);
+	float bh = texman.GetFrameHeight(_boxTexture, 0);
+	float bw = texman.GetFrameWidth(_boxTexture, 0);
+	return ToPx(vec2d{ bw + (tw - 1) * (float)GetText().length(), std::max(th + 1, bh) }, scale);
 }

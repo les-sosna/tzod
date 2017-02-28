@@ -153,7 +153,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
-				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(texman, prop->GetStringValue());
+				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(prop->GetStringValue());
 				labelTextBuffer << "(string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
