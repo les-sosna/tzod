@@ -15,12 +15,9 @@ class Button;
 class ComboBox
 	: public Rectangle
 	, private KeyboardSink
-	, private Managerful
 {
 public:
-	ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource);
-
-	void Resize(float width) { Window::Resize(width, GetHeight()); }
+	ComboBox(TextureManager &texman, ListDataSource *dataSource);
 
 	ListDataSource* GetData() const;
 

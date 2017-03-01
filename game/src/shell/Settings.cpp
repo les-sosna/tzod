@@ -57,7 +57,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	text->SetText(ConfBind(_lang.settings_player1));
 	_content->AddFront(text);
 
-	_player1 = std::make_shared<UI::ComboBox>(manager, texman, &_profilesDataSource);
+	_player1 = std::make_shared<UI::ComboBox>(texman, &_profilesDataSource);
 	_player1->GetList()->Resize(128, 52);
 	_content->AddFront(_player1);
 
@@ -65,7 +65,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	text->SetText(ConfBind(_lang.settings_player2));
 	_content->AddFront(text);
 
-	_player2 = std::make_shared<UI::ComboBox>(manager, texman, &_profilesDataSource);
+	_player2 = std::make_shared<UI::ComboBox>(texman, &_profilesDataSource);
 	_player2->GetList()->Resize(128, 52);
 	_content->AddFront(_player2);
 

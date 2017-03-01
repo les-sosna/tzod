@@ -3,7 +3,7 @@
 
 namespace UI
 {
-	template <class, class> class ListAdapterM;
+	template <class, class> class ListAdapter;
 	class ComboBox;
 	class Edit;
 	class ListDataSourceDefault;
@@ -16,7 +16,7 @@ class World;
 
 class MapSettingsDlg : public UI::Dialog
 {
-	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 	std::shared_ptr<DefaultComboBox> _theme;
 	std::shared_ptr<UI::Edit> _author;
 	std::shared_ptr<UI::Edit> _email;

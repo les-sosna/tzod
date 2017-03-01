@@ -481,9 +481,9 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	text->SetText(ConfBind(lang.player_skin));
 	AddFront(text);
 
-	_skins = std::make_shared<DefaultComboBox>(manager, texman);
+	_skins = std::make_shared<DefaultComboBox>(texman);
 	_skins->Move(x2, y -= 1);
-	_skins->Resize(200);
+	_skins->SetWidth(200);
 	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
 	AddFront(_skins);
 	std::vector<std::string> names;
@@ -511,9 +511,9 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	text->SetText(ConfBind(lang.player_class));
 	AddFront(text);
 
-	_classes = std::make_shared<DefaultComboBox>(manager, texman);
+	_classes = std::make_shared<DefaultComboBox>(texman);
 	_classes->Move(x2, y -= 1);
-	_classes->Resize(200);
+	_classes->SetWidth(200);
 	AddFront(_classes);
 
 	std::pair<std::string, std::string> val;
@@ -540,9 +540,9 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	text->SetText(ConfBind(lang.player_team));
 	AddFront(text);
 
-	_teams = std::make_shared<DefaultComboBox>(manager, texman);
+	_teams = std::make_shared<DefaultComboBox>(texman);
 	_teams->Move(x2, y -= 1);
-	_teams->Resize(200);
+	_teams->SetWidth(200);
 	AddFront(_teams);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
@@ -573,9 +573,9 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	text->SetText(ConfBind(lang.player_profile));
 	AddFront(text);
 
-	_profiles = std::make_shared<DefaultComboBox>(manager, texman);
+	_profiles = std::make_shared<DefaultComboBox>(texman);
 	_profiles->Move(x2, y -= 1);
-	_profiles->Resize(200);
+	_profiles->SetWidth(200);
 	AddFront(_profiles);
 	std::vector<std::string> profiles = conf.dm_profiles.GetKeys();
 
@@ -690,9 +690,9 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	text->SetText(ConfBind(lang.player_skin));
 	AddFront(text);
 
-	_skins = std::make_shared<DefaultComboBox>(manager, texman);
+	_skins = std::make_shared<DefaultComboBox>(texman);
 	_skins->Move(x2, y -= 1);
-	_skins->Resize(200);
+	_skins->SetWidth(200);
 	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
 	AddFront(_skins);
 	std::vector<std::string> names;
@@ -720,9 +720,9 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	text->SetText(ConfBind(lang.player_class));
 	AddFront(text);
 
-	_classes = std::make_shared<DefaultComboBox>(manager, texman);
+	_classes = std::make_shared<DefaultComboBox>(texman);
 	_classes->Move(x2, y -= 1);
-	_classes->Resize(200);
+	_classes->SetWidth(200);
 	AddFront(_classes);
 
 	std::pair<std::string, std::string> val;
@@ -747,9 +747,9 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	text->SetText(ConfBind(lang.player_team));
 	AddFront(text);
 
-	_teams = std::make_shared<DefaultComboBox>(manager, texman);
+	_teams = std::make_shared<DefaultComboBox>(texman);
 	_teams->Move(x2, y -= 1);
-	_teams->Resize(200);
+	_teams->SetWidth(200);
 	AddFront(_teams);
 	for( int i = 0; i < MAX_TEAMS; ++i )
 	{
@@ -779,9 +779,9 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	text->SetText(ConfBind(lang.bot_difficulty));
 	AddFront(text);
 
-	_levels = std::make_shared<DefaultComboBox>(manager, texman);
+	_levels = std::make_shared<DefaultComboBox>(texman);
 	_levels->Move(x2, y -= 1);
-	_levels->Resize(200);
+	_levels->SetWidth(200);
 	AddFront(_levels);
 
 	for( int i = 0; i < 5; ++i )

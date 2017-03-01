@@ -101,9 +101,9 @@ MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texma
 	text->SetText(ConfBind(lang.map_theme));
 	AddFront(text);
 
-	_theme = std::make_shared<DefaultComboBox>(manager, texman);
+	_theme = std::make_shared<DefaultComboBox>(texman);
 	_theme->Move(x2, y += 15);
-	_theme->Resize(256);
+	_theme->SetWidth(256);
 /*	for (size_t i = 0; i < themeManager.GetThemeCount(); i++)
 	{
 		_theme->GetData()->AddItem(themeManager.GetThemeName(i));

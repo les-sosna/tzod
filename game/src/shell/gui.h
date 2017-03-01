@@ -20,7 +20,6 @@ namespace UI
 	class ListDataSourceDefault;
 	class Text;
 	template<class, class> class ListAdapter;
-	template<class, class> class ListAdapterM;
 }
 class ListDataSourceMaps;
 
@@ -81,7 +80,7 @@ class EditPlayerDlg
 	: public UI::Dialog
 	, private UI::Managerful
 {
-	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Rectangle> _skinPreview;
 	std::shared_ptr<UI::Edit> _name;
@@ -110,7 +109,7 @@ class EditBotDlg
 	: public UI::Dialog
 	, private UI::Managerful
 {
-	typedef UI::ListAdapterM<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Edit> _name;
 	std::shared_ptr<UI::Rectangle> _skinPreview;

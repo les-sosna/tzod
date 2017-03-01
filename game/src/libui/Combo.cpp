@@ -13,9 +13,8 @@
 
 using namespace UI;
 
-ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSource *dataSource)
-  : Managerful(manager)
-  , _curSel(-1)
+ComboBox::ComboBox(TextureManager &texman, ListDataSource *dataSource)
+  : _curSel(-1)
 {
 	_list = std::make_shared<ListBox>(texman, dataSource);
 	_list->SetVisible(false);
