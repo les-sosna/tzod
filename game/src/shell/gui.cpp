@@ -32,8 +32,7 @@
 #define MAX_FRAGLIMIT   10000
 
 NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-  : UI::Dialog(texman)
-  , UI::Managerful(manager)
+  : UI::Managerful(manager)
   , _texman(texman)
   , _conf(conf)
   , _lang(lang)
@@ -435,8 +434,7 @@ bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 ///////////////////////////////////////////////////////////////////////////////
 
 EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang)
-  : UI::Dialog(texman)
-  , UI::Managerful(manager)
+  : UI::Managerful(manager)
   , _info(&info)
 {
 	Resize(384, 220);
@@ -617,7 +615,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 	if( -1 != index )
 	{
 		auto &texman = GetManager().GetTextureManager();
-		_skinPreview->SetTexture(texman, ("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
+		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
 		_skinPreview->Resize(_skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman));
 	}
 }
@@ -644,8 +642,7 @@ static const char* s_levels[16] = {
 };
 
 EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang)
-  : Dialog(texman)
-  , UI::Managerful(manager)
+  : UI::Managerful(manager)
   , _info(&info)
 {
     Resize(384, 220);
@@ -839,7 +836,7 @@ void EditBotDlg::OnChangeSkin(int index)
 	if( -1 != index )
 	{
 		auto &texman = GetManager().GetTextureManager();
-		_skinPreview->SetTexture(texman, ("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
+		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
 		_skinPreview->Resize(_skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman));
 	}
 }

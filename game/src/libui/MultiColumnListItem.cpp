@@ -17,7 +17,7 @@ MultiColumnListItem::MultiColumnListItem(TextureManager &texman)
 		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff } });
 
 	AddBack(_selection);
-	_selection->SetTexture(texman, "ui/listsel");
+	_selection->SetTexture("ui/listsel");
 	_selection->SetBackColor(selectionFillColorMap);
 	_selection->SetBorderColor(selectionBorderColorMap);
 

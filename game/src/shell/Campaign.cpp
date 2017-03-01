@@ -12,8 +12,7 @@
 
 
 NewCampaignDlg::NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangCache &lang)
-  : UI::Dialog(texman)
-  , _fs(fs)
+  : _fs(fs)
 {
 	Resize(512, 400);
 

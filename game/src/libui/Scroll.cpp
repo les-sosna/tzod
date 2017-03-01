@@ -182,7 +182,7 @@ ScrollBarVertical::ScrollBarVertical(TextureManager &texman)
 	_btnBox->SetBackground(texman, "ui/scroll_vert", true);
 	_btnUpLeft->SetBackground(texman, "ui/scroll_up", true);
 	_btnDownRight->SetBackground(texman, "ui/scroll_down", true);
-	SetTexture(texman, "ui/scroll_back_vert");
+	SetTexture("ui/scroll_back_vert");
 	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 }
 
@@ -210,7 +210,7 @@ ScrollBarHorizontal::ScrollBarHorizontal(TextureManager &texman)
 	_btnBox->SetBackground(texman, "ui/scroll_hor", true);
 	_btnUpLeft->SetBackground(texman, "ui/scroll_left", true);
 	_btnDownRight->SetBackground(texman, "ui/scroll_right", true);
-	SetTexture(texman, "ui/scroll_back_hor");
+	SetTexture("ui/scroll_back_hor");
 	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 }
 

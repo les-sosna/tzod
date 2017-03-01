@@ -30,7 +30,7 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	AddFront(_btn);
 
 	SetDrawBorder(true);
-	SetTexture(texman, "ui/combo");
+	SetTexture("ui/combo");
 }
 
 ListDataSource* ComboBox::GetData() const

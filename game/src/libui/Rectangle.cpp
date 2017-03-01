@@ -35,7 +35,7 @@ float Rectangle::GetTextureHeight(TextureManager &texman) const
 	return HasTexture() ? texman.GetFrameHeight(GetTextureId(texman), 0) : 1;
 }
 
-void Rectangle::SetTexture(TextureManager &texman, const char *tex)
+void Rectangle::SetTexture(const char *tex)
 {
 	_textureName = tex ? tex : std::string();
 	_cachedTextureId = tex ? -2 : -1;

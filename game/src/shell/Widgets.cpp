@@ -106,7 +106,7 @@ Oscilloscope::Oscilloscope(TextureManager &texman, float x, float y)
   , _scale(3)
 {
 	Move(x, y);
-	SetTexture(texman, "ui/list");
+	SetTexture("ui/list");
 	SetDrawBorder(true);
 	SetClipChildren(true);
 }

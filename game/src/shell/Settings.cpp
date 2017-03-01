@@ -25,8 +25,7 @@
 
 
 SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang)
-  : Dialog(texman)
-  , Managerful(manager)
+  : Managerful(manager)
   , _conf(conf)
   , _lang(lang)
 {
@@ -264,8 +263,7 @@ static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 }
 
 ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang)
-  : Dialog(texman)
-  , UI::Managerful(manager)
+  : UI::Managerful(manager)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)

@@ -24,8 +24,7 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 }
 
 MapSettingsDlg::MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
-	: Dialog(texman)
-	, _world(world)
+	: _world(world)
 {
 	Resize(512, 512);
 

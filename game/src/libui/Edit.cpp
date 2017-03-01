@@ -20,7 +20,7 @@ Edit::Edit(LayoutManager &manager, TextureManager &texman)
   : _background(std::make_shared<Rectangle>())
   , _editable(std::make_shared<EditableText>(manager, texman))
 {
-	_background->SetTexture(texman, "ui/edit");
+	_background->SetTexture("ui/edit");
 	_background->SetDrawBorder(true);
 	_background->SetFrame(c_backgroundFrame);
 	AddFront(_background);

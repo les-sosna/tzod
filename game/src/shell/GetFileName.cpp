@@ -16,8 +16,7 @@
 #include <algorithm>
 
 GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang)
-  : Dialog(texman)
-  , _folder(param.folder)
+  : _folder(param.folder)
   , _changing(false)
 {
 	Resize(512, 460);

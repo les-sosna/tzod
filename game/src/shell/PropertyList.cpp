@@ -24,8 +24,7 @@
 #include <algorithm>
 
 PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-	: UI::Dialog(texman)
-	, UI::Managerful(manager)
+	: UI::Managerful(manager)
 	, _deleteButton(std::make_shared<UI::Button>(texman))
 	, _scrollView(std::make_shared<UI::ScrollView>())
 	, _psheet(std::make_shared<UI::StackLayout>())
@@ -33,7 +32,7 @@ PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, W
 	, _conf(conf)
 	, _logger(logger)
 {
-	SetTexture(texman, "ui/list");
+	SetTexture("ui/list");
 
 	_deleteButton->SetText(ConfBind(lang.ed_delete));
 	_deleteButton->eventClick = [this]

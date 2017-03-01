@@ -137,7 +137,7 @@ void Button::SetIcon(TextureManager &texman, const char *spriteName)
 			_icon->SetBorderColor(c_textColor);
 			AddFront(_icon);
 		}
-		_icon->SetTexture(texman, spriteName);
+		_icon->SetTexture(spriteName);
 		_icon->Resize(_icon->GetTextureWidth(texman), _icon->GetTextureHeight(texman));
 	}
 	else
@@ -157,7 +157,7 @@ void Button::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 
 void Button::SetBackground(TextureManager &texman, const char *tex, bool fitSize)
 {
-	_background->SetTexture(texman, tex);
+	_background->SetTexture(tex);
 	if (fitSize)
 	{
 		Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
