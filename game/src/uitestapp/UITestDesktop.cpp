@@ -13,7 +13,7 @@ UITestDesktop::UITestDesktop(TextureManager &texman)
 	, _testText(std::make_shared<UI::Text>(texman))
 	, _testButton(std::make_shared<UI::Button>(texman))
 {
-	_testRect->SetTexture(texman, "gui_splash", false);
+	_testRect->SetTexture(texman, "gui_splash");
 	AddFront(_testRect);
 
 	_testText->SetText("Hello World!"_txt);

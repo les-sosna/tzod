@@ -22,7 +22,7 @@ namespace UI
 		void SetDrawBackground(bool enable) { _drawBackground = enable; }
 		bool GetDrawBackground() const { return _drawBackground; }
 
-		void SetTexture(TextureManager &texman, const char *tex, bool fitSize);
+		void SetTexture(TextureManager &texman, const char *tex);
 		void SetTextureStretchMode(StretchMode stretchMode);
 		float GetTextureWidth(TextureManager &texman)  const;
 		float GetTextureHeight(TextureManager &texman) const;

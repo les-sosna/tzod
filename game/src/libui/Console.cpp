@@ -63,7 +63,7 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
 	_scroll = std::make_shared<ScrollBarVertical>(texman);
 	_scroll->eventScroll = std::bind(&Console::OnScrollBar, this, std::placeholders::_1);
 	AddFront(_scroll);
-	SetTexture(texman, "ui/console", false);
+	SetTexture(texman, "ui/console");
 	SetDrawBorder(true);
 	SetTimeStep(true); // FIXME: workaround
 }

@@ -31,8 +31,8 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 
 	auto fontName = "font_small";
 	SetDrawBorder(true);
-	SetTexture(texman, "ui/combo", false);
 	Rectangle::Resize(GetWidth(), texman.GetSpriteInfo(texman.FindSprite(fontName)).pxFrameHeight + 2);
+	SetTexture(texman, "ui/combo");
 }
 
 ListDataSource* ComboBox::GetData() const

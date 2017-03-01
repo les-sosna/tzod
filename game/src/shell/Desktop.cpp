@@ -83,7 +83,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	AddFront(_tierTitle);
 
 	_background = std::make_shared<UI::Rectangle>();
-	_background->SetTexture(texman, "gui_splash", false);
+	_background->SetTexture(texman, "gui_splash");
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
 	_background->SetDrawBorder(false);
 	_background->SetBackColor(0xff505050_rgba);

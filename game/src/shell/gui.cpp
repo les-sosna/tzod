@@ -455,7 +455,6 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 
 	_skinPreview = std::make_shared<Rectangle>();
 	_skinPreview->Move(300, y);
-	_skinPreview->SetTexture(texman, nullptr, false);
 	AddFront(_skinPreview);
 
 
@@ -617,7 +616,9 @@ void EditPlayerDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture(GetManager().GetTextureManager(), ("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str(), true);
+		auto &texman = GetManager().GetTextureManager();
+		_skinPreview->SetTexture(texman, ("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
+		_skinPreview->Resize(_skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman));
 	}
 }
 
@@ -664,7 +665,6 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 
 	_skinPreview = std::make_shared<Rectangle>();
 	_skinPreview->Move(300, y);
-	_skinPreview->SetTexture(texman, nullptr, false);
 	AddFront(_skinPreview);
 
 
@@ -838,6 +838,8 @@ void EditBotDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture(GetManager().GetTextureManager(), ("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str(), true);
+		auto &texman = GetManager().GetTextureManager();
+		_skinPreview->SetTexture(texman, ("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
+		_skinPreview->Resize(_skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman));
 	}
 }

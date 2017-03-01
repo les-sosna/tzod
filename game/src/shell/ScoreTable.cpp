@@ -31,7 +31,7 @@ ScoreTable::ScoreTable(TextureManager &texman, World &world, const Deathmatch *d
   , _lang(lang)
 {
 	Resize(420, 256);
-	SetTexture(texman, "ui/list", false);
+	SetTexture(texman, "ui/list");
 	SetDrawBorder(true);
 }
 

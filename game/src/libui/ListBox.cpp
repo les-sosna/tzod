@@ -22,7 +22,7 @@ ListBox::ListBox(TextureManager &texman, ListDataSource* dataSource)
 	_scrollView->SetContent(_list);
 	SetFocus(_scrollView);
 
-	_background->SetTexture(texman, "ui/list", false);
+	_background->SetTexture(texman, "ui/list");
 	_background->SetDrawBorder(true);
 }
 

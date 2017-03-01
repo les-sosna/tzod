@@ -8,7 +8,7 @@ using namespace UI;
 
 Dialog::Dialog(TextureManager &texman)
 {
-	SetTexture(texman, "ui/window", false);
+	SetTexture(texman, "ui/window");
 	SetDrawBorder(true);
 	SetDrawBackground(true);
 }

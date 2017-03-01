@@ -35,20 +35,9 @@ float Rectangle::GetTextureHeight(TextureManager &texman) const
 	return (-1 != _texture) ? texman.GetFrameHeight(_texture, 0) : 1;
 }
 
-void Rectangle::SetTexture(TextureManager &texman, const char *tex, bool fitSize)
+void Rectangle::SetTexture(TextureManager &texman, const char *tex)
 {
-	if (tex)
-	{
-		_texture = texman.FindSprite(tex);
-		if (fitSize)
-		{
-			Resize(GetTextureWidth(texman), GetTextureHeight(texman));
-		}
-	}
-	else
-	{
-		_texture = (size_t)-1;
-	}
+	_texture = tex ? texman.FindSprite(tex) : (size_t)-1;
 }
 
 void Rectangle::SetTextureStretchMode(StretchMode stretchMode)

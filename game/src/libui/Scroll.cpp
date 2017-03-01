@@ -182,7 +182,8 @@ ScrollBarVertical::ScrollBarVertical(TextureManager &texman)
 	_btnBox->SetBackground(texman, "ui/scroll_vert", true);
 	_btnUpLeft->SetBackground(texman, "ui/scroll_up", true);
 	_btnDownRight->SetBackground(texman, "ui/scroll_down", true);
-	SetTexture(texman, "ui/scroll_back_vert", true);
+	SetTexture(texman, "ui/scroll_back_vert");
+	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 }
 
 FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
@@ -209,7 +210,8 @@ ScrollBarHorizontal::ScrollBarHorizontal(TextureManager &texman)
 	_btnBox->SetBackground(texman, "ui/scroll_hor", true);
 	_btnUpLeft->SetBackground(texman, "ui/scroll_left", true);
 	_btnDownRight->SetBackground(texman, "ui/scroll_right", true);
-	SetTexture(texman, "ui/scroll_back_hor", true);
+	SetTexture(texman, "ui/scroll_back_hor");
+	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 }
 
 FRECT ScrollBarHorizontal::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
