@@ -5,19 +5,20 @@
 
 #include <video/TextureManager.h>
 #include <loc/Language.h>
-#include <ui/Text.h>
+#include <ui/Button.h>
+#include <ui/Combo.h>
+#include <ui/DataSourceAdapters.h>
+#include <ui/Edit.h>
+#include <ui/EditableText.h>
+#include <ui/GuiManager.h>
+#include <ui/Keys.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
 #include <ui/ListSelectionBinding.h>
 #include <ui/MultiColumnListItem.h>
-#include <ui/Button.h>
 #include <ui/Scroll.h>
-#include <ui/Edit.h>
-#include <ui/EditableText.h>
-#include <ui/Combo.h>
-#include <ui/DataSourceAdapters.h>
-#include <ui/GuiManager.h>
-#include <ui/Keys.h>
+#include <ui/StackLayout.h>
+#include <ui/Text.h>
 
 #include <algorithm>
 #include <sstream>
@@ -46,42 +47,37 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	float x = 24;
 	float y = 48;
 
+	_content = std::make_shared<UI::StackLayout>();
+	_content->SetSpacing(2);
+	_content->Move(x, y);
+	_content->Resize(128, 128);
+	AddFront(_content);
+	SetFocus(_content);
+
 	text = std::make_shared<UI::Text>(texman);
-	text->Move(x, y);
 	text->SetText(ConfBind(_lang.settings_player1));
-	AddFront(text);
-	y += text->GetHeight() + 2;
+	_content->AddFront(text);
 
 	_player1 = std::make_shared<UI::ComboBox>(manager, texman, &_profilesDataSource);
-	_player1->Move(x, y);
-	_player1->Resize(128);
 	_player1->GetList()->Resize(128, 52);
-	AddFront(_player1);
-	y += _player1->GetHeight() + 5;
+	_content->AddFront(_player1);
 
 	text = std::make_shared<UI::Text>(texman);
-	text->Move(24, y);
 	text->SetText(ConfBind(_lang.settings_player2));
-	AddFront(text);
-	y += text->GetHeight() + 2;
+	_content->AddFront(text);
 
 	_player2 = std::make_shared<UI::ComboBox>(manager, texman, &_profilesDataSource);
-	_player2->Move(x, y);
-	_player2->Resize(128);
 	_player2->GetList()->Resize(128, 52);
-	AddFront(_player2);
-	y += _player2->GetHeight() + 5;
+	_content->AddFront(_player2);
 
 	text = std::make_shared<UI::Text>(texman);
-	text->Move(x, y);
 	text->SetText(ConfBind(_lang.settings_profiles));
-	AddFront(text);
-	y += text->GetHeight() + 2;
+	_content->AddFront(text);
 
 	_profiles = std::make_shared<UI::ListBox>(texman, &_profilesDataSource);
-	_profiles->Move(x, y);
 	_profiles->Resize(128, 52);
-	AddFront(_profiles);
+	_content->AddFront(_profiles);
+	_content->SetFocus(_profiles);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 
 	auto btn = std::make_shared<UI::Button>(texman);
@@ -112,38 +108,41 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	x = 200;
 	y = 48;
 
+	_content2 = std::make_shared<UI::StackLayout>();
+	_content2->SetSpacing(2);
+	_content2->Move(x, y);
+	_content2->Resize(128, 128);
+	AddFront(_content2);
+	SetFocus(_content2);
+
 	_showFps = std::make_shared<UI::CheckBox>(manager, texman);
-	_showFps->Move(x, y);
 	_showFps->SetText(_lang.settings_show_fps.Get());
 	_showFps->SetCheck(_conf.ui_showfps.Get());
 	_showFps->eventClick = [=]
 	{
 		_conf.ui_showfps.Set(_showFps->GetCheck());
 	};
-	AddFront(_showFps);
-	y += _showFps->GetHeight();
+	_content2->AddFront(_showFps);
 
 	_showTime = std::make_shared<UI::CheckBox>(manager, texman);
-	_showTime->Move(x, y);
 	_showTime->SetText(_lang.settings_show_time.Get());
 	_showTime->SetCheck(_conf.ui_showtime.Get());
 	_showTime->eventClick = [=]
 	{
 		_conf.ui_showtime.Set(_showTime->GetCheck());
 	};
-	AddFront(_showTime);
-	y += _showTime->GetHeight();
+	_content2->AddFront(_showTime);
 
 	_showNames = std::make_shared<UI::CheckBox>(manager, texman);
-	_showNames->Move(x, y);
 	_showNames->SetText(_lang.settings_show_names.Get());
 	_showNames->SetCheck(_conf.g_shownames.Get());
 	_showNames->eventClick = [=]
 	{
 		_conf.g_shownames.Set(_showNames->GetCheck());
 	};
-	AddFront(_showNames);
-	y += _showNames->GetHeight();
+	_content2->AddFront(_showNames);
+
+	y += 100;
 
 	text = std::make_shared<UI::Text>(texman);
 	text->Move(x + 50, y += 20);
@@ -178,7 +177,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_initialVolumeMusic = _conf.s_musicvolume.GetInt();
 
 	_profiles->GetList()->SetCurSel(0, true);
-	SetFocus(_profiles);
+	
 }
 
 SettingsDlg::~SettingsDlg()
@@ -243,7 +242,7 @@ void SettingsDlg::OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int 
 	if( _resultOK == result )
 	{
 		UpdateProfilesList();
-		SetFocus(_profiles);
+		SetFocus(_content);
 	}
 	UnlinkChild(*sender);
 }

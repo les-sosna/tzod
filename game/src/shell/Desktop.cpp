@@ -673,7 +673,6 @@ void Desktop::OnGameContextChanged()
 			_lang,
 			_logger,
 			std::move(campaignControlCommands));
-		_game->Resize(GetWidth(), GetHeight());
 		AddBack(_game);
 
 		int currentTier = GetCurrentTier(_conf, _dmCampaign);
@@ -694,7 +693,6 @@ void Desktop::OnGameContextChanged()
 			_conf,
 			_lang,
 			_logger);
-		_editor->Resize(GetWidth(), GetHeight());
 		_editor->SetVisible(false);
 		AddBack(_editor);
 

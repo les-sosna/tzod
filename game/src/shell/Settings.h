@@ -15,6 +15,7 @@ namespace UI
 	class Edit;
 	class ListBox;
 	class ScrollBarHorizontal;
+	class StackLayout;
 	template<class, class> class ListAdapter;
 	enum class Key;
 }
@@ -24,6 +25,9 @@ class SettingsDlg
 	, public UI::Managerful
 {
 	UI::ListDataSourceDefault _profilesDataSource;
+
+	std::shared_ptr<UI::StackLayout> _content;
+	std::shared_ptr<UI::StackLayout> _content2;
 
 	std::shared_ptr<UI::ComboBox> _player1;
 	std::shared_ptr<UI::ComboBox> _player2;

@@ -29,9 +29,7 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_btn);
 
-	auto fontName = "font_small";
 	SetDrawBorder(true);
-	Rectangle::Resize(GetWidth(), texman.GetSpriteInfo(texman.FindSprite(fontName)).pxFrameHeight + 2);
 	SetTexture(texman, "ui/combo");
 }
 
@@ -144,6 +142,19 @@ FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 	}
 
 	return Window::GetChildRect(texman, lc, dc, child);
+}
+
+vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+{
+	DataContext itemDC;
+	{
+		int sel = _list->GetList()->GetCurSel();
+		itemDC.SetItemIndex(sel != -1 ? sel : 0);
+		itemDC.SetDataContext(_list->GetList()->GetData());
+	}
+	vec2d itemSize = _list->GetList()->GetItemTemplate()->GetContentSize(texman, itemDC, scale);
+	vec2d btnSize = ToPx(_btn->GetSize(), scale);
+	return vec2d{ itemSize.x + btnSize.x, std::max(itemSize.y, btnSize.y) };
 }
 
 void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
