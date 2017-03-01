@@ -137,8 +137,8 @@ FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 	}
 	else if (_btn.get() == &child)
 	{
-		float top = std::floor((size.y - child.GetHeight() * scale) / 2);
-		return FRECT{ size.x - std::floor(child.GetWidth() * scale), top, size.x, top + std::floor(child.GetHeight() * scale) };
+		float top = std::floor((size.y - _btn->GetHeight() * scale) / 2);
+		return FRECT{ size.x - std::floor(_btn->GetWidth() * scale), top, size.x, top + std::floor(_btn->GetHeight() * scale) };
 	}
 
 	return Window::GetChildRect(texman, lc, dc, child);

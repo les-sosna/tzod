@@ -60,7 +60,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 
 	_fileName = std::make_shared<UI::Edit>(manager, texman);
 	_fileName->Move(20, 385);
-	_fileName->Resize(472, _fileName->GetHeight());
+	_fileName->SetWidth(472);
 	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 

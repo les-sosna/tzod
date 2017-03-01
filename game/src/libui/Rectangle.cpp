@@ -27,17 +27,27 @@ void Rectangle::SetBorderColor(std::shared_ptr<RenderData<SpriteColor>> color)
 
 float Rectangle::GetTextureWidth(TextureManager &texman) const
 {
-	return (-1 != _texture) ? texman.GetFrameWidth(_texture, 0) : 1;
+	return HasTexture() ? texman.GetFrameWidth(GetTextureId(texman), 0) : 1;
 }
 
 float Rectangle::GetTextureHeight(TextureManager &texman) const
 {
-	return (-1 != _texture) ? texman.GetFrameHeight(_texture, 0) : 1;
+	return HasTexture() ? texman.GetFrameHeight(GetTextureId(texman), 0) : 1;
 }
 
 void Rectangle::SetTexture(TextureManager &texman, const char *tex)
 {
-	_texture = tex ? texman.FindSprite(tex) : (size_t)-1;
+	_textureName = tex ? tex : std::string();
+	_cachedTextureId = tex ? -2 : -1;
+}
+
+size_t Rectangle::GetTextureId(TextureManager &texman) const
+{
+	if (-2 == _cachedTextureId)
+	{
+		_cachedTextureId = texman.FindSprite(_textureName);
+	}
+	return _cachedTextureId;
 }
 
 void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
@@ -47,26 +57,27 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 
 void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
-	if (-1 != _texture)
+	if (HasTexture() && (_drawBackground || _drawBorder))
 	{
 		FRECT dst = MakeRectWH(lc.GetPixelSize());
 		unsigned int frame = _frame ? _frame->GetValue(dc, sc) : 0;
+		size_t texture = GetTextureId(texman);
 
 		if (_drawBackground)
 		{
-			float border = _drawBorder ? texman.GetBorderSize(_texture) : 0.f;
+			float border = _drawBorder ? texman.GetBorderSize(texture) : 0.f;
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				rc.DrawSprite(client, _texture, _backColor->GetValue(dc, sc), frame);
+				rc.DrawSprite(client, texture, _backColor->GetValue(dc, sc), frame);
 			}
 			else
 			{
 				RectRB clip = FRectToRect(client);
 				rc.PushClippingRect(clip);
 
-				float frameWidth = texman.GetFrameWidth(_texture, frame);
-				float frameHeight = texman.GetFrameHeight(_texture, frame);
+				float frameWidth = texman.GetFrameWidth(texture, frame);
+				float frameHeight = texman.GetFrameHeight(texture, frame);
 
 				if (WIDTH(client) * frameHeight > HEIGHT(client) * frameWidth)
 				{
@@ -81,14 +92,15 @@ void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const Layout
 					client.right = client.left + newWidth;
 				}
 
-				rc.DrawSprite(client, _texture, _backColor->GetValue(dc, sc), frame);
+				rc.DrawSprite(client, texture, _backColor->GetValue(dc, sc), frame);
 
 				rc.PopClippingRect();
 			}
 		}
+
 		if (_drawBorder)
 		{
-			rc.DrawBorder(dst, _texture, _borderColor->GetValue(dc, sc), frame);
+			rc.DrawBorder(dst, texture, _borderColor->GetValue(dc, sc), frame);
 		}
 	}
 }

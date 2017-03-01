@@ -37,8 +37,12 @@ namespace UI
 		std::shared_ptr<RenderData<SpriteColor>> _backColor;
 		std::shared_ptr<RenderData<SpriteColor>> _borderColor;
 		std::shared_ptr<RenderData<unsigned int>> _frame;
-		size_t _texture = -1;
 		StretchMode _textureStretchMode = StretchMode::Stretch;
+		std::string _textureName;
+		mutable size_t _cachedTextureId = -1;
+
+		size_t GetTextureId(TextureManager &texman) const;
+		bool HasTexture() const { return -1 != _cachedTextureId; }
 
 		struct
 		{
