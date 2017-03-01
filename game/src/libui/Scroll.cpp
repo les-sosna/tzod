@@ -94,9 +94,12 @@ float ScrollBarBase::GetLineSize() const
 
 void ScrollBarBase::SetElementTextures(TextureManager &texman, const char *slider, const char *upleft, const char *downright)
 {
-	_btnBox->SetBackground(texman, slider, true);
-	_btnUpLeft->SetBackground(texman, upleft, true);
-	_btnDownRight->SetBackground(texman, downright, true);
+	_btnBox->SetBackground(slider);
+	_btnBox->AlignToBackground(texman);
+	_btnUpLeft->SetBackground(upleft);
+	_btnUpLeft->AlignToBackground(texman);
+	_btnDownRight->SetBackground(downright);
+	_btnDownRight->AlignToBackground(texman);
 }
 
 void ScrollBarBase::OnBoxMouseDown(float x, float y)
@@ -179,9 +182,12 @@ FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &l
 ScrollBarVertical::ScrollBarVertical(TextureManager &texman)
 	: ScrollBarBase(texman)
 {
-	_btnBox->SetBackground(texman, "ui/scroll_vert", true);
-	_btnUpLeft->SetBackground(texman, "ui/scroll_up", true);
-	_btnDownRight->SetBackground(texman, "ui/scroll_down", true);
+	_btnBox->SetBackground("ui/scroll_vert");
+	_btnBox->AlignToBackground(texman);
+	_btnUpLeft->SetBackground("ui/scroll_up");
+	_btnUpLeft->AlignToBackground(texman);
+	_btnDownRight->SetBackground("ui/scroll_down");
+	_btnDownRight->AlignToBackground(texman);
 	SetTexture("ui/scroll_back_vert");
 	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 }
@@ -207,9 +213,12 @@ FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContex
 ScrollBarHorizontal::ScrollBarHorizontal(TextureManager &texman)
 	: ScrollBarBase(texman)
 {
-	_btnBox->SetBackground(texman, "ui/scroll_hor", true);
-	_btnUpLeft->SetBackground(texman, "ui/scroll_left", true);
-	_btnDownRight->SetBackground(texman, "ui/scroll_right", true);
+	_btnBox->SetBackground("ui/scroll_hor");
+	_btnBox->AlignToBackground(texman);
+	_btnUpLeft->SetBackground("ui/scroll_left");
+	_btnUpLeft->AlignToBackground(texman);
+	_btnDownRight->SetBackground("ui/scroll_right");
+	_btnDownRight->AlignToBackground(texman);
 	SetTexture("ui/scroll_back_hor");
 	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
 }

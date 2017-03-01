@@ -25,7 +25,8 @@ ComboBox::ComboBox(LayoutManager &manager, TextureManager &texman, ListDataSourc
 	AddFront(_list);
 
 	_btn = std::make_shared<Button>(texman);
-	_btn->SetBackground(texman, "ui/scroll_down", true);
+	_btn->SetBackground("ui/scroll_down");
+	_btn->AlignToBackground(texman);
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_btn);
 
@@ -60,14 +61,14 @@ void ComboBox::DropList()
 {
 	if( _list->GetVisible() )
 	{
-		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
+		_btn->SetBackground("ui/scroll_down");
 		_list->SetVisible(false);
 		_list->GetList()->SetCurSel(GetCurSel());
 		SetFocus(nullptr);
 	}
 	else
 	{
-		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_up", false);
+		_btn->SetBackground("ui/scroll_up");
 		_list->SetVisible(true);
 //		_list->SetScrollPos((float) GetCurSel());
 		SetFocus(_list);
@@ -80,7 +81,7 @@ void ComboBox::OnClickItem(int index)
 	{
 		_curSel = index;
 		_list->SetVisible(false);
-		_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
+		_btn->SetBackground("ui/scroll_down");
 		SetFocus(nullptr);
 
 		if( eventChangeCurSel )
@@ -92,7 +93,7 @@ void ComboBox::OnListLostFocus()
 {
 	_list->GetList()->SetCurSel(_curSel); // cancel changes
 	_list->SetVisible(false);
-	_btn->SetBackground(GetManager().GetTextureManager(), "ui/scroll_down", false);
+	_btn->SetBackground("ui/scroll_down");
 }
 
 bool ComboBox::OnKeyPressed(InputContext &ic, Key key)

@@ -56,10 +56,12 @@ class Button : public ButtonBase
 public:
 	explicit Button(TextureManager &texman);
 
-	void SetBackground(TextureManager &texman, const char *tex, bool fitSize);
+	void SetBackground(const char *tex);
 	void SetIcon(TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 	void SetFont(TextureManager &texman, const char *fontName);
+
+	void AlignToBackground(TextureManager &texman);
 
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;

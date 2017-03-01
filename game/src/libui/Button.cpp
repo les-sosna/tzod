@@ -118,7 +118,8 @@ Button::Button(TextureManager &texman)
 	_text->SetFontColor(c_textColor);
 
 	SetFont(texman, "font_small");
-	SetBackground(texman, "ui/button", true);
+	SetBackground("ui/button");
+	AlignToBackground(texman);
 }
 
 void Button::SetFont(TextureManager &texman, const char *fontName)
@@ -155,13 +156,14 @@ void Button::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 	_text->SetText(std::move(text));
 }
 
-void Button::SetBackground(TextureManager &texman, const char *tex, bool fitSize)
+void Button::SetBackground(const char *tex)
 {
 	_background->SetTexture(tex);
-	if (fitSize)
-	{
-		Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
-	}
+}
+
+void Button::AlignToBackground(TextureManager &texman)
+{
+	Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
 }
 
 FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
