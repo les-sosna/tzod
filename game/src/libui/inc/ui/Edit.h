@@ -7,6 +7,7 @@ namespace UI
 {
 class EditableText;
 class Rectangle;
+class ScrollView;
 
 class Edit
 	: public Window
@@ -26,6 +27,7 @@ public:
 
 private:
 	std::shared_ptr<Rectangle> _background;
+	std::shared_ptr<ScrollView> _scrollView;
 	std::shared_ptr<EditableText> _editable;
 
 	// PointerSink

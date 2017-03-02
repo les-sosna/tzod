@@ -19,12 +19,10 @@ EditableText::EditableText(LayoutManager &manager, TextureManager &texman)
 	: Managerful(manager)
 	, _selStart(-1)
 	, _selEnd(-1)
-	, _offset(0)
 	, _font(texman.FindSprite("font_small"))
 	, _cursor(texman.FindSprite("ui/editcursor"))
 	, _selection(texman.FindSprite("ui/editsel"))
 {
-	Resize(100, texman.GetCharHeight(_font) + 2);
 	SetClipChildren(true);
 	SetSel(0, 0);
 }
@@ -64,25 +62,13 @@ float EditableText::GetFloat() const
 	return result;
 }
 
-void EditableText::SetSel(int begin, int end, LayoutContext *optionalLC)
+void EditableText::SetSel(int begin, int end)
 {
 	assert(begin >= -1 && end >= -1);
 
 	_selStart = begin <= GetTextLength() ? begin : -1;
 	_selEnd = end <= GetTextLength() ? end : -1;
 	_lastCursortime = GetManager().GetTime();
-
-	if (optionalLC)
-	{
-		float pxWidth = optionalLC->GetPixelSize().x;
-		float w = std::floor(GetManager().GetTextureManager().GetFrameWidth(_font, 0) * optionalLC->GetScale()) - 1;
-		float cpos = GetSelEnd() * w;
-		const float pxScrollThreshold = 10 * optionalLC->GetScale();
-		if (cpos - (float)(_offset * w) > pxWidth - pxScrollThreshold || cpos - (float)(_offset * w) < pxScrollThreshold)
-		{
-			_offset = size_t(std::max<float>(0, cpos - pxWidth / 2) / w);
-		}
-	}
 }
 
 int EditableText::GetSelStart() const
@@ -112,13 +98,13 @@ int EditableText::GetSelMax() const
 
 void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
 {
-	float pxCharWidth = std::floor((texman.GetFrameWidth(_font, 0) - 1) * lc.GetScale());
+	float pxCharWidth = ToPx(texman.GetCharWidth(_font), lc);
 
 	// selection
 	if (GetSelLength() && ic.GetFocused())
 	{
 		FRECT rt;
-		rt.left = 1 + (GetSelMin() - (float)_offset) * pxCharWidth;
+		rt.left = 1 + GetSelMin() * pxCharWidth;
 		rt.top = 0;
 		rt.right = rt.left + pxCharWidth * GetSelLength() - 1;
 		rt.bottom = rt.top + lc.GetPixelSize().y;
@@ -127,21 +113,16 @@ void EditableText::Draw(const DataContext &dc, const StateContext &sc, const Lay
 
 	// text
 	SpriteColor c = lc.GetEnabledCombined() ? 0xffffffff : 0xaaaaaaaa;
-	if (_offset < GetSelMin())
-	{
-		rc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), _font, c, GetText().substr(_offset, GetSelMin() - _offset));
-	}
-	rc.DrawBitmapText(vec2d{ (GetSelMin() - _offset) * pxCharWidth, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
-	rc.DrawBitmapText(vec2d{ (GetSelMax() - _offset) * pxCharWidth, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
+	rc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), _font, c, GetText().substr(0, GetSelMin()));
+	rc.DrawBitmapText(vec2d{ GetSelMin() * pxCharWidth, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
+	rc.DrawBitmapText(vec2d{ GetSelMax() * pxCharWidth, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
 
 	float time = GetManager().GetTime() - _lastCursortime;
 
 	// cursor
 	if (ic.GetFocused() && fmodf(time, 1.0f) < 0.5f)
 	{
-		FRECT rt = MakeRectWH(
-			vec2d{ (GetSelEnd() - (float)_offset) * pxCharWidth, 0 },
-			vec2d{ std::floor(texman.GetFrameWidth(_cursor, 0) * lc.GetScale()), lc.GetPixelSize().y });
+		FRECT rt = MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ ToPx(texman.GetFrameWidth(_cursor, 0), lc), lc.GetPixelSize().y });
 		rc.DrawSprite(rt, _cursor, 0xffffffff, 0);
 	}
 }
@@ -314,8 +295,6 @@ void EditableText::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &te
 
 KeyboardSink* EditableText::GetKeyboardSink()
 {
-	// FIXME: gross hack
-	_lastCursortime = GetManager().GetTime();
 	return this;
 }
 
@@ -335,7 +314,7 @@ void EditableText::SetText(const std::string &text)
 int EditableText::HitTest(TextureManager &texman, vec2d px, float scale) const
 {
 	float pxCharWidth = std::floor((texman.GetFrameWidth(_font, 0) - 1) * scale);
-	return std::min(GetTextLength(), std::max(0, int(px.x / pxCharWidth)) + (int)_offset);
+	return std::min(GetTextLength(), std::max(0, int(px.x / pxCharWidth)));
 }
 
 void EditableText::Paste(const IClipboard &clipboard)
@@ -362,6 +341,5 @@ void EditableText::Copy(IClipboard &clipboard) const
 
 vec2d EditableText::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-	return ToPx(vec2d{ 0, texman.GetCharHeight(_font) }, scale);
+	return ToPx(vec2d{ texman.GetCharWidth(_font) * GetTextLength() + 20, texman.GetCharHeight(_font) }, scale);
 }
-

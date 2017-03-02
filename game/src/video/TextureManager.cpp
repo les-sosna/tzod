@@ -401,3 +401,8 @@ float TextureManager::GetCharHeight(size_t fontTexture) const
 	return GetSpriteInfo(fontTexture).pxFrameHeight;
 }
 
+float TextureManager::GetCharWidth(size_t fontTexture) const
+{
+	return GetSpriteInfo(fontTexture).pxFrameWidth - 1;
+}
+

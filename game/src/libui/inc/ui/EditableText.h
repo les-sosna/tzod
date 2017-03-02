@@ -28,7 +28,7 @@ namespace UI
 		void  SetFloat(float value);
 		float GetFloat() const;
 
-		void SetSel(int begin, int end, LayoutContext *optionalLC = nullptr); // -1 means end of string
+		void SetSel(int begin, int end); // -1 means end of string
 		int GetSelStart() const;
 		int GetSelEnd() const;
 		int GetSelMin() const;
@@ -51,8 +51,7 @@ namespace UI
 		std::string _text;
 		int   _selStart;
 		int   _selEnd;
-		int   _offset;
-		float _lastCursortime;
+		float _lastCursortime = 0;
 		size_t _font;
 		size_t _cursor;
 		size_t _selection;

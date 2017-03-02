@@ -50,6 +50,7 @@ public:
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix) const;
 
 	float GetCharHeight(size_t fontTexture) const;
+	float GetCharWidth(size_t fontTexture) const;
 
 private:
 	IRender &_render;
