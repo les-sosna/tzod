@@ -278,7 +278,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	text->SetText(ConfBind(_lang.profile_name));
 	AddFront(text);
 
-	_nameEdit = std::make_shared<UI::Edit>(texman);
+	_nameEdit = std::make_shared<UI::Edit>();
 	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
 	_nameEdit->GetEditable()->SetText(_nameOrig);

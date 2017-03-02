@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 #include "Window.h"
 
 class TextureManager;
@@ -14,7 +15,7 @@ namespace UI
 		, private TextSink
 	{
 	public:
-		explicit EditableText(TextureManager &texman);
+		EditableText();
 
 		int GetTextLength() const;
 
@@ -48,11 +49,11 @@ namespace UI
 
 	private:
 		std::string _text;
-		int   _selStart;
-		int   _selEnd;
-		size_t _font;
-		size_t _cursor;
-		size_t _selection;
+		int _selStart = 0;
+		int _selEnd = 0;
+		Texture _font = "font_small";
+		Texture _cursor = "ui/editcursor";
+		Texture _selection = "ui/editsel";
 
 		int HitTest(TextureManager &texman, vec2d px, float scale) const;
 

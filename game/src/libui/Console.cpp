@@ -57,7 +57,7 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
   , _echo(true)
   , _autoScroll(true)
 {
-	_input = std::make_shared<Edit>(texman);
+	_input = std::make_shared<Edit>();
 	AddFront(_input);
 	SetFocus(_input);
 	_scroll = std::make_shared<ScrollBarVertical>(texman);

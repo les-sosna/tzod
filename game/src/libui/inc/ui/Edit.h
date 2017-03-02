@@ -15,7 +15,7 @@ class Edit
 	, private StateGen
 {
 public:
-	explicit Edit(TextureManager &texman);
+	Edit();
 
 	const std::shared_ptr<EditableText>& GetEditable() const { return _editable; }
 

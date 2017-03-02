@@ -56,7 +56,7 @@ GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, Lang
 	text->SetText(ConfBind(lang.get_file_name_title));
 	AddFront(text);
 
-	_fileName = std::make_shared<UI::Edit>(texman);
+	_fileName = std::make_shared<UI::Edit>();
 	_fileName->Move(20, 385);
 	_fileName->SetWidth(472);
 	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
