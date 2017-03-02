@@ -11,9 +11,8 @@
 #include <sstream>
 #include <iomanip>
 
-FpsCounter::FpsCounter(UI::LayoutManager &manager, TextureManager &texman, float x, float y, enumAlignText align, AppState &appState)
-  : UI::Text(texman)
-  , UI::Managerful(manager)
+FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState)
+  : UI::Managerful(manager)
   , _nSprites(0)
   , _nLights(0)
   , _nBatches(0)

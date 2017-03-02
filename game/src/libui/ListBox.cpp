@@ -17,7 +17,7 @@ ListBox::ListBox(TextureManager &texman, ListDataSource* dataSource)
 	AddFront(_background);
 	AddFront(_scrollView);
 
-	_list->SetItemTemplate(std::make_shared<UI::MultiColumnListItem>(texman));
+	_list->SetItemTemplate(std::make_shared<UI::MultiColumnListItem>());
 
 	_scrollView->SetContent(_list);
 	SetFocus(_scrollView);

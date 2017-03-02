@@ -7,23 +7,6 @@
 
 using namespace UI;
 
-Text::Text(TextureManager &texman)
-  : _align(alignTextLT)
-  , _fontTexture(0)
-{
-	SetFont(texman, "font_small");
-}
-
-void Text::SetAlign(enumAlignText align)
-{
-	_align = align;
-}
-
-void Text::SetFont(TextureManager &texman, const char *fontName)
-{
-	_fontTexture = texman.FindSprite(fontName);
-}
-
 void Text::SetFontColor(std::shared_ptr<RenderData<SpriteColor>> color)
 {
 	_fontColor = std::move(color);
@@ -36,9 +19,9 @@ void Text::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 
 void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	if (_text)
+	if (_text && !_fontTexture.Empty())
 	{
-		rc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture, _fontColor ? _fontColor->GetValue(dc, sc) : 0xffffffff, _text->GetValue(dc), _align);
+		rc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture.GetTextureId(texman), _fontColor ? _fontColor->GetValue(dc, sc) : 0xffffffff, _text->GetValue(dc), _align);
 	}
 }
 
@@ -66,8 +49,8 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	{
 		maxline = text.size();
 	}
-	float w = std::floor(texman.GetFrameWidth(_fontTexture, 0) * scale);
-	float h = std::floor(texman.GetFrameHeight(_fontTexture, 0) * scale);
+	float w = std::floor(texman.GetFrameWidth(_fontTexture.GetTextureId(texman), 0) * scale);
+	float h = std::floor(texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0) * scale);
 	return vec2d{ (w - 1) * (float)maxline, h * (float)lineCount };
 }
 

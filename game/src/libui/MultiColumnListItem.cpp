@@ -8,7 +8,7 @@
 
 using namespace UI;
 
-MultiColumnListItem::MultiColumnListItem(TextureManager &texman)
+MultiColumnListItem::MultiColumnListItem()
 	: _selection(std::make_shared<Rectangle>())
 {
 	static const auto selectionFillColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
@@ -21,10 +21,10 @@ MultiColumnListItem::MultiColumnListItem(TextureManager &texman)
 	_selection->SetBackColor(selectionFillColorMap);
 	_selection->SetBorderColor(selectionBorderColorMap);
 
-	EnsureColumn(texman, 0u, 0.f);
+	EnsureColumn(0u, 0.f);
 }
 
-void MultiColumnListItem::EnsureColumn(TextureManager &texman, unsigned int columnIndex, float offset)
+void MultiColumnListItem::EnsureColumn(unsigned int columnIndex, float offset)
 {
 	static const auto textColorMap = std::make_shared<UI::StateBinding<SpriteColor>>(0xffffffff, // default
 		UI::StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb },{ "Hover", 0xffccccff },{ "Focused", 0xff000000 } });
@@ -35,13 +35,13 @@ void MultiColumnListItem::EnsureColumn(TextureManager &texman, unsigned int colu
 	if (!_columns[columnIndex])
 	{
 		// TODO: reuse the text object
-		_columns[columnIndex] = std::make_shared<UI::Text>(texman);
+		_columns[columnIndex] = std::make_shared<UI::Text>();
 		AddFront(_columns[columnIndex]);
 	}
 
 	_columns[columnIndex]->Move(offset, 0);
 	_columns[columnIndex]->SetText(std::make_shared<ListDataSourceBinding>(columnIndex));
-	_columns[columnIndex]->SetFont(texman, "font_small");
+	_columns[columnIndex]->SetFont("font_small");
 	_columns[columnIndex]->SetFontColor(textColorMap);
 }
 

@@ -19,21 +19,21 @@ MainMenuDlg::MainMenuDlg(TextureManager &texman,
 	std::shared_ptr<UI::Button> button;
 
 	button = std::make_shared<UI::Button>(texman);
-	button->SetFont(texman, "font_default");
+	button->SetFont("font_default");
 	button->SetText(ConfBind(_lang.single_player_btn));
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.newDM;
 	AddFront(button);
 
 	button = std::make_shared<UI::Button>(texman);
-	button->SetFont(texman, "font_default");
+	button->SetFont("font_default");
 	button->SetText(ConfBind(_lang.editor_btn));
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.openMap;
 	AddFront(button);
 
 	button = std::make_shared<UI::Button>(texman);
-	button->SetFont(texman, "font_default");
+	button->SetFont("font_default");
 	button->SetText(ConfBind(_lang.settings_btn));
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.gameSettings;

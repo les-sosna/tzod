@@ -77,9 +77,9 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	if (!_globL)
 		throw std::bad_alloc();
 
-	_tierTitle = std::make_shared<UI::Text>(texman);
+	_tierTitle = std::make_shared<UI::Text>();
 	_tierTitle->SetAlign(alignTextCC);
-	_tierTitle->SetFont(texman, "font_default");
+	_tierTitle->SetFont("font_default");
 	AddFront(_tierTitle);
 
 	_background = std::make_shared<UI::Rectangle>();
@@ -98,7 +98,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 	_con->SetHistory(&_history);
 
-	_fps = std::make_shared<FpsCounter>(manager, texman, 0.f, 0.f, alignTextLB, GetAppState());
+	_fps = std::make_shared<FpsCounter>(manager, 0.f, 0.f, alignTextLB, GetAppState());
 	AddFront(_fps);
 	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();

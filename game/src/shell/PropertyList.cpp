@@ -131,7 +131,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			group->SetSpacing(2);
 			_psheet->AddFront(group);
 
-			auto label = std::make_shared<UI::Text>(texman);
+			auto label = std::make_shared<UI::Text>();
 			label->SetText(std::make_shared<UI::StaticText>(prop->GetName()));
 			group->AddFront(label);
 
@@ -193,7 +193,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 
 			if (!labelTextBuffer.str().empty())
 			{
-				auto typeRange = std::make_shared<UI::Text>(texman);
+				auto typeRange = std::make_shared<UI::Text>();
 				typeRange->SetText(std::make_shared<UI::StaticText>(labelTextBuffer.str()));
 				group->AddFront(typeRange);
 			}

@@ -168,7 +168,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _worldView(worldView)
   , _quickActions(logger, _world)
 {
-	_help = std::make_shared<UI::Text>(texman);
+	_help = std::make_shared<UI::Text>();
 	_help->Move(10, 10);
 	_help->SetText(ConfBind(_lang.f1_help_editor));
 	_help->SetAlign(alignTextLT);
@@ -200,7 +200,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	}
 	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
 
-	_layerDisp = std::make_shared<UI::Text>(texman);
+	_layerDisp = std::make_shared<UI::Text>();
 	_layerDisp->SetAlign(alignTextRT);
 	_layerDisp->SetText(std::make_shared<LayerDisplay>(_lang, _typeSelector->GetList()));
 	AddFront(_layerDisp);

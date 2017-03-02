@@ -135,7 +135,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 		_scoreAndControls->AddFront(_campaignControls);
 	}
 
-	_timerDisplay = std::make_shared<UI::Text>(texman);
+	_timerDisplay = std::make_shared<UI::Text>();
 	_timerDisplay->SetAlign(alignTextRB);
 	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext.GetWorld(), deathmatch));
 	AddFront(_timerDisplay);

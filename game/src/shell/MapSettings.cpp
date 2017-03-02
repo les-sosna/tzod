@@ -29,11 +29,11 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	Resize(512, 512);
 
 	// Title
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(lang.map_title));
 	text->SetAlign(alignTextCT);
-	text->SetFont(texman, "font_default");
+	text->SetFont("font_default");
 	AddFront(text);
 
 	float x1 = 20;
@@ -41,7 +41,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 
 	float y = 32;
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_author));
 	AddFront(text);
@@ -52,7 +52,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	_author->GetEditable()->SetText(world._infoAuthor);
 	AddFront(_author);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_email));
 	AddFront(text);
@@ -63,7 +63,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	_email->GetEditable()->SetText(world._infoEmail);
 	AddFront(_email);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_url));
 	AddFront(text);
@@ -74,7 +74,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	_url->GetEditable()->SetText(world._infoUrl);
 	AddFront(_url);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_desc));
 	AddFront(text);
@@ -85,7 +85,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	_desc->GetEditable()->SetText(world._infoDesc);
 	AddFront(_url);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_init_script));
 	AddFront(text);
@@ -96,7 +96,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	_onInit->GetEditable()->SetText(world._infoOnInit);
 	AddFront(_onInit);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 20);
 	text->SetText(ConfBind(lang.map_theme));
 	AddFront(text);

@@ -17,14 +17,14 @@ CampaignControls::CampaignControls(TextureManager &texman, const Deathmatch &dea
 
 	auto replay = std::make_shared<UI::Button>(texman);
 	replay->Resize(200, 50);
-	replay->SetFont(texman, "font_default");
+	replay->SetFont("font_default");
 	replay->SetText("Replay"_txt);
 	replay->eventClick = std::move(commands.replayCurrent);
 	_content->AddFront(replay);
 
 	auto next = std::make_shared<UI::Button>(texman);
 	next->Resize(200, 50);
-	next->SetFont(texman, "font_default");
+	next->SetFont("font_default");
 	next->SetText("Next"_txt);
 	next->eventClick = std::move(commands.playNext);
 	_content->AddFront(next);

@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 #include "Window.h"
 #include <functional>
 
@@ -59,7 +60,7 @@ public:
 	void SetBackground(const char *tex);
 	void SetIcon(TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
-	void SetFont(TextureManager &texman, const char *fontName);
+	void SetFont(Texture fontTexture);
 
 	void AlignToBackground(TextureManager &texman);
 
@@ -77,9 +78,9 @@ private:
 class TextButton : public ButtonBase
 {
 public:
-	explicit TextButton(TextureManager &texman);
+	TextButton();
 
-	void SetFont(TextureManager &texman, const char *fontName);
+	void SetFont(Texture fontTexture);
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 
 	// Window

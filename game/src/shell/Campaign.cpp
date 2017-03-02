@@ -16,11 +16,11 @@ NewCampaignDlg::NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangC
 {
 	Resize(512, 400);
 
-	auto t = std::make_shared<UI::Text>(texman);
+	auto t = std::make_shared<UI::Text>();
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(ConfBind(lang.campaign_title));
 	t->SetAlign(alignTextCT);
-	t->SetFont(texman, "font_default");
+	t->SetFont("font_default");
 	AddFront(t);
 
 	_files = std::make_shared<DefaultListBox>(texman);

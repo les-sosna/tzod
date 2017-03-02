@@ -107,7 +107,7 @@ static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int
 
 Button::Button(TextureManager &texman)
 	: _background(std::make_shared<Rectangle>())
-	, _text(std::make_shared<Text>(texman))
+	, _text(std::make_shared<Text>())
 {
 	AddFront(_background);
 	AddFront(_text);
@@ -117,14 +117,13 @@ Button::Button(TextureManager &texman)
 	_text->SetAlign(alignTextCC);
 	_text->SetFontColor(c_textColor);
 
-	SetFont(texman, "font_small");
 	SetBackground("ui/button");
 	AlignToBackground(texman);
 }
 
-void Button::SetFont(TextureManager &texman, const char *fontName)
+void Button::SetFont(Texture fontTexture)
 {
-	_text->SetFont(texman, fontName);
+	_text->SetFont(std::move(fontTexture));
 }
 
 void Button::SetIcon(TextureManager &texman, const char *spriteName)
@@ -207,8 +206,8 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 ///////////////////////////////////////////////////////////////////////////////
 // TextButton
 
-TextButton::TextButton(TextureManager &texman)
-	: _text(std::make_shared<Text>(texman))
+TextButton::TextButton()
+	: _text(std::make_shared<Text>())
 {
 	AddFront(_text);
 	_text->SetFontColor(c_textColor);
@@ -219,9 +218,9 @@ vec2d TextButton::GetContentSize(TextureManager &texman, const DataContext &dc, 
 	return _text->GetContentSize(texman, dc, scale);
 }
 
-void TextButton::SetFont(TextureManager &texman, const char *fontName)
+void TextButton::SetFont(Texture fontTexture)
 {
-	_text->SetFont(texman, fontName);
+	_text->SetFont(std::move(fontTexture));
 }
 
 void TextButton::SetText(std::shared_ptr<LayoutData<const std::string&>> text)

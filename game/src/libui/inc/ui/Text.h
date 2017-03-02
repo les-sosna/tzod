@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 #include "Window.h"
 #include "video/RenderContext.h"
 
@@ -10,10 +11,8 @@ template<class T> struct RenderData;
 class Text : public Window
 {
 public:
-	explicit Text(TextureManager &texman);
-
-	void SetAlign(enumAlignText align);
-	void SetFont(TextureManager &texman, const char *fontName);
+	void SetAlign(enumAlignText align) { _align = align; }
+	void SetFont(Texture fontTexture) { _fontTexture = std::move(fontTexture); }
 	void SetFontColor(std::shared_ptr<RenderData<SpriteColor>> color);
 
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
@@ -23,8 +22,8 @@ public:
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 private:
-	enumAlignText _align;
-	size_t _fontTexture;
+	enumAlignText _align = alignTextLT;
+	Texture _fontTexture = "font_small";
 	std::shared_ptr<RenderData<SpriteColor>> _fontColor;
 	std::shared_ptr<LayoutData<const std::string&>> _text;
 };

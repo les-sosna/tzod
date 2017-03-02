@@ -20,11 +20,11 @@ GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, Lang
 {
 	Resize(512, 460);
 
-	auto t = std::make_shared<UI::Text>(texman);
+	auto t = std::make_shared<UI::Text>();
 	t->Move(GetWidth() / 2, 16);
 	t->SetText(std::make_shared<UI::StaticText>(param.title));
 	t->SetAlign(alignTextCT);
-	t->SetFont(texman, "font_default");
+	t->SetFont("font_default");
 	AddFront(t);
 
 	_ext = param.extension;
@@ -51,7 +51,7 @@ GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, Lang
 	_files->GetList()->SetCurSel(0, true);
 	_files->GetList()->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(16, 370);
 	text->SetText(ConfBind(lang.get_file_name_title));
 	AddFront(text);

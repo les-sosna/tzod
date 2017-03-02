@@ -50,15 +50,15 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	// map list
 	//
 
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(16, 16);
 	text->SetText(ConfBind(_lang.choose_map));
 	AddFront(text);
 
-	auto mapListItemTemplate = std::make_shared<UI::MultiColumnListItem>(texman);
-	mapListItemTemplate->EnsureColumn(texman, 0, 4); // name
-	mapListItemTemplate->EnsureColumn(texman, 1, 384); // size
-	mapListItemTemplate->EnsureColumn(texman, 2, 448); // theme
+	auto mapListItemTemplate = std::make_shared<UI::MultiColumnListItem>();
+	mapListItemTemplate->EnsureColumn(0, 4); // name
+	mapListItemTemplate->EnsureColumn(1, 384); // size
+	mapListItemTemplate->EnsureColumn(2, 448); // theme
 
 	_maps = std::make_shared<MapList>(texman, fs, logger);
 	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
@@ -84,7 +84,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
 		AddFront(_nightMode);
 
-		text = std::make_shared<UI::Text>(texman);
+		text = std::make_shared<UI::Text>();
 		text->Move(x3, y += 30);
 		text->SetText(ConfBind(_lang.game_speed));
 		AddFront(text);
@@ -95,7 +95,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_gameSpeed->GetEditable()->SetInt(conf.cl_speed.GetInt());
 		AddFront(_gameSpeed);
 
-		text = std::make_shared<UI::Text>(texman);
+		text = std::make_shared<UI::Text>();
 		text->Move(x3, y += 30);
 		text->SetText(ConfBind(_lang.frag_limit));
 		AddFront(text);
@@ -106,7 +106,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_fragLimit->GetEditable()->SetInt(conf.cl_fraglimit.GetInt());
 		AddFront(_fragLimit);
 
-		text = std::make_shared<UI::Text>(texman);
+		text = std::make_shared<UI::Text>();
 		text->Move(x3, y += 30);
 		text->SetText(ConfBind(_lang.time_limit));
 		AddFront(text);
@@ -117,7 +117,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		_timeLimit->GetEditable()->SetInt(conf.cl_timelimit.GetInt());
 		AddFront(_timeLimit);
 
-		text = std::make_shared<UI::Text>(texman);
+		text = std::make_shared<UI::Text>();
 		text->Move(x3 + 30, y += 30);
 		text->SetText(ConfBind(_lang.zero_no_limits));
 		AddFront(text);
@@ -129,16 +129,16 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	// player list
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(16, 240);
 	text->SetText(ConfBind(_lang.human_player_list));
 	AddFront(text);
 
-	auto playerListItemTemplate = std::make_shared<UI::MultiColumnListItem>(texman);
-	playerListItemTemplate->EnsureColumn(texman, 0, 4); // name
-	playerListItemTemplate->EnsureColumn(texman, 1, 192); // skin
-	playerListItemTemplate->EnsureColumn(texman, 2, 256); // class
-	playerListItemTemplate->EnsureColumn(texman, 3, 320); // team
+	auto playerListItemTemplate = std::make_shared<UI::MultiColumnListItem>();
+	playerListItemTemplate->EnsureColumn(0, 4); // name
+	playerListItemTemplate->EnsureColumn(1, 192); // skin
+	playerListItemTemplate->EnsureColumn(2, 256); // class
+	playerListItemTemplate->EnsureColumn(3, 320); // team
 
 	_players = std::make_shared<DefaultListBox>(texman);
 	_players->Move(x1, 256);
@@ -147,7 +147,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	AddFront(_players);
 
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(16, 368);
 	text->SetText(ConfBind(_lang.AI_player_list));
 	AddFront(text);
@@ -440,11 +440,11 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	Resize(384, 220);
 
 	// Title
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(lang.player_settings));
 	text->SetAlign(alignTextCT);
-	text->SetFont(texman, "font_default");
+	text->SetFont("font_default");
 	AddFront(text);
 
 	float x1 = 30;
@@ -460,7 +460,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// player name field
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y);
 	text->SetText(ConfBind(lang.player_nick));
 	AddFront(text);
@@ -476,7 +476,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	//
 	// skins combo
 	//
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_skin));
 	AddFront(text);
@@ -506,7 +506,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// create and fill the classes list
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_class));
 	AddFront(text);
@@ -535,7 +535,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	if( -1 == _classes->GetCurSel() )
 		_classes->SetCurSel(0);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_team));
 	AddFront(text);
@@ -568,7 +568,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// player profile combo
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_profile));
 	AddFront(text);
@@ -645,14 +645,14 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
   : UI::Managerful(manager)
   , _info(&info)
 {
-    Resize(384, 220);
-    
+	Resize(384, 220);
+
 	// Title
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(lang.bot_settings));
 	text->SetAlign(alignTextCT);
-	text->SetFont(texman, "font_default");
+	text->SetFont("font_default");
 	AddFront(text);
 
 
@@ -669,7 +669,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// player name field
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y);
 	text->SetText(ConfBind(lang.player_nick));
 	AddFront(text);
@@ -685,7 +685,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	//
 	// skins combo
 	//
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_skin));
 	AddFront(text);
@@ -715,7 +715,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// create and fill the classes list
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_class));
 	AddFront(text);
@@ -742,7 +742,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 		_classes->SetCurSel(0);
 
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_team));
 	AddFront(text);
@@ -774,7 +774,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// create and fill the difficulty list
 	//
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.bot_difficulty));
 	AddFront(text);

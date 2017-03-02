@@ -10,9 +10,9 @@ namespace UI
 	class MultiColumnListItem : public Window
 	{
 	public:
-		explicit MultiColumnListItem(TextureManager &texman);
+		MultiColumnListItem();
 
-		void EnsureColumn(TextureManager &texman, unsigned int columnIndex, float offset);
+		void EnsureColumn(unsigned int columnIndex, float offset);
 
 		// Window
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;

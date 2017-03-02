@@ -31,11 +31,11 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 {
 	Resize(512, 296);
 
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(_lang.settings_title));
 	text->SetAlign(alignTextCT);
-	text->SetFont(texman, "font_default");
+	text->SetFont("font_default");
 	AddFront(text);
 
 
@@ -53,7 +53,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_content);
 	SetFocus(_content);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->SetText(ConfBind(_lang.settings_player1));
 	_content->AddFront(text);
 
@@ -61,7 +61,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_player1->GetList()->Resize(128, 52);
 	_content->AddFront(_player1);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->SetText(ConfBind(_lang.settings_player2));
 	_content->AddFront(text);
 
@@ -69,7 +69,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_player2->GetList()->Resize(128, 52);
 	_content->AddFront(_player2);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->SetText(ConfBind(_lang.settings_profiles));
 	_content->AddFront(text);
 
@@ -143,7 +143,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 
 	y += 100;
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x + 50, y += 20);
 	text->SetText(ConfBind(_lang.settings_sfx_volume));
 	text->SetAlign(alignTextRT);
@@ -159,7 +159,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_volumeSfx);
 	_initialVolumeSfx = _conf.s_volume.GetInt();
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(x + 50, y += 20);
 	text->SetText(ConfBind(_lang.settings_music_volume));
 	text->SetAlign(alignTextRT);
@@ -273,7 +273,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 {
 	Resize(448, 416);
 
-	auto text = std::make_shared<UI::Text>(texman);
+	auto text = std::make_shared<UI::Text>();
 	text->Move(20, 15);
 	text->SetText(ConfBind(_lang.profile_name));
 	AddFront(text);
@@ -284,19 +284,19 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_nameEdit->GetEditable()->SetText(_nameOrig);
 	AddFront(_nameEdit);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(20, 65);
 	text->SetText(ConfBind(_lang.profile_action));
 	AddFront(text);
 
-	text = std::make_shared<UI::Text>(texman);
+	text = std::make_shared<UI::Text>();
 	text->Move(220, 65);
 	text->SetText(ConfBind(_lang.profile_key));
 	AddFront(text);
 
-	auto itemTemplate = std::make_shared<UI::MultiColumnListItem>(texman);
-	itemTemplate->EnsureColumn(texman, 0, 2);
-	itemTemplate->EnsureColumn(texman, 1, 200);
+	auto itemTemplate = std::make_shared<UI::MultiColumnListItem>();
+	itemTemplate->EnsureColumn(0, 2);
+	itemTemplate->EnsureColumn(1, 200);
 
 	_actions = std::make_shared<DefaultListBox>(texman);
 	_actions->Move(20, 80);

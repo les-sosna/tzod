@@ -10,7 +10,7 @@ using namespace UI::DataSourceAliases;
 
 UITestDesktop::UITestDesktop(TextureManager &texman)
 	: _testRect(std::make_shared<UI::Rectangle>())
-	, _testText(std::make_shared<UI::Text>(texman))
+	, _testText(std::make_shared<UI::Text>())
 	, _testButton(std::make_shared<UI::Button>(texman))
 {
 	_testRect->SetTexture("gui_splash");
