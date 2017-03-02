@@ -27,27 +27,17 @@ void Rectangle::SetBorderColor(std::shared_ptr<RenderData<SpriteColor>> color)
 
 float Rectangle::GetTextureWidth(TextureManager &texman) const
 {
-	return HasTexture() ? texman.GetFrameWidth(GetTextureId(texman), 0) : 1;
+	return _texture.Empty() ? 1 : texman.GetFrameWidth(_texture.GetTextureId(texman), 0);
 }
 
 float Rectangle::GetTextureHeight(TextureManager &texman) const
 {
-	return HasTexture() ? texman.GetFrameHeight(GetTextureId(texman), 0) : 1;
+	return _texture.Empty() ? 1 : texman.GetFrameHeight(_texture.GetTextureId(texman), 0);
 }
 
-void Rectangle::SetTexture(const char *tex)
+void Rectangle::SetTexture(Texture texture)
 {
-	_textureName = tex ? tex : std::string();
-	_cachedTextureId = tex ? -2 : -1;
-}
-
-size_t Rectangle::GetTextureId(TextureManager &texman) const
-{
-	if (-2 == _cachedTextureId)
-	{
-		_cachedTextureId = texman.FindSprite(_textureName);
-	}
-	return _cachedTextureId;
+	_texture = std::move(texture);
 }
 
 void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
@@ -57,11 +47,11 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 
 void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	if (HasTexture() && (_drawBackground || _drawBorder))
+	if (!_texture.Empty() && (_drawBackground || _drawBorder))
 	{
 		FRECT dst = MakeRectWH(lc.GetPixelSize());
 		unsigned int frame = _frame ? _frame->GetValue(dc, sc) : 0;
-		size_t texture = GetTextureId(texman);
+		size_t texture = _texture.GetTextureId(texman);
 
 		if (_drawBackground)
 		{

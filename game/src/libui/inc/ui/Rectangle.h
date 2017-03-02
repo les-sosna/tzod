@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 #include "Window.h"
 
 namespace UI
@@ -22,7 +23,7 @@ namespace UI
 		void SetDrawBackground(bool enable) { _drawBackground = enable; }
 		bool GetDrawBackground() const { return _drawBackground; }
 
-		void SetTexture(const char *tex);
+		void SetTexture(Texture texture);
 		void SetTextureStretchMode(StretchMode stretchMode);
 		float GetTextureWidth(TextureManager &texman)  const;
 		float GetTextureHeight(TextureManager &texman) const;
@@ -38,11 +39,7 @@ namespace UI
 		std::shared_ptr<RenderData<SpriteColor>> _borderColor;
 		std::shared_ptr<RenderData<unsigned int>> _frame;
 		StretchMode _textureStretchMode = StretchMode::Stretch;
-		std::string _textureName;
-		mutable size_t _cachedTextureId = -1;
-
-		size_t GetTextureId(TextureManager &texman) const;
-		bool HasTexture() const { return -1 != _cachedTextureId; }
+		Texture _texture;
 
 		struct
 		{

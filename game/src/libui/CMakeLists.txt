@@ -33,6 +33,7 @@ add_library(ui
 	ScrollView.cpp
 	StackLayout.cpp
 	Text.cpp
+	Texture.cpp
 	Window.cpp
 
 	inc/ui/Button.h
@@ -63,6 +64,7 @@ add_library(ui
 	inc/ui/StackLayout.h
 	inc/ui/StateContext.h
 	inc/ui/Text.h
+	inc/ui/Texture.h
 	inc/ui/UIInput.h
 	inc/ui/Window.h
 )
