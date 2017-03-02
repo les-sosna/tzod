@@ -13,7 +13,7 @@ public:
 	void SetBotConfig(ConfVarTable &botConf, TextureManager &texman);
 
 	// UI::Window
-	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 
 private:
 	size_t _texSkin = -1;

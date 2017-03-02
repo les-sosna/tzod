@@ -16,7 +16,7 @@ void Rating::SetRating(std::shared_ptr<RenderData<unsigned int>> rating)
 	_rating = std::move(rating);
 }
 
-void Rating::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void Rating::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	auto &spriteInfo = texman.GetSpriteInfo(_texture);
 	vec2d spriteSize = { spriteInfo.pxFrameWidth, spriteInfo.pxFrameHeight };

@@ -73,7 +73,7 @@ static void DrawWindowRecursive(
 	unsigned int depth = 0)
 {
 	if (insideTopMost == renderSettings.topMostPass)
-		wnd.Draw(dc, sc, lc, renderSettings.ic, renderSettings.rc, renderSettings.texman);
+		wnd.Draw(dc, sc, lc, renderSettings.ic, renderSettings.rc, renderSettings.texman, renderSettings.time);
 
 	StateContext childCS;
 	auto stateGen = wnd.GetStateGen();

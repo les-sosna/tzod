@@ -95,7 +95,7 @@ int EditableText::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
-void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	float pxCharWidth = ToPx(texman.GetCharWidth(_font), lc);
 
@@ -116,10 +116,8 @@ void EditableText::Draw(const DataContext &dc, const StateContext &sc, const Lay
 	rc.DrawBitmapText(vec2d{ GetSelMin() * pxCharWidth, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
 	rc.DrawBitmapText(vec2d{ GetSelMax() * pxCharWidth, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
 
-	float time = GetManager().GetTime() - ic.GetLastKeyTime();
-
 	// cursor
-	if (ic.GetFocused() && fmodf(time, 1.0f) < 0.5f)
+	if (ic.GetFocused() && fmodf(time - ic.GetLastKeyTime(), 1.0f) < 0.5f)
 	{
 		FRECT rt = MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ ToPx(texman.GetFrameWidth(_cursor, 0), lc), lc.GetPixelSize().y });
 		rc.DrawSprite(rt, _cursor, 0xffffffff, 0);

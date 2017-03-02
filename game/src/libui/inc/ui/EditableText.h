@@ -41,7 +41,7 @@ namespace UI
 		std::function<void()> eventChange;
 
 		// Window
-		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
+		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 		PointerSink* GetPointerSink() override { return this; }
 		KeyboardSink *GetKeyboardSink() override;
 		TextSink* GetTextSink() override { return this; }

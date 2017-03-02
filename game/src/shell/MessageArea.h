@@ -23,7 +23,7 @@ public:
 
 	// UI::Window
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
-	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 
 private:
 	struct Line

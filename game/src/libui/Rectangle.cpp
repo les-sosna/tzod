@@ -55,7 +55,7 @@ void Rectangle::SetTextureStretchMode(StretchMode stretchMode)
 	_textureStretchMode = stretchMode;
 }
 
-void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	if (HasTexture() && (_drawBackground || _drawBorder))
 	{

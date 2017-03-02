@@ -10,7 +10,7 @@ void PlayerView::SetPlayerConfig(ConfVarTable &playerConf, TextureManager &texma
 	_texSkin = texman.FindSprite(std::string("skin/") + _playerConfCache->skin.Get());
 }
 
-void PlayerView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void PlayerView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	if (_playerConfCache)
 	{

@@ -31,7 +31,7 @@ void MapPreview::SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating)
 	_rating->SetRating(std::move(rating));
 }
 
-void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	if (_mapName)
 	{

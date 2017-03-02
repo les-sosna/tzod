@@ -190,7 +190,7 @@ vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 		vec2d{ pxItemSize.x * _data->GetItemCount(), pxItemSize.y };
 }
 
-void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	if (!_itemTemplate)
 		return;
@@ -241,7 +241,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 			itemState = DISABLED;
 
 		InputContext childIC(ic);
-		UI::RenderSettings rs{ childIC, rc, texman };
+		UI::RenderSettings rs{ childIC, rc, texman, time };
 
 		StateContext itemSC;
 		{

@@ -215,9 +215,9 @@ void Console::OnTimeStep(LayoutManager &manager, float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman);
+	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
 
 	if( _buf )
 	{

@@ -23,8 +23,9 @@ struct RenderSettings
 	InputContext &ic;
 	RenderContext &rc;
 	TextureManager &texman;
-	bool topMostPass;
+	float time;
 	std::vector<std::shared_ptr<Window>> hoverPath;
+	bool topMostPass;
 };
 
 void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc);

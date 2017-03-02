@@ -268,10 +268,8 @@ void CheckBox::SetText(const std::string &text)
 	_text.assign(text);
 }
 
-void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	ButtonBase::Draw(dc, sc, lc, ic, rc, texman);
-
 	State state = GetState(lc, ic);
 	size_t frame = _isChecked ? state + 4 : state;
 

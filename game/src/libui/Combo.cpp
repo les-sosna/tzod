@@ -157,14 +157,14 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 	return vec2d{ itemSize.x + btnSize.x, std::max(itemSize.y, btnSize.y) };
 }
 
-void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman);
+	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
 
 	if (_list->GetList()->GetCurSel() != -1)
 	{
 		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman };
+		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman, time };
 
 		DataContext itemDC;
 		{

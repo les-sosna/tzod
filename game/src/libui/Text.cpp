@@ -34,7 +34,7 @@ void Text::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 	_text = std::move(text);
 }
 
-void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	if (_text)
 	{

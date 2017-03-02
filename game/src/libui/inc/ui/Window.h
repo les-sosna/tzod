@@ -172,7 +172,7 @@ public:
 	// rendering
 	//
 
-	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman) const {}
+	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
 };
 
 inline bool NeedsFocus(Window *wnd)

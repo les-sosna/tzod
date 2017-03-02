@@ -35,9 +35,9 @@ ScoreTable::ScoreTable(TextureManager &texman, World &world, const Deathmatch *d
 	SetDrawBorder(true);
 }
 
-void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman) const
+void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman);
+	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
 
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
