@@ -78,7 +78,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	{
 		float y =  16;
 
-		_nightMode = std::make_shared<UI::CheckBox>(manager, texman);
+		_nightMode = std::make_shared<UI::CheckBox>(texman);
 		_nightMode->Move(x3, y);
 		_nightMode->SetText(_lang.night_mode.Get());
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
@@ -89,7 +89,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		text->SetText(ConfBind(_lang.game_speed));
 		AddFront(text);
 
-		_gameSpeed = std::make_shared<UI::Edit>(manager, texman);
+		_gameSpeed = std::make_shared<UI::Edit>(texman);
 		_gameSpeed->Move(x3 + 20, y += 15);
 		_gameSpeed->SetWidth(80);
 		_gameSpeed->GetEditable()->SetInt(conf.cl_speed.GetInt());
@@ -100,7 +100,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		text->SetText(ConfBind(_lang.frag_limit));
 		AddFront(text);
 
-		_fragLimit = std::make_shared<UI::Edit>(manager, texman);
+		_fragLimit = std::make_shared<UI::Edit>(texman);
 		_fragLimit->Move(x3 + 20, y += 15);
 		_fragLimit->SetWidth(80);
 		_fragLimit->GetEditable()->SetInt(conf.cl_fraglimit.GetInt());
@@ -111,7 +111,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		text->SetText(ConfBind(_lang.time_limit));
 		AddFront(text);
 
-		_timeLimit = std::make_shared<UI::Edit>(manager, texman);
+		_timeLimit = std::make_shared<UI::Edit>(texman);
 		_timeLimit->Move(x3 + 20, y += 15);
 		_timeLimit->SetWidth(80);
 		_timeLimit->GetEditable()->SetInt(conf.cl_timelimit.GetInt());
@@ -465,7 +465,7 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	text->SetText(ConfBind(lang.player_nick));
 	AddFront(text);
 
-	_name = std::make_shared<UI::Edit>(manager, texman);
+	_name = std::make_shared<UI::Edit>(texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
 	_name->GetEditable()->SetText(_info.nick.Get() );
@@ -674,7 +674,7 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	text->SetText(ConfBind(lang.player_nick));
 	AddFront(text);
 
-	_name = std::make_shared<UI::Edit>(manager, texman);
+	_name = std::make_shared<UI::Edit>(texman);
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
 	_name->GetEditable()->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());

@@ -97,7 +97,6 @@ private:
 	ShellConfig &_conf;
 	LangCache &_lang;
 
-	float _time;
 	int   _activeIndex;
 	bool  _createNewProfile;
 };

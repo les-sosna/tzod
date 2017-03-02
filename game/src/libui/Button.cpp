@@ -241,7 +241,7 @@ FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-CheckBox::CheckBox(LayoutManager &manager, TextureManager &texman)
+CheckBox::CheckBox(TextureManager &texman)
   : _fontTexture(texman.FindSprite("font_small"))
   , _boxTexture(texman.FindSprite("ui/checkbox"))
   , _isChecked(false)

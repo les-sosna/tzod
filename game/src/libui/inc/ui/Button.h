@@ -95,7 +95,7 @@ private:
 class CheckBox : public ButtonBase
 {
 public:
-	CheckBox(LayoutManager &manager, TextureManager &texman);
+	explicit CheckBox(TextureManager &texman);
 
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }

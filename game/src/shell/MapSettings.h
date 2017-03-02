@@ -26,7 +26,7 @@ class MapSettingsDlg : public UI::Dialog
 	World &_world;
 
 public:
-	MapSettingsDlg(UI::LayoutManager &manager, TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang);
+	MapSettingsDlg(TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang);
 	~MapSettingsDlg();
 
 	void OnOK();

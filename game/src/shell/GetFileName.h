@@ -37,7 +37,7 @@ public:
 		std::shared_ptr<FS::FileSystem> folder;
 	};
 
-	GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang);
+	GetFileNameDlg(TextureManager &texman, const Params &param, LangCache &lang);
 	virtual ~GetFileNameDlg();
 
 	bool IsBlank() const;

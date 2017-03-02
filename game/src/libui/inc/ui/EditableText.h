@@ -9,13 +9,12 @@ namespace UI
 
 	class EditableText
 		: public Window
-		, private Managerful
 		, private PointerSink
 		, private KeyboardSink
 		, private TextSink
 	{
 	public:
-		EditableText(LayoutManager &manager, TextureManager &texman);
+		explicit EditableText(TextureManager &texman);
 
 		int GetTextLength() const;
 

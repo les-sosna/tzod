@@ -12,10 +12,10 @@ using namespace UI;
 static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
 	StateBinding<unsigned int>::MapType{ { "Disabled", 1 } });
 
-Edit::Edit(LayoutManager &manager, TextureManager &texman)
+Edit::Edit(TextureManager &texman)
   : _background(std::make_shared<Rectangle>())
   , _scrollView(std::make_shared<ScrollView>())
-  , _editable(std::make_shared<EditableText>(manager, texman))
+  , _editable(std::make_shared<EditableText>(texman))
 {
 	_background->SetTexture("ui/edit");
 	_background->SetDrawBorder(true);

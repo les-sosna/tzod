@@ -7,7 +7,6 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
 #include <ui/EditableText.h>
-#include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
@@ -15,7 +14,7 @@
 
 #include <algorithm>
 
-GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texman, const Params &param, LangCache &lang)
+GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, LangCache &lang)
   : _folder(param.folder)
   , _changing(false)
 {
@@ -57,7 +56,7 @@ GetFileNameDlg::GetFileNameDlg(UI::LayoutManager &manager, TextureManager &texma
 	text->SetText(ConfBind(lang.get_file_name_title));
 	AddFront(text);
 
-	_fileName = std::make_shared<UI::Edit>(manager, texman);
+	_fileName = std::make_shared<UI::Edit>(texman);
 	_fileName->Move(20, 385);
 	_fileName->SetWidth(472);
 	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);

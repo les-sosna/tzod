@@ -15,9 +15,8 @@
 
 using namespace UI;
 
-EditableText::EditableText(LayoutManager &manager, TextureManager &texman)
-	: Managerful(manager)
-	, _selStart(-1)
+EditableText::EditableText(TextureManager &texman)
+	: _selStart(-1)
 	, _selEnd(-1)
 	, _font(texman.FindSprite("font_small"))
 	, _cursor(texman.FindSprite("ui/editcursor"))

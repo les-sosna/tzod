@@ -142,17 +142,17 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			switch( prop->GetType() )
 			{
 			case ObjectProperty::TYPE_INTEGER:
-				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
+				ctrl = std::make_shared<UI::Edit>(texman);
 				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetInt(prop->GetIntValue());
 				labelTextBuffer << "(" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
-				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
+				ctrl = std::make_shared<UI::Edit>(texman);
 				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetFloat(prop->GetFloatValue());
 				labelTextBuffer << "(" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
-				ctrl = std::make_shared<UI::Edit>(GetManager(), texman);
+				ctrl = std::make_shared<UI::Edit>(texman);
 				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(prop->GetStringValue());
 				labelTextBuffer << "(string)";
 				break;
