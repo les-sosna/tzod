@@ -68,7 +68,6 @@ void EditableText::SetSel(int begin, int end)
 
 	_selStart = begin <= GetTextLength() ? begin : -1;
 	_selEnd = end <= GetTextLength() ? end : -1;
-	_lastCursortime = GetManager().GetTime();
 }
 
 int EditableText::GetSelStart() const
@@ -117,7 +116,7 @@ void EditableText::Draw(const DataContext &dc, const StateContext &sc, const Lay
 	rc.DrawBitmapText(vec2d{ GetSelMin() * pxCharWidth, 1 }, lc.GetScale(), _font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
 	rc.DrawBitmapText(vec2d{ GetSelMax() * pxCharWidth, 1 }, lc.GetScale(), _font, c, GetText().substr(GetSelMax()));
 
-	float time = GetManager().GetTime() - _lastCursortime;
+	float time = GetManager().GetTime() - ic.GetLastKeyTime();
 
 	// cursor
 	if (ic.GetFocused() && fmodf(time, 1.0f) < 0.5f)

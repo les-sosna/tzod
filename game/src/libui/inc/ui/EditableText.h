@@ -51,7 +51,6 @@ namespace UI
 		std::string _text;
 		int   _selStart;
 		int   _selEnd;
-		float _lastCursortime = 0;
 		size_t _font;
 		size_t _cursor;
 		size_t _selection;

@@ -47,7 +47,7 @@ public:
 		int button,
 		PointerType pointerType,
 		unsigned int pointerID);
-	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, UI::Key key);
+	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, UI::Key key, float time);
 	bool ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c);
 
 	IClipboard &GetClipboard() const { return _clipboard; }
@@ -59,6 +59,7 @@ public:
 	vec2d GetMousePos() const;
 	bool GetFocused() const;
 	bool GetHovered() const;
+	float GetLastKeyTime() const { return _lastKeyTime; }
 
 	const std::vector<std::shared_ptr<Window>>* GetCapturePath(unsigned int pointerID) const;
 	bool HasCapturedPointers(const Window* wnd) const;
@@ -82,6 +83,8 @@ private:
 		bool hovered;
 	};
 	std::stack<InputStackFrame> _transformStack;
+
+	float _lastKeyTime = 0;
 
 	struct PointerCapture
 	{
