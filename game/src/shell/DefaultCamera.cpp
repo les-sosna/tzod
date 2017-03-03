@@ -5,19 +5,10 @@
 #include <chrono>
 #include <algorithm>
 
-
-static unsigned int GetMilliseconds()
-{
-	using namespace std::chrono;
-	return duration_cast<duration<unsigned int, std::milli>>(high_resolution_clock::now().time_since_epoch()).count();
-}
-
 DefaultCamera::DefaultCamera(vec2d pos)
 	: _zoom(1)
-	, _dt(50)
 	, _pos(pos)
 {
-	_dwTimeX = _dwTimeY = GetMilliseconds();
 }
 
 void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
@@ -25,7 +16,7 @@ void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
     _pos = Vec2dConstrain(_pos - offset * 30, worldBounds);
 }
 
-void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds)
+void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, float dt)
 {
 	static char  lastIn   = 0, LastOut = 0;
 	static float levels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
@@ -41,65 +32,29 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds)
 
 	_zoom = levels[level];
 
-	bool  bMove     = false;
-	unsigned int dwCurTime = GetMilliseconds();
-	unsigned int dt        = (unsigned int) _dt;
+	vec2d direction = {};
 
 	if( input.IsKeyPressed(UI::Key::Left) )
-	{
-		bMove = true;
-		while( dwCurTime - _dwTimeX > dt )
-		{
-			_pos.x -= CELL_SIZE;
-			_dwTimeX += dt;
-		}
-	}
+		direction.x = -1;
 	else if( input.IsKeyPressed(UI::Key::Right) )
-	{
-		bMove = true;
-		while( dwCurTime - _dwTimeX > dt )
-		{
-			_pos.x += CELL_SIZE;
-			_dwTimeX += dt;
-		}
-	}
-	else
-	{
-		_dwTimeX = GetMilliseconds();
-	}
+		direction.x = 1;
 
 	if( input.IsKeyPressed(UI::Key::Up) )
-	{
-		bMove = true;
-		while( dwCurTime - _dwTimeY > dt )
-		{
-			_pos.y -= CELL_SIZE;
-			_dwTimeY += dt;
-		}
-	}
+		direction.y = -1;
 	else if( input.IsKeyPressed(UI::Key::Down) )
-	{
-		bMove = true;
-		while( dwCurTime - _dwTimeY > dt )
-		{
-			_pos.y += CELL_SIZE;
-			_dwTimeY += dt;
-		}
-	}
-	else
-	{
-		_dwTimeY = GetMilliseconds();
-	}
+		direction.y = 1;
 
-	if( bMove )
-		_dt = std::max(10.0f, 1.0f / (1.0f / _dt + 0.001f));
-	else
-		_dt = 50.0f;
+	direction.Normalize();
 
+	_speed += direction * dt * (6000 + _speed.len() * 8);
+	_speed *= expf(-dt * 10);
+
+	_pos += _speed * dt / _zoom;
 	_pos = Vec2dConstrain(_pos, worldBounds);
 
 	if (input.IsKeyPressed(UI::Key::Home))
 	{
 		_pos = vec2d{};
+		_speed = vec2d{};
 	}
 }
