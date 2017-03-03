@@ -96,8 +96,6 @@ private:
 class CheckBox : public ButtonBase
 {
 public:
-	explicit CheckBox(TextureManager &texman);
-
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
@@ -113,9 +111,9 @@ protected:
 
 private:
 	std::string _text;
-	size_t _fontTexture;
-	size_t _boxTexture;
-	bool   _isChecked;
+	Texture _fontTexture = "font_small";
+	Texture _boxTexture = "ui/checkbox";
+	bool _isChecked = false;
 };
 
 } // namespace UI

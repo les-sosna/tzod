@@ -114,7 +114,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	AddFront(_content2);
 	SetFocus(_content2);
 
-	_showFps = std::make_shared<UI::CheckBox>(texman);
+	_showFps = std::make_shared<UI::CheckBox>();
 	_showFps->SetText(_lang.settings_show_fps.Get());
 	_showFps->SetCheck(_conf.ui_showfps.Get());
 	_showFps->eventClick = [=]
@@ -123,7 +123,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	};
 	_content2->AddFront(_showFps);
 
-	_showTime = std::make_shared<UI::CheckBox>(texman);
+	_showTime = std::make_shared<UI::CheckBox>();
 	_showTime->SetText(_lang.settings_show_time.Get());
 	_showTime->SetCheck(_conf.ui_showtime.Get());
 	_showTime->eventClick = [=]
@@ -132,7 +132,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	};
 	_content2->AddFront(_showTime);
 
-	_showNames = std::make_shared<UI::CheckBox>(texman);
+	_showNames = std::make_shared<UI::CheckBox>();
 	_showNames->SetText(_lang.settings_show_names.Get());
 	_showNames->SetCheck(_conf.g_shownames.Get());
 	_showNames->eventClick = [=]
@@ -317,19 +317,19 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	AddAction(_profile.key_no_pickup    , _lang.action_no_pickup.Get()     );
 	_actions->GetList()->SetCurSel(0, true);
 
-	_aimToMouseChkBox = std::make_shared<UI::CheckBox>(texman);
+	_aimToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
 	_aimToMouseChkBox->Move(16, 345);
 	_aimToMouseChkBox->SetText(_lang.profile_mouse_aim.Get());
 	AddFront(_aimToMouseChkBox);
 
-	_moveToMouseChkBox = std::make_shared<UI::CheckBox>(texman);
+	_moveToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
 	_moveToMouseChkBox->Move(146, 345);
 	_moveToMouseChkBox->SetText(_lang.profile_mouse_move.Get());
 	AddFront(_moveToMouseChkBox);
 
-	_arcadeStyleChkBox = std::make_shared<UI::CheckBox>(texman);
+	_arcadeStyleChkBox = std::make_shared<UI::CheckBox>();
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
 	_arcadeStyleChkBox->Move(276, 345);
 	_arcadeStyleChkBox->SetText(_lang.profile_arcade_style.Get());

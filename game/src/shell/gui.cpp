@@ -78,7 +78,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	{
 		float y =  16;
 
-		_nightMode = std::make_shared<UI::CheckBox>(texman);
+		_nightMode = std::make_shared<UI::CheckBox>();
 		_nightMode->Move(x3, y);
 		_nightMode->SetText(_lang.night_mode.Get());
 		_nightMode->SetCheck(conf.cl_nightmode.Get());

@@ -240,13 +240,6 @@ FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-CheckBox::CheckBox(TextureManager &texman)
-  : _fontTexture(texman.FindSprite("font_small"))
-  , _boxTexture(texman.FindSprite("ui/checkbox"))
-  , _isChecked(false)
-{
-}
-
 void CheckBox::SetCheck(bool checked)
 {
 	_isChecked = checked;
@@ -272,12 +265,12 @@ void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 	State state = GetState(lc, ic);
 	size_t frame = _isChecked ? state + 4 : state;
 
-	float bh = texman.GetFrameHeight(_boxTexture, frame);
-	float bw = texman.GetFrameWidth(_boxTexture, frame);
-	float th = texman.GetFrameHeight(_fontTexture, 0);
+	float bh = texman.GetFrameHeight(_boxTexture.GetTextureId(texman), frame);
+	float bw = texman.GetFrameWidth(_boxTexture.GetTextureId(texman), frame);
+	float th = texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0);
 
 	FRECT box = {0, (lc.GetPixelSize().y - bh) / 2, bw, (lc.GetPixelSize().y - bh) / 2 + bh};
-	rc.DrawSprite(box, _boxTexture, 0xffffffff, frame);
+	rc.DrawSprite(box, _boxTexture.GetTextureId(texman), 0xffffffff, frame);
 
 	// grep 'enum State'
 	SpriteColor colors[] =
@@ -287,14 +280,14 @@ void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 		SpriteColor(0xffffffff), // Pushed
 		SpriteColor(0xffffffff), // Disabled
 	};
-	rc.DrawBitmapText(vec2d{ bw, (lc.GetPixelSize().y - th) / 2 }, lc.GetScale(), _fontTexture, colors[state], GetText());
+	rc.DrawBitmapText(vec2d{ bw, (lc.GetPixelSize().y - th) / 2 }, lc.GetScale(), _fontTexture.GetTextureId(texman), colors[state], GetText());
 }
 
 vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-	float th = texman.GetFrameHeight(_fontTexture, 0);
-	float tw = texman.GetFrameWidth(_fontTexture, 0);
-	float bh = texman.GetFrameHeight(_boxTexture, 0);
-	float bw = texman.GetFrameWidth(_boxTexture, 0);
+	float th = texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0);
+	float tw = texman.GetFrameWidth(_fontTexture.GetTextureId(texman), 0);
+	float bh = texman.GetFrameHeight(_boxTexture.GetTextureId(texman), 0);
+	float bw = texman.GetFrameWidth(_boxTexture.GetTextureId(texman), 0);
 	return ToPx(vec2d{ bw + (tw - 1) * (float)GetText().length(), std::max(th + 1, bh) }, scale);
 }
