@@ -14,9 +14,9 @@ namespace UI
 		}
 
 		template <class ...Args>
-		ListAdapter(TextureManager &texman, Args && ...args)
+		explicit ListAdapter(Args && ...args)
 			: DataSourceType(std::forward<Args>(args)...)
-			, ListType(texman, this)
+			, ListType(this)
 		{
 		}
 	};

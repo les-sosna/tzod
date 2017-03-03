@@ -218,7 +218,7 @@ static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 
 void Desktop::OnNewCampaign()
 {
-	auto dlg = std::make_shared<NewCampaignDlg>(_texman, _fs, _lang);
+	auto dlg = std::make_shared<NewCampaignDlg>(_fs, _lang);
 	dlg->eventCampaignSelected = [this](auto sender, std::string name)
 	{
 		OnCloseChild(sender);
@@ -327,7 +327,7 @@ void Desktop::OnOpenMap()
 		return;
 	}
 
-	auto fileDlg = std::make_shared<GetFileNameDlg>(_texman, param, _lang);
+	auto fileDlg = std::make_shared<GetFileNameDlg>(param, _lang);
 	fileDlg->eventClose = [this](auto sender, int result)
 	{
 		OnCloseChild(sender);
@@ -368,7 +368,7 @@ void Desktop::OnExportMap()
 			return;
 		}
 
-		auto fileDlg = std::make_shared<GetFileNameDlg>(_texman, param, _lang);
+		auto fileDlg = std::make_shared<GetFileNameDlg>(param, _lang);
 		fileDlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender);
@@ -402,7 +402,7 @@ void Desktop::OnMapSettings()
 	if (auto gameContext = GetAppState().GetGameContext())
 	{
 		//ThemeManager themeManager(GetAppState(), _fs, _texman);
-		auto dlg = std::make_shared<MapSettingsDlg>(_texman, gameContext->GetWorld()/*, themeManager*/, _lang);
+		auto dlg = std::make_shared<MapSettingsDlg>(gameContext->GetWorld()/*, themeManager*/, _lang);
 		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender);};
 		_navStack->PushNavStack(dlg);
 		UpdateFocus();

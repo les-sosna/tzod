@@ -2,8 +2,6 @@
 #include <math/MyMath.h>
 #include <vector>
 
-class TextureManager;
-
 namespace UI
 {
 	class Window;

@@ -160,7 +160,7 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 			case ObjectProperty::TYPE_SKIN:
 			case ObjectProperty::TYPE_TEXTURE:
 				typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
-				ctrl = std::make_shared<DefaultComboBox>(texman);
+				ctrl = std::make_shared<DefaultComboBox>();
 				if (prop->GetType() == ObjectProperty::TYPE_MULTISTRING)
 				{
 					for( size_t index = 0; index < prop->GetListSize(); ++index )

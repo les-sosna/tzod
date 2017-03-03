@@ -14,7 +14,7 @@ class List
 	, private KeyboardSink
 {
 public:
-	List(TextureManager &texman, ListDataSource* dataSource);
+	explicit List(ListDataSource* dataSource);
 	virtual ~List();
 
 	ListDataSource* GetData() const;
@@ -69,9 +69,6 @@ private:
 	std::vector<float> _tabs;
 
 	int _curSel;
-
-	size_t _font;
-	size_t _selection;
 
 	// PointerSink
 	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;

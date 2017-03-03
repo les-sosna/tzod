@@ -14,7 +14,7 @@
 
 #include <algorithm>
 
-GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, LangCache &lang)
+GetFileNameDlg::GetFileNameDlg(const Params &param, LangCache &lang)
   : _folder(param.folder)
   , _changing(false)
 {
@@ -28,7 +28,7 @@ GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, Lang
 	AddFront(t);
 
 	_ext = param.extension;
-	_files = std::make_shared<DefaultListBox>(texman);
+	_files = std::make_shared<DefaultListBox>();
 	_files->Move(20, 56);
 	_files->Resize(472, 300);
 	AddFront(_files);

@@ -1,8 +1,6 @@
 #pragma once
 #include "Window.h"
 
-class TextureManager;
-
 namespace UI
 {
 class EditableText;

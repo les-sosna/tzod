@@ -155,9 +155,14 @@ void Button::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 	_text->SetText(std::move(text));
 }
 
-void Button::SetBackground(const char *tex)
+void Button::SetBackground(Texture background)
 {
-	_background->SetTexture(tex);
+	_background->SetTexture(std::move(background));
+}
+
+const Texture& Button::GetBackground() const
+{
+	return _background->GetTexture();
 }
 
 void Button::AlignToBackground(TextureManager &texman)

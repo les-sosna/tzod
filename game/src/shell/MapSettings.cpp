@@ -23,7 +23,7 @@ static size_t FindTheme(const ThemeManager &themeManager, const std::string &nam
 	return 0;
 }
 
-MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
+MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
 	: _world(world)
 {
 	Resize(512, 512);
@@ -101,7 +101,7 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	text->SetText(ConfBind(lang.map_theme));
 	AddFront(text);
 
-	_theme = std::make_shared<DefaultComboBox>(texman);
+	_theme = std::make_shared<DefaultComboBox>();
 	_theme->Move(x2, y += 15);
 	_theme->SetWidth(256);
 /*	for (size_t i = 0; i < themeManager.GetThemeCount(); i++)

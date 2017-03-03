@@ -57,7 +57,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	text->SetText(ConfBind(_lang.settings_player1));
 	_content->AddFront(text);
 
-	_player1 = std::make_shared<UI::ComboBox>(texman, &_profilesDataSource);
+	_player1 = std::make_shared<UI::ComboBox>(&_profilesDataSource);
 	_player1->GetList()->Resize(128, 52);
 	_content->AddFront(_player1);
 
@@ -65,7 +65,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	text->SetText(ConfBind(_lang.settings_player2));
 	_content->AddFront(text);
 
-	_player2 = std::make_shared<UI::ComboBox>(texman, &_profilesDataSource);
+	_player2 = std::make_shared<UI::ComboBox>(&_profilesDataSource);
 	_player2->GetList()->Resize(128, 52);
 	_content->AddFront(_player2);
 
@@ -73,7 +73,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	text->SetText(ConfBind(_lang.settings_profiles));
 	_content->AddFront(text);
 
-	_profiles = std::make_shared<UI::ListBox>(texman, &_profilesDataSource);
+	_profiles = std::make_shared<UI::ListBox>(&_profilesDataSource);
 	_profiles->Resize(128, 52);
 	_content->AddFront(_profiles);
 	_content->SetFocus(_profiles);
@@ -195,7 +195,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), GetManager().GetTextureManager(), nullptr, _conf, _lang);
+	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), nullptr, _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -205,7 +205,7 @@ void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetList()->GetCurSel();
 	assert(i >= 0);
-	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), GetManager().GetTextureManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
+	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -262,7 +262,7 @@ static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 	return buf.str();
 }
 
-ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang)
+ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ShellConfig &conf, LangCache &lang)
   : UI::Managerful(manager)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
@@ -298,7 +298,7 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	itemTemplate->EnsureColumn(0, 2);
 	itemTemplate->EnsureColumn(1, 200);
 
-	_actions = std::make_shared<DefaultListBox>(texman);
+	_actions = std::make_shared<DefaultListBox>();
 	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
 	_actions->GetList()->SetItemTemplate(itemTemplate);

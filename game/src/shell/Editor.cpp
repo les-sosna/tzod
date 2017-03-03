@@ -183,7 +183,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	gameClassVis->Resize(64, 64);
 	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
-	_typeSelector = std::make_shared<DefaultListBox>(texman);
+	_typeSelector = std::make_shared<DefaultListBox>();
 	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);
 	_typeSelector->GetScrollView()->SetVerticalScrollEnabled(false);
 	_typeSelector->GetList()->SetFlowDirection(UI::FlowDirection::Horizontal);

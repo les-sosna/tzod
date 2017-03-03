@@ -2,8 +2,6 @@
 #include "Texture.h"
 #include "Window.h"
 
-class TextureManager;
-
 namespace UI
 {
 	struct IClipboard;

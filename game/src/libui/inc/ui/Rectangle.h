@@ -24,6 +24,8 @@ namespace UI
 		bool GetDrawBackground() const { return _drawBackground; }
 
 		void SetTexture(Texture texture);
+		const Texture& GetTexture() const { return _texture; }
+
 		void SetTextureStretchMode(StretchMode stretchMode);
 		float GetTextureWidth(TextureManager &texman)  const;
 		float GetTextureHeight(TextureManager &texman) const;

@@ -3,8 +3,6 @@
 #include "Window.h"
 #include <functional>
 
-class TextureManager;
-
 namespace UI
 {
 
@@ -57,7 +55,9 @@ class Button : public ButtonBase
 public:
 	Button();
 
-	void SetBackground(const char *tex);
+	void SetBackground(Texture background);
+	const Texture& GetBackground() const;
+
 	void SetIcon(TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 	void SetFont(Texture fontTexture);

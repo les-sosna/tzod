@@ -69,7 +69,7 @@ class ControlProfileDlg
 	, private UI::Managerful
 {
 public:
-	ControlProfileDlg(UI::LayoutManager &manager, TextureManager &texman, const char *profileName, ShellConfig &conf, LangCache &lang);
+	ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ShellConfig &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window

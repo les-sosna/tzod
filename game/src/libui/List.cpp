@@ -48,12 +48,10 @@ void List::ListCallbackImpl::OnAddItem()
 ///////////////////////////////////////////////////////////////////////////////
 // class List
 
-List::List(TextureManager &texman, ListDataSource* dataSource)
+List::List(ListDataSource* dataSource)
     : _callbacks(this)
     , _data(dataSource)
     , _curSel(-1)
-    , _font(texman.FindSprite("font_small"))
-    , _selection(texman.FindSprite("ui/listsel"))
 {
 	_data->AddListener(&_callbacks);
 }

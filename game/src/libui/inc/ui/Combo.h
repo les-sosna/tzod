@@ -2,8 +2,6 @@
 #include "Rectangle.h"
 #include <functional>
 
-class TextureManager;
-
 namespace UI
 {
 
@@ -17,7 +15,7 @@ class ComboBox
 	, private KeyboardSink
 {
 public:
-	ComboBox(TextureManager &texman, ListDataSource *dataSource);
+	ComboBox(ListDataSource *dataSource);
 
 	ListDataSource* GetData() const;
 

@@ -11,7 +11,7 @@
 #include <ui/GuiManager.h>
 
 
-NewCampaignDlg::NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangCache &lang)
+NewCampaignDlg::NewCampaignDlg(FS::FileSystem &fs, LangCache &lang)
   : _fs(fs)
 {
 	Resize(512, 400);
@@ -23,7 +23,7 @@ NewCampaignDlg::NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangC
 	t->SetFont("font_default");
 	AddFront(t);
 
-	_files = std::make_shared<DefaultListBox>(texman);
+	_files = std::make_shared<DefaultListBox>();
 	_files->Move(20, 56);
 	_files->Resize(472, 280);
 	AddFront(_files);
