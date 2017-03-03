@@ -29,7 +29,7 @@ class SinglePlayer
 	, private UI::Managerful
 {
 public:
-	SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
+	SinglePlayer(UI::LayoutManager &manager, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
 
 	std::function<void(std::shared_ptr<SinglePlayer>, int)> eventSelectMap;
 

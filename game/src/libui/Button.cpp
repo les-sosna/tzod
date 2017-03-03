@@ -105,7 +105,7 @@ static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xff
 static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
 	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, {"Pushed", 2} });
 
-Button::Button(TextureManager &texman)
+Button::Button()
 	: _background(std::make_shared<Rectangle>())
 	, _text(std::make_shared<Text>())
 {
@@ -118,7 +118,7 @@ Button::Button(TextureManager &texman)
 	_text->SetFontColor(c_textColor);
 
 	SetBackground("ui/button");
-	AlignToBackground(texman);
+	Resize(96, 24);
 }
 
 void Button::SetFont(Texture fontTexture)

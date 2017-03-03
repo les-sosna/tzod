@@ -175,7 +175,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager, texman, _world, conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(manager, _world, conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 

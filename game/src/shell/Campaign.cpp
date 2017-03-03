@@ -36,7 +36,7 @@ NewCampaignDlg::NewCampaignDlg(TextureManager &texman, FS::FileSystem &fs, LangC
 	}
 	_files->GetData()->Sort();
 
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.campaign_ok));
 	btn->Move(290, 360);
 	btn->eventClick = std::bind(&NewCampaignDlg::OnOK, this);

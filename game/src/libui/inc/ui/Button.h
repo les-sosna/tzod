@@ -55,7 +55,7 @@ template<class T> struct LayoutData;
 class Button : public ButtonBase
 {
 public:
-	explicit Button(TextureManager &texman);
+	Button();
 
 	void SetBackground(const char *tex);
 	void SetIcon(TextureManager &texman, const char *spriteName);

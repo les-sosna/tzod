@@ -12,7 +12,7 @@ class Deathmatch;
 class CampaignControls : public UI::Window
 {
 public:
-	CampaignControls(TextureManager &texman, const Deathmatch &deathmatch, CampaignControlCommands commands);
+	CampaignControls(const Deathmatch &deathmatch, CampaignControlCommands commands);
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;

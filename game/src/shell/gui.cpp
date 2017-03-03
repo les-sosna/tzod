@@ -166,40 +166,40 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 	{
 		std::shared_ptr<UI::Button> btn;
 
-		btn = std::make_shared<UI::Button>(texman);
+		btn = std::make_shared<UI::Button>();
 		btn->SetText(ConfBind(_lang.human_player_add));
 		btn->Move(x3, 256);
 		btn->eventClick = std::bind(&NewGameDlg::OnAddPlayer, this);
 		AddFront(btn);
 
-		_removePlayer = std::make_shared<UI::Button>(texman);
+		_removePlayer = std::make_shared<UI::Button>();
 		_removePlayer->SetText(ConfBind(_lang.human_player_remove));
 		_removePlayer->Move(x3, 286);
 		_removePlayer->eventClick = std::bind(&NewGameDlg::OnRemovePlayer, this);
 		_removePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_removePlayer);
 
-		_changePlayer = std::make_shared<UI::Button>(texman);
+		_changePlayer = std::make_shared<UI::Button>();
 		_changePlayer->SetText(ConfBind(_lang.human_player_modify));
 		_changePlayer->Move(x3, 316);
 		_changePlayer->eventClick = std::bind(&NewGameDlg::OnEditPlayer, this);
 		_changePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_changePlayer);
 
-		btn = std::make_shared<UI::Button>(texman);
+		btn = std::make_shared<UI::Button>();
 		btn->SetText(ConfBind(_lang.AI_player_add));
 		btn->Move(x3, 384);
 		btn->eventClick = std::bind(&NewGameDlg::OnAddBot, this);
 		AddFront(btn);
 
-		_removeBot = std::make_shared<UI::Button>(texman);
+		_removeBot = std::make_shared<UI::Button>();
 		_removeBot->SetText(ConfBind(_lang.AI_player_remove));
 		_removeBot->Move(x3, 414);
 		_removeBot->eventClick = std::bind(&NewGameDlg::OnRemoveBot, this);
 		_removeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_removeBot);
 
-		_changeBot = std::make_shared<UI::Button>(texman);
+		_changeBot = std::make_shared<UI::Button>();
 		_changeBot->SetText(ConfBind(_lang.AI_player_modify));
 		_changeBot->Move(x3, 444);
 		_changeBot->eventClick = std::bind(&NewGameDlg::OnEditBot, this);
@@ -207,7 +207,7 @@ NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::F
 		AddFront(_changeBot);
 
 
-		btn = std::make_shared<UI::Button>(texman);
+		btn = std::make_shared<UI::Button>();
 		btn->SetText(ConfBind(_lang.dm_ok));
 		btn->Move(544, 510);
 		btn->eventClick = std::bind(&NewGameDlg::OnOK, this);
@@ -597,13 +597,13 @@ EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman,
 	// create buttons
 	//
 
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(176, 190);
 	btn->eventClick = std::bind(&Dialog::Close, this, _resultOK);
 	AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(texman);
+	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(280, 190);
 	btn->eventClick = std::bind(&Dialog::Close, this, _resultCancel);
@@ -802,13 +802,13 @@ EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfV
 	// create buttons
 	//
 
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(176, 190);
 	btn->eventClick = std::bind(&EditBotDlg::OnOK, this);
 	AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(texman);
+	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(280, 190);
 	btn->eventClick = std::bind(&EditBotDlg::OnCancel, this);

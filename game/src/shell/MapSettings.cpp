@@ -115,13 +115,13 @@ MapSettingsDlg::MapSettingsDlg(TextureManager &texman, World &world/*, const The
 	//
 	// OK & Cancel
 	//
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(304, 480);
 	btn->eventClick = std::bind(&MapSettingsDlg::OnOK, this);
 	AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(texman);
+	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_cancel));
 	btn->Move(408, 480);
 	btn->eventClick = std::bind(&MapSettingsDlg::OnCancel, this);

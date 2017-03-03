@@ -23,9 +23,9 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+PropertyList::PropertyList(UI::LayoutManager &manager, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
 	: UI::Managerful(manager)
-	, _deleteButton(std::make_shared<UI::Button>(texman))
+	, _deleteButton(std::make_shared<UI::Button>())
 	, _scrollView(std::make_shared<UI::ScrollView>())
 	, _psheet(std::make_shared<UI::StackLayout>())
 	, _world(world)

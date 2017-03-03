@@ -9,7 +9,7 @@ class Button;
 class ScrollBarBase : public Rectangle
 {
 public:
-	explicit ScrollBarBase(TextureManager &texman);
+	ScrollBarBase();
 
 	void SetShowButtons(bool showButtons);
 	bool GetShowButtons() const;

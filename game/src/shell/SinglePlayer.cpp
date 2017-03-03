@@ -87,7 +87,7 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
+SinglePlayer::SinglePlayer(UI::LayoutManager &manager, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
 	: UI::Managerful(manager)
 	, _worldView(worldView)
 	, _fs(fs)
@@ -97,9 +97,9 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, TextureManager &texman, W
 	, _dmCampaign(dmCampaign)
 	, _mapCache()
 	, _content(std::make_shared<UI::StackLayout>())
-	, _prevTier(std::make_shared<UI::Button>(texman))
+	, _prevTier(std::make_shared<UI::Button>())
 	, _mapTiles(std::make_shared<UI::StackLayout>())
-	, _nextTier(std::make_shared<UI::Button>(texman))
+	, _nextTier(std::make_shared<UI::Button>())
 {
 	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>();
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);

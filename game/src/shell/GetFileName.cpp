@@ -62,7 +62,7 @@ GetFileNameDlg::GetFileNameDlg(TextureManager &texman, const Params &param, Lang
 	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_ok));
 	btn->Move(400, 420);
 	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);

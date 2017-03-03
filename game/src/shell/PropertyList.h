@@ -23,7 +23,7 @@ class PropertyList
 	, private UI::Managerful
 {
 public:
-	PropertyList(UI::LayoutManager &manager, TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	PropertyList(UI::LayoutManager &manager, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	void ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman);
 	void DoExchange(bool applyToObject, TextureManager &texman);
 

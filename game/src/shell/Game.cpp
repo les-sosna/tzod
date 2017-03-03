@@ -130,7 +130,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 
 	if (deathmatch)
 	{
-		_campaignControls = std::make_shared<CampaignControls>(texman, *deathmatch, std::move(campaignControlCommands));
+		_campaignControls = std::make_shared<CampaignControls>(*deathmatch, std::move(campaignControlCommands));
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
 	}

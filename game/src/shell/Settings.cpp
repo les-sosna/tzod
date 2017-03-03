@@ -79,20 +79,20 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_content->SetFocus(_profiles);
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(_lang.settings_profile_new));
 	btn->Move(40, 184);
 	btn->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	AddFront(btn);
 
-	_editProfile = std::make_shared<UI::Button>(texman);
+	_editProfile = std::make_shared<UI::Button>();
 	_editProfile->SetText(ConfBind(_lang.settings_profile_edit));
 	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 	_editProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_editProfile);
 
-	_deleteProfile = std::make_shared<UI::Button>(texman);
+	_deleteProfile = std::make_shared<UI::Button>();
 	_deleteProfile->SetText(ConfBind(_lang.settings_profile_delete));
 	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
@@ -335,13 +335,13 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, TextureManager 
 	_arcadeStyleChkBox->SetText(_lang.profile_arcade_style.Get());
 	AddFront(_arcadeStyleChkBox);
 
-	auto btn = std::make_shared<UI::Button>(texman);
+	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(_lang.common_ok));
 	btn->Move(240, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	AddFront(btn);
 
-	btn = std::make_shared<UI::Button>(texman);
+	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(_lang.common_cancel));
 	btn->Move(344, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);

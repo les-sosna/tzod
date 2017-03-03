@@ -120,7 +120,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		}
 	}
 
-	_pauseButton = std::make_shared<UI::Button>(texman);
+	_pauseButton = std::make_shared<UI::Button>();
 	_pauseButton->SetBackground("ui/pause");
 	_pauseButton->AlignToBackground(texman);
 	_pauseButton->SetTopMost(true);
@@ -252,7 +252,7 @@ void Desktop::OnNewDM()
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _texman, _worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);
+		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);
 		dlg->eventSelectMap = [this](auto sender, int index)
 		{
 			_conf.sp_map.SetInt(index);
@@ -429,7 +429,7 @@ void Desktop::ShowMainMenu()
 			UpdateFocus();
 		}
 	};
-	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_texman, _lang, std::move(commands)));
+	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_lang, std::move(commands)));
 	UpdateFocus();
 }
 

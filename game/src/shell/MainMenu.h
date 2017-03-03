@@ -28,9 +28,7 @@ struct MainMenuCommands
 class MainMenuDlg : public UI::StackLayout
 {
 public:
-	MainMenuDlg(TextureManager &texman,
-	            LangCache &lang,
-	            MainMenuCommands commands);
+	MainMenuDlg(LangCache &lang, MainMenuCommands commands);
 
 private:
 	LangCache &_lang;

@@ -8,21 +8,21 @@
 
 using namespace UI::DataSourceAliases;
 
-CampaignControls::CampaignControls(TextureManager &texman, const Deathmatch &deathmatch, CampaignControlCommands commands)
+CampaignControls::CampaignControls(const Deathmatch &deathmatch, CampaignControlCommands commands)
 	: _content(std::make_shared<UI::StackLayout>())
 {
 	_content->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->SetSpacing(20);
 	AddFront(_content);
 
-	auto replay = std::make_shared<UI::Button>(texman);
+	auto replay = std::make_shared<UI::Button>();
 	replay->Resize(200, 50);
 	replay->SetFont("font_default");
 	replay->SetText("Replay"_txt);
 	replay->eventClick = std::move(commands.replayCurrent);
 	_content->AddFront(replay);
 
-	auto next = std::make_shared<UI::Button>(texman);
+	auto next = std::make_shared<UI::Button>();
 	next->Resize(200, 50);
 	next->SetFont("font_default");
 	next->SetText("Next"_txt);

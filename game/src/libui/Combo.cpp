@@ -23,7 +23,7 @@ ComboBox::ComboBox(TextureManager &texman, ListDataSource *dataSource)
 	_list->GetList()->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
 	AddFront(_list);
 
-	_btn = std::make_shared<Button>(texman);
+	_btn = std::make_shared<Button>();
 	_btn->SetBackground("ui/scroll_down");
 	_btn->AlignToBackground(texman);
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
