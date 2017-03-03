@@ -1,5 +1,6 @@
 #pragma once
 #include "MapCache.h"
+#include <ui/ListBase.h>
 #include <ui/Window.h>
 #include <array>
 #include <memory>
@@ -50,6 +51,7 @@ private:
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
 	MapCache _mapCache;
+	UI::ListDataSourceDefault _tiersSource;
 
 	std::shared_ptr<UI::StackLayout> _content;
 	std::shared_ptr<UI::Button> _prevTier;

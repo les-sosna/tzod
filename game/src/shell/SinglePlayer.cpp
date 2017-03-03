@@ -16,6 +16,7 @@
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
+#include <ui/Rectangle.h>
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
 #include <ui/Text.h>
@@ -85,6 +86,38 @@ namespace
 		DMCampaign &_dmCampaign;
 		size_t _mapIndex;
 	};
+
+	const auto c_tierBoxBorder = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
+		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff }, { "Hover", 0x88888888 } });
+	const auto c_tierBoxBackground = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
+		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff } });
+
+	class TierBox : public UI::Rectangle
+	{
+	public:
+		TierBox()
+		{
+			Resize(32, 32);
+			SetBackColor(c_tierBoxBackground);
+			SetBorderColor(c_tierBoxBorder);
+			SetTexture("ui/selection");
+
+			auto center = std::make_shared<UI::Rectangle>();
+			center->SetTexture("ui/editsel");
+			AddFront(center);
+		}
+
+		// UI::Window
+		float GetChildOpacity(const UI::Window &child) const override
+		{
+			return 0.5f;
+		}
+
+		FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override
+		{
+			return MakeRectWH(lc.GetPixelSize() / 4, lc.GetPixelSize() / 2);
+		}
+	};
 }
 
 SinglePlayer::SinglePlayer(UI::LayoutManager &manager, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
@@ -123,6 +156,16 @@ SinglePlayer::SinglePlayer(UI::LayoutManager &manager, WorldView &worldView, FS:
 
 	_content->AddFront(mapTilesWithTierButtons);
 	_content->SetFocus(mapTilesWithTierButtons);
+
+	_tiersSource.AddItem("");
+	_tiersSource.AddItem("");
+	_tiersSource.AddItem("");
+	_tiersSource.AddItem("");
+
+	auto tierSelector = std::make_shared<UI::List>(&_tiersSource);
+	tierSelector->SetItemTemplate(std::make_shared<TierBox>());
+	tierSelector->SetFlowDirection(UI::FlowDirection::Horizontal);
+//	_content->AddFront(tierSelector);
 
 	_content->SetSpacing(32);
 	_content->SetAlign(UI::Align::CT);

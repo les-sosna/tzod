@@ -66,7 +66,6 @@ private:
 	FlowDirection _flowDirection = FlowDirection::Vertical;
 
 	ListDataSource *_data;
-	std::vector<float> _tabs;
 
 	int _curSel;
 
