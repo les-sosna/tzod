@@ -75,11 +75,8 @@ void Window::Move(float x, float y)
 
 void Window::Resize(float width, float height)
 {
-	if( _width != width || _height != height )
-	{
-		_width  = width;
-		_height = height;
-	}
+	_width  = width;
+	_height = height;
 }
 
 void Window::SetTopMost(bool topmost)

@@ -13,7 +13,6 @@
 #include <ui/Button.h>
 #include <ui/DataContext.h>
 #include <ui/DataSource.h>
-#include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
 #include <ui/Rectangle.h>

@@ -3,7 +3,6 @@
 #include "inc/ui/DataSource.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
-#include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/UIInput.h"
 #include <video/TextureManager.h>

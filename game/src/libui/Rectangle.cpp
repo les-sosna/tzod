@@ -1,6 +1,5 @@
 #include "inc/ui/Rectangle.h"
 #include "inc/ui/DataSource.h"
-#include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>

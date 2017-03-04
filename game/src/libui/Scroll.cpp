@@ -1,7 +1,6 @@
 #include "inc/ui/Scroll.h"
 #include "inc/ui/Button.h"
 #include "inc/ui/DataSource.h"
-#include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include <algorithm>
 #include <cmath>

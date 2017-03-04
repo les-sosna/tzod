@@ -8,6 +8,7 @@
 #include <loc/Language.h>
 #include <ui/Button.h>
 #include <ui/DataSource.h>
+#include <ui/LayoutContext.h>
 #include <ui/ListBox.h>
 #include <ui/ListSelectionBinding.h>
 #include <ui/MultiColumnListItem.h>
@@ -16,7 +17,6 @@
 #include <ui/EditableText.h>
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
-#include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/ScrollView.h>
 #include <video/TextureManager.h>
@@ -31,9 +31,8 @@
 #define MAX_TIMELIMIT   1000
 #define MAX_FRAGLIMIT   10000
 
-NewGameDlg::NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-  : UI::Managerful(manager)
-  , _texman(texman)
+NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+  : _texman(texman)
   , _conf(conf)
   , _lang(lang)
 {
@@ -280,7 +279,7 @@ void NewGameDlg::OnAddPlayer()
 	p.SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _texman, p, _conf, _lang);
+	auto dlg = std::make_shared<EditPlayerDlg>(_texman, p, _conf, _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -312,7 +311,7 @@ void NewGameDlg::OnEditPlayer()
 	int index = _players->GetList()->GetCurSel();
 	assert(-1 != index);
 
-	auto dlg = std::make_shared<EditPlayerDlg>(GetManager(), _texman, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
+	auto dlg = std::make_shared<EditPlayerDlg>(_texman, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -336,7 +335,7 @@ void NewGameDlg::OnAddBot()
 	p.SetStr("skin", skinNames[rand() % skinNames.size()]);
 
 	_newPlayer = true;
-	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _texman, p, _lang);
+	auto dlg = std::make_shared<EditBotDlg>(_texman, p, _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -368,7 +367,7 @@ void NewGameDlg::OnEditBot()
 	int index = _bots->GetList()->GetCurSel();
 	assert(-1 != index);
 
-	auto dlg = std::make_shared<EditBotDlg>(GetManager(), _texman, _conf.dm_bots.GetAt(index).AsTable(), _lang);
+	auto dlg = std::make_shared<EditBotDlg>(_texman, _conf.dm_bots.GetAt(index).AsTable(), _lang);
 	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -433,9 +432,8 @@ bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EditPlayerDlg::EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang)
-  : UI::Managerful(manager)
-  , _info(&info)
+EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang)
+  : _info(&info)
 {
 	Resize(384, 220);
 
@@ -614,9 +612,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		auto &texman = GetManager().GetTextureManager();
-		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
-		_skinPreview->Resize(_skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman));
+		_skinPreview->SetTexture("skin/" + _skins->GetData()->GetItemText(index, 0));
 	}
 }
 
@@ -631,6 +627,16 @@ bool EditPlayerDlg::OnClose(int result)
 	return true;
 }
 
+FRECT EditPlayerDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+{
+	if (_skinPreview.get() == &child)
+	{
+		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
+		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScale());
+	}
+	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char* s_levels[16] = {
@@ -641,9 +647,8 @@ static const char* s_levels[16] = {
 	"bot_difficulty_4",
 };
 
-EditBotDlg::EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang)
-  : UI::Managerful(manager)
-  , _info(&info)
+EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &lang)
+  : _info(&info)
 {
 	Resize(384, 220);
 
@@ -835,8 +840,16 @@ void EditBotDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		auto &texman = GetManager().GetTextureManager();
-		_skinPreview->SetTexture(("skin/" + _skins->GetData()->GetItemText(index, 0)).c_str());
-		_skinPreview->Resize(_skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman));
+		_skinPreview->SetTexture("skin/" + _skins->GetData()->GetItemText(index, 0));
 	}
+}
+
+FRECT EditBotDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+{
+	if (_skinPreview.get() == &child)
+	{
+		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
+		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScale());
+	}
+	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }

@@ -8,8 +8,6 @@
 #include <ui/Button.h>
 #include <ui/Text.h>
 #include <ui/DataSourceAdapters.h>
-#include <ui/GuiManager.h>
-
 
 NewCampaignDlg::NewCampaignDlg(FS::FileSystem &fs, LangCache &lang)
   : _fs(fs)

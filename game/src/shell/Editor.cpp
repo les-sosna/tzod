@@ -172,7 +172,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager, _world, conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(manager.GetTextureManager(), _world, conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
@@ -228,7 +228,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 			}
 
 			_selectedObject = object;
-			_propList->ConnectTo(_selectedObject->GetProperties(_world), GetManager().GetTextureManager());
+			_propList->ConnectTo(_selectedObject->GetProperties(_world));
 			if( _conf.ed_showproperties.Get() )
 			{
 				_propList->SetVisible(true);
@@ -241,7 +241,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 		_selectedObject = nullptr;
 		_isObjectNew = false;
 
-		_propList->ConnectTo(nullptr, GetManager().GetTextureManager());
+		_propList->ConnectTo(nullptr);
 		_propList->SetVisible(false);
 	}
 }
@@ -295,7 +295,7 @@ void EditorLayout::ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperti
 		{
 			_quickActions.DoAction(*object);
 			
-			_propList->DoExchange(false, GetManager().GetTextureManager());
+			_propList->DoExchange(false);
 			if( _isObjectNew )
 				SaveToConfig(_conf, *object->GetProperties(_world));
 		}
@@ -325,7 +325,7 @@ void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	// Workaround: we do not get notifications when the object is killed
 	if (!_selectedObject)
 	{
-		_propList->ConnectTo(nullptr, GetManager().GetTextureManager());
+		_propList->ConnectTo(nullptr);
 		_propList->SetVisible(false);
 	}
 }
@@ -458,12 +458,12 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	{
 		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, dc, scale).y, size.x, size.y };
 	}
-    if (_propList.get() == &child)
-    {
-        float pxWidth = std::floor(100 * lc.GetScale());
-        float pxBottom = _typeSelector ? GetChildRect(texman, lc, dc, *_typeSelector).top : lc.GetPixelSize().y;
-        return FRECT{ lc.GetPixelSize().x - pxWidth, 0, lc.GetPixelSize().x, pxBottom };
-    }
+	if (_propList.get() == &child)
+	{
+		float pxWidth = std::floor(100 * lc.GetScale());
+		float pxBottom = _typeSelector ? GetChildRect(texman, lc, dc, *_typeSelector).top : lc.GetPixelSize().y;
+		return FRECT{ lc.GetPixelSize().x - pxWidth, 0, lc.GetPixelSize().x, pxBottom };
+	}
 
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }

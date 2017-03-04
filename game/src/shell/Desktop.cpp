@@ -279,7 +279,7 @@ void Desktop::OnNewDM()
 	}
 	else
 	{
-		auto dlg = std::make_shared<NewGameDlg>(GetManager(), _texman, _fs, _conf, _logger, _lang);
+		auto dlg = std::make_shared<NewGameDlg>(_texman, _fs, _conf, _logger, _lang);
 		dlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender);

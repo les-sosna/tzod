@@ -25,7 +25,6 @@ class ListDataSourceMaps;
 
 class NewGameDlg
 	: public UI::Dialog
-	, private UI::Managerful
 {
 	typedef UI::ListAdapter<ListDataSourceMaps, UI::ListBox> MapList;
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
@@ -49,7 +48,7 @@ class NewGameDlg
 	bool _newPlayer;
 
 public:
-	NewGameDlg(UI::LayoutManager &manager, TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
@@ -76,9 +75,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditPlayerDlg
-	: public UI::Dialog
-	, private UI::Managerful
+class EditPlayerDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
@@ -94,7 +91,10 @@ class EditPlayerDlg
 	ConfPlayerLocal _info;
 
 public:
-	EditPlayerDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang);
+	EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang);
+
+	// UI::Window
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
 
 protected:
 	void OnChangeSkin(int index);
@@ -105,9 +105,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EditBotDlg
-	: public UI::Dialog
-	, private UI::Managerful
+class EditBotDlg : public UI::Dialog
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
@@ -123,7 +121,10 @@ class EditBotDlg
 	ConfPlayerAI _info;
 
 public:
-	EditBotDlg(UI::LayoutManager &manager, TextureManager &texman, ConfVarTable &info, LangCache &lang);
+	EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &lang);
+
+	// UI::Window
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
 
 protected:
 	void OnOK();

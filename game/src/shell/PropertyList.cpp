@@ -12,7 +12,6 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
 #include <ui/EditableText.h>
-#include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
@@ -23,8 +22,8 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(UI::LayoutManager &manager, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-	: UI::Managerful(manager)
+PropertyList::PropertyList(TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+	: _texman(texman)
 	, _deleteButton(std::make_shared<UI::Button>())
 	, _scrollView(std::make_shared<UI::ScrollView>())
 	, _psheet(std::make_shared<UI::StackLayout>())
@@ -48,7 +47,7 @@ PropertyList::PropertyList(UI::LayoutManager &manager, World &world, ShellConfig
 	_psheet->SetSpacing(10);
 }
 
-void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
+void PropertyList::DoExchange(bool applyToObject)
 {
 	int focus = -1;
 
@@ -173,11 +172,11 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 				{
 					std::vector<std::string> names;
 					const char *filter = prop->GetType() == ObjectProperty::TYPE_SKIN ? "skin/" : nullptr;
-					texman.GetTextureNames(names, filter);
+					_texman.GetTextureNames(names, filter);
 					for( auto &name: names )
 					{
 						// only allow using textures which are less than half of a cell
-						const LogicalTexture &lt = texman.GetSpriteInfo(texman.FindSprite(name));
+						const LogicalTexture &lt = _texman.GetSpriteInfo(_texman.FindSprite(name));
 						if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
 						{
 							int index = static_cast<DefaultComboBox *>(ctrl.get())->GetData()->AddItem(name);
@@ -216,11 +215,13 @@ void PropertyList::DoExchange(bool applyToObject, TextureManager &texman)
 	}
 }
 
-void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps, TextureManager &texman)
+void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps)
 {
-	if( _ps == ps ) return;
-	_ps = std::move(ps);
-	DoExchange(false, texman);
+	if (_ps != ps)
+	{
+		_ps = std::move(ps);
+		DoExchange(false);
+	}
 }
 
 FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
@@ -242,7 +243,7 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	switch(key)
 	{
 	case UI::Key::Enter:
-		DoExchange(true, GetManager().GetTextureManager());
+		DoExchange(true);
 		SaveToConfig(_conf, *_ps);
 		break;
 	case UI::Key::Escape:

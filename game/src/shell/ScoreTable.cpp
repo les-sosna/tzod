@@ -6,7 +6,6 @@
 #include <gc/World.h>
 #include <gc/Macros.h>
 #include <loc/Language.h>
-#include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
