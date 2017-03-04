@@ -10,13 +10,11 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-MapPreview::MapPreview(TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache)
+MapPreview::MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache)
 	: _fs(fs)
 	, _worldView(worldView)
 	, _mapCache(mapCache)
-	, _font(texman.FindSprite("font_default"))
-	, _texSelection(texman.FindSprite("ui/selection"))
-	, _rating(std::make_shared<UI::Rating>(texman))
+	, _rating(std::make_shared<UI::Rating>())
 {
 	AddFront(_rating);
 }
@@ -59,16 +57,16 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
 	if (sc.GetState() == "Pushed")
 	{
-		rc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
-		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
+		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 	else if (sc.GetState() == "Unfocused")
 	{
-		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 	else if (sc.GetState() == "Hover")
 	{
-		rc.DrawSprite(sel, _texSelection, 0x44444444, 0);
+		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0x44444444, 0);
 	}
 }
 

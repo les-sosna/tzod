@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include <ctx/GameEvents.h>
 #include <gv/GameViewHarness.h>
+#include <ui/Texture.h>
 #include <ui/Window.h>
 #include <ui/Text.h>
 #include <unordered_map>
@@ -35,7 +36,6 @@ class GameLayout
 {
 public:
 	GameLayout(UI::LayoutManager &manager,
-	           TextureManager &texman,
 	           GameContext &gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,
@@ -70,8 +70,8 @@ private:
 	ShellConfig &_conf;
 	LangCache &_lang;
 	InputManager _inputMgr;
-	size_t _texDrag;
-	size_t _texTarget;
+	UI::Texture _texDrag = "ui/direction";
+	UI::Texture _texTarget = "ui/target";
 
 	std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 

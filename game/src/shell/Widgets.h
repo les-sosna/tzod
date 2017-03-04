@@ -29,7 +29,7 @@ protected:
 class Oscilloscope : public UI::Rectangle
 {
 public:
-	Oscilloscope(TextureManager &texman, float x, float y);
+	Oscilloscope(float x, float y);
 	void Push(TextureManager &texman, float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(const std::string &title);
@@ -42,8 +42,8 @@ protected:
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 
 private:
-	size_t _barTexture;
-	size_t _titleFont;
+	UI::Texture _barTexture = "ui/bar";
+	UI::Texture _titleFont = "font_small";
 	std::string _title;
 	std::deque<float> _data;
 	float _rangeMin;

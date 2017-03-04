@@ -7,10 +7,9 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-GameClassVis::GameClassVis(TextureManager &texman, WorldView &worldView)
+GameClassVis::GameClassVis(WorldView &worldView)
 	: _worldView(worldView)
 	, _world(RectRB{-2, -2, 2, 2})
-	, _texSelection(texman.FindSprite("ui/selection"))
 {
 }
 
@@ -38,15 +37,15 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
 	if (sc.GetState() == "Focused")
 	{
-		rc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
-		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
+		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 	else if (sc.GetState() == "Unfocused")
 	{
-		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 	else if (sc.GetState() == "Hover")
 	{
-		rc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 }

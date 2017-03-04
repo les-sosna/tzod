@@ -151,7 +151,6 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 
 
 EditorLayout::EditorLayout(UI::LayoutManager &manager,
-                           TextureManager &texman,
                            EditorContext &editorContext,
                            WorldView &worldView,
                            ShellConfig &conf,
@@ -162,8 +161,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   , _lang(lang)
   , _logger(logger)
   , _defaultCamera(Center(editorContext.GetOriginalBounds()))
-  , _fontSmall(texman.FindSprite("font_small"))
-  , _texSelection(texman.FindSprite("ui/selection"))
   , _world(editorContext.GetWorld())
   , _worldView(worldView)
   , _quickActions(logger, _world)
@@ -179,7 +176,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
-	auto gameClassVis = std::make_shared<GameClassVis>(texman, _worldView);
+	auto gameClassVis = std::make_shared<GameClassVis>(_worldView);
 	gameClassVis->Resize(64, 64);
 	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
@@ -496,8 +493,8 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		FRECT rt = GetSelectionRect(*selectedActor); // in world coord
 		FRECT sel = WorldToCanvas(lc, rt);
 
-		rc.DrawSprite(sel, _texSelection, 0xffffffff, 0);
-		rc.DrawBorder(sel, _texSelection, 0xffffffff, 0);
+		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
+		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 
 	// Mouse coordinates
@@ -505,7 +502,7 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	std::stringstream buf;
 	buf<<"x="<<floor(mouse.x+0.5f)<<"; y="<<floor(mouse.y+0.5f);
 	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
-		lc.GetScale(), _fontSmall, 0xffffffff, buf.str(), alignTextCT);
+		lc.GetScale(), _fontSmall.GetTextureId(texman), 0xffffffff, buf.str(), alignTextCT);
 }
 
 vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const

@@ -1,4 +1,5 @@
 #pragma once
+#include <ui/Texture.h>
 #include <ui/Window.h>
 #include <gc/World.h>
 #include <functional>
@@ -13,7 +14,7 @@ namespace UI
 class GameClassVis : public UI::Window
 {
 public:
-	GameClassVis(TextureManager &texman, WorldView &worldView);
+	explicit GameClassVis(WorldView &worldView);
 
 	void SetGameClass(std::shared_ptr<UI::RenderData<const std::string&>> className);
 
@@ -23,6 +24,6 @@ public:
 private:
 	WorldView &_worldView;
 	mutable World _world;
-	size_t _texSelection;
+	UI::Texture _texSelection = "ui/selection";
 	std::shared_ptr<UI::RenderData<const std::string&>> _className;
 };

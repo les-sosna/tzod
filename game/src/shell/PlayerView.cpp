@@ -4,10 +4,10 @@
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
-void PlayerView::SetPlayerConfig(ConfVarTable &playerConf, TextureManager &texman)
+void PlayerView::SetPlayerConfig(ConfVarTable &playerConf)
 {
 	_playerConfCache.reset(new ConfPlayerLocal(&playerConf));
-	_texSkin = texman.FindSprite(std::string("skin/") + _playerConfCache->skin.Get());
+	_texSkin = std::string("skin/") + _playerConfCache->skin.Get();
 }
 
 void PlayerView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
@@ -15,7 +15,7 @@ void PlayerView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	if (_playerConfCache)
 	{
 		vec2d pxSize = UI::ToPx(vec2d{ 64, 64 }, lc);
-		rc.DrawSprite(MakeRectWH(pxSize), _texSkin, 0xffffffff, 0);
+		rc.DrawSprite(MakeRectWH(pxSize), _texSkin.GetTextureId(texman), 0xffffffff, 0);
 	}
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <ui/Texture.h>
 #include <ui/Window.h>
 #include <memory>
 
@@ -10,15 +11,15 @@ class BotView : public UI::Window
 public:
 	explicit BotView(TextureManager &texman);
 
-	void SetBotConfig(ConfVarTable &botConf, TextureManager &texman);
+	void SetBotConfig(ConfVarTable &botConf);
 
 	// UI::Window
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 
 private:
-	size_t _texSkin = -1;
-	size_t _texRank;
-	size_t _font;
+	UI::Texture _texSkin;
+	UI::Texture _texRank = "rank_mark";
+	UI::Texture _font = "font_small";
 
 	std::unique_ptr<ConfPlayerAI> _botConfCache;
 };

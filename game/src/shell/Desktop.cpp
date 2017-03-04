@@ -110,7 +110,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
 		float hh = 50;
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
-			auto os = std::make_shared<Oscilloscope>(texman, xx, yy);
+			auto os = std::make_shared<Oscilloscope>(xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
@@ -252,7 +252,7 @@ void Desktop::OnNewDM()
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(GetManager(), _worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);
+		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _lang, _dmCampaign);
 		dlg->eventSelectMap = [this](auto sender, int index)
 		{
 			_conf.sp_map.SetInt(index);
@@ -666,7 +666,6 @@ void Desktop::OnGameContextChanged()
 
 		_game = std::make_shared<GameLayout>(
 			GetManager(),
-			_texman,
 			*gameContext,
 			_worldView,
 			gameContext->GetWorldController(),
@@ -688,7 +687,6 @@ void Desktop::OnGameContextChanged()
 		assert(!_editor);
 		_editor = std::make_shared<EditorLayout>(
 			GetManager(),
-			_texman,
 			*editorContext,
 			_worldView,
 			_conf,

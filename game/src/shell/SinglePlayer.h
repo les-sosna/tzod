@@ -25,12 +25,10 @@ namespace UI
 	class Text;
 }
 
-class SinglePlayer
-	: public UI::Window
-	, private UI::Managerful
+class SinglePlayer : public UI::Window
 {
 public:
-	SinglePlayer(UI::LayoutManager &manager, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
+	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
 
 	std::function<void(std::shared_ptr<SinglePlayer>, int)> eventSelectMap;
 

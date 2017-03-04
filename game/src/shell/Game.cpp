@@ -87,7 +87,6 @@ namespace
 ///////////////////////////////////////////////////////////////////////////////
 
 GameLayout::GameLayout(UI::LayoutManager &manager,
-                       TextureManager &texman,
                        GameContext &gameContext,
                        WorldView &worldView,
                        WorldController &worldController,
@@ -103,28 +102,26 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
-  , _texDrag(texman.FindSprite("ui/direction"))
-  , _texTarget(texman.FindSprite("ui/target"))
   , _scoreAndControls(std::make_shared<UI::StackLayout>())
 {
 	_scoreAndControls->SetSpacing(20);
 	_scoreAndControls->SetAlign(UI::Align::CT);
 	AddFront(_scoreAndControls);
 
-	_msg = std::make_shared<MessageArea>(manager, texman, _conf, logger);
+	_msg = std::make_shared<MessageArea>(manager, _conf, logger);
 	AddFront(_msg);
 
 	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext.GetGameplay());
 
 	if (deathmatch)
 	{
-		_rating = std::make_shared<UI::Rating>(texman);
+		_rating = std::make_shared<UI::Rating>();
 		_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(*deathmatch));
 		_rating->SetVisible(false);
 		_scoreAndControls->AddFront(_rating);
 	}
 
-	_score = std::make_shared<ScoreTable>(texman, _gameContext.GetWorld(), deathmatch, _lang);
+	_score = std::make_shared<ScoreTable>(_gameContext.GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
 
@@ -283,7 +280,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 				pos += dir;
 				uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
 				uint32_t rgb = reversing ? opacity : opacity << 8;
-				rc.DrawSprite(_texDrag, 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
+				rc.DrawSprite(_texDrag.GetTextureId(texman), 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
 			}
 		}
 		
@@ -293,7 +290,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			if (time > 0)
 			{
 				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
-				rc.DrawSprite(_texTarget, 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
+				rc.DrawSprite(_texTarget.GetTextureId(texman), 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
 			}
 		}
 	}

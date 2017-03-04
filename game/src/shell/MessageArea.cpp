@@ -7,9 +7,8 @@
 #include <video/RenderContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger)
+MessageArea::MessageArea(UI::LayoutManager &manager, ShellConfig &conf, UI::ConsoleBuffer &logger)
   : UI::Managerful(manager)
-  , _fontTexture(texman.FindSprite("font_small"))
   , _conf(conf)
   , _logger(logger)
 {
@@ -36,7 +35,7 @@ void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, co
 		return;
 	}
 
-	float h = texman.GetCharHeight(_fontTexture);
+	float h = texman.GetCharHeight(_font.GetTextureId(texman));
 	float y = std::max(_lines.front().time - 4.5f, 0.0f) * h * 2;
 	for( LineList::const_iterator it = _lines.begin(); it != _lines.end(); ++it )
 	{
@@ -47,7 +46,7 @@ void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, co
 		c.b = cc;
 		c.a = cc;
 
-		rc.DrawBitmapText(vec2d{ 0, y }, lc.GetScale(), _fontTexture, c, it->str);
+		rc.DrawBitmapText(vec2d{ 0, y }, lc.GetScale(), _font.GetTextureId(texman), c, it->str);
 		y -= h;
 	}
 }

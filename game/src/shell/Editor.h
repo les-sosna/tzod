@@ -3,6 +3,7 @@
 #include "DefaultCamera.h"
 #include <gc/Object.h>
 #include <gc/ObjPtr.h>
+#include <ui/Texture.h>
 #include <ui/Window.h>
 #include <functional>
 
@@ -45,9 +46,8 @@ class EditorLayout
 	std::shared_ptr<UI::Text> _layerDisp;
 	std::shared_ptr<UI::Text> _help;
 	std::shared_ptr<DefaultListBox> _typeSelector;
-	size_t _fontSmall;
-
-	size_t _texSelection;
+	UI::Texture _fontSmall = "font_small";
+	UI::Texture _texSelection = "ui/selection";
 
 	ObjPtr<GC_Object> _selectedObject;
 	bool _isObjectNew = false;
@@ -58,7 +58,6 @@ class EditorLayout
 
 public:
 	EditorLayout(UI::LayoutManager &manager,
-		TextureManager &texman,
 		EditorContext &editorContext,
 		WorldView &worldView,
 		ShellConfig &conf,

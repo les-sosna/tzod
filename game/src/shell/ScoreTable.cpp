@@ -23,10 +23,8 @@
 #define SCORE_NAMES_TOP      64
 #define SCORE_ROW_HEIGHT     24
 
-ScoreTable::ScoreTable(TextureManager &texman, World &world, const Deathmatch *deathmatch, LangCache &lang)
-  : _font(texman.FindSprite("font_default"))
-  , _texHighlight(texman.FindSprite("ui/selection"))
-  , _world(world)
+ScoreTable::ScoreTable(World &world, const Deathmatch *deathmatch, LangCache &lang)
+  : _world(world)
   , _deathmatch(deathmatch)
   , _lang(lang)
 {
@@ -69,7 +67,7 @@ void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			text << _lang.score_time_left.Get() << " " << (timeleft / 60) << ":" << std::setfill('0') << std::setw(2) << (timeleft % 60);
 		else
 			text << _lang.score_time_limit_hit.Get();
-		rc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_TIMELIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
+		rc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_TIMELIMIT_TOP }, lc), lc.GetScale(), _font.GetTextureId(texman), 0xffffffff, text.str());
 	}
 
 	if( _deathmatch && _deathmatch->GetFragLimit() > 0 )
@@ -80,12 +78,12 @@ void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			text << _lang.score_frags_left.Get() << " " << scoreleft;
 		else
 			text << _lang.score_frag_limit_hit.Get();
-		rc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_FRAGLIMIT_TOP }, lc), lc.GetScale(), _font, 0xffffffff, text.str());
+		rc.DrawBitmapText(ToPx(vec2d{ SCORE_LIMITS_LEFT, SCORE_FRAGLIMIT_TOP }, lc), lc.GetScale(), _font.GetTextureId(texman), 0xffffffff, text.str());
 	}
 
 	const size_t maxLines = 8;
 
-	float pxLineHeight = ToPx(texman.GetCharHeight(_font) - 1, lc);
+	float pxLineHeight = ToPx(texman.GetCharHeight(_font.GetTextureId(texman)) - 1, lc);
 	for (size_t i = 0; i < players.size(); ++i)
 	{
 		if (i == maxLines)
@@ -98,28 +96,29 @@ void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			float pxWidth = lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc) - lt.x;
 			vec2d pxMargin = ToPx(vec2d{ 3, 3 }, lc);
 			FRECT pxRect = MakeRectWH(lt - pxMargin, vec2d{ pxWidth, pxLineHeight } + pxMargin * 2);
-			rc.DrawSprite(pxRect, _texHighlight, 0xffffffff, 0);
-			rc.DrawBorder(pxRect, _texHighlight, 0xffffffff, 0);
+			rc.DrawSprite(pxRect, _texHighlight.GetTextureId(texman), 0xffffffff, 0);
+			rc.DrawBorder(pxRect, _texHighlight.GetTextureId(texman), 0xffffffff, 0);
 		}
 	}
 
+	size_t font = _font.GetTextureId(texman);
 	for (size_t i = 0; i < players.size(); ++i)
 	{
 		vec2d pxOffset = vec2d{ 0, pxLineHeight * (float)i };
 		if( i < maxLines)
 		{
-			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, players[i]->GetNick());
+			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), font, 0xffffffff, players[i]->GetNick());
 
 			std::ostringstream text;
 			text << (int) (i + 1);
-			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NUMBER, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, text.str());
+			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NUMBER, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), font, 0xffffffff, text.str());
 			text.str(std::string());
 			text << players[i]->GetScore();
-			rc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc), ToPx(SCORE_NAMES_TOP, lc) } + pxOffset, lc.GetScale(), _font, 0xffffffff, text.str(), alignTextRT);
+			rc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc), ToPx(SCORE_NAMES_TOP, lc) } + pxOffset, lc.GetScale(), font, 0xffffffff, text.str(), alignTextRT);
 		}
 		else
 		{
-			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), _font, 0xffffffff, "...");
+			rc.DrawBitmapText(ToPx(vec2d{ SCORE_POS_NAME, SCORE_NAMES_TOP }, lc) + pxOffset, lc.GetScale(), font, 0xffffffff, "...");
 			break;
 		}
 	}

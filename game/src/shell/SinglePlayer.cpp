@@ -120,9 +120,8 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(UI::LayoutManager &manager, WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
-	: UI::Managerful(manager)
-	, _worldView(worldView)
+SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
+	: _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
 	, _conf(conf)
@@ -189,7 +188,7 @@ void SinglePlayer::UpdateTier()
 	{
 		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(mapIndex));
 
-		auto mapPreview = std::make_shared<MapPreview>(GetManager().GetTextureManager(), _fs, _worldView, _mapCache);
+		auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _mapCache);
 		mapPreview->Resize(c_tileSize, c_tileSize);
 		mapPreview->SetPadding(c_tileSpacing / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));

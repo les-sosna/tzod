@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 #include "Window.h"
 
 namespace UI
@@ -8,8 +9,6 @@ namespace UI
 	class Rating : public Window
 	{
 	public:
-		Rating(TextureManager &texman);
-
 		void SetMaxRating(unsigned int maxRating) { _maxRating = maxRating; }
 		void SetRating(std::shared_ptr<RenderData<unsigned int>> rating);
 
@@ -18,7 +17,7 @@ namespace UI
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 	private:
-		size_t _texture;
+		Texture _texture = "ui/star";
 		unsigned int _maxRating = 3;
 		std::shared_ptr<RenderData<unsigned int>> _rating;
 	};

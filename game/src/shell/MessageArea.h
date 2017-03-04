@@ -1,10 +1,10 @@
 #pragma once
+#include <ui/Texture.h>
 #include <ui/Window.h>
 #include <string>
 #include <deque>
 
 class ShellConfig;
-class TextureManager;
 
 namespace UI
 {
@@ -16,7 +16,7 @@ class MessageArea
 	, private UI::Managerful
 {
 public:
-	MessageArea(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, UI::ConsoleBuffer &logger);
+	MessageArea(UI::LayoutManager &manager, ShellConfig &conf, UI::ConsoleBuffer &logger);
 
 	void WriteLine(const std::string &text);
 	void Clear();
@@ -33,7 +33,7 @@ private:
 	};
 	typedef std::deque<Line> LineList;
 	LineList _lines;
-	size_t _fontTexture;
+	UI::Texture _font = "font_small";
 	ShellConfig &_conf;
 	UI::ConsoleBuffer &_logger;
 };

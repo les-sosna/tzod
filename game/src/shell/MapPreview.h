@@ -1,4 +1,5 @@
 #pragma once
+#include <ui/Texture.h>
 #include <ui/Window.h>
 #include <memory>
 #include <string>
@@ -18,7 +19,7 @@ namespace UI
 class MapPreview: public UI::Window
 {
 public:
-	MapPreview(TextureManager &texman, FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
+	MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
 
 	void SetMapName(std::shared_ptr<UI::RenderData<const std::string&>> mapName);
 	void SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating);
@@ -33,8 +34,8 @@ private:
 	FS::FileSystem &_fs;
 	WorldView &_worldView;
 	MapCache &_mapCache;
-	size_t _font;
-	size_t _texSelection;
+	UI::Texture _font = "font_default";
+	UI::Texture _texSelection = "ui/selection";
 	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<UI::RenderData<const std::string&>> _mapName;
 	float _padding = 0;
