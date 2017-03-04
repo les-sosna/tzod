@@ -55,4 +55,5 @@ private:
 	std::shared_ptr<UI::Button> _prevTier;
 	std::shared_ptr<UI::StackLayout> _mapTiles;
 	std::shared_ptr<UI::Button> _nextTier;
+	std::shared_ptr<UI::List> _tierSelector;
 };

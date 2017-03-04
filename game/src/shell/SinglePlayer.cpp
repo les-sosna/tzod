@@ -102,14 +102,8 @@ namespace
 			SetTexture("ui/selection");
 
 			auto center = std::make_shared<UI::Rectangle>();
-			center->SetTexture("ui/editsel");
+			center->SetTexture("ui/list");
 			AddFront(center);
-		}
-
-		// UI::Window
-		float GetChildOpacity(const UI::Window &child) const override
-		{
-			return 0.5f;
 		}
 
 		FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override
@@ -131,6 +125,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _prevTier(std::make_shared<UI::Button>())
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _nextTier(std::make_shared<UI::Button>())
+	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
 	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>();
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
@@ -155,15 +150,23 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	_content->AddFront(mapTilesWithTierButtons);
 	_content->SetFocus(mapTilesWithTierButtons);
 
-	_tiersSource.AddItem("");
-	_tiersSource.AddItem("");
-	_tiersSource.AddItem("");
-	_tiersSource.AddItem("");
+	for (size_t i = 0; i < _dmCampaign.tiers.GetSize(); i++)
+	{
+		_tiersSource.AddItem("");
+	}
 
-	auto tierSelector = std::make_shared<UI::List>(&_tiersSource);
-	tierSelector->SetItemTemplate(std::make_shared<TierBox>());
-	tierSelector->SetFlowDirection(UI::FlowDirection::Horizontal);
-//	_content->AddFront(tierSelector);
+	_tierSelector->SetItemTemplate(std::make_shared<TierBox>());
+	_tierSelector->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_tierSelector->eventChangeCurSel = [=](int index)
+	{
+		if (index != -1)
+		{
+			_conf.sp_tier.SetInt(index);
+			_conf.sp_map.SetInt(0);
+			UpdateTier();
+		}
+	};
+	_content->AddFront(_tierSelector);
 
 	_content->SetSpacing(32);
 	_content->SetAlign(UI::Align::CT);
@@ -180,6 +183,7 @@ void SinglePlayer::UpdateTier()
 
 	_prevTier->SetVisible(currentTier > 0);
 	_nextTier->SetVisible(currentTier + 1 < (int)_dmCampaign.tiers.GetSize());
+	_tierSelector->SetCurSel(currentTier);
 
 	_mapTiles->UnlinkAllChildren();
 
