@@ -116,5 +116,5 @@ void Window::SetVisible(bool visible)
 
 FRECT UI::CanvasLayout(vec2d offset, vec2d size, float scale)
 {
-	return MakeRectWH(Vec2dFloor(offset * scale), Vec2dFloor(size * scale));
+	return MakeRectWH(ToPx(offset, scale), ToPx(size, scale));
 }
