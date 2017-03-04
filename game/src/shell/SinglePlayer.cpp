@@ -86,23 +86,19 @@ namespace
 		size_t _mapIndex;
 	};
 
-	const auto c_tierBoxBorder = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
-		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff }, { "Hover", 0x88888888 } });
-	const auto c_tierBoxBackground = std::make_shared<UI::StateBinding<SpriteColor>>(0x00000000, // default
-		UI::StateBinding<SpriteColor>::MapType{ { "Focused", 0xffffffff },{ "Unfocused", 0xffffffff } });
+	const auto c_tierBoxFrame = std::make_shared<UI::StateBinding<unsigned int>>(1, // default
+		UI::StateBinding<unsigned int>::MapType{ { "Normal", 0 } });
 
 	class TierBox : public UI::Rectangle
 	{
 	public:
 		TierBox()
 		{
-			Resize(32, 32);
-			SetBackColor(c_tierBoxBackground);
-			SetBorderColor(c_tierBoxBorder);
-			SetTexture("ui/selection");
+			Resize(64, 64);
 
 			auto center = std::make_shared<UI::Rectangle>();
 			center->SetTexture("ui/list");
+			center->SetFrame(c_tierBoxFrame);
 			AddFront(center);
 		}
 

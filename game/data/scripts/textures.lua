@@ -257,7 +257,7 @@ return {
      ["ui/scroll_left"]={left=96, right=108, top=144, bottom=192, xframes=1, yframes=4, xpivot=0, ypivot=0, border=2},
      ["ui/scroll_hor"]={left=108, right=132, top=144, bottom=192, xframes=1, yframes=4, xpivot=0, ypivot=0, border=2},
      ["ui/scroll_right"]={left=132, right=144, top=144, bottom=192, xframes=1, yframes=4, xpivot=0, ypivot=0, border=2},
-     ["ui/list"]={left=64, right=72, top=192, bottom=200, xframes=1, yframes=1, xpivot=0, ypivot=0, border=2},
+     ["ui/list"]={left=64, right=80, top=192, bottom=200, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/listsel"]={left=0, right=32, top=192, bottom=208, xpivot=0, ypivot=0, border=2},
      ["ui/edit"]={left=64, right=72, top=200, bottom=208, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/editsel"]={left=40, right=48, top=200, bottom=208, xpivot=0, ypivot=0, border=2},
