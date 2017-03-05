@@ -4,6 +4,7 @@
 #include "ObjPtr.h"
 #include "WorldEvents.h"
 #include "detail/GlobalListHelper.h"
+#include "detail/JobManager.h"
 #include "detail/MemoryManager.h"
 #include "detail/PtrList.h"
 #include <map>
@@ -107,6 +108,8 @@ public:
 
 	PtrList<GC_Object>& GetList(GlobalListID id) { return _objectLists[id]; }
 	const PtrList<GC_Object>& GetList(GlobalListID id) const { return _objectLists[id]; }
+
+	JobManager<GC_Turret> _jobManager;
 
 	Grid<PtrList<GC_Object>>  grid_rigid_s;
 	Grid<PtrList<GC_Object>>  grid_walls;

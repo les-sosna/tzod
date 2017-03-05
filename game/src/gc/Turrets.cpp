@@ -14,7 +14,6 @@
 
 #include "inc/gc/SaveFile.h"
 
-#include "inc/gc/detail/JobManager.h"
 #include <MapFile.h>
 
 
@@ -25,8 +24,6 @@
 
 IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);
 
-JobManager<GC_Turret> GC_Turret::_jobManager;
-
 GC_Turret::GC_Turret(vec2d pos, TurretState state)
   : GC_RigidBodyStatic(pos)
   , _rotator(_dir)
@@ -36,8 +33,6 @@ GC_Turret::GC_Turret(vec2d pos, TurretState state)
   , _sight(TURET_SIGHT_RADIUS)
 {
 	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
-
-	_jobManager.RegisterMember(this);
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 }
 
@@ -49,10 +44,6 @@ GC_Turret::GC_Turret(FromFile)
 
 GC_Turret::~GC_Turret()
 {
-	if( TS_WAITING == _state || TS_HIDDEN == _state )
-	{
-		_jobManager.UnregisterMember(this);
-	}
 }
 
 void GC_Turret::Serialize(World &world, SaveFile &f)
@@ -70,7 +61,7 @@ void GC_Turret::Serialize(World &world, SaveFile &f)
 
 	if( f.loading() && (TS_WAITING == _state || TS_HIDDEN == _state) )
 	{
-		_jobManager.RegisterMember(this);
+		world._jobManager.RegisterMember(this);
 	}
 }
 
@@ -115,14 +106,14 @@ void GC_Turret::SetFire(World &world, bool fire)
 
 void GC_Turret::SelectTarget(World &world, GC_Vehicle *target)
 {
-	_jobManager.UnregisterMember(this);
+	world._jobManager.UnregisterMember(this);
 	_target = target;
 	SetState(world, TS_ATACKING);
 }
 
-void GC_Turret::TargetLost()
+void GC_Turret::TargetLost(World &world)
 {
-	_jobManager.RegisterMember(this);
+	world._jobManager.RegisterMember(this);
 	_target = nullptr;
 	_state  = TS_WAITING;
 }
@@ -154,7 +145,7 @@ void GC_Turret::ProcessState(World &world, float dt)
 	switch( GetState() )
 	{
 	case TS_WAITING:
-		if( _jobManager.TakeJob(this) )
+		if( world._jobManager.TakeJob(this) )
 		{
 			if( GC_Vehicle *target = EnumTargets(world) )
 				SelectTarget(world, target);
@@ -183,10 +174,10 @@ void GC_Turret::ProcessState(World &world, float dt)
 				}
 			}
 			else
-				TargetLost();
+				TargetLost(world);
 		}
 		else
-			TargetLost();
+			TargetLost(world);
 		break;
 	} // end case TS_ATACKING
 	default:
@@ -216,6 +207,12 @@ void GC_Turret::SetInitialDir(float initialDir)
 	_initialDir = _dir;
 }
 
+void GC_Turret::Init(World &world)
+{
+	GC_RigidBodyStatic::Init(world);
+	world._jobManager.RegisterMember(this);
+}
+
 void GC_Turret::Kill(World &world)
 {
 	SetFire(world, false);
@@ -224,6 +221,10 @@ void GC_Turret::Kill(World &world)
 		_rotator.stop(true);
 		for( auto ls: world.eGC_Turret._listeners )
 			ls->OnRotationStateChange(*this);
+	}
+	if (TS_WAITING == _state || TS_HIDDEN == _state)
+	{
+		world._jobManager.UnregisterMember(this);
 	}
 	GC_RigidBodyStatic::Kill(world);
 }
@@ -487,14 +488,14 @@ GC_TurretBunker::~GC_TurretBunker()
 
 void GC_TurretBunker::WakeUp(World &world)
 {
-	_jobManager.UnregisterMember(this);
+	world._jobManager.UnregisterMember(this);
 	SetState(world, TS_WAKING_UP);
 }
 
 void GC_TurretBunker::WakeDown(World &world)
 {
 	SetState(world, TS_PREPARE_TO_WAKEDOWN);
-	_jobManager.UnregisterMember(this);
+	world._jobManager.UnregisterMember(this);
 }
 
 void GC_TurretBunker::OnDamage(World &world, DamageDesc &dd)
@@ -537,12 +538,12 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 			}
 			else
 			{
-				TargetLost();
+				TargetLost(world);
 			}
 		}
 		else
 		{
-			TargetLost();
+			TargetLost(world);
 		}
 		_time_wait = world.net_frand(_time_wait_max);
 		break;
@@ -566,7 +567,7 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 		break;
 
 	case TS_HIDDEN:
-		if( _jobManager.TakeJob(this) )
+		if( world._jobManager.TakeJob(this) )
 		{
 			if( EnumTargets(world) )
                 WakeUp(world);
@@ -579,7 +580,7 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 		{
 			_time_wake = _time_wake_max;
 			SetState(world, TS_WAITING);
-			_jobManager.RegisterMember(this);
+			world._jobManager.RegisterMember(this);
 		}
 		break;
 
@@ -589,7 +590,7 @@ void GC_TurretBunker::ProcessState(World &world, float dt)
 		{
 			_time_wake = 0;
 			SetState(world, TS_HIDDEN);
-			_jobManager.RegisterMember(this);
+			world._jobManager.RegisterMember(this);
 		}
 		break;
 
@@ -713,11 +714,11 @@ GC_TurretGauss::~GC_TurretGauss()
 {
 }
 
-void GC_TurretGauss::TargetLost()
+void GC_TurretGauss::TargetLost(World &world)
 {
 	_shotCount = 0;
 	_time      = 0;
-	GC_TurretBunker::TargetLost();
+	GC_TurretBunker::TargetLost(world);
 }
 
 void GC_TurretGauss::Serialize(World &world, SaveFile &f)
@@ -747,7 +748,7 @@ void GC_TurretGauss::TimeStep(World &world, float dt)
 			Shoot(world);
 			if( ++_shotCount == 2 )
 			{
-				TargetLost();
+				TargetLost(world);
 				WakeDown(world);
 			}
 		}

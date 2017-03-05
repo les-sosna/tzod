@@ -3,7 +3,6 @@
 #include "RigidBody.h"
 #include "ObjPtr.h"
 
-template<class T> class JobManager;
 class GC_Vehicle;
 
 enum TurretState
@@ -25,14 +24,13 @@ class GC_Turret : public GC_RigidBodyStatic
     typedef GC_RigidBodyStatic base;
 
 protected:
-	static JobManager<GC_Turret> _jobManager;
 	ObjPtr<GC_Vehicle> _target;
 
 protected:
 	virtual void ProcessState(World &world, float dt);
 	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) = 0;
 	bool IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
-	virtual void TargetLost();
+	virtual void TargetLost(World &world);
 	GC_Vehicle* EnumTargets(World &world);
 	void SelectTarget(World &world, GC_Vehicle *target);
 	void SetFire(World &world, bool fire);
@@ -56,6 +54,7 @@ public:
 	void OnDestroy(World &world, const DamageDesc &dd) override;
 
 	// GC_Object
+	void Init(World &world) override;
 	void Kill(World &world) override;
 	void MapExchange(MapFile &f) override;
 	void Serialize(World &world, SaveFile &f) override;
@@ -232,7 +231,7 @@ public:
 
 	// GC_Turret
     void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
-    void TargetLost() override;
+    void TargetLost(World &world) override;
 
 	// GC_RigidBodyStatic
     float GetDefaultHealth() const override { return 250; }

@@ -20,6 +20,7 @@ add_library(gc
 	Indicators.cpp
 	Light.cpp
 #	MessageBox.cpp
+	MapCache.cpp
 	Object.cpp
 	ObjectProperty.cpp
 	Particles.cpp

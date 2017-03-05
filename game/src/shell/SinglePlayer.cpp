@@ -107,14 +107,14 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign)
+SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign, MapCache &mapCache)
 	: _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
 	, _conf(conf)
 	, _lang(lang)
 	, _dmCampaign(dmCampaign)
-	, _mapCache()
+	, _mapCache(mapCache)
 	, _content(std::make_shared<UI::StackLayout>())
 	, _prevTier(std::make_shared<UI::Button>())
 	, _mapTiles(std::make_shared<UI::StackLayout>())

@@ -1,5 +1,4 @@
 #pragma once
-#include "MapCache.h"
 #include <ui/ListBase.h>
 #include <ui/Window.h>
 #include <array>
@@ -10,6 +9,7 @@ class AppConfig;
 class ShellConfig;
 class LangCache;
 class DMCampaign;
+class MapCache;
 class MapPreview;
 class World;
 class WorldView;
@@ -28,7 +28,7 @@ namespace UI
 class SinglePlayer : public UI::Window
 {
 public:
-	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign);
+	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign, MapCache &mapCache);
 
 	std::function<void(std::shared_ptr<SinglePlayer>, int)> eventSelectMap;
 
@@ -48,7 +48,7 @@ private:
 	ShellConfig &_conf;
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
-	MapCache _mapCache;
+	MapCache &_mapCache;
 	UI::ListDataSourceDefault _tiersSource;
 
 	std::shared_ptr<UI::StackLayout> _content;

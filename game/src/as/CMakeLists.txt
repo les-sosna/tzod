@@ -10,9 +10,9 @@ include_directories(
 	${Ctx_SOURCE_DIR}/inc
 #	${AI_SOURCE_DIR}/inc
 	${FileSystem_SOURCE_DIR}/inc
-#	${GC_SOURCE_DIR}/inc
+	${GC_SOURCE_DIR}/inc
 #	${MapFile_SOURCE_DIR}/inc
-#	${Math_SOURCE_DIR}/inc
+	${Math_SOURCE_DIR}/inc
 	${Script_SOURCE_DIR}/inc
 )
 

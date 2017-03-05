@@ -1,7 +1,7 @@
-#include "MapCache.h"
+#include "inc/gc/MapCache.h"
+#include "inc/gc/World.h"
 #include <MapFile.h>
 #include <fs/FileSystem.h>
-#include <gc/World.h>
 
 static std::unique_ptr<World> LoadMap(FS::FileSystem &fs, const std::string &mapName)
 {

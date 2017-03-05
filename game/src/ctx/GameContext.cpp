@@ -2,40 +2,21 @@
 #include "inc/ctx/GameContext.h"
 #include "inc/ctx/WorldController.h"
 #include "AIManager.h"
-#include <fs/FileSystem.h>
 #include <gc/Player.h>
 #include <gc/SaveFile.h>
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 #include <script/ScriptHarness.h>
-#include <MapFile.h>
 
 #define AI_MAX_LEVEL   4U
 
-
-GameContext::GameContext(FS::Stream &map, const DMSettings &settings, int campaignTier, int campaignMap)
+GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
 	: _campaignTier(campaignTier)
 	, _campaignMap(campaignMap)
+	, _world(std::move(world))
 {
-	MapFile file(map, false);
-
-	int width, height;
-	if (!file.getMapAttribute("width", width) ||
-	    !file.getMapAttribute("height", height))
-	{
-		throw std::runtime_error("unknown map size");
-	}
-
-	int left = 0;
-	int top = 0;
-	file.getMapAttribute("west_bound", left);
-	file.getMapAttribute("north_bound", top);
-
-	_world.reset(new World(RectRB{ left, top, left + width, top + height }));
-	_aiManager.reset(new AIManager(*_world));
-
 	_world->Seed(rand());
-	_world->Import(file);
+	_aiManager.reset(new AIManager(*_world));
 
 	for( const PlayerDesc &pd: settings.players )
 	{

@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
+#include <memory>
 
 class AppState;
 class AppConfig;
 class DMCampaign;
+class MapCache;
 
 namespace FS
 {
@@ -14,10 +16,14 @@ class AppController
 {
 public:
 	AppController(FS::FileSystem &fs);
+	~AppController();
 	void Step(AppState &appState, AppConfig &appConfig, float dt);
 //    void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
 	void StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
 
+	MapCache& GetMapCache() { return *_mapCache; }
+
 private:
 	FS::FileSystem &_fs;
+	std::unique_ptr<MapCache> _mapCache;
 };

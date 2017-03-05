@@ -12,7 +12,6 @@ struct Gameplay;
 
 namespace FS
 {
-	class FileSystem;
 	struct Stream;
 }
 
@@ -43,7 +42,7 @@ struct DMSettings
 class GameContext : public GameContextBase
 {
 public:
-	GameContext(FS::Stream &map, const DMSettings &settings, int campaignTier, int campaignMap);
+	GameContext(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap);
 	virtual ~GameContext();
 	WorldController& GetWorldController() { return *_worldController; }
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }

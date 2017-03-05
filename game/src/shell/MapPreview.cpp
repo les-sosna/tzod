@@ -1,12 +1,12 @@
-#include "MapCache.h"
 #include "MapPreview.h"
-#include <render/WorldView.h>
+#include <gc/MapCache.h>
 #include <gc/World.h>
 #include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
 #include <ui/Rating.h>
 #include <ui/StateContext.h>
+#include <render/WorldView.h>
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 

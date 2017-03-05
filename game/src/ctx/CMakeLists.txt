@@ -15,6 +15,16 @@ include_directories(
 )
 
 add_library(ctx
+	inc/ctx/Deathmatch.h
+	inc/ctx/EditorContext.h
+	inc/ctx/GameContext.h
+	inc/ctx/GameContextBase.h
+	inc/ctx/GameEvents.h
+	inc/ctx/Gameplay.h
+	inc/ctx/ScriptMessageBroadcaster.h
+	inc/ctx/ScriptMessageSource.h
+	inc/ctx/WorldController.h
+
 	AIManager.cpp
 	Deathmatch.cpp
 	EditorContext.cpp
