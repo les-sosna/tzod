@@ -1,4 +1,5 @@
 #pragma once
+#include <math/MyMath.h>
 #include <string>
 
 class TextureManager;
@@ -21,6 +22,7 @@ namespace UI
 		{}
 
 		size_t GetTextureId(const TextureManager &texman) const;
+		vec2d GetTextureSize(const TextureManager &texman) const;
 
 		bool Empty() const { return -1 == _cachedTextureId; }
 

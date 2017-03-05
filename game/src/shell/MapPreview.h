@@ -23,7 +23,6 @@ public:
 
 	void SetMapName(std::shared_ptr<UI::RenderData<const std::string&>> mapName);
 	void SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating);
-
 	void SetPadding(float padding) { _padding = padding; }
 
 	// UI::Window
@@ -36,6 +35,7 @@ private:
 	MapCache &_mapCache;
 	UI::Texture _font = "font_default";
 	UI::Texture _texSelection = "ui/selection";
+	UI::Texture _texLock = "ui/lock";
 	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<UI::RenderData<const std::string&>> _mapName;
 	float _padding = 0;

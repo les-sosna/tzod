@@ -94,7 +94,7 @@ namespace
 	public:
 		TierBox()
 		{
-			Resize(64, 64);
+			Resize(48, 48);
 
 			auto center = std::make_shared<UI::Rectangle>();
 			center->SetTexture("ui/list");
@@ -164,7 +164,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	};
 	_content->AddFront(_tierSelector);
 
-	_content->SetSpacing(32);
+	_content->SetSpacing(64);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
 	SetFocus(_content);

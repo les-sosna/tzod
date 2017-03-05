@@ -125,19 +125,6 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-static vec2d GetTextureSize(const Texture &texture, const TextureManager &texman)
-{
-	if (texture.Empty())
-	{
-		return vec2d{};
-	}
-	else
-	{
-		size_t texId = texture.GetTextureId(texman);
-		return vec2d{ texman.GetFrameWidth(texId, 0), texman.GetFrameHeight(texId, 0) };
-	}
-}
-
 FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
@@ -149,7 +136,7 @@ FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 	}
 	else if (_btn.get() == &child)
 	{
-		vec2d btnSize = GetTextureSize(_btn->GetBackground(), texman);
+		vec2d btnSize = _btn->GetBackground().GetTextureSize(texman);
 		float top = std::floor((size.y - btnSize.y * scale) / 2);
 		return MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) });
 	}
@@ -166,7 +153,7 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 		itemDC.SetDataContext(_list->GetList()->GetData());
 	}
 	vec2d itemSize = _list->GetList()->GetItemTemplate()->GetContentSize(texman, itemDC, scale);
-	vec2d pxBtnSize = ToPx(GetTextureSize(_btn->GetBackground(), texman), scale);
+	vec2d pxBtnSize = ToPx(_btn->GetBackground().GetTextureSize(texman), scale);
 	return vec2d{ itemSize.x + pxBtnSize.x, std::max(itemSize.y, pxBtnSize.y) };
 }
 
