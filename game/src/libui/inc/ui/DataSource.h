@@ -1,4 +1,5 @@
 #pragma once
+#include "StateContext.h"
 #include <video/RenderBase.h>
 #include <map>
 #include <memory>
