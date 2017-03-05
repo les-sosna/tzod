@@ -249,7 +249,7 @@ static unsigned int GetPointerID(int touchIndex)
     [super touchesEnded:touches withEvent:event];
 }
 
-- (void)touchesCancelled:(nullable NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event
+- (void)touchesCancelled:(nonnull NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event
 {
     for (UITouch *touch in touches)
     {
