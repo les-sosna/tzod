@@ -29,13 +29,11 @@ using namespace UI::DataSourceAliases;
 
 namespace
 {
-	int GetTierProgress(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, size_t mapIndex)
+	int GetMapRating(AppConfig &appConfig, int tierIndex, size_t mapIndex)
 	{
-		int tier = GetCurrentTier(conf, dmCampaign);
-
-		if (tier < (int)appConfig.sp_tiersprogress.GetSize())
+		if (tierIndex < (int)appConfig.sp_tiersprogress.GetSize())
 		{
-			ConfVarArray &tierProgress = appConfig.sp_tiersprogress.GetArray(tier);
+			ConfVarArray &tierProgress = appConfig.sp_tiersprogress.GetArray(tierIndex);
 			return mapIndex < tierProgress.GetSize() ? tierProgress.GetNum(mapIndex).GetInt() : 0;
 		}
 		else
@@ -55,7 +53,7 @@ namespace
 
 		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
-			return GetTierProgress(_appConfig, _conf, _dmCampaign, dc.GetItemIndex());
+			return GetMapRating(_appConfig, GetCurrentTier(_conf, _dmCampaign), dc.GetItemIndex());
 		}
 
 	private:
@@ -76,7 +74,7 @@ namespace
 
 		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
-			return GetTierProgress(_appConfig, _conf, _dmCampaign, _mapIndex);
+			return GetMapRating(_appConfig, GetCurrentTier(_conf, _dmCampaign), _mapIndex);
 		}
 
 	private:
@@ -172,6 +170,17 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	UpdateTier();
 }
 
+static int GetTierRating(const DMCampaign &dmCampaign, AppConfig &appConfig, int tier)
+{
+	int tierRating = INT_MAX;
+	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(tier));
+	for (size_t mapIndex = 0; mapIndex < tierDesc.maps.GetSize(); mapIndex++)
+	{
+		tierRating = std::min(tierRating, GetMapRating(appConfig, tier, mapIndex));
+	}
+	return tierRating;
+}
+
 void SinglePlayer::UpdateTier()
 {
 	int currentTier = GetCurrentTier(_conf, _dmCampaign);
@@ -182,6 +191,8 @@ void SinglePlayer::UpdateTier()
 	_tierSelector->SetCurSel(currentTier);
 
 	_mapTiles->UnlinkAllChildren();
+
+	bool locked = currentTier> 0 && GetTierRating(_dmCampaign, _appConfig, currentTier - 1) == 0;
 
 	for (size_t mapIndex = 0; mapIndex < tierDesc.maps.GetSize(); mapIndex++)
 	{
@@ -197,6 +208,10 @@ void SinglePlayer::UpdateTier()
 		mpButton->AddFront(mapPreview);
 		mpButton->Resize(c_tileSize, c_tileSize);
 		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
+		if (locked)
+		{
+			mpButton->SetEnabled(UI::StaticValue<bool>::False());
+		}
 
 		_mapTiles->AddFront(mpButton);
 	}

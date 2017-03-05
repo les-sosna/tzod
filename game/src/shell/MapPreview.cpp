@@ -31,12 +31,13 @@ void MapPreview::SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating)
 
 void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
+	vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
+	vec2d pxViewSize = lc.GetPixelSize() - pxPadding * 2;
+	FRECT pxContentRect = MakeRectWH(pxPadding, pxViewSize);
+
 	if (_mapName)
 	{
 		const World &world = _mapCache.GetCachedWorld(_fs, _mapName->GetValue(dc, sc));
-
-		vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
-		vec2d pxViewSize = lc.GetPixelSize() - pxPadding * 2;
 
 		vec2d worldSize = Size(world._bounds);
 		vec2d eye = Center(world._bounds);
@@ -45,7 +46,7 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 		_worldView.Render(
 			rc,
 			world,
-			FRectToRect(MakeRectWH(pxPadding, pxViewSize)),
+			FRectToRect(pxContentRect),
 			eye,
 			zoom,
 			false, // editorMode
@@ -70,6 +71,8 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	}
 	else if (sc.GetState() == "Disabled")
 	{
+		rc.DrawSprite(pxContentRect, _texLockShade.GetTextureId(texman), 0xffffffff, 0);
+
 		vec2d pxSize = ToPx(_texLock.GetTextureSize(texman), lc);
 		auto rect = MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxSize) / 2), pxSize);
 		rc.DrawSprite(rect, _texLock.GetTextureId(texman), 0x88888888, 0);
@@ -85,4 +88,3 @@ FRECT MapPreview::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	}
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
-

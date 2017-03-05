@@ -33,9 +33,9 @@ private:
 	FS::FileSystem &_fs;
 	WorldView &_worldView;
 	MapCache &_mapCache;
-	UI::Texture _font = "font_default";
 	UI::Texture _texSelection = "ui/selection";
 	UI::Texture _texLock = "ui/lock";
+	UI::Texture _texLockShade = "ui/window";
 	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<UI::RenderData<const std::string&>> _mapName;
 	float _padding = 0;
