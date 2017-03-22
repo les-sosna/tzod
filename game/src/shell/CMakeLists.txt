@@ -1,26 +1,4 @@
 cmake_minimum_required (VERSION 3.3)
-project(Shell)
-
-include_directories(
-	${AS_SOURCE_DIR}/inc
-	${Config_SOURCE_DIR}/inc
-	${Ctx_SOURCE_DIR}/inc
-	${FileSystem_SOURCE_DIR}/inc
-	${GC_SOURCE_DIR}/inc
-	${GCLua_SOURCE_DIR}/inc
-	${GV_SOURCE_DIR}/inc
-	${LibUI_SOURCE_DIR}/inc
-	${Loc_SOURCE_DIR}/inc
-	${LuaEtc_SOURCE_DIR}/inc
-	${MapFile_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
-	${Render_SOURCE_DIR}/inc
-	${Script_SOURCE_DIR}/inc
-	${Video_SOURCE_DIR}/inc
-
-	# 3rd party
-	${Lua_SOURCE_DIR}/src
-)
 
 add_library(shell
 	inc/shell/detail/ConfigConsoleHistory.h
@@ -105,3 +83,4 @@ target_link_libraries(shell
 	luaetc
 )
 
+target_include_directories(shell INTERFACE inc)

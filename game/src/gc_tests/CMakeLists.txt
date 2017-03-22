@@ -1,11 +1,6 @@
 cmake_minimum_required (VERSION 3.3)
 project(GCTests)
 
-include_directories(
-	${GC_SOURCE_DIR}/inc
-	${gtest_SOURCE_DIR}/include
-)
-
 add_executable(gc_tests
 	PtrList_tests.cpp
 )
@@ -13,4 +8,8 @@ add_executable(gc_tests
 target_link_libraries(gc_tests
 	gc
 	gtest_main
+)
+
+target_include_directories(gc_tests PRIVATE
+	${gtest_SOURCE_DIR}/include
 )

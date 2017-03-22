@@ -1,9 +1,7 @@
 cmake_minimum_required (VERSION 3.3)
-project(OggVorbis)
 if(WIN32)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
-include_directories(include)
 add_library(oggvorbis
 	ogg/bitwise.c
 	ogg/framing.c
@@ -29,3 +27,5 @@ add_library(oggvorbis
 	vorbis/vorbisfile.c
 	vorbis/window.c
 )
+
+target_include_directories(oggvorbis PUBLIC include)

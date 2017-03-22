@@ -1,15 +1,6 @@
 cmake_minimum_required (VERSION 3.3)
 project(TZodMain CXX)
 
-include_directories(
-	${App_SOURCE_DIR}/inc
-	${AS_SOURCE_DIR}/inc
-	${FileSystem_SOURCE_DIR}/inc
-	${PlatGLFW_SOURCE_DIR}/inc
-
-	${LibUI_SOURCE_DIR}/inc # logger
-)
-
 link_directories(${Boost_LIBRARY_DIR})
 
 if(WIN32)

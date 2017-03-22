@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 3.3)
-project(Lua)
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 add_library(lua
 	src/lapi.c
@@ -32,3 +31,4 @@ add_library(lua
 	src/ltable.c
 	src/lvm.c
 )
+target_include_directories(lua INTERFACE src)

@@ -1,20 +1,8 @@
 cmake_minimum_required (VERSION 3.3)
-project(Script)
 
 if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
-
-include_directories(
-	${GC_SOURCE_DIR}/inc
-	${GCLua_SOURCE_DIR}/inc
-	${FileSystem_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
-
-	# 3rd party
-	${Lua_SOURCE_DIR}/src
-	${Pluto_SOURCE_DIR}
-)
 
 add_library(script
 	script.cpp
@@ -34,3 +22,5 @@ target_link_libraries(script
 	lua
 	pluto
 )
+
+target_include_directories(script INTERFACE inc)

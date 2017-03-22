@@ -1,15 +1,8 @@
 cmake_minimum_required (VERSION 3.3)
-project(Render)
 
 if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
-
-include_directories(
-	${GC_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
-	${Video_SOURCE_DIR}/inc
-)
 
 add_library(render
 	inc/render/ObjectView.h
@@ -68,3 +61,4 @@ target_link_libraries(render
 	video
 )
 
+target_include_directories(render INTERFACE inc)

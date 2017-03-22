@@ -1,14 +1,8 @@
 cmake_minimum_required (VERSION 3.3)
-project(LibUI)
 
 if(APPLE OR UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 endif()
-
-include_directories(
-	${Math_SOURCE_DIR}/inc
-	${Video_SOURCE_DIR}/inc
-)
 
 add_library(ui
 	Button.cpp
@@ -72,3 +66,5 @@ add_library(ui
 target_link_libraries(ui
 	video
 )
+
+target_include_directories(ui INTERFACE inc)

@@ -1,15 +1,8 @@
 cmake_minimum_required (VERSION 3.3)
-project(GC)
 
 if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
-
-include_directories(
-	${FileSystem_SOURCE_DIR}/inc
-	${MapFile_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
-)
 
 add_library(gc
 	Actor.cpp
@@ -48,5 +41,7 @@ add_library(gc
 target_link_libraries(gc
 	filesystem
 	mapfile
+	math
 )
 
+target_include_directories(gc INTERFACE inc)

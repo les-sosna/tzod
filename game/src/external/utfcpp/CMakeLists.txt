@@ -1,2 +1,5 @@
 cmake_minimum_required (VERSION 3.3)
-project(Utf8cpp)
+
+add_library(utf8cpp INTERFACE)
+
+target_include_directories(utf8cpp INTERFACE .)

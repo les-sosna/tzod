@@ -1,15 +1,6 @@
 cmake_minimum_required (VERSION 3.3)
 project(UITestApp CXX)
 
-include_directories(
-	${FileSystem_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
-	${PlatGLFW_SOURCE_DIR}/inc
-	${Video_SOURCE_DIR}/inc
-
-	${LibUI_SOURCE_DIR}/inc
-)
-
 link_directories(${Boost_LIBRARY_DIR})
 
 set(UITestApp_SOURCES

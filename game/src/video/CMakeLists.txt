@@ -1,19 +1,8 @@
 cmake_minimum_required (VERSION 3.3)
-project(Video)
 
 if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
-
-include_directories(
-	${FileSystem_SOURCE_DIR}/inc
-	${Math_SOURCE_DIR}/inc
-	${LuaEtc_SOURCE_DIR}/inc
-
-	# 3rd party
-	${GLFW_SOURCE_DIR}/include
-	${Lua_SOURCE_DIR}/src
-)
 
 set(video_SOURCES
 	inc/video/ImageLoader.h
@@ -52,5 +41,14 @@ target_link_libraries(video
 	filesystem
 	lua
 	luaetc
+	math
+	
 	${GLFW_LIBRARIES}
 )
+
+target_include_directories(video PRIVATE
+	# 3rd party
+	${GLFW_SOURCE_DIR}/include
+)
+
+target_include_directories(video INTERFACE inc)
