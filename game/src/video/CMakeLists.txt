@@ -37,12 +37,12 @@ endif()
 
 add_library(video ${video_SOURCES})
 
-target_link_libraries(video
+target_link_libraries(video PRIVATE
 	filesystem
 	lua
 	luaetc
 	math
-	
+
 	${GLFW_LIBRARIES}
 )
 

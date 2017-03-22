@@ -8,7 +8,7 @@ add_library(mapfile
 	MapFile.cpp
 )
 
-target_link_libraries(mapfile
+target_link_libraries(mapfile PRIVATE
 	filesystem
 )
 

@@ -14,7 +14,7 @@ add_library(gv
 	ThemeManager.cpp
 )
 
-target_link_libraries(gv
+target_link_libraries(gv PRIVATE
 	as
 	ctx
 	filesystem

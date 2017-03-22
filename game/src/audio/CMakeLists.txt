@@ -31,8 +31,9 @@ endif()
 
 add_library(audio ${Audio_SOURCES})
 
-target_link_libraries(audio
+target_link_libraries(audio PRIVATE
 	as
+	ctx
 	${Audio_LIBS}
 )
 

@@ -24,11 +24,12 @@ add_library(ctx
 	WorldController.cpp
 )
 
-target_link_libraries(ctx
+target_link_libraries(ctx PRIVATE
 	ai
 	filesystem
 	gc
-	script
+	mapfile
+	PUBLIC script
 )
 
 target_include_directories(ctx INTERFACE inc)

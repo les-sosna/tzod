@@ -63,7 +63,8 @@ add_library(ui
 	inc/ui/Window.h
 )
 
-target_link_libraries(ui
+target_link_libraries(ui PUBLIC
+	math
 	video
 )
 

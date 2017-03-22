@@ -15,8 +15,8 @@ add_library(ai
 )
 
 target_link_libraries(ai
-	gc
-	filesystem
+	PRIVATE gc
+	PRIVATE filesystem
 )
 
 target_include_directories(ai INTERFACE inc)

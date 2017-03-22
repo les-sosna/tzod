@@ -69,18 +69,20 @@ add_library(shell
 	Widgets.cpp
 )
 
-target_link_libraries(shell
+target_link_libraries(shell PRIVATE
 	as
 	config
-	loc
+	ctx
+	filesystem
 	gc
 	gclua
 	gv
+	loc
 	mapfile
-	render
 	ui
 	lua
-	luaetc
+
+	PUBLIC luaetc render
 )
 
 target_include_directories(shell INTERFACE inc)

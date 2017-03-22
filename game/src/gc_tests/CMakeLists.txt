@@ -5,7 +5,7 @@ add_executable(gc_tests
 	PtrList_tests.cpp
 )
 
-target_link_libraries(gc_tests
+target_link_libraries(gc_tests PRIVATE
 	gc
 	gtest_main
 )

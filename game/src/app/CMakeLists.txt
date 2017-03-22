@@ -15,16 +15,19 @@ add_library(app
 )
 
 if(WITH_SOUND)
-	target_link_libraries(app audio)
+	target_link_libraries(app PRIVATE audio)
 else()
 	add_definitions(-DNOSOUND)
 endif()
 
-target_link_libraries(app
+target_link_libraries(app PRIVATE
 	as
+	config
 	ctx
+	filesystem
 	loc
 	shell
+	ui
 	video
 )
 

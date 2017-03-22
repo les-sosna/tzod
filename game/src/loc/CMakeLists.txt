@@ -6,6 +6,6 @@ endif()
 
 add_library(loc Language.cpp)
 
-target_link_libraries(loc config)
+target_link_libraries(loc PRIVATE config)
 
 target_include_directories(loc INTERFACE inc)

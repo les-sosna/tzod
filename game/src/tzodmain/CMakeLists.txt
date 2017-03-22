@@ -17,7 +17,9 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(tzodmain
+target_link_libraries(tzodmain PRIVATE
 	app
+	as
+	filesystem
 	platglfw
 )

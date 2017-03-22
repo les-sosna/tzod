@@ -22,7 +22,7 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
-target_link_libraries(uitestapp
+target_link_libraries(uitestapp PRIVATE
 	platglfw
 	ui
 )

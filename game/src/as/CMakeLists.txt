@@ -17,9 +17,10 @@ add_library(as
 	AppStateListener.cpp
 )
 
-target_link_libraries(as
+target_link_libraries(as PRIVATE
 	config
 	ctx
+	gc
 	filesystem
 )
 

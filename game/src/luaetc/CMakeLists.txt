@@ -6,6 +6,6 @@ endif()
 
 add_library(luaetc LuaDeleter.cpp)
 
-target_link_libraries(luaetc lua)
+target_link_libraries(luaetc PRIVATE lua)
 
 target_include_directories(luaetc INTERFACE inc)

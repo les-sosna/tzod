@@ -13,7 +13,7 @@ add_library(script
 	sPlayer.cpp
 )
 
-target_link_libraries(script
+target_link_libraries(script PRIVATE
 	gc
 	gclua
 	filesystem

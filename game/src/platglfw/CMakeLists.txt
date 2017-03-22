@@ -7,10 +7,11 @@ add_library(platglfw
 	Timer.cpp
 )
 
-target_link_libraries(platglfw
-	ui
+target_link_libraries(platglfw PRIVATE
 	glfw
 	${GLFW_LIBRARIES}
+	
+	PUBLIC ui	
 )
 
 target_include_directories(platglfw PRIVATE

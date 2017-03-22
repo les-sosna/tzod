@@ -39,9 +39,9 @@ add_library(gc
 )
 
 target_link_libraries(gc
-	filesystem
-	mapfile
-	math
+	PRIVATE filesystem
+	PRIVATE mapfile
+	PUBLIC math
 )
 
 target_include_directories(gc INTERFACE inc)

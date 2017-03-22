@@ -57,8 +57,8 @@ add_library(render
 )
 
 target_link_libraries(render
-	gc
-	video
+	PRIVATE video
+	PUBLIC gc
 )
 
 target_include_directories(render INTERFACE inc)

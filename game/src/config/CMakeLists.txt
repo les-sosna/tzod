@@ -12,7 +12,7 @@ add_library(config
 	ConfigCache.cpp
 )
 
-target_link_libraries(config
+target_link_libraries(config PRIVATE
 	# 3rd party
 	lua
 )
