@@ -31,3 +31,4 @@ game/WinRT/ipch/
 *.sdf
 game/WinRT/AppPackages/
 game/WinRT/wtzod/BundleArtifacts/
+game/src/.vs/
