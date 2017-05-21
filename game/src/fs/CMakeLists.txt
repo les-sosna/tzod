@@ -10,7 +10,7 @@ if(WIN32)
 else()
 	list(APPEND FileSystem_SOURCES FileSystemPosix.cpp)
 endif()
-   
+
 add_library(filesystem ${FileSystem_SOURCES})
 
 target_link_libraries(filesystem PRIVATE utf8cpp)

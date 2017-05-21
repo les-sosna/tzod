@@ -23,6 +23,7 @@ else()
 endif()
 
 target_link_libraries(uitestapp PRIVATE
+	filesystem
 	platglfw
 	ui
 )
