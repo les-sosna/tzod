@@ -23,10 +23,8 @@ if(IOS)
 	)
 elseif(WINRT)
 	list(APPEND video_SOURCES
-		inc/video/RenderDirect3D.h
 		inc/video/RenderD3D11.h
 		RenderD3D11.cpp
-#		RenderDirect3D.cpp
 	)
 else()
 	list(APPEND video_SOURCES
