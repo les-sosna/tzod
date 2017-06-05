@@ -9,9 +9,9 @@ add_library(platglfw
 
 target_link_libraries(platglfw PRIVATE
 	glfw
-	${GLFW_LIBRARIES}
+	opengl32
 	
-	PUBLIC ui	
+	PUBLIC ui
 )
 
 target_include_directories(platglfw PRIVATE

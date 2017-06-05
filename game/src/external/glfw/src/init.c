@@ -1,8 +1,8 @@
 //========================================================================
-// GLFW 3.0 - www.glfw.org
+// GLFW 3.2 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006-2016 Camilla Berglund <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -33,14 +33,15 @@
 #include <stdarg.h>
 
 
+// The three global variables below comprise all global data in GLFW.
+// Any other global variable is a bug.
+
 // Global state shared between compilation units of GLFW
 // These are documented in internal.h
 //
-GLboolean _glfwInitialized = GL_FALSE;
+GLFWbool _glfwInitialized = GLFW_FALSE;
 _GLFWlibrary _glfw;
 
-
-// The current error callback
 // This is outside of _glfw so it can be initialized and usable before
 // glfwInit is called, which lets that function report errors
 //
@@ -64,16 +65,18 @@ static const char* getErrorString(int error)
         case GLFW_OUT_OF_MEMORY:
             return "Out of memory";
         case GLFW_API_UNAVAILABLE:
-            return "The requested client API is unavailable";
+            return "The requested API is unavailable";
         case GLFW_VERSION_UNAVAILABLE:
-            return "The requested client API version is unavailable";
+            return "The requested API version is unavailable";
         case GLFW_PLATFORM_ERROR:
             return "A platform-specific error occurred";
         case GLFW_FORMAT_UNAVAILABLE:
             return "The requested format is unavailable";
+        case GLFW_NO_WINDOW_CONTEXT:
+            return "The specified window has no context";
+        default:
+            return "ERROR: UNKNOWN GLFW ERROR";
     }
-
-    return "ERROR: UNKNOWN ERROR TOKEN PASSED TO glfwErrorString";
 }
 
 
@@ -85,7 +88,7 @@ void _glfwInputError(int error, const char* format, ...)
 {
     if (_glfwErrorCallback)
     {
-        char buffer[16384];
+        char buffer[8192];
         const char* description;
 
         if (format)
@@ -117,30 +120,25 @@ void _glfwInputError(int error, const char* format, ...)
 GLFWAPI int glfwInit(void)
 {
     if (_glfwInitialized)
-        return GL_TRUE;
+        return GLFW_TRUE;
 
     memset(&_glfw, 0, sizeof(_glfw));
 
     if (!_glfwPlatformInit())
     {
         _glfwPlatformTerminate();
-        return GL_FALSE;
+        return GLFW_FALSE;
     }
 
     _glfw.monitors = _glfwPlatformGetMonitors(&_glfw.monitorCount);
-    if (_glfw.monitors == NULL)
-    {
-        _glfwInputError(GLFW_PLATFORM_ERROR, "No monitors found");
-        _glfwPlatformTerminate();
-        return GL_FALSE;
-    }
+    _glfwInitialized = GLFW_TRUE;
 
-    _glfwInitialized = GL_TRUE;
+    _glfw.timerOffset = _glfwPlatformGetTimerValue();
 
     // Not all window hints have zero as their default value
     glfwDefaultWindowHints();
 
-    return GL_TRUE;
+    return GLFW_TRUE;
 }
 
 GLFWAPI void glfwTerminate(void)
@@ -152,9 +150,11 @@ GLFWAPI void glfwTerminate(void)
 
     memset(&_glfw.callbacks, 0, sizeof(_glfw.callbacks));
 
-    // Close all remaining windows
     while (_glfw.windowListHead)
         glfwDestroyWindow((GLFWwindow*) _glfw.windowListHead);
+
+    while (_glfw.cursorListHead)
+        glfwDestroyCursor((GLFWcursor*) _glfw.cursorListHead);
 
     for (i = 0;  i < _glfw.monitorCount;  i++)
     {
@@ -163,13 +163,16 @@ GLFWAPI void glfwTerminate(void)
             _glfwPlatformSetGammaRamp(monitor, &monitor->originalRamp);
     }
 
-    _glfwDestroyMonitors(_glfw.monitors, _glfw.monitorCount);
+    _glfwTerminateVulkan();
+
+    _glfwFreeMonitors(_glfw.monitors, _glfw.monitorCount);
     _glfw.monitors = NULL;
     _glfw.monitorCount = 0;
 
     _glfwPlatformTerminate();
 
-    _glfwInitialized = GL_FALSE;
+    memset(&_glfw, 0, sizeof(_glfw));
+    _glfwInitialized = GLFW_FALSE;
 }
 
 GLFWAPI void glfwGetVersion(int* major, int* minor, int* rev)

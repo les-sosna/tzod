@@ -40,8 +40,6 @@ target_link_libraries(video PRIVATE
 	lua
 	luaetc
 	math
-
-	${GLFW_LIBRARIES}
 )
 
 target_include_directories(video PRIVATE

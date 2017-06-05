@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.4)
-project(tzod)
+project(tzod VERSION 1.52)
 
 if(APPLE OR UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
