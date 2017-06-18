@@ -252,7 +252,7 @@ void Desktop::OnNewDM()
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
 		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
 	{
-		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _lang, _dmCampaign, _appController.GetMapCache());
+		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetMapCache());
 		dlg->eventSelectMap = [this](auto sender, int index)
 		{
 			_conf.sp_map.SetInt(index);

@@ -7,7 +7,6 @@
 #include <MapFile.h>
 #include <fs/FileSystem.h>
 #include <gc/World.h>
-#include <loc/Language.h>
 #include <render/WorldView.h>
 #include <video/RenderContext.h>
 #include <ui/Button.h>
@@ -107,12 +106,11 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, LangCache &lang, DMCampaign &dmCampaign, MapCache &mapCache)
+SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, MapCache &mapCache)
 	: _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
 	, _conf(conf)
-	, _lang(lang)
 	, _dmCampaign(dmCampaign)
 	, _mapCache(mapCache)
 	, _content(std::make_shared<UI::StackLayout>())

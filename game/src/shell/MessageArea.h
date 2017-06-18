@@ -4,8 +4,6 @@
 #include <string>
 #include <deque>
 
-class ShellConfig;
-
 namespace UI
 {
 	class ConsoleBuffer;
@@ -16,7 +14,7 @@ class MessageArea
 	, private UI::Managerful
 {
 public:
-	MessageArea(UI::LayoutManager &manager, ShellConfig &conf, UI::ConsoleBuffer &logger);
+	MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger);
 
 	void WriteLine(const std::string &text);
 	void Clear();
@@ -34,6 +32,5 @@ private:
 	typedef std::deque<Line> LineList;
 	LineList _lines;
 	UI::Texture _font = "font_small";
-	ShellConfig &_conf;
 	UI::ConsoleBuffer &_logger;
 };

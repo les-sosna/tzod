@@ -95,6 +95,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        UI::ConsoleBuffer &logger,
                        CampaignControlCommands campaignControlCommands)
   : UI::Managerful(manager)
+  , _scoreAndControls(std::make_shared<UI::StackLayout>())
   , _gameContext(gameContext)
   , _gameViewHarness(gameContext.GetWorld(), worldController)
   , _worldView(worldView)
@@ -102,13 +103,12 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
-  , _scoreAndControls(std::make_shared<UI::StackLayout>())
 {
 	_scoreAndControls->SetSpacing(20);
 	_scoreAndControls->SetAlign(UI::Align::CT);
 	AddFront(_scoreAndControls);
 
-	_msg = std::make_shared<MessageArea>(manager, _conf, logger);
+	_msg = std::make_shared<MessageArea>(manager, logger);
 	AddFront(_msg);
 
 	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext.GetGameplay());

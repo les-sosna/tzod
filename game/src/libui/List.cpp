@@ -100,14 +100,14 @@ void List::SetCurSel(int sel, bool scroll)
 	if( _curSel != sel )
 	{
 		_curSel = sel;
-		if( scroll )
-		{
-			float fs = (float) sel;
-			//if( fs < GetScrollPos() )
-			//	SetScrollPos(fs);
-			//else if( fs > GetScrollPos() + GetNumLinesVisible() - 1 )
-			//	SetScrollPos(fs - GetNumLinesVisible() + 1);
-		}
+//		if( scroll )
+//		{
+//			float fs = (float) sel;
+//			if( fs < GetScrollPos() )
+//				SetScrollPos(fs);
+//			else if( fs > GetScrollPos() + GetNumLinesVisible() - 1 )
+//				SetScrollPos(fs - GetNumLinesVisible() + 1);
+//		}
 
 		if( eventChangeCurSel )
 			eventChangeCurSel(sel);

@@ -1,5 +1,4 @@
 #include "MessageArea.h"
-#include "inc/shell/Config.h"
 #include <ui/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
@@ -7,9 +6,8 @@
 #include <video/RenderContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(UI::LayoutManager &manager, ShellConfig &conf, UI::ConsoleBuffer &logger)
+MessageArea::MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger)
   : UI::Managerful(manager)
-  , _conf(conf)
   , _logger(logger)
 {
 }

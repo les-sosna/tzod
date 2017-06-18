@@ -173,7 +173,7 @@ public:
         assert(0 == _allocatedCount);
         for( size_t i = 0; i < _blockCount; ++i )
             assert(!_blocks[i]._block);
-        printf("MemoryPool<%s>: peak allocation is %zu\n", typeid(T).name(), _allocatedPeak);
+//        printf("MemoryPool<%s>: peak allocation is %zu\n", typeid(T).name(), _allocatedPeak);
 #endif
 		free(_blocks);
 	}

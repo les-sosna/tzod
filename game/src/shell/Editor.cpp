@@ -159,7 +159,6 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
   : UI::Managerful(manager)
   , _conf(conf)
   , _lang(lang)
-  , _logger(logger)
   , _defaultCamera(Center(editorContext.GetOriginalBounds()))
   , _world(editorContext.GetWorld())
   , _worldView(worldView)

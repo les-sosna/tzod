@@ -11,9 +11,9 @@
 #define AI_MAX_LEVEL   4U
 
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
-	: _campaignTier(campaignTier)
+    : _world(std::move(world))
+	, _campaignTier(campaignTier)
 	, _campaignMap(campaignMap)
-	, _world(std::move(world))
 {
 	_world->Seed(rand());
 	_aiManager.reset(new AIManager(*_world));

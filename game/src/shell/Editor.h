@@ -40,7 +40,6 @@ class EditorLayout
 
 	ShellConfig &_conf;
 	LangCache &_lang;
-	UI::ConsoleBuffer &_logger;
 	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;

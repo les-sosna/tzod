@@ -23,10 +23,10 @@
 #include <algorithm>
 
 PropertyList::PropertyList(TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
-	: _texman(texman)
-	, _deleteButton(std::make_shared<UI::Button>())
-	, _scrollView(std::make_shared<UI::ScrollView>())
+	: _deleteButton(std::make_shared<UI::Button>())
+    , _scrollView(std::make_shared<UI::ScrollView>())
 	, _psheet(std::make_shared<UI::StackLayout>())
+    , _texman(texman)
 	, _world(world)
 	, _conf(conf)
 	, _logger(logger)

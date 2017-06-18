@@ -1,5 +1,5 @@
 #include "rFireSpark.h"
-#include <gc/projectiles.h>
+#include <gc/Projectiles.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
