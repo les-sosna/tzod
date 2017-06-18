@@ -1,6 +1,0 @@
-bots and ram
-
-unable to select tank in editor
-
-it's possible to open dialogs several times (F2)
-
