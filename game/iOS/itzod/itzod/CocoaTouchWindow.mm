@@ -79,7 +79,7 @@ float CocoaTouchWindow::GetPixelHeight() const
 
 float CocoaTouchWindow::GetLayoutScale() const
 {
-    return _pxWidth / _scale < 800 || _pxHeight / _scale < 600 ? _scale / 2 : _scale;
+    return _scale;
 }
 
 void CocoaTouchWindow::SetInputSink(UI::LayoutManager *inputSink)
