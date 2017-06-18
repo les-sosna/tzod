@@ -4,7 +4,7 @@
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
 #include <ui/Pointers.h>
-#include <ui/StateContext.h>
+#include <ui/DataContext.h>
 #include <map>
 
 @interface GameView ()
@@ -62,8 +62,8 @@ static unsigned int GetPointerID(int touchIndex)
             static_cast<float>(location.y * self.contentScaleFactor)};
         sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                desktop,
-                                               UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
-                                               UI::StateContext(),
+                                               UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
+                                               UI::DataContext(),
                                                pxPointerPos,
                                                vec2d{},
                                                UI::Msg::TAP,
@@ -90,8 +90,8 @@ static unsigned int GetPointerID(int touchIndex)
             static_cast<float>(location.y * self.contentScaleFactor)};
         sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                desktop,
-                                               UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
-                                               UI::StateContext(),
+                                               UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
+                                               UI::DataContext(),
                                                pxPointerPos,
                                                vec2d{static_cast<float>(translation.x), static_cast<float>(translation.y)}/30 * self.contentScaleFactor / _appWindow->GetLayoutScale(),
                                                UI::Msg::Scroll,
@@ -165,8 +165,8 @@ static unsigned int GetPointerID(int touchIndex)
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
-                                                   UI::StateContext(),
+                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
+                                                   UI::DataContext(),
                                                    pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerDown,
@@ -199,8 +199,8 @@ static unsigned int GetPointerID(int touchIndex)
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
-                                                   UI::StateContext(),
+                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
+                                                   UI::DataContext(),
                                                    pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerMove,
@@ -234,8 +234,8 @@ static unsigned int GetPointerID(int touchIndex)
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
-                                                   UI::StateContext(),
+                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
+                                                   UI::DataContext(),
                                                    pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerUp,
@@ -270,8 +270,8 @@ static unsigned int GetPointerID(int touchIndex)
                 static_cast<float>(location.y * self.contentScaleFactor)};
             sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
                                                    desktop,
-                                                   UI::LayoutContext(_appWindow->GetLayoutScale(), vec2d{}, pxDesktopSize, true),
-                                                   UI::StateContext(),
+                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
+                                                   UI::DataContext(),
                                                    pxPointerPos,
                                                    vec2d{},
                                                    UI::Msg::PointerCancel,
