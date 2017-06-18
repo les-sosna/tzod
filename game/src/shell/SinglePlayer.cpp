@@ -22,7 +22,7 @@
 #include <sstream>
 #include <iomanip>
 
-static const float c_tileSize = 200;
+static const float c_tileSize = 128;
 static const float c_tileSpacing = 16;
 
 using namespace UI::DataSourceAliases;
@@ -121,6 +121,10 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _nextTier(std::make_shared<UI::Button>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
+    auto placeholder = std::make_shared<UI::Window>();
+    placeholder->Resize(48, 48);
+    _content->AddFront(placeholder); // FIXME: hack placeholder
+    
 	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>();
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
 
@@ -128,13 +132,13 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	_prevTier->eventClick = std::bind(&SinglePlayer::OnPrevTier, this);
 	_prevTier->SetFont("font_default");
 	_prevTier->Resize(c_tileSize / 2, c_tileSize / 2);
-	mapTilesWithTierButtons->AddFront(_prevTier);
+//	mapTilesWithTierButtons->AddFront(_prevTier);
 
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
 	mapTilesWithTierButtons->AddFront(_mapTiles);
 	mapTilesWithTierButtons->SetFocus(_mapTiles);
 
-	mapTilesWithTierButtons->AddFront(_nextTier);
+//	mapTilesWithTierButtons->AddFront(_nextTier);
 
 	_nextTier->SetText(">>>"_txt);
 	_nextTier->eventClick = std::bind(&SinglePlayer::OnNextTier, this);
@@ -162,7 +166,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	};
 	_content->AddFront(_tierSelector);
 
-	_content->SetSpacing(64);
+	_content->SetSpacing(48);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
 	SetFocus(_content);
