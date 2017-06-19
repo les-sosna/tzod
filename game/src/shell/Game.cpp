@@ -94,7 +94,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        LangCache &lang,
                        UI::ConsoleBuffer &logger,
                        CampaignControlCommands campaignControlCommands)
-  : UI::Managerful(manager)
+  : UI::TimeStepping(manager)
   , _scoreAndControls(std::make_shared<UI::StackLayout>())
   , _gameContext(gameContext)
   , _gameViewHarness(gameContext.GetWorld(), worldController)

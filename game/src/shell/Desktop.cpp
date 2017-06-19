@@ -56,7 +56,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
                  UI::ConsoleBuffer &logger)
-  : Managerful(manager)
+  : TimeStepping(manager)
   , AppStateListener(appState)
   , _history(conf)
   , _texman(texman)

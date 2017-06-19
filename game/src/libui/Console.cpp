@@ -49,7 +49,7 @@ std::shared_ptr<Console> Console::Create(Window *parent, LayoutManager &manager,
 }
 
 Console::Console(LayoutManager &manager, TextureManager &texman)
-  : Managerful(manager)
+  : TimeStepping(manager)
   , _cmdIndex(0)
   , _font(texman.FindSprite("font_small"))
   , _buf(nullptr)

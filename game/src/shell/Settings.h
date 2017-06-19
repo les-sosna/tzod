@@ -66,7 +66,7 @@ protected:
 
 class ControlProfileDlg
 	: public UI::Dialog
-	, private UI::Managerful
+	, private UI::TimeStepping
 {
 public:
 	ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ShellConfig &conf, LangCache &lang);

@@ -39,7 +39,7 @@ private:
 
 class Console
 	: public Rectangle
-	, private Managerful
+	, private TimeStepping
 	, private ScrollSink
 	, private KeyboardSink
 {

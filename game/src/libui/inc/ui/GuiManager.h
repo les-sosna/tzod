@@ -14,7 +14,7 @@ namespace UI
 class DataContext;
 class InputContext;
 class LayoutContext;
-class Managerful;
+class TimeStepping;
 class StateContext;
 class Window;
 
@@ -46,15 +46,15 @@ public:
 	void SetDesktop(std::shared_ptr<Window> desktop) { _desktop = std::move(desktop); }
 
 private:
-	friend class Managerful;
-	std::list<Managerful*>::iterator TimeStepRegister(Managerful* wnd);
-	void TimeStepUnregister(std::list<Managerful*>::iterator it);
+	friend class TimeStepping;
+	std::list<TimeStepping*>::iterator TimeStepRegister(TimeStepping* wnd);
+	void TimeStepUnregister(std::list<TimeStepping*>::iterator it);
 
 	TextureManager &_texman;
 	InputContext &_inputContext;
 
-	std::list<Managerful*> _timestep;
-	std::list<Managerful*>::iterator _tsCurrent;
+	std::list<TimeStepping*> _timestep;
+	std::list<TimeStepping*>::iterator _tsCurrent;
 	bool _tsDeleteCurrent;
 	float _time = 0;
 

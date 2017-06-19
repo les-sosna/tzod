@@ -147,7 +147,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            ShellConfig &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
-  : UI::Managerful(manager)
+  : UI::TimeStepping(manager)
   , _conf(conf)
   , _lang(lang)
   , _defaultCamera(Center(editorContext.GetOriginalBounds()))

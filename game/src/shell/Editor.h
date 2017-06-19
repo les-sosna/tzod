@@ -31,7 +31,7 @@ namespace UI
 
 class EditorLayout
 	: public UI::Window
-	, private UI::Managerful
+	, private UI::TimeStepping
 	, private UI::ScrollSink
 	, private UI::PointerSink
 	, private UI::KeyboardSink

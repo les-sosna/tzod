@@ -10,7 +10,7 @@ class TextureManager;
 
 class FpsCounter
 	: public UI::Text
-	, private UI::Managerful
+	, private UI::TimeStepping
 {
 	std::list<float> _dts;
 	std::list<float> _dts_net;

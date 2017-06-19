@@ -186,21 +186,28 @@ FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
 class LayoutManager;
 class Managerful
 {
-public:
-	virtual void OnTimeStep(LayoutManager &manager, float dt) {}
-
 protected:
 	explicit Managerful(LayoutManager &manager) : _manager(manager) {}
-	~Managerful();
 
 	LayoutManager& GetManager() const { return _manager; }
 
-	void SetTimeStep(bool enable);
-
 private:
 	LayoutManager &_manager;
-	std::list<Managerful*>::iterator _timeStepReg;
-	bool _isTimeStep = false;
+};
+
+class TimeStepping : public Managerful
+{
+public:
+	explicit TimeStepping(LayoutManager &manager) : Managerful(manager) {}
+	~TimeStepping();
+
+	void SetTimeStep(bool enable);
+    
+    virtual void OnTimeStep(LayoutManager &manager, float dt) {}
+
+private:
+	std::list<TimeStepping*>::iterator _timeStepReg;
+	bool _isTimeStep = false;	
 };
 
 

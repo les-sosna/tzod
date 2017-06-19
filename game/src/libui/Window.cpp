@@ -7,12 +7,12 @@
 
 using namespace UI;
 
-Managerful::~Managerful()
+TimeStepping::~TimeStepping()
 {
 	SetTimeStep(false);
 }
 
-void Managerful::SetTimeStep(bool enable)
+void TimeStepping::SetTimeStep(bool enable)
 {
 	if (enable != _isTimeStep)
 	{

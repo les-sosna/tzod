@@ -263,7 +263,7 @@ static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 }
 
 ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ShellConfig &conf, LangCache &lang)
-  : UI::Managerful(manager)
+  : UI::TimeStepping(manager)
   , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)

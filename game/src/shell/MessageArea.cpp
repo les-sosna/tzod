@@ -7,7 +7,7 @@
 #include <algorithm>
 
 MessageArea::MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger)
-  : UI::Managerful(manager)
+  : UI::TimeStepping(manager)
   , _logger(logger)
 {
 }
@@ -22,7 +22,6 @@ void MessageArea::OnTimeStep(UI::LayoutManager &manager, float dt)
 	if( _lines.empty() )
 	{
 		SetTimeStep(false);
-		return;
 	}
 }
 

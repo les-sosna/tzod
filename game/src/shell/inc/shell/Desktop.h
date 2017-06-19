@@ -33,7 +33,7 @@ class NavStack;
 
 class Desktop
 	: public UI::Window
-	, private UI::Managerful
+	, private UI::TimeStepping
 	, private UI::KeyboardSink
 	, private AppStateListener
 {

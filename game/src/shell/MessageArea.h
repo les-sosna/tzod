@@ -11,7 +11,7 @@ namespace UI
 
 class MessageArea
 	: public UI::Window
-	, private UI::Managerful
+	, private UI::TimeStepping
 {
 public:
 	MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger);
