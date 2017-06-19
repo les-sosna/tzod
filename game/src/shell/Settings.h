@@ -20,9 +20,7 @@ namespace UI
 	enum class Key;
 }
 
-class SettingsDlg
-	: public UI::Dialog
-	, public UI::Managerful
+class SettingsDlg : public UI::Dialog
 {
 	UI::ListDataSourceDefault _profilesDataSource;
 
@@ -49,7 +47,7 @@ class SettingsDlg
 	LangCache &_lang;
 
 public:
-	SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang);
+	SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &lang);
 	virtual ~SettingsDlg();
 
 protected:
@@ -64,17 +62,14 @@ protected:
 	void OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result);
 };
 
-class ControlProfileDlg
-	: public UI::Dialog
-	, private UI::TimeStepping
+class ControlProfileDlg : public UI::Dialog
 {
 public:
-	ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ShellConfig &conf, LangCache &lang);
+	ControlProfileDlg(const char *profileName, ShellConfig &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
-	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
 private:
 	void AddAction(ConfVarString &var, std::string actionDisplayName);

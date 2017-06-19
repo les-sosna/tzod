@@ -10,7 +10,6 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
 #include <ui/EditableText.h>
-#include <ui/GuiManager.h>
 #include <ui/Keys.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
@@ -24,9 +23,8 @@
 #include <sstream>
 
 
-SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, ShellConfig &conf, LangCache &lang)
-  : Managerful(manager)
-  , _conf(conf)
+SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &lang)
+  : _conf(conf)
   , _lang(lang)
 {
 	Resize(512, 296);
@@ -195,7 +193,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), nullptr, _conf, _lang);
+	auto dlg = std::make_shared<ControlProfileDlg>(nullptr, _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -205,7 +203,7 @@ void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetList()->GetCurSel();
 	assert(i >= 0);
-	auto dlg = std::make_shared<ControlProfileDlg>(GetManager(), _profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
+	auto dlg = std::make_shared<ControlProfileDlg>(_profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -262,9 +260,8 @@ static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 	return buf.str();
 }
 
-ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *profileName, ShellConfig &conf, LangCache &lang)
-  : UI::TimeStepping(manager)
-  , _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
+ControlProfileDlg::ControlProfileDlg(const char *profileName, ShellConfig &conf, LangCache &lang)
+  : _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)
   , _lang(lang)
@@ -374,12 +371,7 @@ void ControlProfileDlg::SetActiveIndex(int index)
 
 	if (_activeIndex != -1)
 	{
-		_actions->GetData()->SetItemText(_activeIndex, 1, "...");
-		SetTimeStep(true);
-	}
-	else
-	{
-		SetTimeStep(false);
+		_actions->GetData()->SetItemText(_activeIndex, 1, "Press a key...");
 	}
 }
 
@@ -417,11 +409,6 @@ void ControlProfileDlg::OnCancel()
 		_conf.dm_profiles.Remove(_profile);
 	}
 	Close(_resultCancel);
-}
-
-void ControlProfileDlg::OnTimeStep(UI::LayoutManager &manager, float dt)
-{
-	_actions->GetData()->SetItemText(_activeIndex, 1, fmodf(manager.GetTime(), 0.6f) > 0.3f ? "" : "...");
 }
 
 bool ControlProfileDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)

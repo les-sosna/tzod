@@ -391,7 +391,7 @@ void Desktop::OnGameSettings()
 	if (_navStack->IsOnStack<SettingsDlg>())
 		return;
 
-	auto dlg = std::make_shared<SettingsDlg>(GetManager(), _texman, _conf, _lang);
+	auto dlg = std::make_shared<SettingsDlg>(_texman, _conf, _lang);
 	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender);};
 	_navStack->PushNavStack(dlg);
 	UpdateFocus();
