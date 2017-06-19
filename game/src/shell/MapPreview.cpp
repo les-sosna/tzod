@@ -55,28 +55,31 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 		);
 	}
 
-	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
-	if (sc.GetState() == "Pushed")
-	{
-		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
-		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
-	}
-	else if (sc.GetState() == "Unfocused")
-	{
-		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
-	}
-	else if (sc.GetState() == "Hover")
-	{
-		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0x44444444, 0);
-	}
-	else if (sc.GetState() == "Disabled")
-	{
-		rc.DrawSprite(pxContentRect, _texLockShade.GetTextureId(texman), 0xffffffff, 0);
-
-		vec2d pxSize = ToPx(_texLock.GetTextureSize(texman), lc);
-		auto rect = MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxSize) / 2), pxSize);
-		rc.DrawSprite(rect, _texLock.GetTextureId(texman), 0x88888888, 0);
-	}
+    if (_locked)
+    {
+        rc.DrawSprite(pxContentRect, _texLockShade.GetTextureId(texman), 0xffffffff, 0);
+        
+        vec2d pxSize = ToPx(_texLock.GetTextureSize(texman), lc);
+        auto rect = MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxSize) / 2), pxSize);
+        rc.DrawSprite(rect, _texLock.GetTextureId(texman), 0x88888888, 0);
+    }
+    else
+    {
+        FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
+        if (sc.GetState() == "Pushed")
+        {
+            rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
+            rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
+        }
+        else if (sc.GetState() == "Unfocused")
+        {
+            rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
+        }
+        else if (sc.GetState() == "Hover")
+        {
+            rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0x44444444, 0);
+        }
+    }
 }
 
 FRECT MapPreview::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const

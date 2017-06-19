@@ -205,6 +205,7 @@ void SinglePlayer::UpdateTier()
 		mapPreview->SetPadding(c_tileSpacing / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
 		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
+        mapPreview->SetLocked(locked);
 
 		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
