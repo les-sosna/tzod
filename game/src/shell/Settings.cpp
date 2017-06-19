@@ -115,7 +115,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	SetFocus(_content2);
 
 	_showFps = std::make_shared<UI::CheckBox>();
-	_showFps->SetText(_lang.settings_show_fps.Get());
+	_showFps->SetText(ConfBind(_lang.settings_show_fps));
 	_showFps->SetCheck(_conf.ui_showfps.Get());
 	_showFps->eventClick = [=]
 	{
@@ -124,7 +124,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_content2->AddFront(_showFps);
 
 	_showTime = std::make_shared<UI::CheckBox>();
-	_showTime->SetText(_lang.settings_show_time.Get());
+	_showTime->SetText(ConfBind(_lang.settings_show_time));
 	_showTime->SetCheck(_conf.ui_showtime.Get());
 	_showTime->eventClick = [=]
 	{
@@ -133,7 +133,7 @@ SettingsDlg::SettingsDlg(UI::LayoutManager &manager, TextureManager &texman, She
 	_content2->AddFront(_showTime);
 
 	_showNames = std::make_shared<UI::CheckBox>();
-	_showNames->SetText(_lang.settings_show_names.Get());
+	_showNames->SetText(ConfBind(_lang.settings_show_names));
 	_showNames->SetCheck(_conf.g_shownames.Get());
 	_showNames->eventClick = [=]
 	{
@@ -320,19 +320,19 @@ ControlProfileDlg::ControlProfileDlg(UI::LayoutManager &manager, const char *pro
 	_aimToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
 	_aimToMouseChkBox->Move(16, 345);
-	_aimToMouseChkBox->SetText(_lang.profile_mouse_aim.Get());
+	_aimToMouseChkBox->SetText(ConfBind(_lang.profile_mouse_aim));
 	AddFront(_aimToMouseChkBox);
 
 	_moveToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
 	_moveToMouseChkBox->Move(146, 345);
-	_moveToMouseChkBox->SetText(_lang.profile_mouse_move.Get());
+	_moveToMouseChkBox->SetText(ConfBind(_lang.profile_mouse_move));
 	AddFront(_moveToMouseChkBox);
 
 	_arcadeStyleChkBox = std::make_shared<UI::CheckBox>();
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
 	_arcadeStyleChkBox->Move(276, 345);
-	_arcadeStyleChkBox->SetText(_lang.profile_arcade_style.Get());
+	_arcadeStyleChkBox->SetText(ConfBind(_lang.profile_arcade_style));
 	AddFront(_arcadeStyleChkBox);
 
 	auto btn = std::make_shared<UI::Button>();

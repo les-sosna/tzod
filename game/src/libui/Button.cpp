@@ -102,7 +102,7 @@ static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xff
 	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
 
 static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
-	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, {"Pushed", 2} });
+	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, { "Pushed", 2 } });
 
 Button::Button()
 	: _background(std::make_shared<Rectangle>())
@@ -244,6 +244,13 @@ FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 
 ///////////////////////////////////////////////////////////////////////////////
 
+CheckBox::CheckBox()
+	: _text(std::make_shared<Text>())
+{
+	AddFront(_text);
+	_text->SetFontColor(c_textColor);
+}
+
 void CheckBox::SetCheck(bool checked)
 {
 	_isChecked = checked;
@@ -254,14 +261,20 @@ void CheckBox::OnClick()
 	SetCheck(!GetCheck());
 }
 
-const std::string& CheckBox::GetText() const
+void CheckBox::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
 {
-	return _text;
+	_text->SetText(std::move(text));
 }
 
-void CheckBox::SetText(const std::string &text)
+FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	_text.assign(text);
+    if (_text.get() == &child)
+    {
+        float pxBoxWidth = ToPx(_boxTexture.GetTextureSize(texman), lc).x;
+        vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale());
+        return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
+    }
+    return ButtonBase::GetChildRect(texman, lc, dc, child);
 }
 
 void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
@@ -270,27 +283,14 @@ void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 	size_t frame = _isChecked ? state + 4 : state;
 
     vec2d pxBoxSize = ToPx(_boxTexture.GetTextureSize(texman), lc);
-	float pxFontHeight = ToPx(texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0), lc);
 
     auto box = MakeRectWH(vec2d{0, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
 	rc.DrawSprite(box, _boxTexture.GetTextureId(texman), 0xffffffff, frame);
-
-	// grep 'enum State'
-	SpriteColor colors[] =
-	{
-		SpriteColor(0xffffffff), // Normal
-		SpriteColor(0xffffffff), // Hottrack
-		SpriteColor(0xffffffff), // Pushed
-		SpriteColor(0xffffffff), // Disabled
-	};
-    rc.DrawBitmapText(vec2d{ pxBoxSize.x, std::floor((lc.GetPixelSize().y - pxFontHeight) / 2) }, lc.GetScale(), _fontTexture.GetTextureId(texman), colors[state], GetText());
 }
 
 vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-	float th = texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0);
-	float tw = texman.GetFrameWidth(_fontTexture.GetTextureId(texman), 0);
-	float bh = texman.GetFrameHeight(_boxTexture.GetTextureId(texman), 0);
-	float bw = texman.GetFrameWidth(_boxTexture.GetTextureId(texman), 0);
-	return ToPx(vec2d{ bw + (tw - 1) * (float)GetText().length(), std::max(th + 1, bh) }, scale);
+    vec2d pxTextSize = _text->GetContentSize(texman, dc, scale);
+    vec2d pxBoxSize = ToPx(texman.GetFrameSize(_boxTexture.GetTextureId(texman)), scale);
+    return vec2d{ pxTextSize.x + pxBoxSize.x, std::max(pxTextSize.y, pxBoxSize.y) };
 }

@@ -96,22 +96,24 @@ private:
 class CheckBox : public ButtonBase
 {
 public:
+	CheckBox();
+	
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
-	const std::string& GetText() const;
-	void SetText(const std::string &text);
+	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
 
 protected:
+    // ButtonBase
 	void OnClick() override;
 
 	// Window
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+    FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 private:
-	std::string _text;
-	Texture _fontTexture = "font_small";
+	std::shared_ptr<Text> _text;
 	Texture _boxTexture = "ui/checkbox";
 	bool _isChecked = false;
 };

@@ -79,7 +79,7 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 
 		_nightMode = std::make_shared<UI::CheckBox>();
 		_nightMode->Move(x3, y);
-		_nightMode->SetText(_lang.night_mode.Get());
+		_nightMode->SetText(ConfBind(_lang.night_mode));
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
 		AddFront(_nightMode);
 
