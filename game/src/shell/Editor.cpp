@@ -44,15 +44,6 @@ static bool PtInRigidBody(const GC_RigidBodyStatic &rbs, vec2d delta)
 	return true;
 }
 
-static bool PtInPickup(const GC_Pickup &pickup, vec2d delta)
-{
-	float r = pickup.GetRadius();
-	if (Vec2dDot(delta, delta) > r*r)
-		return false;
-	return true;
-}
-
-
 static bool PtOnActor(const GC_Actor &actor, vec2d pt)
 {
 	vec2d delta = pt - actor.GetPos();
