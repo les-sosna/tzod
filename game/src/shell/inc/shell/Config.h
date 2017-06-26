@@ -12,7 +12,8 @@
 #include <config/ConfigCache.h>
 
 #ifndef CONFIG_CACHE_PASS2
-#include <as/AppConfig.h>
+# include <as/AppConfig.h>
+# include <editor/Config.h>
 #endif
 
 REFLECTION_BEGIN(ConfControllerProfile)
@@ -70,6 +71,8 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 //	VAR_FLOAT(  cl_dtwindow,          2 )
 	VAR_REFLECTION( cl_playerinfo, ConfPlayerLocal )
 
+	VAR_REFLECTION(editor, EditorConfig)
+
 	// sound
 	VAR_INT( s_volume,      10000 )
 	VAR_INT( s_musicvolume, 10000 )
@@ -77,16 +80,6 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 
 	// game
 	VAR_BOOL(  g_shownames,         true )
-
-	// editor
-	VAR_BOOL(  ed_drawgrid,         true )
-	VAR_BOOL(  ed_uselayers,       false )
-	VAR_INT(   ed_width,            1024 ) // 1M blocks "should be enough for everyone"
-	VAR_INT(   ed_height,           1024 )
-	VAR_INT(   ed_object,              0 )
-	VAR_BOOL(  ed_showproperties,   true )
-	VAR_BOOL(  ed_showservices,    false )
-	VAR_TABLE( ed_objproperties,    nullptr )
 
 	// console
 	VAR_INT(   con_maxhistory,        30 )

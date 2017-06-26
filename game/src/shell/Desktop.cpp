@@ -1,11 +1,8 @@
 #include "Campaign.h"
-#include "ConfigBinding.h"
-#include "Editor.h"
 #include "Game.h"
 #include "GetFileName.h"
 #include "gui.h"
 #include "MainMenu.h"
-#include "MapSettings.h"
 #include "NavStack.h"
 #include "Settings.h"
 #include "SinglePlayer.h"
@@ -17,7 +14,10 @@
 #include <as/AppConstants.h>
 #include <as/AppController.h>
 #include <as/AppState.h>
+#include <cbind/ConfigBinding.h>
 #include <ctx/EditorContext.h>
+#include <editor/Editor.h>
+#include <editor/MapSettings.h>
 #include <gc/World.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
@@ -339,7 +339,7 @@ void Desktop::OnOpenMap()
 				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
 				stream = _fs.Open(fileName)->QueryStream();
 			}
-			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.ed_width.GetInt(), _conf.ed_height.GetInt(), stream.get()));
+			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
 			GetAppState().SetGameContext(std::move(gc));
 			while (auto wnd = _navStack->GetNavFront())
 			{
@@ -417,7 +417,6 @@ void Desktop::ShowMainMenu()
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
-	commands.mapSettings = std::bind(&Desktop::OnMapSettings, this);
 	commands.close = [=]()
 	{
 		if (GetAppState().GetGameContext()) // do not return to nothing
@@ -689,7 +688,7 @@ void Desktop::OnGameContextChanged()
 			GetManager(),
 			*editorContext,
 			_worldView,
-			_conf,
+			_conf.editor,
 			_lang,
 			_logger);
 		_editor->SetVisible(false);

@@ -1,4 +1,4 @@
-#include "ConfigBinding.h"
+#include "inc/cbind/ConfigBinding.h"
 #include <ui/DataSource.h>
 #include <config/ConfigBase.h>
 

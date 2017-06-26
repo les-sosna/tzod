@@ -1,6 +1,6 @@
+#include "inc/editor/Config.h"
 #include "PropertyList.h"
-#include "ConfigBinding.h"
-#include "inc/shell/Config.h"
+#include <cbind/ConfigBinding.h>
 #include <gc/Object.h>
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
@@ -22,11 +22,11 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
 	: _deleteButton(std::make_shared<UI::Button>())
-    , _scrollView(std::make_shared<UI::ScrollView>())
+	, _scrollView(std::make_shared<UI::ScrollView>())
 	, _psheet(std::make_shared<UI::StackLayout>())
-    , _texman(texman)
+	, _texman(texman)
 	, _world(world)
 	, _conf(conf)
 	, _logger(logger)
@@ -247,7 +247,7 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		SaveToConfig(_conf, *_ps);
 		break;
 	case UI::Key::Escape:
-		_conf.ed_showproperties.Set(false);
+		_conf.showproperties.Set(false);
 		SetVisible(false);
 		break;
 	default:
@@ -258,9 +258,9 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SaveToConfig(ShellConfig &conf, const PropertySet &ps)
+void SaveToConfig(EditorConfig &conf, const PropertySet &ps)
 {
-	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
+	ConfVarTable &op = conf.objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
 	for (int i = 0; i < ps.GetCount(); ++i)
 	{
 		const ObjectProperty *prop = const_cast<PropertySet&>(ps).GetProperty(i);
@@ -286,9 +286,9 @@ void SaveToConfig(ShellConfig &conf, const PropertySet &ps)
 	}
 }
 
-void LoadFromConfig(const ShellConfig &conf, PropertySet &ps)
+void LoadFromConfig(const EditorConfig &conf, PropertySet &ps)
 {
-	ConfVarTable &op = conf.ed_objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
+	ConfVarTable &op = conf.objproperties.GetTable(RTTypes::Inst().GetTypeInfo(ps.GetObject()->GetType()).name);
 	for (int i = 0; i < ps.GetCount(); ++i)
 	{
 		ObjectProperty *prop = ps.GetProperty(i);

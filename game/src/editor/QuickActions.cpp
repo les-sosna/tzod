@@ -1,4 +1,4 @@
-#include "QuickActions.h"
+#include "inc/editor/detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/TypeSystem.h>
 #include "gclua/lObject.h"

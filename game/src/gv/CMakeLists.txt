@@ -21,6 +21,8 @@ target_link_libraries(gv PRIVATE
 	gc
 	render
 	video
+
+	PUBLIC as
 )
 
 target_include_directories(gv INTERFACE inc)

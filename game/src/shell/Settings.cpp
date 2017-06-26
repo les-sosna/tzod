@@ -1,8 +1,8 @@
-#include "ConfigBinding.h"
 #include "Settings.h"
 #include "KeyMapper.h"
 #include "inc/shell/Config.h"
 
+#include <cbind/ConfigBinding.h>
 #include <video/TextureManager.h>
 #include <loc/Language.h>
 #include <ui/Button.h>

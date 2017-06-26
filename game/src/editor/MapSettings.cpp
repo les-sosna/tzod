@@ -1,5 +1,5 @@
-#include "MapSettings.h"
-#include "ConfigBinding.h"
+#include "inc/editor/MapSettings.h"
+#include <cbind/ConfigBinding.h>
 #include <gv/ThemeManager.h>
 #include <gc/World.h>
 #include <loc/Language.h>

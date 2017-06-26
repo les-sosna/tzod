@@ -14,7 +14,6 @@ class GameContext;
 class World;
 class WorldView;
 class WorldController;
-class DefaultCamera;
 
 class MessageArea;
 class ScoreTable;

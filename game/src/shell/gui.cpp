@@ -1,8 +1,8 @@
 #include "gui.h"
-#include "ConfigBinding.h"
 #include "MapList.h"
 #include "inc/shell/Config.h"
 
+#include <cbind/ConfigBinding.h>
 #include <gc/Player.h>
 #include <gc/VehicleClasses.h>
 #include <loc/Language.h>

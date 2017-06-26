@@ -1,8 +1,8 @@
-#include "Editor.h"
-#include "ConfigBinding.h"
+#include "inc/editor/Editor.h"
+#include "inc/editor/Config.h"
 #include "PropertyList.h"
 #include "GameClassVis.h"
-#include "inc/shell/Config.h"
+#include <cbind/ConfigBinding.h>
 #include <ctx/EditorContext.h>
 #include <gc/Object.h>
 #include <gc/Pickup.h>
@@ -89,7 +89,7 @@ namespace
 GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
 {
 	int layer = -1;
-	if (_conf.ed_uselayers.Get())
+	if (_conf.uselayers.Get())
 	{
 		layer = RTTypes::Inst().GetTypeInfo(GetCurrentType()).layer;
 	}
@@ -144,7 +144,7 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 EditorLayout::EditorLayout(UI::LayoutManager &manager,
                            EditorContext &editorContext,
                            WorldView &worldView,
-                           ShellConfig &conf,
+                           EditorConfig &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
   : UI::TimeStepping(manager)
@@ -185,15 +185,15 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 			_typeSelector->GetData()->AddItem(typeInfo.name, RTTypes::Inst().GetTypeByIndex(i));
 		}
 	}
-	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.ed_object.GetInt())));
+	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.object.GetInt())));
 
 	_layerDisp = std::make_shared<UI::Text>();
 	_layerDisp->SetAlign(alignTextRT);
 	_layerDisp->SetText(std::make_shared<LayerDisplay>(_lang, _typeSelector->GetList()));
 	AddFront(_layerDisp);
 
-	assert(!_conf.ed_uselayers.eventChange);
-	_conf.ed_uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
+	assert(!_conf.uselayers.eventChange);
+	_conf.uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
 	OnChangeUseLayers();
 
 	SetTimeStep(true);
@@ -201,7 +201,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 
 EditorLayout::~EditorLayout()
 {
-	_conf.ed_uselayers.eventChange = nullptr;
+	_conf.uselayers.eventChange = nullptr;
 }
 
 void EditorLayout::Select(GC_Object *object, bool bSelect)
@@ -219,7 +219,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 
 			_selectedObject = object;
 			_propList->ConnectTo(_selectedObject->GetProperties(_world));
-			if( _conf.ed_showproperties.Get() )
+			if( _conf.showproperties.Get() )
 			{
 				_propList->SetVisible(true);
 			}
@@ -399,7 +399,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		if( _selectedObject )
 		{
 			_propList->SetVisible(true);
-			_conf.ed_showproperties.Set(true);
+			_conf.showproperties.Set(true);
 		}
 		break;
 	case UI::Key::Delete:
@@ -414,10 +414,10 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		_help->SetVisible(!_help->GetVisible());
 		break;
 	case UI::Key::F9:
-		_conf.ed_uselayers.Set(!_conf.ed_uselayers.Get());
+		_conf.uselayers.Set(!_conf.uselayers.Get());
 		break;
 	case UI::Key::G:
-		_conf.ed_drawgrid.Set(!_conf.ed_drawgrid.Get());
+		_conf.drawgrid.Set(!_conf.drawgrid.Get());
 		break;
 	case UI::Key::Escape:
 		if( _selectedObject )
@@ -460,7 +460,7 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 
 void EditorLayout::OnChangeUseLayers()
 {
-	_layerDisp->SetVisible(_conf.ed_uselayers.Get());
+	_layerDisp->SetVisible(_conf.uselayers.Get());
 }
 
 static FRECT GetSelectionRect(const GC_Actor &actor)
@@ -475,7 +475,7 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
 	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	_worldView.Render(rc, _world, viewport, eye, zoom, true, _conf.ed_drawgrid.Get(), _world.GetNightMode());
+	_worldView.Render(rc, _world, viewport, eye, zoom, true, _conf.drawgrid.Get(), _world.GetNightMode());
 
 	// Selection
 	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )
@@ -520,6 +520,6 @@ FRECT EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) 
 ObjectType EditorLayout::GetCurrentType() const
 {
 	int selectedIndex = std::max(0, _typeSelector->GetList()->GetCurSel()); // ignore -1
-	_conf.ed_object.SetInt(selectedIndex);
+	_conf.object.SetInt(selectedIndex);
 	return static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(selectedIndex));
 }

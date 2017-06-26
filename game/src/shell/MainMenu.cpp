@@ -1,5 +1,5 @@
 #include "MainMenu.h"
-#include "ConfigBinding.h"
+#include <cbind/ConfigBinding.h>
 #include <loc/Language.h>
 #include <ui/Button.h>
 

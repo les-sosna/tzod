@@ -10,11 +10,8 @@ add_library(shell
 	Campaign.h
 	CampaignControlCommands.h
 	CampaignControls.h
-	ConfigBinding.h
 	Controller.h
-	Editor.h
 	Game.h
-	GameClassVis.h
 	GetFileName.h
 	gui.h	
 	InputManager.h
@@ -22,15 +19,11 @@ add_library(shell
 	MainMenu.h
 	MapList.h
 	MapPreview.h
-	MapSettings.h
 	MessageArea.h
 	NavStack.h
 	Network.h
 	PlayerView.h
-	PropertyList.h
-	QuickActions.h
 	ScoreTable.h
-	ServiceEditor.h
 	Settings.h
 	SinglePlayer.h
 	Widgets.h
@@ -39,14 +32,10 @@ add_library(shell
 	Campaign.cpp
 	CampaignControls.cpp
 	Config.cpp
-	ConfigBinding.cpp
 	ConfigConsoleHistory.cpp
 	Controller.cpp
-	DefaultCamera.cpp
 	Desktop.cpp
-	Editor.cpp
 	Game.cpp
-	GameClassVis.cpp
 	GetFileName.cpp
 	gui.cpp
 	InputManager.cpp
@@ -54,25 +43,23 @@ add_library(shell
 	MainMenu.cpp
 	MapList.cpp
 	MapPreview.cpp
-	MapSettings.cpp
 	MessageArea.cpp
 	NavStack.cpp
 #	Network.cpp
 	SinglePlayer.cpp
 	PlayerView.cpp
 	Profiler.cpp
-	PropertyList.cpp
-	QuickActions.cpp
 	ScoreTable.cpp
-#	ServiceEditor.cpp
 	Settings.cpp
 	Widgets.cpp
 )
 
 target_link_libraries(shell PRIVATE
 	as
+	cbind
 	config
 	ctx
+	editor
 	filesystem
 	gc
 	gclua
@@ -82,7 +69,7 @@ target_link_libraries(shell PRIVATE
 	ui
 	lua
 
-	PUBLIC luaetc render
+	PUBLIC editor luaetc render
 )
 
 target_include_directories(shell INTERFACE inc)

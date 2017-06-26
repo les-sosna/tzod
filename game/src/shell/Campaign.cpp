@@ -1,7 +1,7 @@
 #include "Campaign.h"
-#include "ConfigBinding.h"
 #include "inc/shell/Config.h"
 
+#include <cbind/ConfigBinding.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 #include <ui/List.h>

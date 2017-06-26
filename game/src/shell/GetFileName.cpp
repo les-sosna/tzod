@@ -1,5 +1,5 @@
 #include "GetFileName.h"
-#include "ConfigBinding.h"
+#include <cbind/ConfigBinding.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
 #include <ui/Button.h>

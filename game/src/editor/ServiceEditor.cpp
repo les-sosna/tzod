@@ -228,7 +228,7 @@ bool ServiceEditor::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	{
 	case UI::Key::S:
 	case UI::Key::Escape:
-		_conf.ed_showservices.Set(false);
+		_conf.showservices.Set(false);
 		SetVisible(false);
 		break;
 	default:

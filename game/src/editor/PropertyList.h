@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-class ShellConfig;
+class EditorConfig;
 class LangCache;
 class PropertySet;
 class TextureManager;
@@ -20,7 +20,7 @@ namespace UI
 class PropertyList : public UI::Dialog
 {
 public:
-	PropertyList(TextureManager &texman, World &world, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	PropertyList(TextureManager &texman, World &world, EditorConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	void ConnectTo(std::shared_ptr<PropertySet> ps);
 	void DoExchange(bool applyToObject);
 
@@ -36,12 +36,12 @@ private:
 	std::vector<std::shared_ptr<Window>> _ctrls;
 	TextureManager &_texman;
 	World &_world;
-	ShellConfig &_conf;
+	EditorConfig &_conf;
 	UI::ConsoleBuffer &_logger;
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 };
 
-void SaveToConfig(ShellConfig &conf, const PropertySet &ps);
-void LoadFromConfig(const ShellConfig &conf, PropertySet &ps);
+void SaveToConfig(EditorConfig &conf, const PropertySet &ps);
+void LoadFromConfig(const EditorConfig &conf, PropertySet &ps);

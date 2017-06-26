@@ -1,6 +1,6 @@
 #pragma once
-#include "QuickActions.h"
-#include "DefaultCamera.h"
+#include "detail/DefaultCamera.h"
+#include "detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/ObjPtr.h>
 #include <ui/Texture.h>
@@ -8,10 +8,9 @@
 #include <functional>
 
 class LangCache;
-class ShellConfig;
-class DefaultCamera;
 class PropertyList;
 class TextureManager;
+class EditorConfig;
 class EditorContext;
 class World;
 class WorldView;
@@ -38,7 +37,7 @@ class EditorLayout
 {
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 
-	ShellConfig &_conf;
+	EditorConfig &_conf;
 	LangCache &_lang;
 	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
@@ -59,7 +58,7 @@ public:
 	EditorLayout(UI::LayoutManager &manager,
 		EditorContext &editorContext,
 		WorldView &worldView,
-		ShellConfig &conf,
+		EditorConfig &conf,
 		LangCache &lang,
 		UI::ConsoleBuffer &logger);
 	virtual ~EditorLayout();

@@ -1,4 +1,4 @@
-#include "DefaultCamera.h"
+#include "inc/editor/detail/DefaultCamera.h"
 #include <gc/WorldCfg.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
