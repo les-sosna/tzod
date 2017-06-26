@@ -23,7 +23,7 @@ add_library(ui
 	MultiColumnListItem.cpp
 	Rating.cpp
 	Rectangle.cpp
-	Scroll.cpp
+	ScrollBar.cpp
 	ScrollView.cpp
 	StackLayout.cpp
 	Text.cpp
@@ -53,7 +53,7 @@ add_library(ui
 	inc/ui/Pointers.h
 	inc/ui/Rating.h
 	inc/ui/Rectangle.h
-	inc/ui/Scroll.h
+	inc/ui/ScrollBar.h
 	inc/ui/ScrollView.h
 	inc/ui/StackLayout.h
 	inc/ui/StateContext.h

@@ -1,7 +1,7 @@
 #include "inc/ui/Console.h"
 #include "inc/ui/Edit.h"
 #include "inc/ui/EditableText.h"
-#include "inc/ui/Scroll.h"
+#include "inc/ui/ScrollBar.h"
 #include "inc/ui/ConsoleBuffer.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/Keys.h"

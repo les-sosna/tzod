@@ -15,7 +15,7 @@
 #include <ui/ListBox.h>
 #include <ui/ListSelectionBinding.h>
 #include <ui/MultiColumnListItem.h>
-#include <ui/Scroll.h>
+#include <ui/ScrollBar.h>
 #include <ui/StackLayout.h>
 #include <ui/Text.h>
 
