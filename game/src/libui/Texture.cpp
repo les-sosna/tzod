@@ -5,7 +5,7 @@ using namespace UI;
 
 size_t Texture::GetTextureId(const TextureManager &texman) const
 {
-	if (-2 == _cachedTextureId)
+	if (TextureIdOutOfDate == _cachedTextureId)
 	{
 		_cachedTextureId = texman.FindSprite(_textureName);
 	}
