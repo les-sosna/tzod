@@ -327,7 +327,7 @@ const char* ConfVarString::GetTypeName() const
 	return "string";
 }
 
-const std::string& ConfVarString::Get() const
+std::string_view ConfVarString::Get() const
 {
 	assert(typeString == _type);
 	return *_val.asString;
@@ -337,6 +337,20 @@ void ConfVarString::Set(std::string value)
 {
 	assert(typeString == _type);
 	*_val.asString = std::move(value);
+	FireValueUpdate(this);
+}
+
+void ConfVarString::Set(std::string_view value)
+{
+	assert(typeString == _type);
+	*_val.asString = value;
+	FireValueUpdate(this);
+}
+
+void ConfVarString::Set(const char *value)
+{
+	assert(typeString == _type);
+	*_val.asString = value;
 	FireValueUpdate(this);
 }
 
@@ -379,7 +393,7 @@ bool ConfVarString::Assign(lua_State *L)
 
 void ConfVarString::Push(lua_State *L) const
 {
-	lua_pushstring(L, Get().c_str());
+	lua_pushlstring(L, Get().data(), Get().length());
 }
 
 
@@ -627,7 +641,7 @@ void ConfVarArray::Push(lua_State *L) const
 ConfVarTable::ConfVarTable()
 {
 	_type = typeTable;
-	_val.asTable = new std::map<std::string, std::unique_ptr<ConfVar>>();
+	_val.asTable = new TableType();
 }
 
 ConfVarTable::~ConfVarTable()
@@ -663,7 +677,7 @@ std::vector<std::string> ConfVarTable::GetKeys() const
 	return out;
 }
 
-std::pair<ConfVar*, bool> ConfVarTable::GetVar(const std::string &name, ConfVar::Type type)
+std::pair<ConfVar*, bool> ConfVarTable::GetVar(std::string_view name, ConfVar::Type type)
 {
 	std::pair<ConfVar*, bool> result(nullptr, true);
 
@@ -767,9 +781,9 @@ ConfVarArray& ConfVarTable::GetArray(std::string name, void (*init)(ConfVarArray
 	return p.first->AsArray();
 }
 
-ConfVarTable& ConfVarTable::GetTable(std::string name, void (*init)(ConfVarTable&))
+ConfVarTable& ConfVarTable::GetTable(std::string_view name, void (*init)(ConfVarTable&))
 {
-	std::pair<ConfVar*, bool> p = GetVar(std::move(name), ConfVar::typeTable);
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeTable);
 	if( !p.second && init )
 		init(p.first->AsTable());
 	return p.first->AsTable();
@@ -799,7 +813,7 @@ bool ConfVarTable::Remove(const ConfVar &value)
 	return false;
 }
 
-bool ConfVarTable::Remove(const std::string &name)
+bool ConfVarTable::Remove(std::string_view name)
 {
 	assert( typeTable == _type );
 	assert( !_frozen );

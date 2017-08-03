@@ -6,6 +6,7 @@ if(APPLE OR UNIX)
 endif()
 
 if(WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std:c++latest")
 	set(WITH_SOUND 1)
 else()
 	find_package(OpenAL)

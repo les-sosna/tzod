@@ -18,7 +18,7 @@ namespace UI
 		int GetTextLength() const;
 
 		const std::string& GetText() const;
-		void SetText(const std::string &text);
+		void SetText(std::string_view text);
 
 		void SetInt(int value);
 		int  GetInt() const;

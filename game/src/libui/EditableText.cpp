@@ -293,7 +293,7 @@ const std::string& EditableText::GetText() const
 	return _text;
 }
 
-void EditableText::SetText(const std::string &text)
+void EditableText::SetText(std::string_view text)
 {
 	_text.assign(text);
 	SetSel(_selStart, _selEnd);

@@ -86,10 +86,10 @@ void ObjectProperty::SetFloatRange(float min, float max)
 	_float_max = max;
 }
 
-void ObjectProperty::SetStringValue(std::string str)
+void ObjectProperty::SetStringValue(std::string_view str)
 {
 	assert(TYPE_STRING == _type || TYPE_SKIN == _type || TYPE_TEXTURE == _type);
-	_str_value = std::move(str);
+	_str_value = str;
 }
 
 const std::string& ObjectProperty::GetStringValue(void) const

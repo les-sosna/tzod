@@ -16,7 +16,7 @@ class GameClassVis : public UI::Window
 public:
 	explicit GameClassVis(WorldView &worldView);
 
-	void SetGameClass(std::shared_ptr<UI::RenderData<const std::string&>> className);
+	void SetGameClass(std::shared_ptr<UI::RenderData<std::string_view>> className);
 
 	// UI::Window
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
@@ -25,5 +25,5 @@ private:
 	WorldView &_worldView;
 	mutable World _world;
 	UI::Texture _texSelection = "ui/selection";
-	std::shared_ptr<UI::RenderData<const std::string&>> _className;
+	std::shared_ptr<UI::RenderData<std::string_view>> _className;
 };

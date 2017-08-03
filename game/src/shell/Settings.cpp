@@ -193,7 +193,7 @@ void SettingsDlg::OnVolumeMusic(float pos)
 
 void SettingsDlg::OnAddProfile()
 {
-	auto dlg = std::make_shared<ControlProfileDlg>(nullptr, _conf, _lang);
+	auto dlg = std::make_shared<ControlProfileDlg>(std::string_view(), _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -203,7 +203,7 @@ void SettingsDlg::OnEditProfile()
 {
 	int i = _profiles->GetList()->GetCurSel();
 	assert(i >= 0);
-	auto dlg = std::make_shared<ControlProfileDlg>(_profilesDataSource.GetItemText(i, 0).c_str(), _conf, _lang);
+	auto dlg = std::make_shared<ControlProfileDlg>(_profilesDataSource.GetItemText(i, 0), _conf, _lang);
 	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
 	AddFront(dlg);
 	SetFocus(dlg);
@@ -260,13 +260,13 @@ static std::string GenerateProfileName(const ShellConfig &conf, LangCache &lang)
 	return buf.str();
 }
 
-ControlProfileDlg::ControlProfileDlg(const char *profileName, ShellConfig &conf, LangCache &lang)
-  : _nameOrig(profileName ? profileName : GenerateProfileName(conf, lang))
+ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &conf, LangCache &lang)
+  : _nameOrig(profileName.empty() ? GenerateProfileName(conf, lang) : profileName)
   , _profile(&conf.dm_profiles.GetTable(_nameOrig))
   , _conf(conf)
   , _lang(lang)
   , _activeIndex(-1)
-  , _createNewProfile(!profileName)
+  , _createNewProfile(profileName.empty())
 {
 	Resize(448, 416);
 
@@ -375,7 +375,7 @@ void ControlProfileDlg::SetActiveIndex(int index)
 	}
 }
 
-void ControlProfileDlg::AddAction(ConfVarString &keyName, std::string actionDisplayName)
+void ControlProfileDlg::AddAction(ConfVarString &keyName, std::string_view actionDisplayName)
 {
 	_keyBindings.push_back(GetKeyCode(keyName.Get()));
 	int index = _actions->GetData()->AddItem(std::move(actionDisplayName), reinterpret_cast<size_t>(&keyName));

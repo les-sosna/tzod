@@ -149,7 +149,7 @@ void Button::SetIcon(TextureManager &texman, const char *spriteName)
 	}
 }
 
-void Button::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
+void Button::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
 	_text->SetText(std::move(text));
 }
@@ -227,7 +227,7 @@ void TextButton::SetFont(Texture fontTexture)
 	_text->SetFont(std::move(fontTexture));
 }
 
-void TextButton::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
+void TextButton::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
 	_text->SetText(std::move(text));
 }
@@ -261,7 +261,7 @@ void CheckBox::OnClick()
 	SetCheck(!GetCheck());
 }
 
-void CheckBox::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
+void CheckBox::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
 	_text->SetText(std::move(text));
 }

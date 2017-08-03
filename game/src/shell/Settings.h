@@ -65,14 +65,14 @@ protected:
 class ControlProfileDlg : public UI::Dialog
 {
 public:
-	ControlProfileDlg(const char *profileName, ShellConfig &conf, LangCache &lang);
+	ControlProfileDlg(std::string_view profileName, ShellConfig &conf, LangCache &lang);
 	~ControlProfileDlg();
 
 	// UI::Window
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 private:
-	void AddAction(ConfVarString &var, std::string actionDisplayName);
+	void AddAction(ConfVarString &var, std::string_view actionDisplayName);
 
 	void OnOK();
 	void OnCancel();

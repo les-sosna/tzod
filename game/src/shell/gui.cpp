@@ -612,7 +612,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture("skin/" + _skins->GetData()->GetItemText(index, 0));
+		_skinPreview->SetTexture(std::string("skin/").append(_skins->GetData()->GetItemText(index, 0)));
 	}
 }
 
@@ -840,7 +840,7 @@ void EditBotDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture("skin/" + _skins->GetData()->GetItemText(index, 0));
+		_skinPreview->SetTexture(std::string("skin/").assign(_skins->GetData()->GetItemText(index, 0)));
 	}
 }
 

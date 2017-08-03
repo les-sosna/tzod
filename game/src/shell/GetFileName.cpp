@@ -103,11 +103,11 @@ void GetFileNameDlg::OnChangeName()
 	std::string txt = _fileName->GetEditable()->GetText();
 	for( int i = 0; i < _files->GetData()->GetItemCount(); ++i )
 	{
-		std::string fn = _files->GetData()->GetItemText(i, 0);
+		auto filename = _files->GetData()->GetItemText(i, 0);
 		size_t n = 0;
-		while( n < fn.length() && n < txt.length() )
+		while( n < filename.length() && n < txt.length() )
 		{
-			if( fn[n] != txt[n] ) break;
+			if( filename[n] != txt[n] ) break;
 			++n;
 		}
 		if( n > match )

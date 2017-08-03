@@ -1,10 +1,10 @@
 #pragma once
-#include <string>
+#include <string_view>
 
 namespace UI
 {
 	enum class Key;
 }
 
-const std::string& GetKeyName(UI::Key code);
-UI::Key GetKeyCode(const std::string &name);
+std::string_view GetKeyName(UI::Key code);
+UI::Key GetKeyCode(std::string_view name);

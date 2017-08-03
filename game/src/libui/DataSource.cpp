@@ -16,17 +16,17 @@ const std::shared_ptr<StaticValue<bool>>& detail::StaticConstants<bool>::False()
 	return value;
 }
 
-const std::string& StaticText::GetValue(const DataContext &dc) const
+std::string_view StaticText::GetValue(const DataContext &dc) const
 {
 	return _text;
 }
 
-const std::string& StaticText::GetValue(const DataContext &dc, const StateContext &sc) const
+std::string_view StaticText::GetValue(const DataContext &dc, const StateContext &sc) const
 {
 	return _text;
 }
 
-const std::string& ListDataSourceBinding::GetValue(const DataContext &dc) const
+std::string_view ListDataSourceBinding::GetValue(const DataContext &dc) const
 {
 	static std::string empty;
 	auto listDataSource = reinterpret_cast<const ListDataSource*>(dc.GetDataContext());
@@ -34,7 +34,7 @@ const std::string& ListDataSourceBinding::GetValue(const DataContext &dc) const
 		listDataSource->GetItemText(dc.GetItemIndex(), _column) : empty;
 }
 
-const std::string& ListDataSourceBinding::GetValue(const DataContext &dc, const StateContext &sc) const
+std::string_view ListDataSourceBinding::GetValue(const DataContext &dc, const StateContext &sc) const
 {
 	return ListDataSourceBinding::GetValue(dc);
 }

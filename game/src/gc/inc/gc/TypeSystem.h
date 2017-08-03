@@ -37,7 +37,7 @@ public:
 
 private:
 	typedef std::map<ObjectType, EdItem> type2item;
-	typedef std::map<std::string, ObjectType> name2type;
+	typedef std::map<std::string, ObjectType, std::less<>> name2type;
 	typedef std::vector<ObjectType> index2type;
 	typedef std::map<ObjectType, GC_Object& (*) (World&)> FromFileMap;
 
@@ -155,7 +155,7 @@ public:
 	{
 		return _i2t[typeIndex];
 	}
-	ObjectType GetTypeByName(const std::string &name) const
+	ObjectType GetTypeByName(std::string_view name) const
 	{
 		name2type::const_iterator it = _n2t.find(name);
 		return _n2t.end() != it ? it->second : INVALID_OBJECT_TYPE;

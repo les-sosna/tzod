@@ -6,8 +6,8 @@
 
 void BotView::SetBotConfig(ConfVarTable &botConf)
 {
-	_botConfCache.reset(new ConfPlayerAI(&botConf));
-	_texSkin = std::string("skin/") + _botConfCache->skin.Get();
+	_botConfCache = std::make_unique<ConfPlayerAI>(&botConf);
+	_texSkin = std::string("skin/").append(_botConfCache->skin.Get());
 }
 
 void BotView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const

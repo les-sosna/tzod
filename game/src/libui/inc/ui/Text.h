@@ -15,7 +15,7 @@ public:
 	void SetFont(Texture fontTexture) { _fontTexture = std::move(fontTexture); }
 	void SetFontColor(std::shared_ptr<RenderData<SpriteColor>> color);
 
-	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
 	// Window
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
@@ -25,7 +25,7 @@ private:
 	enumAlignText _align = alignTextLT;
 	Texture _fontTexture = "font_small";
 	std::shared_ptr<RenderData<SpriteColor>> _fontColor;
-	std::shared_ptr<LayoutData<const std::string&>> _text;
+	std::shared_ptr<LayoutData<std::string_view>> _text;
 };
 
 } // namespace UI

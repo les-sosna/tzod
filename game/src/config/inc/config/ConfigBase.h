@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <string_view>
 #include <functional>
 #include <map>
 #include <memory>
@@ -58,7 +59,7 @@ public:
 protected:
 	void FireValueUpdate(ConfVar *pVar);
 
-	typedef std::map<std::string, std::unique_ptr<ConfVar>> TableType;
+	typedef std::map<std::string, std::unique_ptr<ConfVar>, std::less<>> TableType;
 
 	union Value
 	{
@@ -120,9 +121,10 @@ public:
 	ConfVarString();
 	virtual ~ConfVarString();
 
-
-	const std::string& Get() const;
+	std::string_view Get() const;
 	void Set(std::string value);
+	void Set(std::string_view value);
+	void Set(const char *value);
 
 	// ConfVar
 	virtual const char* GetTypeName() const;
@@ -186,7 +188,7 @@ public:
 	KeyListType GetKeys() const;
 
 	// bool part contains true if value with the specified type was found
-	std::pair<ConfVar*, bool> GetVar(const std::string &name, ConfVar::Type type);
+	std::pair<ConfVar*, bool> GetVar(std::string_view name, ConfVar::Type type);
 
 	ConfVarNumber& GetNum(std::string name, float def);
 	ConfVarNumber& GetNum(std::string name, int   def = 0);
@@ -200,11 +202,11 @@ public:
 	ConfVarString& SetStr(std::string name, std::string value);
 
 	ConfVarArray& GetArray(std::string name, void (*init)(ConfVarArray&) = nullptr);
-	ConfVarTable& GetTable(std::string name, void (*init)(ConfVarTable&) = nullptr);
+	ConfVarTable& GetTable(std::string_view name, void (*init)(ConfVarTable&) = nullptr);
 
 	void Clear();
 	bool Remove(const ConfVar &value);
-	bool Remove(const std::string &name);
+	bool Remove(std::string_view name);
 	bool Rename(const ConfVar &value, std::string newName);
 	bool Rename(const std::string &oldName, std::string newName);
 

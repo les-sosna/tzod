@@ -219,7 +219,7 @@ static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 void Desktop::OnNewCampaign()
 {
 	auto dlg = std::make_shared<NewCampaignDlg>(_fs, _lang);
-	dlg->eventCampaignSelected = [this](auto sender, std::string name)
+	dlg->eventCampaignSelected = [this](auto sender, std::string_view name)
 	{
 		OnCloseChild(sender);
 		if( !name.empty() )

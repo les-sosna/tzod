@@ -21,10 +21,10 @@ class MapPreview: public UI::Window
 public:
 	MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCache &mapCache);
 
-	void SetMapName(std::shared_ptr<UI::RenderData<const std::string&>> mapName);
+	void SetMapName(std::shared_ptr<UI::RenderData<std::string_view>> mapName);
 	void SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating);
 	void SetPadding(float padding) { _padding = padding; }
-    void SetLocked(bool locked) { _locked = locked; }
+	void SetLocked(bool locked) { _locked = locked; }
 
 	// UI::Window
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
@@ -38,7 +38,7 @@ private:
 	UI::Texture _texLock = "ui/lock";
 	UI::Texture _texLockShade = "ui/window";
 	std::shared_ptr<UI::Rating> _rating;
-	std::shared_ptr<UI::RenderData<const std::string&>> _mapName;
+	std::shared_ptr<UI::RenderData<std::string_view>> _mapName;
 	float _padding = 0;
-    bool _locked = false;
+	bool _locked = false;
 };

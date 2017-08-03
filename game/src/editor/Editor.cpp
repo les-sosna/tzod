@@ -55,7 +55,7 @@ static bool PtOnActor(const GC_Actor &actor, vec2d pt)
 
 namespace
 {
-	class LayerDisplay : public UI::LayoutData<const std::string&>
+	class LayerDisplay : public UI::LayoutData<std::string_view>
 	{
 	public:
 		LayerDisplay(LangCache &lang, std::shared_ptr<UI::List> typeSelector)
@@ -63,8 +63,8 @@ namespace
 			, _typeSelector(std::move(typeSelector))
 		{}
 
-		// LayoutData<const std::string&>
-		const std::string& GetValue(const UI::DataContext &dc) const override
+		// LayoutData<std::string_view>
+		std::string_view GetValue(const UI::DataContext &dc) const override
 		{
 			int index = _typeSelector->GetCurSel();
 			if (_cachedIndex != index)

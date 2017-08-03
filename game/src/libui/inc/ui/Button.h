@@ -59,7 +59,7 @@ public:
 	const Texture& GetBackground() const;
 
 	void SetIcon(TextureManager &texman, const char *spriteName);
-	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 	void SetFont(Texture fontTexture);
 
 	void AlignToBackground(TextureManager &texman);
@@ -81,7 +81,7 @@ public:
 	TextButton();
 
 	void SetFont(Texture fontTexture);
-	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
@@ -101,15 +101,15 @@ public:
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
-	void SetText(std::shared_ptr<LayoutData<const std::string&>> text);
+	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
 protected:
-    // ButtonBase
+	// ButtonBase
 	void OnClick() override;
 
 	// Window
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
-    FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 private:

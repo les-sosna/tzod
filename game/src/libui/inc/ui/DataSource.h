@@ -91,34 +91,34 @@ namespace UI
 	};
 
 	class StaticText
-		: public LayoutData<const std::string&>
-		, public RenderData<const std::string&>
+		: public LayoutData<std::string_view>
+		, public RenderData<std::string_view>
 	{
 	public:
-		StaticText(std::string text) : _text(std::move(text)) {}
+		StaticText(std::string_view text) : _text(std::move(text)) {}
 
-		// LayoutData<const std::string&>
-		const std::string& GetValue(const DataContext &dc) const override;
+		// LayoutData<std::string_view>
+		std::string_view GetValue(const DataContext &dc) const override;
 
-		// RenderData<const std::string&>
-		const std::string& GetValue(const DataContext &dc, const StateContext &sc) const override;
+		// RenderData<std::string_view>
+		std::string_view GetValue(const DataContext &dc, const StateContext &sc) const override;
 
 	private:
 		std::string _text;
 	};
 
 	class ListDataSourceBinding
-		: public LayoutData<const std::string&>
-		, public RenderData<const std::string&>
+		: public LayoutData<std::string_view>
+		, public RenderData<std::string_view>
 	{
 	public:
 		explicit ListDataSourceBinding(int column): _column(column) {}
 
-		// LayoutData<const std::string&>
-		const std::string& GetValue(const DataContext &dc) const override;
+		// LayoutData<std::string_view>
+		std::string_view GetValue(const DataContext &dc) const override;
 
-		// RenderData<const std::string&>
-		const std::string& GetValue(const DataContext &dc, const StateContext &sc) const override;
+		// RenderData<std::string_view>
+		std::string_view GetValue(const DataContext &dc, const StateContext &sc) const override;
 
 	private:
 		int _column;

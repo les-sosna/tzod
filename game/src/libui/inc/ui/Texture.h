@@ -19,7 +19,7 @@ namespace UI
 
 		Texture(std::string textureName)
 			: _textureName(std::move(textureName))
-			, _cachedTextureId(-2)
+			, _cachedTextureId(TextureIdOutOfDate)
 		{}
 
 		Texture(const char *textureName)

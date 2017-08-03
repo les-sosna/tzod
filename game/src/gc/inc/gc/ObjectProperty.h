@@ -64,7 +64,7 @@ public:
 	//
 	// TYPE_STRING, TYPE_SKIN
 	//
-	void SetStringValue(std::string str);
+	void SetStringValue(std::string_view str);
 	const std::string& GetStringValue(void) const;
 
 

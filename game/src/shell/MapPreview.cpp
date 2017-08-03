@@ -19,7 +19,7 @@ MapPreview::MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCache &mapCa
 	AddFront(_rating);
 }
 
-void MapPreview::SetMapName(std::shared_ptr<UI::RenderData<const std::string&>> mapName)
+void MapPreview::SetMapName(std::shared_ptr<UI::RenderData<std::string_view>> mapName)
 {
 	_mapName = std::move(mapName);
 }

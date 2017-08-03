@@ -31,7 +31,7 @@ size_t ConsoleHistoryDefault::GetItemCount() const
 	return _buf.size();
 }
 
-const std::string& ConsoleHistoryDefault::GetItem(size_t index) const
+std::string_view ConsoleHistoryDefault::GetItem(size_t index) const
 {
 	return _buf[index];
 }
