@@ -76,7 +76,7 @@ public:
 	ObjectList::id_type GetId() const { return _posLIST_objects; }
 
 	const char* GetName(World &world) const;
-	void SetName(World &world, const char *name);
+	void SetName(World &world, std::string_view name);
 
 	std::shared_ptr<PropertySet> GetProperties(World &world);
 

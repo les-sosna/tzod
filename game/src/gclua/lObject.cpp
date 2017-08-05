@@ -65,10 +65,10 @@ static void pushprop(lua_State *L, ObjectProperty *p)
 	case ObjectProperty::TYPE_STRING:
 	case ObjectProperty::TYPE_SKIN:
 	case ObjectProperty::TYPE_TEXTURE:
-		lua_pushstring(L, p->GetStringValue().c_str());
+		lua_pushlstring(L, p->GetStringValue().data(), p->GetStringValue().size());
 		break;
 	case ObjectProperty::TYPE_MULTISTRING:
-		lua_pushstring(L, p->GetListValue(p->GetCurrentIndex()).c_str());
+		lua_pushlstring(L, p->GetListValue(p->GetCurrentIndex()).data(), p->GetListValue(p->GetCurrentIndex()).size());
 		break;
 	default:
 		assert(false);
@@ -94,7 +94,7 @@ static int objnextprop(lua_State *L)
 	{
 		// begin iteration
 		ObjectProperty *p = properties->GetProperty(0);
-		lua_pushstring(L, p->GetName().c_str()); // key
+		lua_pushlstring(L, p->GetName().data(), p->GetName().size()); // key
 		pushprop(L, p); // value
 		return 2;
 	}
@@ -109,7 +109,7 @@ static int objnextprop(lua_State *L)
 		if( found )
 		{
 			// return next pair
-			lua_pushstring(L, p->GetName().c_str()); // key
+			lua_pushlstring(L, p->GetName().data(), p->GetName().size()); // key
 			pushprop(L, p); // value
 			return 2;
 		}

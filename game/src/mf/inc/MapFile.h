@@ -7,6 +7,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,9 +95,9 @@ class MapFile
 
 	struct AttributeSet
 	{
-		std::map<std::string, int>      attrs_int;
-		std::map<std::string, float>    attrs_float;
-		std::map<std::string, std::string> attrs_str;
+		std::map<std::string, int, std::less<>> attrs_int;
+		std::map<std::string, float, std::less<>> attrs_float;
+		std::map<std::string, std::string, std::less<>> attrs_str;
 
 		void clear()
 		{
@@ -109,17 +110,10 @@ class MapFile
 	class ObjectDefinition
 	{
 	public:
-		class Property
+		struct Property
 		{
-		public:
 			enumDataTypes type;
 			std::string   name;
-			Property() {}
-			Property(const Property &x)
-			{
-				name = x.name;
-				type = x.type;
-			}
 			size_t CalcSize() const
 			{
 				return sizeof(enumDataTypes) + sizeof(unsigned short) + name.size();
@@ -128,13 +122,6 @@ class MapFile
 
 		std::string           _className;
 		std::vector<Property> _propertyset;
-
-		ObjectDefinition() {}
-		ObjectDefinition(const ObjectDefinition &x)
-		{
-			_className   = x._className;
-			_propertyset = x._propertyset;
-		}
 
 		size_t CalcSize() const
 		{
@@ -163,7 +150,6 @@ private:
 
 	std::map<std::string, AttributeSet> _defaults;
 
-
 	bool _read_chunk_header(ChunkHeader &chdr);
 	void _skip_block(size_t size);
 
@@ -171,7 +157,7 @@ private:
 
 	void WriteInt(int value);
 	void WriteFloat(float value);
-	void WriteString(const std::string &value);
+	void WriteString(std::string_view value);
 
 	void ReadInt(int &value);
 	void ReadFloat(float &value);
@@ -183,35 +169,31 @@ public:
 
 	bool loading() const;
 
-
 	bool NextObject();
-	const std::string& GetCurrentClassName() const;
-
+	std::string_view GetCurrentClassName() const;
 
 	void BeginObject(const char *classname);
 	void WriteCurrentObject();
 
+	bool getMapAttribute(std::string_view name, int &value) const;
+	bool getMapAttribute(std::string_view name, float &value) const;
+	bool getMapAttribute(std::string_view name, std::string &value) const;
 
-	bool getMapAttribute(const std::string &name, int &value) const;
-	bool getMapAttribute(const std::string &name, float &value) const;
-	bool getMapAttribute(const std::string &name, std::string &value) const;
+	void setMapAttribute(std::string name, int value);
+	void setMapAttribute(std::string name, float value);
+	void setMapAttribute(std::string name, std::string value);
 
-	void setMapAttribute(const std::string &name, int value);
-	void setMapAttribute(const std::string &name, float value);
-	void setMapAttribute(const std::string &name, const std::string &value);
+	bool getObjectAttribute(std::string_view name, int &value) const;
+	bool getObjectAttribute(std::string_view name, float &value) const;
+	bool getObjectAttribute(std::string_view name, std::string &value) const;
 
-
-	bool getObjectAttribute(const std::string &name, int &value) const;
-	bool getObjectAttribute(const std::string &name, float &value) const;
-	bool getObjectAttribute(const std::string &name, std::string &value) const;
-
-	void setObjectAttribute(const std::string &name, int value);
-	void setObjectAttribute(const std::string &name, float value);
-	void setObjectAttribute(const std::string &name, const std::string &value);
+	void setObjectAttribute(std::string name, int value);
+	void setObjectAttribute(std::string name, float value);
+	void setObjectAttribute(std::string name, std::string_view value);
 
 	void setObjectDefault(const char *cls, const char *attr, int value);
 	void setObjectDefault(const char *cls, const char *attr, float value);
-	void setObjectDefault(const char *cls, const char *attr, const std::string &value);
+	void setObjectDefault(const char *cls, const char *attr, std::string value);
 
 	template<class T>
 	void Exchange(const char *name, T *value, T defaultValue)
@@ -229,9 +211,6 @@ public:
 	}
 
 private:
-	MapFile(const MapFile&);
-	MapFile& operator = (const MapFile&);
+	MapFile(const MapFile&) = delete;
+	MapFile& operator = (const MapFile&) = delete;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

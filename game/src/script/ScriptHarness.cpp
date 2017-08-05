@@ -186,6 +186,6 @@ void ScriptHarness::OnGameStarted()
 {
 	if( !_world._infoOnInit.empty() )
 	{
-		script_exec(_L, _world._infoOnInit.c_str());
+		script_exec(_L, _world._infoOnInit, "on_init");
 	}
 }

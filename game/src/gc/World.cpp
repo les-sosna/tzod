@@ -515,7 +515,7 @@ void World::Step(float dt)
 #endif
 }
 
-GC_Object* World::FindObject(const std::string &name) const
+GC_Object* World::FindObject(std::string_view name) const
 {
 	std::map<std::string, const GC_Object*>::const_iterator it = _nameToObjectMap.find(name);
 	return _nameToObjectMap.end() != it ? const_cast<GC_Object*>(it->second) : nullptr;

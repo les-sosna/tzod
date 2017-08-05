@@ -656,7 +656,7 @@ const char* ConfVarTable::GetTypeName() const
 	return "table";
 }
 
-ConfVar* ConfVarTable::Find(const std::string &name)  // returns nullptr if variable not found
+ConfVar* ConfVarTable::Find(std::string_view name)  // returns nullptr if variable not found
 {
 	auto it = _val.asTable->find(name);
 	return _val.asTable->end() != it ? it->second.get() : nullptr;
@@ -708,9 +708,9 @@ std::pair<ConfVar*, bool> ConfVarTable::GetVar(std::string_view name, ConfVar::T
 	return result;
 }
 
-ConfVarNumber& ConfVarTable::GetNum(std::string name, float def)
+ConfVarNumber& ConfVarTable::GetNum(std::string_view name, float def)
 {
-	std::pair<ConfVar*, bool> p = GetVar(std::move(name), ConfVar::typeNumber);
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeNumber);
 	if( !p.second )
 		p.first->AsNum().SetFloat(def);
 	return p.first->AsNum();
@@ -723,9 +723,9 @@ ConfVarNumber& ConfVarTable::SetNum(std::string name, float value)
 	return v;
 }
 
-ConfVarNumber& ConfVarTable::GetNum(std::string name, int def)
+ConfVarNumber& ConfVarTable::GetNum(std::string_view name, int def)
 {
-	std::pair<ConfVar*, bool> p = GetVar(std::move(name), ConfVar::typeNumber);
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeNumber);
 	if( !p.second )
 		p.first->AsNum().SetInt(def);
 	return p.first->AsNum();
@@ -738,9 +738,9 @@ ConfVarNumber& ConfVarTable::SetNum(std::string name, int value)
 	return v;
 }
 
-ConfVarBool& ConfVarTable::GetBool(std::string name, bool def)
+ConfVarBool& ConfVarTable::GetBool(std::string_view name, bool def)
 {
-	std::pair<ConfVar*, bool> p = GetVar(std::move(name), ConfVar::typeBoolean);
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeBoolean);
 	if( !p.second )
 		p.first->AsBool().Set(def);
 	return p.first->AsBool();
@@ -753,14 +753,14 @@ ConfVarBool& ConfVarTable::SetBool(std::string name, bool value)
 	return v;
 }
 
-ConfVarString& ConfVarTable::GetStr(std::string name)
+ConfVarString& ConfVarTable::GetStr(std::string_view name)
 {
-	return GetVar(std::move(name), ConfVar::typeString).first->AsStr();
+	return GetVar(name, ConfVar::typeString).first->AsStr();
 }
 
-ConfVarString& ConfVarTable::GetStr(std::string name, std::string def)
+ConfVarString& ConfVarTable::GetStr(std::string_view name, std::string_view def)
 {
-	std::pair<ConfVar*, bool> p = GetVar(std::move(name), ConfVar::typeString);
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeString);
 	if (!p.second)
 		p.first->AsStr().Set(std::move(def));
 	return p.first->AsStr();
@@ -773,9 +773,9 @@ ConfVarString& ConfVarTable::SetStr(std::string name, std::string value)
 	return v;
 }
 
-ConfVarArray& ConfVarTable::GetArray(std::string name, void (*init)(ConfVarArray&))
+ConfVarArray& ConfVarTable::GetArray(std::string_view name, void (*init)(ConfVarArray&))
 {
-	std::pair<ConfVar*, bool> p = GetVar(std::move(name), ConfVar::typeArray);
+	std::pair<ConfVar*, bool> p = GetVar(name, ConfVar::typeArray);
 	if( !p.second && init )
 		init(p.first->AsArray());
 	return p.first->AsArray();
@@ -864,7 +864,7 @@ bool ConfVarTable::Rename(const ConfVar &value, std::string newName)
 	return true;
 }
 
-bool ConfVarTable::Rename(const std::string &oldName, std::string newName)
+bool ConfVarTable::Rename(std::string_view oldName, std::string newName)
 {
 	assert( typeTable == _type );
 	assert( !_frozen );
@@ -896,7 +896,15 @@ bool ConfVarTable::Rename(const std::string &oldName, std::string newName)
 bool ConfVarTable::Write(FILE *file, int indent) const
 {
 	if( indent )
-		fprintf(file, "{%s\n", GetHelpString().empty() ? "" : (std::string(" -- ") + GetHelpString()).c_str());
+	{
+		fputs("{", file);
+		if (!GetHelpString().empty())
+		{
+			fputs(" -- ", file);
+			fwrite(GetHelpString().data(), GetHelpString().size(), 1, file);
+		}
+		fputs("\n", file);
+	}
 
 	for( auto it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
 	{
@@ -961,7 +969,8 @@ bool ConfVarTable::Write(FILE *file, int indent) const
 		if( !it->second->GetHelpString().empty() )
 		{
 			fputs("  -- ", file);
-			fputs(it->second->GetHelpString().c_str(), file);
+			auto s = it->second->GetHelpString();
+			fwrite(s.data(), s.size(), 1, file);
 		}
 		fputs("\n", file);
 	}

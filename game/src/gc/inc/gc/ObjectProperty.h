@@ -37,27 +37,27 @@ private:
 	};
 
 public:
-	ObjectProperty(PropertyType type, std::string &&name);
+	ObjectProperty(PropertyType type, std::string name);
 
-	const std::string& GetName(void) const;
-	PropertyType GetType(void) const;
+	std::string_view GetName() const;
+	PropertyType GetType() const;
 
 
 	//
 	// TYPE_INTEGER
 	//
-	int  GetIntValue(void) const;
-	int  GetIntMin(void) const;
-	int  GetIntMax(void) const;
+	int  GetIntValue() const;
+	int  GetIntMin() const;
+	int  GetIntMax() const;
 	void SetIntValue(int value);
 	void SetIntRange(int min, int max);
 
 	//
 	// TYPE_FLOAT
 	//
-	float GetFloatValue(void) const;
-	float GetFloatMin(void) const;
-	float GetFloatMax(void) const;
+	float GetFloatValue() const;
+	float GetFloatMin() const;
+	float GetFloatMax() const;
 	void  SetFloatValue(float value);
 	void  SetFloatRange(float min, float max);
 
@@ -65,16 +65,16 @@ public:
 	//
 	// TYPE_STRING, TYPE_SKIN
 	//
-	void SetStringValue(std::string_view str);
-	const std::string& GetStringValue(void) const;
+	void SetStringValue(std::string str);
+	std::string_view GetStringValue() const;
 
 
 	//
 	// TYPE_MULTISTRING
 	//
 	void   AddItem(std::string str);
-	size_t GetCurrentIndex(void) const;
+	size_t GetCurrentIndex() const;
 	void   SetCurrentIndex(size_t index);
-	size_t GetListSize(void) const;
-	const std::string& GetListValue(size_t index) const;
+	size_t GetListSize() const;
+	std::string_view GetListValue(size_t index) const;
 };

@@ -377,18 +377,22 @@ void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murde
 	default:
 		assert(false);
 	case MurderType::Accident:
-		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_died.Get()).c_str(), victim.GetNick().c_str());
+		// TODO: remove string allocations
+		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_died.Get()).c_str(), std::string(victim.GetNick()).c_str());
 		break;
 	case MurderType::Enemy:
 		assert(killer);
-		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_killed_his_enemy_x.Get()).c_str(), killer->GetNick().c_str(), victim.GetNick().c_str());
+		// TODO: remove string allocations
+		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_killed_his_enemy_x.Get()).c_str(), std::string(killer->GetNick()).c_str(), std::string(victim.GetNick()).c_str());
 		break;
 	case MurderType::Friend:
 		assert(killer);
-		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_killed_his_friend_x.Get()).c_str(), killer->GetNick().c_str(), victim.GetNick().c_str());
+		// TODO: remove string allocations
+		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_killed_his_friend_x.Get()).c_str(), std::string(killer->GetNick()).c_str(), std::string(victim.GetNick()).c_str());
 		break;
 	case MurderType::Suicide:
-		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_killed_him_self.Get()).c_str(), victim.GetNick().c_str());
+		// TODO: remove string allocations
+		snprintf(msg, sizeof(msg), std::string(_lang.msg_player_x_killed_him_self.Get()).c_str(), std::string(victim.GetNick()).c_str());
 		break;
 	}
 	_msg->WriteLine(msg);

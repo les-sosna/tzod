@@ -75,8 +75,8 @@ class World
 
 	void OnKill(GC_Object &obj);
 
-	std::map<const GC_Object*, std::string>  _objectToStringMap;
-	std::map<std::string, const GC_Object*>  _nameToObjectMap; // TODO: try to avoid name string duplication
+	std::map<const GC_Object*, std::string> _objectToStringMap;
+	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap; // TODO: try to avoid name string duplication
 
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 
@@ -168,7 +168,7 @@ public:
 
 	bool GetNightMode() const { return _nightMode; }
 	bool IsSafeMode() const { return _safeMode; }
-	GC_Object* FindObject(const std::string &name) const;
+	GC_Object* FindObject(std::string_view name) const;
 
 	int   net_rand();
 	float net_frand(float max);

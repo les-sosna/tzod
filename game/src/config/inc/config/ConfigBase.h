@@ -31,7 +31,7 @@ public:
 	virtual ~ConfVar();
 
 	void SetHelpString(std::string str) { _help = std::move(str); }
-	const std::string& GetHelpString() const { return _help; }
+	std::string_view GetHelpString() const { return _help; }
 
 	void SetType(Type type);
 	Type GetType() const { return _type; }
@@ -181,7 +181,7 @@ public:
 	ConfVarTable();
 	virtual ~ConfVarTable();
 
-	ConfVar* Find(const std::string &name); // returns nullptr if variable not found
+	ConfVar* Find(std::string_view name); // returns nullptr if variable not found
 	size_t GetSize() const;
 
 	typedef std::vector<std::string> KeyListType;
@@ -190,25 +190,25 @@ public:
 	// bool part contains true if value with the specified type was found
 	std::pair<ConfVar*, bool> GetVar(std::string_view name, ConfVar::Type type);
 
-	ConfVarNumber& GetNum(std::string name, float def);
-	ConfVarNumber& GetNum(std::string name, int   def = 0);
-	ConfVarBool&  GetBool(std::string name, bool  def = false);
-	ConfVarString& GetStr(std::string name);
-	ConfVarString& GetStr(std::string name, std::string def);
+	ConfVarNumber& GetNum(std::string_view name, float def);
+	ConfVarNumber& GetNum(std::string_view name, int   def = 0);
+	ConfVarBool&  GetBool(std::string_view name, bool  def = false);
+	ConfVarString& GetStr(std::string_view name);
+	ConfVarString& GetStr(std::string_view name, std::string_view def);
 
 	ConfVarNumber& SetNum(std::string name, float value);
 	ConfVarNumber& SetNum(std::string name, int   value);
 	ConfVarBool&  SetBool(std::string name, bool  value);
 	ConfVarString& SetStr(std::string name, std::string value);
 
-	ConfVarArray& GetArray(std::string name, void (*init)(ConfVarArray&) = nullptr);
+	ConfVarArray& GetArray(std::string_view name, void (*init)(ConfVarArray&) = nullptr);
 	ConfVarTable& GetTable(std::string_view name, void (*init)(ConfVarTable&) = nullptr);
 
 	void Clear();
 	bool Remove(const ConfVar &value);
 	bool Remove(std::string_view name);
 	bool Rename(const ConfVar &value, std::string newName);
-	bool Rename(const std::string &oldName, std::string newName);
+	bool Rename(std::string_view oldName, std::string newName);
 
 	bool Save(const char *filename) const;
 	bool Load(const char *filename);

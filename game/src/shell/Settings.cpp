@@ -385,7 +385,7 @@ void ControlProfileDlg::AddAction(ConfVarString &keyName, std::string_view actio
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetEditable()->GetText().empty() || !_conf.dm_profiles.Rename(_profile, _nameEdit->GetEditable()->GetText()) )
+	if( _nameEdit->GetEditable()->GetText().empty() || !_conf.dm_profiles.Rename(_profile, std::string(_nameEdit->GetEditable()->GetText())) )
 	{
 		return;
 	}

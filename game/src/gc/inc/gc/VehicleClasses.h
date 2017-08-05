@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 struct VehicleClass
 {
@@ -31,5 +32,5 @@ struct VehicleClass
 	float maxLinSpeed;
 };
 
-std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className);
+std::shared_ptr<const VehicleClass> GetVehicleClass(std::string_view className);
 const char* GetVehicleClassName(unsigned int index);

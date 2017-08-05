@@ -20,7 +20,7 @@ void sPlayer::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)
 {
 	if( !obj.GetOnRespawn().empty() )
 	{
-		script_exec(_L, obj.GetOnRespawn().c_str());
+		script_exec(_L, obj.GetOnRespawn(), "on_respawn");
 	}
 }
 
@@ -28,6 +28,6 @@ void sPlayer::OnDie(GC_Player &obj)
 {
 	if( !obj.GetOnDie().empty() )
 	{
-		script_exec(_L, obj.GetOnDie().c_str());
+		script_exec(_L, obj.GetOnDie(), "on_die");
 	}
 }

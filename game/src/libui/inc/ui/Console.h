@@ -51,8 +51,8 @@ public:
 	void SetHistory(IConsoleHistory *history);
 	void SetBuffer(ConsoleBuffer *buf);
 	void SetEcho(bool echo);
-	std::function<void(const std::string &)> eventOnSendCommand;
-	std::function<bool(const std::string &, int &, std::string &)> eventOnRequestCompleteCommand;
+	std::function<void(std::string_view)> eventOnSendCommand;
+	std::function<bool(std::string_view, int &, std::string &)> eventOnRequestCompleteCommand;
 
 	// Window
 	ScrollSink* GetScrollSink() override { return this; }

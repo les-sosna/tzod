@@ -178,7 +178,7 @@ void MapFile::WriteFloat(float value)
 	_file.Write(&value, sizeof(float));
 }
 
-void MapFile::WriteString(const std::string &value)
+void MapFile::WriteString(std::string_view value)
 {
 	assert(_modeWrite);
 	assert(value.length() <= 0xffff);
@@ -217,7 +217,7 @@ void MapFile::ReadString(std::string &value)
             throw std::runtime_error("unexpected end of file");
 }
 
-bool MapFile::getMapAttribute(const std::string &name, int &value) const
+bool MapFile::getMapAttribute(std::string_view name, int &value) const
 {
 	std::map<std::string, int>::const_iterator it = _mapAttrs.attrs_int.find(name);
 	if( _mapAttrs.attrs_int.end() != it )
@@ -228,7 +228,7 @@ bool MapFile::getMapAttribute(const std::string &name, int &value) const
 	return false;
 }
 
-bool MapFile::getMapAttribute(const std::string &name, float &value) const
+bool MapFile::getMapAttribute(std::string_view name, float &value) const
 {
 	std::map<std::string, float>::const_iterator it = _mapAttrs.attrs_float.find(name);
 	if( _mapAttrs.attrs_float.end() != it )
@@ -239,7 +239,7 @@ bool MapFile::getMapAttribute(const std::string &name, float &value) const
 	return false;
 }
 
-bool MapFile::getMapAttribute(const std::string &name, std::string &value) const
+bool MapFile::getMapAttribute(std::string_view name, std::string &value) const
 {
 	std::map<std::string, std::string>::const_iterator it = _mapAttrs.attrs_str.find(name);
 	if( _mapAttrs.attrs_str.end() != it )
@@ -251,27 +251,27 @@ bool MapFile::getMapAttribute(const std::string &name, std::string &value) const
 }
 
 
-void MapFile::setMapAttribute(const std::string &name, int value)
+void MapFile::setMapAttribute(std::string name, int value)
 {
 	assert(!_headerWritten);
-	_mapAttrs.attrs_int[name] = value;
+	_mapAttrs.attrs_int[std::move(name)] = value;
 }
 
-void MapFile::setMapAttribute(const std::string &name, float value)
+void MapFile::setMapAttribute(std::string name, float value)
 {
 	assert(!_headerWritten);
-	_mapAttrs.attrs_float[name] = value;
+	_mapAttrs.attrs_float[std::move(name)] = value;
 }
 
-void MapFile::setMapAttribute(const std::string &name, const std::string &value)
+void MapFile::setMapAttribute(std::string name, std::string value)
 {
 	assert(!_headerWritten);
-	_mapAttrs.attrs_str[name] = value;
+	_mapAttrs.attrs_str[std::move(name)] = std::move(value);
 }
 
 
 
-bool MapFile::getObjectAttribute(const std::string &name, int &value) const
+bool MapFile::getObjectAttribute(std::string_view name, int &value) const
 {
 	assert(!_modeWrite);
 	std::map<std::string, int>::const_iterator it;
@@ -282,7 +282,7 @@ bool MapFile::getObjectAttribute(const std::string &name, int &value) const
 	return true;
 }
 
-bool MapFile::getObjectAttribute(const std::string &name, float &value) const
+bool MapFile::getObjectAttribute(std::string_view name, float &value) const
 {
 	assert(!_modeWrite);
 	std::map<std::string, float>::const_iterator it;
@@ -293,7 +293,7 @@ bool MapFile::getObjectAttribute(const std::string &name, float &value) const
 	return true;
 }
 
-bool MapFile::getObjectAttribute(const std::string &name, std::string &value) const
+bool MapFile::getObjectAttribute(std::string_view name, std::string &value) const
 {
 	assert(!_modeWrite);
 	std::map<std::string, std::string>::const_iterator it;
@@ -304,11 +304,11 @@ bool MapFile::getObjectAttribute(const std::string &name, std::string &value) co
 	return true;
 }
 
-void MapFile::setObjectAttribute(const std::string &name, int value)
+void MapFile::setObjectAttribute(std::string name, int value)
 {
 	if( _isNewClass )
 	{
-#ifdef _DEBUG
+#ifndef NDEBUG
 		// check that given name is unique
 		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
 			assert(_managed_classes.back()._propertyset[i].name != name);
@@ -316,13 +316,13 @@ void MapFile::setObjectAttribute(const std::string &name, int value)
 
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_INT;
-		p.name = name;
-		_managed_classes.back()._propertyset.push_back(p);
+		p.name = std::move(name);
+		_managed_classes.back()._propertyset.push_back(std::move(p));
 	}
 	_buffer.write((const char*) &value, sizeof(int));
 }
 
-void MapFile::setObjectAttribute(const std::string &name, float value)
+void MapFile::setObjectAttribute(std::string name, float value)
 {
 	if( _isNewClass )
 	{
@@ -334,13 +334,13 @@ void MapFile::setObjectAttribute(const std::string &name, float value)
 
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_FLOAT;
-		p.name = name;
-		_managed_classes.back()._propertyset.push_back(p);
+		p.name = std::move(name);
+		_managed_classes.back()._propertyset.push_back(std::move(p));
 	}
 	_buffer.write((const char*) &value, sizeof(float));
 }
 
-void MapFile::setObjectAttribute(const std::string &name, const std::string &value)
+void MapFile::setObjectAttribute(std::string name, std::string_view value)
 {
 	if( _isNewClass )
 	{
@@ -352,8 +352,8 @@ void MapFile::setObjectAttribute(const std::string &name, const std::string &val
 
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_STRING;
-		p.name = name;
-		_managed_classes.back()._propertyset.push_back(p);
+		p.name = std::move(name);
+		_managed_classes.back()._propertyset.push_back(std::move(p));
 	}
 	uint16_t len = (uint16_t) (value.length() & 0xffff);
 	_buffer.write((const char*) &len, 2);
@@ -370,12 +370,12 @@ void MapFile::setObjectDefault(const char *cls, const char *attr, float value)
 	_defaults[cls].attrs_float[attr] = value;
 }
 
-void MapFile::setObjectDefault(const char *cls, const char *attr, const std::string &value)
+void MapFile::setObjectDefault(const char *cls, const char *attr, std::string value)
 {
-	_defaults[cls].attrs_str[attr] = value;
+	_defaults[cls].attrs_str[attr] = std::move(value);
 }
 
-const std::string& MapFile::GetCurrentClassName() const
+std::string_view MapFile::GetCurrentClassName() const
 {
 	assert(!_modeWrite);
 	assert(_obj_type >= 0 && _obj_type < (int) _managed_classes.size());

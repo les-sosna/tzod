@@ -107,7 +107,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			if( _cmdIndex > 0 )
 			{
 				--_cmdIndex;
-				_input->GetEditable()->SetText(_history->GetItem(_cmdIndex));
+				_input->GetEditable()->SetText(std::string(_history->GetItem(_cmdIndex)));
 			}
 		}
 		break;
@@ -123,7 +123,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )
 			{
-				_input->GetEditable()->SetText(_history->GetItem(_cmdIndex));
+				_input->GetEditable()->SetText(std::string(_history->GetItem(_cmdIndex)));
 			}
 			else
 			{
@@ -134,7 +134,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 		break;
 	case Key::Enter:
 	{
-		const std::string &cmd = _input->GetEditable()->GetText();
+		auto cmd = _input->GetEditable()->GetText();
 		if( cmd.empty() )
 		{
 			_buf->WriteLine(0, std::string(">"));
@@ -145,7 +145,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			{
 				if( _history->GetItemCount() == 0 || cmd != _history->GetItem(_history->GetItemCount() - 1) )
 				{
-					_history->Enter(cmd);
+					_history->Enter(std::string(cmd));
 				}
 				_cmdIndex = _history->GetItemCount();
 			}
@@ -155,7 +155,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 				_buf->Format(0) << "> " << cmd;       // echo to the console
 			}
 			if( eventOnSendCommand )
-				eventOnSendCommand(cmd.c_str());
+				eventOnSendCommand(cmd);
 			_input->GetEditable()->SetText(std::string());
 		}
 		_scroll->SetPos(_scroll->GetDocumentSize());

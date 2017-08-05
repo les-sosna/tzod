@@ -70,7 +70,7 @@ namespace UI
 	class StateBinding : public RenderData<T>
 	{
 	public:
-		typedef std::map<std::string, T> MapType;
+		typedef std::map<std::string, T, std::less<>> MapType;
 
 		template <class T_, class M_>
 		StateBinding(T_ &&defaultValue, M_ &&valueMap)

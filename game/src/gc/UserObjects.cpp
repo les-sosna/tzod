@@ -92,7 +92,7 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 //		world._field.ProcessObject(tmp, false);
-		tmp->SetTextureName(_propTexture.GetStringValue());
+		tmp->SetTextureName(std::string(_propTexture.GetStringValue()));
 //		tmp->AlignToTexture();
 //		world._field.ProcessObject(tmp, true);
 	}
@@ -232,7 +232,7 @@ void GC_Decoration::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 	if( applyToObject )
 	{
-		tmp->SetTextureName(_propTexture.GetStringValue());
+		tmp->SetTextureName(std::string(_propTexture.GetStringValue()));
 		tmp->SetZ((enumZOrder) _propLayer.GetIntValue());
 //		tmp->SetFrame(_propFrame.GetIntValue() % tmp->GetFrameCount());
 		tmp->SetDirection(Vec2dDirection(_propRotation.GetFloatValue()));
