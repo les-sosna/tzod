@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include "Window.h"
+#include <string_view>
 
 namespace UI
 {

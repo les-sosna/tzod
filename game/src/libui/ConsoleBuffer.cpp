@@ -94,11 +94,11 @@ unsigned int ConsoleBuffer::GetSeverity(size_t index) const
 	return result;
 }
 
-void ConsoleBuffer::WriteLine(int severity, const std::string &s)
+void ConsoleBuffer::WriteLine(int severity, std::string_view s)
 {
 	Lock();
 
-	const char *src = s.c_str();
+	auto src = s.begin();
 	ClockType::time_point time = ClockType::now();
 
 	if( _log )
@@ -108,19 +108,19 @@ void ConsoleBuffer::WriteLine(int severity, const std::string &s)
 
 	char *dst = GET_LINE(_currentLine);
 
-	while( *src )
+	while( src != s.end() )
 	{
-		switch( *src )
+		if (*src == '\n')
 		{
-		case '\n':
 			++src;
 			dst[_currentPos] = '\0';
 			_currentPos = 0;
 			_currentLine = (_currentLine + 1) % _lineCount;
 			_currentCount = std::min(_lineCount, _currentCount + 1);
 			dst = GET_LINE(_currentLine);
-			break;
-		default:
+		}
+		else
+		{
 			_times[_currentLine] = time;
 			_sev[_currentLine] = severity;
 			if( _currentPos < _lineLength )
@@ -135,7 +135,6 @@ void ConsoleBuffer::WriteLine(int severity, const std::string &s)
 				_currentCount = std::min(_lineCount, _currentCount + 1);
 				dst = GET_LINE(_currentLine);
 			}
-			break;
 		}
 	}
 	dst[_currentPos] = '\0';
