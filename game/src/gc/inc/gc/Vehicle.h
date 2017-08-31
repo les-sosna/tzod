@@ -56,8 +56,8 @@ public:
 	float _trackPathR;
 	float _time_smoke;
 
-	void SetSkin(const std::string &skin);
-	const std::string& GetSkin() const { return _skinTextureName; }
+	void SetSkin(std::string skin);
+	std::string_view GetSkin() const { return _skinTextureName; }
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic

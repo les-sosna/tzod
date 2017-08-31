@@ -39,7 +39,7 @@ public:
 	int LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions);
 	void UnloadAllTextures();
 
-	size_t FindSprite(const std::string &name) const;
+	size_t FindSprite(std::string_view name) const;
 	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const { return _logicalTextures[texIndex].second->id; }
 	const LogicalTexture& GetSpriteInfo(size_t texIndex) const { return _logicalTextures[texIndex].first; }
 	float GetFrameWidth(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].first.pxFrameWidth; }
@@ -66,7 +66,7 @@ private:
 
 	std::list<TexDesc> _devTextures;
 	std::map<std::shared_ptr<Image>, std::list<TexDesc>::iterator> _mapImage_to_TexDescIter;
-	std::map<std::string, size_t> _mapName_to_Index;// index in _logicalTextures
+	std::map<std::string, size_t, std::less<>> _mapName_to_Index;// index in _logicalTextures
 	std::vector<std::pair<LogicalTexture, std::list<TexDesc>::iterator>> _logicalTextures;
 
 	std::list<TexDesc>::iterator LoadTexture(const std::shared_ptr<Image> &image, bool magFilter);

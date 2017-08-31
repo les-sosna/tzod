@@ -260,9 +260,9 @@ void GC_Vehicle::SetControllerState(const VehicleState &vs)
 	_state = vs;
 }
 
-void GC_Vehicle::SetSkin(const std::string &skin)
+void GC_Vehicle::SetSkin(std::string skin)
 {
-	_skinTextureName = skin;
+	_skinTextureName = std::move(skin);
 }
 
 void GC_Vehicle::OnDamage(World &world, DamageDesc &dd)

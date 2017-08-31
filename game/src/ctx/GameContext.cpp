@@ -11,7 +11,7 @@
 #define AI_MAX_LEVEL   4U
 
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
-    : _world(std::move(world))
+	: _world(std::move(world))
 	, _campaignTier(campaignTier)
 	, _campaignMap(campaignMap)
 {

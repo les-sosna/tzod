@@ -48,14 +48,14 @@ void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, co
 	}
 }
 
-void MessageArea::WriteLine(const std::string &text)
+void MessageArea::WriteLine(std::string text)
 {
 	_logger.WriteLine(0, text);
 
 	Line line;
 	line.time = 5;  // timeout
-	line.str = text;
-	_lines.push_front(line);
+	line.str = std::move(text);
+	_lines.push_front(std::move(line));
 
 	SetTimeStep(true);
 }
