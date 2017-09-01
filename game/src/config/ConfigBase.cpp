@@ -1031,7 +1031,7 @@ bool ConfVarTable::Load(const char *filename)
 	// try to read and execute the file
 	if( luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0) )
 	{
-        std::runtime_error error(lua_tostring(L, -1));
+		std::runtime_error error(lua_tostring(L, -1));
 		lua_close(L);
 		throw error;
 	}
