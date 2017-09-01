@@ -268,29 +268,29 @@ void CheckBox::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 
 FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-    if (_text.get() == &child)
-    {
-        float pxBoxWidth = ToPx(_boxTexture.GetTextureSize(texman), lc).x;
-        vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale());
-        return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
-    }
-    return ButtonBase::GetChildRect(texman, lc, dc, child);
+	if (_text.get() == &child)
+	{
+		float pxBoxWidth = ToPx(_boxTexture.GetTextureSize(texman), lc).x;
+		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale());
+		return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
+	}
+	return ButtonBase::GetChildRect(texman, lc, dc, child);
 }
 
 void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	State state = GetState(lc, ic);
-	size_t frame = _isChecked ? state + 4 : state;
+	unsigned int frame = _isChecked ? state + 4 : state;
 
-    vec2d pxBoxSize = ToPx(_boxTexture.GetTextureSize(texman), lc);
+	vec2d pxBoxSize = ToPx(_boxTexture.GetTextureSize(texman), lc);
 
-    auto box = MakeRectWH(vec2d{0, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
+	auto box = MakeRectWH(vec2d{0, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
 	rc.DrawSprite(box, _boxTexture.GetTextureId(texman), 0xffffffff, frame);
 }
 
 vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
-    vec2d pxTextSize = _text->GetContentSize(texman, dc, scale);
-    vec2d pxBoxSize = ToPx(texman.GetFrameSize(_boxTexture.GetTextureId(texman)), scale);
-    return vec2d{ pxTextSize.x + pxBoxSize.x, std::max(pxTextSize.y, pxBoxSize.y) };
+	vec2d pxTextSize = _text->GetContentSize(texman, dc, scale);
+	vec2d pxBoxSize = ToPx(texman.GetFrameSize(_boxTexture.GetTextureId(texman)), scale);
+	return vec2d{ pxTextSize.x + pxBoxSize.x, std::max(pxTextSize.y, pxBoxSize.y) };
 }

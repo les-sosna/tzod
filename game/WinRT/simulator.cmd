@@ -4,5 +4,5 @@ pushd _build
 	pushd data
 		mklink /J data ..\..\..\data
 	popd	
-	cmake .. -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DWINRT=1
+	cmake .. -G"Visual Studio 15 2017" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DWINRT=1
 popd
