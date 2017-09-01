@@ -25,6 +25,7 @@ public:
 	UI::IInput& GetInput() override;
 	IRender& GetRender() override;
 	void SetInputSink(UI::LayoutManager *inputSink) override;
+	void SetMouseCursor(MouseCursor mouseCursor) override;
 	void MakeCurrent() override {}
 
 private:
@@ -33,6 +34,8 @@ private:
 	Windows::Foundation::EventRegistrationToken _regOrientationChanged;
 
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;
+	Windows::UI::Core::CoreCursor ^_cursorArrow;
+	Windows::UI::Core::CoreCursor ^_cursorIBeam;
 	DX::DeviceResources &_deviceResources;
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;

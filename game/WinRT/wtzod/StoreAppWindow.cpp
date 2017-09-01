@@ -134,6 +134,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	: _gestureRecognizer(ref new GestureRecognizer())
 	, _displayInformation(DisplayInformation::GetForCurrentView())
 	, _coreWindow(coreWindow)
+	, _cursorArrow(ref new CoreCursor(CoreCursorType::Arrow, 0))
+	, _cursorIBeam(ref new CoreCursor(CoreCursorType::IBeam, 0))
 	, _deviceResources(deviceResources)
 	, _input(coreWindow)
 	, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), nullptr/*swapChainResources.GetBackBufferRenderTargetView()*/))
@@ -248,7 +250,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
 				UI::DataContext(),
 				UI::Msg::KEYDOWN,
-				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey),
+				(*inputSink)->GetTime());
 		}
 	});
 
@@ -265,7 +268,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
 				UI::DataContext(),
 				UI::Msg::KEYUP,
-				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey));
+				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey),
+				(*inputSink)->GetTime());
 		}
 	});
 
@@ -345,3 +349,18 @@ void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 	}
 }
 
+void StoreAppWindow::SetMouseCursor(MouseCursor mouseCursor)
+{
+	switch (mouseCursor)
+	{
+	case MouseCursor::Arrow:
+		_coreWindow->PointerCursor = _cursorArrow;
+		break;
+	case MouseCursor::IBeam:
+		_coreWindow->PointerCursor = _cursorIBeam;
+		break;
+	default:
+		_coreWindow->PointerCursor = nullptr;
+		break;
+	}
+}

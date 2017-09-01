@@ -22,12 +22,15 @@ GlfwInitHelper::~GlfwInitHelper()
 	glfwTerminate();
 }
 
+void GlfwCursorDeleter::operator()(GLFWcursor *cursor)
+{
+	glfwDestroyCursor(cursor);
+}
 
 void GlfwWindowDeleter::operator()(GLFWwindow *window)
 {
 	glfwDestroyWindow(window);
 }
-
 
 static float GetLayoutScale(GLFWwindow *window)
 {
@@ -182,6 +185,8 @@ static std::unique_ptr<GLFWwindow, GlfwWindowDeleter> NewWindow(const char *titl
 
 GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int height)
 	: _window(NewWindow(title, fullscreen, width, height))
+	, _cursorArrow(glfwCreateStandardCursor(GLFW_ARROW_CURSOR))
+	, _cursorIBeam(glfwCreateStandardCursor(GLFW_IBEAM_CURSOR))
 	, _clipboard(new GlfwClipboard(*_window))
 	, _input(new GlfwInput(*_window))
 	, _render(RenderCreateOpenGL())
@@ -246,6 +251,22 @@ void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 		float width = GetPixelWidth() / GetLayoutScale();
 		float height = GetPixelHeight() / GetLayoutScale();
 		inputSink->GetDesktop()->Resize(width, height);
+	}
+}
+
+void GlfwAppWindow::SetMouseCursor(MouseCursor mouseCursor)
+{
+	switch (mouseCursor)
+	{
+	case MouseCursor::Arrow:
+		glfwSetCursor(_window.get(), _cursorArrow.get());
+		break;
+	case MouseCursor::IBeam:
+		glfwSetCursor(_window.get(), _cursorIBeam.get());
+		break;
+	default:
+		glfwSetCursor(_window.get(), nullptr);
+		break;
 	}
 }
 

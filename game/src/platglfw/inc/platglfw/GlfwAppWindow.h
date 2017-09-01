@@ -4,7 +4,13 @@
 
 class GlfwClipboard;
 class GlfwInput;
+struct GLFWcursor;
 struct GLFWwindow;
+
+struct GlfwCursorDeleter
+{
+	void operator()(GLFWcursor *cursor);
+};
 
 struct GlfwWindowDeleter
 {
@@ -36,11 +42,14 @@ public:
 	UI::IInput& GetInput() override;
 	IRender& GetRender() override;
 	void SetInputSink(UI::LayoutManager *inputSink) override;
+	void SetMouseCursor(MouseCursor mouseCursor) override;
 	void MakeCurrent() override;
 
 private:
 	GlfwInitHelper _initHelper;
 	std::unique_ptr<GLFWwindow, GlfwWindowDeleter> _window;
+	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorArrow;
+	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorIBeam;
 	std::unique_ptr<GlfwClipboard> _clipboard;
 	std::unique_ptr<GlfwInput> _input;
 	std::unique_ptr<IRender> _render;

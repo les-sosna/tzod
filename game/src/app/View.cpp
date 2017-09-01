@@ -116,6 +116,17 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 
 	UI::RenderUIRoot(*_impl->gui.GetDesktop(), rs, layoutContext, dataContext, UI::StateContext());
 
+	bool hoverTextSink = false;
+	for (auto &wnd : rs.hoverPath)
+	{
+		if (wnd->GetTextSink())
+		{
+			hoverTextSink = true;
+			break;
+		}
+	}
+	_appWindow.SetMouseCursor(hoverTextSink ? MouseCursor::IBeam : MouseCursor::Arrow);
+
 #ifndef NDEBUG
 	for (auto &id2pos : rs.ic.GetLastPointerLocation())
 	{
