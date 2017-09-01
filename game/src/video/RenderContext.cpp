@@ -338,7 +338,7 @@ void RenderContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor colo
 	v[3].y = bottom;
 }
 
-void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, const std::string &str, enumAlignText align)
+void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -354,11 +354,11 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 	if( align )
 	{
 		size_t count = 0;
-		for(const std::string::value_type *tmp = str.c_str(); *tmp; )
+		for(auto tmp = str.cbegin(); tmp != str.cend(); )
 		{
 			++count;
 			++tmp;
-			if( '\n' == *tmp || '\0' == *tmp )
+			if( str.cend() == tmp || '\n' == *tmp )
 			{
 				if( maxline < count )
 					maxline = count;
@@ -385,7 +385,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 	float x0 = origin.x - std::floor(dx[align] * pxAdvance * (float) maxline / 2);
 	float y0 = origin.y - std::floor(dy[align] * pxCharSize.y * (float) lines.size() / 2);
 
-	for(const std::string::value_type *tmp = str.c_str(); *tmp; ++tmp )
+	for(auto tmp = str.cbegin(); tmp != str.cend(); ++tmp )
 	{
 		if( '\n' == *tmp )
 		{

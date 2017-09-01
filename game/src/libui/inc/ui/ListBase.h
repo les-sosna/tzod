@@ -20,8 +20,8 @@ struct ListDataSource
 	virtual int GetItemCount() const = 0;
 	virtual int GetSubItemCount(int index) const = 0;
 	virtual size_t GetItemData(int index) const = 0;
-	virtual const std::string& GetItemText(int index, int sub) const = 0;
-	virtual int FindItem(const std::string &text) const = 0;
+	virtual std::string_view GetItemText(int index, int sub) const = 0;
+	virtual int FindItem(std::string_view text) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,12 +35,12 @@ public:
 	virtual int GetItemCount() const;
 	virtual int GetSubItemCount(int index) const;
 	virtual size_t GetItemData(int index) const;
-	virtual const std::string& GetItemText(int index, int sub) const;
-	virtual int FindItem(const std::string &text) const;
+	virtual std::string_view GetItemText(int index, int sub) const;
+	virtual int FindItem(std::string_view text) const;
 
 	// extra
-	int  AddItem(const std::string &str, size_t data = 0);
-	void SetItemText(int index, int sub, const std::string &str);
+	int  AddItem(std::string_view str, size_t data = 0);
+	void SetItemText(int index, int sub, std::string_view str);
 	void SetItemData(int index, size_t data);
 	void DeleteItem(int index);
 	void DeleteAllItems();

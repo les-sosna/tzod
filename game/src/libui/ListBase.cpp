@@ -33,14 +33,14 @@ size_t ListDataSourceDefault::GetItemData(int index) const
 	return _items[index].data;
 }
 
-const std::string& ListDataSourceDefault::GetItemText(int index, int sub) const
+std::string_view ListDataSourceDefault::GetItemText(int index, int sub) const
 {
 	assert(index >= 0 && index < (int) _items.size());
 	assert(sub >= 0 && sub < (int) _items[index].text.size());
 	return _items[index].text[sub];
 }
 
-int ListDataSourceDefault::FindItem(const std::string &text) const
+int ListDataSourceDefault::FindItem(std::string_view text) const
 {
 	for( size_t i = 0; i < _items.size(); ++i )
 	{
@@ -52,10 +52,10 @@ int ListDataSourceDefault::FindItem(const std::string &text) const
 	return -1;
 }
 
-int ListDataSourceDefault::AddItem(const std::string &str, size_t data)
+int ListDataSourceDefault::AddItem(std::string_view str, size_t data)
 {
 	Item i;
-	i.text.push_back(str);
+	i.text.emplace_back(str);
 	i.data = data;
 	_items.push_back(i);
 
@@ -65,7 +65,7 @@ int ListDataSourceDefault::AddItem(const std::string &str, size_t data)
 	return (int)_items.size() - 1;
 }
 
-void ListDataSourceDefault::SetItemText(int index, int sub, const std::string &str)
+void ListDataSourceDefault::SetItemText(int index, int sub, std::string_view str)
 {
 	assert(index >= 0 && index < (int) _items.size());
 	if( sub >= (int) _items[index].text.size() )

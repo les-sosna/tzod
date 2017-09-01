@@ -16,7 +16,7 @@ class MessageArea
 public:
 	MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger);
 
-	void WriteLine(const std::string &text);
+	void WriteLine(std::string text);
 	void Clear();
 
 	// UI::Window

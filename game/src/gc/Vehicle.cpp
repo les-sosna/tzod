@@ -191,9 +191,9 @@ void GC_Vehicle::SetPlayer(World &world, GC_Player *player)
 	_player = player;
 	if( _player )
 	{
-		if( auto vc = GetVehicleClass(_player->GetClass().c_str()) )
+		if( auto vc = GetVehicleClass(_player->GetClass()) )
 			SetClass(*vc);
-		SetSkin(std::string("skin/") + _player->GetSkin());
+		SetSkin(std::string("skin/").append(_player->GetSkin()));
 	}
 }
 
@@ -231,7 +231,7 @@ void GC_Vehicle::SetWeapon(World &world, GC_Weapon *weapon)
 		{
 			_weapon->MoveTo(world, GetPos());
 			_weapon->SetDirection(GetDirection());
-			if( auto original = GetVehicleClass(GetOwner()->GetClass().c_str()) )
+			if( auto original = GetVehicleClass(GetOwner()->GetClass()) )
 			{
 				VehicleClass copy = *original;
 				_weapon->AdjustVehicleClass(copy);
@@ -240,7 +240,7 @@ void GC_Vehicle::SetWeapon(World &world, GC_Weapon *weapon)
 		}
 		else
 		{
-			if( auto vc = GetVehicleClass(GetOwner()->GetClass().c_str()) )
+			if( auto vc = GetVehicleClass(GetOwner()->GetClass()) )
 				SetClass(*vc);
 		}
 	}
@@ -260,9 +260,9 @@ void GC_Vehicle::SetControllerState(const VehicleState &vs)
 	_state = vs;
 }
 
-void GC_Vehicle::SetSkin(const std::string &skin)
+void GC_Vehicle::SetSkin(std::string skin)
 {
-	_skinTextureName = skin;
+	_skinTextureName = std::move(skin);
 }
 
 void GC_Vehicle::OnDamage(World &world, DamageDesc &dd)

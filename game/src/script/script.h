@@ -1,6 +1,5 @@
-// script.h
-
 #pragma once
+#include <string_view>
 
 class World;
 struct ScriptMessageSink;
@@ -12,12 +11,10 @@ namespace FS
 
 lua_State* script_open(World &world, ScriptMessageSink &messageSink);
 
-void script_exec(lua_State *L, const char *string);
+void script_exec(lua_State *L, std::string_view string, const char *name);
 void script_exec_file(lua_State *L, FS::FileSystem &fs, const char *filename);
 
 // aux
 int luaT_ConvertVehicleClass(lua_State *L);
 void ClearCommandQueue(lua_State *L);
 void RunCmdQueue(lua_State *L, float dt, ScriptMessageSink &msgSink);
-
-// end of file

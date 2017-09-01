@@ -31,9 +31,25 @@ void EditableText::SetInt(int value)
 	SetText(tmp.str());
 }
 
+struct membuf: std::streambuf
+{
+	membuf(std::string_view s)
+	{
+		char *p = const_cast<char*>(s.data());
+		setg(p, p, p + s.size());
+	}
+};
+struct imemstream: virtual membuf, std::istream
+{
+	imemstream(std::string_view s)
+		: membuf(s)
+		, std::istream(static_cast<std::streambuf*>(this))
+	{}
+};
+
 int EditableText::GetInt() const
 {
-	std::istringstream tmp(GetText());
+	imemstream tmp(GetText());
 	int result = 0;
 	tmp >> result;
 	return result;
@@ -48,7 +64,7 @@ void EditableText::SetFloat(float value)
 
 float EditableText::GetFloat() const
 {
-	std::istringstream tmp(GetText());
+	imemstream tmp(GetText());
 	float result = 0;
 	tmp >> result;
 	return result;
@@ -122,7 +138,9 @@ bool EditableText::OnChar(int c)
 	if (isprint((unsigned char)c) && '\t' != c)
 	{
 		int start = GetSelMin();
-		SetText(GetText().substr(0, start) + (std::string::value_type) c + GetText().substr(GetSelMax()));
+		SetText(std::string(GetText().substr(0, start))
+				.append(1, static_cast<std::string::value_type>(c))
+				.append(GetText().substr(GetSelMax())));
 		SetSel(start + 1, start + 1);
 		return true;
 	}
@@ -168,7 +186,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		if (0 != GetSelLength() && control)
 		{
 			Copy(ic.GetClipboard());
-			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(std::string(GetText().substr(0, GetSelMin())).append(GetText().substr(GetSelMax())));
 			SetSel(GetSelMin(), GetSelMin());
 			return true;
 		}
@@ -176,8 +194,8 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Delete:
 		if (0 == GetSelLength() && GetSelEnd() < GetTextLength())
 		{
-			SetText(GetText().substr(0, GetSelStart())
-				+ GetText().substr(GetSelEnd() + 1, GetTextLength() - GetSelEnd() - 1));
+			SetText(std::string(GetText().substr(0, GetSelStart())).append(
+				GetText().substr(GetSelEnd() + 1, GetTextLength() - GetSelEnd() - 1)));
 		}
 		else
 		{
@@ -185,7 +203,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 			{
 				Copy(ic.GetClipboard());
 			}
-			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(std::string(GetText().substr(0, GetSelMin())).append(GetText().substr(GetSelMax())));
 		}
 		SetSel(GetSelMin(), GetSelMin());
 		return true;
@@ -193,11 +211,11 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		tmp = std::max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		if (0 == GetSelLength() && GetSelStart() > 0)
 		{
-			SetText(GetText().substr(0, GetSelStart() - 1) + GetText().substr(GetSelEnd(), GetTextLength() - GetSelEnd()));
+			SetText(std::string(GetText().substr(0, GetSelStart() - 1)).append(GetText().substr(GetSelEnd(), GetTextLength() - GetSelEnd())));
 		}
 		else
 		{
-			SetText(GetText().substr(0, GetSelMin()) + GetText().substr(GetSelMax()));
+			SetText(std::string(GetText().substr(0, GetSelMin())).append(GetText().substr(GetSelMax())));
 		}
 		SetSel(tmp, tmp);
 		return true;
@@ -288,14 +306,14 @@ KeyboardSink* EditableText::GetKeyboardSink()
 	return this;
 }
 
-const std::string& EditableText::GetText() const
+std::string_view EditableText::GetText() const
 {
 	return _text;
 }
 
-void EditableText::SetText(const std::string &text)
+void EditableText::SetText(std::string text)
 {
-	_text.assign(text);
+	_text = std::move(text);
 	SetSel(_selStart, _selEnd);
 	if (eventChange)
 		eventChange();
@@ -322,10 +340,10 @@ void EditableText::Paste(const IClipboard &clipboard)
 
 void EditableText::Copy(IClipboard &clipboard) const
 {
-	std::string str = GetText().substr(GetSelMin(), GetSelLength());
-	if (!str.empty())
+	auto sel = GetText().substr(GetSelMin(), GetSelLength());
+	if (!sel.empty())
 	{
-		clipboard.SetClipboardText(std::move(str));
+		clipboard.SetClipboardText(std::string(sel));
 	}
 }
 

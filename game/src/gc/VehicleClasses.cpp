@@ -64,11 +64,11 @@ static VehicleClass s_vehicleClasses[] = {
 	}
 };
 
-std::shared_ptr<const VehicleClass> GetVehicleClass(const char *className)
+std::shared_ptr<const VehicleClass> GetVehicleClass(std::string_view className)
 {
 	for (int i = 0; i != sizeof(s_vehicleClasses) / sizeof(s_vehicleClasses[0]); ++i)
 	{
-		if (!strcmp(className, s_vehicleClassNames[i]))
+		if (className == s_vehicleClassNames[i])
 			return std::make_shared<VehicleClass>(s_vehicleClasses[i]);
 	}
 	return nullptr;

@@ -20,7 +20,7 @@ size_t ConfigConsoleHistory::GetItemCount() const
 	return _conf.con_history.GetSize();
 }
 
-const std::string& ConfigConsoleHistory::GetItem(size_t index) const
+std::string_view ConfigConsoleHistory::GetItem(size_t index) const
 {
 	return _conf.con_history.GetStr(index).Get();
 }

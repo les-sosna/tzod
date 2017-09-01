@@ -53,13 +53,11 @@ public:
 	explicit GC_Trigger(FromFile);
 	~GC_Trigger();
 
-	const std::string& GetOnEnter() const { return _onEnter; }
-	const std::string& GetOnLeave() const { return _onLeave; }
+	std::string_view GetOnEnter() const { return _onEnter; }
+	std::string_view GetOnLeave() const { return _onLeave; }
 
 	// GC_Object
 	void MapExchange(MapFile &f) override;
 	void Serialize(World &world, SaveFile &f) override;
 	void TimeStep(World &world, float dt) override;
 };
-
-// end of file

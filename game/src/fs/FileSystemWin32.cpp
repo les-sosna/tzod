@@ -3,15 +3,16 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <string_view>
 
-static std::wstring s2w(const std::string s)
+static std::wstring s2w(std::string_view s)
 {
 	std::wstring w;
 	utf8::utf8to16(s.begin(), s.end(), std::back_inserter(w));
 	return w;
 }
 
-static std::string w2s(const std::wstring w)
+static std::string w2s(std::wstring_view w)
 {
 	std::string s;
 	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));

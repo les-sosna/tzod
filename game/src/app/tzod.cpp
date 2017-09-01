@@ -55,7 +55,7 @@ TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *lang
             LoadConfigNoThrow(_impl->lang, logger, it->second.c_str());
         }
     }
-	setlocale(LC_CTYPE, _impl->lang.c_locale.Get().c_str());
+	setlocale(LC_CTYPE, std::string(_impl->lang.c_locale.Get()).c_str());
 }
 
 TzodApp::~TzodApp()

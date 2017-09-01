@@ -12,7 +12,7 @@ public:
 	// UI::IConsoleHistory
 	virtual void Enter(std::string str);
 	virtual size_t GetItemCount() const;
-	virtual const std::string& GetItem(size_t index) const;
+	virtual std::string_view GetItem(size_t index) const;
 
 private:
 	const ShellConfig &_conf;

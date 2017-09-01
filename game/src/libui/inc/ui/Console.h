@@ -18,7 +18,7 @@ struct IConsoleHistory
 {
 	virtual void Enter(std::string str) = 0;
 	virtual size_t GetItemCount() const = 0;
-	virtual const std::string& GetItem(size_t index) const = 0;
+	virtual std::string_view GetItem(size_t index) const = 0;
 };
 
 class ConsoleHistoryDefault : public IConsoleHistory
@@ -28,7 +28,7 @@ public:
 
 	void Enter(std::string str) override;
 	size_t GetItemCount() const override;
-	const std::string& GetItem(size_t index) const override;
+	std::string_view GetItem(size_t index) const override;
 
 private:
 	size_t _maxSize;
@@ -51,8 +51,8 @@ public:
 	void SetHistory(IConsoleHistory *history);
 	void SetBuffer(ConsoleBuffer *buf);
 	void SetEcho(bool echo);
-	std::function<void(const std::string &)> eventOnSendCommand;
-	std::function<bool(const std::string &, int &, std::string &)> eventOnRequestCompleteCommand;
+	std::function<void(std::string_view)> eventOnSendCommand;
+	std::function<bool(std::string_view, int &, std::string &)> eventOnRequestCompleteCommand;
 
 	// Window
 	ScrollSink* GetScrollSink() override { return this; }

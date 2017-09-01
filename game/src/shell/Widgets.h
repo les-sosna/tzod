@@ -32,7 +32,7 @@ public:
 	Oscilloscope(float x, float y);
 	void Push(TextureManager &texman, float value);
 	void SetRange(float rmin, float rmax);
-	void SetTitle(const std::string &title);
+	void SetTitle(std::string title);
 	void SetGridStep(float stepX, float stepY);
 
 	void AutoGrid(TextureManager &texman);

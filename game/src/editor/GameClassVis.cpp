@@ -13,7 +13,7 @@ GameClassVis::GameClassVis(WorldView &worldView)
 {
 }
 
-void GameClassVis::SetGameClass(std::shared_ptr<UI::RenderData<const std::string&>> className)
+void GameClassVis::SetGameClass(std::shared_ptr<UI::RenderData<std::string_view>> className)
 {
 	_className = std::move(className);
 }

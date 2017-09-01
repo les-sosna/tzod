@@ -7,36 +7,29 @@
 #include <ui/ConsoleBuffer.h>
 
 #include <exception>
+#include <fstream>
+#include <iostream>
 
 namespace
 {
 	class ConsoleLog final
 		: public UI::IConsoleLog
 	{
-		FILE *_file;
+		std::ofstream _file;
+	public:
 		ConsoleLog(const ConsoleLog&) = delete;
 		ConsoleLog& operator= (const ConsoleLog&) = delete;
-	public:
+
 		explicit ConsoleLog(const char *filename)
-			: _file(fopen(filename, "w"))
+			: _file(filename, std::ios::out | std::ios::trunc)
 		{
-		}
-		virtual ~ConsoleLog()
-		{
-			if( _file )
-				fclose(_file);
 		}
 
 		// IConsoleLog
-		void WriteLine(int severity, const std::string &str) override
+		void WriteLine(int severity, std::string_view str) override
 		{
-			if( _file )
-			{
-				fputs(str.c_str(), _file);
-				fputs("\n", _file);
-				fflush(_file);
-			}
-			puts(str.c_str());
+			_file << str << std::endl;
+			std::cout << str << std::endl;
 		}
 		void Release() override
 		{

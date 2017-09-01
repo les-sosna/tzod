@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include "Window.h"
+#include <string_view>
 
 namespace UI
 {
@@ -17,8 +18,8 @@ namespace UI
 
 		int GetTextLength() const;
 
-		const std::string& GetText() const;
-		void SetText(const std::string &text);
+		std::string_view GetText() const;
+		void SetText(std::string text);
 
 		void SetInt(int value);
 		int  GetInt() const;

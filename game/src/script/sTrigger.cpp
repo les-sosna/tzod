@@ -61,6 +61,6 @@ void sTrigger::OnEnter(GC_Trigger &obj, GC_Vehicle &vehicle)
 
 void sTrigger::OnLeave(GC_Trigger &obj)
 {
-	script_exec(_L, obj.GetOnLeave().c_str());
+	script_exec(_L, obj.GetOnLeave(), "on_leave");
 }
 

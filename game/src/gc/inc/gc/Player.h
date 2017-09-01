@@ -24,17 +24,17 @@ public:
 	virtual ~GC_Player();
 
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
-	const std::string& GetOnDie() const { return _scriptOnDie; }
-	const std::string& GetOnRespawn() const { return _scriptOnRespawn; }
+	std::string_view GetOnDie() const { return _scriptOnDie; }
+	std::string_view GetOnRespawn() const { return _scriptOnRespawn; }
 
-	void SetSkin(const std::string &skin);
-	const std::string& GetSkin() const { return _skin; }
+	void SetSkin(std::string skin);
+	std::string_view GetSkin() const { return _skin; }
 
-	void SetNick(const std::string &nick);
-	const std::string& GetNick() const { return _nick; }
+	void SetNick(std::string nick);
+	std::string_view GetNick() const { return _nick; }
 
-	void SetClass(const std::string &c);
-	const std::string& GetClass() const { return _class; }
+	void SetClass(std::string c);
+	std::string_view GetClass() const { return _class; }
 
 	void SetTeam(int team);
 	int GetTeam() const { return _team; }

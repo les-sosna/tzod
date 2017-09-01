@@ -29,7 +29,7 @@ void sRigidBodyStatic::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 {
 	if( !obj.GetOnDestroy().empty() )
 	{
-		script_exec(_L, obj.GetOnDestroy().c_str());
+		script_exec(_L, obj.GetOnDestroy(), "on_destroy");
 	}
 }
 
@@ -72,7 +72,7 @@ void sRigidBodyStatic::OnDamage(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 		}
 		else
 		{
-			script_exec(_L, obj.GetOnDamage().c_str());
+			script_exec(_L, obj.GetOnDamage(), "on_damage");
 		}
 	}
 }

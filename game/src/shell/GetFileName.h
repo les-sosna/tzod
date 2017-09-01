@@ -41,7 +41,7 @@ public:
 
 	bool IsBlank() const;
 	std::string GetFileName() const;
-	std::string GetFileTitle() const;
+	std::string_view GetFileTitle() const;
 
 protected:
 	void OnSelect(int index);

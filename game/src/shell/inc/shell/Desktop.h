@@ -96,8 +96,8 @@ private:
 
 	void OnChangeShowFps();
 
-	void OnCommand(const std::string &cmd);
-	bool OnCompleteCommand(const std::string &cmd, int &pos, std::string &result);
+	void OnCommand(std::string_view cmd);
+	bool OnCompleteCommand(std::string_view cmd, int &pos, std::string &result);
 
 	void OnCloseChild(std::shared_ptr<UI::Window> child);
 

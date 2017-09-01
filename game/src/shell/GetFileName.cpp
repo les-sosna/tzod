@@ -82,10 +82,10 @@ bool GetFileNameDlg::IsBlank() const
 
 std::string GetFileNameDlg::GetFileName() const
 {
-	return _fileName->GetEditable()->GetText() + "." + _ext;
+	return std::string(_fileName->GetEditable()->GetText()).append(".").append(_ext);
 }
 
-std::string GetFileNameDlg::GetFileTitle() const
+std::string_view GetFileNameDlg::GetFileTitle() const
 {
 	return _fileName->GetEditable()->GetText();
 }
@@ -93,21 +93,21 @@ std::string GetFileNameDlg::GetFileTitle() const
 void GetFileNameDlg::OnSelect(int index)
 {
 	if( _changing || -1 == index ) return;
-	_fileName->GetEditable()->SetText(_files->GetData()->GetItemText(index, 0));
+	_fileName->GetEditable()->SetText(std::string(_files->GetData()->GetItemText(index, 0)));
 }
 
 void GetFileNameDlg::OnChangeName()
 {
 	_changing = true;
 	size_t match = 0;
-	std::string txt = _fileName->GetEditable()->GetText();
+	auto txt = _fileName->GetEditable()->GetText();
 	for( int i = 0; i < _files->GetData()->GetItemCount(); ++i )
 	{
-		std::string fn = _files->GetData()->GetItemText(i, 0);
+		auto filename = _files->GetData()->GetItemText(i, 0);
 		size_t n = 0;
-		while( n < fn.length() && n < txt.length() )
+		while( n < filename.length() && n < txt.length() )
 		{
-			if( fn[n] != txt[n] ) break;
+			if( filename[n] != txt[n] ) break;
 			++n;
 		}
 		if( n > match )

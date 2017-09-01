@@ -219,7 +219,7 @@ static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 void Desktop::OnNewCampaign()
 {
 	auto dlg = std::make_shared<NewCampaignDlg>(_fs, _lang);
-	dlg->eventCampaignSelected = [this](auto sender, std::string name)
+	dlg->eventCampaignSelected = [this](auto sender, std::string_view name)
 	{
 		OnCloseChild(sender);
 		if( !name.empty() )
@@ -544,7 +544,7 @@ void Desktop::OnChangeShowFps()
 	_fps->SetVisible(_conf.ui_showfps.Get());
 }
 
-void Desktop::OnCommand(const std::string &cmd)
+void Desktop::OnCommand(std::string_view cmd)
 {
 	if( cmd.empty() )
 	{
@@ -586,7 +586,7 @@ void Desktop::OnCommand(const std::string &cmd)
 //	script_exec(_globL.get(), exec.c_str());
 }
 
-bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &result)
+bool Desktop::OnCompleteCommand(std::string_view cmd, int &pos, std::string &result)
 {
 	assert(pos >= 0);
 	lua_getglobal(_globL.get(), "autocomplete"); // FIXME: can potentially throw
@@ -596,7 +596,7 @@ bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &r
 		_logger.WriteLine(1, "There was no autocomplete module loaded");
 		return false;
 	}
-	lua_pushlstring(_globL.get(), cmd.substr(0, pos).c_str(), pos);
+	lua_pushlstring(_globL.get(), cmd.substr(0, pos).data(), pos);
 	if( lua_pcall(_globL.get(), 1, 1, 0) )
 	{
 		_logger.WriteLine(1, lua_tostring(_globL.get(), -1));
@@ -607,7 +607,7 @@ bool Desktop::OnCompleteCommand(const std::string &cmd, int &pos, std::string &r
 		const char *str = lua_tostring(_globL.get(), -1);
 		std::string insert = str ? str : "";
 
-		result = cmd.substr(0, pos) + insert + cmd.substr(pos);
+		result = std::string(cmd.substr(0, pos)).append(insert).append(cmd.substr(pos));
 		pos += insert.length();
 
 		if( !result.empty() && result[0] != '/' )

@@ -369,14 +369,13 @@ ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::Fil
 	return result;
 }
 
-size_t TextureManager::FindSprite(const std::string &name) const
+size_t TextureManager::FindSprite(std::string_view name) const
 {
 	std::map<std::string, size_t>::const_iterator it = _mapName_to_Index.find(name);
 	if( _mapName_to_Index.end() != it )
 		return it->second;
 
-	// flood the console
-	TRACE("texture '%s' not found!", name.c_str());
+//	TRACE("texture '%s' not found!", name.c_str());
 
 	return 0; // index of checker texture
 }
@@ -405,4 +404,3 @@ float TextureManager::GetCharWidth(size_t fontTexture) const
 {
 	return GetSpriteInfo(fontTexture).pxFrameWidth - 1;
 }
-

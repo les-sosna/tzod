@@ -10,6 +10,7 @@ if((NOT IOS) AND (NOT WINRT))
 	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib.")
 	set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 	add_subdirectory(gtest)
+	target_compile_definitions(gtest PUBLIC -DGTEST_LANG_CXX11 -DGTEST_HAS_TR1_TUPLE=0)
 endif()
 
 add_subdirectory(lua)

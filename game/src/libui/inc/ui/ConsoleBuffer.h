@@ -1,7 +1,8 @@
 #pragma once
+#include <cassert>
 #include <mutex>
 #include <sstream>
-#include <string>
+#include <string_view>
 #include <vector>
 
 namespace UI
@@ -9,7 +10,7 @@ namespace UI
 
 struct IConsoleLog
 {
-	virtual void WriteLine(int severity, const std::string &str) = 0;
+	virtual void WriteLine(int severity, std::string_view str) = 0;
 	virtual void Release() = 0;
 };
 
@@ -19,8 +20,8 @@ class ConsoleBuffer
 	{
 	public:
 		StreamHelper(ConsoleBuffer &con, int severity)
-            : m_con(&con)
-            , m_severity(severity)
+			: m_con(&con)
+			, m_severity(severity)
 		{
 		}
 
@@ -34,17 +35,22 @@ class ConsoleBuffer
 
 		~StreamHelper()
 		{
-			if( m_con && !m_buf.str().empty() )
-				m_con->WriteLine(m_severity, m_buf.str().c_str());
+			if( m_con )
+			{
+				auto str = m_buf.str();
+				if( !str.empty() )
+					m_con->WriteLine(m_severity, str);
+			}
 		}
 
 		StreamHelper& operator << (const char *sz);
 		StreamHelper& operator << (char *sz);
 
 		template <class T>
-		StreamHelper& operator << (const T &arg)
+		StreamHelper& operator << (T &&arg)
 		{
-			m_buf << arg;
+			assert(m_con);
+			m_buf << std::forward<T>(arg);
 			return *this;
 		}
 
@@ -58,19 +64,19 @@ public:
 	ConsoleBuffer(size_t lineLength, size_t _maxLines);
 	~ConsoleBuffer();
 
-    typedef std::chrono::high_resolution_clock ClockType;
+	typedef std::chrono::high_resolution_clock ClockType;
 
 	void SetLog(IConsoleLog *pLog);
 
 	size_t GetLineCount() const;
 	const char* GetLine(size_t index) const;
-    ClockType::time_point GetTimeStamp(size_t index) const;
+	ClockType::time_point GetTimeStamp(size_t index) const;
 	unsigned int GetSeverity(size_t index) const;
 
 	void Lock() const;
 	void Unlock() const;
 
-	void WriteLine(int severity, const std::string &str);
+	void WriteLine(int severity, std::string_view str);
 	void Printf(int severity, const char *fmt, ...);
 
 	StreamHelper Format(int severity)

@@ -7,7 +7,7 @@
 void PlayerView::SetPlayerConfig(ConfVarTable &playerConf)
 {
 	_playerConfCache.reset(new ConfPlayerLocal(&playerConf));
-	_texSkin = std::string("skin/") + _playerConfCache->skin.Get();
+	_texSkin = std::string("skin/").append(_playerConfCache->skin.Get());
 }
 
 void PlayerView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const

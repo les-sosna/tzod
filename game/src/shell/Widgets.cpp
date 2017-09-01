@@ -127,9 +127,9 @@ void Oscilloscope::SetRange(float rmin, float rmax)
 	_rangeMax = rmax;
 }
 
-void Oscilloscope::SetTitle(const std::string &title)
+void Oscilloscope::SetTitle(std::string title)
 {
-	_title = title;
+	_title = std::move(title);
 }
 
 void Oscilloscope::SetGridStep(float stepX, float stepY)

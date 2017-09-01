@@ -27,7 +27,7 @@ public:
 
 	void DrawSprite(const FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame);
-	void DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, const std::string &str, enumAlignText align = alignTextLT);
+	void DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align = alignTextLT);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir);
 	void DrawIndicator(size_t tex, float x, float y, float value);

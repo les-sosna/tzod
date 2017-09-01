@@ -2,6 +2,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 
 class World;
 namespace FS
@@ -12,9 +13,9 @@ namespace FS
 class MapCache
 {
 public:
-	const World& GetCachedWorld(FS::FileSystem &fs, const std::string &mapName);
-	std::unique_ptr<World> CheckoutCachedWorld(FS::FileSystem &fs, const std::string &mapName);
+	const World& GetCachedWorld(FS::FileSystem &fs, std::string_view mapName);
+	std::unique_ptr<World> CheckoutCachedWorld(FS::FileSystem &fs, std::string_view mapName);
 
 private:
-	std::map<std::string, std::unique_ptr<World>> _cachedWorlds;
+	std::map<std::string, std::unique_ptr<World>, std::less<>> _cachedWorlds;
 };

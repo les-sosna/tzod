@@ -11,7 +11,7 @@ void Text::SetFontColor(std::shared_ptr<RenderData<SpriteColor>> color)
 	_fontColor = std::move(color);
 }
 
-void Text::SetText(std::shared_ptr<LayoutData<const std::string&>> text)
+void Text::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
 	_text = std::move(text);
 }
@@ -32,7 +32,7 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	unsigned int lineCount = 1;
 	unsigned  maxline = 0;
 	size_t count = 0;
-	const std::string &text = _text->GetValue(dc);
+	std::string_view text = _text->GetValue(dc);
 	for( size_t n = 0; n != text.size(); ++n )
 	{
 		if( '\n' == text[n] )

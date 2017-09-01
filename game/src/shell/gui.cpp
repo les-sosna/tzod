@@ -466,7 +466,7 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	_name = std::make_shared<UI::Edit>();
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->GetEditable()->SetText(_info.nick.Get() );
+	_name->GetEditable()->SetText(std::string(_info.nick.Get()));
 	AddFront(_name);
 	SetFocus(_name);
 
@@ -612,7 +612,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture("skin/" + _skins->GetData()->GetItemText(index, 0));
+		_skinPreview->SetTexture(std::string("skin/").append(_skins->GetData()->GetItemText(index, 0)));
 	}
 }
 
@@ -682,7 +682,7 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	_name = std::make_shared<UI::Edit>();
 	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->GetEditable()->SetText(_info.nick.Get().empty() ? "player" : _info.nick.Get());
+	_name->GetEditable()->SetText(std::string(_info.nick.Get().empty() ? "player" : _info.nick.Get()));
 	AddFront(_name);
 	SetFocus(_name);
 
@@ -840,7 +840,7 @@ void EditBotDlg::OnChangeSkin(int index)
 {
 	if( -1 != index )
 	{
-		_skinPreview->SetTexture("skin/" + _skins->GetData()->GetItemText(index, 0));
+		_skinPreview->SetTexture(std::string("skin/").assign(_skins->GetData()->GetItemText(index, 0)));
 	}
 }
 

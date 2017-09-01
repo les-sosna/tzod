@@ -191,9 +191,9 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 	return L;
 }
 
-void script_exec(lua_State *L, const char *string)
+void script_exec(lua_State *L, std::string_view string, const char *name)
 {
-	if( luaL_loadstring(L, string) || lua_pcall(L, 0, 0, 0) )
+	if( luaL_loadbuffer(L, string.data(), string.size(), name) || lua_pcall(L, 0, 0, 0) )
 	{
         std::runtime_error error(lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack

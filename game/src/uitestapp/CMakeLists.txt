@@ -15,7 +15,7 @@ if(WIN32)
 elseif(APPLE)
 	add_executable(uitestapp ${UITestApp_SOURCES}) # hack to enable retina display support
 #	add_executable(uitestapp MACOSX_BUNDLE ${UITestApp_SOURCES})
-else(UNIX)
+elseif(UNIX)
 	add_executable(uitestapp ${UITestApp_SOURCES})
 else()
 	message(FATAL_ERROR "Unknown platform")

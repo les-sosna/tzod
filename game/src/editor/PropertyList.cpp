@@ -73,7 +73,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%d, %d]",
-						prop->GetName().c_str(), prop->GetIntMin(), prop->GetIntMax());
+								   std::string(prop->GetName()).c_str(), prop->GetIntMin(), prop->GetIntMax());
 					n = std::max(prop->GetIntMin(), std::min(prop->GetIntMax(), n));
 				}
 				prop->SetIntValue(n);
@@ -85,14 +85,14 @@ void PropertyList::DoExchange(bool applyToObject)
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%g, %g]",
-						prop->GetName().c_str(), prop->GetFloatMin(), prop->GetFloatMax());
+						std::string(prop->GetName()).c_str(), prop->GetFloatMin(), prop->GetFloatMax());
 					f = std::max(prop->GetFloatMin(), std::min(prop->GetFloatMax(), f));
 				}
 				prop->SetFloatValue(f);
 				break;
 			case ObjectProperty::TYPE_STRING:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
-				prop->SetStringValue(static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetText());
+					prop->SetStringValue(std::string(static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetText()));
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 				assert( dynamic_cast<UI::ComboBox*>(ctrl.get()) );
@@ -104,7 +104,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			case ObjectProperty::TYPE_TEXTURE:
 				assert( dynamic_cast<UI::ComboBox*>(ctrl.get()) );
 				index = static_cast<UI::ComboBox*>(ctrl.get())->GetCurSel();
-				prop->SetStringValue(static_cast<UI::ComboBox*>(ctrl.get())->GetData()->GetItemText(index, 0));
+				prop->SetStringValue(std::string(static_cast<UI::ComboBox*>(ctrl.get())->GetData()->GetItemText(index, 0)));
 				break;
 			default:
 				assert(false);
@@ -152,7 +152,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = std::make_shared<UI::Edit>();
-				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(prop->GetStringValue());
+					std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(std::string(prop->GetStringValue()));
 				labelTextBuffer << "(string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
@@ -267,18 +267,18 @@ void SaveToConfig(EditorConfig &conf, const PropertySet &ps)
 		switch (prop->GetType())
 		{
 		case ObjectProperty::TYPE_INTEGER:
-			op.SetNum(prop->GetName(), prop->GetIntValue());
+				op.SetNum(std::string(prop->GetName()), prop->GetIntValue());
 			break;
 		case ObjectProperty::TYPE_FLOAT:
-			op.SetNum(prop->GetName(), prop->GetFloatValue());
+			op.SetNum(std::string(prop->GetName()), prop->GetFloatValue());
 			break;
 		case ObjectProperty::TYPE_STRING:
 		case ObjectProperty::TYPE_SKIN:
 		case ObjectProperty::TYPE_TEXTURE:
-			op.SetStr(prop->GetName(), prop->GetStringValue());
+			op.SetStr(std::string(prop->GetName()), std::string(prop->GetStringValue()));
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
-			op.SetNum(prop->GetName(), (int)prop->GetCurrentIndex());
+			op.SetNum(std::string(prop->GetName()), (int)prop->GetCurrentIndex());
 			break;
 		default:
 			assert(false);
@@ -307,7 +307,7 @@ void LoadFromConfig(const EditorConfig &conf, PropertySet &ps)
 		case ObjectProperty::TYPE_STRING:
 		case ObjectProperty::TYPE_SKIN:
 		case ObjectProperty::TYPE_TEXTURE:
-			prop->SetStringValue(op.GetStr(prop->GetName(), prop->GetStringValue().c_str()).Get());
+				prop->SetStringValue(std::string(op.GetStr(prop->GetName(), prop->GetStringValue()).Get()));
 			break;
 		case ObjectProperty::TYPE_MULTISTRING:
 			prop->SetCurrentIndex(std::min((int)prop->GetListSize() - 1,

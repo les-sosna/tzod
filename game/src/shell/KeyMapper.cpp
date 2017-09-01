@@ -6,7 +6,7 @@
 
 class KeyMapper
 {
-	std::map<std::string, UI::Key> _name2code;
+	std::map<std::string, UI::Key, std::less<>> _name2code;
 	std::map<UI::Key, std::string> _code2name;
 
 	void Pair(const char *name, UI::Key code);
@@ -14,18 +14,18 @@ class KeyMapper
 public:
 	KeyMapper();
 
-	inline const std::string& GetName(UI::Key code) const;
-	inline UI::Key GetCode(const std::string &name) const;
+	inline std::string_view GetName(UI::Key code) const;
+	inline UI::Key GetCode(std::string_view name) const;
 };
 
 static KeyMapper s_keyMapper;
 
-const std::string& GetKeyName(UI::Key code)
+std::string_view GetKeyName(UI::Key code)
 {
 	return s_keyMapper.GetName(code);
 }
 
-UI::Key GetKeyCode(const std::string &name)
+UI::Key GetKeyCode(std::string_view name)
 {
 	return s_keyMapper.GetCode(name);
 }
@@ -156,7 +156,7 @@ void KeyMapper::Pair(const char *name, UI::Key code)
 	_name2code[name] = code;
 }
 
-const std::string& KeyMapper::GetName(UI::Key code) const
+std::string_view KeyMapper::GetName(UI::Key code) const
 {
 	auto it = _code2name.find(code);
 	if( _code2name.end() == it )
@@ -168,7 +168,7 @@ const std::string& KeyMapper::GetName(UI::Key code) const
 	return it->second;
 }
 
-UI::Key KeyMapper::GetCode(const std::string &name) const
+UI::Key KeyMapper::GetCode(std::string_view name) const
 {
 	auto it = _name2code.find(name);
 	return _name2code.end() != it ? it->second : UI::Key::Unknown;

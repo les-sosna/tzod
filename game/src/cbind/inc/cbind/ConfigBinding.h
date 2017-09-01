@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <string>
+#include <string_view>
 
 class ConfVarString;
 namespace UI
@@ -8,4 +8,4 @@ namespace UI
 	template<class T> struct LayoutData;
 }
 
-std::shared_ptr<UI::LayoutData<const std::string&>> ConfBind(ConfVarString &confString);
+std::shared_ptr<UI::LayoutData<std::string_view>> ConfBind(const ConfVarString &confString);

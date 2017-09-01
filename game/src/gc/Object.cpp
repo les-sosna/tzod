@@ -25,15 +25,15 @@ void PropertySet::MyExchange(World &world, bool applyToObject)
 {
 	if( applyToObject )
 	{
-		const char *name = _propName.GetStringValue().c_str();
-		GC_Object* found = world.FindObject(name);
+		auto newName = _propName.GetStringValue();
+		GC_Object* found = world.FindObject(newName);
 		if( found && GetObject() != found )
 		{
-//			_logger.Format(1) << "object with name \"" << name << "\" already exists";
+//			_logger.Format(1) << "object with name \"" << newName << "\" already exists";
 		}
 		else
 		{
-			GetObject()->SetName(world, name);
+			GetObject()->SetName(world, newName);
 		}
 	}
 	else
@@ -75,7 +75,7 @@ GC_Object::~GC_Object()
 void GC_Object::Kill(World &world)
 {
 	world.OnKill(*this);
-	SetName(world, nullptr);
+	SetName(world, std::string_view());
     Unregister(world, _posLIST_objects);
 	delete this;
 }
@@ -114,7 +114,7 @@ const char* GC_Object::GetName(World &world) const
 	return nullptr;
 }
 
-void GC_Object::SetName(World &world, const char *name)
+void GC_Object::SetName(World &world, std::string_view name)
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
@@ -123,14 +123,14 @@ void GC_Object::SetName(World &world, const char *name)
 		//
 
 		assert(world._objectToStringMap.count(this));
-		const std::string &oldName = world._objectToStringMap[this];
+		auto &oldName = world._objectToStringMap[this];
 		assert(world._nameToObjectMap.count(oldName));
 		world._nameToObjectMap.erase(oldName);
 		world._objectToStringMap.erase(this); // this invalidates oldName ref
 		SetFlags(GC_FLAG_OBJECT_NAMED, false);
 	}
 
-	if( name && *name )
+	if( !name.empty() )
 	{
 		//
 		// set new name
@@ -140,7 +140,7 @@ void GC_Object::SetName(World &world, const char *name)
 		assert( 0 == world._nameToObjectMap.count(name) );
 
 		world._objectToStringMap[this] = name;
-		world._nameToObjectMap[name] = this;
+		world._nameToObjectMap[std::string(name)] = this;
 
 		SetFlags(GC_FLAG_OBJECT_NAMED, true);
 	}
