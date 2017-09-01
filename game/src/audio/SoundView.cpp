@@ -2,7 +2,7 @@
 #include "OggVorbis.h"
 #include "SoundTemplates.h"
 #include "inc/audio/SoundRender.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include "inc/audio/SoundRenderXA2.h"
 #else
 #include "inc/audio/SoundRenderOAL.h"
@@ -14,10 +14,10 @@
 
 SoundView::SoundView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, AppState &appState)
 	: AppStateListener(appState)
-#ifdef WIN32
+#ifdef _WIN32
 	, _soundRender(new SoundRenderXA2(logger))
 #else
-    , _soundRender(new SoundRenderOAL())
+	, _soundRender(new SoundRenderOAL())
 #endif
 {
 	LoadBuffer(fs, SoundTemplate::BoomStandard, "explosions/standard.ogg");
