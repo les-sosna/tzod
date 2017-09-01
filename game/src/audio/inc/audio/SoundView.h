@@ -26,7 +26,7 @@ public:
 private:
 	std::unique_ptr<SoundRender> _soundRender;
 	std::unique_ptr<SoundHarness> _soundHarness;
-	void LoadBuffer(FS::FileSystem &fs, SoundTemplate st, const char *fileName);
+	void LoadBuffer(FS::FileSystem &fs, UI::ConsoleBuffer &logger, SoundTemplate st, const char *fileName);
 
 	// AppStateListener
 	void OnGameContextChanging() override;
