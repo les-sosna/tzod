@@ -28,7 +28,7 @@ public:
 
 private:
 	World &_world;
-    ScriptMessageSink &_messageSink;
+	ScriptMessageSink &_messageSink;
 	lua_State *_L;
 
 	sPickup _sPickup;

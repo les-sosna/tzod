@@ -54,7 +54,7 @@ public:
 	std::function<void(void)> eventChange;
 
 	// serialization
-	virtual bool Write(FILE *file, int indent) const;
+	virtual void Write(std::ostream &o, int indent) const;
 
 protected:
 	void FireValueUpdate(ConfVar *pVar);
@@ -93,10 +93,10 @@ public:
 	void SetInt(int value);
 
 	// ConfVar
-	virtual const char* GetTypeName() const;
-	virtual void Push(lua_State *L) const;
-	virtual bool Assign(lua_State *L);
-	virtual bool Write(FILE *file, int indent) const;
+	const char* GetTypeName() const override;
+	void Push(lua_State *L) const override;
+	bool Assign(lua_State *L) override;
+	void Write(std::ostream &o, int indent) const override;
 };
 
 class ConfVarBool : public ConfVar
@@ -109,10 +109,10 @@ public:
 	void Set(bool value);
 
 	// ConfVar
-	virtual const char* GetTypeName() const;
-	virtual void Push(lua_State *L) const;
-	virtual bool Assign(lua_State *L);
-	virtual bool Write(FILE *file, int indent) const;
+	const char* GetTypeName() const override;
+	void Push(lua_State *L) const override;
+	bool Assign(lua_State *L) override;
+	void Write(std::ostream &o, int indent) const override;
 };
 
 class ConfVarString : public ConfVar
@@ -127,10 +127,10 @@ public:
 	void Set(const char *value);
 
 	// ConfVar
-	virtual const char* GetTypeName() const;
-	virtual void Push(lua_State *L) const;
-	virtual bool Assign(lua_State *L);
-	virtual bool Write(FILE *file, int indent) const;
+	const char* GetTypeName() const override;
+	void Push(lua_State *L) const override;
+	bool Assign(lua_State *L) override;
+	void Write(std::ostream &o, int indent) const override;
 };
 
 class ConfVarArray : public ConfVar
@@ -169,11 +169,16 @@ public:
 	ConfVar&  PushBack(Type type);
 
 	// ConfVar
-	virtual const char* GetTypeName() const;
-	virtual void Push(lua_State *L) const;
-	virtual bool Assign(lua_State *L);
-	virtual bool Write(FILE *file, int indent) const;
+	const char* GetTypeName() const override;
+	void Push(lua_State *L) const override;
+	bool Assign(lua_State *L) override;
+	void Write(std::ostream &o, int indent) const override;
 };
+
+namespace FS
+{
+	struct MemMap;
+}
 
 class ConfVarTable : public ConfVar
 {
@@ -210,17 +215,17 @@ public:
 	bool Rename(const ConfVar &value, std::string newName);
 	bool Rename(std::string_view oldName, std::string newName);
 
-	bool Save(const char *filename) const;
-	bool Load(const char *filename);
+	void Save(std::ostream &o) const;
+	bool Load(FS::MemMap &data, const char *name);
 
 	// Lua binding
 	void InitConfigLuaBinding(lua_State *L, const char *globName);
 
 	// ConfVar
-	virtual const char* GetTypeName() const;
-	virtual void Push(lua_State *L) const;
-	virtual bool Assign(lua_State *L);
-	virtual bool Write(FILE *file, int indent) const;
+	const char* GetTypeName() const override;
+	void Push(lua_State *L) const override;
+	bool Assign(lua_State *L) override;
+	void Write(std::ostream &o, int indent) const override;
 
 protected:
 	static int luaT_conftablenext(lua_State *L);

@@ -3,10 +3,12 @@
 #include <app/tzod.h>
 #include <fs/FileSystem.h>
 #include <ui/ConsoleBuffer.h>
+#include <utf8.h>
 
 using namespace Platform;
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
+using namespace Windows::Storage;
 
 namespace wtzod
 {
@@ -34,10 +36,19 @@ namespace wtzod
 	};
 }
 
+static std::string w2s(std::wstring_view w)
+{
+	std::string s;
+	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
+	return s;
+}
+
 [MTAThread]
 int main(Array<String^> ^args)
 {
 	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("StoreData/data");
+	fs->Mount("user", FS::CreateOSFileSystem(w2s(ApplicationData::Current->LocalFolder->Path->Data())));
+
 	UI::ConsoleBuffer logger(100, 500);
 	TzodApp app(*fs, logger);
 

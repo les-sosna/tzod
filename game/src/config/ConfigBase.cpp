@@ -1,4 +1,6 @@
 #include "inc/config/ConfigBase.h"
+#include <fs/FileSystem.h>
+#include <luaetc/LuaDeleter.h>
 
 extern "C"
 {
@@ -153,10 +155,9 @@ ConfVarTable& ConfVar::AsTable()
 	return static_cast<ConfVarTable&>(*this);
 }
 
-bool ConfVar::Write(FILE *file, int indent) const
+void ConfVar::Write(std::ostream &o, int indent) const
 {
-	fprintf(file, "nil");
-	return true;
+	o << "nil";
 }
 
 bool ConfVar::Assign(lua_State *)
@@ -241,10 +242,9 @@ void ConfVarNumber::SetInt(int value)
 	}
 }
 
-bool ConfVarNumber::Write(FILE *file, int indent) const
+void ConfVarNumber::Write(std::ostream &o, int indent) const
 {
-	fprintf(file, "%.10g", _val.asNumber);
-	return true;
+	o << _val.asNumber;
 }
 
 bool ConfVarNumber::Assign(lua_State *L)
@@ -289,10 +289,9 @@ void ConfVarBool::Set(bool value)
 	FireValueUpdate(this);
 }
 
-bool ConfVarBool::Write(FILE *file, int indent) const
+void ConfVarBool::Write(std::ostream &o, int indent) const
 {
-	fprintf(file, Get() ? "true" : "false");
-	return true;
+	o << (Get() ? "true" : "false");
 }
 
 bool ConfVarBool::Assign(lua_State *L)
@@ -354,35 +353,34 @@ void ConfVarString::Set(const char *value)
 	FireValueUpdate(this);
 }
 
-bool ConfVarString::Write(FILE *file, int indent) const
+void ConfVarString::Write(std::ostream &o, int indent) const
 {
-	fputc('"', file);
+	o << '"';
 	for( size_t i = 0; i < _val.asString->size(); ++i )
 	{
-		const int c = (*_val.asString)[i];
+		const char c = (*_val.asString)[i];
 		switch(c)
 		{
 		case '\\':
-			fputs("\\\\", file);
+			o << "\\\\";
 			break;
 		case '\r':
-			fputs("\\r", file);
+			o << "\\r";
 			break;
 		case '\n':
-			fputs("\\n", file);
+			o << "\\n";
 			break;
 		case '"':
-			fputs("\\\"", file);
+			o << "\\\"";
 			break;
 		case '\t':
-			fputs("\\t", file);
+			o << "\\t";
 			break;
 		default:
-			fputc(c, file);
+			o << c;
 		}
 	}
-	fputc('"', file);
-	return true;
+	o << '"';
 }
 
 bool ConfVarString::Assign(lua_State *L)
@@ -586,24 +584,23 @@ ConfVar& ConfVarArray::PushFront(Type type)
 	return *_val.asArray->front();
 }
 
-bool ConfVarArray::Write(FILE *file, int indent) const
+void ConfVarArray::Write(std::ostream &o, int indent) const
 {
-	fprintf(file, "{\n");
+	o << "{\n";
 	bool delim = false;
 	for( size_t i = 0; i < GetSize(); ++i )
 	{
-		if( delim ) fprintf(file, ",\n");
+		if( delim )
+			o << ",\n";
 		for( int n = 0; n < indent; ++n )
-			fprintf(file, "  ");
+			o << "  ";
 		delim = true;
-		if( !GetAt(i).Write(file, indent+1) )
-			return false;
+		GetAt(i).Write(o, indent+1);
 	}
-	fprintf(file, "\n");
+	o << '\n';
 	for (int n = 0; n < indent - 1; ++n)
-		fprintf(file, "  ");
-	fprintf(file, "}");
-	return true;
+		o << "  ";
+	o << '}';
 }
 
 bool ConfVarArray::Assign(lua_State *L)
@@ -893,24 +890,23 @@ bool ConfVarTable::Rename(std::string_view oldName, std::string newName)
 	return true;
 }
 
-bool ConfVarTable::Write(FILE *file, int indent) const
+void ConfVarTable::Write(std::ostream &o, int indent) const
 {
 	if( indent )
 	{
-		fputs("{", file);
+		o << '{';
 		if (!GetHelpString().empty())
 		{
-			fputs(" -- ", file);
-			fwrite(GetHelpString().data(), GetHelpString().size(), 1, file);
+			o << " -- " << GetHelpString();
 		}
-		fputs("\n", file);
+		o << std::endl;
 	}
 
 	for( auto it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
 	{
 		for( int i = 0; i < indent; ++i )
 		{
-			fputs("  ", file);
+			o << "  ";
 		}
 
 		bool safe = true;
@@ -929,61 +925,54 @@ bool ConfVarTable::Write(FILE *file, int indent) const
 
 		if( safe )
 		{
-			fputs(it->first.c_str(), file);
+			o << it->first;
 		}
 		else
 		{
-			fputs("[\"", file);
+			o << "[\"";
 			for( size_t i = 0; i < it->first.size(); ++i )
 			{
-				const int c = it->first[i];
+				const char c = it->first[i];
 				switch(c)
 				{
 				case '\\':
-					fputs("\\\\", file);
+					o << "\\\\";
 					break;
 				case '\n':
-					fputs("\\n", file);
+					o << "\\n";
 					break;
 				case '"':
-					fputs("\\\"", file);
+					o << "\\\"";
 					break;
 				case '\t':
-					fputs("\\t", file);
+					o << "\\t";
 					break;
 				default:
-					fputc(c, file);
+					o << c;
 				}
 			}
-			fputs("\"]", file);
+			o << "\"]";
 		}
 
-		fputs(" = ", file);
-
-		if( !it->second->Write(file, indent+1) )
-			return false;
-
-		fputs(indent ? ",":";", file);
+		o << " = ";
+		it->second->Write(o, indent + 1);
+		o << (indent ? ',' : ';');
 
 		// help string
 		if( !it->second->GetHelpString().empty() )
 		{
-			fputs("  -- ", file);
-			auto s = it->second->GetHelpString();
-			fwrite(s.data(), s.size(), 1, file);
+			o << "  -- " << it->second->GetHelpString();
 		}
-		fputs("\n", file);
+		o << std::endl;
 	}
 	if( indent )
 	{
 		for( int i = 0; i < indent-1; ++i )
 		{
-			fputs("  ", file);
+			o << "  ";
 		}
-		fputs("}", file);
+		o << '}';
 	}
-
-	return true;
 }
 
 bool ConfVarTable::Assign(lua_State *L)
@@ -1011,36 +1000,25 @@ bool ConfVarTable::Assign(lua_State *L)
 	return true;
 }
 
-bool ConfVarTable::Save(const char *filename) const
+void ConfVarTable::Save(std::ostream &o) const
 {
-	FILE *file = fopen(filename, "w");
-	if( !file )
-	{
-		return false;
-	}
-	fprintf(file, "-- config file was automatically generated by application\n\n");
-	bool result = Write(file, 0);
-	fclose(file);
-	return result;
+	o << "-- config file was automatically generated by application" << std::endl;
+	Write(o, 0);
 }
 
-bool ConfVarTable::Load(const char *filename)
+bool ConfVarTable::Load(FS::MemMap &data, const char *name)
 {
-	lua_State *L = lua_open();
+	std::unique_ptr<lua_State, LuaStateDeleter> L(lua_open());
 
 	// try to read and execute the file
-	if( luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0) )
+	if( luaL_loadbuffer(L.get(), data.GetData(), data.GetSize(), name) || lua_pcall(L.get(), 0, 0, 0) )
 	{
-		std::runtime_error error(lua_tostring(L, -1));
-		lua_close(L);
-		throw error;
+		throw std::runtime_error(lua_tostring(L.get(), -1));
 	}
 
 	// get global table
-	lua_pushvalue(L, LUA_GLOBALSINDEX);
-	bool result = Assign(L);
-
-	lua_close(L);
+	lua_pushvalue(L.get(), LUA_GLOBALSINDEX);
+	bool result = Assign(L.get());
 
 	FireValueUpdate(this);
 

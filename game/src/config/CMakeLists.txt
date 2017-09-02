@@ -13,8 +13,9 @@ add_library(config
 )
 
 target_link_libraries(config PRIVATE
-	# 3rd party
-	lua
+	filesystem
+	luaetc
+	lua #external
 )
 
 target_include_directories(config INTERFACE inc)

@@ -1,5 +1,3 @@
-// script.cpp
-
 #include "script.h"
 #include "inc/script/ScriptMessageSink.h"
 
@@ -52,7 +50,7 @@ void RunCmdQueue(lua_State *L, float dt, ScriptMessageSink &msgSink)
 			lua_rawgeti(L, -1, 1);
 			if( lua_pcall(L, 0, 0, 0) )
 			{
-                msgSink.ScriptMessage(lua_tostring(L, -1)); // TODO: severity
+				msgSink.ScriptMessage(lua_tostring(L, -1)); // TODO: severity
 				lua_pop(L, 1); // pop the error message
 			}
 			lua_pushvalue(L, -2); // push copy of the key
@@ -90,8 +88,8 @@ static int luaT_print(lua_State *L)
 		buf << s;
 		lua_pop(L, 1);         // pop call result
 	}
-    auto msgSink = reinterpret_cast<ScriptMessageSink*>(lua_touserdata(L, lua_upvalueindex(1)));
-    msgSink->ScriptMessage(buf.str().c_str());
+	auto msgSink = reinterpret_cast<ScriptMessageSink*>(lua_touserdata(L, lua_upvalueindex(1)));
+	msgSink->ScriptMessage(buf.str().c_str());
 	return 0;
 }
 
@@ -119,8 +117,8 @@ int luaT_pushcmd(lua_State *L)
 lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 {
 	lua_State *L = luaL_newstate();
-    if (!L)
-        throw std::bad_alloc();
+	if (!L)
+		throw std::bad_alloc();
 
 	//
 	// open libs
@@ -155,13 +153,13 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 	}
 
 	// set script environment
-    lua_pushlightuserdata(L, &world);
-    lua_setfield(L, LUA_REGISTRYINDEX, "WORLD");
+	lua_pushlightuserdata(L, &world);
+	lua_setfield(L, LUA_REGISTRYINDEX, "WORLD");
 
 	// override default print function so it will print to message sink
-    lua_pushlightuserdata(L, &messageSink);
+	lua_pushlightuserdata(L, &messageSink);
 	lua_pushcclosure(L, luaT_print, 1);
-    lua_setglobal(L, "print");
+	lua_setglobal(L, "print");
 
 	// init the command queue
 	lua_newtable(L);
@@ -195,7 +193,7 @@ void script_exec(lua_State *L, std::string_view string, const char *name)
 {
 	if( luaL_loadbuffer(L, string.data(), string.size(), name) || lua_pcall(L, 0, 0, 0) )
 	{
-        std::runtime_error error(lua_tostring(L, -1));
+		std::runtime_error error(lua_tostring(L, -1));
 		lua_pop(L, 1); // pop the error message from the stack
 		throw error;
 	}
@@ -203,19 +201,17 @@ void script_exec(lua_State *L, std::string_view string, const char *name)
 
 void script_exec_file(lua_State *L, FS::FileSystem &fs, const char *filename)
 {
-    std::shared_ptr<FS::MemMap> f = fs.Open(filename)->QueryMap();
-    if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
-    {
-        std::string msg(lua_tostring(L, -1));
-        lua_pop(L, 1); // pop error message
-        throw std::runtime_error(msg);
-    }
-    if( lua_pcall(L, 0, 0, 0) )
-    {
-        std::string err = lua_tostring(L, -1);
-        lua_pop(L, 1); // pop the error message from the stack
-        throw std::runtime_error(std::string("runtime error: ") + err);
-    }
+	std::shared_ptr<FS::MemMap> f = fs.Open(filename)->QueryMap();
+	if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
+	{
+		std::string msg(lua_tostring(L, -1));
+		lua_pop(L, 1); // pop error message
+		throw std::runtime_error(msg);
+	}
+	if( lua_pcall(L, 0, 0, 0) )
+	{
+		std::string err = lua_tostring(L, -1);
+		lua_pop(L, 1); // pop the error message from the stack
+		throw std::runtime_error(std::string("runtime error: ") + err);
+	}
 }
-
-// end of file

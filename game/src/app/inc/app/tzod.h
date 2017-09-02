@@ -38,6 +38,7 @@ public:
 	void Exit();
 
 private:
+	FS::FileSystem &_fs;
 	UI::ConsoleBuffer &_logger;
 	std::unique_ptr<struct TzodAppImpl> _impl;
 };

@@ -155,7 +155,7 @@ void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArg
 	{
 		m_deviceResources->Trim();
 
-		// Insert your code here.
+		_app.Exit();
 
 		deferral->Complete();
 	});
