@@ -19,7 +19,6 @@ public:
 	float GetPixelHeight() const;
 	float GetLayoutScale() const;
 
-
 	// AppWindow
 	UI::IClipboard& GetClipboard() override;
 	UI::IInput& GetInput() override;

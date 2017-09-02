@@ -10,7 +10,6 @@ add_library(shell
 	Campaign.h
 	CampaignControlCommands.h
 	CampaignControls.h
-	Controller.h
 	Game.h
 	GetFileName.h
 	gui.h	
@@ -26,6 +25,7 @@ add_library(shell
 	ScoreTable.h
 	Settings.h
 	SinglePlayer.h
+	VehicleStateReader.h
 	Widgets.h
 
 	BotView.cpp
@@ -33,7 +33,6 @@ add_library(shell
 	CampaignControls.cpp
 	Config.cpp
 	ConfigConsoleHistory.cpp
-	Controller.cpp
 	Desktop.cpp
 	Game.cpp
 	GetFileName.cpp
@@ -51,6 +50,7 @@ add_library(shell
 	Profiler.cpp
 	ScoreTable.cpp
 	Settings.cpp
+	VehicleStateReader.cpp
 	Widgets.cpp
 )
 

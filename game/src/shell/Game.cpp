@@ -1,9 +1,9 @@
 #include "CampaignControls.h"
-#include "Controller.h"
 #include "Game.h"
 #include "InputManager.h"
 #include "MessageArea.h"
 #include "ScoreTable.h"
+#include "VehicleStateReader.h"
 #include "inc/shell/Config.h"
 
 #include <ctx/Deathmatch.h>
@@ -228,7 +228,6 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 	}
 
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
-	
 	for (auto player : players)
 		player->SetIsActive(readUserInput);
 
@@ -241,17 +240,17 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 		
 		for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 		{
-			if( Controller *controller = _inputMgr.GetController(playerIndex) )
+			if(VehicleStateReader *vehicleStateReader = _inputMgr.GetVehicleStateReader(playerIndex) )
 			{
-				controller->Step(dt);
+				vehicleStateReader->Step(dt);
 				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 				{
 					vec2d mouse = manager.GetInputContext().GetInput().GetMousePos();
 					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
 
 					VehicleState vs;
-					controller->ReadControllerState(manager.GetInputContext().GetInput(), _gameContext.GetWorld(),
-					                                *vehicle, c2w.visible ? &c2w.worldPos : nullptr, dragDirection, reversing, vs);
+					vehicleStateReader->ReadVehicleState(manager.GetInputContext().GetInput(), _gameContext.GetWorld(),
+					                                     *vehicle, c2w.visible ? &c2w.worldPos : nullptr, dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
@@ -284,12 +283,12 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			}
 		}
 		
-		if (const Controller *controller = _inputMgr.GetController(playerIndex))
+		if (const VehicleStateReader *vehicleStateReader = _inputMgr.GetVehicleStateReader(playerIndex))
 		{
-			float time = controller->GetRemainingFireTime();
+			float time = vehicleStateReader->GetRemainingFireTime();
 			if (time > 0)
 			{
-				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, controller->GetFireTarget());
+				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicleStateReader->GetFireTarget());
 				rc.DrawSprite(_texTarget.GetTextureId(texman), 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
 			}
 		}
@@ -353,12 +352,12 @@ void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManag
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 	{
-		if( Controller *controller = _inputMgr.GetController(playerIndex) )
+		if( VehicleStateReader *vehicleStateReader = _inputMgr.GetVehicleStateReader(playerIndex) )
 		{
 			auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int)pointerPosition.x, (int)pointerPosition.y);
 			if (c2w.visible)
 			{
-				controller->OnTap(c2w.worldPos);
+				vehicleStateReader->OnTap(c2w.worldPos);
 			}
 		}
 	}

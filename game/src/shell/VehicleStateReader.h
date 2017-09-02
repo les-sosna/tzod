@@ -11,12 +11,12 @@ namespace UI
 	enum class Key;
 }
 
-class Controller
+class VehicleStateReader
 {
 public:
-	Controller();
+	VehicleStateReader();
 	void SetProfile(ConfControllerProfile &profile);
-	void ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs);
+	void ReadVehicleState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs);
 
 	void OnTap(vec2d worldPos);
 	void Step(float dt);
@@ -53,6 +53,3 @@ private:
 	bool _lastLightKeyState;
 	bool _lastLightsState;
 };
-
-
-// end of file

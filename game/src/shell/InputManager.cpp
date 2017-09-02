@@ -1,4 +1,4 @@
-#include "Controller.h"
+#include "VehicleStateReader.h"
 #include "InputManager.h"
 #include "inc/shell/Config.h"
 #include <ui/ConsoleBuffer.h>
@@ -16,22 +16,22 @@ InputManager::~InputManager()
 	_conf.dm_profiles.eventChange = nullptr;
 }
 
-Controller* InputManager::GetController(unsigned int index)
+VehicleStateReader* InputManager::GetVehicleStateReader(unsigned int playerIndex)
 {
-	return index < _controllers.size() ? &_controllers[index] : nullptr;
+	return playerIndex < _controllers.size() ? &_controllers[playerIndex] : nullptr;
 }
 
-const Controller* InputManager::GetController(unsigned int index) const
+const VehicleStateReader* InputManager::GetVehicleStateReader(unsigned int playerIndex) const
 {
-	return index < _controllers.size() ? &_controllers[index] : nullptr;
+	return playerIndex < _controllers.size() ? &_controllers[playerIndex] : nullptr;
 }
 
 void InputManager::Step(float dt)
 {
-    for (auto &controller: _controllers)
-    {
-        controller.Step(dt);
-    }
+	for (auto &controller: _controllers)
+	{
+		controller.Step(dt);
+	}
 }
 
 void InputManager::OnProfilesChange()

@@ -1,5 +1,5 @@
 #pragma once
-#include "Controller.h"
+#include "VehicleStateReader.h"
 #include <gc/WorldEvents.h>
 #include <vector>
 
@@ -15,15 +15,15 @@ class InputManager
 public:
 	InputManager(ShellConfig &conf, UI::ConsoleBuffer &logger);
 	~InputManager();
-	Controller* GetController(unsigned int index);
-	const Controller* GetController(unsigned int index) const;
+	VehicleStateReader* GetVehicleStateReader(unsigned int playerIndex);
+	const VehicleStateReader* GetVehicleStateReader(unsigned int playerIndex) const;
 
-    void Step(float dt);
+	void Step(float dt);
 
 private:
 	ShellConfig &_conf;
 	UI::ConsoleBuffer &_logger;
-	std::vector<Controller> _controllers;
+	std::vector<VehicleStateReader> _controllers;
 	void OnProfilesChange();
 
 	InputManager(const InputManager&) = delete;

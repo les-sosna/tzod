@@ -1,4 +1,4 @@
-#include "Controller.h"
+#include "VehicleStateReader.h"
 #include "KeyMapper.h"
 #include "inc/shell/Config.h"
 #include <gc/VehicleState.h>
@@ -9,7 +9,7 @@
 #include <ui/UIInput.h>
 #include <float.h>
 
-Controller::Controller()
+VehicleStateReader::VehicleStateReader()
   : _tapFireTime(-FLT_MAX)
   , _keyForward(UI::Key::Unknown)
   , _keyBack(UI::Key::Unknown)
@@ -29,7 +29,7 @@ Controller::Controller()
 {
 }
 
-void Controller::SetProfile(ConfControllerProfile &profile)
+void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 {
 	_keyForward     = GetKeyCode(profile.key_forward.Get());
 	_keyBack        = GetKeyCode(profile.key_back.Get());
@@ -48,7 +48,7 @@ void Controller::SetProfile(ConfControllerProfile &profile)
 	_arcadeStyle = profile.arcade_style.Get();
 }
 
-void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs)
+void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs)
 {
 	memset(&vs, 0, sizeof(VehicleState));
 
@@ -75,18 +75,18 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	// fire
 	//
 	vs._bState_Fire = input.IsKeyPressed(_keyFire);
-    if (_tapFireTime > 0 && !vs._bState_Fire && vehicle.GetWeapon())
-    {
-        vec2d dir = _tapFireTarget - vehicle.GetPos();
-        if( dir.sqr() > 1 )
-        {
-            dir.Normalize();
-            float cosDiff = Vec2dDot(dir, vehicle.GetWeapon()->GetDirection());
-            AIWEAPSETTINGS ws;
-            vehicle.GetWeapon()->SetupAI(&ws);
-            vs._bState_Fire = cosDiff >= ws.fMaxAttackAngleCos;
-        }
-    }
+	if (_tapFireTime > 0 && !vs._bState_Fire && vehicle.GetWeapon())
+	{
+		vec2d dir = _tapFireTarget - vehicle.GetPos();
+		if( dir.sqr() > 1 )
+		{
+			dir.Normalize();
+			float cosDiff = Vec2dDot(dir, vehicle.GetWeapon()->GetDirection());
+			AIWEAPSETTINGS ws;
+			vehicle.GetWeapon()->SetupAI(&ws);
+			vs._bState_Fire = cosDiff >= ws.fMaxAttackAngleCos;
+		}
+	}
 
 
 	// move with keyboard
@@ -211,13 +211,13 @@ void Controller::ReadControllerState(UI::IInput &input, World &world, const GC_V
 	}
 }
 
-void Controller::OnTap(vec2d worldPos)
+void VehicleStateReader::OnTap(vec2d worldPos)
 {
 	_tapFireTime = std::min(.25f + std::max(_tapFireTime, 0.f) * 2.f, 1.f);
 	_tapFireTarget = worldPos;
 }
 
-void Controller::Step(float dt)
+void VehicleStateReader::Step(float dt)
 {
 	_tapFireTime = _tapFireTime - dt;
 }
