@@ -1,5 +1,6 @@
 #include "inc/ui/DataContext.h"
 #include "inc/ui/InputContext.h"
+#include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/Window.h"
@@ -299,16 +300,103 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
+namespace
+{
+	struct ForwardRange
+	{
+		template<class T>
+		static auto Get(const T &container)
+		{
+			return std::make_pair(container.begin(), container.end());
+		}
+	};
+
+	struct ReverseRange
+	{
+		template<class T>
+		static auto Get(const T &container)
+		{
+			return std::make_pair(container.rbegin(), container.rend());
+		}
+	};
+}
+
+template <class RangeT>
+static bool FocusNextDescendant(std::shared_ptr<Window> wnd)
+{
+	auto focusChild = wnd->GetFocus();
+	if (focusChild)
+	{
+		if (FocusNextDescendant<RangeT>(focusChild))
+		{
+			return true;
+		}
+		else
+		{
+			auto range = RangeT::Get(wnd->GetChildren());
+			auto focusIt = std::find(range.first, range.second, focusChild);
+			while (focusIt != range.first)
+			{
+				focusIt--;
+				if ((*focusIt)->GetVisible()
+					//	&& (*focusIt)->GetEnabled(dc)
+					&& NeedsFocus(focusIt->get()))
+				{
+					wnd->SetFocus(*focusIt);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+static bool ActivateMostDescendantFocus(std::shared_ptr<Window> wnd)
+{
+	auto focus = wnd->GetFocus();
+	if (focus && ActivateMostDescendantFocus(focus))
+	{
+		return true;
+	}
+	else if (auto commandSink = wnd->GetCommandSink())
+	{
+		commandSink->OnActivate();
+		return true;
+	}
+	return false;
+}
+
+static bool HandleNavigation(std::shared_ptr<Window> wnd, Key key)
+{
+	switch (key)
+	{
+	case Key::Enter:
+	case Key::NumEnter:
+	case Key::Space:
+		return ActivateMostDescendantFocus(wnd);
+
+	case Key::Up:
+		return FocusNextDescendant<ForwardRange>(wnd);
+
+	case Key::Down:
+		return FocusNextDescendant<ReverseRange>(wnd);
+	}
+
+	return false;
+}
+
 bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, Key key, float time)
 {
 	_lastKeyTime = time;
 
+	bool handled = false;
+
 	switch (msg)
 	{
-	case Msg::KEYUP:
+	case Msg::KeyReleased:
 		break;
-	case Msg::KEYDOWN:
-		return TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
+	case Msg::KeyPressed:
+		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
 			[key, this](std::shared_ptr<Window> wnd) // visitor
@@ -317,11 +405,17 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 				return keyboardSink ? keyboardSink->OnKeyPressed(*this, key) : false;
 			}
 		});
+
+		if (!handled)
+		{
+			handled = HandleNavigation(wnd, key);
+		}
+		break;
 	default:
 		assert(false);
 	}
 
-	return false;
+	return handled;
 }
 
 bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c)

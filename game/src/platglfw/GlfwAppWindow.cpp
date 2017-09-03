@@ -145,7 +145,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action,
 			gui->GetDesktop(),
 			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
 			dc,
-			GLFW_RELEASE == action ? UI::Msg::KEYUP : UI::Msg::KEYDOWN,
+			GLFW_RELEASE == action ? UI::Msg::KeyReleased : UI::Msg::KeyPressed,
 			key,
 			gui->GetTime());
 	}

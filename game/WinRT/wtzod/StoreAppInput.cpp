@@ -42,7 +42,7 @@ bool StoreAppInput::IsMousePressed(int button) const
 	default:
 		return false;
 	}
-	return (_coreWindow->GetKeyState(virtualKey) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;;
+	return (_coreWindow->GetKeyState(virtualKey) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
 }
 
 vec2d StoreAppInput::GetMousePos() const

@@ -249,7 +249,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 				(*inputSink)->GetDesktop(),
 				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
 				UI::DataContext(),
-				UI::Msg::KEYDOWN,
+				UI::Msg::KeyPressed,
 				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey),
 				(*inputSink)->GetTime());
 		}
@@ -267,7 +267,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 				(*inputSink)->GetDesktop(),
 				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
 				UI::DataContext(),
-				UI::Msg::KEYUP,
+				UI::Msg::KeyReleased,
 				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey),
 				(*inputSink)->GetTime());
 		}

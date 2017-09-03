@@ -23,6 +23,7 @@ MainMenuDlg::MainMenuDlg(LangCache &lang,
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.newDM;
 	AddFront(button);
+	SetFocus(button);
 
 	button = std::make_shared<UI::Button>();
 	button->SetFont("font_default");

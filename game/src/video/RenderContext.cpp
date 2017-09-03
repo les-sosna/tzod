@@ -380,7 +380,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 	size_t line  = 0;
 
 	vec2d pxCharSize = Vec2dFloor(vec2d{ lt.pxFrameWidth, lt.pxFrameHeight } * scale);
-    float pxAdvance = std::floor((lt.pxFrameWidth - 1) * scale);
+	float pxAdvance = std::floor((lt.pxFrameWidth - 1) * scale);
 
 	float x0 = origin.x - std::floor(dx[align] * pxAdvance * (float) maxline / 2);
 	float y0 = origin.y - std::floor(dy[align] * pxCharSize.y * (float) lines.size() / 2);

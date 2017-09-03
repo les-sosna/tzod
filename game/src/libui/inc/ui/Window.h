@@ -35,6 +35,11 @@ enum class FlowDirection
 	Horizontal
 };
 
+struct CommandSink
+{
+	virtual void OnActivate() = 0;
+};
+
 struct ScrollSink
 {
 	virtual void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d pointerPosition, vec2d scrollOffset) = 0;
@@ -113,6 +118,7 @@ public:
 	//
 	// Input
 	//
+	virtual CommandSink* GetCommandSink() { return nullptr; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
@@ -162,6 +168,7 @@ public:
 	void SetFocus(std::shared_ptr<Window> child);
 	std::shared_ptr<Window> GetFocus() const;
 
+
 	//
 	// Events
 	//
@@ -177,7 +184,7 @@ public:
 
 inline bool NeedsFocus(Window *wnd)
 {
-	return wnd ? wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get()) : false;
+	return wnd ? wnd->GetCommandSink() || wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get()) : false;
 }
 
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
@@ -202,13 +209,12 @@ public:
 	~TimeStepping();
 
 	void SetTimeStep(bool enable);
-    
-    virtual void OnTimeStep(LayoutManager &manager, float dt) {}
+
+	virtual void OnTimeStep(LayoutManager &manager, float dt) {}
 
 private:
 	std::list<TimeStepping*>::iterator _timeStepReg;
-	bool _isTimeStep = false;	
+	bool _isTimeStep = false;
 };
-
 
 } // namespace UI

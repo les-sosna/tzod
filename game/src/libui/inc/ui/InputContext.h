@@ -21,8 +21,8 @@ struct PointerSink;
 
 enum class Msg
 {
-	KEYUP,
-	KEYDOWN,
+	KeyReleased,
+	KeyPressed,
 	PointerDown,
 	PointerMove,
 	PointerUp,

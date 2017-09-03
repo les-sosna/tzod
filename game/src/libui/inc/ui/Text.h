@@ -14,6 +14,7 @@ public:
 	void SetAlign(enumAlignText align) { _align = align; }
 	void SetFont(Texture fontTexture) { _fontTexture = std::move(fontTexture); }
 	void SetFontColor(std::shared_ptr<RenderData<SpriteColor>> color);
+	void SetUnderline(std::shared_ptr<RenderData<bool>> underline) { _underline = underline; }
 
 	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
@@ -24,8 +25,10 @@ public:
 private:
 	enumAlignText _align = alignTextLT;
 	Texture _fontTexture = "font_small";
+	Texture _underlineTexture = "ui/editsel";
 	std::shared_ptr<RenderData<SpriteColor>> _fontColor;
 	std::shared_ptr<LayoutData<std::string_view>> _text;
+	std::shared_ptr<RenderData<bool>> _underline;
 };
 
 } // namespace UI

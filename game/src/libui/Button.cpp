@@ -53,11 +53,9 @@ void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager
 	bool pointerInside = pointerPosition.x < size.x && pointerPosition.y < size.y && pointerPosition.x >= 0 && pointerPosition.y >= 0;
 	if( eventMouseUp )
 		eventMouseUp(pointerPosition.x, pointerPosition.y);
-	if(pointerInside)
+	if( pointerInside )
 	{
-		OnClick();
-		if( eventClick )
-			eventClick();
+		OnActivate();
 	}
 }
 
@@ -65,9 +63,7 @@ void ButtonBase::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texm
 {
 	if( !ic.HasCapturedPointers(this))
 	{
-		OnClick();
-		if( eventClick )
-			eventClick();
+		OnActivate();
 	}
 }
 
@@ -82,7 +78,7 @@ void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const Inpu
 		sc.SetState("Hover");
 		break;
 	case stateNormal:
-		sc.SetState("Idle");
+		sc.SetState(ic.GetFocused() ? "Focused" : "Idle");
 		break;
 	case stateDisabled:
 		sc.SetState("Disabled");
@@ -96,7 +92,29 @@ void ButtonBase::OnClick()
 {
 }
 
+void ButtonBase::OnActivate()
+{
+	OnClick();
+	if (eventClick)
+		eventClick();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+	class FocusBinding : public RenderData<bool>
+	{
+	public:
+		// RenderData<bool>
+		bool GetValue(const DataContext &dc, const StateContext &sc) const override
+		{
+			return sc.GetState() == "Focused";
+		}
+	};
+}
+
+static const auto c_textUnderline = std::make_shared<FocusBinding>();
 
 static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xffffffff, // default
 	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
@@ -115,6 +133,7 @@ Button::Button()
 
 	_text->SetAlign(alignTextCC);
 	_text->SetFontColor(c_textColor);
+	_text->SetUnderline(c_textUnderline);
 
 	SetBackground("ui/button");
 	Resize(96, 24);

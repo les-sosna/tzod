@@ -8,6 +8,7 @@ namespace UI
 
 class ButtonBase
 	: public Window
+	, private CommandSink
 	, private PointerSink
 	, private StateGen
 {
@@ -28,11 +29,15 @@ public:
 	State GetState(const LayoutContext &lc, const InputContext &ic) const;
 
 	// Window
+	CommandSink* GetCommandSink() override { return this; }
 	PointerSink* GetPointerSink() override { return this; }
 	const StateGen* GetStateGen() const override { return this; }
 
 private:
 	virtual void OnClick();
+
+	// CommandSink
+	void OnActivate() override;
 
 	// PointerSink
 	void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
