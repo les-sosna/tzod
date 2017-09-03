@@ -644,23 +644,19 @@ void Desktop::OnGameContextChanged()
 		assert(!_game);
 
 		CampaignControlCommands campaignControlCommands;
-		campaignControlCommands.replayCurrent = [this, weakThis = std::weak_ptr<Window>(shared_from_this())]
+		campaignControlCommands.replayCurrent = [this]
 		{
-			if (!weakThis.expired())
-				_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
+			_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
 		};
-		campaignControlCommands.playNext = [this, weakThis = std::weak_ptr<Window>(shared_from_this())]
+		campaignControlCommands.playNext = [this]
 		{
-			if (!weakThis.expired())
-			{
-				int tierIndex = GetCurrentTier(_conf, _dmCampaign);
-				int nextMapIndex = (GetCurrentMap(_conf, _dmCampaign) + 1) % GetCurrentTierMapCount(_conf, _dmCampaign);
-				if (nextMapIndex == 0 && IsTierComplete(_appConfig, _dmCampaign, tierIndex))
-					tierIndex++;
-				_conf.sp_map.SetInt(nextMapIndex);
-				_conf.sp_tier.SetInt(tierIndex);
-				_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, tierIndex, nextMapIndex);
-			}
+			int tierIndex = GetCurrentTier(_conf, _dmCampaign);
+			int nextMapIndex = (GetCurrentMap(_conf, _dmCampaign) + 1) % GetCurrentTierMapCount(_conf, _dmCampaign);
+			if (nextMapIndex == 0 && IsTierComplete(_appConfig, _dmCampaign, tierIndex))
+				tierIndex++;
+			_conf.sp_map.SetInt(nextMapIndex);
+			_conf.sp_tier.SetInt(tierIndex);
+			_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, tierIndex, nextMapIndex);
 		};
 
 		_game = std::make_shared<GameLayout>(

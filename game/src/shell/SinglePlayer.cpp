@@ -119,10 +119,10 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _nextTier(std::make_shared<UI::Button>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
-    auto placeholder = std::make_shared<UI::Window>();
-    placeholder->Resize(48, 48);
-    _content->AddFront(placeholder); // FIXME: hack placeholder
-    
+	auto placeholder = std::make_shared<UI::Window>();
+	placeholder->Resize(48, 48);
+	_content->AddFront(placeholder); // FIXME: hack placeholder
+
 	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>();
 	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
 
