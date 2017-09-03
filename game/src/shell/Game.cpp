@@ -245,12 +245,9 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 				vehicleStateReader->Step(dt);
 				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 				{
-					vec2d mouse = manager.GetInputContext().GetInput().GetMousePos();
-					auto c2w = _gameViewHarness.CanvasToWorld(playerIndex, (int) mouse.x, (int) mouse.y);
-
 					VehicleState vs;
-					vehicleStateReader->ReadVehicleState(manager.GetInputContext().GetInput(), _gameContext.GetWorld(),
-					                                     *vehicle, c2w.visible ? &c2w.worldPos : nullptr, dragDirection, reversing, vs);
+					vehicleStateReader->ReadVehicleState(_gameViewHarness, *vehicle, playerIndex,
+						manager.GetInputContext().GetInput(), dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}

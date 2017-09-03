@@ -5,6 +5,7 @@
 #include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/World.h>
+#include <gv/GameViewHarness.h>
 #include <ui/Keys.h>
 #include <ui/UIInput.h>
 #include <float.h>
@@ -48,9 +49,16 @@ void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 	_arcadeStyle = profile.arcade_style.Get();
 }
 
-void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs)
+void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, UI::IInput &input, vec2d dragDirection, bool reverse, VehicleState &vs)
 {
 	memset(&vs, 0, sizeof(VehicleState));
+
+	vec2d mouse = input.GetMousePos();
+	UI::GamepadState gamepadState = input.GetGamepadState();
+
+	auto c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)mouse.x, (int)mouse.y);
+
+	World &world = gameViewHarness.GetWorld();
 
 	//
 	// lights
@@ -125,9 +133,9 @@ void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const
 		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(1);
 		vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(3);
 
-		if( input.IsMousePressed(2) && mouse )
+		if( input.IsMousePressed(2) && c2w.visible )
 		{
-			vec2d tmp = *mouse - vehicle.GetPos() - vehicle.GetBrakingLength();
+			vec2d tmp = c2w.worldPos - vehicle.GetPos() - vehicle.GetBrakingLength();
 			if( tmp.sqr() > 1 )
 			{
 				if(Vec2dDot(tmp, vehicle.GetDirection()) < 0 )
@@ -144,7 +152,6 @@ void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const
 			}
 		}
 	}
-
 
 	// move with tap and drag
 	if (!dragDirection.IsZero())
@@ -168,6 +175,23 @@ void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const
 		}
 	}
 
+	// move with gamepad
+	if (gamepadState.leftThumbstickPos.sqr() > 0.5f)
+	{
+		if (Vec2dDot(gamepadState.leftThumbstickPos, vehicle.GetDirection()) > 0)
+		{
+			vs._bState_MoveForward = true;
+		}
+
+		vs._bExplicitBody = true;
+		vs._fBodyAngle = gamepadState.leftThumbstickPos.Angle();
+	}
+	if (gamepadState.leftTrigger > 0.5f)
+	{
+		vs._bState_MoveBack = true;
+		vs._bState_MoveForward = false;
+	}
+
 
 	//
 	// tower control
@@ -180,9 +204,9 @@ void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const
 			vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(2);
 		}
 
-		if( vehicle.GetWeapon() && mouse )
+		if( vehicle.GetWeapon() && c2w.visible )
 		{
-			float a = (*mouse - vehicle.GetPos()).Angle();
+			float a = (c2w.worldPos - vehicle.GetPos()).Angle();
 			vs._bExplicitTower = true;
 			vs._fTowerAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
 		}
@@ -203,6 +227,22 @@ void VehicleStateReader::ReadVehicleState(UI::IInput &input, World &world, const
 		vs._fTowerAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
 	}
 
+	// tower to right stick
+	if (gamepadState.rightThumbstickPos.sqr() > 0.5f)
+	{
+		vs._bExplicitTower = true;
+		vs._fTowerAngle = gamepadState.rightThumbstickPos.Angle() - vehicle.GetDirection().Angle() - vehicle.GetSpinup();;
+	}
+	else if (gamepadState.rightThumbstickPressed)
+	{
+		vs._bState_TowerCenter = true;
+	}
+
+	// fire with gamepad
+	if (gamepadState.rightTrigger > 0.5f || gamepadState.A)
+	{
+		vs._bState_Fire = true;
+	}
 
 	if (!vs._bExplicitTower && vs._bState_TowerCenter)
 	{

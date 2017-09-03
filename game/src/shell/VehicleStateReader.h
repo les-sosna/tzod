@@ -2,6 +2,7 @@
 #include <math/MyMath.h>
 
 class ConfControllerProfile;
+class GameViewHarness;
 struct VehicleState;
 class GC_Vehicle;
 class World;
@@ -16,7 +17,7 @@ class VehicleStateReader
 public:
 	VehicleStateReader();
 	void SetProfile(ConfControllerProfile &profile);
-	void ReadVehicleState(UI::IInput &input, World &world, const GC_Vehicle &vehicle, const vec2d *mouse, vec2d dragDirection, bool reverse, VehicleState &vs);
+	void ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, UI::IInput &input, vec2d dragDirection, bool reverse, VehicleState &vs);
 
 	void OnTap(vec2d worldPos);
 	void Step(float dt);
