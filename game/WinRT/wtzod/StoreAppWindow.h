@@ -41,7 +41,6 @@ private:
 	std::unique_ptr<IRender> _render;
 	std::shared_ptr<UI::LayoutManager*> _inputSink;
 
-	Windows::Foundation::EventRegistrationToken _regSizeChanged;
 	Windows::Foundation::EventRegistrationToken _regPointerMoved;
 	Windows::Foundation::EventRegistrationToken _regPointerPressed;
 	Windows::Foundation::EventRegistrationToken _regPointerReleased;

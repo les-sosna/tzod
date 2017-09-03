@@ -245,13 +245,6 @@ float GlfwAppWindow::GetLayoutScale() const
 void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
 	glfwSetWindowUserPointer(_window.get(), inputSink);
-
-	if (inputSink)
-	{
-		float width = GetPixelWidth() / GetLayoutScale();
-		float height = GetPixelHeight() / GetLayoutScale();
-		inputSink->GetDesktop()->Resize(width, height);
-	}
 }
 
 void GlfwAppWindow::SetMouseCursor(MouseCursor mouseCursor)

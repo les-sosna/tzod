@@ -148,15 +148,6 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation)));
 	});
 
-	_regSizeChanged = _coreWindow->SizeChanged += ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(
-		[inputSink = _inputSink, displayInformation = _displayInformation](CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
-	{
-		if (*inputSink)
-		{
-			(*inputSink)->GetDesktop()->Resize(sender->Bounds.Width, sender->Bounds.Height);
-		}
-	});
-
 	_regPointerMoved = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
 		[inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow^ sender, PointerEventArgs^ args)
 	{
@@ -298,7 +289,6 @@ StoreAppWindow::~StoreAppWindow()
 	_coreWindow->PointerReleased -= _regPointerReleased;
 	_coreWindow->PointerPressed -= _regPointerMoved;
 	_coreWindow->PointerMoved -= _regPointerMoved;
-	_coreWindow->SizeChanged -= _regSizeChanged;
 
 	_displayInformation->OrientationChanged -= _regOrientationChanged;
 
@@ -340,13 +330,6 @@ float StoreAppWindow::GetLayoutScale() const
 void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
 	*_inputSink = inputSink;
-
-	if (inputSink)
-	{
-		float width = GetPixelWidth() / GetLayoutScale();
-		float height = GetPixelHeight() / GetLayoutScale();
-		inputSink->GetDesktop()->Resize(width, height);
-	}
 }
 
 void StoreAppWindow::SetMouseCursor(MouseCursor mouseCursor)
