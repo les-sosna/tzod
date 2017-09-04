@@ -28,10 +28,6 @@ public:
 	PointerSink *GetPointerSink() override { return this; }
 
 protected:
-	void NextFocus(bool wrap);
-	void PrevFocus(bool wrap);
-	bool TrySetFocus(const std::shared_ptr<Window> &child);
-
 	// KeyboardSink
 	bool OnKeyPressed(InputContext &ic, Key key) override;
 

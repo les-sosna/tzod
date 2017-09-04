@@ -460,6 +460,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		break;
 
 	case UI::Key::Escape:
+	case UI::Key::GamepadB:
 		if( GetFocus() == _con )
 		{
 			_con->SetVisible(false);

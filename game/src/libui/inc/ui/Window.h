@@ -182,9 +182,10 @@ public:
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
 };
 
-inline bool NeedsFocus(Window *wnd)
+inline bool NeedsFocus(Window *wnd, const DataContext &dc)
 {
-	return wnd ? wnd->GetCommandSink() || wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get()) : false;
+	return (wnd && wnd->GetVisible() && wnd->GetEnabled(dc)) ?
+		wnd->GetCommandSink() || wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
 }
 
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);

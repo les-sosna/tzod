@@ -203,7 +203,7 @@ bool InputContext::ProcessPointer(
 	{
 		auto &target = sinkPath.front();
 
-		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get()))
+		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get(), dc))
 			PropagateFocus(sinkPath);
 
 		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
@@ -322,12 +322,13 @@ namespace
 }
 
 template <class RangeT>
-static bool FocusNextDescendant(std::shared_ptr<Window> wnd)
+static bool FocusNextDescendant(std::shared_ptr<Window> wnd, const DataContext &dc)
 {
 	auto focusChild = wnd->GetFocus();
 	if (focusChild)
 	{
-		if (FocusNextDescendant<RangeT>(focusChild))
+		if (focusChild->GetVisible() && focusChild->GetEnabled(dc) &&
+			FocusNextDescendant<RangeT>(focusChild, dc))
 		{
 			return true;
 		}
@@ -338,9 +339,7 @@ static bool FocusNextDescendant(std::shared_ptr<Window> wnd)
 			while (focusIt != range.first)
 			{
 				focusIt--;
-				if ((*focusIt)->GetVisible()
-					//	&& (*focusIt)->GetEnabled(dc)
-					&& NeedsFocus(focusIt->get()))
+				if (NeedsFocus(focusIt->get(), dc))
 				{
 					wnd->SetFocus(*focusIt);
 					return true;
@@ -351,35 +350,43 @@ static bool FocusNextDescendant(std::shared_ptr<Window> wnd)
 	return false;
 }
 
-static bool ActivateMostDescendantFocus(std::shared_ptr<Window> wnd)
+static bool ActivateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc)
 {
-	auto focus = wnd->GetFocus();
-	if (focus && ActivateMostDescendantFocus(focus))
+	if (wnd->GetVisible() && wnd->GetEnabled(dc))
 	{
-		return true;
-	}
-	else if (auto commandSink = wnd->GetCommandSink())
-	{
-		commandSink->OnActivate();
-		return true;
+		auto focus = wnd->GetFocus();
+		if (focus && ActivateMostDescendantFocus(std::move(focus), dc))
+		{
+			return true;
+		}
+		else if (auto commandSink = wnd->GetCommandSink())
+		{
+			commandSink->OnActivate();
+			return true;
+		}
 	}
 	return false;
 }
 
-static bool HandleNavigation(std::shared_ptr<Window> wnd, Key key)
+static bool HandleNavigation(std::shared_ptr<Window> wnd, const DataContext &dc, Key key)
 {
 	switch (key)
 	{
 	case Key::Enter:
 	case Key::NumEnter:
 	case Key::Space:
-		return ActivateMostDescendantFocus(wnd);
+	case Key::GamepadA:
+		return ActivateMostDescendantFocus(wnd, dc);
 
 	case Key::Up:
-		return FocusNextDescendant<ForwardRange>(wnd);
+	case Key::GamepadLeftThumbstickUp:
+	case Key::GamepadDPadUp:
+		return FocusNextDescendant<ForwardRange>(wnd, dc);
 
 	case Key::Down:
-		return FocusNextDescendant<ReverseRange>(wnd);
+	case Key::GamepadLeftThumbstickDown:
+	case Key::GamepadDPadDown:
+		return FocusNextDescendant<ReverseRange>(wnd, dc);
 	}
 
 	return false;
@@ -408,7 +415,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 
 		if (!handled)
 		{
-			handled = HandleNavigation(wnd, key);
+			handled = HandleNavigation(wnd, dc, key);
 		}
 		break;
 	default:
