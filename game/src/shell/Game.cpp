@@ -38,7 +38,7 @@ namespace
 		{}
 
 		// UI::LayoutData<std::string_view>
-		std::string_view GetValue(const UI::DataContext &dc) const override
+		std::string_view GetLayoutValue(const UI::DataContext &dc) const override
 		{
 			std::ostringstream text;
 			if (_deathmatch && _deathmatch->GetTimeLimit() > 0)
@@ -74,7 +74,7 @@ namespace
 		{}
 
 		// UI::RenderData<unsigned int>
-		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
+		unsigned int GetRenderValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
 			return _deathmatch.GetRating();
 		}

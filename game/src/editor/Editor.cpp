@@ -64,7 +64,7 @@ namespace
 		{}
 
 		// LayoutData<std::string_view>
-		std::string_view GetValue(const UI::DataContext &dc) const override
+		std::string_view GetLayoutValue(const UI::DataContext &dc) const override
 		{
 			int index = _typeSelector->GetCurSel();
 			if (_cachedIndex != index)

@@ -107,7 +107,7 @@ namespace
 	{
 	public:
 		// RenderData<bool>
-		bool GetValue(const DataContext &dc, const StateContext &sc) const override
+		bool GetRenderValue(const DataContext &dc, const StateContext &sc) const override
 		{
 			return sc.GetState() == "Focused";
 		}

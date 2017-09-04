@@ -20,10 +20,10 @@ void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 {
 	if (_text && !_fontTexture.Empty())
 	{
-		SpriteColor color = _fontColor ? _fontColor->GetValue(dc, sc) : 0xffffffff;
-		rc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture.GetTextureId(texman), color, _text->GetValue(dc), _align);
+		SpriteColor color = _fontColor ? _fontColor->GetRenderValue(dc, sc) : 0xffffffff;
+		rc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture.GetTextureId(texman), color, _text->GetLayoutValue(dc), _align);
 
-		if (_underline && _underline->GetValue(dc, sc))
+		if (_underline && _underline->GetRenderValue(dc, sc))
 		{
 			// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
 			static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
@@ -48,7 +48,7 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	unsigned int lineCount = 1;
 	unsigned  maxline = 0;
 	size_t count = 0;
-	std::string_view text = _text->GetValue(dc);
+	std::string_view text = _text->GetLayoutValue(dc);
 	for( size_t n = 0; n != text.size(); ++n )
 	{
 		if( '\n' == text[n] )

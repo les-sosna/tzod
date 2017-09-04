@@ -49,7 +49,7 @@ void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const Layout
 	if (!_texture.Empty() && (_drawBackground || _drawBorder))
 	{
 		FRECT dst = MakeRectWH(lc.GetPixelSize());
-		unsigned int frame = _frame ? _frame->GetValue(dc, sc) : 0;
+		unsigned int frame = _frame ? _frame->GetRenderValue(dc, sc) : 0;
 		size_t texture = _texture.GetTextureId(texman);
 
 		if (_drawBackground)
@@ -58,7 +58,7 @@ void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const Layout
 			FRECT client = { dst.left + border, dst.top + border, dst.right - border, dst.bottom - border };
 			if (_textureStretchMode == StretchMode::Stretch)
 			{
-				rc.DrawSprite(client, texture, _backColor->GetValue(dc, sc), frame);
+				rc.DrawSprite(client, texture, _backColor->GetRenderValue(dc, sc), frame);
 			}
 			else
 			{
@@ -81,7 +81,7 @@ void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const Layout
 					client.right = client.left + newWidth;
 				}
 
-				rc.DrawSprite(client, texture, _backColor->GetValue(dc, sc), frame);
+				rc.DrawSprite(client, texture, _backColor->GetRenderValue(dc, sc), frame);
 
 				rc.PopClippingRect();
 			}
@@ -89,7 +89,7 @@ void Rectangle::Draw(const DataContext &dc, const StateContext &sc, const Layout
 
 		if (_drawBorder)
 		{
-			rc.DrawBorder(dst, texture, _borderColor->GetValue(dc, sc), frame);
+			rc.DrawBorder(dst, texture, _borderColor->GetRenderValue(dc, sc), frame);
 		}
 	}
 }

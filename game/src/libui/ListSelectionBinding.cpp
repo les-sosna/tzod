@@ -7,7 +7,7 @@ HasSelection::HasSelection(std::weak_ptr<UI::List> list)
 	: _list(std::move(list))
 {}
 
-bool HasSelection::GetValue(const UI::DataContext &sc) const
+bool HasSelection::GetLayoutValue(const UI::DataContext &sc) const
 {
 	if (auto list = _list.lock())
 	{

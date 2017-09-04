@@ -15,7 +15,7 @@ namespace
 		ConfTextSourceAdapter(const ConfVarString &confString) : _confString(confString) {}
 
 		// UI::LayoutData<std::string_view>
-		std::string_view GetValue(const UI::DataContext &dc) const override
+		std::string_view GetLayoutValue(const UI::DataContext &dc) const override
 		{
 			return _confString.Get();
 		}

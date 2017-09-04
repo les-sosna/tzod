@@ -10,7 +10,7 @@ namespace UI
 		HasSelection(std::weak_ptr<UI::List> list);
 
 		// UI::LayoutData<bool>
-		bool GetValue(const UI::DataContext &dc) const override;
+		bool GetLayoutValue(const UI::DataContext &dc) const override;
 
 	private:
 		std::weak_ptr<UI::List> _list;

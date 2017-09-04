@@ -21,7 +21,7 @@ void Rating::Draw(const DataContext &dc, const StateContext &sc, const LayoutCon
 
 	vec2d pxItemSize = ToPx(spriteSize, minScale);
 
-	unsigned int rating = _rating ? _rating->GetValue(dc, sc) : 0;
+	unsigned int rating = _rating ? _rating->GetRenderValue(dc, sc) : 0;
 	for (unsigned int i = 0; i < _maxRating; i++)
 	{
 		rc.DrawSprite(MakeRectWH(vec2d{ pxItemSize.x * (float)i, 0 }, pxItemSize), _texture.GetTextureId(texman), 0xffffffff, i >= rating);

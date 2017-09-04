@@ -102,7 +102,7 @@ void Window::SetEnabled(std::shared_ptr<LayoutData<bool>> enabled)
 
 bool Window::GetEnabled(const DataContext &dc) const
 {
-	return _enabled ? _enabled->GetValue(dc) : true;
+	return _enabled ? _enabled->GetLayoutValue(dc) : true;
 }
 
 void Window::SetVisible(bool visible)

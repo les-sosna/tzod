@@ -13,13 +13,13 @@ namespace UI
 	template <class ValueType>
 	struct LayoutData
 	{
-		virtual ValueType GetValue(const DataContext &dc) const = 0;
+		virtual ValueType GetLayoutValue(const DataContext &dc) const = 0;
 	};
 
 	template <class ValueType>
 	struct RenderData
 	{
-		virtual ValueType GetValue(const DataContext &dc, const StateContext &sc) const = 0;
+		virtual ValueType GetRenderValue(const DataContext &dc, const StateContext &sc) const = 0;
 	};
 
 	namespace detail
@@ -41,13 +41,13 @@ namespace UI
 		{}
 
 		// LayoutData<T>
-		T GetValue(const DataContext &dc) const override
+		T GetLayoutValue(const DataContext &dc) const override
 		{
 			return _value;
 		}
 
 		// RenderData<T>
-		T GetValue(const DataContext &dc, const StateContext &sc) const override
+		T GetRenderValue(const DataContext &dc, const StateContext &sc) const override
 		{
 			return _value;
 		}
@@ -79,7 +79,7 @@ namespace UI
 		{}
 
 		// RenderData<T>
-		T GetValue(const DataContext &dc, const StateContext &sc) const override
+		T GetRenderValue(const DataContext &dc, const StateContext &sc) const override
 		{
 			auto found = _valueMap.find(sc.GetState());
 			return _valueMap.end() != found ? found->second : _defaultValue;
@@ -98,10 +98,10 @@ namespace UI
 		StaticText(std::string_view text) : _text(std::move(text)) {}
 
 		// LayoutData<std::string_view>
-		std::string_view GetValue(const DataContext &dc) const override;
+		std::string_view GetLayoutValue(const DataContext &dc) const override;
 
 		// RenderData<std::string_view>
-		std::string_view GetValue(const DataContext &dc, const StateContext &sc) const override;
+		std::string_view GetRenderValue(const DataContext &dc, const StateContext &sc) const override;
 
 	private:
 		std::string _text;
@@ -115,10 +115,10 @@ namespace UI
 		explicit ListDataSourceBinding(int column): _column(column) {}
 
 		// LayoutData<std::string_view>
-		std::string_view GetValue(const DataContext &dc) const override;
+		std::string_view GetLayoutValue(const DataContext &dc) const override;
 
 		// RenderData<std::string_view>
-		std::string_view GetValue(const DataContext &dc, const StateContext &sc) const override;
+		std::string_view GetRenderValue(const DataContext &dc, const StateContext &sc) const override;
 
 	private:
 		int _column;

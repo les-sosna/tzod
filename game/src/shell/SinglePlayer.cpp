@@ -50,7 +50,8 @@ namespace
 			, _dmCampaign(dmCampaign)
 		{}
 
-		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
+		// UI::RenderData<unsigned int>
+		unsigned int GetRenderValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
 			return GetMapRating(_appConfig, GetCurrentTier(_conf, _dmCampaign), dc.GetItemIndex());
 		}
@@ -71,7 +72,8 @@ namespace
 			, _mapIndex(mapIndex)
 		{}
 
-		unsigned int GetValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
+		// UI::RenderData<unsigned int>
+		unsigned int GetRenderValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
 			return GetMapRating(_appConfig, GetCurrentTier(_conf, _dmCampaign), _mapIndex);
 		}

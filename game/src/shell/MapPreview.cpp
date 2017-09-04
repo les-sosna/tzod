@@ -37,7 +37,7 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 	if (_mapName)
 	{
-		const World &world = _mapCache.GetCachedWorld(_fs, _mapName->GetValue(dc, sc));
+		const World &world = _mapCache.GetCachedWorld(_fs, _mapName->GetRenderValue(dc, sc));
 
 		vec2d worldSize = Size(world._bounds);
 		vec2d eye = Center(world._bounds);
