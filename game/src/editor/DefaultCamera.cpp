@@ -34,17 +34,22 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 
 	vec2d direction = {};
 
-	if( input.IsKeyPressed(UI::Key::Left) )
+	if (input.IsKeyPressed(UI::Key::Left))
 		direction.x = -1;
-	else if( input.IsKeyPressed(UI::Key::Right) )
+	else if (input.IsKeyPressed(UI::Key::Right))
 		direction.x = 1;
 
-	if( input.IsKeyPressed(UI::Key::Up) )
+	if (input.IsKeyPressed(UI::Key::Up))
 		direction.y = -1;
-	else if( input.IsKeyPressed(UI::Key::Down) )
+	else if (input.IsKeyPressed(UI::Key::Down))
 		direction.y = 1;
 
 	direction.Normalize();
+
+	if (input.GetGamepadState().rightThumbstickPos.sqr() > .5f)
+	{
+		direction += input.GetGamepadState().rightThumbstickPos;
+	}
 
 	_speed += direction * dt * (6000 + _speed.len() * 8);
 	_speed *= expf(-dt * 10);
