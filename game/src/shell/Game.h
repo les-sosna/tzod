@@ -35,7 +35,7 @@ class GameLayout
 {
 public:
 	GameLayout(UI::LayoutManager &manager,
-	           GameContext &gameContext,
+	           std::shared_ptr<GameContext> gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,
 	           ShellConfig &conf,
@@ -62,7 +62,7 @@ private:
 	std::shared_ptr<CampaignControls> _campaignControls;
 	std::shared_ptr<UI::Text> _timerDisplay;
 
-	GameContext &_gameContext;
+	std::shared_ptr<GameContext> _gameContext;
 	GameViewHarness _gameViewHarness;
 	WorldView &_worldView;
 	WorldController &_worldController;

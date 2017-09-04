@@ -87,7 +87,7 @@ namespace
 ///////////////////////////////////////////////////////////////////////////////
 
 GameLayout::GameLayout(UI::LayoutManager &manager,
-                       GameContext &gameContext,
+                       std::shared_ptr<GameContext> gameContext,
                        WorldView &worldView,
                        WorldController &worldController,
                        ShellConfig &conf,
@@ -96,22 +96,25 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
                        CampaignControlCommands campaignControlCommands)
   : UI::TimeStepping(manager)
   , _scoreAndControls(std::make_shared<UI::StackLayout>())
-  , _gameContext(gameContext)
-  , _gameViewHarness(gameContext.GetWorld(), worldController)
+  , _gameContext(std::move(gameContext))
+  , _gameViewHarness(_gameContext->GetWorld(), worldController)
   , _worldView(worldView)
   , _worldController(worldController)
   , _conf(conf)
   , _lang(lang)
   , _inputMgr(conf, logger)
 {
+	assert(_gameContext);
+
 	_scoreAndControls->SetSpacing(20);
 	_scoreAndControls->SetAlign(UI::Align::CT);
 	AddFront(_scoreAndControls);
+	SetFocus(_scoreAndControls);
 
 	_msg = std::make_shared<MessageArea>(manager, logger);
 	AddFront(_msg);
 
-	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext.GetGameplay());
+	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
 
 	if (deathmatch)
 	{
@@ -121,7 +124,7 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 		_scoreAndControls->AddFront(_rating);
 	}
 
-	_score = std::make_shared<ScoreTable>(_gameContext.GetWorld(), deathmatch, _lang);
+	_score = std::make_shared<ScoreTable>(_gameContext->GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
 
@@ -130,23 +133,24 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 		_campaignControls = std::make_shared<CampaignControls>(*deathmatch, std::move(campaignControlCommands));
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
+		_scoreAndControls->SetFocus(_campaignControls);
 	}
 
 	_timerDisplay = std::make_shared<UI::Text>();
 	_timerDisplay->SetAlign(alignTextRB);
-	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext.GetWorld(), deathmatch));
+	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
 	AddFront(_timerDisplay);
 
 	_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
 	SetTimeStep(true);
-	_gameContext.GetGameEventSource().AddListener(*this);
+	_gameContext->GetGameEventSource().AddListener(*this);
 }
 
 GameLayout::~GameLayout()
 {
-	_gameContext.GetGameEventSource().RemoveListener(*this);
+	_gameContext->GetGameEventSource().RemoveListener(*this);
 	_conf.ui_showtime.eventChange = nullptr;
 }
 
@@ -206,11 +210,11 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 {
 	bool tab = manager.GetInputContext().GetInput().IsKeyPressed(UI::Key::Tab);
-	bool gameOver = _gameContext.GetGameplay() ? _gameContext.GetGameplay()->IsGameOver() : false;
-	bool allDead = !_gameContext.GetWorldController().GetLocalPlayers().empty();
-	for (auto player : _gameContext.GetWorldController().GetLocalPlayers())
+	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
+	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
+	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
 		allDead &= !player->GetVehicle();
-	_score->SetVisible(tab || gameOver || (allDead && _gameContext.GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
+	_score->SetVisible(tab || gameOver || (allDead && _gameContext->GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
 	if (_campaignControls)
 		_campaignControls->SetVisible(gameOver);
 	if (_rating)
@@ -286,7 +290,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			if (time > 0)
 			{
 				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicleStateReader->GetFireTarget());
-				rc.DrawSprite(_texTarget.GetTextureId(texman), 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext.GetWorld().GetTime()*3));
+				rc.DrawSprite(_texTarget.GetTextureId(texman), 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext->GetWorld().GetTime()*3));
 			}
 		}
 	}

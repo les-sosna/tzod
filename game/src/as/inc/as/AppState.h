@@ -10,14 +10,14 @@ class AppState
 public:
 	AppState();
 	~AppState();
-	GameContextBase* GetGameContext() const { return _gameContext.get(); }
-	void SetGameContext(std::unique_ptr<GameContextBase> gameContext);
+	const std::shared_ptr<GameContextBase>& GetGameContext() const { return _gameContext; }
+	void SetGameContext(std::shared_ptr<GameContextBase> gameContext);
 
 private:
-	std::unique_ptr<GameContextBase> _gameContext;
+	std::shared_ptr<GameContextBase> _gameContext;
 	std::set<AppStateListener*> _appStateListeners;
 	friend class AppStateListener;
 
-    AppState(const AppState&) = delete;
-    void operator=(const AppState&) = delete;
+	AppState(const AppState&) = delete;
+	void operator=(const AppState&) = delete;
 };

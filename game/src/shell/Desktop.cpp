@@ -372,7 +372,7 @@ void Desktop::OnExportMap()
 		fileDlg->eventClose = [this](auto sender, int result)
 		{
 			OnCloseChild(sender);
-			GameContextBase *gameContext = GetAppState().GetGameContext();
+			auto gameContext = GetAppState().GetGameContext();
 			if (UI::Dialog::_resultOK == result && gameContext)
 			{
 				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
@@ -531,7 +531,7 @@ float Desktop::GetChildOpacity(const UI::Window &child) const
 {
 	if (_tierTitle.get() == &child)
 	{
-		if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
+		if (auto gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext().get()))
 			return std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
 		else
 			return 0;
@@ -639,7 +639,7 @@ void Desktop::OnGameContextChanging()
 
 void Desktop::OnGameContextChanged()
 {
-	if (auto *gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext()))
+	if (auto gameContext = std::dynamic_pointer_cast<GameContext>(GetAppState().GetGameContext()))
 	{
 		assert(!_game);
 
@@ -661,7 +661,7 @@ void Desktop::OnGameContextChanged()
 
 		_game = std::make_shared<GameLayout>(
 			GetManager(),
-			*gameContext,
+			gameContext,
 			_worldView,
 			gameContext->GetWorldController(),
 			_conf,
@@ -677,7 +677,7 @@ void Desktop::OnGameContextChanged()
 		SetEditorMode(false);
 	}
 
-	if (auto *editorContext = dynamic_cast<EditorContext*>(GetAppState().GetGameContext()))
+	if (auto editorContext = std::dynamic_pointer_cast<EditorContext>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
 		_editor = std::make_shared<EditorLayout>(

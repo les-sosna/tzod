@@ -10,11 +10,14 @@ AppState::~AppState()
 {
 }
 
-void AppState::SetGameContext(std::unique_ptr<GameContextBase> gameContext)
+void AppState::SetGameContext(std::shared_ptr<GameContextBase> gameContext)
 {
-	for (AppStateListener *ls: _appStateListeners)
-		ls->OnGameContextChanging();
-	_gameContext = std::move(gameContext);
-	for (AppStateListener *ls: _appStateListeners)
-		ls->OnGameContextChanged();
+	if (gameContext != _gameContext)
+	{
+		for (AppStateListener *ls : _appStateListeners)
+			ls->OnGameContextChanging();
+		_gameContext = std::move(gameContext);
+		for (AppStateListener *ls : _appStateListeners)
+			ls->OnGameContextChanged();
+	}
 }

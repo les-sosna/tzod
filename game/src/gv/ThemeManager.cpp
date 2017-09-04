@@ -47,7 +47,7 @@ void ThemeManager::OnGameContextChanged()
 	// load default theme
 	_textureManager.LoadPackage(ParsePackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs));
 
-	if (GameContextBase *gameContext = GetAppState().GetGameContext())
+	if (auto gameContext = GetAppState().GetGameContext())
 	{
 		// start from 1 to skip default
 		for (size_t i = 1; i < GetThemeCount(); ++i)

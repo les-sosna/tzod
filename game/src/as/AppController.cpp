@@ -41,7 +41,7 @@ static DMSettings GetCampaignDMSettings(AppConfig &appConfig, DMCampaign &dmCamp
 
 
 AppController::AppController(FS::FileSystem &fs)
-    : _fs(fs)
+	: _fs(fs)
 	, _mapCache(new MapCache())
 {
 }
@@ -52,7 +52,7 @@ AppController::~AppController()
 
 void AppController::Step(AppState &appState, AppConfig &appConfig, float dt)
 {
-	if (GameContextBase *gc = appState.GetGameContext())
+	if (GameContextBase *gc = appState.GetGameContext().get())
 	{
 		gc->Step(dt);
 
@@ -91,6 +91,5 @@ void AppController::StartDMCampaignMap(AppState &appState, AppConfig &appConfig,
 
 	auto world = _mapCache->CheckoutCachedWorld(_fs, mapDesc.map_name.Get());
 	DMSettings settings = GetCampaignDMSettings(appConfig, dmCampaign, tier, map);
-	std::unique_ptr<GameContext> gc(new GameContext(std::move(world), settings, tier, map));
-	appState.SetGameContext(std::move(gc));
+	appState.SetGameContext(std::make_shared<GameContext>(std::move(world), settings, tier, map));
 }

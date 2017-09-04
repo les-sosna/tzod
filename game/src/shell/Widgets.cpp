@@ -45,7 +45,7 @@ void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
 		std::ostringstream s;
 		s << std::setfill('0');
 		s << "fps:" << std::setw(3) << int(1.0f / max + 0.5f) << '-' << std::setw(3) << int(1.0f / avr + 0.5f) << '-' << std::setw(3) << int(1.0f / min + 0.5f);
-		if (GameContextBase *gc = _appState.GetGameContext())
+		if (GameContextBase *gc = _appState.GetGameContext().get())
 		{
 			s << std::setfill(' ');
 			s << "; obj:" << gc->GetWorld().GetList(LIST_objects).size() << '\n';
