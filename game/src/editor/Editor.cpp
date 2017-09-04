@@ -70,7 +70,9 @@ namespace
 			if (_cachedIndex != index)
 			{
 				std::ostringstream oss;
-				oss << _lang.layer.Get() << RTTypes::Inst().GetTypeInfo(_typeSelector->GetData()->GetItemData(index)).layer << ": ";
+				oss << _lang.layer.Get()
+					<< RTTypes::Inst().GetTypeInfo(static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(index))).layer
+					<< ": ";
 				_cachedString = oss.str();
 				_cachedIndex = index;
 			}
