@@ -35,15 +35,25 @@ enum class FlowDirection
 	Horizontal
 };
 
-struct NavigationSink
+enum class Navigate
 {
-	virtual bool CanNavigateBack() const = 0;
-	virtual void OnNavigateBack() = 0;
+	None,
+	Enter,
+	Back,
+	Prev,
+	Next,
+	Up,
+	Down,
+	Left,
+	Right,
+	Begin,
+	End
 };
 
-struct CommandSink
+struct NavigationSink
 {
-	virtual void OnActivate() = 0;
+	virtual bool CanNavigate(Navigate navigate, const DataContext &dc) const = 0;
+	virtual void OnNavigate(Navigate navigate, const DataContext &dc) = 0;
 };
 
 struct ScrollSink
@@ -125,7 +135,6 @@ public:
 	// Input
 	//
 	virtual NavigationSink* GetNavigationSink() { return nullptr; }
-	virtual CommandSink* GetCommandSink() { return nullptr; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
@@ -192,7 +201,7 @@ public:
 inline bool NeedsFocus(Window *wnd, const DataContext &dc)
 {
 	return (wnd && wnd->GetVisible() && wnd->GetEnabled(dc)) ?
-		wnd->GetCommandSink() || wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
+		wnd->GetNavigationSink() || wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
 }
 
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);

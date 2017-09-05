@@ -10,7 +10,9 @@ namespace UI
 		LB, CB, RB,
 	};
 
-	class StackLayout : public Window
+	class StackLayout
+		: public Window
+		, private NavigationSink
 	{
 	public:
 		void SetSpacing(float spacing) { _spacing = spacing; }
@@ -23,6 +25,7 @@ namespace UI
 		Align GetAlign() const { return _align; }
 
 		// Window
+		NavigationSink* GetNavigationSink() override { return this; }
 		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
@@ -30,5 +33,11 @@ namespace UI
 		float _spacing = 0.f;
 		FlowDirection _flowDirection = FlowDirection::Vertical;
 		Align _align = Align::LT;
+
+		std::shared_ptr<Window> GetNavigateTarget(const DataContext &dc, Navigate navigate) const;
+
+		// NavigationSink
+		bool CanNavigate(Navigate navigate, const DataContext &dc) const override;
+		void OnNavigate(Navigate navigate, const DataContext &dc) override;
 	};
 }

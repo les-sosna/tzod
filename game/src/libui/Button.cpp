@@ -55,7 +55,7 @@ void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager
 		eventMouseUp(pointerPosition.x, pointerPosition.y);
 	if( pointerInside )
 	{
-		OnActivate();
+		DoClick();
 	}
 }
 
@@ -63,7 +63,7 @@ void ButtonBase::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texm
 {
 	if( !ic.HasCapturedPointers(this))
 	{
-		OnActivate();
+		DoClick();
 	}
 }
 
@@ -88,15 +88,24 @@ void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const Inpu
 	}
 }
 
-void ButtonBase::OnClick()
-{
-}
-
-void ButtonBase::OnActivate()
+void ButtonBase::DoClick()
 {
 	OnClick();
 	if (eventClick)
 		eventClick();
+}
+
+bool ButtonBase::CanNavigate(Navigate navigate, const DataContext &dc) const
+{
+	return Navigate::Enter == navigate;
+}
+
+void ButtonBase::OnNavigate(Navigate navigate, const DataContext &dc)
+{
+	if (Navigate::Enter == navigate)
+	{
+		DoClick();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

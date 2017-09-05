@@ -496,15 +496,19 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-bool Desktop::CanNavigateBack() const
+bool Desktop::CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const
 {
-	return _navStack->GetNavFront() && (!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext());
+	return UI::Navigate::Back == navigate &&
+		_navStack->GetNavFront() && (!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext());
 }
 
-void Desktop::OnNavigateBack()
+void Desktop::OnNavigate(UI::Navigate navigate, const UI::DataContext &dc)
 {
-	_navStack->PopNavStack();
-	UpdateFocus();
+	if (UI::Navigate::Back == navigate)
+	{
+		_navStack->PopNavStack();
+		UpdateFocus();
+	}
 }
 
 FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const

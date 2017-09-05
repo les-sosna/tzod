@@ -113,6 +113,6 @@ private:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::NavigationSink
-	bool CanNavigateBack() const override;
-	void OnNavigateBack() override;
+	bool CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const override;
+	void OnNavigate(UI::Navigate navigate, const UI::DataContext &dc) override;
 };

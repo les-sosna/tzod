@@ -1,5 +1,6 @@
 #include "inc/ui/StackLayout.h"
 #include "inc/ui/LayoutContext.h"
+#include "inc/ui/Navigation.h"
 #include <algorithm>
 using namespace UI;
 
@@ -74,4 +75,38 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 		vec2d{ pxTotalSize, pxMaxSize } :
 		vec2d{ pxMaxSize, pxTotalSize };
 }
+
+std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Navigate navigate) const
+{
+	switch (navigate)
+	{
+	case Navigate::Prev:
+		return GetPrevFocusChild(*this, dc);
+	case Navigate::Next:
+		return GetNextFocusChild(*this, dc);
+	case Navigate::Up:
+		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(*this, dc) : nullptr;
+	case Navigate::Down:
+		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(*this, dc) : nullptr;
+	case Navigate::Left:
+		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(*this, dc) : nullptr;
+	case Navigate::Right:
+		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(*this, dc) : nullptr;
+	}
+	return nullptr;
+}
+
+bool StackLayout::CanNavigate(Navigate navigate, const DataContext &dc) const
+{
+	return !!GetNavigateTarget(dc, navigate);
+}
+
+void StackLayout::OnNavigate(Navigate navigate, const DataContext &dc)
+{
+	if (auto newFocus = GetNavigateTarget(dc, navigate))
+	{
+		SetFocus(std::move(newFocus));
+	}
+}
+
 
