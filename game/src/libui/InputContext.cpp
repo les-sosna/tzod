@@ -437,3 +437,25 @@ bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> w
 		}
 	});
 }
+
+static bool NavigateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc)
+{
+	if (wnd->GetEnabled(dc))
+	{
+		if (auto focus = wnd->GetFocus(); focus && focus->GetVisible() && NavigateMostDescendantFocus(std::move(focus), dc))
+		{
+			return true;
+		}
+		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigateBack())
+		{
+			navigationSink->OnNavigateBack();
+			return true;
+		}
+	}
+	return false;
+}
+
+bool InputContext::ProcessSystemNavigationBack(std::shared_ptr<Window> wnd, const DataContext &dc)
+{
+	return NavigateMostDescendantFocus(std::move(wnd), dc);
+}

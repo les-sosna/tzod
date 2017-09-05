@@ -460,7 +460,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		break;
 
 	case UI::Key::Escape:
-	case UI::Key::GamepadB:
+	case UI::Key::GamepadMenu:
 		if( GetFocus() == _con )
 		{
 			_con->SetVisible(false);
@@ -469,11 +469,6 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		else if (!_navStack->GetNavFront())
 		{
 			ShowMainMenu();
-		}
-		else if(!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext())
-		{
-			_navStack->PopNavStack();
-			UpdateFocus();
 		}
 		break;
 
@@ -499,6 +494,17 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	}
 
 	return true;
+}
+
+bool Desktop::CanNavigateBack() const
+{
+	return _navStack->GetNavFront() && (!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext());
+}
+
+void Desktop::OnNavigateBack()
+{
+	_navStack->PopNavStack();
+	UpdateFocus();
 }
 
 FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const

@@ -85,7 +85,6 @@ namespace
 		mutable int _cachedIndex = -1;
 		mutable std::string _cachedString;
 	};
-
 }
 
 GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const

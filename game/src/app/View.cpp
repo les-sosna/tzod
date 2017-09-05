@@ -90,6 +90,17 @@ void TzodView::Step(float dt)
 	_impl->gui.TimeStep(dt); // this also sends user controller state to WorldController
 }
 
+static bool CanNavigateBack(UI::Window *wnd)
+{
+	if (wnd)
+	{
+		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigateBack())
+			return true;
+		return CanNavigateBack(wnd->GetFocus().get());
+	}
+	return false;
+}
+
 void TzodView::Render(float pxWidth, float pxHeight, float scale)
 {
 	_appWindow.MakeCurrent();
@@ -125,6 +136,7 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 			break;
 		}
 	}
+	_appWindow.SetCanNavigateBack(CanNavigateBack(_impl->gui.GetDesktop().get()));
 	_appWindow.SetMouseCursor(hoverTextSink ? MouseCursor::IBeam : MouseCursor::Arrow);
 
 #ifndef NDEBUG

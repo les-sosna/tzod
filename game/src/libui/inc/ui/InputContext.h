@@ -49,6 +49,7 @@ public:
 		unsigned int pointerID);
 	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, UI::Key key, float time);
 	bool ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c);
+	bool ProcessSystemNavigationBack(std::shared_ptr<Window> wnd, const DataContext &dc);
 
 	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }

@@ -23,14 +23,17 @@ public:
 	UI::IClipboard& GetClipboard() override;
 	UI::IInput& GetInput() override;
 	IRender& GetRender() override;
+	void SetCanNavigateBack(bool canNavigateBack) override;
 	void SetInputSink(UI::LayoutManager *inputSink) override;
 	void SetMouseCursor(MouseCursor mouseCursor) override;
 	void MakeCurrent() override {}
 
 private:
-	Windows::UI::Input::GestureRecognizer^ _gestureRecognizer;
-	Windows::Graphics::Display::DisplayInformation^ _displayInformation;
+	Windows::UI::Input::GestureRecognizer ^_gestureRecognizer;
+	Windows::UI::Core::SystemNavigationManager ^_systemNavigationManager;
+	Windows::Graphics::Display::DisplayInformation ^_displayInformation;
 	Windows::Foundation::EventRegistrationToken _regOrientationChanged;
+	Windows::Foundation::EventRegistrationToken _regBackRequested;
 
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;
 	Windows::UI::Core::CoreCursor ^_cursorArrow;

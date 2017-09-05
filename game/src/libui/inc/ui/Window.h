@@ -35,6 +35,12 @@ enum class FlowDirection
 	Horizontal
 };
 
+struct NavigationSink
+{
+	virtual bool CanNavigateBack() const = 0;
+	virtual void OnNavigateBack() = 0;
+};
+
 struct CommandSink
 {
 	virtual void OnActivate() = 0;
@@ -118,6 +124,7 @@ public:
 	//
 	// Input
 	//
+	virtual NavigationSink* GetNavigationSink() { return nullptr; }
 	virtual CommandSink* GetCommandSink() { return nullptr; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }

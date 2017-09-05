@@ -132,6 +132,7 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 
 StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
 	: _gestureRecognizer(ref new GestureRecognizer())
+	, _systemNavigationManager(SystemNavigationManager::GetForCurrentView())
 	, _displayInformation(DisplayInformation::GetForCurrentView())
 	, _coreWindow(coreWindow)
 	, _cursorArrow(ref new CoreCursor(CoreCursorType::Arrow, 0))
@@ -146,6 +147,15 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		[this](DisplayInformation^ sender, Platform::Object^)
 	{
 		_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation)));
+	});
+
+	_regBackRequested = _systemNavigationManager->BackRequested += ref new Windows::Foundation::EventHandler<Windows::UI::Core::BackRequestedEventArgs ^>(
+		[inputSink = _inputSink](Platform::Object ^sender, BackRequestedEventArgs ^args)
+	{
+		if (*inputSink)
+		{
+			args->Handled = (*inputSink)->GetInputContext().ProcessSystemNavigationBack((*inputSink)->GetDesktop(), UI::DataContext());
+		}
 	});
 
 	_regPointerMoved = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
@@ -290,6 +300,7 @@ StoreAppWindow::~StoreAppWindow()
 	_coreWindow->PointerPressed -= _regPointerMoved;
 	_coreWindow->PointerMoved -= _regPointerMoved;
 
+	_systemNavigationManager->BackRequested -= _regBackRequested;
 	_displayInformation->OrientationChanged -= _regOrientationChanged;
 
 	// Events may still fire after the event handler is unregistered.
@@ -325,6 +336,12 @@ float StoreAppWindow::GetPixelHeight() const
 float StoreAppWindow::GetLayoutScale() const
 {
 	return _displayInformation->LogicalDpi / c_defaultDpi;
+}
+
+void StoreAppWindow::SetCanNavigateBack(bool canNavigateBack)
+{
+	_systemNavigationManager->AppViewBackButtonVisibility =
+		canNavigateBack ? AppViewBackButtonVisibility::Visible : AppViewBackButtonVisibility::Collapsed;
 }
 
 void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)

@@ -35,6 +35,7 @@ class Desktop
 	: public UI::Window
 	, private UI::TimeStepping
 	, private UI::KeyboardSink
+	, private UI::NavigationSink
 	, private AppStateListener
 {
 public:
@@ -57,6 +58,7 @@ public:
 	float GetChildOpacity(const UI::Window &child) const override;
 
 protected:
+	UI::NavigationSink* GetNavigationSink() { return this; }
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
 	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
 
@@ -109,4 +111,8 @@ private:
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+
+	// UI::NavigationSink
+	bool CanNavigateBack() const override;
+	void OnNavigateBack() override;
 };
