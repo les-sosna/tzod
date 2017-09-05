@@ -17,10 +17,10 @@ vec2d GetCursorPosInPixels(GLFWwindow *window, double dipX, double dipY)
 
 vec2d GetCursorPosInPixels(GLFWwindow *window)
 {
-    double dipX = 0;
-    double dipY = 0;
-    glfwGetCursorPos(window, &dipX, &dipY);
-    return GetCursorPosInPixels(window, dipX, dipY);
+	double dipX = 0;
+	double dipY = 0;
+	glfwGetCursorPos(window, &dipX, &dipY);
+	return GetCursorPosInPixels(window, dipX, dipY);
 }
 
 
@@ -42,6 +42,11 @@ bool GlfwInput::IsMousePressed(int button) const
 vec2d GlfwInput::GetMousePos() const
 {
 	return GetCursorPosInPixels(&_window);
+}
+
+UI::GamepadState GlfwInput::GetGamepadState() const
+{
+	return {};
 }
 
 

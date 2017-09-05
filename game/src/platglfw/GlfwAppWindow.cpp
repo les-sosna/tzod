@@ -242,6 +242,10 @@ float GlfwAppWindow::GetLayoutScale() const
 	return ::GetLayoutScale(_window.get());
 }
 
+void GlfwAppWindow::SetCanNavigateBack(bool canNavigateBack)
+{
+}
+
 void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 {
 	glfwSetWindowUserPointer(_window.get(), inputSink);
