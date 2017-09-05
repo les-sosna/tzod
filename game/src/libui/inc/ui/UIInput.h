@@ -17,6 +17,10 @@ namespace UI
 		bool B : 1;
 		bool X : 1;
 		bool Y : 1;
+		bool DPadUp : 1;
+		bool DPadDown : 1;
+		bool DPadLeft : 1;
+		bool DPadRight : 1;
 	};
 
 	struct IInput

@@ -122,9 +122,9 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	else
 	{
 		vs._bState_MoveForward = input.IsKeyPressed(_keyForward);
-		vs._bState_MoveBack    = input.IsKeyPressed(_keyBack   );
-		vs._bState_RotateLeft  = input.IsKeyPressed(_keyLeft   );
-		vs._bState_RotateRight = input.IsKeyPressed(_keyRight  );
+		vs._bState_MoveBack    = input.IsKeyPressed(_keyBack);
+		vs._bState_RotateLeft  = input.IsKeyPressed(_keyLeft) || gamepadState.DPadLeft;
+		vs._bState_RotateRight = input.IsKeyPressed(_keyRight) || gamepadState.DPadRight;
 	}
 
 	// move with mouse
@@ -233,7 +233,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 		vs._bExplicitTower = true;
 		vs._fTowerAngle = gamepadState.rightThumbstickPos.Angle() - vehicle.GetDirection().Angle() - vehicle.GetSpinup();;
 	}
-	else if (gamepadState.rightThumbstickPressed)
+	else if (gamepadState.B)
 	{
 		vs._bState_TowerCenter = true;
 	}
