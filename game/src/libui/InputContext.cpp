@@ -368,7 +368,24 @@ static bool ActivateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataC
 	return false;
 }
 
-static bool HandleNavigation(std::shared_ptr<Window> wnd, const DataContext &dc, Key key)
+static bool NavigateBackMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc)
+{
+	if (wnd->GetEnabled(dc))
+	{
+		if (auto focus = wnd->GetFocus(); focus && focus->GetVisible() && NavigateBackMostDescendantFocus(std::move(focus), dc))
+		{
+			return true;
+		}
+		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigateBack())
+		{
+			navigationSink->OnNavigateBack();
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool HandleNavigation(std::shared_ptr<Window> wnd, const DataContext &dc, Key key, bool alt)
 {
 	switch (key)
 	{
@@ -378,15 +395,29 @@ static bool HandleNavigation(std::shared_ptr<Window> wnd, const DataContext &dc,
 	case Key::GamepadA:
 		return ActivateMostDescendantFocus(wnd, dc);
 
+	case Key::Left:
+		if (alt)
+		{
+			return NavigateBackMostDescendantFocus(wnd, dc);
+		}
+		// fallthrough
 	case Key::Up:
 	case Key::GamepadLeftThumbstickUp:
+	case Key::GamepadLeftThumbstickLeft:
 	case Key::GamepadDPadUp:
+	case Key::GamepadDPadLeft:
 		return FocusNextDescendant<ForwardRange>(wnd, dc);
 
 	case Key::Down:
+	case Key::Right:
 	case Key::GamepadLeftThumbstickDown:
+	case Key::GamepadLeftThumbstickRight:
 	case Key::GamepadDPadDown:
+	case Key::GamepadDPadRight:
 		return FocusNextDescendant<ReverseRange>(wnd, dc);
+
+	case Key::Backspace:
+		return NavigateBackMostDescendantFocus(wnd, dc);
 	}
 
 	return false;
@@ -415,7 +446,8 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 
 		if (!handled)
 		{
-			handled = HandleNavigation(wnd, dc, key);
+			handled = HandleNavigation(wnd, dc, key,
+				GetInput().IsKeyPressed(Key::LeftAlt) || GetInput().IsKeyPressed(Key::RightAlt));
 		}
 		break;
 	default:
@@ -438,24 +470,7 @@ bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> w
 	});
 }
 
-static bool NavigateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc)
-{
-	if (wnd->GetEnabled(dc))
-	{
-		if (auto focus = wnd->GetFocus(); focus && focus->GetVisible() && NavigateMostDescendantFocus(std::move(focus), dc))
-		{
-			return true;
-		}
-		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigateBack())
-		{
-			navigationSink->OnNavigateBack();
-			return true;
-		}
-	}
-	return false;
-}
-
 bool InputContext::ProcessSystemNavigationBack(std::shared_ptr<Window> wnd, const DataContext &dc)
 {
-	return NavigateMostDescendantFocus(std::move(wnd), dc);
+	return NavigateBackMostDescendantFocus(std::move(wnd), dc);
 }

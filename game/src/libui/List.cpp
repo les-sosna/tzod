@@ -49,9 +49,9 @@ void List::ListCallbackImpl::OnAddItem()
 // class List
 
 List::List(ListDataSource* dataSource)
-    : _callbacks(this)
-    , _data(dataSource)
-    , _curSel(-1)
+	: _callbacks(this)
+	, _data(dataSource)
+	, _curSel(-1)
 {
 	_data->AddListener(&_callbacks);
 }
@@ -149,18 +149,26 @@ bool List::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Up:
 		if (_flowDirection == FlowDirection::Vertical)
 			SetCurSel(std::max(0, GetCurSel() - 1), true);
+		else
+			return false;
 		break;
 	case Key::Left:
 		if (_flowDirection == FlowDirection::Horizontal)
 			SetCurSel(std::max(0, GetCurSel() - 1), true);
+		else
+			return false;
 		break;
 	case Key::Down:
 		if (_flowDirection == FlowDirection::Vertical)
 			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+		else
+			return false;
 		break;
 	case Key::Right:
 		if (_flowDirection == FlowDirection::Horizontal)
 			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
+		else
+			return false;
 		break;
 	case Key::Home:
 		SetCurSel(0, true);
