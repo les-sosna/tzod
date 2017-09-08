@@ -73,6 +73,10 @@ UI::GamepadState StoreAppInput::GetGamepadState() const
 		result.B = (gamepadReading.Buttons & GamepadButtons::B) != GamepadButtons::None;
 		result.X = (gamepadReading.Buttons & GamepadButtons::X) != GamepadButtons::None;
 		result.Y = (gamepadReading.Buttons & GamepadButtons::Y) != GamepadButtons::None;
+		result.leftShoulder = (gamepadReading.Buttons & GamepadButtons::LeftShoulder) != GamepadButtons::None;
+		result.rightShoulder = (gamepadReading.Buttons & GamepadButtons::RightShoulder) != GamepadButtons::None;
+		result.view = (gamepadReading.Buttons & GamepadButtons::View) != GamepadButtons::None;
+		result.menu = (gamepadReading.Buttons & GamepadButtons::Menu) != GamepadButtons::None;
 		result.DPadUp = (gamepadReading.Buttons & GamepadButtons::DPadUp) != GamepadButtons::None;
 		result.DPadDown = (gamepadReading.Buttons & GamepadButtons::DPadDown) != GamepadButtons::None;
 		result.DPadLeft = (gamepadReading.Buttons & GamepadButtons::DPadLeft) != GamepadButtons::None;

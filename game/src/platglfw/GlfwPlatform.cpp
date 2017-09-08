@@ -46,7 +46,44 @@ vec2d GlfwInput::GetMousePos() const
 
 UI::GamepadState GlfwInput::GetGamepadState() const
 {
-	return {};
+	UI::GamepadState gamepadState = {};
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+	{
+		// XBox One/360 controller mapping
+
+		int axesCount = 0;
+		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+		if (axesCount >= 6)
+		{
+			gamepadState.leftThumbstickPos.x = axes[0];
+			gamepadState.leftThumbstickPos.y = -axes[1];
+			gamepadState.rightThumbstickPos.x = axes[2];
+			gamepadState.rightThumbstickPos.y = -axes[3];
+			gamepadState.leftTrigger = axes[4];
+			gamepadState.rightTrigger = axes[5];
+		}
+
+		int buttonsCount = 0;
+		const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonsCount);
+		if (buttonsCount >= 14)
+		{
+			gamepadState.A = !!buttons[0];
+			gamepadState.B = !!buttons[1];
+			gamepadState.X = !!buttons[2];
+			gamepadState.Y = !!buttons[3];
+			gamepadState.leftShoulder = !!buttons[4];
+			gamepadState.rightShoulder = !!buttons[5];
+			gamepadState.view = !!buttons[6];
+			gamepadState.menu = !!buttons[7];
+			gamepadState.leftThumbstickPressed = !!buttons[8];
+			gamepadState.rightThumbstickPressed = !!buttons[9];
+			gamepadState.DPadUp = !!buttons[10];
+			gamepadState.DPadRight = !!buttons[11];
+			gamepadState.DPadDown = !!buttons[12];
+			gamepadState.DPadLeft = !!buttons[13];
+		}
+	}
+	return gamepadState;
 }
 
 

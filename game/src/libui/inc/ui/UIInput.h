@@ -11,16 +11,20 @@ namespace UI
 		float rightTrigger;
 		vec2d leftThumbstickPos;
 		vec2d rightThumbstickPos;
-		bool leftThumbstickPressed : 1;
-		bool rightThumbstickPressed : 1;
 		bool A : 1;
 		bool B : 1;
 		bool X : 1;
 		bool Y : 1;
+		bool leftShoulder : 1;
+		bool rightShoulder : 1;
+		bool view : 1;
+		bool menu : 1;
+		bool leftThumbstickPressed : 1;
+		bool rightThumbstickPressed : 1;
 		bool DPadUp : 1;
+		bool DPadRight : 1;
 		bool DPadDown : 1;
 		bool DPadLeft : 1;
-		bool DPadRight : 1;
 	};
 
 	struct IInput

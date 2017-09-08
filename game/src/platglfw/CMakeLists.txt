@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 3.3)
 
 add_library(platglfw
+	inc/platglfw/GlfwAppWindow.h
+	inc/platglfw/GlfwKeys.h
+	inc/platglfw/GlfwPlatform.h
+	inc/platglfw/Timer.h
+
 	GlfwAppWindow.cpp
 	GlfwKeys.cpp
 	GlfwPlatform.cpp
