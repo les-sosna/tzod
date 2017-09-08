@@ -69,21 +69,21 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 		_lastLightsState = !_lastLightsState;
 	}
 	_lastLightKeyState = keyLightPressed;
-	vs._bLight = _lastLightsState;
+	vs.light = _lastLightsState;
 
 
 	//
 	// pickup
 	//
-	vs._bState_AllowDrop = !input.IsKeyPressed(_keyNoPickup)
+	vs.pickup = !input.IsKeyPressed(_keyNoPickup)
 		&& !( input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack)  )
 		&& !( input.IsKeyPressed(_keyLeft)    && input.IsKeyPressed(_keyRight) );
 
 	//
 	// fire
 	//
-	vs._bState_Fire = input.IsKeyPressed(_keyFire);
-	if (_tapFireTime > 0 && !vs._bState_Fire && vehicle.GetWeapon())
+	vs.attack = input.IsKeyPressed(_keyFire);
+	if (!vs.attack && _tapFireTime > 0 && vehicle.GetWeapon())
 	{
 		vec2d dir = _tapFireTarget - vehicle.GetPos();
 		if( dir.sqr() > 1 )
@@ -92,7 +92,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 			float cosDiff = Vec2dDot(dir, vehicle.GetWeapon()->GetDirection());
 			AIWEAPSETTINGS ws;
 			vehicle.GetWeapon()->SetupAI(&ws);
-			vs._bState_Fire = cosDiff >= ws.fMaxAttackAngleCos;
+			vs.attack = cosDiff >= ws.fMaxAttackAngleCos;
 		}
 	}
 
@@ -114,41 +114,49 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 			vehicle.GetPos(), vehicle.GetDirection() * vehicle.GetRadius());
 		bool bForv = move && !bBack;
 
-		vs._bState_MoveForward = sameDirection && bForv;
-		vs._bState_MoveBack = bBack;
-		vs._bExplicitBody = move;
-		vs._fBodyAngle = tmp.Angle();
+		vs.moveForward = sameDirection && bForv;
+		vs.moveBack = bBack;
+		vs.rotateBody = move;
+		vs.bodyAngle = tmp.Angle();
 	}
 	else
 	{
-		vs._bState_MoveForward = input.IsKeyPressed(_keyForward);
-		vs._bState_MoveBack    = input.IsKeyPressed(_keyBack);
-		vs._bState_RotateLeft  = input.IsKeyPressed(_keyLeft) || gamepadState.DPadLeft;
-		vs._bState_RotateRight = input.IsKeyPressed(_keyRight) || gamepadState.DPadRight;
+		vs.moveForward = input.IsKeyPressed(_keyForward);
+		vs.moveBack    = input.IsKeyPressed(_keyBack);
+		if (input.IsKeyPressed(_keyLeft) || gamepadState.DPadLeft)
+		{
+			vs.rotateBody = true;
+			vs.bodyAngle = vehicle.GetDirection().Angle() - PI / 2;
+		}
+		else if (input.IsKeyPressed(_keyRight) || gamepadState.DPadRight)
+		{
+			vs.rotateBody = true;
+			vs.bodyAngle = vehicle.GetDirection().Angle() + PI / 2;
+		}
 	}
 
 	// move with mouse
 	if( _moveToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(1);
-		vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(3);
+		vs.attack = vs.attack || input.IsMousePressed(1);
+		vs.pickup = vs.pickup || input.IsMousePressed(3);
 
 		if( input.IsMousePressed(2) && c2w.visible )
 		{
-			vec2d tmp = c2w.worldPos - vehicle.GetPos() - vehicle.GetBrakingLength();
-			if( tmp.sqr() > 1 )
+			vec2d bodyDirection = c2w.worldPos - vehicle.GetPos() - vehicle.GetBrakingLength();
+			if(bodyDirection.sqr() > 1 )
 			{
-				if(Vec2dDot(tmp, vehicle.GetDirection()) < 0 )
+				if(Vec2dDot(bodyDirection, vehicle.GetDirection()) < 0 )
 				{
-					tmp = -tmp;
-					vs._bState_MoveBack    = true;
+					bodyDirection = -bodyDirection;
+				//	vs.moveBack = true;
 				}
 				else
 				{
-					vs._bState_MoveForward = true;
+				//	vs.moveForward = true;
 				}
-				vs._bExplicitBody = true;
-				vs._fBodyAngle = tmp.Angle();
+				vs.bodyAngle = bodyDirection.Angle();
+				vs.rotateBody = true;
 			}
 		}
 	}
@@ -156,21 +164,22 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	// move with tap and drag
 	if (!dragDirection.IsZero())
 	{
-		vs._bExplicitBody = dragDirection.len() > 20;
-		if (vs._bExplicitBody)
+		vs.rotateBody = dragDirection.len() > 20;
+		if (vs.rotateBody)
 		{
 			if (reverse)
 			{
 				dragDirection = -dragDirection;
 			}
 			bool doMove = Vec2dDot(dragDirection.Norm(), vehicle.GetDirection()) > cos(PI/4);
-			vs._fBodyAngle = dragDirection.Angle();
-			vs._bState_MoveForward = !reverse && doMove;
-			vs._bState_MoveBack = reverse && doMove;
+			vs.bodyAngle = dragDirection.Angle();
+			vs.moveForward = !reverse && doMove;
+			vs.moveBack = reverse && doMove;
 
 			if (_tapFireTime < -1.5f)
 			{
-				vs._bState_TowerCenter = true;
+				vs.weaponAngle = 0;
+				vs.rotateWeapon = true;
 			}
 		}
 	}
@@ -180,16 +189,16 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	{
 		if (Vec2dDot(gamepadState.leftThumbstickPos, vehicle.GetDirection()) > 0)
 		{
-			vs._bState_MoveForward = true;
+			vs.moveForward = true;
 		}
 
-		vs._bExplicitBody = true;
-		vs._fBodyAngle = gamepadState.leftThumbstickPos.Angle();
+		vs.rotateBody = true;
+		vs.bodyAngle = gamepadState.leftThumbstickPos.Angle();
 	}
 	if (gamepadState.leftTrigger > 0.5f)
 	{
-		vs._bState_MoveBack = true;
-		vs._bState_MoveForward = false;
+		vs.moveBack = true;
+		vs.moveForward = false;
 	}
 
 
@@ -198,56 +207,62 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	//
 	if( _aimToMouse )
 	{
-		vs._bState_Fire = vs._bState_Fire || input.IsMousePressed(1);
+		vs.attack = vs.attack || input.IsMousePressed(1);
 		if( !_moveToMouse )
 		{
-			vs._bState_AllowDrop = vs._bState_AllowDrop || input.IsMousePressed(2);
+			vs.pickup = vs.pickup || input.IsMousePressed(2);
 		}
 
 		if( vehicle.GetWeapon() && c2w.visible )
 		{
 			float a = (c2w.worldPos - vehicle.GetPos()).Angle();
-			vs._bExplicitTower = true;
-			vs._fTowerAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
+			vs.weaponAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
+			vs.rotateWeapon = true;
 		}
 	}
-	else
+	else if(vehicle.GetWeapon())
 	{
-		vs._bState_TowerLeft |= input.IsKeyPressed(_keyTowerLeft);
-		vs._bState_TowerRight |= input.IsKeyPressed(_keyTowerRight);
-		vs._bState_TowerCenter |= input.IsKeyPressed(_keyTowerCenter)
-			|| (input.IsKeyPressed(_keyTowerLeft) && input.IsKeyPressed(_keyTowerRight));
+		if (input.IsKeyPressed(_keyTowerCenter) || (input.IsKeyPressed(_keyTowerLeft) && input.IsKeyPressed(_keyTowerRight)))
+		{
+			vs.weaponAngle = 0;
+			vs.rotateWeapon = true;
+		}
+		else if (input.IsKeyPressed(_keyTowerLeft))
+		{
+			vs.weaponAngle = vehicle.GetWeapon()->GetAngleLocal() - PI / 2;
+			vs.rotateWeapon = true;
+		}
+		else if (input.IsKeyPressed(_keyTowerRight))
+		{
+			vs.weaponAngle = vehicle.GetWeapon()->GetAngleLocal() + PI / 2;
+			vs.rotateWeapon = true;
+		}
 	}
 
 	// tower to tap
 	if (_tapFireTime > 0)
 	{
 		float a = (_tapFireTarget - vehicle.GetPos()).Angle();
-		vs._bExplicitTower = true;
-		vs._fTowerAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
+		vs.weaponAngle = a - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
+		vs.rotateWeapon = true;
 	}
 
 	// tower to right stick
 	if (gamepadState.rightThumbstickPos.sqr() > 0.5f)
 	{
-		vs._bExplicitTower = true;
-		vs._fTowerAngle = gamepadState.rightThumbstickPos.Angle() - vehicle.GetDirection().Angle() - vehicle.GetSpinup();;
+		vs.weaponAngle = gamepadState.rightThumbstickPos.Angle() - vehicle.GetDirection().Angle() - vehicle.GetSpinup();
+		vs.rotateWeapon = true;
 	}
 	else if (gamepadState.B)
 	{
-		vs._bState_TowerCenter = true;
+		vs.weaponAngle = 0;
+		vs.rotateWeapon = true;
 	}
 
 	// fire with gamepad
-	if (gamepadState.rightTrigger > 0.5f || gamepadState.A)
+	if (gamepadState.rightTrigger > 0.5f || gamepadState.X)
 	{
-		vs._bState_Fire = true;
-	}
-
-	if (!vs._bExplicitTower && vs._bState_TowerCenter)
-	{
-		vs._bState_TowerLeft = false;
-		vs._bState_TowerRight = false;
+		vs.attack = true;
 	}
 }
 

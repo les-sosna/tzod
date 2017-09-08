@@ -10,7 +10,7 @@ void ShootingAgent::Serialize(SaveFile &f)
 	f.Serialize(_desiredOffset);
 }
 
-static void TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &at, bool bFire, const AIWEAPSETTINGS &weapSettings, float offsetAngle)
+static void TowerTo(const GC_Vehicle &vehicle, VehicleState *outState, const vec2d &at, bool attack, const AIWEAPSETTINGS &weapSettings, float offsetAngle)
 {
 	assert(vehicle.GetWeapon());
 
@@ -20,19 +20,16 @@ static void TowerTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d
 	{
 		direction = Vec2dAddDirection(direction, Vec2dDirection(offsetAngle));
 		float cosDiff = Vec2dDot(direction, vehicle.GetWeapon()->GetDirection());
-		pState->_bState_Fire = bFire && cosDiff >= weapSettings.fMaxAttackAngleCos;
-		pState->_bExplicitTower = true;
-		pState->_fTowerAngle = Vec2dSubDirection(direction, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
-		assert(!std::isnan(pState->_fTowerAngle) && std::isfinite(pState->_fTowerAngle));
+		outState->attack = attack && cosDiff >= weapSettings.fMaxAttackAngleCos;
+		outState->rotateWeapon = true;
+		outState->weaponAngle = Vec2dSubDirection(direction, vehicle.GetDirection()).Angle() - vehicle.GetSpinup();
+		assert(!std::isnan(outState->weaponAngle) && std::isfinite(outState->weaponAngle));
 	}
 	else
 	{
-		pState->_bState_Fire = bFire;
-		pState->_bExplicitTower = false;
-		pState->_fTowerAngle = 0;
-		pState->_bState_TowerLeft = false;
-		pState->_bState_TowerRight = false;
-		pState->_bState_TowerCenter = false;
+		outState->attack = attack;
+		outState->rotateWeapon = false;
+		outState->weaponAngle = 0;
 	}
 }
 

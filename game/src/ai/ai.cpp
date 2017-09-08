@@ -61,7 +61,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		else if( (_pickupCurrent->GetPos() - vehicle.GetPos()).sqr() <
 		         std::pow(_pickupCurrent->GetRadius() + vehicle.GetRadius(), 2) )
 		{
-			outVehicleState._bState_AllowDrop = true;
+			outVehicleState.pickup = true;
 		}
 	}
 
@@ -110,22 +110,19 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 //		DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
 	}
 
-
-	//
 	// headlight control
-	//
 	switch( _difficulty )
 	{
 	case 0:
 	case 1:
-		outVehicleState._bLight = true;
+		outVehicleState.light = true;
 		break;
 	case 2:
 	case 3:
-		outVehicleState._bLight = (nullptr != _target);
+		outVehicleState.light = (nullptr != _target);
 		break;
 	default:
-		outVehicleState._bLight = false;
+		outVehicleState.light = false;
 	}
 }
 

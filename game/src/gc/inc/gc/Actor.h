@@ -11,18 +11,18 @@ public:
 	explicit GC_Actor(vec2d pos);
 	explicit GC_Actor(FromFile) {}
 
-	const vec2d& GetDirection() const { return _direction; }
+	vec2d GetDirection() const { return _direction; }
 	void SetDirection(const vec2d &d) { assert(fabs(d.sqr()-1)<1e-5); _direction = d; }
 
 	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_ACTOR_INGRIDSET, bGridSet); }
 	bool GetGridSet() const { return CheckFlags(GC_FLAG_ACTOR_INGRIDSET); }
 
-	const vec2d& GetPos() const { return _pos; }
+	vec2d GetPos() const { return _pos; }
 	virtual void MoveTo(World &world, const vec2d &pos);
 
 	// GC_Object
 	virtual void Init(World &world);
-    virtual void Kill(World &world);
+	virtual void Kill(World &world);
 	virtual void MapExchange(MapFile &f);
 	virtual void Serialize(World &world, SaveFile &f);
 

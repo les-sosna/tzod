@@ -126,20 +126,13 @@ void GC_Weapon::ProcessRotate(World &world, float dt)
 	assert(GetAttached());
 	_rotatorWeap.process_dt(dt);
 	const VehicleState &vs = GetVehicle()->_state;
-	if( vs._bExplicitTower )
+	if (vs.rotateWeapon)
 	{
-		_rotatorWeap.rotate_to( vs._fTowerAngle );
+		_rotatorWeap.rotate_to(vs.weaponAngle);
 	}
 	else
 	{
-		if( vs._bState_TowerCenter )
-			_rotatorWeap.rotate_to( 0.0f );
-		else if( vs._bState_TowerLeft )
-			_rotatorWeap.rotate_left();
-		else if( vs._bState_TowerRight )
-			_rotatorWeap.rotate_right();
-		else if( RS_GETTING_ANGLE != _rotatorWeap.GetState() )
-			_rotatorWeap.stop(false);
+		_rotatorWeap.stop(false);
 	}
 
 	vec2d a = Vec2dDirection(_angle);

@@ -118,40 +118,30 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 
 void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 {
-	if( vs._bState_MoveForward )
+	if( vs.moveForward )
 	{
 		ApplyForce(GetDirection() * _enginePower);
 	}
-	else
-	if( vs._bState_MoveBack )
+	else if( vs.moveBack )
 	{
 		ApplyForce(-GetDirection() * _enginePower);
 	}
 
-
-	if( vs._bExplicitBody )
+	if (vs.rotateBody)
 	{
-		if( Vec2dCross(GetDirection(), Vec2dDirection(vs._fBodyAngle - GetSpinup())) < 0 && -_av < _maxRotSpeed )
-			ApplyMomentum( -_rotatePower / _inv_i );
-		else if( _av < _maxRotSpeed )
-			ApplyMomentum( _rotatePower / _inv_i );
-	}
-	else
-	{
-		if( vs._bState_RotateLeft && -_av < _maxRotSpeed )
-			ApplyMomentum( -_rotatePower / _inv_i );
-		else if( vs._bState_RotateRight && _av < _maxRotSpeed )
-			ApplyMomentum(  _rotatePower / _inv_i );
+		float ds = Vec2dCross(GetDirection(), Vec2dDirection(vs.bodyAngle - GetSpinup())) > 0 ? 1 : -1;
+		if (std::abs(_av) < _maxRotSpeed)
+			ApplyMomentum(_rotatePower / _inv_i * ds);
 	}
 
-	if (CheckFlags(GC_FLAG_VEHICLE_KNOWNLIGHT) && _light1->GetActive() != _state._bLight)
+	if (CheckFlags(GC_FLAG_VEHICLE_KNOWNLIGHT) && _light1->GetActive() != _state.light)
 	{
 		for( auto ls: world.eGC_Vehicle._listeners )
 			ls->OnLight(*this);
 	}
-	_light1->SetActive(_state._bLight);
-	_light2->SetActive(_state._bLight);
-	_light_ambient->SetActive(_state._bLight);
+	_light1->SetActive(_state.light);
+	_light2->SetActive(_state.light);
+	_light_ambient->SetActive(_state.light);
 	SetFlags(GC_FLAG_VEHICLE_KNOWNLIGHT, true);
 }
 
@@ -289,7 +279,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 		list->for_each([&](ObjectList::id_type, GC_Object *o)
 		{
 			auto &pickup = *static_cast<GC_Pickup *>(o);
-			if (pickup.GetVisible() && !pickup.GetAttached() && _state._bState_AllowDrop)
+			if (pickup.GetVisible() && !pickup.GetAttached() && _state.pickup)
 			{
 				float dist2 = (GetPos() - pickup.GetPos()).sqr();
 				float sumRadius = GetRadius() + pickup.GetRadius();
@@ -337,32 +327,32 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	//
 
 	vec2d tmp{ GetDirection().y, -GetDirection().x };
-    vec2d trackL_new = GetPos() + tmp*15;
-    vec2d trackR_new = GetPos() - tmp*15;
+	vec2d trackL_new = GetPos() + tmp*15;
+	vec2d trackR_new = GetPos() - tmp*15;
 
 	const float trackDensity = 8;
 
-    vec2d e = trackL_new - trackL;
-    float len = e.len();
-    e /= len;
-    while( _trackPathL < len )
-    {
-        auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d{}, PARTICLE_CATTRACK, 12.0f, e);
-        p.SetFade(true);
-        _trackPathL += trackDensity;
-    }
-    _trackPathL -= len;
+	vec2d e = trackL_new - trackL;
+	float len = e.len();
+	e /= len;
+	while( _trackPathL < len )
+	{
+		auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d{}, PARTICLE_CATTRACK, 12.0f, e);
+		p.SetFade(true);
+		_trackPathL += trackDensity;
+	}
+	_trackPathL -= len;
 
-    e   = trackR_new - trackR;
-    len = e.len();
-    e  /= len;
-    while( _trackPathR < len )
-    {
-        auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d{}, PARTICLE_CATTRACK, 12.0f, e);
-        p.SetFade(true);
-        _trackPathR += trackDensity;
-    }
-    _trackPathR -= len;
+	e   = trackR_new - trackR;
+	len = e.len();
+	e  /= len;
+	while( _trackPathR < len )
+	{
+		auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d{}, PARTICLE_CATTRACK, 12.0f, e);
+		p.SetFade(true);
+		_trackPathR += trackDensity;
+	}
+	_trackPathR -= len;
 
 	// update light position
 	_light1->MoveTo(world, GetLightPos1());
@@ -372,25 +362,22 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	_light_ambient->MoveTo(world, GetPos());
 
 
-    if( !watch ) return;
+	if( !watch ) return;
 
 
-	// fire...
 	if( _weapon )
 	{
-		_weapon->Fire(world, _state._bState_Fire);
+		_weapon->Fire(world, _state.attack);
 		if( !watch ) return;
 	}
 
-	//
 	// die if out of level bounds
-	//
 	if( !PtInFRect(world._bounds, GetPos()) )
 	{
 	//	if( !TakeDamage(world, GetHealth(), GetPos(), GetOwner()) )
-        {
-            Kill(world);
-        }
+		{
+			Kill(world);
+		}
 	}
 }
 

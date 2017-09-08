@@ -371,38 +371,37 @@ void DrivingAgent::ClearPath()
 	_attackList.clear();
 }
 
-static void RotateTo(const GC_Vehicle &vehicle, VehicleState *pState, const vec2d &x, bool bForv, bool bBack)
+static void RotateTo(const GC_Vehicle &vehicle, VehicleState *outState, const vec2d &x, bool moveForvard, bool moveBack)
 {
 	assert(!std::isnan(x.x) && !std::isnan(x.y));
 	assert(std::isfinite(x.x) && std::isfinite(x.y));
 
-	vec2d tmp = x - vehicle.GetPos();
-	tmp.Normalize();
+	vec2d newDirection = x - vehicle.GetPos();
+	newDirection.Normalize();
 
-	float cosDiff = Vec2dDot(tmp, vehicle.GetDirection());
+	float cosDiff = Vec2dDot(newDirection, vehicle.GetDirection());
 	float minDiff = std::cos(MIN_PATH_ANGLE);
 
-	pState->_bState_MoveForward = cosDiff > minDiff && bForv;
-	pState->_bState_MoveBack = cosDiff > minDiff && bBack;
-
-	pState->_bExplicitBody = true;
-	pState->_fBodyAngle = tmp.Angle();
+	outState->moveForward = cosDiff > minDiff && moveForvard;
+	outState->moveBack = cosDiff > minDiff && moveBack;
+	outState->bodyAngle = newDirection.Angle();
+	outState->rotateBody = true;
 }
 
 void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float dt, VehicleState &vs)
 {
 	vec2d brake = vehicle.GetBrakingLength();
-	//	float brake_len = brake.len();
+//	float brake_len = brake.len();
 	float brakeSqr = brake.sqr();
 
 	vec2d currentDir = vehicle.GetDirection();
 	vec2d currentPos = vehicle.GetPos();
-	//	vec2d predictedPos = GetVehicle()->GetPos() + brake;
+//	vec2d predictedPos = GetVehicle()->GetPos() + brake;
 
 	if (!_path.empty())
 	{
-		//		vec2d predictedProj;
-		//		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, nullptr);
+//		vec2d predictedProj;
+//		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, nullptr);
 
 		vec2d currentProj;
 		float offset;
@@ -478,9 +477,9 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 	destPoint = _path.front().coord;
 	*/
 
-	vs._bExplicitBody = false;
-	vs._bExplicitTower = false;
-	vs._bState_TowerCenter = true;
+	vs.rotateBody = false;
+	vs.rotateWeapon = true;
+	vs.weaponAngle = 0;
 
 
 	//
@@ -553,14 +552,14 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 		}
 		else
 		{
-			vs._bState_MoveBack = true;
+			vs.moveBack = true;
 		}
 	}
 
 
 	_backTime -= dt;
 
-	if ((vs._bState_MoveForward || vs._bState_MoveBack) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f)
+	if ((vs.moveForward || vs.moveBack) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f)
 	{
 		_stickTime += dt;
 		if (_stickTime > 0.6f)

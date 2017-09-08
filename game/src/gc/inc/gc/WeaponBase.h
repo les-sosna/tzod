@@ -32,6 +32,7 @@ public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	RotatorState GetRotationState() const { return _rotatorWeap.GetState(); }
 	float GetRotationRate() const { return _rotatorWeap.GetVelocity() / _rotatorWeap.GetMaxVelocity(); }
+	float GetAngleLocal() const { return _angle; }
 
 	virtual void Fire(World &world, bool fire);
 	virtual bool GetFire() const { return CheckFlags(GC_FLAG_WEAPON_FIRING); }
@@ -40,18 +41,18 @@ public:
 	virtual void AdjustVehicleClass(VehicleClass &vc) const = 0;
 
 	// GC_Pickup
-    void Detach(World &world) override;
-    void Disappear(World &world) override;
-    float GetDefaultRespawnTime() const override { return 6.0f; }
-    AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+	void Detach(World &world) override;
+	void Disappear(World &world) override;
+	float GetDefaultRespawnTime() const override { return 6.0f; }
+	AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
 	// GC_Actor
-    void MoveTo(World &world, const vec2d &pos) override;
+	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-    void Kill(World &world) override;
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Kill(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 #ifdef NETWORK_DEBUG
 /*	virtual DWORD checksum(void) const
 	{

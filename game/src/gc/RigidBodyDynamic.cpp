@@ -110,7 +110,7 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic(vec2d pos)
 	, _fragility(1)
 {
 	if( _glob_parity )
-        SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
+		SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);
 }
 
 GC_RigidBodyDynamic::GC_RigidBodyDynamic(FromFile)
