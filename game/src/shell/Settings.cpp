@@ -317,18 +317,21 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 	_aimToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
 	_aimToMouseChkBox->Move(16, 345);
+	_aimToMouseChkBox->Resize(100, 20);
 	_aimToMouseChkBox->SetText(ConfBind(_lang.profile_mouse_aim));
 	AddFront(_aimToMouseChkBox);
 
 	_moveToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
 	_moveToMouseChkBox->Move(146, 345);
+	_moveToMouseChkBox->Resize(100, 20);
 	_moveToMouseChkBox->SetText(ConfBind(_lang.profile_mouse_move));
 	AddFront(_moveToMouseChkBox);
 
 	_arcadeStyleChkBox = std::make_shared<UI::CheckBox>();
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
 	_arcadeStyleChkBox->Move(276, 345);
+	_arcadeStyleChkBox->Resize(100, 20);
 	_arcadeStyleChkBox->SetText(ConfBind(_lang.profile_arcade_style));
 	AddFront(_arcadeStyleChkBox);
 
