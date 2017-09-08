@@ -48,7 +48,7 @@ GetFileNameDlg::GetFileNameDlg(const Params &param, LangCache &lang)
 			_files->GetData()->AddItem(*it);
 		}
 	}
-	_files->GetList()->SetCurSel(0, true);
+	_files->GetList()->SetCurSel(0);
 	_files->GetList()->eventChangeCurSel = std::bind(&GetFileNameDlg::OnSelect, this, std::placeholders::_1);
 
 	auto text = std::make_shared<UI::Text>();
@@ -113,7 +113,7 @@ void GetFileNameDlg::OnChangeName()
 		if( n > match )
 		{
 			match = n;
-			_files->GetList()->SetCurSel(i, true);
+			_files->GetList()->SetCurSel(i);
 		}
 	}
 	_changing = false;

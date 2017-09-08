@@ -60,7 +60,7 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 	mapListItemTemplate->EnsureColumn(2, 448); // theme
 
 	_maps = std::make_shared<MapList>(fs, logger);
-	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()), false);
+	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()));
 	_maps->GetList()->SetItemTemplate(mapListItemTemplate);
 //	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
 	_maps->Move(x1, 32);

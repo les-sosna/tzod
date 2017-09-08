@@ -11,7 +11,7 @@ namespace UI
 class List
 	: public Window
 	, private PointerSink
-	, private KeyboardSink
+	, private NavigationSink
 {
 public:
 	explicit List(ListDataSource* dataSource);
@@ -23,7 +23,7 @@ public:
 	int HitTest(vec2d pxPos, TextureManager &texman, float scale) const; // returns item index or -1
 
 	int  GetCurSel() const;
-	void SetCurSel(int sel, bool scroll = false);
+	void SetCurSel(int sel);
 
 	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
 
@@ -36,6 +36,9 @@ public:
 
 	// Window
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
+	PointerSink* GetPointerSink() override { return this; }
+	NavigationSink *GetNavigationSink() override { return this; }
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 
 protected:
 	// callback interface
@@ -52,12 +55,6 @@ protected:
 
 	ListCallbackImpl _callbacks;
 
-protected:
-	// Window
-	PointerSink* GetPointerSink() override { return this; }
-	KeyboardSink *GetKeyboardSink() override { return this; }
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
-
 private:
 	List(const List &) = delete;
 	List& operator=(const List &) = delete;
@@ -69,12 +66,15 @@ private:
 
 	int _curSel;
 
+	int GetNextIndex(Navigate navigate) const;
+
 	// PointerSink
 	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID) override;
 	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
-	// KeyboardSink
-	bool OnKeyPressed(InputContext &ic, Key key) override;
+	// NavigationSink
+	bool CanNavigate(Navigate navigate, const DataContext &dc) const override;
+	void OnNavigate(Navigate navigate, const DataContext &dc) override;
 };
 
 } // namespace UI

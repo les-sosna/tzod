@@ -23,7 +23,7 @@ List::ListCallbackImpl::ListCallbackImpl(List *list)
 
 void List::ListCallbackImpl::OnDeleteAllItems()
 {
-	_list->SetCurSel(-1, false);
+	_list->SetCurSel(-1);
 }
 
 void List::ListCallbackImpl::OnDeleteItem(int index)
@@ -32,11 +32,11 @@ void List::ListCallbackImpl::OnDeleteItem(int index)
 	{
 		if( _list->GetCurSel() > index )
 		{
-			_list->SetCurSel(_list->GetCurSel() - 1, false);
+			_list->SetCurSel(_list->GetCurSel() - 1);
 		}
 		else if( _list->GetCurSel() == index )
 		{
-			_list->SetCurSel(-1, false);
+			_list->SetCurSel(-1);
 		}
 	}
 }
@@ -90,7 +90,7 @@ int List::GetCurSel() const
 	return _curSel;
 }
 
-void List::SetCurSel(int sel, bool scroll)
+void List::SetCurSel(int sel)
 {
 	if( 0 == _data->GetItemCount() )
 	{
@@ -137,55 +137,41 @@ bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &te
 void List::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	int index = HitTest(pointerPosition, texman, lc.GetScale());
-	SetCurSel(index, false);
+	SetCurSel(index);
 	if( -1 != index && eventClickItem )
 		eventClickItem(index);
 }
 
-bool List::OnKeyPressed(InputContext &ic, Key key)
+int List::GetNextIndex(Navigate navigate) const
 {
-	switch( key )
+	int maxIndex = _data->GetItemCount() - 1;
+	switch (navigate)
 	{
-	case Key::Up:
-		if (_flowDirection == FlowDirection::Vertical)
-			SetCurSel(std::max(0, GetCurSel() - 1), true);
-		else
-			return false;
-		break;
-	case Key::Left:
-		if (_flowDirection == FlowDirection::Horizontal)
-			SetCurSel(std::max(0, GetCurSel() - 1), true);
-		else
-			return false;
-		break;
-	case Key::Down:
-		if (_flowDirection == FlowDirection::Vertical)
-			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
-		else
-			return false;
-		break;
-	case Key::Right:
-		if (_flowDirection == FlowDirection::Horizontal)
-			SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + 1), true);
-		else
-			return false;
-		break;
-	case Key::Home:
-		SetCurSel(0, true);
-		break;
-	case Key::End:
-		SetCurSel(_data->GetItemCount() - 1, true);
-		break;
-	//case Key::PageUp:
-	//	SetCurSel(std::max(0, GetCurSel() - (int) ceil(GetNumLinesVisible()) + 1), true);
-	//	break;
-	//case Key::PageDown:
-	//	SetCurSel(std::min(_data->GetItemCount() - 1, GetCurSel() + (int) ceil(GetNumLinesVisible()) - 1), true);
-	//	break;
+	case UI::Navigate::Up:
+		return std::min(maxIndex, std::max(0, GetCurSel() - (_flowDirection == FlowDirection::Vertical)));
+	case UI::Navigate::Down:
+		return std::min(maxIndex, std::max(0, GetCurSel() + (_flowDirection == FlowDirection::Vertical)));
+	case UI::Navigate::Left:
+		return std::min(maxIndex, std::max(0, GetCurSel() - (_flowDirection == FlowDirection::Horizontal)));
+	case UI::Navigate::Right:
+		return std::min(maxIndex, std::max(0, GetCurSel() + (_flowDirection == FlowDirection::Horizontal)));
+	case UI::Navigate::Begin:
+		return std::min(maxIndex, 0);
+	case UI::Navigate::End:
+		return maxIndex;
 	default:
-		return false;
+		return GetCurSel();
 	}
-	return true;
+}
+
+bool List::CanNavigate(Navigate navigate, const DataContext &dc) const
+{
+	return GetNextIndex(navigate) != GetCurSel();
+}
+
+void List::OnNavigate(Navigate navigate, const DataContext &dc)
+{
+	SetCurSel(GetNextIndex(navigate));
 }
 
 vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const

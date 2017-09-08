@@ -173,8 +173,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	AddFront(_volumeMusic);
 	_initialVolumeMusic = _conf.s_musicvolume.GetInt();
 
-	_profiles->GetList()->SetCurSel(0, true);
-	
+	_profiles->GetList()->SetCurSel(0);
 }
 
 SettingsDlg::~SettingsDlg()
@@ -312,7 +311,7 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 	AddAction(_profile.key_tower_right  , _lang.action_tower_right.Get()   );
 	AddAction(_profile.key_tower_center , _lang.action_tower_center.Get()  );
 	AddAction(_profile.key_no_pickup    , _lang.action_no_pickup.Get()     );
-	_actions->GetList()->SetCurSel(0, true);
+	_actions->GetList()->SetCurSel(0);
 
 	_aimToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
