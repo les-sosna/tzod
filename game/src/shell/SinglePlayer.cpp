@@ -219,7 +219,11 @@ void SinglePlayer::UpdateTier()
 		}
 
 		_mapTiles->AddFront(mpButton);
-		_mapTiles->SetFocus(mpButton);
+
+		if (mapIndex == 0)
+		{
+			_mapTiles->SetFocus(mpButton);
+		}
 	}
 }
 
