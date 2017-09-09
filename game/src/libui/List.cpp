@@ -169,9 +169,12 @@ bool List::CanNavigate(Navigate navigate, const DataContext &dc) const
 	return GetNextIndex(navigate) != GetCurSel();
 }
 
-void List::OnNavigate(Navigate navigate, const DataContext &dc)
+void List::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
 {
-	SetCurSel(GetNextIndex(navigate));
+	if (NavigationPhase::Started == phase)
+	{
+		SetCurSel(GetNextIndex(navigate));
+	}
 }
 
 vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const

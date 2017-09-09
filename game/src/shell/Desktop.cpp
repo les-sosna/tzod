@@ -470,6 +470,10 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		{
 			ShowMainMenu();
 		}
+		else
+		{
+			return false;
+		}
 		break;
 
 	case UI::Key::F2:
@@ -502,9 +506,9 @@ bool Desktop::CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) cons
 		_navStack->GetNavFront() && (!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext());
 }
 
-void Desktop::OnNavigate(UI::Navigate navigate, const UI::DataContext &dc)
+void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::DataContext &dc)
 {
-	if (UI::Navigate::Back == navigate)
+	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{
 		_navStack->PopNavStack();
 		UpdateFocus();

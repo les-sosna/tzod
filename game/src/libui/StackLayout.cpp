@@ -101,11 +101,14 @@ bool StackLayout::CanNavigate(Navigate navigate, const DataContext &dc) const
 	return !!GetNavigateTarget(dc, navigate);
 }
 
-void StackLayout::OnNavigate(Navigate navigate, const DataContext &dc)
+void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
 {
-	if (auto newFocus = GetNavigateTarget(dc, navigate))
+	if (NavigationPhase::Started == phase)
 	{
-		SetFocus(std::move(newFocus));
+		if (auto newFocus = GetNavigateTarget(dc, navigate))
+		{
+			SetFocus(std::move(newFocus));
+		}
 	}
 }
 

@@ -4,6 +4,7 @@
 #include <luaetc/LuaDeleter.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
+#include "ui/Navigation.h"
 #include <ui/Window.h>
 #include <functional>
 #include <string>
@@ -114,5 +115,5 @@ private:
 
 	// UI::NavigationSink
 	bool CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const override;
-	void OnNavigate(UI::Navigate navigate, const UI::DataContext &dc) override;
+	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::DataContext &dc) override;
 };

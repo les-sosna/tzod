@@ -1,7 +1,5 @@
 #pragma once
-
 #include <video/RenderBase.h>
-
 #include <cassert>
 #include <functional>
 #include <list>
@@ -21,6 +19,7 @@ class LayoutContext;
 class StateContext;
 enum class Key;
 enum class PointerType;
+struct NavigationSink;
 template <class> struct LayoutData;
 
 enum class StretchMode
@@ -33,27 +32,6 @@ enum class FlowDirection
 {
 	Vertical,
 	Horizontal
-};
-
-enum class Navigate
-{
-	None,
-	Enter,
-	Back,
-	Prev,
-	Next,
-	Up,
-	Down,
-	Left,
-	Right,
-	Begin,
-	End
-};
-
-struct NavigationSink
-{
-	virtual bool CanNavigate(Navigate navigate, const DataContext &dc) const = 0;
-	virtual void OnNavigate(Navigate navigate, const DataContext &dc) = 0;
 };
 
 struct ScrollSink
@@ -153,8 +131,8 @@ public:
 	void SetTopMost(bool topmost);
 	bool GetTopMost() const { return _isTopMost; }
 
-	void SetClipChildren(bool clip)  { _clipChildren = clip; }
-	bool GetClipChildren() const     { return _clipChildren; }
+	void SetClipChildren(bool clip) { _clipChildren = clip; }
+	bool GetClipChildren() const { return _clipChildren; }
 
 
 	//

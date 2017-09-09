@@ -15,6 +15,7 @@ class DataContext;
 class LayoutContext;
 class Window;
 enum class Key;
+enum class Navigate;
 struct IInput;
 struct IClipboard;
 struct PointerSink;
@@ -60,6 +61,7 @@ public:
 	vec2d GetMousePos() const;
 	bool GetFocused() const;
 	bool GetHovered() const;
+	std::shared_ptr<Window> GetNavigationSubject(Navigate navigate) const;
 	float GetLastKeyTime() const { return _lastKeyTime; }
 
 	const std::vector<std::shared_ptr<Window>>* GetCapturePath(unsigned int pointerID) const;
@@ -93,6 +95,7 @@ private:
 	};
 
 	std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
+	std::unordered_map<Navigate, std::weak_ptr<Window>> _navigationSubjects;
 
 	bool _isAppActive;
 #ifndef NDEBUG

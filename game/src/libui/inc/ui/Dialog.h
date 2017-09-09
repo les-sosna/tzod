@@ -1,4 +1,5 @@
 #pragma once
+#include "Navigation.h"
 #include "Rectangle.h"
 #include <functional>
 
@@ -8,6 +9,7 @@ namespace UI
 class Dialog
 	: public Rectangle
 	, private KeyboardSink
+	, private NavigationSink
 	, private PointerSink
 {
 public:
@@ -30,6 +32,10 @@ public:
 protected:
 	// KeyboardSink
 	bool OnKeyPressed(InputContext &ic, Key key) override;
+
+	// NavigationSink
+	bool CanNavigate(Navigate navigate, const DataContext &dc) const override;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc) override;
 
 private:
 	virtual bool OnClose(int result) { return true; }

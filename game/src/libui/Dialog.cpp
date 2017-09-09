@@ -21,6 +21,19 @@ void Dialog::Close(int result)
 	}
 }
 
+bool Dialog::CanNavigate(Navigate navigate, const DataContext &dc) const
+{
+	return Navigate::Back == navigate;
+}
+
+void Dialog::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
+{
+	if (Navigate::Back == navigate && NavigationPhase::Completed == phase)
+	{
+		Close(_resultCancel);
+	}
+}
+
 bool Dialog::OnKeyPressed(InputContext &ic, Key key)
 {
 	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
@@ -31,9 +44,6 @@ bool Dialog::OnKeyPressed(InputContext &ic, Key key)
 	case Key::Enter:
 	case Key::NumEnter:
 		Close(_resultOK);
-		break;
-	case Key::Escape:
-		Close(_resultCancel);
 		break;
 	default:
 		return false;

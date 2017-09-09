@@ -21,7 +21,7 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pointerPosition);
 	bool pointerPressed = ic.GetInput().IsMousePressed(1);
 
-	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this))
+	if (pointerInside && pointerPressed && ic.HasCapturedPointers(this) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;
 
 	if (ic.GetHovered())
@@ -100,9 +100,9 @@ bool ButtonBase::CanNavigate(Navigate navigate, const DataContext &dc) const
 	return Navigate::Enter == navigate;
 }
 
-void ButtonBase::OnNavigate(Navigate navigate, const DataContext &dc)
+void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
 {
-	if (Navigate::Enter == navigate)
+	if (NavigationPhase::Completed == phase && Navigate::Enter == navigate)
 	{
 		DoClick();
 	}

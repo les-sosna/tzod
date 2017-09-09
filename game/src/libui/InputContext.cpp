@@ -2,6 +2,7 @@
 #include "inc/ui/InputContext.h"
 #include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
+#include "inc/ui/Navigation.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/Window.h"
 
@@ -47,6 +48,12 @@ bool InputContext::GetFocused() const
 bool InputContext::GetHovered() const
 {
 	return _transformStack.top().hovered;
+}
+
+std::shared_ptr<Window> InputContext::GetNavigationSubject(Navigate navigate) const
+{
+	auto found = _navigationSubjects.find(navigate);
+	return _navigationSubjects.end() == found ? nullptr : found->second.lock();
 }
 
 const std::vector<std::shared_ptr<Window>>* InputContext::GetCapturePath(unsigned int pointerID) const
@@ -300,24 +307,25 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
-static bool NavigateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc, Navigate navigate)
+static std::shared_ptr<Window> NavigateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc, Navigate navigate, NavigationPhase phase)
 {
 	if (wnd->GetVisible() && wnd->GetEnabled(dc))
 	{
-		if (auto focus = wnd->GetFocus(); focus && NavigateMostDescendantFocus(std::move(focus), dc, navigate))
+		auto focus = wnd->GetFocus();
+		if (auto handledBy = focus ? NavigateMostDescendantFocus(std::move(focus), dc, navigate, phase) : nullptr)
 		{
-			return true;
+			return handledBy;
 		}
 		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(navigate, dc))
 		{
-			navigationSink->OnNavigate(navigate, dc);
-			return true;
+			navigationSink->OnNavigate(navigate, phase, dc);
+			return wnd;
 		}
 	}
-	return false;
+	return nullptr;
 }
 
-static Navigate GetNavigateAction(std::shared_ptr<Window> wnd, const DataContext &dc, Key key, bool alt, bool shift)
+static Navigate GetNavigateAction(Key key, bool alt, bool shift)
 {
 	switch (key)
 	{
@@ -328,6 +336,7 @@ static Navigate GetNavigateAction(std::shared_ptr<Window> wnd, const DataContext
 		return Navigate::Enter;
 
 	case Key::Backspace:
+	case Key::Escape:
 	case Key::GamepadB:
 		return Navigate::Back;
 
@@ -389,17 +398,31 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 				return keyboardSink ? keyboardSink->OnKeyPressed(*this, key) : false;
 			}
 		});
-
-		if (!handled)
-		{
-			Navigate navigate = GetNavigateAction(wnd, dc, key,
-				GetInput().IsKeyPressed(Key::LeftAlt) || GetInput().IsKeyPressed(Key::RightAlt),
-				GetInput().IsKeyPressed(Key::LeftShift) || GetInput().IsKeyPressed(Key::RightShift));
-			handled = NavigateMostDescendantFocus(wnd, dc, navigate);
-		}
 		break;
 	default:
 		assert(false);
+	}
+
+	if (!handled)
+	{
+		Navigate navigate = GetNavigateAction(key,
+			GetInput().IsKeyPressed(Key::LeftAlt) || GetInput().IsKeyPressed(Key::RightAlt),
+			GetInput().IsKeyPressed(Key::LeftShift) || GetInput().IsKeyPressed(Key::RightShift));
+		if (Msg::KeyReleased == msg)
+		{
+			if (auto wnd = _navigationSubjects[navigate].lock())
+			{
+				wnd->GetNavigationSink()->OnNavigate(navigate, NavigationPhase::Completed, dc);
+				_navigationSubjects[navigate].reset();
+				handled = true;
+			}
+		}
+		else
+		{
+			auto handledBy = NavigateMostDescendantFocus(wnd, dc, navigate, NavigationPhase::Started);
+			handled = !!handledBy;
+			_navigationSubjects[navigate] = std::move(handledBy);
+		}
 	}
 
 	return handled;
@@ -420,5 +443,10 @@ bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> w
 
 bool InputContext::ProcessSystemNavigationBack(std::shared_ptr<Window> wnd, const DataContext &dc)
 {
-	return NavigateMostDescendantFocus(std::move(wnd), dc, Navigate::Back);
+	auto startedHandledBy = NavigateMostDescendantFocus(wnd, dc, Navigate::Back, NavigationPhase::Started);
+	if (startedHandledBy)
+	{
+		startedHandledBy->GetNavigationSink()->OnNavigate(Navigate::Back, NavigationPhase::Completed, dc);
+	}
+	return !!startedHandledBy;
 }

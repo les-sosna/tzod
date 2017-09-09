@@ -1,4 +1,5 @@
 #pragma once
+#include "Navigation.h"
 #include "Window.h"
 #include "ListBase.h"
 #include <functional>
@@ -74,7 +75,7 @@ private:
 
 	// NavigationSink
 	bool CanNavigate(Navigate navigate, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, const DataContext &dc) override;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc) override;
 };
 
 } // namespace UI

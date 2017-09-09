@@ -1,4 +1,5 @@
 #pragma once
+#include "Navigation.h"
 #include "Texture.h"
 #include "Window.h"
 #include <functional>
@@ -39,7 +40,7 @@ private:
 
 	// NavigationSink
 	bool CanNavigate(Navigate navigate, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, const DataContext &dc) override;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc) override;
 
 	// PointerSink
 	void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured) override;
