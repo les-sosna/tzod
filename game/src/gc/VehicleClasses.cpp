@@ -29,7 +29,6 @@ static VehicleClass s_vehicleClasses[] = {
 		2.5,        // _My - viscous friction factor Y
 		0,          // _Mw - angular viscous friction factor
 
-		900.0f,     // enginePower
 		40.0f,      // rotatePower
 
 		3.4f,       // maxRotSpeed
@@ -56,7 +55,6 @@ static VehicleClass s_vehicleClasses[] = {
 		2.5,        // _My - viscous friction factor Y
 		9,          // _Mw - angular viscous friction factor
 
-		1800.0f,    // enginePower
 		48.0f,      // rotatePower
 
 		3.5f,       // maxRotSpeed

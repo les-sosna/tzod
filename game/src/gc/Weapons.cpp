@@ -45,6 +45,7 @@ void GC_Weap_RocketLauncher::AdjustVehicleClass(VehicleClass &vc) const
 	vc.health *= AdjustHealth(85);
 	vc.m *= 1.16f;
 	vc.i *= 1.2f;
+	vc.maxLinSpeed *= 0.83f;
 }
 
 void GC_Weap_RocketLauncher::OnShoot(World &world)
@@ -101,6 +102,7 @@ GC_Weap_AutoCannon::GC_Weap_AutoCannon(FromFile)
 void GC_Weap_AutoCannon::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(80);
+	vc.maxLinSpeed *= 1.33f;
 }
 
 void GC_Weap_AutoCannon::OnShoot(World &world)
@@ -191,6 +193,7 @@ void GC_Weap_Cannon::Serialize(World &world, SaveFile &f)
 void GC_Weap_Cannon::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(125);
+	vc.maxLinSpeed *= 0.89f;
 }
 
 void GC_Weap_Cannon::OnShoot(World &world)
@@ -297,6 +300,7 @@ GC_Weap_Gauss::GC_Weap_Gauss(FromFile)
 void GC_Weap_Gauss::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(70);
+	vc.maxLinSpeed *= 0.9f;
 }
 
 void GC_Weap_Gauss::OnShoot(World &world)
@@ -399,7 +403,6 @@ void GC_Weap_Ram::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(350);
 	vc.m *= 2.0f;
-	vc.enginePower *= 2.0f;
 	vc.percussion *= 5.0f;
 	vc.fragility *= 0.5f;
 }
@@ -536,6 +539,7 @@ GC_Weap_BFG::GC_Weap_BFG(FromFile)
 void GC_Weap_BFG::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(110);
+	vc.maxLinSpeed *= 1.11f;
 }
 
 void GC_Weap_BFG::OnShoot(World &world)
@@ -579,6 +583,7 @@ GC_Weap_Ripper::GC_Weap_Ripper(FromFile)
 void GC_Weap_Ripper::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(80);
+	vc.maxLinSpeed *= 1.33f;
 }
 
 void GC_Weap_Ripper::OnShoot(World &world)
@@ -644,6 +649,7 @@ void GC_Weap_Minigun::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(65);
 	vc.m *= 0.7f;
+	vc.maxLinSpeed *= 1.9f;
 }
 
 void GC_Weap_Minigun::OnShoot(World &world)

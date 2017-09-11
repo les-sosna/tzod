@@ -382,8 +382,14 @@ static void RotateTo(const GC_Vehicle &vehicle, VehicleState *outState, const ve
 	float cosDiff = Vec2dDot(newDirection, vehicle.GetDirection());
 	float minDiff = std::cos(MIN_PATH_ANGLE);
 
-	outState->moveForward = cosDiff > minDiff && moveForvard;
-	outState->moveBack = cosDiff > minDiff && moveBack;
+	if (moveForvard)
+	{
+		outState->gas = cosDiff > minDiff ? 1.f : 0.f;
+	}
+	else if (moveBack)
+	{
+		outState->gas = cosDiff > minDiff ? -1.f : 0.f;
+	}
 	outState->bodyAngle = newDirection.Angle();
 	outState->rotateBody = true;
 }
@@ -534,7 +540,7 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 			min_norm.Normalize();
 			min_norm *= 1.4142f;// sqrt(2)
 			_arrivalPoint = min_hit + min_norm * vehicle.GetRadius();
-			//			DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
+//			DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
 		}
 	}
 
@@ -552,14 +558,14 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 		}
 		else
 		{
-			vs.moveBack = true;
+			vs.gas = -1;
 		}
 	}
 
 
 	_backTime -= dt;
 
-	if ((vs.moveForward || vs.moveBack) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f)
+	if ((vs.gas != 0) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f)
 	{
 		_stickTime += dt;
 		if (_stickTime > 0.6f)

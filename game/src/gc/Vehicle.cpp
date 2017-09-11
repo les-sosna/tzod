@@ -20,7 +20,6 @@ GC_Vehicle::GC_Vehicle(vec2d pos)
   , _enginePower(0)
   , _rotatePower(0)
   , _maxRotSpeed(0)
-  , _maxLinSpeed(0)
   , _trackPathL(0)
   , _trackPathR(0)
   , _time_smoke(0)
@@ -82,10 +81,9 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 	_percussion = vc.percussion;
 	_fragility  = vc.fragility;
 
-	_enginePower = vc.enginePower;
+	_enginePower = vc.m * vc.maxLinSpeed * (vc._Mx * vc.maxLinSpeed + vc._Nx);
 	_rotatePower = vc.rotatePower;
 
-	_maxLinSpeed = vc.maxLinSpeed;
 	_maxRotSpeed = vc.maxRotSpeed;
 
 	SetMaxHP(vc.health);
@@ -103,7 +101,6 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_enginePower);
 	f.Serialize(_rotatePower);
 	f.Serialize(_maxRotSpeed);
-	f.Serialize(_maxLinSpeed);
 	f.Serialize(_state);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
@@ -118,18 +115,14 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 
 void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 {
-	if( vs.moveForward )
-	{
-		ApplyForce(GetDirection() * _enginePower);
-	}
-	else if( vs.moveBack )
-	{
-		ApplyForce(-GetDirection() * _enginePower);
-	}
+	float coV = std::abs(Vec2dDot(GetDirection(), _lv));
+	float maxForce = _Ny / _inv_m;
+	float force = _enginePower < maxForce * coV ? _enginePower / coV : maxForce;
+	ApplyForce(GetDirection() * force * vs.gas);
 
 	if (vs.rotateBody)
 	{
-		float ds = Vec2dCross(GetDirection(), Vec2dDirection(vs.bodyAngle - GetSpinup())) > 0 ? 1 : -1;
+		float ds = Vec2dCross(GetDirection(), Vec2dDirection(vs.bodyAngle - GetSpinup())) > 0 ? 1.f : -1.f;
 		if (std::abs(_av) < _maxRotSpeed)
 			ApplyMomentum(_rotatePower / _inv_i * ds);
 	}
@@ -147,7 +140,15 @@ void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 
 float GC_Vehicle::GetMaxSpeed() const
 {
-	return std::min((_enginePower - _Nx) / _Mx, _maxLinSpeed);
+	if (_Mx > 0)
+	{
+		float d = std::sqrt(_Nx * _Nx + _Mx * _enginePower * _inv_m * 4);
+		return std::max(0.f, (d - _Nx) / (_Mx * 2));
+	}
+	else
+	{
+		return _enginePower * _inv_m / _Nx;
+	}
 }
 
 float GC_Vehicle::GetMaxBrakingLength() const

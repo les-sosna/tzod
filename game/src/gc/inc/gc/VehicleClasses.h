@@ -25,7 +25,6 @@ struct VehicleClass
 	float _My;      // viscous friction factor Y
 	float _Mw;      // angular viscous friction factor
 
-	float enginePower;
 	float rotatePower;
 
 	float maxRotSpeed;

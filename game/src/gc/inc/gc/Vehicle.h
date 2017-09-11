@@ -31,7 +31,6 @@ public:
 	float _enginePower;
 	float _rotatePower;
 	float _maxRotSpeed;
-	float _maxLinSpeed;
 	std::string _skinTextureName;
 
 protected:
