@@ -3,7 +3,7 @@
 #include "inc/gc/Weapons.h"
 #include "inc/gc/Vehicle.h"
 #include "inc/gc/VehicleClasses.h"
-#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/RigidBodyDynamic.h"
 #include "inc/gc/Light.h"
 #include "inc/gc/Macros.h"
 #include "inc/gc/Projectiles.h"

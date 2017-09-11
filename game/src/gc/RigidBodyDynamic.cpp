@@ -1,4 +1,4 @@
-#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/RigidBodyDynamic.h"
 #include "inc/gc/Projectiles.h"
 #include "inc/gc/World.h"
 #include "inc/gc/WorldCfg.h"

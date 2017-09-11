@@ -2,7 +2,7 @@
 #include "inc/gc/World.inl"
 #include "inc/gc/WorldCfg.h"
 #include "inc/gc/WorldEvents.h"
-#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/RigidBodyDynamic.h"
 #include "inc/gc/Player.h"
 #include "inc/gc/Macros.h"
 #include "inc/gc/TypeSystem.h"

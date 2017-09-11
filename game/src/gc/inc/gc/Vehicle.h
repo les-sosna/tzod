@@ -1,5 +1,5 @@
 #pragma once
-#include "RigidBodyDinamic.h"
+#include "RigidBodyDynamic.h"
 #include "VehicleState.h"
 
 class GC_Player;

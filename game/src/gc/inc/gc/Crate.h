@@ -1,5 +1,5 @@
 #pragma once
-#include "RigidBodyDinamic.h"
+#include "RigidBodyDynamic.h"
 
 class GC_Crate : public GC_RigidBodyDynamic
 {

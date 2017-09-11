@@ -6,7 +6,7 @@
 #include "inc/gc/Macros.h"
 #include "inc/gc/Particles.h"
 #include "inc/gc/Player.h"
-#include "inc/gc/RigidBodyDinamic.h"
+#include "inc/gc/RigidBodyDynamic.h"
 #include "inc/gc/WeapCfg.h"
 #include "inc/gc/World.h"
 #include "inc/gc/WorldEvents.h"
