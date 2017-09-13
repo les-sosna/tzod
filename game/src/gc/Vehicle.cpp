@@ -19,7 +19,6 @@ GC_Vehicle::GC_Vehicle(vec2d pos)
   : GC_RigidBodyDynamic(pos)
   , _enginePower(0)
   , _rotatePower(0)
-  , _maxRotSpeed(0)
   , _trackPathL(0)
   , _trackPathR(0)
   , _time_smoke(0)
@@ -82,9 +81,7 @@ void GC_Vehicle::SetClass(const VehicleClass &vc)
 	_fragility  = vc.fragility;
 
 	_enginePower = vc.m * vc.maxLinSpeed * (vc._Mx * vc.maxLinSpeed + vc._Nx);
-	_rotatePower = vc.rotatePower;
-
-	_maxRotSpeed = vc.maxRotSpeed;
+	_rotatePower = vc.i * vc.maxRotSpeed * (vc._Mw * vc.maxRotSpeed + vc._Nw);
 
 	SetMaxHP(vc.health);
 }
@@ -100,7 +97,6 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 
 	f.Serialize(_enginePower);
 	f.Serialize(_rotatePower);
-	f.Serialize(_maxRotSpeed);
 	f.Serialize(_state);
 	f.Serialize(_player);
 	f.Serialize(_weapon);
@@ -115,16 +111,24 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 
 void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 {
-	float coV = std::abs(Vec2dDot(GetDirection(), _lv));
-	float maxForce = _Ny / _inv_m;
-	float force = _enginePower < maxForce * coV ? _enginePower / coV : maxForce;
-	ApplyForce(GetDirection() * force * vs.gas);
-
-	if (vs.rotateBody)
+	float throttledPower = _enginePower * vs.gas;
+	if (throttledPower > 1e-5f)
 	{
-		float ds = Vec2dCross(GetDirection(), Vec2dDirection(vs.bodyAngle - GetSpinup())) > 0 ? 1.f : -1.f;
-		if (std::abs(_av) < _maxRotSpeed)
-			ApplyMomentum(_rotatePower / _inv_i * ds);
+		float coV = std::abs(Vec2dDot(GetDirection(), _lv));
+		float maxForce = _Ny / _inv_m;
+		float sign = vs.gas > 0 ? 1.f : -1.f;
+		float force = throttledPower < maxForce * coV ? throttledPower / coV : maxForce;
+		ApplyForce(GetDirection() * force * sign);
+	}
+
+	float throttledRotatePower = _rotatePower * vs.steering.len();
+	if (throttledRotatePower > 1e-5f)
+	{
+		vec2d eventualDirection = Vec2dAddDirection(GetDirection(), Vec2dDirection(GetSpinup()));
+		float maxTorque = _Nw / _inv_i * 2;
+		float torqueSign = Vec2dCross(eventualDirection, vs.steering) > 0 ? 1.f : -1.f;
+		float absTorque = throttledRotatePower < maxTorque * std::abs(_av) ? throttledRotatePower / std::abs(_av) : maxTorque;
+		ApplyMomentum(absTorque * torqueSign);
 	}
 
 	if (CheckFlags(GC_FLAG_VEHICLE_KNOWNLIGHT) && _light1->GetActive() != _state.light)

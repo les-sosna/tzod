@@ -390,8 +390,7 @@ static void RotateTo(const GC_Vehicle &vehicle, VehicleState *outState, const ve
 	{
 		outState->gas = cosDiff > minDiff ? -1.f : 0.f;
 	}
-	outState->bodyAngle = newDirection.Angle();
-	outState->rotateBody = true;
+	outState->steering = newDirection;
 }
 
 void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float dt, VehicleState &vs)
@@ -483,7 +482,6 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 	destPoint = _path.front().coord;
 	*/
 
-	vs.rotateBody = false;
 	vs.rotateWeapon = true;
 	vs.weaponAngle = 0;
 

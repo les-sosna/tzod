@@ -1,16 +1,16 @@
 #pragma once
+#include <math/MyMath.h>
 
 struct VehicleState
 {
-	float bodyAngle;
-	float weaponAngle; // relative to the body
+	vec2d steering;
 	float gas;         // from -1 to 1
+	float weaponAngle; // relative to the body
 
 	union
 	{
 		struct
 		{
-			bool rotateBody : 1;
 			bool rotateWeapon : 1;
 			bool attack : 1;
 			bool pickup : 1;

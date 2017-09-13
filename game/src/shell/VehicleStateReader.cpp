@@ -108,8 +108,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 		newDirection.Normalize();
 
 		vs.gas = Vec2dDot(newDirection, vehicle.GetDirection());
-		vs.rotateBody = !newDirection.IsZero();
-		vs.bodyAngle = newDirection.Angle();
+		vs.steering = newDirection;
 	}
 	else
 	{
@@ -118,13 +117,11 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 
 		if (input.IsKeyPressed(_keyLeft) || gamepadState.DPadLeft)
 		{
-			vs.rotateBody = true;
-			vs.bodyAngle = vehicle.GetDirection().Angle() - PI / 2;
+			vs.steering = Vec2dSubDirection(vehicle.GetDirection(), Vec2dDirection(PI / 2));
 		}
 		else if (input.IsKeyPressed(_keyRight) || gamepadState.DPadRight)
 		{
-			vs.rotateBody = true;
-			vs.bodyAngle = vehicle.GetDirection().Angle() + PI / 2;
+			vs.steering = Vec2dAddDirection(vehicle.GetDirection(), Vec2dDirection(PI / 2));
 		}
 	}
 
@@ -137,7 +134,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 		if( input.IsMousePressed(2) && c2w.visible )
 		{
 			vec2d bodyDirection = c2w.worldPos - vehicle.GetPos() - vehicle.GetBrakingLength();
-			if(bodyDirection.sqr() > 10 )
+			if( bodyDirection.sqr() > 10 )
 			{
 				bodyDirection.Normalize();
 				vs.gas = Vec2dDot(bodyDirection, vehicle.GetDirection());
@@ -145,8 +142,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 				{
 					bodyDirection = -bodyDirection;
 				}
-				vs.bodyAngle = bodyDirection.Angle();
-				vs.rotateBody = true;
+				vs.steering = bodyDirection;
 			}
 		}
 	}
@@ -154,21 +150,17 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	// move with tap and drag
 	if (!dragDirection.IsZero())
 	{
-		vs.rotateBody = dragDirection.len() > 20;
-		if (vs.rotateBody)
+		if (reverse)
 		{
-			if (reverse)
-			{
-				dragDirection = -dragDirection;
-			}
-			bool doMove = Vec2dDot(dragDirection.Norm(), vehicle.GetDirection()) > cos(PI/4);
-			vs.bodyAngle = dragDirection.Angle();
-			vs.gas = doMove ? (reverse ? -1.f : 1.f) : 0.f;
-			if (_tapFireTime < -1.5f)
-			{
-				vs.weaponAngle = 0;
-				vs.rotateWeapon = true;
-			}
+			dragDirection = -dragDirection;
+		}
+		bool doMove = Vec2dDot(dragDirection.Norm(), vehicle.GetDirection()) > cos(PI/4);
+		vs.steering = dragDirection;
+		vs.gas = doMove ? (reverse ? -1.f : 1.f) : 0.f;
+		if (_tapFireTime < -1.5f)
+		{
+			vs.weaponAngle = 0;
+			vs.rotateWeapon = true;
 		}
 	}
 
@@ -176,12 +168,11 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	if (gamepadState.leftThumbstickPos.sqr() > 0.01f)
 	{
 		vs.gas = Vec2dDot(gamepadState.leftThumbstickPos, vehicle.GetDirection());
-		vs.rotateBody = true;
-		vs.bodyAngle = gamepadState.leftThumbstickPos.Angle();
+		vs.steering = gamepadState.leftThumbstickPos;
 	}
-	if (gamepadState.leftTrigger > 0.01f)
+	if (gamepadState.leftTrigger > 0.5f)
 	{
-		vs.gas = -gamepadState.leftTrigger;
+		vs.gas = 0; // break
 	}
 
 
