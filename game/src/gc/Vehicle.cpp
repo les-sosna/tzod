@@ -111,13 +111,13 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 
 void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 {
-	float throttledPower = _enginePower * vs.gas;
+	float throttledPower = _enginePower * std::abs(vs.gas);
 	if (throttledPower > 1e-5f)
 	{
-		float coV = std::abs(Vec2dDot(GetDirection(), _lv));
+		float absVx = std::abs(Vec2dDot(GetDirection(), _lv));
 		float maxForce = _Ny / _inv_m;
 		float sign = vs.gas > 0 ? 1.f : -1.f;
-		float force = throttledPower < maxForce * coV ? throttledPower / coV : maxForce;
+		float force = throttledPower < maxForce * absVx ? throttledPower / absVx : maxForce;
 		ApplyForce(GetDirection() * force * sign);
 	}
 
