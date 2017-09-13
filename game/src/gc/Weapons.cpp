@@ -666,12 +666,12 @@ void GC_Weap_Minigun::OnShoot(World &world)
 		if( world.net_frand(WEAP_MG_TIME_RELAX * 5.0f) < _heat - WEAP_MG_TIME_RELAX * 0.2f )
 		{
 			float m = 3000;//veh->_inv_i; // FIXME
-			GetVehicle()->ApplyTorque(m * (world.net_frand(1.0f) - 0.5f));
+			GetVehicle()->ApplyMomentum(m * (world.net_frand(1.0f) - 0.5f));
 		}
 	}
 
 	world.New<GC_Bullet>(GetPos() + a * 18.0f, a * SPEED_BULLET,
-						 GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
+	                     GetVehicle(), GetVehicle()->GetOwner(), !!GetBooster());
 }
 
 void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)

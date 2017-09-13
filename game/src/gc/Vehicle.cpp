@@ -128,7 +128,7 @@ void GC_Vehicle::ApplyState(World &world, const VehicleState &vs)
 		float maxTorque = _Nw / _inv_i * 2;
 		float torqueSign = Vec2dCross(eventualDirection, vs.steering) > 0 ? 1.f : -1.f;
 		float absTorque = throttledRotatePower < maxTorque * std::abs(_av) ? throttledRotatePower / std::abs(_av) : maxTorque;
-		ApplyMomentum(absTorque * torqueSign);
+		ApplyTorque(absTorque * torqueSign);
 	}
 
 	if (CheckFlags(GC_FLAG_VEHICLE_KNOWNLIGHT) && _light1->GetActive() != _state.light)

@@ -10,8 +10,8 @@
 
 class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_RigidBodyStatic base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_RigidBodyStatic base;
 
 	struct Contact
 	{
@@ -103,11 +103,11 @@ public:
 
 	//--------------------------------
 
-	void ApplyMomentum(float momentum);
+	void ApplyTorque(float torque);
 	void ApplyForce(const vec2d &force);
 	void ApplyForce(const vec2d &force, const vec2d &origin);
 
-	void ApplyTorque(float torque);
+	void ApplyMomentum(float momentum);
 	void ApplyImpulse(const vec2d &impulse);
 	void ApplyImpulse(const vec2d &impulse, const vec2d &origin);
 

@@ -230,7 +230,7 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 	//
 
 	_lv += (_external_force * dt + _external_impulse) * _inv_m;
-	_av += (_external_momentum * dt + _external_torque) * _inv_i;
+	_av += (_external_torque * dt + _external_momentum) * _inv_i;
 	_external_force = {};
 	_external_impulse = {};
 	_external_momentum = 0;
@@ -456,10 +456,10 @@ void GC_RigidBodyDynamic::impulse(const vec2d &origin, const vec2d &impulse)
 	assert(!std::isnan(_av) && std::isfinite(_av));
 }
 
-void GC_RigidBodyDynamic::ApplyMomentum(float momentum)
+void GC_RigidBodyDynamic::ApplyTorque(float torque)
 {
-	_external_momentum += momentum;
-	assert(!std::isnan(_external_momentum) && std::isfinite(_external_momentum));
+	_external_torque += torque;
+	assert(!std::isnan(_external_torque) && std::isfinite(_external_torque));
 }
 
 void GC_RigidBodyDynamic::ApplyForce(const vec2d &force)
@@ -470,13 +470,13 @@ void GC_RigidBodyDynamic::ApplyForce(const vec2d &force)
 void GC_RigidBodyDynamic::ApplyForce(const vec2d &force, const vec2d &origin)
 {
 	_external_force += force;
-	_external_momentum += (origin.x-GetPos().x)*force.y-(origin.y-GetPos().y)*force.x;
+	_external_torque += (origin.x-GetPos().x)*force.y-(origin.y-GetPos().y)*force.x;
 }
 
 void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse, const vec2d &origin)
 {
 	_external_impulse += impulse;
-	_external_torque  += (origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x;
+	_external_momentum  += (origin.x-GetPos().x)*impulse.y-(origin.y-GetPos().y)*impulse.x;
 	assert(!std::isnan(_external_torque) && std::isfinite(_external_torque));
 }
 
@@ -485,10 +485,10 @@ void GC_RigidBodyDynamic::ApplyImpulse(const vec2d &impulse)
 	_external_impulse += impulse;
 }
 
-void GC_RigidBodyDynamic::ApplyTorque(float torque)
+void GC_RigidBodyDynamic::ApplyMomentum(float momentum)
 {
-	_external_torque  += torque;
-	assert(!std::isnan(_external_torque) && std::isfinite(_external_torque));
+	_external_momentum += momentum;
+	assert(!std::isnan(_external_momentum) && std::isfinite(_external_momentum));
 }
 
 float GC_RigidBodyDynamic::Energy() const
