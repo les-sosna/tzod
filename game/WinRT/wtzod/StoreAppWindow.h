@@ -38,6 +38,7 @@ private:
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;
 	Windows::UI::Core::CoreCursor ^_cursorArrow;
 	Windows::UI::Core::CoreCursor ^_cursorIBeam;
+	MouseCursor _mouseCursor = MouseCursor::Arrow;
 	DX::DeviceResources &_deviceResources;
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;

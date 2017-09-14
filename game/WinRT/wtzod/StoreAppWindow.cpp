@@ -351,16 +351,20 @@ void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)
 
 void StoreAppWindow::SetMouseCursor(MouseCursor mouseCursor)
 {
-	switch (mouseCursor)
+	if (_mouseCursor != mouseCursor)
 	{
-	case MouseCursor::Arrow:
-		_coreWindow->PointerCursor = _cursorArrow;
-		break;
-	case MouseCursor::IBeam:
-		_coreWindow->PointerCursor = _cursorIBeam;
-		break;
-	default:
-		_coreWindow->PointerCursor = nullptr;
-		break;
+		_mouseCursor = mouseCursor;
+		switch (mouseCursor)
+		{
+		case MouseCursor::Arrow:
+			_coreWindow->PointerCursor = _cursorArrow;
+			break;
+		case MouseCursor::IBeam:
+			_coreWindow->PointerCursor = _cursorIBeam;
+			break;
+		default:
+			_coreWindow->PointerCursor = nullptr;
+			break;
+		}
 	}
 }
