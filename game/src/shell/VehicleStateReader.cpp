@@ -100,15 +100,20 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	// move with keyboard
 	if( _arcadeStyle )
 	{
-		vec2d newDirection{0, 0};
-		newDirection.y -= input.IsKeyPressed(_keyForward);
-		newDirection.y += input.IsKeyPressed(_keyBack);
-		newDirection.x -= input.IsKeyPressed(_keyLeft);
-		newDirection.x += input.IsKeyPressed(_keyRight);
-		newDirection.Normalize();
+		vs.steering.y -= input.IsKeyPressed(_keyForward);
+		vs.steering.y += input.IsKeyPressed(_keyBack);
+		vs.steering.x -= input.IsKeyPressed(_keyLeft);
+		vs.steering.x += input.IsKeyPressed(_keyRight);
+		vs.steering.Normalize();
 
-		vs.gas = Vec2dDot(newDirection, vehicle.GetDirection());
-		vs.steering = newDirection;
+		vs.gas = Vec2dDot(vs.steering, vehicle.GetDirection());
+
+		static const float threshold = std::cos(PI / 4);
+		if (vs.gas > 0 && vs.gas < threshold &&
+			!!world.TraceNearest(world.grid_rigid_s, &vehicle, vehicle.GetPos(), vehicle.GetDirection() * vehicle.GetRadius()))
+		{
+			vs.gas = -1;
+		}
 	}
 	else
 	{
@@ -167,8 +172,17 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	// move with gamepad
 	if (gamepadState.leftThumbstickPos.sqr() > 0.01f)
 	{
-		vs.gas = Vec2dDot(gamepadState.leftThumbstickPos, vehicle.GetDirection());
 		vs.steering = gamepadState.leftThumbstickPos;
+		vs.gas = Vec2dDot(gamepadState.leftThumbstickPos, vehicle.GetDirection());
+
+		vec2d steeringDirection = gamepadState.leftThumbstickPos.Norm();
+
+		static const float threshold = std::cos(PI / 3);
+		if (vs.gas > 0 && Vec2dDot(steeringDirection, vehicle.GetDirection()) < threshold &&
+			!!world.TraceNearest(world.grid_rigid_s, &vehicle, vehicle.GetPos(), vehicle.GetDirection() * vehicle.GetRadius()))
+		{
+			vs.gas = -gamepadState.leftThumbstickPos.len();
+		}
 	}
 	if (gamepadState.leftTrigger > 0.5f)
 	{
