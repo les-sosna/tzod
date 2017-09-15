@@ -20,7 +20,7 @@ struct MyConstants
 class RenderD3D11 : public IRender
 {
 public:
-	RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *rtv);
+	RenderD3D11(ID3D11DeviceContext *context);
 	~RenderD3D11() override;
 
 	// IRender
@@ -50,7 +50,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Device>        _device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _rtv;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _constantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _indexBuffer;
@@ -267,9 +266,8 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderD3D11::RenderD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *rtv)
+RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
 	: _context(context)
-	, _rtv(rtv)
 	, _windowWidth(0)
 	, _windowHeight(0)
 	, _vaSize(0)
@@ -628,7 +626,7 @@ void RenderD3D11::SetAmbient(float ambient)
 
 //-----------------------------------------------------------------------------
 
-std::unique_ptr<IRender> RenderCreateD3D11(ID3D11DeviceContext *context, ID3D11RenderTargetView *rtv)
+std::unique_ptr<IRender> RenderCreateD3D11(ID3D11DeviceContext *context)
 {
-	return std::unique_ptr<IRender>(new RenderD3D11(context, rtv));
+	return std::unique_ptr<IRender>(new RenderD3D11(context));
 }

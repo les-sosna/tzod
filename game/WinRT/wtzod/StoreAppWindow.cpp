@@ -139,7 +139,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	, _cursorIBeam(ref new CoreCursor(CoreCursorType::IBeam, 0))
 	, _deviceResources(deviceResources)
 	, _input(coreWindow)
-	, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext(), nullptr/*swapChainResources.GetBackBufferRenderTargetView()*/))
+	, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext()))
 	, _inputSink(std::make_shared<UI::LayoutManager*>())
 {
 	_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation)));
