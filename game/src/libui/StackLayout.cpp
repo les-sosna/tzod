@@ -90,8 +90,9 @@ std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Na
 		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(*this, dc) : nullptr;
 	case Navigate::Right:
 		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(*this, dc) : nullptr;
+	default:
+		return nullptr;
 	}
-	return nullptr;
 }
 
 bool StackLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
