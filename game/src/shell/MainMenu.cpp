@@ -21,9 +21,16 @@ MainMenuDlg::MainMenuDlg(LangCache &lang,
 	button->SetFont("font_default");
 	button->SetText(ConfBind(_lang.single_player_btn));
 	button->Resize(c_buttonWidth, c_buttonHeight);
-	button->eventClick = _commands.newDM;
+	button->eventClick = _commands.singlePlayer;
 	AddFront(button);
 	SetFocus(button);
+
+	button = std::make_shared<UI::Button>();
+	button->SetFont("font_default");
+	button->SetText(ConfBind(_lang.two_players_btn));
+	button->Resize(c_buttonWidth, c_buttonHeight);
+	button->eventClick = _commands.splitScreen;
+//	AddFront(button);
 
 	button = std::make_shared<UI::Button>();
 	button->SetFont("font_default");

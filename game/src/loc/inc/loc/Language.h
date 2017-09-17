@@ -24,6 +24,7 @@ REFLECTION_BEGIN(LangCache)
 	//
 
 	VAR_STR( single_player_btn, "1 PLAYER" )
+	VAR_STR( two_players_btn, "2 PLAYERS" )
 
 	VAR_STR( editor_btn, "CONSTRUCTION" )
 	VAR_STR( editor_new_map, "New map" )

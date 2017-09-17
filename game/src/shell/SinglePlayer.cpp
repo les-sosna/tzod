@@ -116,37 +116,16 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _dmCampaign(dmCampaign)
 	, _mapCache(mapCache)
 	, _content(std::make_shared<UI::StackLayout>())
-	, _prevTier(std::make_shared<UI::Button>())
 	, _mapTiles(std::make_shared<UI::StackLayout>())
-	, _nextTier(std::make_shared<UI::Button>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
 	auto placeholder = std::make_shared<UI::Window>();
 	placeholder->Resize(48, 48);
 	_content->AddFront(placeholder); // FIXME: hack placeholder
 
-	auto mapTilesWithTierButtons = std::make_shared<UI::StackLayout>();
-	mapTilesWithTierButtons->SetFlowDirection(UI::FlowDirection::Horizontal);
-
-	_prevTier->SetText("<<<"_txt);
-	_prevTier->eventClick = std::bind(&SinglePlayer::OnPrevTier, this);
-	_prevTier->SetFont("font_default");
-	_prevTier->Resize(c_tileSize / 2, c_tileSize / 2);
-//	mapTilesWithTierButtons->AddFront(_prevTier);
-
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
-	mapTilesWithTierButtons->AddFront(_mapTiles);
-	mapTilesWithTierButtons->SetFocus(_mapTiles);
-
-//	mapTilesWithTierButtons->AddFront(_nextTier);
-
-	_nextTier->SetText(">>>"_txt);
-	_nextTier->eventClick = std::bind(&SinglePlayer::OnNextTier, this);
-	_nextTier->SetFont("font_default");
-	_nextTier->Resize(c_tileSize / 2, c_tileSize / 2);
-
-	_content->AddFront(mapTilesWithTierButtons);
-	_content->SetFocus(mapTilesWithTierButtons);
+	_content->AddFront(_mapTiles);
+	_content->SetFocus(_mapTiles);
 
 	for (size_t i = 0; i < _dmCampaign.tiers.GetSize(); i++)
 	{
@@ -155,12 +134,17 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 
 	_tierSelector->SetItemTemplate(std::make_shared<TierBox>());
 	_tierSelector->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_tierSelector->SetCurSel(GetCurrentTier(_conf, _dmCampaign));
 	_tierSelector->eventChangeCurSel = [=](int index)
 	{
 		if (index != -1)
 		{
+			int prevTier = GetCurrentTier(_conf, _dmCampaign);
 			_conf.sp_tier.SetInt(index);
-			_conf.sp_map.SetInt(0);
+			if (index > prevTier)
+				_conf.sp_map.SetInt(0);
+			else
+				_conf.sp_map.SetInt(GetCurrentTierMapCount(_conf, _dmCampaign) - 1);
 			UpdateTier();
 		}
 	};
@@ -190,13 +174,10 @@ void SinglePlayer::UpdateTier()
 	int currentTier = GetCurrentTier(_conf, _dmCampaign);
 	DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(currentTier));
 
-	_prevTier->SetVisible(currentTier > 0);
-	_nextTier->SetVisible(currentTier + 1 < (int)_dmCampaign.tiers.GetSize());
-	_tierSelector->SetCurSel(currentTier);
-
 	_mapTiles->UnlinkAllChildren();
 
 	bool locked = currentTier> 0 && GetTierRating(_dmCampaign, _appConfig, currentTier - 1) == 0;
+	int currentMap = GetCurrentMap(_conf, _dmCampaign);
 
 	for (size_t mapIndex = 0; mapIndex < tierDesc.maps.GetSize(); mapIndex++)
 	{
@@ -220,30 +201,24 @@ void SinglePlayer::UpdateTier()
 
 		_mapTiles->AddFront(mpButton);
 
-		if (mapIndex == 0)
+		if (mapIndex == currentMap)
 		{
 			_mapTiles->SetFocus(mpButton);
 		}
 	}
 }
 
-void SinglePlayer::OnPrevTier()
+int SinglePlayer::GetNextTier(UI::Navigate navigate) const
 {
-	if (_conf.sp_tier.GetInt() > 0)
+	int maxTier = (int)_dmCampaign.tiers.GetSize() - 1;
+	switch (navigate)
 	{
-		_conf.sp_tier.SetInt(_conf.sp_tier.GetInt() - 1);
-		_conf.sp_map.SetInt(0);
-		UpdateTier();
-	}
-}
-
-void SinglePlayer::OnNextTier()
-{
-	if (_conf.sp_tier.GetInt() + 1 < (int)_dmCampaign.tiers.GetSize())
-	{
-		_conf.sp_tier.SetInt(_conf.sp_tier.GetInt() + 1);
-		_conf.sp_map.SetInt(0);
-		UpdateTier();
+	case UI::Navigate::Left:
+		return std::min(maxTier, std::max(0, _conf.sp_tier.GetInt() - 1));
+	case UI::Navigate::Right:
+		return std::min(maxTier, std::max(0, _conf.sp_tier.GetInt() + 1));
+	default:
+		return _conf.sp_tier.GetInt();
 	}
 }
 
@@ -270,4 +245,17 @@ vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext
 {
 	vec2d pxMargins = UI::ToPx(vec2d{ c_tileSpacing, c_tileSpacing }, scale);
 	return _content->GetContentSize(texman, dc, scale) + pxMargins * 2;
+}
+
+bool SinglePlayer::CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const
+{
+	return GetNextTier(navigate) != GetCurrentTier(_conf, _dmCampaign);
+}
+
+void SinglePlayer::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::DataContext &dc)
+{
+	if (UI::NavigationPhase::Started == phase)
+	{
+		_tierSelector->SetCurSel(GetNextTier(navigate));
+	}
 }

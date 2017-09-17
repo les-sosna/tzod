@@ -1,5 +1,6 @@
 #pragma once
 #include <ui/ListBase.h>
+#include <ui/Navigation.h>
 #include <ui/Window.h>
 #include <array>
 #include <memory>
@@ -19,13 +20,14 @@ namespace FS
 }
 namespace UI
 {
-	class Button;
 	class List;
 	class StackLayout;
 	class Text;
 }
 
-class SinglePlayer : public UI::Window
+class SinglePlayer
+	: public UI::Window
+	, private UI::NavigationSink
 {
 public:
 	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, MapCache &mapCache);
@@ -35,11 +37,11 @@ public:
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const override;
+	NavigationSink* GetNavigationSink() override { return this; }
 
 private:
+	int GetNextTier(UI::Navigate navigate) const;
 	void UpdateTier();
-	void OnPrevTier();
-	void OnNextTier();
 	void OnOK(int index);
 
 	WorldView &_worldView;
@@ -51,8 +53,10 @@ private:
 	UI::ListDataSourceDefault _tiersSource;
 
 	std::shared_ptr<UI::StackLayout> _content;
-	std::shared_ptr<UI::Button> _prevTier;
 	std::shared_ptr<UI::StackLayout> _mapTiles;
-	std::shared_ptr<UI::Button> _nextTier;
 	std::shared_ptr<UI::List> _tierSelector;
+
+	// UI::NavigationSink
+	bool CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const override;
+	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::DataContext &dc) override;
 };

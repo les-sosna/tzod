@@ -240,7 +240,7 @@ void Desktop::OnNewCampaign()
 	UpdateFocus();
 }
 
-void Desktop::OnNewDM()
+void Desktop::OnSinglePlayer()
 {
 	if (_navStack->IsOnStack<NewGameDlg>() || _navStack->IsOnStack<SinglePlayer>())
 		return;
@@ -248,9 +248,7 @@ void Desktop::OnNewDM()
 //	if (_navStack->IsOnTop<SettingsDlg>())
 //		_navStack->PopNavStack();
 
-	if (_dmCampaign.tiers.GetSize() > 0 &&
-		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) &&
-		!GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
+	if (_dmCampaign.tiers.GetSize() > 0)
 	{
 		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetMapCache());
 		dlg->eventSelectMap = [this](auto sender, int index)
@@ -262,12 +260,7 @@ void Desktop::OnNewDM()
 				int currentTier = GetCurrentTier(_conf, _dmCampaign);
 				int currentMap = GetCurrentMap(_conf, _dmCampaign);
 				_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
-
-				while (auto wnd = _navStack->GetNavFront())
-				{
-					_navStack->PopNavStack(wnd.get());
-				}
-				UpdateFocus();
+				NavigateHome();
 			}
 			catch (const std::exception &e)
 			{
@@ -277,32 +270,32 @@ void Desktop::OnNewDM()
 		_navStack->PushNavStack(dlg);
 		UpdateFocus();
 	}
-	else
+}
+
+void Desktop::OnSplitScreen()
+{
+	if (_navStack->IsOnStack<NewGameDlg>() || _navStack->IsOnStack<SinglePlayer>())
+		return;
+
+	auto dlg = std::make_shared<NewGameDlg>(_texman, _fs, _conf, _logger, _lang);
+	dlg->eventClose = [this](auto sender, int result)
 	{
-		auto dlg = std::make_shared<NewGameDlg>(_texman, _fs, _conf, _logger, _lang);
-		dlg->eventClose = [this](auto sender, int result)
+		OnCloseChild(sender);
+		if (UI::Dialog::_resultOK == result)
 		{
-			OnCloseChild(sender);
-			if (UI::Dialog::_resultOK == result)
+			try
 			{
-				try
-				{
-//					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-					while (auto wnd = _navStack->GetNavFront())
-					{
-						_navStack->PopNavStack(wnd.get());
-					}
-					UpdateFocus();
-				}
-				catch (const std::exception &e)
-				{
-					_logger.Printf(1, "Could not start new game - %s", e.what());
-				}
+//				_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
+				NavigateHome();
 			}
-		};
-		_navStack->PushNavStack(dlg);
-		UpdateFocus();
-	}
+			catch (const std::exception &e)
+			{
+				_logger.Printf(1, "Could not start new game - %s", e.what());
+			}
+		}
+	};
+	_navStack->PushNavStack(dlg);
+	UpdateFocus();
 }
 
 void Desktop::OnOpenMap()
@@ -341,11 +334,7 @@ void Desktop::OnOpenMap()
 			}
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
 			GetAppState().SetGameContext(std::move(gc));
-			while (auto wnd = _navStack->GetNavFront())
-			{
-				_navStack->PopNavStack(wnd.get());
-			}
-			UpdateFocus();
+			NavigateHome();
 		}
 	};
 	_navStack->PushNavStack(fileDlg);
@@ -412,8 +401,8 @@ void Desktop::OnMapSettings()
 void Desktop::ShowMainMenu()
 {
 	MainMenuCommands commands;
-	commands.newCampaign = [this]() { OnNewCampaign(); };
-	commands.newDM = std::bind(&Desktop::OnNewDM, this);
+	commands.singlePlayer = std::bind(&Desktop::OnSinglePlayer, this);
+	commands.splitScreen = std::bind(&Desktop::OnSplitScreen, this);
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
@@ -421,11 +410,7 @@ void Desktop::ShowMainMenu()
 	{
 		if (GetAppState().GetGameContext()) // do not return to nothing
 		{
-			while (auto wnd = _navStack->GetNavFront())
-			{
-				_navStack->PopNavStack(wnd.get());
-			}
-			UpdateFocus();
+			NavigateHome();
 		}
 	};
 	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_lang, std::move(commands)));
@@ -448,6 +433,15 @@ void Desktop::UpdateFocus()
 	{
 		SetFocus(_game); // may be null
 	}
+}
+
+void Desktop::NavigateHome()
+{
+	while (auto wnd = _navStack->GetNavFront())
+	{
+		_navStack->PopNavStack(wnd.get());
+	}
+	UpdateFocus();
 }
 
 bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
@@ -477,7 +471,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		break;
 
 	case UI::Key::F2:
-		OnNewDM();
+		OnSinglePlayer();
 		break;
 
 	case UI::Key::F12:

@@ -18,7 +18,6 @@ public:
 	void SetFragLimit(int fragLimit) { _fragLimit = fragLimit; }
 	void SetTimeLimit(float timeLimit) { _timeLimit = timeLimit; }
 
-
 	// Gameplay
 	void Step() override;
 	bool IsGameOver() const override;

@@ -42,7 +42,7 @@ static void InitLobbyList(ConfVarArray &lobby_servers)
 
 int GetCurrentTier(const ShellConfig &conf, const DMCampaign &dmCampaign)
 {
-	return std::max(0, std::min((int)dmCampaign.tiers.GetSize() - 1, conf.sp_tier.GetInt()));
+	return std::min((int)dmCampaign.tiers.GetSize() - 1, std::max(0, conf.sp_tier.GetInt()));
 }
 
 int GetCurrentTierMapCount(const ShellConfig &conf, const DMCampaign &dmCampaign)
@@ -53,6 +53,6 @@ int GetCurrentTierMapCount(const ShellConfig &conf, const DMCampaign &dmCampaign
 
 int GetCurrentMap(const ShellConfig &conf, const DMCampaign &dmCampaign)
 {
-	return std::max(0, std::min(GetCurrentTierMapCount(conf, dmCampaign) - 1, conf.sp_map.GetInt()));
+	return std::min(GetCurrentTierMapCount(conf, dmCampaign) - 1, std::max(0, conf.sp_map.GetInt()));
 }
 

@@ -88,7 +88,8 @@ private:
 	WorldView _worldView;
 
 	void OnNewCampaign();
-	void OnNewDM();
+	void OnSinglePlayer();
+	void OnSplitScreen();
 	void OnOpenMap();
 	void OnExportMap();
 	void OnGameSettings();
@@ -105,6 +106,8 @@ private:
 	void OnCloseChild(std::shared_ptr<UI::Window> child);
 
 	void UpdateFocus();
+
+	void NavigateHome();
 
 	// AppStateListener
 	void OnGameContextChanging() override;
