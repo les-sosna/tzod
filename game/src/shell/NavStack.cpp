@@ -92,18 +92,19 @@ void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
 	SetFocus(GetChildren().back());
 }
 
-float NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+vec2d NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
-	float pxNavStackHeight = 0;
+	vec2d pxNavStackSize = {};
 	if (!GetChildren().empty())
 	{
 		for (auto wnd : GetChildren())
 		{
-			pxNavStackHeight += wnd->GetContentSize(texman, dc, lc.GetScale()).y;
+			pxNavStackSize += wnd->GetContentSize(texman, dc, lc.GetScale());
 		}
-		pxNavStackHeight += (float)(GetChildren().size() - 1) * UI::ToPx(_spacing, lc);
+		float pxSpacing = (float)(GetChildren().size() - 1) * UI::ToPx(_spacing, lc);
+		pxNavStackSize += vec2d{ pxSpacing, pxSpacing };
 	}
-	return pxNavStackHeight;
+	return pxNavStackSize;
 }
 
 float NavStack::GetTransitionTimeLeft() const
@@ -117,31 +118,35 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 	auto &children = GetChildren();
 
-	float pxTotalStackHeight = GetNavStackPixelSize(texman, lc, dc);
-	float pxStagingHeight = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScale()).y;
-	float pxTransitionTarget = (lc.GetPixelSize().y + pxStagingHeight) / 2 - pxTotalStackHeight;
+	unsigned int dim = (_flowDirection == UI::FlowDirection::Vertical);
+
+	float pxTotalStackSize = GetNavStackPixelSize(texman, lc, dc)[dim];
+	float pxStagingSize = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScale())[dim];
+	float pxTransitionTarget = (lc.GetPixelSize()[dim] + pxStagingSize) / 2 - pxTotalStackSize;
 
 	const UI::Window *preStaging = children.size() > 1 ? children[children.size() - 2].get() : nullptr;
 	float pxSpacing = UI::ToPx(_spacing, lc);
-	float pxPreStagingHeight = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScale()).y : 0;
-	float pxTransitionStart = (lc.GetPixelSize().y + pxPreStagingHeight) / 2 - (pxTotalStackHeight - pxStagingHeight - pxSpacing);
+	float pxPreStagingSize = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScale())[dim] : 0;
+	float pxTransitionStart = (lc.GetPixelSize()[dim] + pxPreStagingSize) / 2 - (pxTotalStackSize - pxStagingSize - pxSpacing);
 
 	if (_state == State::GoingBack)
 	{
 		std::swap(pxTransitionTarget, pxTransitionStart);
 	}
 
-	float pxTop = pxTransitionStart * transition + pxTransitionTarget * (1 - transition);
+	float pxBegin = pxTransitionStart * transition + pxTransitionTarget * (1 - transition);
 
 	for (auto wnd : children)
 	{
 		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScale());
 		if (wnd.get() == &child)
 		{
-			vec2d pxWndOffset = Vec2dFloor((lc.GetPixelSize().x - pxWndSize.x) / 2, pxTop);
+			vec2d pxWndOffset = Vec2dFloor(((lc.GetPixelSize() - pxWndSize) / 2)[1 - dim], pxBegin);
+			if (_flowDirection == UI::FlowDirection::Horizontal)
+				pxWndOffset = Vec2dTranspose(pxWndOffset);
 			return MakeRectWH(pxWndOffset, pxWndSize);
 		}
-		pxTop += pxWndSize.y + pxSpacing;
+		pxBegin += pxWndSize[dim] + pxSpacing;
 	}
 
 	assert(false);

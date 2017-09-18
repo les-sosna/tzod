@@ -10,6 +10,8 @@ class NavStack
 public:
 	explicit NavStack(UI::LayoutManager &manager);
 
+	void SetFlowDirection(UI::FlowDirection flowDirection) { _flowDirection = flowDirection; }
+	UI::FlowDirection GetFlowDirection() const { return _flowDirection; }
 	void SetSpacing(float spacing) { _spacing = spacing; }
 	void PopNavStack(UI::Window *wnd = nullptr);
 	void PushNavStack(std::shared_ptr<UI::Window> wnd);
@@ -51,12 +53,13 @@ private:
 		GoingBack,
 	};
 
+	UI::FlowDirection _flowDirection = UI::FlowDirection::Horizontal;
 	State _state = State::GoingForward;
 	float _spacing = 0;
 	float _navTransitionStartTime = 0;
 	float _foldTime = 0.25f;
 
-	float GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const;
+	vec2d GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const;
 	float GetTransitionTimeLeft() const;
 
 	// PointerSink

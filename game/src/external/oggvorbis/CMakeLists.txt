@@ -30,8 +30,8 @@ add_library(oggvorbis
 
 target_include_directories(oggvorbis PUBLIC include)
 if (WIN32)
-target_compile_options(oggvorbis PRIVATE
-	/wd4244 # conversion from 'double' to 'long', possible loss of data
-	/wd4305 # truncation from 'double' to 'float'
-)
+	target_compile_options(oggvorbis PRIVATE
+		/wd4244 # conversion from 'double' to 'long', possible loss of data
+		/wd4305 # truncation from 'double' to 'float'
+	)
 endif()

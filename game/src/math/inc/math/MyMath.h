@@ -244,6 +244,11 @@ inline vec2d Vec2dMulY(vec2d v, float m)
 	return vec2d{ v.x, v.y * m };
 }
 
+inline vec2d Vec2dTranspose(vec2d v)
+{
+	return vec2d{ v.y, v.x };
+}
+
 inline bool PtInFRect(const FRECT &rect, const vec2d &pt)
 {
 	return rect.left <= pt.x && pt.x < rect.right &&
