@@ -22,6 +22,7 @@ VehicleStateReader::VehicleStateReader()
   , _keyTowerRight(UI::Key::Unknown)
   , _keyTowerCenter(UI::Key::Unknown)
   , _keyNoPickup(UI::Key::Unknown)
+  , _gamepad(-1)
   , _aimToMouse(false)
   , _moveToMouse(false)
   , _arcadeStyle(false)
@@ -43,6 +44,7 @@ void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 	_keyTowerCenter = GetKeyCode(profile.key_tower_center.Get());
 	_keyNoPickup    = GetKeyCode(profile.key_no_pickup.Get());
 
+	_gamepad = profile.gamepad.GetInt();
 	_lastLightsState = profile.lights.Get();
 	_aimToMouse = profile.aim_to_mouse.Get();
 	_moveToMouse = profile.move_to_mouse.Get();
@@ -54,7 +56,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	memset(&vs, 0, sizeof(VehicleState));
 
 	vec2d mouse = input.GetMousePos();
-	UI::GamepadState gamepadState = input.GetGamepadState();
+	UI::GamepadState gamepadState = _gamepad != -1 ? input.GetGamepadState(_gamepad) : UI::GamepadState{};
 
 	auto c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)mouse.x, (int)mouse.y);
 

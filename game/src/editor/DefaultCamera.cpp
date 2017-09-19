@@ -46,9 +46,9 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 
 	direction.Normalize();
 
-	if (input.GetGamepadState().rightThumbstickPos.sqr() > .5f)
+	if (input.GetGamepadState(0).rightThumbstickPos.sqr() > .5f)
 	{
-		direction += input.GetGamepadState().rightThumbstickPos;
+		direction += input.GetGamepadState(0).rightThumbstickPos;
 	}
 
 	_speed += direction * dt * (6000 + _speed.len() * 8);

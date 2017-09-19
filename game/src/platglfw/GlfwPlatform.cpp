@@ -44,15 +44,15 @@ vec2d GlfwInput::GetMousePos() const
 	return GetCursorPosInPixels(&_window);
 }
 
-UI::GamepadState GlfwInput::GetGamepadState() const
+UI::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
 {
 	UI::GamepadState gamepadState = {};
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1 + index))
 	{
 		// XBox One/360 controller mapping
 
 		int axesCount = 0;
-		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1 + index, &axesCount);
 		if (axesCount >= 6)
 		{
 			gamepadState.leftThumbstickPos.x = axes[0];
@@ -64,7 +64,7 @@ UI::GamepadState GlfwInput::GetGamepadState() const
 		}
 
 		int buttonsCount = 0;
-		const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonsCount);
+		const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1 + index, &buttonsCount);
 		if (buttonsCount >= 14)
 		{
 			gamepadState.A = !!buttons[0];

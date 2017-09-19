@@ -43,6 +43,7 @@ private:
 	UI::Key _keyTowerRight;
 	UI::Key _keyTowerCenter;
 	UI::Key _keyNoPickup;
+	int _gamepad;
 	bool _aimToMouse;
 	bool _moveToMouse;
 	bool _arcadeStyle;

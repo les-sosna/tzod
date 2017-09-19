@@ -11,7 +11,7 @@ public:
 	bool IsKeyPressed(UI::Key key) const override;
 	bool IsMousePressed(int button) const override;
 	vec2d GetMousePos() const override;
-	UI::GamepadState GetGamepadState() const override;
+	UI::GamepadState GetGamepadState(unsigned int index) const override;
 
 private:
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;

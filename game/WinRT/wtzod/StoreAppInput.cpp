@@ -53,14 +53,14 @@ vec2d StoreAppInput::GetMousePos() const
 	              DX::ConvertDipsToPixels(pos.Y - _coreWindow->Bounds.Top, dpi) };
 }
 
-UI::GamepadState StoreAppInput::GetGamepadState() const
+UI::GamepadState StoreAppInput::GetGamepadState(unsigned int index) const
 {
 	UI::GamepadState result = {};
 
 	IVectorView<Gamepad^> ^gamepads = Gamepad::Gamepads;
-	if (gamepads->Size > 0)
+	if (index < gamepads->Size)
 	{
-		Gamepad ^gamepad = gamepads->GetAt(0);
+		Gamepad ^gamepad = gamepads->GetAt(index);
 		GamepadReading gamepadReading = gamepad->GetCurrentReading();
 
 		result.leftTrigger = static_cast<float>(gamepadReading.LeftTrigger);

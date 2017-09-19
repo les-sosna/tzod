@@ -38,14 +38,16 @@ void InputManager::OnProfilesChange()
 {
 	_controllers.clear();
 
+	int hack = 0; // FIXME:
 	for (auto &key: _conf.dm_profiles.GetKeys())
 	{
 		_controllers.emplace_back();
 
-		ConfVar *p = _conf.dm_profiles.Find(key.c_str());
+		ConfVar *p = _conf.dm_profiles.Find(key);
 		if (p && ConfVar::typeTable == p->GetType())
 		{
 			ConfControllerProfile t(&p->AsTable());
+			t.gamepad.SetInt(hack++);
 			_controllers.back().SetProfile(t);
 		}
 		else
