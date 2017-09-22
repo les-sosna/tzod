@@ -91,9 +91,10 @@ GlfwClipboard::GlfwClipboard(GLFWwindow &window)
 	: _window(window)
 {}
 
-const char* GlfwClipboard::GetClipboardText() const
+std::string_view GlfwClipboard::GetClipboardText() const
 {
-	return glfwGetClipboardString(&_window);
+	const char *text = glfwGetClipboardString(&_window);
+	return text ? text : std::string_view();
 }
 
 void GlfwClipboard::SetClipboardText(std::string text)

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "StoreAppClipboard.h"
 
-const char* StoreAppClipboard::GetClipboardText() const
+std::string_view StoreAppClipboard::GetClipboardText() const
 {
 	return "hello";
 }

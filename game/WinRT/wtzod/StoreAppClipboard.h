@@ -5,6 +5,6 @@ class StoreAppClipboard : public UI::IClipboard
 {
 public:
 	// UI::IClipboard
-	const char* GetClipboardText() const override;
+	std::string_view GetClipboardText() const override;
 	void SetClipboardText(std::string text) override;
 };

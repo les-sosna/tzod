@@ -327,14 +327,16 @@ int EditableText::HitTest(TextureManager &texman, vec2d px, float scale) const
 
 void EditableText::Paste(const IClipboard &clipboard)
 {
-	if (const char *data = clipboard.GetClipboardText())
+	auto data = clipboard.GetClipboardText();
+	if (!data.empty())
 	{
 		std::ostringstream buf;
 		buf << GetText().substr(0, GetSelMin());
 		buf << data;
 		buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
 		SetText(buf.str());
-		SetSel(GetSelMin() + std::strlen(data), GetSelMin() + std::strlen(data));
+		int sel = GetSelMin() + static_cast<int>(data.size());
+		SetSel(sel, sel);
 	}
 }
 
