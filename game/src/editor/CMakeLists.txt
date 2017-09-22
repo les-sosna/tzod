@@ -8,6 +8,7 @@ add_library(editor
 	inc/editor/detail/QuickActions.h
 
 	GameClassVis.h
+	MapList.h
 	PropertyList.h
 #	ServiceEditor.h
 
@@ -15,6 +16,7 @@ add_library(editor
 	DefaultCamera.cpp
 	Editor.cpp
 	GameClassVis.cpp
+	MapList.cpp
 	MapSettings.cpp
 	PropertyList.cpp
 	QuickActions.cpp
@@ -25,14 +27,15 @@ add_library(editor
 target_link_libraries(editor PRIVATE
 	cbind
 	ctx
+	filesystem
 	gc
 	gclua
 	gv
 	loc
 	lua
 	luaetc
-	ui
 	render
+	ui
 )
 
 target_include_directories(editor INTERFACE inc)
