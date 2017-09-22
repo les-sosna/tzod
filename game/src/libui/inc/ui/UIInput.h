@@ -33,5 +33,6 @@ namespace UI
 		virtual bool IsMousePressed(int button) const = 0;
 		virtual vec2d GetMousePos() const = 0;
 		virtual GamepadState GetGamepadState(unsigned int index) const = 0;
+		virtual bool GetSystemNavigationBackAvailable() const = 0;
 	};
 }

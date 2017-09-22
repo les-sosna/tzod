@@ -86,6 +86,11 @@ UI::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
 	return gamepadState;
 }
 
+bool GlfwInput::GetSystemNavigationBackAvailable() const
+{
+	return true;
+}
+
 
 GlfwClipboard::GlfwClipboard(GLFWwindow &window)
 	: _window(window)
