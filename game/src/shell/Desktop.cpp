@@ -10,7 +10,6 @@
 #include "inc/shell/Config.h"
 #include "inc/shell/Desktop.h"
 #include "inc/shell/Profiler.h"
-
 #include <as/AppConstants.h>
 #include <as/AppController.h>
 #include <as/AppState.h>
@@ -44,8 +43,6 @@ extern "C"
 #include <functional>
 
 
-static CounterBase counterDt("dt", "dt, ms");
-
 Desktop::Desktop(UI::LayoutManager &manager,
                  TextureManager &texman,
                  AppState &appState,
@@ -56,7 +53,7 @@ Desktop::Desktop(UI::LayoutManager &manager,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
                  UI::ConsoleBuffer &logger)
-  : TimeStepping(manager)
+  : Managerful(manager)
   , AppStateListener(appState)
   , _history(conf)
   , _texman(texman)
@@ -142,20 +139,12 @@ Desktop::Desktop(UI::LayoutManager &manager,
 	_navStack->SetSpacing(_conf.ui_spacing.GetFloat());
 	AddFront(_navStack);
 
-	SetTimeStep(true);
 	OnGameContextChanged();
 }
 
 Desktop::~Desktop()
 {
 	_conf.ui_showfps.eventChange = nullptr;
-}
-
-void Desktop::OnTimeStep(const UI::InputContext &ic, float dt)
-{
-	dt *= _conf.sv_speed.GetFloat() / 100.0f;
-
-	counterDt.Push(dt);
 }
 
 bool Desktop::GetEditorMode() const

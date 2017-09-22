@@ -34,7 +34,7 @@ class NavStack;
 
 class Desktop
 	: public UI::Window
-	, private UI::TimeStepping
+	, private UI::Managerful
 	, private UI::KeyboardSink
 	, private UI::NavigationSink
 	, private AppStateListener
@@ -61,7 +61,6 @@ public:
 protected:
 	UI::NavigationSink* GetNavigationSink() { return this; }
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
-	void OnTimeStep(const UI::InputContext &ic, float dt) override;
 
 private:
 	ConfigConsoleHistory  _history;

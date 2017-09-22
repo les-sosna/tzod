@@ -3,6 +3,7 @@
 #include <as/AppConstants.h>
 #include <fs/FileSystem.h>
 #include <shell/Desktop.h>
+#include <shell/Profiler.h>
 #include <ui/AppWindow.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/DataContext.h>
@@ -17,6 +18,8 @@
 #ifndef NOSOUND
 #include <audio/SoundView.h>
 #endif
+
+static CounterBase counterDt("dt", "dt, ms");
 
 static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &logger, IRender &render)
 {
@@ -88,6 +91,7 @@ void TzodView::Step(float dt)
 {
 	_appWindow.MakeCurrent();
 	_impl->gui.TimeStep(dt); // this also sends user controller state to WorldController
+	counterDt.Push(dt);
 }
 
 static bool CanNavigateBack(UI::Window *wnd, const UI::DataContext &dc)
