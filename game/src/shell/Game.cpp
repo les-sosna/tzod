@@ -207,9 +207,9 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 	return count;
 }
 
-void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
+void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 {
-	bool tab = manager.GetInputContext().GetInput().IsKeyPressed(UI::Key::Tab);
+	bool tab = ic.GetInput().IsKeyPressed(UI::Key::Tab);
 	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
 	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
@@ -222,20 +222,11 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 
 	_gameViewHarness.Step(dt);
 
-	bool readUserInput = false;
-	for (auto wnd = manager.GetDesktop(); wnd; wnd = wnd->GetFocus())
-	{
-		if (this == wnd.get())
-		{
-			readUserInput = true;
-		}
-	}
-
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (auto player : players)
-		player->SetIsActive(readUserInput);
+		player->SetIsActive(ic.GetFocused());
 
-	if (readUserInput)
+	if (ic.GetFocused())
 	{
 		WorldController::ControllerStateMap controlStates;
 
@@ -251,7 +242,7 @@ void GameLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
 				{
 					VehicleState vs;
 					vehicleStateReader->ReadVehicleState(_gameViewHarness, *vehicle, playerIndex,
-						manager.GetInputContext().GetInput(), dragDirection, reversing, vs);
+						ic.GetInput(), dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}

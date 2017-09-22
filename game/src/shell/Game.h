@@ -29,7 +29,7 @@ namespace UI
 
 class GameLayout
 	: public UI::Window
-	, private UI::TimeStepping
+	, public UI::TimeStepping
 	, private UI::PointerSink
 	, private GameListener
 {
@@ -45,7 +45,7 @@ public:
 	virtual ~GameLayout();
 
 	// Window
-	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
+	void OnTimeStep(const UI::InputContext &ic, float dt) override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	PointerSink* GetPointerSink() override { return this; }

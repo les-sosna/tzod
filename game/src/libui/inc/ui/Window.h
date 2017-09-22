@@ -205,7 +205,7 @@ public:
 
 	void SetTimeStep(bool enable);
 
-	virtual void OnTimeStep(LayoutManager &manager, float dt) {}
+	virtual void OnTimeStep(const InputContext &ic, float dt) {}
 
 private:
 	std::list<TimeStepping*>::iterator _timeStepReg;

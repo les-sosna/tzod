@@ -61,7 +61,7 @@ public:
 protected:
 	UI::NavigationSink* GetNavigationSink() { return this; }
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
-	void OnTimeStep(UI::LayoutManager &manager, float dt) override;
+	void OnTimeStep(const UI::InputContext &ic, float dt) override;
 
 private:
 	ConfigConsoleHistory  _history;

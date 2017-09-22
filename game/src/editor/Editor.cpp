@@ -309,9 +309,9 @@ vec2d EditorLayout::AlignToGrid(vec2d worldPos) const
 	return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
 }
 
-void EditorLayout::OnTimeStep(UI::LayoutManager &manager, float dt)
+void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 {
-	_defaultCamera.HandleMovement(manager.GetInputContext().GetInput(), _world._bounds, dt);
+	_defaultCamera.HandleMovement(ic.GetInput(), _world._bounds, dt);
 
 	// Workaround: we do not get notifications when the object is killed
 	if (!_selectedObject)

@@ -12,7 +12,7 @@ MessageArea::MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger)
 {
 }
 
-void MessageArea::OnTimeStep(UI::LayoutManager &manager, float dt)
+void MessageArea::OnTimeStep(const UI::InputContext &ic, float dt)
 {
 	for( size_t i = 0; i < _lines.size(); ++i )
 		_lines[i].time -= dt;

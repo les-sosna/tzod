@@ -61,7 +61,7 @@ public:
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 	// Managerful
-	void OnTimeStep(LayoutManager &manager, float dt) override;
+	void OnTimeStep(const InputContext &ic, float dt) override;
 
 private:
 	std::shared_ptr<ScrollBarVertical> _scroll;

@@ -151,7 +151,7 @@ Desktop::~Desktop()
 	_conf.ui_showfps.eventChange = nullptr;
 }
 
-void Desktop::OnTimeStep(UI::LayoutManager &manager, float dt)
+void Desktop::OnTimeStep(const UI::InputContext &ic, float dt)
 {
 	dt *= _conf.sv_speed.GetFloat() / 100.0f;
 

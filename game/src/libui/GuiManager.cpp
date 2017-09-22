@@ -50,7 +50,22 @@ void LayoutManager::TimeStep(float dt)
 
 	for( _tsCurrent = _timestep.begin(); _tsCurrent != _timestep.end(); )
 	{
-		(*_tsCurrent)->OnTimeStep(*this, dt);
+		bool focused = false;
+		for (auto wnd = GetDesktop(); wnd; wnd = wnd->GetFocus())
+		{
+			if (*_tsCurrent == dynamic_cast<TimeStepping*>(wnd.get()))
+			{
+				focused = true;
+				break;
+			}
+		}
+
+		_inputContext.PushInputTransform(vec2d{}, focused, false);
+
+		(*_tsCurrent)->OnTimeStep(_inputContext, dt);
+
+		_inputContext.PopInputTransform();
+
 		if (_tsDeleteCurrent)
 		{
 			_tsDeleteCurrent = false;

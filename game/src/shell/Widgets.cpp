@@ -23,7 +23,7 @@ FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignTe
 	SetAlign(align);
 }
 
-void FpsCounter::OnTimeStep(UI::LayoutManager &manager, float dt)
+void FpsCounter::OnTimeStep(const UI::InputContext &ic, float dt)
 {
 	_dts.push_back(dt);
 	if( _dts.size() > 200 ) _dts.pop_front();

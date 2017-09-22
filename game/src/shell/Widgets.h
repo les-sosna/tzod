@@ -23,7 +23,7 @@ public:
 	FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
-	void OnTimeStep(UI::LayoutManager &manager, float dt);
+	void OnTimeStep(const UI::InputContext &ic, float dt);
 };
 
 class Oscilloscope : public UI::Rectangle
