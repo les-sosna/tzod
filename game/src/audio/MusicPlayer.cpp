@@ -29,7 +29,7 @@ MusicPlayer::MusicPlayer()
   : _playing(false)
 {
 	memset(&_vorbisFile, 0, sizeof(OggVorbis_File));
-    alGenBuffers(_buffers.size(), _buffers.data());
+    alGenBuffers(static_cast<ALsizei>(_buffers.size()), _buffers.data());
     ThrowIfALError();
     alGenSources(1, &_source);
     ThrowIfALError();
@@ -42,7 +42,7 @@ MusicPlayer::~MusicPlayer()
 	Cleanup();
     alDeleteSources(1, &_source);
     LogALError();
-    alDeleteBuffers(_buffers.size(), _buffers.data());
+    alDeleteBuffers(static_cast<ALsizei>(_buffers.size()), _buffers.data());
     LogALError();
 }
 
@@ -88,7 +88,7 @@ void MusicPlayer::FillAndQueue(ALuint bufName)
 	}
 
     const vorbis_info *vi = ov_info(&_vorbisFile, -1);
-    alBufferData(bufName, vi->channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, buf, sizeof(buf), vi->rate);
+    alBufferData(bufName, vi->channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, buf, sizeof(buf), static_cast<ALsizei>(vi->rate));
     ThrowIfALError();
     alSourceQueueBuffers(_source, 1, &bufName);
     ThrowIfALError();
