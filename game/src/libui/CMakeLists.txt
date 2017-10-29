@@ -52,7 +52,7 @@ add_library(ui
 	inc/ui/ListSelectionBinding.h
 	inc/ui/MultiColumnListItem.h
 	inc/ui/Navigation.h
-	inc/ui/Pointers.h
+	inc/ui/PointerInput.h
 	inc/ui/Rating.h
 	inc/ui/Rectangle.h
 	inc/ui/ScrollBar.h

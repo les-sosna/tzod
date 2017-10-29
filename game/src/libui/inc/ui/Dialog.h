@@ -1,5 +1,6 @@
 #pragma once
 #include "Navigation.h"
+#include "PointerInput.h"
 #include "Rectangle.h"
 #include <functional>
 

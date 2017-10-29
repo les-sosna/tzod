@@ -5,7 +5,7 @@
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
-#include <ui/Pointers.h>
+#include <ui/PointerInput.h>
 #include <ui/Window.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>

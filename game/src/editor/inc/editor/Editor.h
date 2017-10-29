@@ -3,6 +3,7 @@
 #include "detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/ObjPtr.h>
+#include <ui/PointerInput.h>
 #include <ui/Texture.h>
 #include <ui/Window.h>
 #include <functional>

@@ -1,4 +1,5 @@
 #pragma once
+#include <ui/PointerInput.h>
 #include <ui/Window.h>
 #include <vector>
 

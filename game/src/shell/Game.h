@@ -3,9 +3,10 @@
 #include "InputManager.h"
 #include <ctx/GameEvents.h>
 #include <gv/GameViewHarness.h>
+#include <ui/PointerInput.h>
+#include <ui/Text.h>
 #include <ui/Texture.h>
 #include <ui/Window.h>
-#include <ui/Text.h>
 #include <unordered_map>
 
 class ShellConfig;

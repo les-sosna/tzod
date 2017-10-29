@@ -1,4 +1,5 @@
 #pragma once
+#include "PointerInput.h"
 #include "Texture.h"
 #include "Window.h"
 #include <string_view>

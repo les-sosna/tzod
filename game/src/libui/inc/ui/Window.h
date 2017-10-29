@@ -20,6 +20,7 @@ class StateContext;
 enum class Key;
 enum class PointerType;
 struct NavigationSink;
+struct PointerSink;
 template <class> struct LayoutData;
 
 enum class StretchMode
@@ -37,21 +38,6 @@ enum class FlowDirection
 struct ScrollSink
 {
 	virtual void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset) = 0;
-};
-
-struct PointerInfo
-{
-	vec2d position;
-	PointerType type;
-	unsigned int id;
-};
-
-struct PointerSink
-{
-	virtual bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) { return false; }
-	virtual void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) {}
-	virtual void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) {}
-	virtual void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) {}
 };
 
 struct KeyboardSink
