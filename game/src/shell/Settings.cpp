@@ -29,12 +29,12 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 {
 	Resize(512, 296);
 
-	auto text = std::make_shared<UI::Text>();
-	text->Move(GetWidth() / 2, 16);
-	text->SetText(ConfBind(_lang.settings_title));
-	text->SetAlign(alignTextCT);
-	text->SetFont("font_default");
-	AddFront(text);
+	auto title = std::make_shared<UI::Text>();
+	title->Move(GetWidth() / 2, 16);
+	title->SetText(ConfBind(_lang.settings_title));
+	title->SetAlign(alignTextCT);
+	title->SetFont("font_default");
+	AddFront(title);
 
 
 	//
@@ -51,7 +51,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	AddFront(_content);
 	SetFocus(_content);
 
-	text = std::make_shared<UI::Text>();
+	auto text = std::make_shared<UI::Text>();
 	text->SetText(ConfBind(_lang.settings_player1));
 	_content->AddFront(text);
 
