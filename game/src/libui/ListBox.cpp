@@ -20,7 +20,6 @@ ListBox::ListBox(ListDataSource* dataSource)
 	_list->SetItemTemplate(std::make_shared<UI::MultiColumnListItem>());
 
 	_scrollView->SetContent(_list);
-	SetFocus(_scrollView);
 
 	_background->SetTexture("ui/list");
 	_background->SetDrawBorder(true);
@@ -49,3 +48,7 @@ vec2d ListBox::GetContentSize(TextureManager &texman, const DataContext &dc, flo
 	return _scrollView->GetContentSize(texman, dc, scale) + Vec2dFloor(c_borderSize * scale) * 2;
 }
 
+std::shared_ptr<Window> ListBox::GetFocus() const
+{
+	return _scrollView;
+}

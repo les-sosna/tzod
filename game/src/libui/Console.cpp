@@ -59,7 +59,6 @@ Console::Console(LayoutManager &manager, TextureManager &texman)
 {
 	_input = std::make_shared<Edit>();
 	AddFront(_input);
-	SetFocus(_input);
 	_scroll = std::make_shared<ScrollBarVertical>(texman);
 	_scroll->eventScroll = std::bind(&Console::OnScrollBar, this, std::placeholders::_1);
 	AddFront(_scroll);
@@ -259,6 +258,11 @@ FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, con
 		return MakeRectRB(vec2d{lc.GetPixelSize().x - scrollWidth}, lc.GetPixelSize());
 	}
 	return Rectangle::GetChildRect(texman, lc, dc, child);
+}
+
+std::shared_ptr<Window> Console::GetFocus() const
+{
+	return _input;
 }
 
 void Console::OnScrollBar(float pos)

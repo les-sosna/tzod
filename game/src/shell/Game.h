@@ -50,6 +50,7 @@ public:
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	PointerSink* GetPointerSink() override { return this; }
+	std::shared_ptr<Window> GetFocus() const;
 
 private:
 	void OnChangeShowTime();

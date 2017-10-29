@@ -19,6 +19,7 @@ namespace UI
 		// Window
 		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
+		std::shared_ptr<Window> GetFocus() const override;
 
 	private:
 		std::shared_ptr<Rectangle> _background;

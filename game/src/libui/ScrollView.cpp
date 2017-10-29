@@ -19,7 +19,6 @@ void ScrollView::SetContent(std::shared_ptr<Window> content)
 		}
 		_content = content;
 		AddBack(_content);
-		SetFocus(_content);
 	}
 }
 

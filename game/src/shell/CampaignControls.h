@@ -17,6 +17,7 @@ public:
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const override;
+	std::shared_ptr<UI::Window> GetFocus() const override;
 
 private:
 	std::shared_ptr<UI::StackLayout> _content;

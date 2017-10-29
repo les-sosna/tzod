@@ -109,7 +109,6 @@ GameLayout::GameLayout(UI::LayoutManager &manager,
 	_scoreAndControls->SetSpacing(20);
 	_scoreAndControls->SetAlign(UI::Align::CT);
 	AddFront(_scoreAndControls);
-	SetFocus(_scoreAndControls);
 
 	_msg = std::make_shared<MessageArea>(manager, logger);
 	AddFront(_msg);
@@ -306,6 +305,11 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
 	}
 	return UI::Window::GetChildRect(texman, lc, dc, child);
+}
+
+std::shared_ptr<UI::Window> GameLayout::GetFocus() const
+{
+	return _scoreAndControls;
 }
 
 bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)

@@ -22,9 +22,7 @@ Edit::Edit()
 	_background->SetFrame(c_backgroundFrame);
 	AddFront(_background);
 	AddFront(_scrollView);
-	SetFocus(_scrollView);
 	_scrollView->SetContent(_editable);
-	_scrollView->SetFocus(_editable);
 	_scrollView->SetHorizontalScrollEnabled(true);
 	_scrollView->SetVerticalScrollEnabled(false);
 
@@ -57,4 +55,9 @@ FRECT Edit::GetChildRect(TextureManager &texman, const LayoutContext &lc, const 
 vec2d Edit::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
 {
 	return _editable->GetContentSize(texman, dc, scale);
+}
+
+std::shared_ptr<Window> Edit::GetFocus() const
+{
+	return _scrollView;
 }

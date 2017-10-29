@@ -153,7 +153,7 @@ public:
 	bool GetEnabled(const DataContext &dc) const;
 
 	void SetFocus(std::shared_ptr<Window> child);
-	std::shared_ptr<Window> GetFocus() const;
+	virtual std::shared_ptr<Window> GetFocus() const;
 
 
 	//

@@ -14,7 +14,6 @@ CampaignControls::CampaignControls(const Deathmatch &deathmatch, CampaignControl
 	_content->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->SetSpacing(20);
 	AddFront(_content);
-	SetFocus(_content);
 
 	auto replay = std::make_shared<UI::Button>();
 	replay->Resize(200, 50);
@@ -44,4 +43,9 @@ FRECT CampaignControls::GetChildRect(TextureManager &texman, const UI::LayoutCon
 vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const
 {
 	return _content->GetContentSize(texman, dc, scale);
+}
+
+std::shared_ptr<UI::Window> CampaignControls::GetFocus() const
+{
+	return _content;
 }
