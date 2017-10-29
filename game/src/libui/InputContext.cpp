@@ -215,12 +215,15 @@ bool InputContext::ProcessPointer(
 
 		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
 
-		pxPointerPosition -= childOffsetAndLC.first;
+		PointerInfo pi;
+		pi.position = pxPointerPosition - childOffsetAndLC.first;
+		pi.type = pointerType;
+		pi.id = pointerID;
 
 		switch (msg)
 		{
 		case Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, childOffsetAndLC.second, texman, pxPointerPosition, button, pointerType, pointerID))
+			if (pointerSink->OnPointerDown(*this, childOffsetAndLC.second, texman, pi, button))
 			{
 				_pointerCaptures[pointerID].capturePath = std::move(sinkPath);
 			}
@@ -233,14 +236,14 @@ bool InputContext::ProcessPointer(
 				auto target = std::move(sinkPath.front());
 				sinkPath.clear();
 				_pointerCaptures.erase(pointerID);
-				pointerSink->OnPointerUp(*this, childOffsetAndLC.second, texman, pxPointerPosition, button, pointerType, pointerID);
+				pointerSink->OnPointerUp(*this, childOffsetAndLC.second, texman, pi, button);
 			}
 			break;
 		case Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, childOffsetAndLC.second, texman, pxPointerPosition, pointerType, pointerID, isPointerCaptured);
+			pointerSink->OnPointerMove(*this, childOffsetAndLC.second, texman, pi, isPointerCaptured);
 			break;
 		case Msg::TAP:
-			pointerSink->OnTap(*this, childOffsetAndLC.second, texman, pxPointerPosition);
+			pointerSink->OnTap(*this, childOffsetAndLC.second, texman, pi.position);
 			break;
 		default:
 			assert(false);
@@ -250,7 +253,7 @@ bool InputContext::ProcessPointer(
 	return !!pointerSink;
 }
 
-bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset)
+bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d scrollOffset)
 {
 	ScrollSink *scrollSink = nullptr;
 	std::vector<std::shared_ptr<Window>> sinkPath;
@@ -271,7 +274,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	{
 		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
 		pxPointerPosition -= childOffsetAndLC.first;
-		scrollSink->OnScroll(texman, *this, childOffsetAndLC.second, dc, pxPointerPosition, offset);
+		scrollSink->OnScroll(texman, *this, childOffsetAndLC.second, dc, scrollOffset);
 		return true;
 	}
 

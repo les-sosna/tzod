@@ -30,29 +30,29 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	return stateNormal;
 }
 
-void ButtonBase::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
+void ButtonBase::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
 {
 	if( eventMouseMove )
-		eventMouseMove(pointerPosition.x, pointerPosition.y);
+		eventMouseMove(pi.position.x, pi.position.y);
 }
 
-bool ButtonBase::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool ButtonBase::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
 	{
 		if( eventMouseDown )
-			eventMouseDown(pointerPosition.x, pointerPosition.y);
+			eventMouseDown(pi.position.x, pi.position.y);
 		return true;
 	}
 	return false;
 }
 
-void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	auto size = lc.GetPixelSize();
-	bool pointerInside = pointerPosition.x < size.x && pointerPosition.y < size.y && pointerPosition.x >= 0 && pointerPosition.y >= 0;
+	bool pointerInside = pi.position.x < size.x && pi.position.y < size.y && pi.position.x >= 0 && pi.position.y >= 0;
 	if( eventMouseUp )
-		eventMouseUp(pointerPosition.x, pointerPosition.y);
+		eventMouseUp(pi.position.x, pi.position.y);
 	if( pointerInside )
 	{
 		DoClick();

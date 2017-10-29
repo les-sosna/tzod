@@ -125,11 +125,11 @@ int List::HitTest(vec2d pxPos, TextureManager &texman, float scale) const
 	return index;
 }
 
-bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if( 1 == button && pointerType == PointerType::Mouse )
+	if( 1 == button && pi.type == PointerType::Mouse )
 	{
-		OnTap(ic, lc, texman, pointerPosition);
+		OnTap(ic, lc, texman, pi.position);
 	}
 	return false;
 }

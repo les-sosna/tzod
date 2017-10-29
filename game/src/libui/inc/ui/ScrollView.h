@@ -27,7 +27,7 @@ namespace UI
 		bool _horizontalScrollEnabled = false;
 
 		// ScrollSink
-		void OnScroll(TextureManager &texman, const UI::InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d pointerPosition, vec2d offset) override;
+		void OnScroll(TextureManager &texman, const UI::InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset) override;
 	};
 
 }// namespace UI

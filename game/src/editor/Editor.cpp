@@ -321,16 +321,16 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	}
 }
 
-void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d pointerPosition, vec2d offset)
+void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset)
 {
-	_defaultCamera.Move(offset, _world._bounds);
+	_defaultCamera.Move(scrollOffset, _world._bounds);
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
+void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	if (_capturedButton)
 	{
-		vec2d worldPos = CanvasToWorld(lc, pointerPosition);
+		vec2d worldPos = CanvasToWorld(lc, pi.position);
 		if (2 == _capturedButton)
 		{
 			EraseAt(worldPos);
@@ -344,7 +344,7 @@ void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Te
 	}
 }
 
-void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (_capturedButton == button )
 	{
@@ -352,9 +352,9 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, Text
 	}
 }
 
-bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	if (pointerType == UI::PointerType::Touch)
+	if (pi.type == UI::PointerType::Touch)
 		return false; // ignore touch here to not conflict with scroll. handle tap instead
 
 	bool capture = false;
@@ -372,7 +372,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 
 	SetFocus(nullptr);
 
-	vec2d worldPos = CanvasToWorld(lc, pointerPosition);
+	vec2d worldPos = CanvasToWorld(lc, pi.position);
 	if (2 == button)
 	{
 		EraseAt(worldPos);

@@ -272,22 +272,22 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 	return false;
 }
 
-bool EditableText::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, PointerType pointerType, unsigned int pointerID)
+bool EditableText::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if (pointerType == PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this))
+	if (pi.type == PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this))
 	{
-		int sel = HitTest(texman, pointerPosition, lc.GetScale());
+		int sel = HitTest(texman, pi.position, lc.GetScale());
 		SetSel(sel, sel);
 		return true;
 	}
 	return false;
 }
 
-void EditableText::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, PointerType pointerType, unsigned int pointerID, bool captured)
+void EditableText::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
 {
 	if (captured)
 	{
-		int sel = HitTest(texman, pointerPosition, lc.GetScale());
+		int sel = HitTest(texman, pi.position, lc.GetScale());
 		SetSel(GetSelStart(), sel);
 	}
 }

@@ -46,7 +46,7 @@ vec2d ScrollView::GetContentSize(TextureManager &texman, const DataContext &dc, 
 	return _content ? _content->GetContentSize(texman, dc, scale) : vec2d{};
 }
 
-void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d pointerPosition, vec2d scrollOffset)
+void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset)
 {
 	if (_content)
 	{

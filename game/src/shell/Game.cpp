@@ -308,28 +308,28 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	if (UI::PointerType::Touch == pointerType)
+	if (UI::PointerType::Touch == pi.type)
 	{
-		_activeDrags[pointerID].first = pointerPosition;
-		_activeDrags[pointerID].second = pointerPosition;
+		_activeDrags[pi.id].first = pi.position;
+		_activeDrags[pi.id].second = pi.position;
 		return true;
 	}
 	return false;
 }
 
-void GameLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, int button, UI::PointerType pointerType, unsigned int pointerID)
+void GameLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	_activeDrags.erase(pointerID);
+	_activeDrags.erase(pi.id);
 }
 
-void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition, UI::PointerType pointerType, unsigned int pointerID, bool captured)
+void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	if( captured )
 	{
-		auto &drag = _activeDrags[pointerID];
-		drag.second = pointerPosition;
+		auto &drag = _activeDrags[pi.id];
+		drag.second = pi.position;
 		vec2d dir = drag.second - drag.first;
 		const float maxDragLength = 100;
 		if (dir.len() > maxDragLength)
