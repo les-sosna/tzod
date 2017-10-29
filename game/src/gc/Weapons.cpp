@@ -403,6 +403,7 @@ void GC_Weap_Ram::AdjustVehicleClass(VehicleClass &vc) const
 {
 	vc.health *= AdjustHealth(350);
 	vc.m *= 2.0f;
+	vc.i *= 2.0f;
 	vc.percussion *= 5.0f;
 	vc.fragility *= 0.5f;
 }
@@ -412,7 +413,7 @@ void GC_Weap_Ram::Fire(World &world, bool fire)
 	GC_Weapon::Fire(world, fire);
 	if( GetFire() )
 	{
-		GetVehicle()->ApplyForce(GetDirection() * 2000);
+		GetVehicle()->ApplyForce(GetDirection() * 2500);
 	}
 }
 
