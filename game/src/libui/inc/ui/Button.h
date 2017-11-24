@@ -76,6 +76,8 @@ public:
 	void AlignToBackground(TextureManager &texman);
 
 	// Window
+	unsigned int GetChildrenCount() const override;
+	std::shared_ptr<const Window> GetChild(unsigned int index) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 private:

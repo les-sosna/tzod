@@ -135,9 +135,6 @@ Button::Button()
 	: _background(std::make_shared<Rectangle>())
 	, _text(std::make_shared<Text>())
 {
-	AddFront(_background);
-	AddFront(_text);
-
 	_background->SetFrame(c_backgroundFrame);
 
 	_text->SetAlign(alignTextCC);
@@ -162,18 +159,13 @@ void Button::SetIcon(TextureManager &texman, const char *spriteName)
 			_icon = std::make_shared<Rectangle>();
 			_icon->SetBackColor(c_textColor);
 			_icon->SetBorderColor(c_textColor);
-			AddFront(_icon);
 		}
 		_icon->SetTexture(spriteName);
 		_icon->Resize(_icon->GetTextureWidth(texman), _icon->GetTextureHeight(texman));
 	}
 	else
 	{
-		if (_icon)
-		{
-			UnlinkChild(*_icon);
-			_icon.reset();
-		}
+		_icon.reset();
 	}
 }
 
@@ -195,6 +187,23 @@ const Texture& Button::GetBackground() const
 void Button::AlignToBackground(TextureManager &texman)
 {
 	Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
+}
+
+unsigned int Button::GetChildrenCount() const
+{
+	return 2 + !!_icon;
+}
+
+std::shared_ptr<const Window> Button::GetChild(unsigned int index) const
+{
+	switch (index)
+	{
+	default:
+		assert(false);
+	case 0: return _background;
+	case 1: return _text;
+	case 2: assert(_icon); return _icon;
+	}
 }
 
 FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
