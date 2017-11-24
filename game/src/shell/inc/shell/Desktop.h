@@ -59,7 +59,9 @@ public:
 	float GetChildOpacity(const UI::Window &child) const override;
 
 protected:
-	UI::NavigationSink* GetNavigationSink() { return this; }
+	bool HasNavigationSink() const override { return true; }
+	UI::NavigationSink* GetNavigationSink() override { return this; }
+	bool HasKeyboardSink() const override { return true; }
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
 
 private:

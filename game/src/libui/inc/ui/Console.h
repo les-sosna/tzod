@@ -55,7 +55,9 @@ public:
 	std::function<bool(std::string_view, int &, std::string &)> eventOnRequestCompleteCommand;
 
 	// Window
+	bool HasScrollSink() const override { return true; }
 	ScrollSink* GetScrollSink() override { return this; }
+	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;

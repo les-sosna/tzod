@@ -19,6 +19,7 @@ public:
 	const std::shared_ptr<EditableText>& GetEditable() const { return _editable; }
 
 	// Window
+	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;

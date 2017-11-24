@@ -34,6 +34,6 @@ namespace UI
 		virtual void OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc) = 0;
 	};
 
-	std::shared_ptr<Window> GetPrevFocusChild(const Window &wnd, const DataContext &dc);
-	std::shared_ptr<Window> GetNextFocusChild(const Window &wnd, const DataContext &dc);
+	std::shared_ptr<Window> GetPrevFocusChild(Window &wnd, const DataContext &dc);
+	std::shared_ptr<Window> GetNextFocusChild(Window &wnd, const DataContext &dc);
 }

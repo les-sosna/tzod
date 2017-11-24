@@ -75,7 +75,7 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 		vec2d{ pxMaxSize, pxTotalSize };
 }
 
-std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Navigate navigate) const
+std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Navigate navigate)
 {
 	switch (navigate)
 	{
@@ -97,7 +97,7 @@ std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Na
 
 bool StackLayout::CanNavigate(Navigate navigate, const DataContext &dc) const
 {
-	return !!GetNavigateTarget(dc, navigate);
+	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(dc, navigate);
 }
 
 void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)

@@ -26,6 +26,7 @@ namespace UI
 		Align GetAlign() const { return _align; }
 
 		// Window
+		bool HasNavigationSink() const override { return true; }
 		NavigationSink* GetNavigationSink() override { return this; }
 		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
@@ -35,7 +36,7 @@ namespace UI
 		FlowDirection _flowDirection = FlowDirection::Vertical;
 		Align _align = Align::LT;
 
-		std::shared_ptr<Window> GetNavigateTarget(const DataContext &dc, Navigate navigate) const;
+		std::shared_ptr<Window> GetNavigateTarget(const DataContext &dc, Navigate navigate);
 
 		// NavigationSink
 		bool CanNavigate(Navigate navigate, const DataContext &dc) const override;

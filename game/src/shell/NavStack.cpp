@@ -97,7 +97,7 @@ vec2d NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutCon
 	vec2d pxNavStackSize = {};
 	if (!GetChildren().empty())
 	{
-		for (auto wnd : GetChildren())
+		for (auto wnd : *this)
 		{
 			pxNavStackSize += wnd->GetContentSize(texman, dc, lc.GetScale());
 		}
@@ -136,7 +136,7 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 	float pxBegin = pxTransitionStart * transition + pxTransitionTarget * (1 - transition);
 
-	for (auto wnd : children)
+	for (auto wnd : *this)
 	{
 		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScale());
 		if (wnd.get() == &child)

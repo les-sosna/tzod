@@ -38,7 +38,9 @@ public:
 
 	// Window
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
+	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
+	bool HasNavigationSink() const override { return true; }
 	NavigationSink *GetNavigationSink() override { return this; }
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 

@@ -33,6 +33,7 @@ public:
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 
 protected:
+	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
 	void OnClickItem(int index);

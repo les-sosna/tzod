@@ -31,7 +31,9 @@ public:
 	State GetState(const LayoutContext &lc, const InputContext &ic) const;
 
 	// Window
+	bool HasNavigationSink() const override { return true; }
 	NavigationSink* GetNavigationSink() override { return this; }
+	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 	const StateGen* GetStateGen() const override { return this; }
 

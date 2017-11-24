@@ -42,8 +42,11 @@ namespace UI
 
 		// Window
 		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+		bool HasPointerSink() const override { return true; }
 		PointerSink* GetPointerSink() override { return this; }
+		bool HasKeyboardSink() const override { return true; }
 		KeyboardSink *GetKeyboardSink() override;
+		bool HasTextSink() const override { return true; }
 		TextSink* GetTextSink() override { return this; }
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
 

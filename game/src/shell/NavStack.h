@@ -1,6 +1,7 @@
 #pragma once
 #include <ui/PointerInput.h>
 #include <ui/Window.h>
+#include <ui/WindowIterator.h>
 #include <vector>
 
 class NavStack
@@ -31,9 +32,9 @@ public:
 	{
 		if (auto navFront = GetNavFront())
 		{
-			for (auto wnd : GetChildren())
+			for (auto wnd : *this)
 			{
-				if (dynamic_cast<T*>(wnd.get()))
+				if (dynamic_cast<const T*>(wnd.get()))
 					return true;
 				if (wnd == navFront)
 					break;
@@ -43,6 +44,7 @@ public:
 	}
 
 	// UI::Window
+	bool HasPointerSink() const override { return true; }
 	UI::PointerSink* GetPointerSink() override { return GetNavFront() ? this : nullptr; }
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	float GetChildOpacity(const Window &child) const override;

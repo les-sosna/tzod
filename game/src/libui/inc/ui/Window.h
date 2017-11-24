@@ -100,7 +100,11 @@ public:
 	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
 
 	virtual unsigned int GetChildrenCount() const { return _children.size(); }
-	virtual std::shared_ptr<Window> GetChild(unsigned int index) const { return _children[index]; }
+	virtual std::shared_ptr<const Window> GetChild(unsigned int index) const { return _children[index]; }
+	std::shared_ptr<Window> GetChild(unsigned int index)
+	{
+		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(index));
+	}
 
 	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
 	virtual float GetChildOpacity(const Window &child) const { return 1; }
@@ -108,10 +112,15 @@ public:
 	//
 	// Input
 	//
+	virtual bool HasNavigationSink() const { return false; }
 	virtual NavigationSink* GetNavigationSink() { return nullptr; }
+	virtual bool HasScrollSink() const { return false; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
+	virtual bool HasPointerSink() const { return false; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }
+	virtual bool HasKeyboardSink() const { return false; }
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
+	virtual bool HasTextSink() const { return false; }
 	virtual TextSink* GetTextSink() { return nullptr; }
 
 	// State
@@ -172,10 +181,10 @@ public:
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
 };
 
-inline bool NeedsFocus(Window *wnd, const DataContext &dc)
+inline bool NeedsFocus(const Window *wnd, const DataContext &dc)
 {
 	return (wnd && wnd->GetVisible() && wnd->GetEnabled(dc)) ?
-		wnd->GetNavigationSink() || wnd->GetKeyboardSink() || wnd->GetTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
+		wnd->HasNavigationSink() || wnd->HasKeyboardSink() || wnd->HasTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
 }
 
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);

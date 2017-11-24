@@ -3,7 +3,7 @@
 #include "inc/ui/WindowIterator.h"
 using namespace UI;
 
-std::shared_ptr<Window> UI::GetPrevFocusChild(const Window &wnd, const DataContext &dc)
+std::shared_ptr<Window> UI::GetPrevFocusChild(Window &wnd, const DataContext &dc)
 {
 	auto focusChild = wnd.GetFocus();
 	if (!focusChild && wnd.GetChildrenCount() > 0)
@@ -27,7 +27,7 @@ std::shared_ptr<Window> UI::GetPrevFocusChild(const Window &wnd, const DataConte
 	return nullptr;
 }
 
-std::shared_ptr<Window> UI::GetNextFocusChild(const Window &wnd, const DataContext &dc)
+std::shared_ptr<Window> UI::GetNextFocusChild(Window &wnd, const DataContext &dc)
 {
 	auto focusChild = wnd.GetFocus();
 	if (!focusChild && wnd.GetChildrenCount() > 0)

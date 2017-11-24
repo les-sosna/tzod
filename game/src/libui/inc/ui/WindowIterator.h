@@ -3,7 +3,109 @@
 
 namespace UI
 {
-	class WindowIterator : public std::iterator<
+	template <class ParentType>
+	class WindowIteratorBase
+	{
+	public:
+		WindowIteratorBase(ParentType &parent, int index)
+			: _parent(&parent)
+			, _index(index)
+		{}
+
+		constexpr bool operator==(WindowIteratorBase &other) const
+		{
+			assert(_parent == other._parent);
+			return _index == other._index;
+		}
+
+		constexpr bool operator!=(WindowIteratorBase &other) const
+		{
+			assert(_parent == other._parent);
+			return _index != other._index;
+		}
+
+		constexpr bool operator<(WindowIteratorBase &other) const
+		{
+			assert(_parent == other._parent);
+			return _index < other._index;
+		}
+
+		constexpr bool operator>(WindowIteratorBase &other) const
+		{
+			assert(_parent == other._parent);
+			return _index > other._index;
+		}
+
+		constexpr bool operator<=(WindowIteratorBase &other) const
+		{
+			assert(_parent == other._parent);
+			return _index <= other._index;
+		}
+
+		constexpr bool operator>=(WindowIteratorBase &other) const
+		{
+			assert(_parent == other._parent);
+			return _index >= other._index;
+		}
+
+	protected:
+		ParentType *_parent;
+		int _index;
+	};
+
+	class WindowConstIterator
+		: public WindowIteratorBase<const Window>
+		, public std::iterator<
+			std::random_access_iterator_tag,
+			std::shared_ptr<const Window>,
+			int,
+			std::shared_ptr<const Window>*, // pointer
+			std::shared_ptr<const Window>> // reference
+	{
+	public:
+		using WindowIteratorBase::WindowIteratorBase;
+
+		WindowConstIterator& operator++() // pre
+		{
+			++_index;
+			return *this;
+		}
+
+		WindowConstIterator operator++(int) // post
+		{
+			WindowConstIterator current(*this);
+			++_index;
+			return current;
+		}
+
+		WindowConstIterator& operator--() // pre
+		{
+			--_index;
+			return *this;
+		}
+
+		WindowConstIterator operator--(int) // post
+		{
+			WindowConstIterator current(*this);
+			--_index;
+			return current;
+		}
+
+		value_type operator*() const
+		{
+			return _parent->GetChild(_index);
+		}
+
+		constexpr pointer operator->() const
+		{
+			assert(false); // cannot return pointer to temporary object
+			return nullptr;
+		}
+	};
+
+	class WindowIterator
+		: public WindowIteratorBase<Window>
+		, public std::iterator<
 		std::random_access_iterator_tag,
 		std::shared_ptr<Window>,
 		int,
@@ -11,10 +113,7 @@ namespace UI
 		std::shared_ptr<Window>> // reference
 	{
 	public:
-		WindowIterator(const UI::Window &parent, int index)
-			: _parent(&parent)
-			, _index(index)
-		{}
+		using WindowIteratorBase::WindowIteratorBase;
 
 		WindowIterator& operator++() // pre
 		{
@@ -52,61 +151,43 @@ namespace UI
 			assert(false); // cannot return pointer to temporary object
 			return nullptr;
 		}
-
-		constexpr bool operator==(WindowIterator &other) const
-		{
-			assert(_parent == other._parent);
-			return _index == other._index;
-		}
-
-		constexpr bool operator!=(WindowIterator &other) const
-		{
-			assert(_parent == other._parent);
-			return _index != other._index;
-		}
-
-		constexpr bool operator<(WindowIterator &other) const
-		{
-			assert(_parent == other._parent);
-			return _index < other._index;
-		}
-
-		constexpr bool operator>(WindowIterator &other) const
-		{
-			assert(_parent == other._parent);
-			return _index > other._index;
-		}
-
-		constexpr bool operator<=(WindowIterator &other) const
-		{
-			assert(_parent == other._parent);
-			return _index <= other._index;
-		}
-
-		constexpr bool operator>=(WindowIterator &other) const
-		{
-			assert(_parent == other._parent);
-			return _index >= other._index;
-		}
-
-	private:
-		const UI::Window *_parent;
-		int _index;
-	};
+	}; 
 }
 
 namespace std
 {
-	inline auto begin(const UI::Window &wnd)
+	inline UI::WindowIterator begin(UI::Window &wnd)
 	{
 //		return wnd.GetChildren().begin();
 		return UI::WindowIterator(wnd, 0);
 	}
 
-	inline auto end(const UI::Window &wnd)
+	inline UI::WindowIterator end(UI::Window &wnd)
 	{
 //		return wnd.GetChildren().end();
 		return UI::WindowIterator(wnd, wnd.GetChildrenCount());
+	}
+
+	inline UI::WindowConstIterator begin(const UI::Window &wnd)
+	{
+//		return wnd.GetChildren().begin();
+		return UI::WindowConstIterator(wnd, 0);
+	}
+
+	inline UI::WindowConstIterator end(const UI::Window &wnd)
+	{
+//		return wnd.GetChildren().end();
+		return UI::WindowConstIterator(wnd, wnd.GetChildrenCount());
+	}
+
+	inline auto rbegin(UI::Window &wnd)
+	{
+		return std::make_reverse_iterator(end(wnd));
+	}
+
+	inline auto rend(UI::Window &wnd)
+	{
+		return std::make_reverse_iterator(begin(wnd));
 	}
 
 	inline auto rbegin(const UI::Window &wnd)
