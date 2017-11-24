@@ -90,6 +90,7 @@ TzodView::~TzodView()
 void TzodView::Step(float dt)
 {
 	_appWindow.MakeCurrent();
+	_impl->inputContext.ReadInput();
 	_impl->gui.TimeStep(dt); // this also sends user controller state to WorldController
 	counterDt.Push(dt);
 }

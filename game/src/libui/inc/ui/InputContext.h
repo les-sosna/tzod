@@ -37,6 +37,8 @@ class InputContext
 public:
 	InputContext(IInput &input, IClipboard &clipboard);
 
+	void ReadInput();
+
 	bool ProcessPointer(
 		TextureManager &texman,
 		std::shared_ptr<Window> wnd,
@@ -78,6 +80,8 @@ private:
 
 	IInput &_input;
 	IClipboard &_clipboard;
+
+	vec2d _mousePos;
 
 	struct InputStackFrame
 	{

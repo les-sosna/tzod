@@ -19,6 +19,11 @@ InputContext::InputContext(IInput &input, IClipboard &clipboard)
 	_transformStack.emplace(InputStackFrame{vec2d{}, true, true});
 }
 
+void InputContext::ReadInput()
+{
+	_mousePos = _input.GetMousePos();
+}
+
 void InputContext::PushInputTransform(vec2d offset, bool focused, bool hovered)
 {
 	assert(!_transformStack.empty());
@@ -37,7 +42,7 @@ void InputContext::PopInputTransform()
 
 vec2d InputContext::GetMousePos() const
 {
-	return _input.GetMousePos() - _transformStack.top().offset;
+	return _mousePos - _transformStack.top().offset;
 }
 
 bool InputContext::GetFocused() const
