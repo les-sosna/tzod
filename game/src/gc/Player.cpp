@@ -18,7 +18,7 @@
 IMPLEMENT_SELF_REGISTRATION(GC_Player)
 {
 	ED_SERVICE("player", "obj_service_player");
-    return true;
+	return true;
 }
 
 IMPLEMENT_2LIST_MEMBER(GC_Player, LIST_players, LIST_timestep);

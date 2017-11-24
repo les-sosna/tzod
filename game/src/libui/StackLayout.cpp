@@ -1,6 +1,7 @@
 #include "inc/ui/StackLayout.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/Navigation.h"
+#include "inc/ui/WindowIterator.h"
 #include <algorithm>
 using namespace UI;
 
@@ -12,10 +13,9 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 	// FIXME: O(n^2) complexity
 	float pxOffset = 0;
 	float pxSpacing = std::floor(_spacing * scale);
-	auto &children = GetChildren();
 	if (FlowDirection::Vertical == _flowDirection)
 	{
-		for (auto &item : children)
+		for (auto &item : *this)
 		{
 			if (item.get() == &child)
 			{
@@ -38,7 +38,7 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 	else
 	{
 		assert(FlowDirection::Horizontal == _flowDirection);
-		for (auto &item : children)
+		for (auto &item : *this)
 		{
 			if (item.get() == &child)
 			{
@@ -58,17 +58,16 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 	float pxMaxSize = 0;
 	unsigned int maxComponent = FlowDirection::Horizontal == _flowDirection;
 
-	auto &children = GetChildren();
-	for (auto &item : children)
+	for (auto &item : *this)
 	{
 		vec2d pxItemSize = item->GetContentSize(texman, dc, scale);
 		pxTotalSize += pxItemSize[sumComponent];
 		pxMaxSize = std::max(pxMaxSize, pxItemSize[maxComponent]);
 	}
 
-	if (children.size() > 1)
+	if (GetChildrenCount() > 1)
 	{
-		pxTotalSize += std::floor(_spacing * scale) * (float)(children.size() - 1);
+		pxTotalSize += std::floor(_spacing * scale) * (float)(GetChildrenCount() - 1);
 	}
 
 	return FlowDirection::Horizontal == _flowDirection ?

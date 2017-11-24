@@ -56,7 +56,7 @@ void PropertyList::DoExchange(bool applyToObject)
 		assert(_ps);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
-			if (_psheet->GetFocus() == _psheet->GetChildren()[i])
+			if (_psheet->GetFocus() == _psheet->GetChild(i))
 			{
 				focus = i;
 			}

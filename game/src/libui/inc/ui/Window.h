@@ -99,6 +99,9 @@ public:
 
 	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
 
+	virtual unsigned int GetChildrenCount() const { return _children.size(); }
+	virtual std::shared_ptr<Window> GetChild(unsigned int index) const { return _children[index]; }
+
 	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
 	virtual float GetChildOpacity(const Window &child) const { return 1; }
 

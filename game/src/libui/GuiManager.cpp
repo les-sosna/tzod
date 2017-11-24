@@ -4,6 +4,7 @@
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/StateContext.h"
 #include "inc/ui/Window.h"
+#include "inc/ui/WindowIterator.h"
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
@@ -114,7 +115,7 @@ static void DrawWindowRecursive(
 	}
 
 	unsigned int childDepth = depth + 1;
-	for (auto &child : wnd.GetChildren())
+	for (auto &child : wnd)
 	{
 		if (child->GetVisible())
 		{

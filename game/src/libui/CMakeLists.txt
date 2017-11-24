@@ -63,6 +63,7 @@ add_library(ui
 	inc/ui/Texture.h
 	inc/ui/UIInput.h
 	inc/ui/Window.h
+	inc/ui/WindowIterator.h
 )
 
 target_link_libraries(ui PUBLIC

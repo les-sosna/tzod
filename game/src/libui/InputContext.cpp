@@ -5,6 +5,7 @@
 #include "inc/ui/Navigation.h"
 #include "inc/ui/UIInput.h"
 #include "inc/ui/Window.h"
+#include "inc/ui/WindowIterator.h"
 
 using namespace UI;
 
@@ -117,10 +118,8 @@ SinkType* UI::FindAreaSink(
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
-		auto &children = wnd->GetChildren();
-		for (auto it = children.rbegin(); it != children.rend() && !sink; ++it)
+		for (auto &child : reverse(*wnd))
 		{
-			auto &child = *it;
 			if (child->GetEnabled(search.dc) && child->GetVisible())
 			{
 				// early skip topmost subtree
@@ -130,6 +129,11 @@ SinkType* UI::FindAreaSink(
 					auto childRect = wnd->GetChildRect(search.texman, lc, search.dc, *child);
 					LayoutContext childLC(*wnd, lc, *child, Size(childRect), search.dc);
 					sink = FindAreaSink<SinkType>(search, child, childLC, pxPointerPosition - Offset(childRect), childInsideTopMost);
+
+					if (sink)
+					{
+						break;
+					}
 				}
 			}
 		}
