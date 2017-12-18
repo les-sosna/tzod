@@ -24,6 +24,7 @@ public:
 	void PopTransform();
 
 	RectRB GetVisibleRegion() const;
+	float GetScale() const { return _scale; }
 
 	void DrawSprite(const FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame);
@@ -52,6 +53,7 @@ private:
 	IRender &_render;
 	std::stack<RectRB> _clipStack;
 	std::stack<Transform> _transformStack;
+	float _scale = 1;
 	RectRB _viewport;
 	RenderMode _mode;
 };

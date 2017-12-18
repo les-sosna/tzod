@@ -744,6 +744,7 @@ void RenderContext::Camera(RectRB viewport, float x, float y, float scale)
 	viewport.top += (int) _transformStack.top().offset.y;
 	viewport.right += (int) _transformStack.top().offset.x;
 	viewport.bottom += (int) _transformStack.top().offset.y;
+	_scale = scale;
 	_render.Camera(&viewport, x, y, scale);
 }
 
