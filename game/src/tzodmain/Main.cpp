@@ -90,6 +90,9 @@ try
 	for (GlfwAppWindow::PollEvents(); !appWindow.ShouldClose(); GlfwAppWindow::PollEvents())
 	{
 		float dt = timer.GetDt();
+		
+		// not needed for single view
+		// appWindow.MakeCurrent();
 
 		// controller pass
 		view.Step(dt); // this also sends user controller state to WorldController

@@ -89,7 +89,6 @@ TzodView::~TzodView()
 
 void TzodView::Step(float dt)
 {
-	_appWindow.MakeCurrent();
 	_impl->inputContext.ReadInput();
 	_impl->gui.TimeStep(dt); // this also sends user controller state to WorldController
 	counterDt.Push(dt);
@@ -108,8 +107,6 @@ static bool CanNavigateBack(UI::Window *wnd, const UI::DataContext &dc)
 
 void TzodView::Render(float pxWidth, float pxHeight, float scale)
 {
-	_appWindow.MakeCurrent();
-
 #ifndef NOSOUND
 //        vec2d pos(0, 0);
 //        if (!_world.GetList(LIST_cameras).empty())

@@ -274,6 +274,7 @@ void GlfwAppWindow::MakeCurrent()
 
 void GlfwAppWindow::Present()
 {
+	assert(glfwGetCurrentContext() == _window.get());
 	glfwSwapBuffers(_window.get());
 }
 
