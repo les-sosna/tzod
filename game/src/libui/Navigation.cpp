@@ -17,7 +17,7 @@ std::shared_ptr<Window> UI::GetPrevFocusChild(Window &wnd, const DataContext &dc
 		auto focusIt = std::find(begin(wnd), end(wnd), focusChild);
 		while (focusIt != begin(wnd))
 		{
-			focusIt--;
+			--focusIt;
 			if (NeedsFocus((*focusIt).get(), dc))
 			{
 				return *focusIt;
@@ -41,8 +41,8 @@ std::shared_ptr<Window> UI::GetNextFocusChild(Window &wnd, const DataContext &dc
 		auto focusIt = std::find(rbegin(wnd), rend(wnd), focusChild);
 		while (focusIt != rbegin(wnd))
 		{
-			focusIt--;
-			if (NeedsFocus(focusIt->get(), dc))
+			--focusIt;
+			if (NeedsFocus((*focusIt).get(), dc))
 			{
 				return *focusIt;
 			}
