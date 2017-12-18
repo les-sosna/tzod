@@ -36,6 +36,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &
 struct TzodViewImpl
 {
 	TextureManager textureManager;
+	MouseCursor mouseCursor = MouseCursor::Arrow;
 	UI::InputContext inputContext;
 	UI::LayoutManager gui;
 	std::shared_ptr<UI::Window> desktop;
@@ -138,8 +139,15 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 			break;
 		}
 	}
+
 	_appWindow.SetCanNavigateBack(CanNavigateBack(_impl->gui.GetDesktop().get(), dataContext));
-	_appWindow.SetMouseCursor(hoverTextSink ? MouseCursor::IBeam : MouseCursor::Arrow);
+
+	MouseCursor mouseCursor = hoverTextSink ? MouseCursor::IBeam : MouseCursor::Arrow;
+	if (_impl->mouseCursor != mouseCursor)
+	{
+		_impl->mouseCursor = mouseCursor;
+		_appWindow.SetMouseCursor(mouseCursor);
+	}
 
 #ifndef NDEBUG
 	for (auto &id2pos : rs.ic.GetLastPointerLocation())
