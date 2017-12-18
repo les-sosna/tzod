@@ -12,8 +12,11 @@ class FpsCounter
 	: public UI::Text
 	, private UI::TimeStepping
 {
-	std::list<float> _dts;
-	std::list<float> _dts_net;
+	float _minDt = FLT_MAX;
+	float _maxDt = 0;
+	float _totalTime = 0;
+	unsigned int _totalSteps = 0;
+
 	int _nSprites;
 	int _nLights;
 	int _nBatches;

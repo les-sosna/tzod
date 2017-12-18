@@ -25,26 +25,18 @@ FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignTe
 
 void FpsCounter::OnTimeStep(const UI::InputContext &ic, float dt)
 {
-	_dts.push_back(dt);
-	if( _dts.size() > 200 ) _dts.pop_front();
+	_totalTime += dt;
+	_minDt = std::min(_minDt, dt);
+	_maxDt = std::max(_maxDt, dt);
+	_totalSteps++;
 
-//	if( GetVisibleCombined() )
+	if (_totalTime > 0.7f)
 	{
-		float avr = 0;
-		float min = _dts.front();
-		float max = _dts.front();
-
-		for( std::list<float>::iterator it = _dts.begin(); it != _dts.end(); ++it )
-		{
-			avr += *it;
-			if( *it > max ) max = *it;
-			if( *it < min ) min = *it;
-		}
-		avr /= (float) _dts.size();
+		float averageFps = (float) _totalSteps / _totalTime;
 
 		std::ostringstream s;
 		s << std::setfill('0');
-		s << "fps:" << std::setw(3) << int(1.0f / max + 0.5f) << '-' << std::setw(3) << int(1.0f / avr + 0.5f) << '-' << std::setw(3) << int(1.0f / min + 0.5f);
+		s << "fps:" << std::setw(3) << int(1.0f / _maxDt + 0.5f) << '-' << std::setw(3) << int(averageFps + 0.5f) << '-' << std::setw(3) << int(1.0f / _minDt + 0.5f);
 		if (GameContextBase *gc = _appState.GetGameContext().get())
 		{
 			s << std::setfill(' ');
@@ -86,6 +78,11 @@ void FpsCounter::OnTimeStep(const UI::InputContext &ic, float dt)
 		}*/
 
 		SetText(std::make_shared<UI::StaticText>(s.str()));
+
+		_minDt = FLT_MAX;
+		_maxDt = 0;
+		_totalTime = 0;
+		_totalSteps = 0;
 	}
 
 	_nSprites = 0;
