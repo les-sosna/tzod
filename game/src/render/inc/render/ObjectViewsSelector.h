@@ -1,34 +1,44 @@
 #pragma once
 #include "ObjectView.h"
-#include <memory>
+#include <gc/Actor.h>
 #include <vector>
-
-class GC_Actor;
+#include <memory>
+#include <map>
 
 struct ObjectView
 {
 	std::unique_ptr<ObjectZFunc> zfunc;
 	std::unique_ptr<ObjectRFunc> rfunc;
-    ObjectView(ObjectView &&other)
-        : zfunc(std::move(other.zfunc))
-        , rfunc(std::move(other.rfunc))
-    {}
-	ObjectView(std::unique_ptr<ObjectZFunc> zf, std::unique_ptr<ObjectRFunc> rf);
 };
+
+class ObjectViewsSelectorBuilder
+{
+public:
+	template <class T>
+	void AddView(std::unique_ptr<ObjectZFunc> zfunc, std::unique_ptr<ObjectRFunc> rfunc)
+	{
+		_type2views.emplace(T::GetTypeStatic(), ObjectView{ std::move(zfunc), std::move(rfunc) });
+	}
+
+private:
+	friend class ObjectViewsSelector;
+	std::multimap<ObjectType, ObjectView> _type2views;
+};
+
+typedef std::pair<const ObjectView*, const ObjectView*> ViewCollection;
+inline const ObjectView* begin(const ViewCollection &v) { return v.first; }
+inline const ObjectView* end(const ViewCollection &v) { return v.second; }
 
 class ObjectViewsSelector
 {
 public:
-	typedef std::vector<ObjectView> ViewCollection;
-	template <class T>
-	void AddView(std::unique_ptr<ObjectZFunc> zfunc, std::unique_ptr<ObjectRFunc> rfunc)
+	ObjectViewsSelector(ObjectViewsSelectorBuilder &&builder);
+	inline ViewCollection GetViews(const GC_Actor &actor) const
 	{
-		auto type = T::GetTypeStatic();
-		if (_type2views.size() <= type)
-			_type2views.resize(type + 1);
-		_type2views[type].emplace_back(std::move(zfunc), std::move(rfunc));
+		ObjectType type = actor.GetType();
+		return { _typeToFirstView[type], _typeToFirstView[type + 1] };
 	}
-	const ViewCollection* GetViews(const GC_Actor &actor) const;
 private:
-	std::vector<ViewCollection> _type2views;
+	std::vector<ObjectView> _views;
+	std::vector<const ObjectView*> _typeToFirstView;
 };

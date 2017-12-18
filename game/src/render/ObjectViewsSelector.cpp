@@ -2,13 +2,20 @@
 #include "inc/render/ObjectView.h"
 #include <gc/Actor.h>
 
-ObjectView::ObjectView(std::unique_ptr<ObjectZFunc> zf, std::unique_ptr<ObjectRFunc> rf)
-	: zfunc(std::move(zf))
-	, rfunc(std::move(rf))
-{}
-
-const ObjectViewsSelector::ViewCollection* ObjectViewsSelector::GetViews(const GC_Actor &actor) const
+ObjectViewsSelector::ObjectViewsSelector(ObjectViewsSelectorBuilder &&builder)
 {
-	ObjectType type = actor.GetType();
-	return (type < _type2views.size() && !_type2views[type].empty()) ? &_type2views[type] : nullptr;
+	_views.reserve(builder._type2views.size());
+	_typeToFirstView.reserve(builder._type2views.rbegin()->first + 1); // extra slot for the end iterator
+
+	ObjectType currentType = 0;
+	for (auto& t2v: builder._type2views)
+	{
+		_views.push_back(std::move(t2v.second));
+		// fill possible gaps between types
+		for (; currentType <= t2v.first; currentType++)
+		{
+			_typeToFirstView.push_back(&_views.back());
+		}
+	}
+	_typeToFirstView.emplace_back(&_views.back() + 1); // last type end iterator
 }

@@ -109,12 +109,9 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 			if (RTTypes::Inst().IsRegistered(actor->GetType()) && PtOnActor(*actor, pt))
 			{
 				enumZOrder maxZ = Z_NONE;
-				if(const ObjectViewsSelector::ViewCollection *views = rs.GetViews(*actor, true, false) )
+				for (auto &view: rs.GetViews(*actor, true, false))
 				{
-					for (auto &view: *views)
-					{
-						maxZ = std::max(maxZ, view.zfunc->GetZ(world, *actor));
-					}
+					maxZ = std::max(maxZ, view.zfunc->GetZ(world, *actor));
 				}
 
 				if( Z_NONE != maxZ )

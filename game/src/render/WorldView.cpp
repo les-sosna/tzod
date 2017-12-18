@@ -96,28 +96,22 @@ void WorldView::Render(RenderContext &rc,
 	{
 		FOREACH(world.grid_actors.element(x, y), const GC_Actor, object)
 		{
-			if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
+			for( auto &view: _renderScheme.GetViews(*object, editorMode, nightMode) )
 			{
-				for( auto &view: *viewCollection )
-				{
-					enumZOrder z = view.zfunc->GetZ(world, *object);
-					if( Z_NONE != z && object->GetGridSet() )
-						zLayers[z].emplace_back(object, view.rfunc.get());
-				}
+				enumZOrder z = view.zfunc->GetZ(world, *object);
+				if( Z_NONE != z && object->GetGridSet() )
+					zLayers[z].emplace_back(object, view.rfunc.get());
 			}
 		}
 	}
 
 	FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
 	{
-		if( auto *viewCollection = _renderScheme.GetViews(*object, editorMode, nightMode) )
+		for( auto &view: _renderScheme.GetViews(*object, editorMode, nightMode) )
 		{
-			for( auto &view: *viewCollection )
-			{
-				enumZOrder z = view.zfunc->GetZ(world, *object);
-				if( Z_NONE != z && !object->GetGridSet() )
-					zLayers[z].emplace_back(object, view.rfunc.get());
-			}
+			enumZOrder z = view.zfunc->GetZ(world, *object);
+			if( Z_NONE != z && !object->GetGridSet() )
+				zLayers[z].emplace_back(object, view.rfunc.get());
 		}
 	}
 
