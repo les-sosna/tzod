@@ -1,5 +1,7 @@
 #pragma once
 #include "Window.h"
+#include <iterator>
+#include <memory>
 
 namespace UI
 {
@@ -55,14 +57,14 @@ namespace UI
 
 	class WindowConstIterator
 		: public WindowIteratorBase<const Window>
-		, public std::iterator<
-			std::random_access_iterator_tag,
-			std::shared_ptr<const Window>,
-			int,
-			std::shared_ptr<const Window>*, // pointer
-			std::shared_ptr<const Window>> // reference
 	{
 	public:
+		using iterator_category = std::random_access_iterator_tag;
+		using value_type = std::shared_ptr<const Window>;
+		using difference_type = int;
+		using pointer = std::shared_ptr<const Window>*;
+		using reference = std::shared_ptr<const Window>;
+
 		using WindowIteratorBase::WindowIteratorBase;
 
 		WindowConstIterator& operator++() // pre
@@ -105,14 +107,14 @@ namespace UI
 
 	class WindowIterator
 		: public WindowIteratorBase<Window>
-		, public std::iterator<
-		std::random_access_iterator_tag,
-		std::shared_ptr<Window>,
-		int,
-		std::shared_ptr<Window>*, // pointer
-		std::shared_ptr<Window>> // reference
 	{
 	public:
+		using iterator_category = std::random_access_iterator_tag;
+		using value_type = std::shared_ptr<Window>;
+		using difference_type = int;
+		using pointer = std::shared_ptr<Window>*;
+		using reference = std::shared_ptr<Window>;
+
 		using WindowIteratorBase::WindowIteratorBase;
 
 		WindowIterator& operator++() // pre
