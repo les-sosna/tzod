@@ -167,17 +167,7 @@ public:
 	void SetFocus(std::shared_ptr<Window> child);
 	virtual std::shared_ptr<Window> GetFocus() const;
 
-
-	//
-	// Events
-	//
-	std::function<void(void)> eventLostFocus;
-
-
-	//
 	// rendering
-	//
-
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
 };
 

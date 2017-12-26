@@ -14,9 +14,7 @@ MapPreview::MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCache &mapCa
 	: _fs(fs)
 	, _worldView(worldView)
 	, _mapCache(mapCache)
-	, _rating(std::make_shared<UI::Rating>())
 {
-	AddFront(_rating);
 }
 
 void MapPreview::SetMapName(std::shared_ptr<UI::RenderData<std::string_view>> mapName)
@@ -26,7 +24,17 @@ void MapPreview::SetMapName(std::shared_ptr<UI::RenderData<std::string_view>> ma
 
 void MapPreview::SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating)
 {
-	_rating->SetRating(std::move(rating));
+	if (rating)
+	{
+		_rating = std::make_shared<UI::Rating>();
+		AddFront(_rating);
+		_rating->SetRating(std::move(rating));
+	}
+	else if (_rating)
+	{
+		UnlinkChild(*_rating);
+		_rating.reset();
+	}
 }
 
 void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const

@@ -21,9 +21,6 @@
 #include <sstream>
 #include <iomanip>
 
-static const float c_tileSize = 128;
-static const float c_tileSpacing = 16;
-
 using namespace UI::DataSourceAliases;
 
 namespace
@@ -184,15 +181,15 @@ void SinglePlayer::UpdateTier()
 		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(mapIndex));
 
 		auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _mapCache);
-		mapPreview->Resize(c_tileSize, c_tileSize);
-		mapPreview->SetPadding(c_tileSpacing / 2);
+		mapPreview->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
+		mapPreview->SetPadding(_conf.tile_spacing.GetFloat() / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
 		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
 		mapPreview->SetLocked(locked);
 
 		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
-		mpButton->Resize(c_tileSize, c_tileSize);
+		mpButton->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
 		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
 		if (locked)
 		{
@@ -234,7 +231,7 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 {
 	if (_content.get() == &child)
 	{
-		vec2d pxMargins = UI::ToPx(vec2d{ c_tileSpacing, c_tileSpacing }, lc);
+		vec2d pxMargins = UI::ToPx(vec2d{ _conf.tile_spacing.GetFloat(), _conf.tile_spacing.GetFloat() }, lc);
 		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
 	}
 
@@ -243,7 +240,7 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const
 {
-	vec2d pxMargins = UI::ToPx(vec2d{ c_tileSpacing, c_tileSpacing }, scale);
+	vec2d pxMargins = UI::ToPx(vec2d{ _conf.tile_spacing.GetFloat(), _conf.tile_spacing.GetFloat() }, scale);
 	return _content->GetContentSize(texman, dc, scale) + pxMargins * 2;
 }
 

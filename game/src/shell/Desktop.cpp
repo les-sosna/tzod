@@ -4,6 +4,7 @@
 #include "gui.h"
 #include "MainMenu.h"
 #include "NavStack.h"
+#include "SelectMapDlg.h"
 #include "Settings.h"
 #include "SinglePlayer.h"
 #include "Widgets.h"
@@ -213,16 +214,16 @@ void Desktop::OnNewCampaign()
 		OnCloseChild(sender);
 		if( !name.empty() )
 		{
-            try
-            {
-//                script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
-                throw std::logic_error("not implemented");
-            }
-            catch( const std::exception &e )
-            {
-                _logger.WriteLine(1, e.what());
-                ShowConsole(true);
-            }
+			try
+			{
+//				script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
+				throw std::logic_error("not implemented");
+			}
+			catch( const std::exception &e )
+			{
+				_logger.WriteLine(1, e.what());
+				ShowConsole(true);
+			}
 		}
 	};
 	_navStack->PushNavStack(dlg);
@@ -296,21 +297,24 @@ void Desktop::OnOpenMap()
 		return;
 	}
 
-	GetFileNameDlg::Params param;
-	param.blank = _lang.get_file_name_new_map.Get();
-	param.title = _lang.get_file_name_load_map.Get();
-	param.folder = _fs.GetFileSystem(DIR_MAPS);
-	param.extension = "map";
-
-	if (!param.folder)
+	auto mapsFolder = _fs.GetFileSystem(DIR_MAPS);
+	if (!mapsFolder)
 	{
 		ShowConsole(true);
 		_logger.Printf(1, "Could not open directory '%s'", DIR_MAPS);
 		return;
 	}
 
-	auto fileDlg = std::make_shared<GetFileNameDlg>(param, _lang);
-	fileDlg->eventClose = [this](auto sender, int result)
+	GetFileNameDlg::Params param;
+	param.blank = _lang.get_file_name_new_map.Get();
+	param.title = _lang.get_file_name_load_map.Get();
+	param.folder = mapsFolder;
+	param.extension = "map";
+
+	auto selectMapDlg = std::make_shared<GetFileNameDlg>(param, _lang);
+//	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetMapCache());
+
+	selectMapDlg->eventClose = [this](auto sender, int result)
 	{
 		OnCloseChild(sender);
 		if (UI::Dialog::_resultOK == result)
@@ -326,7 +330,7 @@ void Desktop::OnOpenMap()
 			NavigateHome();
 		}
 	};
-	_navStack->PushNavStack(fileDlg);
+	_navStack->PushNavStack(selectMapDlg);
 	UpdateFocus();
 }
 

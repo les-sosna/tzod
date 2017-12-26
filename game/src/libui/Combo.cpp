@@ -20,7 +20,6 @@ ComboBox::ComboBox(ListDataSource *dataSource)
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
 	_list->GetList()->eventClickItem = std::bind(&ComboBox::OnClickItem, this, std::placeholders::_1);
-	_list->GetList()->eventLostFocus = std::bind(&ComboBox::OnListLostFocus, this);
 	AddFront(_list);
 
 	_btn = std::make_shared<Button>();

@@ -105,6 +105,8 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_ARRAY( dm_players,                nullptr )
 	VAR_ARRAY( dm_bots,                   nullptr )
 	VAR_ARRAY( lobby_servers,    InitLobbyList )
+	VAR_FLOAT( tile_size,         128.0f )
+	VAR_FLOAT( tile_spacing,       16.0f )
 
 	VAR_INT(sp_tier, 0)
 	VAR_INT(sp_map, 0)

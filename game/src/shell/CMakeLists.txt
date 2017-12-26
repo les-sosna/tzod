@@ -23,6 +23,7 @@ add_library(shell
 	Network.h
 	PlayerView.h
 	ScoreTable.h
+	SelectMapDlg.h
 	Settings.h
 	SinglePlayer.h
 	VehicleStateReader.h
@@ -45,11 +46,12 @@ add_library(shell
 	MessageArea.cpp
 	NavStack.cpp
 #	Network.cpp
-	SinglePlayer.cpp
 	PlayerView.cpp
 	Profiler.cpp
 	ScoreTable.cpp
+	SelectMapDlg.cpp
 	Settings.cpp
+	SinglePlayer.cpp
 	VehicleStateReader.cpp
 	Widgets.cpp
 )

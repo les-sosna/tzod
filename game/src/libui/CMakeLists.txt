@@ -24,6 +24,7 @@ add_library(ui
 	Navigation.cpp
 	Rating.cpp
 	Rectangle.cpp
+	ScanlineLayout.cpp
 	ScrollBar.cpp
 	ScrollView.cpp
 	StackLayout.cpp
@@ -55,6 +56,7 @@ add_library(ui
 	inc/ui/PointerInput.h
 	inc/ui/Rating.h
 	inc/ui/Rectangle.h
+	inc/ui/ScanlineLayout.h
 	inc/ui/ScrollBar.h
 	inc/ui/ScrollView.h
 	inc/ui/StackLayout.h
