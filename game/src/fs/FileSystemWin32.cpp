@@ -55,7 +55,7 @@ static std::string StrFromErr(DWORD dwMessageId)
 	}
 }
 
-FS::OSFileSystem::OSFile::OSFile(std::wstring &&fileName, FileMode mode)
+FS::OSFileSystem::OSFile::OSFile(std::wstring fileName, FileMode mode)
 	: _mode(mode)
 	, _mapped(false)
 	, _streamed(false)
@@ -309,7 +309,7 @@ FS::OSFileSystem::OSFileSystem(std::wstring &&rootDirectory)
 {
 }
 
-std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
+std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
 {
 	// query = _rootDirectory + '\\' + mask
 	std::wstring query = _rootDirectory + L'\\';

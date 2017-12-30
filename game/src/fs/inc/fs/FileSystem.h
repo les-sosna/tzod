@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -38,7 +39,7 @@ class FileSystem
 {
 public:
 	virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
-	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
+	virtual std::vector<std::string> EnumAllFiles(std::string_view mask);
 	std::shared_ptr<File> Open(const std::string &path, FileMode mode = ModeRead);
 	void Mount(const std::string &nodeName, std::shared_ptr<FileSystem> fs);
 

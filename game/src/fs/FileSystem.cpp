@@ -17,7 +17,7 @@ std::shared_ptr<FS::File> FS::FileSystem::Open(const std::string &fileName, File
 	return RawOpen(fileName, mode);
 }
 
-std::vector<std::string> FS::FileSystem::EnumAllFiles(const std::string &mask)
+std::vector<std::string> FS::FileSystem::EnumAllFiles(std::string_view mask)
 {
 	// base file system can't contain any files
 	return std::vector<std::string>();

@@ -29,7 +29,7 @@ class OSFileSystem : public FileSystem
 		, public std::enable_shared_from_this<OSFile>
 	{
 	public:
-		OSFile(std::wstring &&fileName, FileMode mode);
+		OSFile(std::wstring fileName, FileMode mode);
 		virtual ~OSFile();
 
 		// File
@@ -88,8 +88,8 @@ class OSFileSystem : public FileSystem
 public:
 	explicit OSFileSystem(std::wstring &&rootDirectory);
 
-	virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
-	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
+	std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false) override;
+	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 
 	static std::shared_ptr<OSFileSystem> Create(const std::string &rootDirectory);
 };
