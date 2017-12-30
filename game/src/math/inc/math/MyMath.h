@@ -292,6 +292,12 @@ inline FRECT RectOffset(const FRECT &rect, vec2d offset)
 	return FRECT{rect.left + offset.x, rect.top + offset.y, rect.right + offset.x, rect.bottom + offset.y};
 }
 
+inline bool RectIntersect(const FRECT &a, const FRECT &b)
+{
+	return std::abs(a.left - b.left + a.right - b.right) < a.right - a.left + b.right - b.left &&
+		std::abs(a.top - b.top + a.bottom - b.bottom) < a.bottom - a.top + b.bottom - b.top;
+}
+
 // generates a pseudo random number in range [0, max)
 inline float frand(float max)
 {

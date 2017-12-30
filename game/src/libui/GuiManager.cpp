@@ -114,6 +114,8 @@ static void DrawWindowRecursive(
 		renderSettings.rc.PushClippingRect(clip);
 	}
 
+	auto visibleRegion = RectToFRect(renderSettings.rc.GetVisibleRegion());
+
 	unsigned int childDepth = depth + 1;
 	for (auto &child : wnd)
 	{
@@ -124,28 +126,33 @@ static void DrawWindowRecursive(
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
 				auto childRect = wnd.GetChildRect(renderSettings.texman, lc, dc, *child);
-				LayoutContext childLC(wnd, lc, *child, Size(childRect), dc);
-				if (childLC.GetOpacityCombined() != 0)
+				bool canDrawOutside = child->GetChildrenCount() > 0 && !child->GetClipChildren();
+
+			//	if (canDrawOutside || RectIntersect(visibleRegion, childRect))
 				{
-					bool childFocused = wnd.GetFocus() == child;
-					bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
-						renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
+					LayoutContext childLC(wnd, lc, *child, Size(childRect), dc);
+					if (childLC.GetOpacityCombined() != 0)
+					{
+						bool childFocused = wnd.GetFocus() == child;
+						bool childOnHoverPath = childDepth < renderSettings.hoverPath.size() &&
+							renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - childDepth] == child;
 
-					vec2d childOffset = Offset(childRect);
-					renderSettings.rc.PushTransform(childOffset, childLC.GetOpacityCombined());
-					renderSettings.ic.PushInputTransform(childOffset, childFocused, childOnHoverPath);
+						vec2d childOffset = Offset(childRect);
+						renderSettings.rc.PushTransform(childOffset, childLC.GetOpacityCombined());
+						renderSettings.ic.PushInputTransform(childOffset, childFocused, childOnHoverPath);
 
-					DrawWindowRecursive(
-						renderSettings,
-						*child,
-						childLC,
-						stateGen ? childCS : sc,
-						dc,
-						childInsideTopMost,
-						childDepth);
+						DrawWindowRecursive(
+							renderSettings,
+							*child,
+							childLC,
+							stateGen ? childCS : sc,
+							dc,
+							childInsideTopMost,
+							childDepth);
 
-					renderSettings.ic.PopInputTransform();
-					renderSettings.rc.PopTransform();
+						renderSettings.ic.PopInputTransform();
+						renderSettings.rc.PopTransform();
+					}
 				}
 			}
 		}
