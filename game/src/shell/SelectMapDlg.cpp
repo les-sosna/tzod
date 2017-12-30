@@ -9,11 +9,11 @@
 #include <ui/ScanlineLayout.h>
 #include <ui/StackLayout.h>
 
-SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, MapCache &mapCache)
+SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache)
 	: _worldView(worldView)
 	, _conf(conf)
 	, _lang(lang)
-	, _mapCache(mapCache)
+	, _worldCache(worldCache)
 	, _mapTiles(std::make_shared<UI::ScanlineLayout>())
 {
 	Resize(800, 600);

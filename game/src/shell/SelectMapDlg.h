@@ -13,18 +13,18 @@ namespace UI
 
 class ShellConfig;
 class LangCache;
-class MapCache;
+class WorldCache;
 class WorldView;
 
 class SelectMapDlg : public UI::Dialog
 {
 public:
-	SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, MapCache &mapCache);
+	SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache);
 
 private:
 	WorldView &_worldView;
 	ShellConfig &_conf;
 	LangCache &_lang;
-	MapCache &_mapCache;
+	WorldCache &_worldCache;
 	std::shared_ptr<UI::ScanlineLayout> _mapTiles;
 };

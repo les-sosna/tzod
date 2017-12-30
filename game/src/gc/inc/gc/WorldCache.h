@@ -10,7 +10,7 @@ namespace FS
 	class FileSystem;
 }
 
-class MapCache
+class WorldCache
 {
 public:
 	const World& GetCachedWorld(FS::FileSystem &fs, std::string_view mapName);

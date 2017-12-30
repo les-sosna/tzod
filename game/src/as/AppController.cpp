@@ -4,8 +4,8 @@
 #include "inc/as/AppState.h"
 #include <ctx/Gameplay.h>
 #include <ctx/GameContext.h>
-#include <gc/MapCache.h>
 #include <gc/World.h>
+#include <gc/WorldCache.h>
 #include <algorithm>
 
 static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
@@ -42,7 +42,7 @@ static DMSettings GetCampaignDMSettings(AppConfig &appConfig, DMCampaign &dmCamp
 
 AppController::AppController(FS::FileSystem &fs)
 	: _fs(fs)
-	, _mapCache(new MapCache())
+	, _worldCache(new WorldCache())
 {
 }
 
@@ -89,7 +89,7 @@ void AppController::StartDMCampaignMap(AppState &appState, AppConfig &appConfig,
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(tier));
 	DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(map));
 
-	auto world = _mapCache->CheckoutCachedWorld(_fs, mapDesc.map_name.Get());
+	auto world = _worldCache->CheckoutCachedWorld(_fs, mapDesc.map_name.Get());
 	DMSettings settings = GetCampaignDMSettings(appConfig, dmCampaign, tier, map);
 	appState.SetGameContext(std::make_shared<GameContext>(std::move(world), settings, tier, map));
 }

@@ -14,7 +14,6 @@ add_library(gc
 	inc/gc/Indicators.h
 	inc/gc/Light.h
 	inc/gc/Macros.h
-	inc/gc/MapCache.h
 	inc/gc/MessageBox.h
 	inc/gc/NeighborAware.h
 	inc/gc/Object.h
@@ -43,6 +42,7 @@ add_library(gc
 	inc/gc/Weapons.h
 	inc/gc/World.h
 	inc/gc/World.inl
+	inc/gc/WorldCache.h
 	inc/gc/WorldCfg.h
 	inc/gc/WorldEvents.h
 	inc/gc/Z.h	
@@ -61,7 +61,6 @@ add_library(gc
 	Indicators.cpp
 	Light.cpp
 #	MessageBox.cpp
-	MapCache.cpp
 	Object.cpp
 	ObjectProperty.cpp
 	Particles.cpp
@@ -84,6 +83,7 @@ add_library(gc
 	WeaponBase.cpp
 	Weapons.cpp
 	World.cpp
+	WorldCache.cpp
 )
 
 target_link_libraries(gc

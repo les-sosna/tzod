@@ -240,7 +240,7 @@ void Desktop::OnSinglePlayer()
 
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
-		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetMapCache());
+		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache());
 		dlg->eventSelectMap = [this](auto sender, int index)
 		{
 			_conf.sp_map.SetInt(index);

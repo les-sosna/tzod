@@ -5,7 +5,7 @@
 class AppState;
 class AppConfig;
 class DMCampaign;
-class MapCache;
+class WorldCache;
 
 namespace FS
 {
@@ -18,12 +18,12 @@ public:
 	AppController(FS::FileSystem &fs);
 	~AppController();
 	void Step(AppState &appState, AppConfig &appConfig, float dt);
-//    void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
+//	void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
 	void StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
 
-	MapCache& GetMapCache() { return *_mapCache; }
+	WorldCache& GetWorldCache() { return *_worldCache; }
 
 private:
 	FS::FileSystem &_fs;
-	std::unique_ptr<MapCache> _mapCache;
+	std::unique_ptr<WorldCache> _worldCache;
 };

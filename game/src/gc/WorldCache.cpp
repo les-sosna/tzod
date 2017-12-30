@@ -1,5 +1,5 @@
-#include "inc/gc/MapCache.h"
 #include "inc/gc/World.h"
+#include "inc/gc/WorldCache.h"
 #include <MapFile.h>
 #include <fs/FileSystem.h>
 
@@ -26,7 +26,7 @@ static std::unique_ptr<World> LoadMap(FS::FileSystem &fs, std::string_view mapNa
 	return world;
 }
 
-const World& MapCache::GetCachedWorld(FS::FileSystem &fs, std::string_view mapName)
+const World& WorldCache::GetCachedWorld(FS::FileSystem &fs, std::string_view mapName)
 {
 	auto existing = _cachedWorlds.find(mapName);
 	if (_cachedWorlds.end() == existing)
@@ -36,7 +36,7 @@ const World& MapCache::GetCachedWorld(FS::FileSystem &fs, std::string_view mapNa
 	return *existing->second;
 }
 
-std::unique_ptr<World> MapCache::CheckoutCachedWorld(FS::FileSystem &fs, std::string_view mapName)
+std::unique_ptr<World> WorldCache::CheckoutCachedWorld(FS::FileSystem &fs, std::string_view mapName)
 {
 	auto existing = _cachedWorlds.find(mapName);
 	if (_cachedWorlds.end() != existing)
