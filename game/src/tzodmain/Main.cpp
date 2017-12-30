@@ -39,7 +39,7 @@ namespace
 }
 
 
-static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix = std::string());
+static void print_what(std::ostream &os, const std::exception &e, std::string prefix = std::string());
 
 static UI::ConsoleBuffer s_logger(100, 500);
 
@@ -111,25 +111,27 @@ try
 }
 catch (const std::exception &e)
 {
-	print_what(s_logger, e);
+	std::ostringstream os;
+	print_what(os, e);
+	s_logger.Format(1) << os.str();
 #ifdef _WIN32
-	MessageBoxA(nullptr, e.what(), TXT_VERSION, MB_ICONERROR);
+	MessageBoxA(nullptr, os.str().c_str(), TXT_VERSION, MB_ICONERROR);
 #endif
 	return 1;
 }
 
 // recursively print exception whats:
-static void print_what(UI::ConsoleBuffer &logger, const std::exception &e, std::string prefix)
+static void print_what(std::ostream &os, const std::exception &e, std::string prefix)
 {
 #ifdef _WIN32
 	OutputDebugStringA((prefix + e.what() + "\n").c_str());
 #endif
-	logger.Format(1) << prefix << e.what();
+	os << prefix << e.what();
 	try {
 		std::rethrow_if_nested(e);
 	}
 	catch (const std::exception &nested) {
-		print_what(logger, nested, prefix + "> ");
+		print_what(os, nested, prefix + "> ");
 	}
 }
 
