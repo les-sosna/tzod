@@ -54,20 +54,21 @@ Desktop::Desktop(UI::LayoutManager &manager,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
                  UI::ConsoleBuffer &logger)
-  : Managerful(manager)
-  , AppStateListener(appState)
-  , _history(conf)
-  , _texman(texman)
-  , _appConfig(appConfig)
-  , _appController(appController)
-  , _fs(fs)
-  , _conf(conf)
-  , _lang(lang)
-  , _dmCampaign(dmCampaign)
-  , _logger(logger)
-  , _globL(luaL_newstate())
-  , _renderScheme(texman)
-  , _worldView(texman, _renderScheme)
+	: Managerful(manager)
+	, AppStateListener(appState)
+	, _history(conf)
+	, _texman(texman)
+	, _appConfig(appConfig)
+	, _appController(appController)
+	, _fs(fs)
+	, _conf(conf)
+	, _lang(lang)
+	, _dmCampaign(dmCampaign)
+	, _logger(logger)
+	, _globL(luaL_newstate())
+	, _renderScheme(texman)
+	, _worldView(texman, _renderScheme)
+	, _mapCollection(*fs.GetFileSystem(DIR_MAPS))
 {
 	using namespace std::placeholders;
 	using namespace UI::DataSourceAliases;
@@ -312,7 +313,7 @@ void Desktop::OnOpenMap()
 	param.extension = "map";
 
 	auto selectMapDlg = std::make_shared<GetFileNameDlg>(param, _lang);
-//	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetMapCache());
+//	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetWorldCache(), _mapCollection);
 
 	selectMapDlg->eventClose = [this](auto sender, int result)
 	{

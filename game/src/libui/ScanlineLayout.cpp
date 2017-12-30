@@ -4,6 +4,8 @@
 
 using namespace UI;
 
+static int hackNumColumns = 1;
+
 FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	auto childIt = FindWindowChild(*this, child);
@@ -12,10 +14,19 @@ FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &
 	vec2d pxElementSize = ToPx(_elementSize, lc);
 
 	auto childIndex = std::distance(begin(*this), childIt);
-	auto nColumns = int(lc.GetPixelSize().x / pxElementSize.x);
-	int row = childIndex / nColumns;
-	int column = childIndex - row * nColumns;
+	auto numColumns = std::max(1, int(lc.GetPixelSize().x / pxElementSize.x));
+	int row = childIndex / numColumns;
+	int column = childIndex - row * numColumns;
 
-	auto offset = vec2d{ (float)row * pxElementSize.y, (float)column * pxElementSize.x };
+	hackNumColumns = numColumns;
+
+	auto offset = vec2d{ (float)column * pxElementSize.x, (float)row * pxElementSize.y };
 	return MakeRectWH(offset, pxElementSize);
+}
+
+vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+{
+	int numRows = GetChildrenCount() / hackNumColumns;
+
+	return ToPx(_elementSize, scale) * vec2d { (float)hackNumColumns, (float)numRows };
 }

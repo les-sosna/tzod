@@ -1,5 +1,6 @@
 #pragma once
 #include "detail/ConfigConsoleHistory.h"
+#include "detail/MapCollection.h"
 #include <as/AppStateListener.h>
 #include <luaetc/LuaDeleter.h>
 #include <render/RenderScheme.h>
@@ -65,7 +66,7 @@ protected:
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
 
 private:
-	ConfigConsoleHistory  _history;
+	ConfigConsoleHistory _history;
 	TextureManager &_texman;
 	AppConfig &_appConfig;
 	AppController &_appController;
@@ -87,6 +88,7 @@ private:
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
+	MapCollection _mapCollection;
 
 	void OnNewCampaign();
 	void OnSinglePlayer();

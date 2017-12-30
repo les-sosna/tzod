@@ -1,3 +1,4 @@
+#include "inc/shell/detail/MapCollection.h"
 #include "inc/shell/Config.h"
 #include "MapPreview.h"
 #include "SelectMapDlg.h"
@@ -6,35 +7,44 @@
 #include <render/WorldView.h>
 #include <ui/Button.h>
 #include <ui/DataSource.h>
+#include <ui/LayoutContext.h>
 #include <ui/ScanlineLayout.h>
+#include <ui/ScrollView.h>
 #include <ui/StackLayout.h>
 
-SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache)
+SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection)
 	: _worldView(worldView)
 	, _conf(conf)
 	, _lang(lang)
 	, _worldCache(worldCache)
+	, _mapCollection(mapCollection)
 	, _mapTiles(std::make_shared<UI::ScanlineLayout>())
 {
-	Resize(800, 600);
+	Resize(400, 500);
 
-	auto rootLayout = std::make_shared<UI::StackLayout>();
+	auto rootLayout = std::make_shared<UI::ScrollView>();
 	AddFront(rootLayout);
 
-	rootLayout->AddFront(_mapTiles);
+	_mapTiles->SetElementSize(vec2d{ _conf.tile_size.GetFloat(), _conf.tile_size.GetFloat() });
+	rootLayout->SetContent(_mapTiles);
 
-	auto mapPreview = std::make_shared<MapPreview>(fsRoot, _worldView, _mapCache);
-	mapPreview->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
-	mapPreview->SetPadding(_conf.tile_spacing.GetFloat() / 2);
-	mapPreview->SetMapName(std::make_shared<UI::StaticText>("dm1"));
+	for (unsigned int mapIndex = 0; mapIndex < _mapCollection.GetMapCount(); mapIndex++)
+	{
+		auto mapPreview = std::make_shared<MapPreview>(fsRoot, _worldView, _worldCache);
+		mapPreview->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
+		mapPreview->SetPadding(_conf.tile_spacing.GetFloat() / 2);
+		mapPreview->SetMapName(std::make_shared<UI::StaticText>(_mapCollection.GetMapName(mapIndex)));
 
-	auto mpButton = std::make_shared<UI::ButtonBase>();
-	mpButton->AddFront(mapPreview);
-	mpButton->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
-//	mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
+		auto mpButton = std::make_shared<UI::ButtonBase>();
+		mpButton->AddFront(mapPreview);
+		mpButton->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
+		//	mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
 
-	_mapTiles->AddFront(mpButton);
-	_mapTiles->AddFront(mpButton);
-	_mapTiles->AddFront(mpButton);
-	_mapTiles->AddFront(mpButton);
+		_mapTiles->AddFront(mpButton);
+	}
+}
+
+FRECT SelectMapDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+{
+	return MakeRectWH(lc.GetPixelSize());
 }
