@@ -87,10 +87,10 @@ void WorldView::Render(RenderContext &rc,
 
 	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
-	int xmin = std::max(world._locationBounds.left, (int)std::floor(left / WORLD_LOCATION_SIZE));
-	int ymin = std::max(world._locationBounds.top, (int)std::floor(top / WORLD_LOCATION_SIZE));
-	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(right / WORLD_LOCATION_SIZE));
-	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(bottom / WORLD_LOCATION_SIZE) + 1);
+	int xmin = std::max(world._locationBounds.left, (int)std::floor(left / WORLD_LOCATION_SIZE - 0.5f));
+	int ymin = std::max(world._locationBounds.top, (int)std::floor(top / WORLD_LOCATION_SIZE - 0.5f));
+	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(right / WORLD_LOCATION_SIZE + 0.5f));
+	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(bottom / WORLD_LOCATION_SIZE + 0.5f));
 	for( int x = xmin; x <= xmax; ++x )
 	for( int y = ymin; y <= ymax; ++y )
 	{
