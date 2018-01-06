@@ -278,7 +278,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 {
 	// look for pickups
 	std::vector<ObjectList*> receive;
-	world.grid_pickup.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	world.grid_pickup.OverlapPoint(receive, GetPos() / WORLD_LOCATION_SIZE);
 	for( auto &list: receive )
 	{
 		list->for_each([&](ObjectList::id_type, GC_Object *o)
@@ -402,7 +402,7 @@ vec2d GC_Vehicle::GetLightPos2() const
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 {
-	ED_ACTOR("tank", "obj_tank", 1, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("tank", "obj_tank", 1, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 

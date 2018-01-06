@@ -769,7 +769,7 @@ void GC_FireSpark::TimeStep(World &world, float dt)
 	R *= 1.5; // for damage calculation
 
     std::vector<ObjectList*> receive;
-	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	world.grid_rigid_s.OverlapPoint(receive, GetPos() / WORLD_LOCATION_SIZE);
 
 	const bool healOwner = CheckFlags(GC_FLAG_FIRESPARK_HEALOWNER);
 

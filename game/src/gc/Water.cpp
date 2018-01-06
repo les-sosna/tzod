@@ -12,7 +12,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Water)
 GC_Water::GC_Water(vec2d pos)
   : GC_RigidBodyStatic(pos)
 {
-	SetSize(CELL_SIZE, CELL_SIZE);
+	SetSize(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE);
 	SetFlags(GC_FLAG_RBSTATIC_TRACE0, true);
 }
 
@@ -65,8 +65,8 @@ static const int nf[8] = { 131,   2,  14,   8,  56,  32, 224, 128 };
 
 int GC_Water::GetNeighbors(const World &world) const
 {
-	int x0 = (int)std::floor(GetPos().x / CELL_SIZE);
-	int y0 = (int)std::floor(GetPos().y / CELL_SIZE);
+	int x0 = (int)std::floor(GetPos().x / WORLD_BLOCK_SIZE);
+	int y0 = (int)std::floor(GetPos().y / WORLD_BLOCK_SIZE);
 
 	int neighbors = 0;
 	for (int i = 0; i < 8; i++)

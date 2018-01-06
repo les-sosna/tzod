@@ -25,7 +25,7 @@ EditorContext::EditorContext(int width, int height, FS::Stream *stream)
 		mf.getMapAttribute("west_bound", left);
 		mf.getMapAttribute("north_bound", top);
 
-		_originalBounds = MakeRectWH(vec2d{ (float)left, (float)top }, vec2d{ (float)width, (float)height }) * CELL_SIZE;
+		_originalBounds = MakeRectWH(vec2d{ (float)left, (float)top }, vec2d{ (float)width, (float)height }) * WORLD_BLOCK_SIZE;
 
 		bounds.left = std::min(bounds.left, left);
 		bounds.top = std::min(bounds.top, top);

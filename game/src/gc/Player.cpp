@@ -122,10 +122,10 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 			if( d < dist || dist < 0 ) dist = d;
 		}
 
-		if( dist > 0 && dist < 4*CELL_SIZE*CELL_SIZE )
+		if( dist > 0 && dist < 4*WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE )
 			continue;
 
-		if( dist < 0 || dist > 400*CELL_SIZE*CELL_SIZE )
+		if( dist < 0 || dist > 400*WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE )
 			points.push_back(pSpawnPoint);
 
 		if( dist > max_dist )

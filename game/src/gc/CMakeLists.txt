@@ -74,6 +74,7 @@ add_library(gc
 	Service.cpp
 	Trigger.cpp
 	Turrets.cpp
+	TypeReg.h
 	TypeSystem.cpp
 	UserObjects.cpp
 	Vehicle.cpp

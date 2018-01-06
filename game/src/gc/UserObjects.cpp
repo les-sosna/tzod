@@ -7,7 +7,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
-	ED_ACTOR("user_object", "obj_user_object", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("user_object", "obj_user_object", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 
@@ -16,7 +16,7 @@ GC_UserObject::GC_UserObject(vec2d pos)
   , _textureName("turret_platform")
   , _zOrder(Z_WALLS)
 {
-	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
+	SetSize(WORLD_BLOCK_SIZE * 2, WORLD_BLOCK_SIZE * 2);
 }
 
 GC_UserObject::GC_UserObject(FromFile)
@@ -106,7 +106,7 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 {
-	ED_ACTOR("user_sprite", "obj_user_sprite", 7, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("user_sprite", "obj_user_sprite", 7, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 

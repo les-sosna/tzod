@@ -25,7 +25,7 @@ void R_Wall::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) 
 	assert(corner < 5);
 	unsigned int fcount = _tm.GetFrameCount(_texId[corner]);
 	unsigned int frame = fcount - 1 - (unsigned int) ((float) (fcount - 1) * wall.GetHealth() / wall.GetHealthMax());
-	rc.DrawSprite(_texId[corner], frame, 0xffffffff, pos.x, pos.y, CELL_SIZE, CELL_SIZE, dir);
+	rc.DrawSprite(_texId[corner], frame, 0xffffffff, pos.x, pos.y, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, dir);
 }
 
 

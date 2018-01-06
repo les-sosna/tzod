@@ -9,7 +9,7 @@
 #include <video/RenderContext.h>
 
 WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
-    : _renderScheme(rs)
+	: _renderScheme(rs)
 	, _terrain(tm)
 {
 }
@@ -27,13 +27,13 @@ void WorldView::Render(RenderContext &rc,
                        bool drawGrid,
                        bool nightMode) const
 {
-	eye.x = floor(eye.x * zoom) / zoom;
-	eye.y = floor(eye.y * zoom) / zoom;
+	eye.x = std::floor(eye.x * zoom) / zoom;
+	eye.y = std::floor(eye.y * zoom) / zoom;
 
 	rc.Camera(viewport, eye.x, eye.y, zoom);
 
-	float left = floor((eye.x - (float) WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
-	float top = floor((eye.y - (float)HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
+	float left = std::floor((eye.x - (float)WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
+	float top = std::floor((eye.y - (float)HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
 	float right = left + (float)WIDTH(viewport) / zoom;
 	float bottom = top + (float)HEIGHT(viewport) / zoom;
 
@@ -87,10 +87,10 @@ void WorldView::Render(RenderContext &rc,
 
 	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
-	int xmin = std::max(world._locationBounds.left, (int)std::floor(left / LOCATION_SIZE));
-	int ymin = std::max(world._locationBounds.top, (int)std::floor(top / LOCATION_SIZE));
-	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(right / LOCATION_SIZE));
-	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(bottom / LOCATION_SIZE) + 1);
+	int xmin = std::max(world._locationBounds.left, (int)std::floor(left / WORLD_LOCATION_SIZE));
+	int ymin = std::max(world._locationBounds.top, (int)std::floor(top / WORLD_LOCATION_SIZE));
+	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(right / WORLD_LOCATION_SIZE));
+	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(bottom / WORLD_LOCATION_SIZE) + 1);
 	for( int x = xmin; x <= xmax; ++x )
 	for( int y = ymin; y <= ymax; ++y )
 	{

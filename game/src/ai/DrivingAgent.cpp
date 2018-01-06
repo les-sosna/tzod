@@ -71,10 +71,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 		RefFieldCell, std::vector<RefFieldCell>, std::greater<RefFieldCell>
 	> open;
 
-	int start_x = GRID_ALIGN(int(from.x), CELL_SIZE);
-	int start_y = GRID_ALIGN(int(from.y), CELL_SIZE);
-	int end_x = GRID_ALIGN(int(to.x), CELL_SIZE);
-	int end_y = GRID_ALIGN(int(to.y), CELL_SIZE);
+	int start_x = GRID_ALIGN(int(from.x), WORLD_BLOCK_SIZE);
+	int start_y = GRID_ALIGN(int(from.y), WORLD_BLOCK_SIZE);
+	int end_x = GRID_ALIGN(int(to.x), WORLD_BLOCK_SIZE);
+	int end_y = GRID_ALIGN(int(to.y), WORLD_BLOCK_SIZE);
 
 	FieldCell &start = field(start_x, start_y);
 
@@ -181,8 +181,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			cell = cell->_prevCell;
 			while( nullptr != cell )
 			{
-				node.coord.x = (float) (cell->GetX() * CELL_SIZE);
-				node.coord.y = (float) (cell->GetY() * CELL_SIZE);
+				node.coord.x = (float) (cell->GetX() * WORLD_BLOCK_SIZE);
+				node.coord.y = (float) (cell->GetY() * WORLD_BLOCK_SIZE);
 				_path.push_front(node);
 
 				for( int i = 0; i < cell->GetObjectsCount(); ++i )
@@ -446,13 +446,13 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 			}
 		}
 
-		if (++currentNodeIt == _path.end() && (currentProj - currentPos).sqr() < CELL_SIZE*CELL_SIZE / 16)
+		if (++currentNodeIt == _path.end() && (currentProj - currentPos).sqr() < WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE / 16)
 		{
 			_path.clear(); // end of path
 		}
 		//else
 		//{
-		//	if( (predictedPos - predictedProj).sqr() < CELL_SIZE*CELL_SIZE && brake_len > 1 )
+		//	if( (predictedPos - predictedProj).sqr() < WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE && brake_len > 1 )
 		//	{
 		//		_arrivalPoint = predictedProj + brake;
 		//	}
@@ -469,7 +469,7 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 	while( !_path.empty() )
 	{
 	float desired = _path.size()>1 ? (_pickupCurrent ?
-	_pickupCurrent->GetRadius() : 30.0f) : (float) CELL_SIZE / 2;
+	_pickupCurrent->GetRadius() : 30.0f) : (float) WORLD_BLOCK_SIZE / 2;
 	float current = (GetVehicle()->GetPos() - _path.front().coord).len();
 	if( current > desired )
 	{
@@ -548,7 +548,7 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 	//
 
 	float dst = (currentPos - _arrivalPoint).sqr();
-	if (dst > CELL_SIZE*CELL_SIZE / 16)
+	if (dst > WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE / 16)
 	{
 		if (_backTime <= 0)
 		{

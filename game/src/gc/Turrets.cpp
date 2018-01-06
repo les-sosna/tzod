@@ -32,7 +32,7 @@ GC_Turret::GC_Turret(vec2d pos, TurretState state)
   , _team(0)
   , _sight(TURET_SIGHT_RADIUS)
 {
-	SetSize(CELL_SIZE * 2, CELL_SIZE * 2);
+	SetSize(WORLD_BLOCK_SIZE * 2, WORLD_BLOCK_SIZE * 2);
 	_rotator.reset(0, 0, 2.0f, 5.0f, 10.0f);
 }
 
@@ -275,7 +275,7 @@ GC_Turret::MyPropertySet::MyPropertySet(GC_Object *object)
 {
 	_propTeam.SetIntRange(0, MAX_TEAMS - 1);
 	_propSight.SetIntRange(0, 100);
-    _propDir.SetFloatRange(0, PI2);
+	_propDir.SetFloatRange(0, PI2);
 }
 
 int GC_Turret::MyPropertySet::GetCount() const
@@ -292,7 +292,7 @@ ObjectProperty* GC_Turret::MyPropertySet::GetProperty(int index)
 	{
 		case 0: return &_propTeam;
 		case 1: return &_propSight;
-        case 2: return &_propDir;
+		case 2: return &_propDir;
 	}
 
 	assert(false);
@@ -308,14 +308,14 @@ void GC_Turret::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	if( applyToObject )
 	{
 		tmp->_team  = _propTeam.GetIntValue();
-		tmp->_sight = (float) (_propSight.GetIntValue() * CELL_SIZE);
-        tmp->SetInitialDir(_propDir.GetFloatValue());
+		tmp->_sight = (float) (_propSight.GetIntValue() * WORLD_BLOCK_SIZE);
+		tmp->SetInitialDir(_propDir.GetFloatValue());
 	}
 	else
 	{
 		_propTeam.SetIntValue(tmp->_team);
-		_propSight.SetIntValue(int(tmp->_sight / CELL_SIZE + 0.5f));
-        _propDir.SetFloatValue(tmp->_initialDir);
+		_propSight.SetIntValue(int(tmp->_sight / WORLD_BLOCK_SIZE + 0.5f));
+		_propDir.SetFloatValue(tmp->_initialDir);
 	}
 }
 

@@ -42,13 +42,13 @@ World::World(RectRB blockBounds)
 	: _gameStarted(false)
 	, _frozen(false)
 	, _nightMode(false)
-	, _bounds(RectToFRect(blockBounds * CELL_SIZE))
+	, _bounds(RectToFRect(blockBounds * WORLD_BLOCK_SIZE))
 	, _blockBounds(blockBounds)
 	, _locationBounds{
-		DivFloor(blockBounds.left * CELL_SIZE, LOCATION_SIZE),
-		DivFloor(blockBounds.top * CELL_SIZE, LOCATION_SIZE),
-		DivCeil(blockBounds.right * CELL_SIZE, LOCATION_SIZE),
-		DivCeil(blockBounds.bottom * CELL_SIZE, LOCATION_SIZE) }
+		DivFloor(blockBounds.left * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE),
+		DivFloor(blockBounds.top * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE),
+		DivCeil(blockBounds.right * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE),
+		DivCeil(blockBounds.bottom * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE) }
 	, _seed(1)
 	, _safeMode(true)
 	, _time(0)
@@ -72,8 +72,8 @@ World::World(RectRB blockBounds)
 
 int World::GetTileIndex(vec2d pos) const
 {
-	int blockX = (int)std::floor(pos.x / CELL_SIZE);
-	int blockY = (int)std::floor(pos.y / CELL_SIZE);
+	int blockX = (int)std::floor(pos.x / WORLD_BLOCK_SIZE);
+	int blockY = (int)std::floor(pos.y / WORLD_BLOCK_SIZE);
 	return GetTileIndex(blockX, blockY);
 }
 
@@ -274,10 +274,10 @@ void World::Export(FS::Stream &s)
 
 	RectRB blockBounds;
 	FRECT occupiedBounds = GetOccupiedBounds();
-	blockBounds.left = (int)std::floor(occupiedBounds.left / CELL_SIZE);
-	blockBounds.top = (int)std::floor(occupiedBounds.top / CELL_SIZE);
-	blockBounds.right = (int)std::ceil(occupiedBounds.right / CELL_SIZE);
-	blockBounds.bottom = (int)std::ceil(occupiedBounds.bottom / CELL_SIZE);
+	blockBounds.left = (int)std::floor(occupiedBounds.left / WORLD_BLOCK_SIZE);
+	blockBounds.top = (int)std::floor(occupiedBounds.top / WORLD_BLOCK_SIZE);
+	blockBounds.right = (int)std::ceil(occupiedBounds.right / WORLD_BLOCK_SIZE);
+	blockBounds.bottom = (int)std::ceil(occupiedBounds.bottom / WORLD_BLOCK_SIZE);
 
 	file.setMapAttribute("north_bound", blockBounds.top);
 	file.setMapAttribute("west_bound", blockBounds.left);

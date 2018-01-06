@@ -18,7 +18,7 @@ GC_Wall::GC_Wall(vec2d pos)
   : GC_RigidBodyStatic(pos)
 {
 	SetHealth(50, 50);
-	SetSize(CELL_SIZE, CELL_SIZE);
+	SetSize(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE);
 }
 
 GC_Wall::GC_Wall(FromFile)
@@ -34,7 +34,7 @@ static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
 {
 	if (corner)
 	{
-		vec2d p = obj.GetPos() / CELL_SIZE;
+		vec2d p = obj.GetPos() / WORLD_BLOCK_SIZE;
 		int x, y;
 		switch( corner )
 		{
@@ -451,7 +451,7 @@ void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 {
 	// restore current corner
-	vec2d p = GetPos() / CELL_SIZE;
+	vec2d p = GetPos() / WORLD_BLOCK_SIZE;
 	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
 	{
 		int x, y;
@@ -591,7 +591,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall_Concrete)
 GC_Wall_Concrete::GC_Wall_Concrete(vec2d pos)
   : GC_Wall(pos)
 {
-	SetSize(CELL_SIZE, CELL_SIZE);
+	SetSize(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE);
 }
 
 void GC_Wall_Concrete::OnDamage(World &world, DamageDesc &dd)

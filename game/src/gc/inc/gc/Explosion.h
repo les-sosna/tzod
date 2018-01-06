@@ -29,7 +29,7 @@ class GC_Explosion : public GC_Actor
 
 		float GetRealDistance() const
 		{
-			return (float) distance / 12.0f * (float) CELL_SIZE;
+			return (float) distance / 12.0f * (float) WORLD_BLOCK_SIZE;
 		}
 	};
 
@@ -38,7 +38,7 @@ class GC_Explosion : public GC_Actor
 		short x, y;
 		coord() {}
 		coord(short x_, short y_) { x = x_; y = y_; }
-		operator size_t () const { return x + LEVEL_MAXSIZE * y; }
+		operator size_t () const { return x + WORLD_MAXBLOCKS * y; }
 	};
 
 	typedef std::map<coord, FieldNode> FIELD_TYPE;

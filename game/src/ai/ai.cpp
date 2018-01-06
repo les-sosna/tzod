@@ -171,7 +171,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 		if( object != &vehicle )
 		{
 			if( (vehicle.GetPos() - object->GetPos()).sqr() <
-				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
+				(AI_MAX_SIGHT * WORLD_BLOCK_SIZE) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE) )
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
 					world.TraceNearest(world.grid_rigid_s, &vehicle,
@@ -190,7 +190,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 	{
 		float l;
 		if( targets[i].bIsVisible )
-			l = (targets[i].target->GetPos() - vehicle.GetPos()).len() / CELL_SIZE;
+			l = (targets[i].target->GetPos() - vehicle.GetPos()).len() / WORLD_BLOCK_SIZE;
 		else
 			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), targets[i].target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 
@@ -219,10 +219,10 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 
     std::vector<ObjectList*> receive;
 	FRECT rt = {
-		(vehicle.GetPos().x - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
-		(vehicle.GetPos().y - AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
-		(vehicle.GetPos().x + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE,
-		(vehicle.GetPos().y + AI_MAX_SIGHT * CELL_SIZE) / LOCATION_SIZE};
+		(vehicle.GetPos().x - AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE,
+		(vehicle.GetPos().y - AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE,
+		(vehicle.GetPos().x + AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE,
+		(vehicle.GetPos().y + AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE};
 
 	world.grid_pickup.OverlapRect(receive, rt);
 	for( auto i = receive.begin(); i != receive.end(); ++i )
@@ -237,7 +237,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 			}
 
 			if( (vehicle.GetPos() - pItem->GetPos()).sqr() <
-				(AI_MAX_SIGHT * CELL_SIZE) * (AI_MAX_SIGHT * CELL_SIZE) )
+				(AI_MAX_SIGHT * WORLD_BLOCK_SIZE) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE) )
 			{
 				applicants.push_back(pItem);
 			}
@@ -496,7 +496,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 		assert(nullptr == _target);
 		if( L1_STICK == _aiState_l1 || _drivingAgent->_path.empty() )
 		{
-			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * CELL_SIZE);
+			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE);
 			t = Vec2dConstrain(t, world._bounds);
 
 			if (_drivingAgent->CreatePath(world, vehicle.GetPos(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)

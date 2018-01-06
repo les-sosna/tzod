@@ -45,10 +45,10 @@ void GC_Explosion::Serialize(World &world, SaveFile &f)
 
 float GC_Explosion::CheckDamage(FIELD_TYPE &field, float dst_x, float dst_y, float max_distance)
 {
-	int x0 = (int)std::floor(GetPos().x / CELL_SIZE);
-	int y0 = (int)std::floor(GetPos().y / CELL_SIZE);
-	int x1 = (int)std::floor(dst_x / CELL_SIZE);
-	int y1 = (int)std::floor(dst_y / CELL_SIZE);
+	int x0 = (int)std::floor(GetPos().x / WORLD_BLOCK_SIZE);
+	int y0 = (int)std::floor(GetPos().y / WORLD_BLOCK_SIZE);
+	int x1 = (int)std::floor(dst_x / WORLD_BLOCK_SIZE);
+	int y1 = (int)std::floor(dst_y / WORLD_BLOCK_SIZE);
 
 	std::deque<FieldNode *> open;
 	open.push_front(&field[coord(x0, y0)]);
@@ -142,10 +142,10 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 	//
 	std::vector<ObjectList*> receive;
 	FRECT rt = {GetPos().x - radius, GetPos().y - radius, GetPos().x + radius, GetPos().y + radius};
-	rt.left   /= LOCATION_SIZE;
-	rt.top    /= LOCATION_SIZE;
-	rt.right  /= LOCATION_SIZE;
-	rt.bottom /= LOCATION_SIZE;
+	rt.left   /= WORLD_LOCATION_SIZE;
+	rt.top    /= WORLD_LOCATION_SIZE;
+	rt.right  /= WORLD_LOCATION_SIZE;
+	rt.bottom /= WORLD_LOCATION_SIZE;
 	world.grid_rigid_s.OverlapRect(receive, rt);
 
 	//
@@ -161,8 +161,8 @@ void GC_Explosion::Boom(World &world, float radius, float damage)
 
 			if( GC_Wall_Concrete::GetTypeStatic() == pDamObject->GetType() )
 			{
-				node.x = (int)std::floor(pDamObject->GetPos().x / CELL_SIZE);
-				node.y = (int)std::floor(pDamObject->GetPos().y / CELL_SIZE);
+				node.x = (int)std::floor(pDamObject->GetPos().x / WORLD_BLOCK_SIZE);
+				node.y = (int)std::floor(pDamObject->GetPos().y / WORLD_BLOCK_SIZE);
 				field[coord(node.x, node.y)] = node;
 			}
 		}

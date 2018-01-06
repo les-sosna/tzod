@@ -99,7 +99,7 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 	memset(zLayers, 0, sizeof(zLayers));
 
 	std::vector<ObjectList*> receive;
-	world.grid_actors.OverlapPoint(receive, pt / LOCATION_SIZE);
+	world.grid_actors.OverlapPoint(receive, pt / WORLD_LOCATION_SIZE);
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
 		ObjectList *ls = *rit;

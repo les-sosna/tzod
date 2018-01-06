@@ -6,14 +6,14 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 {
-	ED_ACTOR("crate", "obj_crate", 0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, 0);
+	ED_ACTOR("crate", "obj_crate", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 
 GC_Crate::GC_Crate(vec2d pos)
   : GC_RigidBodyDynamic(pos)
 {
-	SetSize(CELL_SIZE, CELL_SIZE);
+	SetSize(WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE);
 
 	_Mx = _My = _Mw = 0;
 	_Nx = _Ny = 400;

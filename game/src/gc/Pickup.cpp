@@ -427,7 +427,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 	// find the nearest enemy
 	//
 
-	float min_dist = AI_MAX_SIGHT * CELL_SIZE;
+	float min_dist = AI_MAX_SIGHT * WORLD_BLOCK_SIZE;
 	float dist;
 
 	GC_Vehicle *pNearTarget = nullptr;

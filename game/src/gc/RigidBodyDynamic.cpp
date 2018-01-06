@@ -290,7 +290,7 @@ void GC_RigidBodyDynamic::TimeStep(World &world, float dt)
 	// collisions
 
 	std::vector<ObjectList*> receive;
-	world.grid_rigid_s.OverlapPoint(receive, GetPos() / LOCATION_SIZE);
+	world.grid_rigid_s.OverlapPoint(receive, GetPos() / WORLD_LOCATION_SIZE);
 
 	Contact contact;
 	contact.depth = 0;

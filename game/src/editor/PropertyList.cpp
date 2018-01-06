@@ -177,7 +177,7 @@ void PropertyList::DoExchange(bool applyToObject)
 					{
 						// only allow using textures which are less than half of a cell
 						const LogicalTexture &lt = _texman.GetSpriteInfo(_texman.FindSprite(name));
-						if( lt.pxFrameWidth <= LOCATION_SIZE / 2 && lt.pxFrameHeight <= LOCATION_SIZE / 2 )
+						if( lt.pxFrameWidth <= WORLD_LOCATION_SIZE / 2 && lt.pxFrameHeight <= WORLD_LOCATION_SIZE / 2 )
 						{
 							int index = static_cast<DefaultComboBox *>(ctrl.get())->GetData()->AddItem(name);
 							if (name == prop->GetStringValue())

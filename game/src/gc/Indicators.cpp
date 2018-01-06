@@ -11,7 +11,7 @@
 IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 {
 	ED_ACTOR("respawn_point", "obj_respawn",
-	    0, CELL_SIZE, CELL_SIZE, CELL_SIZE/2, CELL_SIZE/2);
+	    0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, WORLD_BLOCK_SIZE/2);
 	return true;
 }
 

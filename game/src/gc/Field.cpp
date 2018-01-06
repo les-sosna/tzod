@@ -124,8 +124,8 @@ void Field::Resize(RectRB bounds)
 
 void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 {
-	float r = object->GetRadius() / CELL_SIZE;
-	vec2d p = object->GetPos() / CELL_SIZE;
+	float r = object->GetRadius() / WORLD_BLOCK_SIZE;
+	vec2d p = object->GetPos() / WORLD_BLOCK_SIZE;
 
 	assert(r >= 0);
 

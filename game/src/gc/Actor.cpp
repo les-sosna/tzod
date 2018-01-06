@@ -23,8 +23,8 @@ GC_Actor::GC_Actor(vec2d pos)
 void GC_Actor::Init(World &world)
 {
 	GC_Object::Init(world);
-	_locationX = std::max(world._locationBounds.left, std::min((int)std::floor(_pos.x / LOCATION_SIZE), world._locationBounds.right - 1));
-	_locationY = std::max(world._locationBounds.top, std::min((int)std::floor(_pos.y / LOCATION_SIZE), world._locationBounds.bottom - 1));
+	_locationX = std::max(world._locationBounds.left, std::min((int)std::floor(_pos.x / WORLD_LOCATION_SIZE), world._locationBounds.right - 1));
+	_locationY = std::max(world._locationBounds.top, std::min((int)std::floor(_pos.y / WORLD_LOCATION_SIZE), world._locationBounds.bottom - 1));
 	EnterContexts(world, _locationX, _locationY);
 }
 
@@ -50,8 +50,8 @@ void GC_Actor::MoveTo(World &world, const vec2d &pos)
 {
 	_pos = pos;
 
-	int locX = std::max(world._locationBounds.left, std::min((int)std::floor(_pos.x / LOCATION_SIZE), world._locationBounds.right - 1));
-	int locY = std::max(world._locationBounds.top, std::min((int)std::floor(_pos.y / LOCATION_SIZE), world._locationBounds.bottom - 1));
+	int locX = std::max(world._locationBounds.left, std::min((int)std::floor(_pos.x / WORLD_LOCATION_SIZE), world._locationBounds.right - 1));
+	int locY = std::max(world._locationBounds.top, std::min((int)std::floor(_pos.y / WORLD_LOCATION_SIZE), world._locationBounds.bottom - 1));
 
 	if (_locationX != locX || _locationY != locY)
 	{

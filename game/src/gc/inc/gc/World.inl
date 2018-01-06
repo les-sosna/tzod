@@ -10,9 +10,9 @@ void World::RayTrace(const Grid<ObjectList> &list, SelectorType &s) const
 	//
 
 	vec2d begin(s.GetCenter() - s.GetDirection()/2), end(s.GetCenter() + s.GetDirection()/2), delta(s.GetDirection());
-	begin /= LOCATION_SIZE;
-	end   /= LOCATION_SIZE;
-	delta /= LOCATION_SIZE;
+	begin /= WORLD_LOCATION_SIZE;
+	end   /= WORLD_LOCATION_SIZE;
+	delta /= WORLD_LOCATION_SIZE;
 
 	const int halfBeginX = int(std::floor(begin.x - 0.5f));
 	const int halfBeginY = int(std::floor(begin.y - 0.5f));
