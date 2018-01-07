@@ -45,9 +45,9 @@ void MultiColumnListItem::EnsureColumn(unsigned int columnIndex, float offset)
 	_columns[columnIndex]->SetFontColor(textColorMap);
 }
 
-vec2d MultiColumnListItem::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d MultiColumnListItem::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	return _columns[0]->GetContentSize(texman, dc, scale);
+	return _columns[0]->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const

@@ -5,6 +5,7 @@ namespace UI
 {
 	class Window;
 	class DataContext;
+	class LayoutContext;
 
 	enum class Navigate
 	{
@@ -30,8 +31,8 @@ namespace UI
 
 	struct NavigationSink
 	{
-		virtual bool CanNavigate(Navigate navigate, const DataContext &dc) const = 0;
-		virtual void OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc) = 0;
+		virtual bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const = 0;
+		virtual void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) = 0;
 	};
 
 	std::shared_ptr<Window> GetPrevFocusChild(Window &wnd, const DataContext &dc);

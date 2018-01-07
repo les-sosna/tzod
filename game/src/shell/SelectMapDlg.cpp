@@ -24,6 +24,7 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 
 	auto rootLayout = std::make_shared<UI::ScrollView>();
 	AddFront(rootLayout);
+	SetFocus(rootLayout);
 
 	_mapTiles->SetElementSize(vec2d{ _conf.tile_size.GetFloat(), _conf.tile_size.GetFloat() });
 	rootLayout->SetContent(_mapTiles);
@@ -55,6 +56,8 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 		eventMapSelected(std::static_pointer_cast<SelectMapDlg>(shared_from_this()), -1);
 	};
 	_mapTiles->AddFront(newMapButton);
+
+	_mapTiles->SetFocus(_mapTiles->GetChild(0));
 }
 
 FRECT SelectMapDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const

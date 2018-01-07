@@ -52,9 +52,9 @@ FRECT Edit::GetChildRect(TextureManager &texman, const LayoutContext &lc, const 
 	return MakeRectWH(lc.GetPixelSize());
 }
 
-vec2d Edit::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d Edit::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	return _editable->GetContentSize(texman, dc, scale);
+	return _editable->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 std::shared_ptr<Window> Edit::GetFocus() const

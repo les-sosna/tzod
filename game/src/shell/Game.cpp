@@ -293,7 +293,7 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 
 	if (_scoreAndControls.get() == &child)
 	{
-		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScale());
+		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
 	}
 	if (_timerDisplay.get() == &child)

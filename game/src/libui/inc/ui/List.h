@@ -21,8 +21,8 @@ public:
 
 	ListDataSource* GetData() const;
 
-	vec2d GetItemSize(TextureManager &texman, float scale) const;
-	int HitTest(vec2d pxPos, TextureManager &texman, float scale) const; // returns item index or -1
+	vec2d GetItemSize(TextureManager &texman, float scale, const LayoutConstraints &layoutConstraints) const;
+	int HitTest(vec2d pxPos, const LayoutContext &lc, TextureManager &texman) const; // returns item index or -1
 
 	int  GetCurSel() const;
 	void SetCurSel(int sel);
@@ -37,7 +37,7 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
+	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 	bool HasNavigationSink() const override { return true; }
@@ -77,8 +77,8 @@ private:
 	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// NavigationSink
-	bool CanNavigate(Navigate navigate, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc) override;
+	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
 };
 
 } // namespace UI

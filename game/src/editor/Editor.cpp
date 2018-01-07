@@ -444,7 +444,7 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	}
 	if (_typeSelector.get() == &child)
 	{
-		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, dc, scale).y, size.x, size.y };
+		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y, size.x, size.y };
 	}
 	if (_propList.get() == &child)
 	{

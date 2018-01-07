@@ -228,12 +228,12 @@ FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext
 {
 	if (_deleteButton.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScale()).y);
+		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y);
 	}
 	if (_scrollView.get() == &child)
 	{
 		vec2d pxMargins = { std::floor(4 * lc.GetScale()), 1 };
-		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScale()).y}, lc.GetPixelSize() - pxMargins);
+		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins);
 	}
 	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }

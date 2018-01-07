@@ -95,12 +95,12 @@ void ButtonBase::DoClick()
 		eventClick();
 }
 
-bool ButtonBase::CanNavigate(Navigate navigate, const DataContext &dc) const
+bool ButtonBase::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
 	return Navigate::Enter == navigate;
 }
 
-void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
+void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
 {
 	if (NavigationPhase::Completed == phase && Navigate::Enter == navigate)
 	{
@@ -229,7 +229,7 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 		{
 			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
 			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
-			pxChildPos.y -= std::floor(_text->GetContentSize(texman, dc, scale).y / 2);
+			pxChildPos.y -= std::floor(_text->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y / 2);
 			return MakeRectWH(pxChildPos, pxChildSize);
 		}
 	}
@@ -254,9 +254,9 @@ TextButton::TextButton()
 	_text->SetFontColor(c_textColor);
 }
 
-vec2d TextButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d TextButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	return _text->GetContentSize(texman, dc, scale);
+	return _text->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 void TextButton::SetFont(Texture fontTexture)
@@ -308,7 +308,7 @@ FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 	if (_text.get() == &child)
 	{
 		float pxBoxWidth = ToPx(_boxTexture.GetTextureSize(texman), lc).x;
-		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale());
+		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 		return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
 	}
 	return ButtonBase::GetChildRect(texman, lc, dc, child);
@@ -325,9 +325,9 @@ void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 	rc.DrawSprite(box, _boxTexture.GetTextureId(texman), 0xffffffff, frame);
 }
 
-vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	vec2d pxTextSize = _text->GetContentSize(texman, dc, scale);
+	vec2d pxTextSize = _text->GetContentSize(texman, dc, scale, layoutConstraints);
 	vec2d pxBoxSize = ToPx(texman.GetFrameSize(_boxTexture.GetTextureId(texman)), scale);
 	return vec2d{ pxTextSize.x + pxBoxSize.x, std::max(pxTextSize.y, pxBoxSize.y) };
 }

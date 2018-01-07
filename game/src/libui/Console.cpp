@@ -249,7 +249,7 @@ FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, con
 {
 	if (_input.get() == &child)
 	{
-		float inputHeight = _input->GetContentSize(texman, dc, lc.GetScale()).y;
+		float inputHeight = _input->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y;
 		return MakeRectRB(vec2d{0, lc.GetPixelSize().y - inputHeight}, lc.GetPixelSize());
 	}
 	if (_scroll.get() == &child)

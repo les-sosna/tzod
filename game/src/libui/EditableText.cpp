@@ -349,7 +349,7 @@ void EditableText::Copy(IClipboard &clipboard) const
 	}
 }
 
-vec2d EditableText::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d EditableText::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
 	return ToPx(vec2d{ texman.GetCharWidth(_font.GetTextureId(texman)) * GetTextLength() + 20, texman.GetCharHeight(_font.GetTextureId(texman)) }, scale);
 }

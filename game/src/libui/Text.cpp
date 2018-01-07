@@ -29,7 +29,7 @@ void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 			static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
 			static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
 
-			vec2d contentSize = GetContentSize(texman, dc, lc.GetScale());
+			vec2d contentSize = GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 			FRECT rect;
 			rect.left = -std::floor(contentSize.x * dx[_align] / 2);
 			rect.top = contentSize.y - std::floor(contentSize.y * dy[_align] / 2);
@@ -40,7 +40,7 @@ void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 	}
 }
 
-vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
 	if (!_text)
 		return vec2d{};

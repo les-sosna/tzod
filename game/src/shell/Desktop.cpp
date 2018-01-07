@@ -478,13 +478,13 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-bool Desktop::CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const
+bool Desktop::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
 	return UI::Navigate::Back == navigate &&
 		_navStack->GetNavFront() && (!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext());
 }
 
-void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::DataContext &dc)
+void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
 	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{
@@ -511,7 +511,7 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScale()) / lc.GetScale(), lc.GetScale());
+		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)) / lc.GetScale(), lc.GetScale());
 	}
 	if (_tierTitle.get() == &child)
 	{

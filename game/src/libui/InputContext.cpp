@@ -319,18 +319,25 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
-static std::shared_ptr<Window> NavigateMostDescendantFocus(std::shared_ptr<Window> wnd, const DataContext &dc, Navigate navigate, NavigationPhase phase)
+static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Navigate navigate, NavigationPhase phase)
 {
 	if (wnd->GetVisible() && wnd->GetEnabled(dc))
 	{
-		auto focus = wnd->GetFocus();
-		if (auto handledBy = focus ? NavigateMostDescendantFocus(std::move(focus), dc, navigate, phase) : nullptr)
+		std::shared_ptr<Window> handledBy;
+		if (auto focusedChild = wnd->GetFocus())
+		{
+			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
+			LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
+			handledBy = NavigateMostDescendantFocus(texman, std::move(focusedChild), childLC, dc, navigate, phase);
+		}
+
+		if (handledBy)
 		{
 			return handledBy;
 		}
-		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(navigate, dc))
+		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(navigate, lc, dc))
 		{
-			navigationSink->OnNavigate(navigate, phase, dc);
+			navigationSink->OnNavigate(navigate, phase, lc, dc);
 			return wnd;
 		}
 	}
@@ -424,14 +431,15 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		{
 			if (auto wnd = _navigationSubjects[navigate].lock())
 			{
-				wnd->GetNavigationSink()->OnNavigate(navigate, NavigationPhase::Completed, dc);
+				// FIXME: reconstruct the actual LC
+				wnd->GetNavigationSink()->OnNavigate(navigate, NavigationPhase::Completed, lc, dc);
 				_navigationSubjects[navigate].reset();
 				handled = true;
 			}
 		}
 		else
 		{
-			auto handledBy = NavigateMostDescendantFocus(wnd, dc, navigate, NavigationPhase::Started);
+			auto handledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, navigate, NavigationPhase::Started);
 			handled = !!handledBy;
 			_navigationSubjects[navigate] = std::move(handledBy);
 		}
@@ -453,12 +461,13 @@ bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> w
 	});
 }
 
-bool InputContext::ProcessSystemNavigationBack(std::shared_ptr<Window> wnd, const DataContext &dc)
+bool InputContext::ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
 {
-	auto startedHandledBy = NavigateMostDescendantFocus(wnd, dc, Navigate::Back, NavigationPhase::Started);
+	auto startedHandledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, Navigate::Back, NavigationPhase::Started);
 	if (startedHandledBy)
 	{
-		startedHandledBy->GetNavigationSink()->OnNavigate(Navigate::Back, NavigationPhase::Completed, dc);
+		// FIXME: reconstruct the actual LC
+		startedHandledBy->GetNavigationSink()->OnNavigate(Navigate::Back, NavigationPhase::Completed, lc, dc);
 	}
 	return !!startedHandledBy;
 }

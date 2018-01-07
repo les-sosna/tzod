@@ -19,6 +19,7 @@ class LayoutContext;
 class StateContext;
 enum class Key;
 enum class PointerType;
+struct LayoutConstraints;
 struct NavigationSink;
 struct PointerSink;
 template <class> struct LayoutData;
@@ -144,7 +145,7 @@ public:
 	// size & position
 	//
 
-	virtual vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const { return Vec2dFloor(GetSize() *scale); }
+	virtual vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const { return Vec2dFloor(GetSize() *scale); }
 
 	void Move(float x, float y);
 	vec2d GetOffset() const { return vec2d{_x, _y}; }

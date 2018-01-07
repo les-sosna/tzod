@@ -48,7 +48,7 @@ namespace UI
 		KeyboardSink *GetKeyboardSink() override;
 		bool HasTextSink() const override { return true; }
 		TextSink* GetTextSink() override { return this; }
-		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const override;
+		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
 	private:
 		std::string _text;

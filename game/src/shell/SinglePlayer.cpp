@@ -238,18 +238,18 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const
+vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const
 {
 	vec2d pxMargins = UI::ToPx(vec2d{ _conf.tile_spacing.GetFloat(), _conf.tile_spacing.GetFloat() }, scale);
-	return _content->GetContentSize(texman, dc, scale) + pxMargins * 2;
+	return _content->GetContentSize(texman, dc, scale, layoutConstraints) + pxMargins * 2;
 }
 
-bool SinglePlayer::CanNavigate(UI::Navigate navigate, const UI::DataContext &dc) const
+bool SinglePlayer::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
 	return GetNextTier(navigate) != GetCurrentTier(_conf, _dmCampaign);
 }
 
-void SinglePlayer::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::DataContext &dc)
+void SinglePlayer::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
 	if (UI::NavigationPhase::Started == phase)
 	{

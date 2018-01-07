@@ -44,4 +44,16 @@ namespace UI
 	{
 		return Vec2dFloor(units * scale);
 	}
+
+	struct LayoutConstraints
+	{
+		vec2d maxPixelSize;
+	};
+
+	inline LayoutConstraints DefaultLayoutConstraints(const LayoutContext &lc)
+	{
+		LayoutConstraints constraints;
+		constraints.maxPixelSize = lc.GetPixelSize();
+		return constraints;
+	}
 }

@@ -21,12 +21,12 @@ void Dialog::Close(int result)
 	}
 }
 
-bool Dialog::CanNavigate(Navigate navigate, const DataContext &dc) const
+bool Dialog::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
 	return Navigate::Back == navigate;
 }
 
-void Dialog::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
+void Dialog::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
 {
 	if (Navigate::Back == navigate && NavigationPhase::Completed == phase)
 	{

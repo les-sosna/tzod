@@ -95,13 +95,18 @@ void TzodView::Step(float dt)
 	counterDt.Push(dt);
 }
 
-static bool CanNavigateBack(UI::Window *wnd, const UI::DataContext &dc)
+static bool CanNavigateBack(TextureManager &texman, UI::Window *wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
 	if (wnd)
 	{
-		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(UI::Navigate::Back, dc))
+		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(UI::Navigate::Back, lc, dc))
 			return true;
-		return CanNavigateBack(wnd->GetFocus().get(), dc);
+		if (auto focusedChild = wnd->GetFocus())
+		{
+			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
+			UI::LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
+			return CanNavigateBack(texman, focusedChild.get(), childLC, dc);
+		}
 	}
 	return false;
 }
@@ -140,7 +145,7 @@ void TzodView::Render(float pxWidth, float pxHeight, float scale)
 		}
 	}
 
-	_appWindow.SetCanNavigateBack(CanNavigateBack(_impl->gui.GetDesktop().get(), dataContext));
+	_appWindow.SetCanNavigateBack(CanNavigateBack(_impl->textureManager, _impl->gui.GetDesktop().get(), layoutContext, dataContext));
 
 	MouseCursor mouseCursor = hoverTextSink ? MouseCursor::IBeam : MouseCursor::Arrow;
 	if (_impl->mouseCursor != mouseCursor)

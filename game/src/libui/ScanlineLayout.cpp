@@ -4,8 +4,6 @@
 
 using namespace UI;
 
-static int hackNumColumns = 1;
-
 FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	auto childIt = FindWindowChild(*this, child);
@@ -18,28 +16,27 @@ FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &
 	int row = childIndex / numColumns;
 	int column = childIndex - row * numColumns;
 
-	hackNumColumns = numColumns;
-
 	float pxContentWidth = (float)numColumns * pxElementSize.x;
 	float pxAlignCenterOffset = std::floor((lc.GetPixelSize().x - pxContentWidth) / 2);
 	auto offset = vec2d{ pxAlignCenterOffset + (float)column * pxElementSize.x, (float)row * pxElementSize.y };
 	return MakeRectWH(offset, pxElementSize);
 }
 
-vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	int numRows = (GetChildrenCount() + hackNumColumns - 1) / hackNumColumns;
-
-	return ToPx(_elementSize, scale) * vec2d { (float)hackNumColumns, (float)numRows };
+	vec2d pxElementSize = ToPx(_elementSize, scale);
+	auto numColumns = std::max(1, int(layoutConstraints.maxPixelSize.x / pxElementSize.x));
+	int numRows = (GetChildrenCount() + numColumns - 1) / numColumns;
+	return pxElementSize * vec2d{ (float)numColumns, (float)numRows };
 }
 
-std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const DataContext &dc, Navigate navigate)
+std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &lc, const DataContext &dc, Navigate navigate)
 {
 	auto focusChild = GetFocus();
 	auto childIt = std::find(begin(*this), end(*this), focusChild);
 	assert(childIt != end(*this));
 	auto childIndex = std::distance<WindowConstIterator>(begin(*this), childIt);
-	int numColumns = hackNumColumns;
+	auto numColumns = std::max(1, int(lc.GetPixelSize().x / ToPx(_elementSize, lc).x));
 	int row = childIndex / numColumns;
 	int column = childIndex - row * numColumns;
 
@@ -67,16 +64,16 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const DataContext &dc,
 	return nullptr;
 }
 
-bool ScanlineLayout::CanNavigate(Navigate navigate, const DataContext &dc) const
+bool ScanlineLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
-	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(dc, navigate);
+	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(lc, dc, navigate);
 }
 
-void ScanlineLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
+void ScanlineLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(dc, navigate))
+		if (auto newFocus = GetNavigateTarget(lc, dc, navigate))
 		{
 			SetFocus(std::move(newFocus));
 		}

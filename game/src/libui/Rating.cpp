@@ -28,7 +28,7 @@ void Rating::Draw(const DataContext &dc, const StateContext &sc, const LayoutCon
 	}
 }
 
-vec2d Rating::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d Rating::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
 	auto &spriteInfo = texman.GetSpriteInfo(_texture.GetTextureId(texman));
 	vec2d spriteSize = { spriteInfo.pxFrameWidth, spriteInfo.pxFrameHeight };

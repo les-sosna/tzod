@@ -20,9 +20,9 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale).y;
+			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y;
 		}
-		vec2d pxChildSize = child.GetContentSize(texman, dc, scale);
+		vec2d pxChildSize = child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc));
 		if (_align == Align::LT)
 		{
 			return FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y };
@@ -43,13 +43,13 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale).x;
+			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x;
 		}
-		return FRECT{ pxOffset, 0.f, pxOffset + child.GetContentSize(texman, dc, scale).x, size.y };
+		return FRECT{ pxOffset, 0.f, pxOffset + child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, size.y };
 	}
 }
 
-vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale) const
+vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
 	float pxTotalSize = 0; // in flow direction
 	unsigned int sumComponent = FlowDirection::Vertical == _flowDirection;
@@ -59,7 +59,7 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 
 	for (auto &item : *this)
 	{
-		vec2d pxItemSize = item->GetContentSize(texman, dc, scale);
+		vec2d pxItemSize = item->GetContentSize(texman, dc, scale, layoutConstraints);
 		pxTotalSize += pxItemSize[sumComponent];
 		pxMaxSize = std::max(pxMaxSize, pxItemSize[maxComponent]);
 	}
@@ -94,12 +94,12 @@ std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Na
 	return nullptr;
 }
 
-bool StackLayout::CanNavigate(Navigate navigate, const DataContext &dc) const
+bool StackLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
 	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(dc, navigate);
 }
 
-void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const DataContext &dc)
+void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
 {
 	if (NavigationPhase::Started == phase)
 	{

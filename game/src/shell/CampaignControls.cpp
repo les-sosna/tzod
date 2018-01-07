@@ -40,9 +40,9 @@ FRECT CampaignControls::GetChildRect(TextureManager &texman, const UI::LayoutCon
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale) const
+vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const
 {
-	return _content->GetContentSize(texman, dc, scale);
+	return _content->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 std::shared_ptr<UI::Window> CampaignControls::GetFocus() const
