@@ -20,7 +20,9 @@ FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &
 
 	hackNumColumns = numColumns;
 
-	auto offset = vec2d{ (float)column * pxElementSize.x, (float)row * pxElementSize.y };
+	float pxContentWidth = (float)numColumns * pxElementSize.x;
+	float pxAlignCenterOffset = std::floor((lc.GetPixelSize().x - pxContentWidth) / 2);
+	auto offset = vec2d{ pxAlignCenterOffset + (float)column * pxElementSize.x, (float)row * pxElementSize.y };
 	return MakeRectWH(offset, pxElementSize);
 }
 
