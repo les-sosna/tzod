@@ -60,6 +60,10 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 		return GetPrevFocusChild(*this, dc);
 	case Navigate::Right:
 		return GetNextFocusChild(*this, dc);
+	case Navigate::Begin:
+		return *begin(*this);
+	case Navigate::End:
+		return *rbegin(*this);
 	}
 	return nullptr;
 }
