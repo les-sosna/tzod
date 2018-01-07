@@ -128,7 +128,7 @@ static void DrawWindowRecursive(
 				auto childRect = wnd.GetChildRect(renderSettings.texman, lc, dc, *child);
 				bool canDrawOutside = child->GetChildrenCount() > 0 && !child->GetClipChildren();
 
-			//	if (canDrawOutside || RectIntersect(visibleRegion, childRect))
+				if (canDrawOutside || RectIntersect(visibleRegion, childRect))
 				{
 					LayoutContext childLC(wnd, lc, *child, Size(childRect), dc);
 					if (childLC.GetOpacityCombined() != 0)

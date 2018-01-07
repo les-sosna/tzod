@@ -61,6 +61,15 @@ FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutCont
 		return MakeRectWH(-pxMargins, size + pxMargins * 2);
 	}
 
+	for (size_t i = 0; i != _columns.size(); ++i)
+	{
+		if (_columns[i].get() == &child)
+		{
+			float nextColumnOffset = (i + 1 != _columns.size()) ? ToPx(_columns[i + 1]->GetOffset().x, lc) : lc.GetPixelSize().x;
+			return MakeRectRB(ToPx(_columns[i]->GetOffset(), lc), vec2d{ nextColumnOffset, lc.GetPixelSize().y });
+		}
+	}
+
 	return Window::GetChildRect(texman, lc, dc, child);
 }
 
