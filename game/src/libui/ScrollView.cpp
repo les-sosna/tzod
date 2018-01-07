@@ -30,7 +30,7 @@ FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 	if (_content.get() == &child)
 	{
 		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc));
-		vec2d pxContentOffset = Vec2dConstrain(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
+		vec2d pxContentOffset = Vec2dClamp(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
 		vec2d pxContentSize = vec2d{
 			_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,
 			_verticalScrollEnabled ? pxContentMeasuredSize.y : size.y };
@@ -57,9 +57,9 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 
 		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScale());
-		_offset = Vec2dConstrain(_offset, offsetConstraints);
+		_offset = Vec2dClamp(_offset, offsetConstraints);
 		_offset -= scrollOffset * 30;
-		_offset = Vec2dConstrain(_offset, offsetConstraints);
+		_offset = Vec2dClamp(_offset, offsetConstraints);
 	}
 	else
 	{
@@ -74,9 +74,9 @@ void ScrollView::EnsureVisible(TextureManager &texman, const LayoutContext &lc, 
 		vec2d pxContentSize = _content->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 
 		FRECT focusOffsetConstraints = MakeRectRB(Offset(pxFocusRect) + Size(pxFocusRect) - lc.GetPixelSize(), Offset(pxFocusRect)) / lc.GetScale();
-		_offset = Vec2dConstrain(_offset, focusOffsetConstraints);
+		_offset = Vec2dClamp(_offset, focusOffsetConstraints);
 
 		FRECT contentOffsetConstraints = MakeRectWH((pxContentSize - lc.GetPixelSize()) / lc.GetScale());
-		_offset = Vec2dConstrain(_offset, contentOffsetConstraints);
+		_offset = Vec2dClamp(_offset, contentOffsetConstraints);
 	}
 }

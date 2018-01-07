@@ -316,6 +316,8 @@ void Desktop::OnOpenMap()
 			auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".map";
 			stream = _fs.Open(fileName)->QueryStream();
 		}
+		// clear the existing context first to prevent memory usage spike
+		GetAppState().SetGameContext(nullptr);
 		std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
 		GetAppState().SetGameContext(std::move(gc));
 		NavigateHome();

@@ -195,9 +195,14 @@ struct RectRB
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
 inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
 
-inline vec2d Vec2dConstrain(const vec2d &vec, const FRECT &rect)
+inline vec2d Vec2dClamp(const vec2d &vec, const FRECT &rect)
 {
 	return vec2d{ std::max(rect.left, std::min(vec.x, rect.right)), std::max(rect.top, std::min(vec.y, rect.bottom)) };
+}
+
+inline vec2d Vec2dMin(vec2d a, vec2d b)
+{
+	return vec2d{ std::min(a.x, b.x), std::min(a.y, b.y) };
 }
 
 inline vec2d Vec2dFloor(const vec2d &vec)

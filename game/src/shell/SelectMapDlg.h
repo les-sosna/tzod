@@ -1,5 +1,5 @@
 #pragma once
-#include <ui/Dialog.h>
+#include <ui/ScrollView.h>
 
 namespace FS
 {
@@ -17,15 +17,12 @@ class MapCollection;
 class WorldCache;
 class WorldView;
 
-class SelectMapDlg : public UI::Dialog
+class SelectMapDlg : public UI::ScrollView
 {
 public:
 	SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection);
 
 	std::function<void(std::shared_ptr<SelectMapDlg>, unsigned int)> eventMapSelected;
-
-	// Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
 
 private:
 	WorldView &_worldView;

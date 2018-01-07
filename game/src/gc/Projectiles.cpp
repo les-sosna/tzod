@@ -406,7 +406,7 @@ bool GC_TankBullet::OnHit(World &world, GC_RigidBodyStatic *object, const vec2d 
 {
 	if( GetAdvanced() )
 	{
-		auto &e = world.New<GC_ExplosionBig>(Vec2dConstrain(hit + norm, world._bounds));
+		auto &e = world.New<GC_ExplosionBig>(Vec2dClamp(hit + norm, world._bounds));
 		e.SetOwner(GetOwner());
 		e.SetTimeout(world, 0.05f);
 	}

@@ -345,7 +345,7 @@ bool World::CalcOutstrip( vec2d origin,
 
 	float fx = x + vt * (x*vt + sqrt(x*x * projectileSpeed*projectileSpeed + y*y * tmp)) / tmp;
 
-	out_fake = Vec2dConstrain(origin + vec2d{ fx*cg - y*sg, fx*sg + y*cg }, _bounds);
+	out_fake = Vec2dClamp(origin + vec2d{ fx*cg - y*sg, fx*sg + y*cg }, _bounds);
 	return true;
 }
 

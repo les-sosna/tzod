@@ -20,14 +20,8 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	, _mapCollection(mapCollection)
 	, _mapTiles(std::make_shared<UI::ScanlineLayout>())
 {
-	Resize(400, 500);
-
-	auto rootLayout = std::make_shared<UI::ScrollView>();
-	AddFront(rootLayout);
-	SetFocus(rootLayout);
-
+	SetContent(_mapTiles);
 	_mapTiles->SetElementSize(vec2d{ _conf.tile_size.GetFloat(), _conf.tile_size.GetFloat() });
-	rootLayout->SetContent(_mapTiles);
 
 	for (unsigned int mapIndex = 0; mapIndex < _mapCollection.GetMapCount(); mapIndex++)
 	{
@@ -58,9 +52,4 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	_mapTiles->AddFront(newMapButton);
 
 	_mapTiles->SetFocus(_mapTiles->GetChild(0));
-}
-
-FRECT SelectMapDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
-{
-	return MakeRectWH(lc.GetPixelSize());
 }

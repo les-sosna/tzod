@@ -13,7 +13,7 @@ DefaultCamera::DefaultCamera(vec2d pos)
 
 void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
 {
-    _pos = Vec2dConstrain(_pos - offset * 30, worldBounds);
+	_pos = Vec2dClamp(_pos - offset * 30, worldBounds);
 }
 
 void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, float dt)
@@ -55,7 +55,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 	_speed *= expf(-dt * 10);
 
 	_pos += _speed * dt / _zoom;
-	_pos = Vec2dConstrain(_pos, worldBounds);
+	_pos = Vec2dClamp(_pos, worldBounds);
 
 	if (input.IsKeyPressed(UI::Key::Home))
 	{

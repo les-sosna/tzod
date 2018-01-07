@@ -138,13 +138,15 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 
 	for (auto wnd : *this)
 	{
-		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		auto layoutConstraints = DefaultLayoutConstraints(lc);
+		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScale(), layoutConstraints);
+		pxWndSize = Vec2dMin(pxWndSize, layoutConstraints.maxPixelSize);
 		if (wnd.get() == &child)
 		{
 			vec2d pxWndOffset = Vec2dFloor(((lc.GetPixelSize() - pxWndSize) / 2)[1 - dim], pxBegin);
 			if (_flowDirection == UI::FlowDirection::Horizontal)
 				pxWndOffset = Vec2dTranspose(pxWndOffset);
-			return MakeRectWH(pxWndOffset, pxWndSize);
+			return MakeRectWH(pxWndOffset,  pxWndSize);
 		}
 		pxBegin += pxWndSize[dim] + pxSpacing;
 	}
