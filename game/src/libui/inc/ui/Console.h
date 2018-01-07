@@ -86,6 +86,7 @@ private:
 
 	// ScrollSink
 	void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset) override;
+	void EnsureVisible(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, FRECT pxFocusRect) override {}
 };
 
 } // namespace UI

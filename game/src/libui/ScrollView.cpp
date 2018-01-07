@@ -66,3 +66,17 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 		_offset = vec2d{};
 	}
 }
+
+void ScrollView::EnsureVisible(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, FRECT pxFocusRect)
+{
+	if (_content)
+	{
+		vec2d pxContentSize = _content->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+
+		FRECT focusOffsetConstraints = MakeRectRB(Offset(pxFocusRect) + Size(pxFocusRect) - lc.GetPixelSize(), Offset(pxFocusRect)) / lc.GetScale();
+		_offset = Vec2dConstrain(_offset, focusOffsetConstraints);
+
+		FRECT contentOffsetConstraints = MakeRectWH((pxContentSize - lc.GetPixelSize()) / lc.GetScale());
+		_offset = Vec2dConstrain(_offset, contentOffsetConstraints);
+	}
+}

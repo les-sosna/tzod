@@ -161,6 +161,11 @@ struct FRECT
 	{
 		return FRECT{ left * m, top * m, right * m, bottom * m };
 	}
+
+	FRECT operator /(float m) const
+	{
+		return FRECT{ left / m, top / m, right / m, bottom / m };
+	}
 };
 
 inline FRECT MakeRectRB(vec2d lt, vec2d rb) { return FRECT{ lt.x, lt.y, rb.x, rb.y }; }

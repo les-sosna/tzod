@@ -39,6 +39,7 @@ enum class FlowDirection
 struct ScrollSink
 {
 	virtual void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset) = 0;
+	virtual void EnsureVisible(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, FRECT pxFocusRect) = 0;
 };
 
 struct KeyboardSink

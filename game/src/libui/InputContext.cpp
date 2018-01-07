@@ -344,6 +344,31 @@ static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texma
 	return nullptr;
 }
 
+static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
+{
+	if (auto focusedChild = wnd->GetFocus())
+	{
+		auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
+		LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
+
+		FRECT pxFocusRect = EnsureVisibleMostDescendantFocus(texman, focusedChild, childLC, dc);
+
+		if (auto scrollSink = wnd->GetScrollSink())
+		{
+			scrollSink->EnsureVisible(texman, lc, dc, pxFocusRect);
+
+			// Get updated childRect as it may have changed due to scroll offset change
+			childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
+		}
+
+		return RectOffset(pxFocusRect, Offset(childRect));
+	}
+	else
+	{
+		return MakeRectWH(lc.GetPixelSize());
+	}
+}
+
 static Navigate GetNavigateAction(Key key, bool alt, bool shift)
 {
 	switch (key)
@@ -442,6 +467,11 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 			auto handledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, navigate, NavigationPhase::Started);
 			handled = !!handledBy;
 			_navigationSubjects[navigate] = std::move(handledBy);
+
+			if (handled)
+			{
+				EnsureVisibleMostDescendantFocus(texman, wnd, lc, dc);
+			}
 		}
 	}
 

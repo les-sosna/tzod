@@ -82,6 +82,7 @@ private:
 
 	// UI::ScrollSink
 	void OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset) override;
+	void EnsureVisible(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, FRECT pxFocusRect) override {}
 
 	// UI::PointerSink
 	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
