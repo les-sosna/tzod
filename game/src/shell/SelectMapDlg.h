@@ -22,6 +22,8 @@ class SelectMapDlg : public UI::Dialog
 public:
 	SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection);
 
+	std::function<void(std::shared_ptr<SelectMapDlg>, unsigned int)> eventMapSelected;
+
 	// Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
 

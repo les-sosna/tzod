@@ -36,7 +36,14 @@ public:
 	inline ViewCollection GetViews(const GC_Actor &actor) const
 	{
 		ObjectType type = actor.GetType();
-		return { _typeToFirstView[type], _typeToFirstView[type + 1] };
+		if (type + 1 < _typeToFirstView.size())
+		{
+			return { _typeToFirstView[type], _typeToFirstView[type + 1] };
+		}
+		else
+		{
+			return { nullptr, nullptr };
+		}
 	}
 private:
 	std::vector<ObjectView> _views;

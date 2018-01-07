@@ -306,31 +306,21 @@ void Desktop::OnOpenMap()
 		return;
 	}
 
-	GetFileNameDlg::Params param;
-	param.blank = _lang.get_file_name_new_map.Get();
-	param.title = _lang.get_file_name_load_map.Get();
-	param.folder = mapsFolder;
-	param.extension = "map";
-
-	auto selectMapDlg = std::make_shared<GetFileNameDlg>(param, _lang);
-//	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetWorldCache(), _mapCollection);
-
-	selectMapDlg->eventClose = [this](auto sender, int result)
+	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetWorldCache(), _mapCollection);
+	selectMapDlg->eventMapSelected = [this](std::shared_ptr<SelectMapDlg> sender, unsigned int mapIndex)
 	{
 		OnCloseChild(sender);
-		if (UI::Dialog::_resultOK == result)
+		std::shared_ptr<FS::Stream> stream;
+		if (mapIndex != -1)
 		{
-			std::shared_ptr<FS::Stream> stream;
-			if (!static_cast<GetFileNameDlg&>(*sender).IsBlank())
-			{
-				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
-				stream = _fs.Open(fileName)->QueryStream();
-			}
-			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
-			GetAppState().SetGameContext(std::move(gc));
-			NavigateHome();
+			auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".map";
+			stream = _fs.Open(fileName)->QueryStream();
 		}
+		std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
+		GetAppState().SetGameContext(std::move(gc));
+		NavigateHome();
 	};
+
 	_navStack->PushNavStack(selectMapDlg);
 	UpdateFocus();
 }

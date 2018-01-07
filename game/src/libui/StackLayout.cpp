@@ -1,6 +1,5 @@
 #include "inc/ui/StackLayout.h"
 #include "inc/ui/LayoutContext.h"
-#include "inc/ui/Navigation.h"
 #include "inc/ui/WindowIterator.h"
 #include <algorithm>
 using namespace UI;
@@ -110,5 +109,3 @@ void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const Dat
 		}
 	}
 }
-
-

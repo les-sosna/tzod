@@ -1,6 +1,5 @@
 #include "inc/render/ObjectViewsSelector.h"
 #include "inc/render/ObjectView.h"
-#include <gc/Actor.h>
 
 ObjectViewsSelector::ObjectViewsSelector(ObjectViewsSelectorBuilder &&builder)
 {

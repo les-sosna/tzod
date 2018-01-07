@@ -5,13 +5,13 @@
 
 namespace UI
 {
-	template <class ParentType>
 	class WindowIteratorBase
 	{
 	public:
 		using difference_type = int;
+		using iterator_category = std::random_access_iterator_tag;
 
-		constexpr WindowIteratorBase(ParentType &parent, int index)
+		constexpr WindowIteratorBase(const Window &parent, int index)
 			: _parent(&parent)
 			, _index(index)
 		{}
@@ -59,20 +59,41 @@ namespace UI
 		}
 
 	protected:
-		ParentType *_parent;
+		const Window *_parent;
 		int _index;
 	};
 
 	class WindowConstIterator
-		: public WindowIteratorBase<const Window>
+		: public WindowIteratorBase
 	{
 	public:
-		using iterator_category = std::random_access_iterator_tag;
 		using value_type = std::shared_ptr<const Window>;
 		using pointer = std::shared_ptr<const Window>*;
 		using reference = std::shared_ptr<const Window>;
 
 		using WindowIteratorBase::WindowIteratorBase;
+
+		WindowConstIterator& operator+=(int offset)
+		{
+			_index += offset;
+			return *this;
+		}
+
+		WindowConstIterator& operator-=(int offset)
+		{
+			_index -= offset;
+			return *this;
+		}
+
+		constexpr WindowConstIterator operator+(int offset) const
+		{
+			return WindowConstIterator(*_parent, _index + offset);
+		}
+
+//		constexpr WindowConstIterator operator-(int offset) const
+//		{
+//			return WindowConstIterator(*_parent, _index - offset);
+//		}
 
 		WindowConstIterator& operator++() // pre
 		{
@@ -113,15 +134,43 @@ namespace UI
 	};
 
 	class WindowIterator
-		: public WindowIteratorBase<Window>
+		: public WindowIteratorBase
 	{
 	public:
-		using iterator_category = std::random_access_iterator_tag;
 		using value_type = std::shared_ptr<Window>;
 		using pointer = std::shared_ptr<Window>*;
 		using reference = std::shared_ptr<Window>;
 
-		using WindowIteratorBase::WindowIteratorBase;
+		constexpr WindowIterator(Window &parent, int index)
+			: WindowIteratorBase(parent, index)
+		{}
+
+		operator WindowConstIterator() const
+		{
+			return WindowConstIterator(*_parent, _index);
+		}
+
+		WindowIterator& operator+=(int offset)
+		{
+			_index += offset;
+			return *this;
+		}
+
+		WindowIterator& operator-=(int offset)
+		{
+			_index -= offset;
+			return *this;
+		}
+
+		constexpr WindowIterator operator+(int offset) const
+		{
+			return WindowIterator(*const_cast<Window*>(_parent), _index + offset);
+		}
+
+		constexpr WindowIterator operator-(int offset) const
+		{
+			return WindowIterator(*const_cast<Window*>(_parent), _index - offset);
+		}
 
 		WindowIterator& operator++() // pre
 		{
@@ -151,7 +200,7 @@ namespace UI
 
 		value_type operator*() const
 		{
-			return _parent->GetChild(_index);
+			return const_cast<Window*>(_parent)->GetChild(_index);
 		}
 
 		constexpr pointer operator->() const

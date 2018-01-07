@@ -38,10 +38,23 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
 		mpButton->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
-		//	mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
+		mpButton->eventClick = [this, mapIndex]()
+		{
+			eventMapSelected(std::static_pointer_cast<SelectMapDlg>(shared_from_this()), mapIndex);
+		};
 
 		_mapTiles->AddFront(mpButton);
 	}
+
+	using namespace UI::DataSourceAliases;
+	auto newMapButton = std::make_shared<UI::Button>();
+	newMapButton->SetText("+"_txt);
+	newMapButton->SetFont("font_default");
+	newMapButton->eventClick = [this]()
+	{
+		eventMapSelected(std::static_pointer_cast<SelectMapDlg>(shared_from_this()), -1);
+	};
+	_mapTiles->AddFront(newMapButton);
 }
 
 FRECT SelectMapDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
