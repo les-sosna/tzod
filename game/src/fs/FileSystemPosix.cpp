@@ -146,7 +146,7 @@ FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory)
 {
 }
 
-std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
+std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
 {
 	std::vector<std::string> files;
     if( DIR *dir = opendir(_rootDirectory.c_str()) )
@@ -155,7 +155,7 @@ std::vector<std::string> FS::OSFileSystem::EnumAllFiles(const std::string &mask)
         {
             while( const dirent *e = readdir(dir) )
             {
-                if( (DT_REG == e->d_type || DT_LNK == e->d_type) && !fnmatch(mask.c_str(), e->d_name, 0) )
+				if( (DT_REG == e->d_type || DT_LNK == e->d_type) && !fnmatch(std::string(mask).c_str(), e->d_name, 0) )
                 {
                     files.push_back(e->d_name);
                 }

@@ -17,7 +17,7 @@ MapListDataSource::MapListDataSource(FS::FileSystem &fs)
 
 		std::string tmp2 = *it;
 		tmp2.erase(it->length() - 4); // cut out the file extension
-		int index = AddItem(tmp2);
+		AddItem(tmp2);
 	}
 
 	Sort();

@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include <queue>
+#include <cfloat>
 
 class AppState;
 class TextureManager;
@@ -23,7 +24,7 @@ class FpsCounter
 	AppState &_appState;
 
 public:
-	FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState);
+	FpsCounter(UI::LayoutManager &manager, enumAlignText align, AppState &appState);
 
 protected:
 	void OnTimeStep(const UI::InputContext &ic, float dt);

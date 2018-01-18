@@ -37,8 +37,6 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 	assert(childIt != end(*this));
 	auto childIndex = std::distance<WindowConstIterator>(begin(*this), childIt);
 	auto numColumns = std::max(1, int(lc.GetPixelSize().x / ToPx(_elementSize, lc).x));
-	int row = childIndex / numColumns;
-	int column = childIndex - row * numColumns;
 
 	switch (navigate)
 	{
@@ -64,6 +62,8 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 		return *begin(*this);
 	case Navigate::End:
 		return *rbegin(*this);
+	default:
+		break;
 	}
 	return nullptr;
 }

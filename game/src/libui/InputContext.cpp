@@ -118,7 +118,7 @@ SinkType* UI::FindAreaSink(
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
-		for (auto &child : reverse(*wnd))
+		for (auto child : reverse(*wnd))
 		{
 			if (child->GetEnabled(search.dc) && child->GetVisible())
 			{

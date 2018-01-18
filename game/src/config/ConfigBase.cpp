@@ -1221,8 +1221,6 @@ int ConfVarTable::luaT_conftablenext(lua_State *L)
 // map config to the conf lua variable
 void ConfVarTable::InitConfigLuaBinding(lua_State *L, const char *globName)
 {
-	int top = lua_gettop(L);
-
 	luaL_newmetatable(L, "conf_table");  // metatable for tables
 	 lua_pushcfunction(L, luaT_setconftable);
 	  lua_setfield(L, -2, "__newindex");

@@ -14,7 +14,7 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 	float pxSpacing = std::floor(_spacing * scale);
 	if (FlowDirection::Vertical == _flowDirection)
 	{
-		for (auto &item : *this)
+		for (auto item : *this)
 		{
 			if (item.get() == &child)
 			{
@@ -37,7 +37,7 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 	else
 	{
 		assert(FlowDirection::Horizontal == _flowDirection);
-		for (auto &item : *this)
+		for (auto item : *this)
 		{
 			if (item.get() == &child)
 			{
@@ -57,7 +57,7 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 	float pxMaxSize = 0;
 	unsigned int maxComponent = FlowDirection::Horizontal == _flowDirection;
 
-	for (auto &item : *this)
+	for (auto item: *this)
 	{
 		vec2d pxItemSize = item->GetContentSize(texman, dc, scale, layoutConstraints);
 		pxTotalSize += pxItemSize[sumComponent];
