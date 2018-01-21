@@ -10,6 +10,7 @@ extern "C"
 }
 
 #include <cassert>
+#include <ostream>
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1220,7 +1221,9 @@ int ConfVarTable::luaT_conftablenext(lua_State *L)
 // map config to the conf lua variable
 void ConfVarTable::InitConfigLuaBinding(lua_State *L, const char *globName)
 {
+#ifndef NDEBUG
 	int top = lua_gettop(L);
+#endif
 
 	luaL_newmetatable(L, "conf_table");  // metatable for tables
 	 lua_pushcfunction(L, luaT_setconftable);

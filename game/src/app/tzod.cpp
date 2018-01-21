@@ -104,5 +104,6 @@ void TzodApp::Exit()
 {
 	_logger.Printf(0, "Saving config to '" FILE_CONFIG "'");
 	auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
-	_impl->combinedConfig->Save(FS::OutStreamWrapper(*s));
+	FS::OutStreamWrapper wrapper(*s);
+	_impl->combinedConfig->Save(wrapper);
 }

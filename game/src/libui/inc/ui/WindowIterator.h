@@ -237,22 +237,22 @@ namespace std
 		return UI::WindowConstIterator(wnd, wnd.GetChildrenCount());
 	}
 
-	inline constexpr auto rbegin(UI::Window &wnd)
+	inline auto rbegin(UI::Window &wnd)
 	{
 		return std::make_reverse_iterator(end(wnd));
 	}
 
-	inline constexpr auto rend(UI::Window &wnd)
+	inline auto rend(UI::Window &wnd)
 	{
 		return std::make_reverse_iterator(begin(wnd));
 	}
 
-	inline constexpr auto rbegin(const UI::Window &wnd)
+	inline auto rbegin(const UI::Window &wnd)
 	{
 		return std::make_reverse_iterator(end(wnd));
 	}
 
-	inline constexpr auto rend(const UI::Window &wnd)
+	inline auto rend(const UI::Window &wnd)
 	{
 		return std::make_reverse_iterator(begin(wnd));
 	}

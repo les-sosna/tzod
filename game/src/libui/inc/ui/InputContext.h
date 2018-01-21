@@ -1,4 +1,5 @@
 #pragma once
+#include "Navigation.h"
 #include "PointerInput.h"
 #include <math/MyMath.h>
 #include <memory>
@@ -15,7 +16,6 @@ class DataContext;
 class LayoutContext;
 class Window;
 enum class Key;
-enum class Navigate;
 struct IInput;
 struct IClipboard;
 struct PointerSink;

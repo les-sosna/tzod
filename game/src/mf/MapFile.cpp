@@ -128,7 +128,7 @@ void MapFile::WriteHeader()
 	for( std::map<std::string, int>::iterator
 		it = _mapAttrs.attrs_int.begin(); it != _mapAttrs.attrs_int.end(); ++it )
 	{
-		ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(int);
+		ch.chunkSize = static_cast<uint32_t>(it->first.length()) + sizeof(unsigned short) + sizeof(int);
 		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteInt(DATATYPE_INT);
 		WriteString(it->first);
@@ -138,7 +138,7 @@ void MapFile::WriteHeader()
 	for( std::map<std::string, float>::iterator
 		it = _mapAttrs.attrs_float.begin(); it != _mapAttrs.attrs_float.end(); ++it )
 	{
-		ch.chunkSize = it->first.length() + sizeof(unsigned short) + sizeof(float);
+		ch.chunkSize = static_cast<uint32_t>(it->first.length()) + sizeof(unsigned short) + sizeof(float);
 		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteInt(DATATYPE_FLOAT);
 		WriteString(it->first);
@@ -148,7 +148,7 @@ void MapFile::WriteHeader()
 	for( std::map<std::string, std::string>::iterator
 		it = _mapAttrs.attrs_str.begin(); it != _mapAttrs.attrs_str.end(); ++it )
 	{
-		ch.chunkSize = it->first.length() + it->second.length() + sizeof(unsigned short) * 2;
+		ch.chunkSize = static_cast<uint32_t>(it->first.length() + it->second.length()) + sizeof(unsigned short) * 2;
 		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteInt(DATATYPE_STRING);
 		WriteString(it->first);
@@ -435,7 +435,7 @@ void MapFile::WriteCurrentObject()
 	{
 		const ObjectDefinition &od = _managed_classes.back();
 		ch.chunkType = CHUNK_OBJDEF;
-		ch.chunkSize = od.CalcSize();
+		ch.chunkSize = static_cast<uint32_t>(od.CalcSize());
 		_file.Write(&ch, sizeof(ChunkHeader));
 		WriteString(od._className);
 		WriteInt((int)od._propertyset.size());
@@ -451,7 +451,7 @@ void MapFile::WriteCurrentObject()
 	//
 	std::string str(_buffer.str());
 	ch.chunkType = CHUNK_OBJECT;
-	ch.chunkSize = str.size();
+	ch.chunkSize = static_cast<uint32_t>(str.size());
 	assert(ch.chunkSize > 0);
 	_file.Write(&ch, sizeof(ChunkHeader));
 	_file.Write(str.data(), ch.chunkSize);

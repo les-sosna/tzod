@@ -118,7 +118,7 @@ SinkType* UI::FindAreaSink(
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
-		for (auto &child : reverse(*wnd))
+		for (auto child : reverse(*wnd))
 		{
 			if (child->GetEnabled(search.dc) && child->GetVisible())
 			{
@@ -417,9 +417,10 @@ static Navigate GetNavigateAction(Key key, bool alt, bool shift)
 
 	case Key::End:
 		return Navigate::End;
-	}
 
-	return Navigate::None;
+	default:
+		return Navigate::None;
+	}
 }
 
 bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, Key key, float time)

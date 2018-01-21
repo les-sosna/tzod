@@ -11,15 +11,14 @@
 #include <sstream>
 #include <iomanip>
 
-FpsCounter::FpsCounter(UI::TimeStepManager &manager, float x, float y, enumAlignText align, AppState &appState)
-  : UI::TimeStepping(manager)
-  , _nSprites(0)
-  , _nLights(0)
-  , _nBatches(0)
-  , _appState(appState)
+FpsCounter::FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppState &appState)
+	: UI::TimeStepping(manager)
+	, _nSprites(0)
+	, _nLights(0)
+	, _nBatches(0)
+	, _appState(appState)
 {
 	SetTimeStep(true);
-	Move(x, y);
 	SetAlign(align);
 }
 

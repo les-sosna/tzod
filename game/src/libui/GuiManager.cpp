@@ -112,7 +112,7 @@ static void DrawWindowRecursive(
 	auto visibleRegion = RectToFRect(renderSettings.rc.GetVisibleRegion());
 
 	unsigned int childDepth = depth + 1;
-	for (auto &child : wnd)
+	for (auto child : wnd)
 	{
 		if (child->GetVisible())
 		{

@@ -24,7 +24,9 @@ public:
     UI::IClipboard& GetClipboard() override;
     UI::IInput& GetInput() override;
     IRender& GetRender() override;
+	void SetCanNavigateBack(bool canNavigateBack) override {}
     void SetInputSink(UI::LayoutManager *inputSink) override;
+	void SetMouseCursor(MouseCursor mouseCursor) override {}
     void MakeCurrent() override {}
 
 private:

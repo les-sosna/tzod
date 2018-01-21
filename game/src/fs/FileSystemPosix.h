@@ -75,12 +75,12 @@ class OSFileSystem : public FileSystem
     std::string  _rootDirectory;
 
 protected:
-    virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode);
+	std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) override;
 
 public:
     OSFileSystem(const std::string &rootDirectory);
-    virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
-	virtual std::vector<std::string> EnumAllFiles(const std::string &mask);
+	std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false) override;
+	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 };
 
 } // namespace FS

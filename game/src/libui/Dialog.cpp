@@ -36,9 +36,6 @@ void Dialog::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutCo
 
 bool Dialog::OnKeyPressed(InputContext &ic, Key key)
 {
-	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
-		ic.GetInput().IsKeyPressed(Key::RightShift);
-
 	switch( key )
 	{
 	case Key::Enter:

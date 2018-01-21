@@ -14,6 +14,7 @@ public:
     bool IsKeyPressed(UI::Key key) const override { return false; }
     bool IsMousePressed(int button) const override { return false; }
     vec2d GetMousePos() const override { return vec2d(); }
+	UI::GamepadState GetGamepadState() const override { return {}; }
 };
 
 class Clipboard : public UI::IClipboard

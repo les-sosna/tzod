@@ -97,7 +97,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 	_con->SetHistory(&_history);
 
-	_fps = std::make_shared<FpsCounter>(manager, 0.f, 0.f, alignTextLB, GetAppState());
+	_fps = std::make_shared<FpsCounter>(manager, alignTextLB, GetAppState());
 	AddFront(_fps);
 	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();

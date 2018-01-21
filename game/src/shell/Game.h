@@ -51,7 +51,7 @@ public:
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
-	std::shared_ptr<Window> GetFocus() const;
+	std::shared_ptr<Window> GetFocus() const override;
 
 private:
 	void OnChangeShowTime();
