@@ -24,7 +24,9 @@ if(IOS)
 elseif(WINRT)
 	list(APPEND video_SOURCES
 		inc/video/RenderD3D11.h
+		inc/video/SwapChainResources.h
 		RenderD3D11.cpp
+		SwapChainResources.cpp
 	)
 else()
 	list(APPEND video_SOURCES

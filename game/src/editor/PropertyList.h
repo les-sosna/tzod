@@ -31,10 +31,10 @@ private:
 	std::shared_ptr<UI::Button> _deleteButton;
 	std::shared_ptr<UI::ScrollView> _scrollView;
 	std::shared_ptr<UI::StackLayout> _psheet; // scrollable content
+	TextureManager &_texman;
 
 	std::shared_ptr<PropertySet> _ps;
 	std::vector<std::shared_ptr<Window>> _ctrls;
-	TextureManager &_texman;
 	World &_world;
 	EditorConfig &_conf;
 	UI::ConsoleBuffer &_logger;

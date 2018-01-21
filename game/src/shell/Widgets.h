@@ -23,7 +23,7 @@ class FpsCounter
 	AppState &_appState;
 
 public:
-	FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState);
+	FpsCounter(UI::TimeStepManager &manager, float x, float y, enumAlignText align, AppState &appState);
 
 protected:
 	void OnTimeStep(const UI::InputContext &ic, float dt);

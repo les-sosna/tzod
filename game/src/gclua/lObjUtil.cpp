@@ -62,13 +62,13 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 			if( LUA_TNUMBER != lua_type(L, -1) )
 			{
 				luaL_error(L, "property '%s' - expected integer value; got %s",
-						   pname, lua_typename(L, lua_type(L, -1)));
+				           pname, lua_typename(L, lua_type(L, -1)));
 			}
 			int v = lua_tointeger(L, -1);
 			if( v < p->GetIntMin() || v > p->GetIntMax() )
 			{
 				return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]",
-								  pname, v, p->GetIntMin(), p->GetIntMax());
+				                  pname, v, p->GetIntMin(), p->GetIntMax());
 			}
 			p->SetIntValue(v);
 			break;
@@ -78,7 +78,7 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 			if( LUA_TNUMBER != lua_type(L, -1) )
 			{
 				luaL_error(L, "property '%s' - expected number value; got %s",
-						   pname, lua_typename(L, lua_type(L, -1)));
+				           pname, lua_typename(L, lua_type(L, -1)));
 			}
 			float v = (float) lua_tonumber(L, -1);
 			if( v < p->GetFloatMin() || v > p->GetFloatMax() )
@@ -96,7 +96,7 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 			if( LUA_TSTRING != lua_type(L, -1) )
 			{
 				luaL_error(L, "property '%s' - expected string value; got %s",
-						   pname, lua_typename(L, lua_type(L, -1)));
+				           pname, lua_typename(L, lua_type(L, -1)));
 			}
 			p->SetStringValue(lua_tostring(L, -1));
 			break;
@@ -106,7 +106,7 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 			if( LUA_TSTRING != lua_type(L, -1) )
 			{
 				luaL_error(L, "property '%s' - expected string value; got %s",
-						   pname, lua_typename(L, lua_type(L, -1)));
+				           pname, lua_typename(L, lua_type(L, -1)));
 			}
 			const char *v = lua_tostring(L, -1);
 			bool ok = false;

@@ -116,7 +116,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -131,7 +131,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,7 +146,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -161,7 +161,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -176,7 +176,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -191,7 +191,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -217,7 +217,6 @@
     <ClInclude Include="StoreAppClipboard.h" />
     <ClInclude Include="StoreAppInput.h" />
     <ClInclude Include="StoreAppWindow.h" />
-    <ClInclude Include="SwapChainResources.h" />
     <ClInclude Include="WinStoreKeys.h" />
   </ItemGroup>
   <ItemGroup>
@@ -236,7 +235,6 @@
     <ClCompile Include="StoreAppClipboard.cpp" />
     <ClCompile Include="StoreAppInput.cpp" />
     <ClCompile Include="StoreAppWindow.cpp" />
-    <ClCompile Include="SwapChainResources.cpp" />
     <ClCompile Include="WinStoreKeys.cpp" />
   </ItemGroup>
   <ItemGroup>

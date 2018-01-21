@@ -17,7 +17,7 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(platglfw
 	PRIVATE glfw ${OPENGL_gl_LIBRARY}
 
-	PUBLIC ui
+	PUBLIC plat ui
 )
 
 target_include_directories(platglfw PRIVATE

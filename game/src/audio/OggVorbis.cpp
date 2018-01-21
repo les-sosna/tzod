@@ -69,7 +69,7 @@ void LoadOggVorbis(std::shared_ptr<FS::Stream> stream, FormatDesc &outFormatDesc
 		outFormatDesc.channels = pinfo->channels;
 		outFormatDesc.frequency = pinfo->rate;
 
-        ogg_int64_t nSamples = ov_pcm_total(&vf, -1);
+		ogg_int64_t nSamples = ov_pcm_total(&vf, -1);
 		size_t size = static_cast<size_t>(nSamples * pinfo->channels * 2);
 		outData.resize(size);
 

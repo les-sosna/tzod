@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "StepTimer.h"
 
+class SwapChainResources;
 namespace DX
 {
 	class DeviceResources;
-	class SwapChainResources;
 }
 
 namespace FS
@@ -64,7 +64,7 @@ namespace wtzod
 
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
-		std::shared_ptr<DX::SwapChainResources> m_swapChainResources;
+		std::shared_ptr<SwapChainResources> m_swapChainResources;
 
 		std::unique_ptr<StoreAppWindow> _appWindow;
 		std::unique_ptr<TzodView> _view;

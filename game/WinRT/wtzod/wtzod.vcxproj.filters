@@ -27,7 +27,6 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SwapChainResources.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
     <ClCompile Include="DisplayOrientation.cpp" />
@@ -38,7 +37,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="SwapChainResources.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DirectXHelper.h" />
     <ClInclude Include="StepTimer.h" />

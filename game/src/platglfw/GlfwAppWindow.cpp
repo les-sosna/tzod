@@ -1,25 +1,43 @@
 #include "inc/platglfw/GlfwAppWindow.h"
 #include "inc/platglfw/GlfwPlatform.h"
 #include "inc/platglfw/GlfwKeys.h"
-#include <ui/DataContext.h>
-#include <ui/GuiManager.h>
 #include <ui/InputContext.h>
-#include <ui/LayoutContext.h>
 #include <ui/PointerInput.h>
-#include <ui/Window.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 
+unsigned int GlfwInitHelper::s_initCount = 0;
+
 GlfwInitHelper::GlfwInitHelper()
+	: _isActive(true)
 {
-	if( !glfwInit() )
-		throw std::runtime_error("Failed to initialize OpenGL");
+	if (s_initCount == 0)
+	{
+		if (!glfwInit())
+			throw std::runtime_error("Failed to initialize OpenGL");
+	}
+	++s_initCount;
 }
 
 GlfwInitHelper::~GlfwInitHelper()
 {
-	glfwTerminate();
+	if (_isActive)
+	{
+		assert(s_initCount > 0);
+		--s_initCount;
+		if (s_initCount == 0)
+		{
+			glfwTerminate();
+		}
+	}
+}
+
+GlfwInitHelper::GlfwInitHelper(GlfwInitHelper &&other)
+	: _isActive(true)
+{
+	assert(other._isActive);
+	other._isActive = false;
 }
 
 void GlfwCursorDeleter::operator()(GLFWcursor *cursor)
@@ -51,119 +69,93 @@ static vec2d GetPixelSize(GLFWwindow *window)
 	return vec2d{static_cast<float>(width), static_cast<float>(height)};
 }
 
-static void OnMouseButton(GLFWwindow *window, int button, int action, int mods)
-try
+static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAction, int mods)
 {
-	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+	if( auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window) )
 	{
-		UI::Msg msg = (GLFW_RELEASE == action) ? UI::Msg::PointerUp : UI::Msg::PointerDown;
-		int buttons = 0;
-		switch (button)
+		if (auto inputSink = self->GetInputSink())
 		{
-			case GLFW_MOUSE_BUTTON_LEFT:
-				buttons |= 0x01;
-				break;
-			case GLFW_MOUSE_BUTTON_RIGHT:
-				buttons |= 0x02;
-				break;
-			case GLFW_MOUSE_BUTTON_MIDDLE:
-				buttons |= 0x04;
-				break;
-			default:
-				return;
+			UI::Msg action = (GLFW_RELEASE == platformAction) ? UI::Msg::PointerUp : UI::Msg::PointerDown;
+			int buttons = 0;
+			switch (platformButton)
+			{
+				case GLFW_MOUSE_BUTTON_LEFT:
+					buttons |= 0x01;
+					break;
+				case GLFW_MOUSE_BUTTON_RIGHT:
+					buttons |= 0x02;
+					break;
+				case GLFW_MOUSE_BUTTON_MIDDLE:
+					buttons |= 0x04;
+					break;
+				default:
+					return;
+			}
+			vec2d pxMousePos = GetCursorPosInPixels(window);
+			inputSink->OnPointer(UI::PointerType::Mouse, action, pxMousePos, vec2d{} /*offset*/, buttons, 0 /*pointerID*/);
 		}
-		vec2d pxMousePos = GetCursorPosInPixels(window);
-
-		UI::DataContext dc;
-		gui->GetInputContext().ProcessPointer(
-			gui->GetTextureManager(),
-			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
-			dc,
-			pxMousePos,
-			vec2d{},
-			msg,
-			buttons,
-			UI::PointerType::Mouse,
-			0);
 	}
-}
-catch (const std::exception &e)
-{
-
 }
 
 static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
-	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
-		UI::DataContext dc;
-		gui->GetInputContext().ProcessPointer(
-			gui->GetTextureManager(),
-			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
-			dc,
-			pxMousePos,
-			vec2d{},
-			UI::Msg::PointerMove,
-			0,
-			UI::PointerType::Mouse,
-			0);
+		if (auto inputSink = self->GetInputSink())
+		{
+			vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
+			inputSink->OnPointer(UI::PointerType::Mouse, UI::Msg::PointerMove, pxMousePos, vec2d{}/*offset*/, 0 /*buttons*/, 0 /*pointerID*/);
+		}
 	}
 }
 
 static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
-	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		vec2d pxMousePos = GetCursorPosInPixels(window);
-		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-		UI::DataContext dc;
-		gui->GetInputContext().ProcessPointer(
-			gui->GetTextureManager(),
-			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
-			dc,
-			pxMousePos,
-			pxMouseOffset,
-			UI::Msg::Scroll,
-			0,
-			UI::PointerType::Mouse,
-			0);
+		if (auto inputSink = self->GetInputSink())
+		{
+			vec2d pxMousePos = GetCursorPosInPixels(window);
+			vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
+			inputSink->OnPointer(UI::PointerType::Mouse, UI::Msg::Scroll, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
+		}
 	}
 }
 
-static void OnKey(GLFWwindow *window, int platformKey, int scancode, int action, int mods)
+static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platformAction, int mods)
 {
-	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		UI::Key key = MapGlfwKeyCode(platformKey);
-		UI::DataContext dc;
-		gui->GetInputContext().ProcessKeys(
-			gui->GetTextureManager(),
-			gui->GetDesktop(),
-			UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
-			dc,
-			GLFW_RELEASE == action ? UI::Msg::KeyReleased : UI::Msg::KeyPressed,
-			key,
-			gui->GetTime());
+		if (auto inputSink = self->GetInputSink())
+		{
+			UI::Key key = MapGlfwKeyCode(platformKey);
+			UI::Msg action = (GLFW_RELEASE == platformAction) ? UI::Msg::KeyReleased : UI::Msg::KeyPressed;
+			inputSink->OnKey(key, action);
+		}
 	}
 }
 
 static void OnChar(GLFWwindow *window, unsigned int codepoint)
 {
-	if( auto gui = (UI::LayoutManager *) glfwGetWindowUserPointer(window) )
+	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
 		if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
 		{
-			UI::DataContext dc;
-			gui->GetInputContext().ProcessText(
-				gui->GetTextureManager(), 
-				gui->GetDesktop(),
-				UI::LayoutContext(1.f, GetLayoutScale(window), GetPixelSize(window), gui->GetDesktop()->GetEnabled(dc)),
-				dc,
-				codepoint);
+			if (auto inputSink = self->GetInputSink())
+			{
+				inputSink->OnChar(codepoint);
+			}
+		}
+	}
+}
+
+static void OnRefresh(GLFWwindow *window)
+{
+	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
+	{
+		if (auto inputSink = self->GetInputSink())
+		{
+			inputSink->OnRefresh();
 		}
 	}
 }
@@ -196,13 +188,18 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 	glfwSetScrollCallback(_window.get(), OnScroll);
 	glfwSetKeyCallback(_window.get(), OnKey);
 	glfwSetCharCallback(_window.get(), OnChar);
+	glfwSetWindowRefreshCallback(_window.get(), OnRefresh);
 
 	glfwMakeContextCurrent(_window.get());
 	glfwSwapInterval(1);
+
+	glfwSetWindowUserPointer(_window.get(), this);
 }
 
 GlfwAppWindow::~GlfwAppWindow()
 {
+	glfwSetWindowUserPointer(_window.get(), nullptr);
+
 	glfwMakeContextCurrent(_window.get());
 	_render.reset();
 	glfwMakeContextCurrent(nullptr);
@@ -223,18 +220,12 @@ IRender& GlfwAppWindow::GetRender()
 	return *_render;
 }
 
-float GlfwAppWindow::GetPixelWidth() const
+vec2d GlfwAppWindow::GetPixelSize() const
 {
 	int width;
-	glfwGetFramebufferSize(_window.get(), &width, nullptr);
-	return (float)width;
-}
-
-float GlfwAppWindow::GetPixelHeight() const
-{
 	int height;
-	glfwGetFramebufferSize(_window.get(), nullptr, &height);
-	return (float)height;
+	glfwGetFramebufferSize(_window.get(), &width, &height);
+	return vec2d{ (float)width, (float)height };
 }
 
 float GlfwAppWindow::GetLayoutScale() const
@@ -244,11 +235,6 @@ float GlfwAppWindow::GetLayoutScale() const
 
 void GlfwAppWindow::SetCanNavigateBack(bool canNavigateBack)
 {
-}
-
-void GlfwAppWindow::SetInputSink(UI::LayoutManager *inputSink)
-{
-	glfwSetWindowUserPointer(_window.get(), inputSink);
 }
 
 void GlfwAppWindow::SetMouseCursor(MouseCursor mouseCursor)

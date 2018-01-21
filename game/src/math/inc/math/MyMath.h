@@ -205,6 +205,11 @@ inline vec2d Vec2dMin(vec2d a, vec2d b)
 	return vec2d{ std::min(a.x, b.x), std::min(a.y, b.y) };
 }
 
+inline vec2d Vec2dMax(vec2d a, vec2d b)
+{
+	return vec2d{ std::max(a.x, b.x), std::max(a.y, b.y) };
+}
+
 inline vec2d Vec2dFloor(const vec2d &vec)
 {
 	return{ std::floor(vec.x), std::floor(vec.y) };

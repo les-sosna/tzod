@@ -38,8 +38,17 @@ namespace
 	};
 }
 
+static void print_what(std::ostream &os, const std::exception &e, std::string prefix = std::string())
+{
+	os << prefix << e.what() << std::endl;
+	try {
+		std::rethrow_if_nested(e);
+	}
+	catch (const std::exception &nested) {
+		print_what(os, nested, prefix + "> ");
+	}
+}
 
-static void print_what(std::ostream &os, const std::exception &e, std::string prefix = std::string());
 
 static UI::ConsoleBuffer s_logger(100, 500);
 
@@ -68,7 +77,6 @@ try
 
 	logger.SetLog(new ConsoleLog("log.txt"));
 	logger.Printf(0, "%s", TXT_VERSION);
-
 	logger.Printf(0, "Mount file system");
 	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
 
@@ -78,8 +86,8 @@ try
 	GlfwAppWindow appWindow(
 		TXT_VERSION,
 		false, // conf.r_fullscreen.Get(),
-		1024, // conf.r_width.GetInt(),
-		768 // conf.r_height.GetInt()
+		1024, //app.GetShellConfig().r_width.GetInt(),
+		768 //app.GetShellConfig().r_height.GetInt()
 	);
 
 	TzodView view(*fs, logger, app, appWindow);
@@ -87,20 +95,10 @@ try
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
-	for (GlfwAppWindow::PollEvents(); !appWindow.ShouldClose(); GlfwAppWindow::PollEvents())
+	while (!appWindow.ShouldClose())
 	{
-		float dt = timer.GetDt();
-		
-		// not needed for single view
-		// appWindow.MakeCurrent();
-
-		// controller pass
-		view.Step(dt); // this also sends user controller state to WorldController
-		app.Step(dt);
-
-		// view pass
-		view.Render(appWindow.GetPixelWidth(), appWindow.GetPixelHeight(), appWindow.GetLayoutScale());
-		appWindow.Present();
+		GlfwAppWindow::PollEvents();
+		view.Step(timer.GetDt());
 	}
 
 	app.Exit();
@@ -115,24 +113,8 @@ catch (const std::exception &e)
 	print_what(os, e);
 	s_logger.Format(1) << os.str();
 #ifdef _WIN32
+	OutputDebugStringA(os.str().c_str());
 	MessageBoxA(nullptr, os.str().c_str(), TXT_VERSION, MB_ICONERROR);
 #endif
 	return 1;
 }
-
-// recursively print exception whats:
-static void print_what(std::ostream &os, const std::exception &e, std::string prefix)
-{
-#ifdef _WIN32
-	OutputDebugStringA((prefix + e.what() + "\n").c_str());
-#endif
-	os << prefix << e.what();
-	try {
-		std::rethrow_if_nested(e);
-	}
-	catch (const std::exception &nested) {
-		print_what(os, nested, prefix + "> ");
-	}
-}
-
-

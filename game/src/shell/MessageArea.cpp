@@ -6,7 +6,7 @@
 #include <video/RenderContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger)
+MessageArea::MessageArea(UI::TimeStepManager &manager, UI::ConsoleBuffer &logger)
   : UI::TimeStepping(manager)
   , _logger(logger)
 {

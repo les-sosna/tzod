@@ -139,7 +139,8 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 }
 
 
-EditorLayout::EditorLayout(UI::LayoutManager &manager,
+EditorLayout::EditorLayout(UI::TimeStepManager &manager,
+                           TextureManager &texman,
                            EditorContext &editorContext,
                            WorldView &worldView,
                            EditorConfig &conf,
@@ -160,7 +161,7 @@ EditorLayout::EditorLayout(UI::LayoutManager &manager,
 	_help->SetVisible(false);
 	AddFront(_help);
 
-	_propList = std::make_shared<PropertyList>(manager.GetTextureManager(), _world, conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(texman, _world, conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 

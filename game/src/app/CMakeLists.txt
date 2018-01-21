@@ -11,6 +11,8 @@ add_library(app
 	CombinedConfig.cpp
 	CombinedConfig.h
 	tzod.cpp
+	TzodViewImpl.cpp
+	TzodViewImpl.h
 	View.cpp
 )
 
@@ -26,6 +28,8 @@ target_link_libraries(app PRIVATE
 	ctx
 	filesystem
 	loc
+	plat
+	platetc
 	shell
 	ui
 	video

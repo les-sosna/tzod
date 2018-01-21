@@ -10,7 +10,7 @@ class NavStack
 	, private UI::PointerSink
 {
 public:
-	explicit NavStack(UI::LayoutManager &manager);
+	explicit NavStack(UI::TimeStepManager &manager);
 
 	void SetFlowDirection(UI::FlowDirection flowDirection) { _flowDirection = flowDirection; }
 	UI::FlowDirection GetFlowDirection() const { return _flowDirection; }

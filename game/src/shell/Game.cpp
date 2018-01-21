@@ -86,7 +86,7 @@ namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GameLayout::GameLayout(UI::LayoutManager &manager,
+GameLayout::GameLayout(UI::TimeStepManager &manager,
                        std::shared_ptr<GameContext> gameContext,
                        WorldView &worldView,
                        WorldController &worldController,

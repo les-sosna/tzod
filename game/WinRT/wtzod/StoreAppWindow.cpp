@@ -1,17 +1,19 @@
 #include "pch.h"
-#include "StoreAppWindow.h"
 #include "DeviceResources.h"
 #include "DisplayOrientation.h"
+#include "StoreAppWindow.h"
 #include "WinStoreKeys.h"
 
-#include <video/RenderBase.h>
-#include <video/RenderD3D11.h>
 #include <ui/DataContext.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
 #include <ui/LayoutContext.h>
 #include <ui/StateContext.h>
 #include <ui/Window.h>
+
+#include <video/RenderBase.h>
+#include <video/RenderD3D11.h>
+#include <video/SwapChainResources.h>
 
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -42,7 +44,7 @@ static float PixelsFromDips(float dips, float dpi)
 	return dips * dpi / c_defaultDpi;
 }
 
-static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArgs ^args, vec2d pxWndSize, float dpi, UI::Msg msgHint)
+static bool DispatchPointerMessage(AppWindowInputSink &inputSink, PointerEventArgs ^args, float dpi, UI::Msg msgHint)
 {
 	UI::PointerType pointerType;
 	switch (args->CurrentPoint->PointerDevice->PointerDeviceType)
@@ -117,20 +119,10 @@ static bool DispatchPointerMessage(UI::LayoutManager &inputSink, PointerEventArg
 	vec2d pxPointerPos = { PixelsFromDips(args->CurrentPoint->Position.X, dpi),
 	                       PixelsFromDips(args->CurrentPoint->Position.Y, dpi) };
 
-	return inputSink.GetInputContext().ProcessPointer(
-		inputSink.GetTextureManager(),
-		inputSink.GetDesktop(),
-		UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
-		UI::DataContext(),
-		pxPointerPos,
-		vec2d{ 0, (float)delta / 120.f },
-		msg,
-		button,
-		pointerType,
-		args->CurrentPoint->PointerId);
+	return inputSink.OnPointer(pointerType, msg, pxPointerPos, vec2d{ 0, (float)delta / 120.f }, button, args->CurrentPoint->PointerId);
 }
 
-StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, DX::SwapChainResources &swapChainResources)
+StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, SwapChainResources &swapChainResources)
 	: _gestureRecognizer(ref new GestureRecognizer())
 	, _systemNavigationManager(SystemNavigationManager::GetForCurrentView())
 	, _displayInformation(DisplayInformation::GetForCurrentView())
@@ -138,9 +130,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	, _cursorArrow(ref new CoreCursor(CoreCursorType::Arrow, 0))
 	, _cursorIBeam(ref new CoreCursor(CoreCursorType::IBeam, 0))
 	, _deviceResources(deviceResources)
+	, _swapChainResources(swapChainResources)
 	, _input(coreWindow)
-	, _render(RenderCreateD3D11(deviceResources.GetD3DDeviceContext()))
-	, _inputSink(std::make_shared<UI::LayoutManager*>())
+	, _render(new RenderD3D11(deviceResources.GetD3DDeviceContext(), swapChainResources))
 {
 	_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation)));
 	_regOrientationChanged = _displayInformation->OrientationChanged += ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(
@@ -154,7 +146,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->GetInputContext().ProcessSystemNavigationBack((*inputSink)->GetDesktop(), UI::DataContext());
+			args->Handled = (*inputSink)->OnSystemNavigationBack();
 		}
 	});
 
@@ -165,9 +157,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
-			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::PointerMove);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerMove);
 		}
 	});
 
@@ -178,9 +168,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
-			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::PointerDown);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerDown);
 		}
 	});
 
@@ -192,9 +180,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
-			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::PointerUp);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerUp);
 		}
 	});
 
@@ -207,9 +193,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxSize{ PixelsFromDips(sender->Bounds.Width, dpi), PixelsFromDips(sender->Bounds.Height, dpi) };
-			args->Handled = DispatchPointerMessage(**inputSink, args, pxSize, dpi, UI::Msg::Scroll);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::Scroll);
 		}
 	});
 
@@ -220,21 +204,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 		if (*inputSink)
 		{
 			float dpi = displayInformation->LogicalDpi;
-			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
 			vec2d pxPointerPosition{ PixelsFromDips(args->Position.X, dpi), PixelsFromDips(args->Position.Y, dpi) };
-
 			unsigned int pointerID = 111; // should be unique enough :)
-			(*inputSink)->GetInputContext().ProcessPointer(
-				(*inputSink)->GetTextureManager(),
-				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
-				UI::DataContext(),
-				pxPointerPosition,
-				vec2d{}, // scroll offset
-				UI::Msg::TAP,
-				1,
-				UI::PointerType::Touch,
-				pointerID);
+			(*inputSink)->OnPointer(UI::PointerType::Touch, UI::Msg::TAP, pxPointerPosition, vec2d{}/*offset*/, 1/*buttons*/, pointerID);
 		}
 	});
 
@@ -243,16 +215,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
-			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
-				(*inputSink)->GetTextureManager(),
-				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
-				UI::DataContext(),
-				UI::Msg::KeyPressed,
-				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey),
-				(*inputSink)->GetTime());
+			args->Handled = (*inputSink)->OnKey(MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey), UI::Msg::KeyPressed);
 		}
 	});
 
@@ -261,16 +224,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
-			args->Handled = (*inputSink)->GetInputContext().ProcessKeys(
-				(*inputSink)->GetTextureManager(),
-				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
-				UI::DataContext(),
-				UI::Msg::KeyReleased,
-				MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey),
-				(*inputSink)->GetTime());
+			args->Handled = (*inputSink)->OnKey(MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey), UI::Msg::KeyReleased);
 		}
 	});
 
@@ -279,14 +233,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			float dpi = displayInformation->LogicalDpi;
-			vec2d pxWndSize{ PixelsFromDips(coreWindow->Bounds.Width, dpi), PixelsFromDips(coreWindow->Bounds.Height, dpi) };
-			args->Handled = (*inputSink)->GetInputContext().ProcessText(
-				(*inputSink)->GetTextureManager(),
-				(*inputSink)->GetDesktop(),
-				UI::LayoutContext(1.f, dpi / c_defaultDpi, pxWndSize, true),
-				UI::DataContext(),
-				args->KeyCode);
+			args->Handled = (*inputSink)->OnChar(args->KeyCode);
 		}
 	});
 }
@@ -323,14 +270,11 @@ IRender& StoreAppWindow::GetRender()
 	return *_render;
 }
 
-float StoreAppWindow::GetPixelWidth() const
+vec2d StoreAppWindow::GetPixelSize() const
 {
-	return PixelsFromDips(_coreWindow->Bounds.Width, _displayInformation->LogicalDpi);
-}
-
-float StoreAppWindow::GetPixelHeight() const
-{
-	return PixelsFromDips(_coreWindow->Bounds.Height, _displayInformation->LogicalDpi);
+	auto coreWindowBounds = _coreWindow->Bounds;
+	float dpi = _displayInformation->LogicalDpi;
+	return vec2d{ PixelsFromDips(coreWindowBounds.Width, dpi), PixelsFromDips(coreWindowBounds.Height, dpi) };
 }
 
 float StoreAppWindow::GetLayoutScale() const
@@ -342,11 +286,6 @@ void StoreAppWindow::SetCanNavigateBack(bool canNavigateBack)
 {
 	_systemNavigationManager->AppViewBackButtonVisibility =
 		canNavigateBack ? AppViewBackButtonVisibility::Visible : AppViewBackButtonVisibility::Collapsed;
-}
-
-void StoreAppWindow::SetInputSink(UI::LayoutManager *inputSink)
-{
-	*_inputSink = inputSink;
 }
 
 void StoreAppWindow::SetMouseCursor(MouseCursor mouseCursor)
@@ -366,5 +305,26 @@ void StoreAppWindow::SetMouseCursor(MouseCursor mouseCursor)
 			_coreWindow->PointerCursor = nullptr;
 			break;
 		}
+	}
+}
+
+void StoreAppWindow::Present()
+{
+	// The first argument instructs DXGI to block until VSync, putting the application
+	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
+	// frames that will never be displayed to the screen.
+	HRESULT hr = _swapChainResources.GetSwapChain()->Present(1, 0);
+
+	// If the device was removed either by a disconnection or a driver upgrade, we
+	// must recreate all device resources.
+	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+	{
+		// FIXME:
+//		HandleDeviceLost();
+		assert(false);
+	}
+	else if (FAILED(hr))
+	{
+		throw Platform::Exception::CreateException(hr);
 	}
 }

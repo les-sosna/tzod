@@ -14,7 +14,7 @@ class MessageArea
 	, private UI::TimeStepping
 {
 public:
-	MessageArea(UI::LayoutManager &manager, UI::ConsoleBuffer &logger);
+	MessageArea(UI::TimeStepManager &manager, UI::ConsoleBuffer &logger);
 
 	void WriteLine(std::string text);
 	void Clear();

@@ -1,88 +1,17 @@
 #include "inc/video/RenderD3D11.h"
-#include "inc/video/RenderBase.h"
-#include <wrl/client.h>
-#include <d3d11.h>
+#include "inc/video/SwapChainResources.h"
+#include <d3d11_2.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
 #include <cstring>
 #include <stdexcept>
 
-#define VERTEX_ARRAY_SIZE   1024
-#define  INDEX_ARRAY_SIZE   2048
 #undef USE_MAP
 
 struct MyConstants
 {
 	DirectX::XMFLOAT4X4 viewProj;
 };
-
-
-class RenderD3D11 : public IRender
-{
-public:
-	RenderD3D11(ID3D11DeviceContext *context);
-	~RenderD3D11() override;
-
-	// IRender
-	void OnResizeWnd(unsigned int width, unsigned int height) override;
-	void SetDisplayOrientation(DisplayOrientation displayOrientation) override;
-
-	void SetViewport(const RectRB *rect) override;
-	void SetScissor(const RectRB *rect) override;
-	void Camera(const RectRB *vp, float x, float y, float scale) override;
-
-	void Begin() override;
-	void End() override;
-	void SetMode (const RenderMode mode) override;
-
-	void SetAmbient(float ambient) override;
-
-	bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) override;
-	void TexFree(DEV_TEXTURE tex) override;
-
-	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
-	MyVertex* DrawFan(unsigned int nEdges) override;
-
-	void DrawLines(const MyLine *lines, size_t count) override;
-
-private:
-	void Flush();
-
-	Microsoft::WRL::ComPtr<ID3D11Device>        _device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> _context;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>        _constantBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>        _vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer>        _indexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>   _inputLayout;
-	Microsoft::WRL::ComPtr<ID3D11VertexShader>  _vertexShader;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShaderColor;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShaderLight;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerState;
-	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateUI;
-	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateWorld;
-	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateLight;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
-
-	int _windowWidth;
-	int _windowHeight;
-	RectRB _viewport;
-	vec2d _cameraEye;
-	float _cameraScale;
-	DisplayOrientation _displayOrientation;
-
-	void* _curtex;
-	float _ambient;
-
-	UINT16 _indexArray[INDEX_ARRAY_SIZE];
-	MyVertex _vertexArray[VERTEX_ARRAY_SIZE];
-
-	unsigned int _vaSize;      // number of filled elements in _vertexArray
-	unsigned int _iaSize;      // number of filled elements in _indexArray
-
-	RenderMode  _mode;
-};
-
-///////////////////////////////////////////////////////////////////////////////
 
 static const char s_vertexShader[] =
 R"(
@@ -266,8 +195,9 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderD3D11::RenderD3D11(ID3D11DeviceContext *context)
-	: _context(context)
+RenderD3D11::RenderD3D11(ID3D11DeviceContext2 *context, SwapChainResources &swapChainResources)
+	: _swapChainResources(swapChainResources)
+	, _context(context)
 	, _windowWidth(0)
 	, _windowHeight(0)
 	, _vaSize(0)
@@ -448,6 +378,11 @@ void RenderD3D11::Camera(const RectRB *vp, float x, float y, float scale)
 
 void RenderD3D11::Begin()
 {
+	ID3D11RenderTargetView *const targets[1] = { _swapChainResources.GetBackBufferRenderTargetView() };
+	_context->OMSetRenderTargets(1, targets, nullptr);
+	_context->DiscardView(targets[0]);
+	_context->ClearRenderTargetView(targets[0], DirectX::XMVECTORF32{ 0, 0, 0, _ambient });
+
 	UINT stride = sizeof(MyVertex);
 	UINT offset = 0;
 	_context->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
@@ -458,10 +393,6 @@ void RenderD3D11::Begin()
 	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
 	_context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
 	_context->RSSetState(_rasterizerState.Get());
-
-//	glClearColor(0, 0, 0, _ambient);
-//	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void RenderD3D11::End()
@@ -624,9 +555,3 @@ void RenderD3D11::SetAmbient(float ambient)
 	_ambient = ambient;
 }
 
-//-----------------------------------------------------------------------------
-
-std::unique_ptr<IRender> RenderCreateD3D11(ID3D11DeviceContext *context)
-{
-	return std::unique_ptr<IRender>(new RenderD3D11(context));
-}

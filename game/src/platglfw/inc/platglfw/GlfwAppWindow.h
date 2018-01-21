@@ -1,5 +1,5 @@
 #pragma once
-#include <ui/AppWindow.h>
+#include <plat/AppWindow.h>
 #include <memory>
 
 class GlfwClipboard;
@@ -17,10 +17,17 @@ struct GlfwWindowDeleter
 	void operator()(GLFWwindow *window);
 };
 
-struct GlfwInitHelper
+class GlfwInitHelper
 {
+public:
 	GlfwInitHelper();
 	~GlfwInitHelper();
+
+	GlfwInitHelper(GlfwInitHelper &&other);
+
+private:
+	bool _isActive;
+	static unsigned int s_initCount;
 };
 
 class GlfwAppWindow : public AppWindow
@@ -30,24 +37,25 @@ public:
 	~GlfwAppWindow();
 
 	static void PollEvents();
-	void Present();
+
 	bool ShouldClose() const;
 
-	float GetPixelWidth() const;
-	float GetPixelHeight() const;
-	float GetLayoutScale() const;
-
 	// AppWindow
+	AppWindowInputSink* GetInputSink() const override { return _inputSink; }
+	void SetInputSink(AppWindowInputSink *inputSink) override { _inputSink = inputSink; }
+	vec2d GetPixelSize() const override;
+	float GetLayoutScale() const override;
 	UI::IClipboard& GetClipboard() override;
 	UI::IInput& GetInput() override;
 	IRender& GetRender() override;
 	void SetCanNavigateBack(bool canNavigateBack) override;
-	void SetInputSink(UI::LayoutManager *inputSink) override;
 	void SetMouseCursor(MouseCursor mouseCursor) override;
+	void Present() override;
 	void MakeCurrent() override;
 
 private:
 	GlfwInitHelper _initHelper;
+	AppWindowInputSink *_inputSink = nullptr;
 	std::unique_ptr<GLFWwindow, GlfwWindowDeleter> _window;
 	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorArrow;
 	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorIBeam;

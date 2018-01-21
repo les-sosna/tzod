@@ -44,8 +44,8 @@ class Console
 	, private KeyboardSink
 {
 public:
-	Console(LayoutManager &manager, TextureManager &texman);
-	static std::shared_ptr<Console> Create(Window *parent, LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
+	Console(TimeStepManager &manager, TextureManager &texman);
+	static std::shared_ptr<Console> Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
 
 	void SetColors(const SpriteColor *colors, size_t count);
 	void SetHistory(IConsoleHistory *history);

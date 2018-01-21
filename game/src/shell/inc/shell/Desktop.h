@@ -41,7 +41,7 @@ class Desktop
 	, private AppStateListener
 {
 public:
-	Desktop(UI::LayoutManager &manager,
+	Desktop(UI::TimeStepManager &manager,
 	        TextureManager &texman,
 	        AppState &appState,
 	        AppConfig &appConfig,

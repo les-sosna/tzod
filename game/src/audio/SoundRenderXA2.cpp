@@ -128,7 +128,7 @@ std::unique_ptr<Sound> SoundRenderXA2::CreateLopped(SoundTemplate st)
 		{
 			XAUDIO2_BUFFER xaBuffer = {
 				XAUDIO2_END_OF_STREAM,
-				buffer.data.size(),
+				static_cast<UINT32>(buffer.data.size()),
 				buffer.data.data(),
 				0, // PlayBegin
 				0, // PlayLength; 0 to play the whole buffer
@@ -155,7 +155,11 @@ void SoundRenderXA2::PlayOnce(SoundTemplate st, vec2d pos)
 		Buffer &buffer = _buffers[sound];
 		if (auto sourceVoice = CreateVoice(_logger, _xa2.Get(), buffer.wf))
 		{
-			XAUDIO2_BUFFER xaBuffer = { XAUDIO2_END_OF_STREAM, buffer.data.size(), buffer.data.data() };
+			XAUDIO2_BUFFER xaBuffer = {
+				XAUDIO2_END_OF_STREAM,
+				static_cast<UINT32>(buffer.data.size()),
+				buffer.data.data()
+			};
 			if (FAILED(sourceVoice->SubmitSourceBuffer(&xaBuffer)))
 				_logger.WriteLine(1, "Failed to submit source buffer");
 			else if (FAILED(sourceVoice->Start(0, OPSETID)))

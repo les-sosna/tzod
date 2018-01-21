@@ -17,17 +17,17 @@ void TimeStepping::SetTimeStep(bool enable)
 	if (enable != _isTimeStep)
 	{
 		if (_isTimeStep)
-			GetManager().TimeStepUnregister(_timeStepReg);
+			GetTimeStepManager().TimeStepUnregister(_timeStepReg);
 		else
-			_timeStepReg = GetManager().TimeStepRegister(this);
+			_timeStepReg = GetTimeStepManager().TimeStepRegister(this);
 		_isTimeStep = enable;
 	}
 }
 
 Window::Window()
-  : _isVisible(true)
-  , _isTopMost(false)
-  , _clipChildren(false)
+	: _isVisible(true)
+	, _isTopMost(false)
+	, _clipChildren(false)
 {
 }
 

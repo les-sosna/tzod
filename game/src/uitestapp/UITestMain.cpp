@@ -1,38 +1,16 @@
 #include "UITestDesktop.h"
 
 #include <fs/FileSystem.h>
+#include <platetc/UIInputRenderingController.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
-#include <video/RenderContext.h>
 #include <video/TextureManager.h>
-#include <ui/DataContext.h>
 #include <ui/GuiManager.h>
-#include <ui/InputContext.h>
-#include <ui/LayoutContext.h>
-#include <ui/StateContext.h>
 #include <exception>
 #include <string>
 #include <iostream>
 
 #define FILE_TEXTURES "scripts/textures.lua"
-
-class InputBinding
-{
-public:
-	InputBinding(AppWindow &appWindow, UI::LayoutManager &gui)
-		: _appWindow(appWindow)
-	{
-		_appWindow.SetInputSink(&gui);
-	}
-
-	~InputBinding()
-	{
-		_appWindow.SetInputSink(nullptr);
-	}
-
-private:
-	AppWindow &_appWindow;
-};
 
 static void print_what(/*UI::ConsoleBuffer &logger, */const std::exception &e, std::string prefix);
 
@@ -49,6 +27,8 @@ int main(int, const char**)
 #endif
 try
 {
+	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
+
 	GlfwAppWindow appWindow(
 		"LibUI Test App",
 		false, // fullscreen
@@ -56,44 +36,25 @@ try
 		768 // height
 	);
 
-	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
-
 	TextureManager textureManager(appWindow.GetRender());
 	if (textureManager.LoadPackage(ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs)) <= 0)
 		std::cerr << "WARNING: no textures loaded" << std::endl;
 
-	UI::InputContext inputContext(appWindow.GetInput(), appWindow.GetClipboard());
-	UI::LayoutManager gui(textureManager, inputContext);
-
+	UI::TimeStepManager timeStepManager;
 	auto desktop = std::make_shared<UITestDesktop>();
-	gui.SetDesktop(desktop);
-
-	InputBinding inputBinding(appWindow, gui);
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
-	for (GlfwAppWindow::PollEvents(); !appWindow.ShouldClose(); GlfwAppWindow::PollEvents())
+
+	UIInputRenderingController controller(appWindow, textureManager, timeStepManager, desktop);
+
+	while (!appWindow.ShouldClose())
 	{
-		float dt = timer.GetDt();
+		GlfwAppWindow::PollEvents();
 
-		gui.TimeStep(dt);
-
-		float width = appWindow.GetPixelWidth();
-		float height = appWindow.GetPixelHeight();
-		float layoutScale = appWindow.GetLayoutScale();
-
-		RenderContext rc(textureManager, appWindow.GetRender(), static_cast<unsigned int>(width), static_cast<unsigned int>(height));
-		appWindow.GetRender().Begin();
-
-		UI::DataContext dataContext;
-		UI::LayoutContext layoutContext(1.f, layoutScale, vec2d{ width, height }, desktop->GetEnabled(dataContext));
-		UI::RenderSettings rs{ gui.GetInputContext(), rc, textureManager, gui.GetTime() };
-
-		UI::RenderUIRoot(*desktop, rs, layoutContext, dataContext, UI::StateContext());
-		appWindow.GetRender().End();
-
-		appWindow.Present();
+		controller.TimeStep(timer.GetDt());
+		controller.OnRefresh();
 	}
 
 	return 0;
@@ -104,18 +65,16 @@ catch (const std::exception &e)
 	return 1;
 }
 
-// recursively print exception whats:
-static void print_what(/*UI::ConsoleBuffer &logger, */const std::exception &e, std::string prefix)
+static void print_what(const std::exception &e, std::string prefix)
 {
 #ifdef _WIN32
 	OutputDebugStringA((prefix + e.what() + "\n").c_str());
 #endif
-	//	logger.Format(1) << prefix << e.what();
 	try {
 		std::rethrow_if_nested(e);
 	}
 	catch (const std::exception &nested) {
-		print_what(/*logger, */nested, prefix + "> ");
+		print_what(nested, prefix + "> ");
 	}
 }
 

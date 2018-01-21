@@ -35,7 +35,7 @@ class GameLayout
 	, private GameListener
 {
 public:
-	GameLayout(UI::LayoutManager &manager,
+	GameLayout(UI::TimeStepManager &manager,
 	           std::shared_ptr<GameContext> gameContext,
 	           WorldView &worldView,
 	           WorldController &worldController,

@@ -101,7 +101,7 @@ public:
 
 	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
 
-	virtual unsigned int GetChildrenCount() const { return _children.size(); }
+	virtual unsigned int GetChildrenCount() const { return static_cast<unsigned int>(_children.size()); }
 	virtual std::shared_ptr<const Window> GetChild(unsigned int index) const { return _children[index]; }
 	std::shared_ptr<Window> GetChild(unsigned int index)
 	{
@@ -182,22 +182,22 @@ inline bool NeedsFocus(const Window *wnd, const DataContext &dc)
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
 
 //////////////////////// to remove ////////////////////
-class LayoutManager;
+class TimeStepManager;
 class Managerful
 {
 protected:
-	explicit Managerful(LayoutManager &manager) : _manager(manager) {}
+	explicit Managerful(TimeStepManager &manager) : _manager(manager) {}
 
-	LayoutManager& GetManager() const { return _manager; }
+	TimeStepManager& GetTimeStepManager() const { return _manager; }
 
 private:
-	LayoutManager &_manager;
+	TimeStepManager &_manager;
 };
 
 class TimeStepping : public Managerful
 {
 public:
-	explicit TimeStepping(LayoutManager &manager) : Managerful(manager) {}
+	explicit TimeStepping(TimeStepManager &manager) : Managerful(manager) {}
 	~TimeStepping();
 
 	void SetTimeStep(bool enable);

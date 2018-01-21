@@ -12,6 +12,7 @@ if(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-DNOMINMAX)
 	add_executable(uitestapp WIN32 ${UITestApp_SOURCES})
+	set_target_properties(uitestapp PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 elseif(APPLE)
 	add_executable(uitestapp ${UITestApp_SOURCES}) # hack to enable retina display support
 #	add_executable(uitestapp MACOSX_BUNDLE ${UITestApp_SOURCES})
@@ -23,6 +24,7 @@ endif()
 
 target_link_libraries(uitestapp PRIVATE
 	filesystem
+	platetc
 	platglfw
 	ui
 )

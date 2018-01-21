@@ -11,7 +11,7 @@
 #include <sstream>
 #include <iomanip>
 
-FpsCounter::FpsCounter(UI::LayoutManager &manager, float x, float y, enumAlignText align, AppState &appState)
+FpsCounter::FpsCounter(UI::TimeStepManager &manager, float x, float y, enumAlignText align, AppState &appState)
   : UI::TimeStepping(manager)
   , _nSprites(0)
   , _nLights(0)

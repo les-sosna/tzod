@@ -56,7 +56,8 @@ class EditorLayout
 	QuickActions _quickActions;
 
 public:
-	EditorLayout(UI::LayoutManager &manager,
+	EditorLayout(UI::TimeStepManager &manager,
+		TextureManager &texman,
 		EditorContext &editorContext,
 		WorldView &worldView,
 		EditorConfig &conf,

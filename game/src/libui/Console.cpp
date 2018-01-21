@@ -13,13 +13,13 @@
 using namespace UI;
 
 ConsoleHistoryDefault::ConsoleHistoryDefault(size_t maxSize)
-  : _maxSize(maxSize)
+	: _maxSize(maxSize)
 {
 }
 
 void ConsoleHistoryDefault::Enter(std::string str)
 {
-    _buf.push_back(std::move(str));
+	_buf.push_back(std::move(str));
 	if( _buf.size() > _maxSize )
 	{
 		_buf.pop_front();
@@ -38,7 +38,7 @@ std::string_view ConsoleHistoryDefault::GetItem(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Console> Console::Create(Window *parent, LayoutManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf)
+std::shared_ptr<Console> Console::Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf)
 {
 	auto res = std::make_shared<Console>(manager, texman);
 	res->Move(x, y);
@@ -48,7 +48,7 @@ std::shared_ptr<Console> Console::Create(Window *parent, LayoutManager &manager,
 	return res;
 }
 
-Console::Console(LayoutManager &manager, TextureManager &texman)
+Console::Console(TimeStepManager &manager, TextureManager &texman)
   : TimeStepping(manager)
   , _cmdIndex(0)
   , _font(texman.FindSprite("font_small"))
@@ -208,7 +208,7 @@ void Console::OnTimeStep(const InputContext &ic, float dt)
 {
 	// FIXME: workaround
 	_scroll->SetLineSize(1);
-	_scroll->SetPageSize(20); // textAreaHeight / GetManager().GetTextureManager().GetFrameHeight(_font, 0));
+	_scroll->SetPageSize(20); // textAreaHeight / _texman.GetFrameHeight(_font, 0));
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() - 1 : 0);
 	if( _autoScroll )
 		_scroll->SetPos(_scroll->GetDocumentSize());

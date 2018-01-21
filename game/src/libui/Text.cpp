@@ -46,8 +46,8 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 		return vec2d{};
 
 	unsigned int lineCount = 1;
-	unsigned  maxline = 0;
-	size_t count = 0;
+	unsigned int maxline = 0;
+	unsigned int count = 0;
 	std::string_view text = _text->GetLayoutValue(dc);
 	for( size_t n = 0; n != text.size(); ++n )
 	{
@@ -62,7 +62,7 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	}
 	if( 1 == lineCount )
 	{
-		maxline = text.size();
+		maxline = static_cast<unsigned int>(text.size());
 	}
 	float w = std::floor(texman.GetFrameWidth(_fontTexture.GetTextureId(texman), 0) * scale);
 	float h = std::floor(texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0) * scale);

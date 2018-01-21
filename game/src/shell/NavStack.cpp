@@ -3,7 +3,7 @@
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 
-NavStack::NavStack(UI::LayoutManager &manager)
+NavStack::NavStack(UI::TimeStepManager &manager)
 	: UI::Managerful(manager)
 {
 }
@@ -51,13 +51,13 @@ void NavStack::PopNavStack(UI::Window *wnd)
 		case State::GoingForward:
 			// if it was going forward then just reverse the direction and keep it staging
 			_state = State::GoingBack;
-			_navTransitionStartTime = GetManager().GetTime() - GetTransitionTimeLeft();
+			_navTransitionStartTime = GetTimeStepManager().GetTime() - GetTransitionTimeLeft();
 			break;
 
 		case State::GoingBack:
 			// remove the previous staging child
 			UnlinkChild(*GetChildren().back());
-			_navTransitionStartTime = GetManager().GetTime();
+			_navTransitionStartTime = GetTimeStepManager().GetTime();
 			break;
 		}
 	}
@@ -83,7 +83,7 @@ void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
 	}
 
 	_state = State::GoingForward;
-	_navTransitionStartTime = GetManager().GetTime() - GetTransitionTimeLeft();
+	_navTransitionStartTime = GetTimeStepManager().GetTime() - GetTransitionTimeLeft();
 
 	if (!GetChildren().empty())
 		GetChildren().back()->SetEnabled(UI::StaticValue<bool>::False());
@@ -109,7 +109,7 @@ vec2d NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutCon
 
 float NavStack::GetTransitionTimeLeft() const
 {
-	return std::max(0.f, _navTransitionStartTime + _foldTime - GetManager().GetTime());
+	return std::max(0.f, _navTransitionStartTime + _foldTime - GetTimeStepManager().GetTime());
 }
 
 FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const

@@ -44,7 +44,7 @@ extern "C"
 #include <functional>
 
 
-Desktop::Desktop(UI::LayoutManager &manager,
+Desktop::Desktop(UI::TimeStepManager &manager,
                  TextureManager &texman,
                  AppState &appState,
                  AppConfig &appConfig,
@@ -291,13 +291,6 @@ void Desktop::OnSplitScreen()
 
 void Desktop::OnOpenMap()
 {
-	if (GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
-		GetManager().GetInputContext().GetInput().IsKeyPressed(UI::Key::RightCtrl))
-	{
-		OnExportMap();
-		return;
-	}
-
 	auto mapsFolder = _fs.GetFileSystem(DIR_MAPS);
 	if (!mapsFolder)
 	{
@@ -603,7 +596,7 @@ bool Desktop::OnCompleteCommand(std::string_view cmd, int &pos, std::string &res
 		std::string insert = str ? str : "";
 
 		result = std::string(cmd.substr(0, pos)).append(insert).append(cmd.substr(pos));
-		pos += insert.length();
+		pos += static_cast<int>(insert.length());
 
 		if( !result.empty() && result[0] != '/' )
 		{
@@ -655,7 +648,7 @@ void Desktop::OnGameContextChanged()
 		};
 
 		_game = std::make_shared<GameLayout>(
-			GetManager(),
+			GetTimeStepManager(),
 			gameContext,
 			_worldView,
 			gameContext->GetWorldController(),
@@ -676,7 +669,8 @@ void Desktop::OnGameContextChanged()
 	{
 		assert(!_editor);
 		_editor = std::make_shared<EditorLayout>(
-			GetManager(),
+			GetTimeStepManager(),
+			_texman,
 			*editorContext,
 			_worldView,
 			_conf.editor,

@@ -10,26 +10,19 @@
 
 using namespace UI;
 
-LayoutManager::LayoutManager(TextureManager &texman, InputContext &ic)
-	: _texman(texman)
-	, _inputContext(ic)
-	, _timestep()
-	, _tsCurrent(_timestep.end())
+TimeStepManager::TimeStepManager()
+	: _tsCurrent(_timestep.end())
 	, _tsDeleteCurrent(false)
 {
 }
 
-LayoutManager::~LayoutManager()
-{
-}
-
-std::list<TimeStepping*>::iterator LayoutManager::TimeStepRegister(TimeStepping* wnd)
+std::list<TimeStepping*>::iterator TimeStepManager::TimeStepRegister(TimeStepping* wnd)
 {
 	_timestep.push_front(wnd);
 	return _timestep.begin();
 }
 
-void LayoutManager::TimeStepUnregister(std::list<TimeStepping*>::iterator it)
+void TimeStepManager::TimeStepUnregister(std::list<TimeStepping*>::iterator it)
 {
 	if( _tsCurrent == it )
 	{
@@ -42,7 +35,7 @@ void LayoutManager::TimeStepUnregister(std::list<TimeStepping*>::iterator it)
 	}
 }
 
-void LayoutManager::TimeStep(float dt)
+void TimeStepManager::TimeStep(std::shared_ptr<Window> desktop, InputContext &ic, float dt)
 {
 	assert(_tsCurrent == _timestep.end());
 	assert(!_tsDeleteCurrent);
@@ -52,7 +45,7 @@ void LayoutManager::TimeStep(float dt)
 	for( _tsCurrent = _timestep.begin(); _tsCurrent != _timestep.end(); )
 	{
 		bool focused = false;
-		for (auto wnd = GetDesktop(); wnd; wnd = wnd->GetFocus())
+		for (auto wnd = desktop; wnd; wnd = wnd->GetFocus())
 		{
 			if (*_tsCurrent == dynamic_cast<TimeStepping*>(wnd.get()))
 			{
@@ -61,11 +54,11 @@ void LayoutManager::TimeStep(float dt)
 			}
 		}
 
-		_inputContext.PushInputTransform(vec2d{}, focused, false);
+		ic.PushInputTransform(vec2d{}, focused, false);
 
-		(*_tsCurrent)->OnTimeStep(_inputContext, dt);
+		(*_tsCurrent)->OnTimeStep(ic, dt);
 
-		_inputContext.PopInputTransform();
+		ic.PopInputTransform();
 
 		if (_tsDeleteCurrent)
 		{
@@ -78,6 +71,8 @@ void LayoutManager::TimeStep(float dt)
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////
 
 static void DrawWindowRecursive(
 	RenderSettings &renderSettings,
