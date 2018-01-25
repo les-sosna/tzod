@@ -170,9 +170,6 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
 	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
 	_typeSelector = std::make_shared<DefaultListBox>();
-	_typeSelector->GetScrollView()->SetHorizontalScrollEnabled(true);
-	_typeSelector->GetScrollView()->SetVerticalScrollEnabled(false);
-	_typeSelector->GetList()->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_typeSelector->GetList()->SetItemTemplate(gameClassVis);
 	AddFront(_typeSelector);
 
@@ -445,13 +442,13 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	}
 	if (_typeSelector.get() == &child)
 	{
-		return FRECT{ 0, size.y - _typeSelector->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y, size.x, size.y };
+		return FRECT{ size.x - _typeSelector->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, 0, size.x, size.y };
 	}
 	if (_propList.get() == &child)
 	{
 		float pxWidth = std::floor(100 * lc.GetScale());
-		float pxBottom = _typeSelector ? GetChildRect(texman, lc, dc, *_typeSelector).top : lc.GetPixelSize().y;
-		return FRECT{ lc.GetPixelSize().x - pxWidth, 0, lc.GetPixelSize().x, pxBottom };
+		float pxRight = _typeSelector ? GetChildRect(texman, lc, dc, *_typeSelector).left : lc.GetPixelSize().x;
+		return FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y };
 	}
 
 	return UI::Window::GetChildRect(texman, lc, dc, child);
