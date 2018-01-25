@@ -13,6 +13,7 @@
 #include <loc/Language.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>
+#include <ui/Button.h>
 #include <ui/Combo.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/DataSource.h>
@@ -21,6 +22,7 @@
 #include <ui/Text.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
+#include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Keys.h>
 #include <ui/LayoutContext.h>
@@ -169,9 +171,16 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
 	gameClassVis->Resize(64, 64);
 	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
 
+	using namespace UI::DataSourceAliases;
+
+	_modeSelect = std::make_shared<UI::CheckBox>();
+	_modeSelect->SetText("Select"_txt);
+
+	_modeErase = std::make_shared<UI::CheckBox>();
+	_modeErase->SetText("Erase"_txt);
+
 	_typeSelector = std::make_shared<DefaultListBox>();
 	_typeSelector->GetList()->SetItemTemplate(gameClassVis);
-	AddFront(_typeSelector);
 
 	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 	{
@@ -182,6 +191,12 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
 		}
 	}
 	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.object.GetInt())));
+
+	_toolbar = std::make_shared<UI::StackLayout>();
+	_toolbar->AddFront(_modeSelect);
+	_toolbar->AddFront(_modeErase);
+	_toolbar->AddFront(_typeSelector);
+	AddFront(_toolbar);
 
 	_layerDisp = std::make_shared<UI::Text>();
 	_layerDisp->SetAlign(alignTextRT);
@@ -440,14 +455,14 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	{
 		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
 	}
-	if (_typeSelector.get() == &child)
+	if (_toolbar.get() == &child)
 	{
-		return FRECT{ size.x - _typeSelector->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, 0, size.x, size.y };
+		return FRECT{ size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, 0, size.x, size.y };
 	}
 	if (_propList.get() == &child)
 	{
 		float pxWidth = std::floor(100 * lc.GetScale());
-		float pxRight = _typeSelector ? GetChildRect(texman, lc, dc, *_typeSelector).left : lc.GetPixelSize().x;
+		float pxRight = _toolbar ? GetChildRect(texman, lc, dc, *_toolbar).left : lc.GetPixelSize().x;
 		return FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y };
 	}
 

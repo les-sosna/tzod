@@ -4,6 +4,8 @@
 #include <algorithm>
 using namespace UI;
 
+#include "inc/ui/Button.h"
+
 FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScale();
@@ -12,6 +14,7 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 	// FIXME: O(n^2) complexity
 	float pxOffset = 0;
 	float pxSpacing = std::floor(_spacing * scale);
+	LayoutConstraints constraints = DefaultLayoutConstraints(lc);
 	if (FlowDirection::Vertical == _flowDirection)
 	{
 		for (auto item : *this)
@@ -20,9 +23,12 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y;
+
+			float pxSpaceTaken = item->GetContentSize(texman, dc, scale, constraints).y + pxSpacing;
+			pxOffset += pxSpaceTaken;
+			constraints.maxPixelSize.y = std::max(constraints.maxPixelSize.y - pxSpaceTaken, 0.f);
 		}
-		vec2d pxChildSize = child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc));
+		vec2d pxChildSize = Vec2dMin(child.GetContentSize(texman, dc, scale, constraints), constraints.maxPixelSize);
 		if (_align == Align::LT)
 		{
 			return FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y };
@@ -43,9 +49,12 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			{
 				break;
 			}
-			pxOffset += pxSpacing + item->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x;
+			float pxSpaceTaken = item->GetContentSize(texman, dc, scale, constraints).x + pxSpacing;
+			constraints.maxPixelSize.x = std::max(constraints.maxPixelSize.x - pxSpaceTaken, 0.f);
+			pxOffset += pxSpaceTaken;
 		}
-		return FRECT{ pxOffset, 0.f, pxOffset + child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, size.y };
+		vec2d pxChildSize = Vec2dMin(child.GetContentSize(texman, dc, scale, constraints), constraints.maxPixelSize);
+		return FRECT{ pxOffset, 0.f, pxOffset + pxChildSize.x, size.y };
 	}
 }
 
