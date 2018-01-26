@@ -13,6 +13,7 @@ namespace DX
 	public:
 		DeviceResources();
 		bool ValidateDevice() const;
+		bool IsDeviceRemoved() const;
 		void Trim();
 
 		// D3D Accessors.

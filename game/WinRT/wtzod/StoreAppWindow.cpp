@@ -244,7 +244,7 @@ StoreAppWindow::~StoreAppWindow()
 	_coreWindow->KeyUp -= _regKeyUp;
 	_coreWindow->KeyDown -= _regKeyDown;
 	_coreWindow->PointerReleased -= _regPointerReleased;
-	_coreWindow->PointerPressed -= _regPointerMoved;
+	_coreWindow->PointerPressed -= _regPointerPressed;
 	_coreWindow->PointerMoved -= _regPointerMoved;
 
 	_systemNavigationManager->BackRequested -= _regBackRequested;
@@ -315,13 +315,9 @@ void StoreAppWindow::Present()
 	// frames that will never be displayed to the screen.
 	HRESULT hr = _swapChainResources.GetSwapChain()->Present(1, 0);
 
-	// If the device was removed either by a disconnection or a driver upgrade, we
-	// must recreate all device resources.
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 	{
-		// FIXME:
-//		HandleDeviceLost();
-		assert(false);
+		// Do nothing - the main loop will check for device lost and recover on next tick
 	}
 	else if (FAILED(hr))
 	{

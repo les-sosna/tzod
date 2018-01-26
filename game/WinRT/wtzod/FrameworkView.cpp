@@ -91,6 +91,11 @@ void FrameworkView::Run()
 	{
 		if (m_windowVisible && _view != nullptr)
 		{
+			if (m_deviceResources->IsDeviceRemoved())
+			{
+				HandleDeviceLost();
+			}
+
 			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
 			m_timer.Tick([&]()
@@ -162,11 +167,7 @@ void FrameworkView::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEve
 		m_deviceResources->GetD3DDeviceContext(),
 		_appWindow->GetPixelSize());
 
-	if (IsDeviceLost(hr))
-	{
-		HandleDeviceLost();
-	}
-	else
+	if (!IsDeviceLost(hr))
 	{
 		DX::ThrowIfFailed(hr);
 	}
@@ -193,11 +194,7 @@ void FrameworkView::OnDpiChanged(DisplayInformation^ sender, Object^ args)
 		m_deviceResources->GetD3DDeviceContext(),
 		_appWindow->GetPixelSize());
 
-	if (IsDeviceLost(hr))
-	{
-		HandleDeviceLost();
-	}
-	else
+	if (!IsDeviceLost(hr))
 	{
 		DX::ThrowIfFailed(hr);
 	}
@@ -211,11 +208,7 @@ void FrameworkView::OnOrientationChanged(DisplayInformation^ sender, Object^ arg
 		m_deviceResources->GetD3DDevice(),
 		m_deviceResources->GetD3DDeviceContext(), rotationAngle);
 
-	if (IsDeviceLost(hr))
-	{
-		HandleDeviceLost();
-	}
-	else
+	if (!IsDeviceLost(hr))
 	{
 		DX::ThrowIfFailed(hr);
 	}

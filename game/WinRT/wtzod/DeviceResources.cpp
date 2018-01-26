@@ -77,13 +77,8 @@ DX::DeviceResources::DeviceResources()
 	}
 
 	// Store pointers to the Direct3D 11.1 API device and immediate context.
-	DX::ThrowIfFailed(
-		device.As(&m_d3dDevice)
-		);
-
-	DX::ThrowIfFailed(
-		context.As(&m_d3dContext)
-		);
+	DX::ThrowIfFailed(device.As(&m_d3dDevice));
+	DX::ThrowIfFailed(context.As(&m_d3dContext));
 }
 
 // This method is called in the event handler for the DisplayContentsInvalidated event.
@@ -126,7 +121,12 @@ bool DX::DeviceResources::ValidateDevice() const
 
 	return previousDesc.AdapterLuid.LowPart == currentDesc.AdapterLuid.LowPart &&
 		previousDesc.AdapterLuid.HighPart == currentDesc.AdapterLuid.HighPart &&
-		SUCCEEDED(m_d3dDevice->GetDeviceRemovedReason());
+		!IsDeviceRemoved();
+}
+
+bool DX::DeviceResources::IsDeviceRemoved() const
+{
+	return FAILED(m_d3dDevice->GetDeviceRemovedReason());
 }
 
 // Call this method when the app suspends. It provides a hint to the driver that the app 
@@ -134,7 +134,7 @@ bool DX::DeviceResources::ValidateDevice() const
 void DX::DeviceResources::Trim()
 {
 	ComPtr<IDXGIDevice3> dxgiDevice;
-	m_d3dDevice.As(&dxgiDevice);
+	DX::ThrowIfFailed(m_d3dDevice.As(&dxgiDevice));
 
 	dxgiDevice->Trim();
 }
