@@ -8,10 +8,7 @@ RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned
 	, _mode(RM_UNDEFINED)
 {
 	_transformStack.push({ vec2d{}, 255 });
-	_viewport.left = 0;
-	_viewport.top = 0;
-	_viewport.right = width;
-	_viewport.bottom = height;
+	_clipStack.push(RectRB{ 0, 0, (int)width, (int)height });
 	_render.OnResizeWnd(width, height);
 }
 
@@ -22,36 +19,17 @@ void RenderContext::PushClippingRect(RectRB rect)
 	rect.right += (int) _transformStack.top().offset.x;
 	rect.bottom += (int) _transformStack.top().offset.y;
 
-	if( _clipStack.empty() )
-	{
-		_clipStack.push(rect);
-		_render.SetScissor(&rect);
-	}
-	else
-	{
-		RectRB tmp = _clipStack.top();
-		tmp.left = std::min(std::max(tmp.left, rect.left), rect.right);
-		tmp.top = std::min(std::max(tmp.top, rect.top), rect.bottom);
-		tmp.right = std::max(std::min(tmp.right, rect.right), rect.left);
-		tmp.bottom = std::max(std::min(tmp.bottom, rect.bottom), rect.top);
-		assert(tmp.right >= tmp.left && tmp.bottom >= tmp.top);
-		_clipStack.push(tmp);
-		_render.SetScissor(&tmp);
-	}
+	RectRB newClip = RectClamp(_clipStack.top(), rect);
+	assert(newClip.right >= newClip.left && newClip.bottom >= newClip.top);
+
+	_clipStack.push(newClip);
+	_render.SetScissor(&newClip);
 }
 
 void RenderContext::PopClippingRect()
 {
-	assert(!_clipStack.empty());
 	_clipStack.pop();
-	if( _clipStack.empty() )
-	{
-		_render.SetScissor(&_viewport);
-	}
-	else
-	{
-		_render.SetScissor(&_clipStack.top());
-	}
+	_render.SetScissor(&_clipStack.top());
 }
 
 void RenderContext::PushTransform(vec2d offset, float opacityCombined)
@@ -68,7 +46,7 @@ void RenderContext::PopTransform()
 
 RectRB RenderContext::GetVisibleRegion() const
 {
-	RectRB visibleRegion = _clipStack.empty() ? _viewport : _clipStack.top();
+	RectRB visibleRegion = _clipStack.top();
 	visibleRegion.left -= (int)_transformStack.top().offset.x;
 	visibleRegion.top -= (int)_transformStack.top().offset.y;
 	visibleRegion.right -= (int)_transformStack.top().offset.x;
@@ -744,6 +722,9 @@ void RenderContext::Camera(RectRB viewport, float x, float y, float scale)
 	viewport.top += (int) _transformStack.top().offset.y;
 	viewport.right += (int) _transformStack.top().offset.x;
 	viewport.bottom += (int) _transformStack.top().offset.y;
+
+	viewport = RectClamp(_clipStack.top(), viewport);
+
 	_scale = scale;
 	_render.Camera(&viewport, x, y, scale);
 }

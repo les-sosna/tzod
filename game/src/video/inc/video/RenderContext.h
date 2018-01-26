@@ -54,6 +54,5 @@ private:
 	std::stack<RectRB> _clipStack;
 	std::stack<Transform> _transformStack;
 	float _scale = 1;
-	RectRB _viewport;
 	RenderMode _mode;
 };

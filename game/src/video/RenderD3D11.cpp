@@ -420,7 +420,6 @@ void RenderD3D11::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetViewport(nullptr);
 		Camera(nullptr, 0, 0, 1);
 		_context->PSSetShader(_pixelShaderColor.Get(), nullptr, 0);
 		_context->OMSetBlendState(_blendStateUI.Get(), nullptr, ~0U);
@@ -452,7 +451,7 @@ void RenderD3D11::TexFree(DEV_TEXTURE tex)
 
 void RenderD3D11::Flush()
 {
-	if( _iaSize )
+	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 )
 	{
 		MyConstants constantBufferData;
 		float viewportHalfWidth = (float)WIDTH(_viewport) / 2;
@@ -484,11 +483,10 @@ void RenderD3D11::Flush()
 		_context->UpdateSubresource(_vertexBuffer.Get(), 0, nullptr, &_vertexArray, 0, 0);
 		_context->UpdateSubresource(_indexBuffer.Get(), 0, nullptr, &_indexArray, 0, 0);
 #endif
-
 		_context->DrawIndexed(_iaSize, 0, 0);
-		_vaSize = 0;
-		_iaSize = 0;
 	}
+	_vaSize = 0;
+	_iaSize = 0;
 }
 
 MyVertex* RenderD3D11::DrawQuad(DEV_TEXTURE tex)

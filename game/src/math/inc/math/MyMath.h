@@ -195,6 +195,15 @@ struct RectRB
 inline int WIDTH(const RectRB &rect) { return rect.right - rect.left; }
 inline int HEIGHT(const RectRB &rect) { return rect.bottom - rect.top; }
 
+inline RectRB RectClamp(const RectRB &rect, const RectRB &bounds)
+{
+	return {
+		std::clamp(rect.left, bounds.left, bounds.right),
+		std::clamp(rect.top, bounds.top, bounds.bottom),
+		std::clamp(rect.right, bounds.left, bounds.right),
+		std::clamp(rect.bottom, bounds.top, bounds.bottom) };
+}
+
 inline vec2d Vec2dClamp(const vec2d &vec, const FRECT &rect)
 {
 	return vec2d{ std::max(rect.left, std::min(vec.x, rect.right)), std::max(rect.top, std::min(vec.y, rect.bottom)) };

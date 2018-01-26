@@ -10,7 +10,6 @@ class RenderOpenGL : public IRender
 {
     int _windowWidth;
     int _windowHeight;
-	RectRB   _rtViewport;
 
 	GLuint _curtex;
 	float  _ambient;
@@ -78,9 +77,9 @@ RenderOpenGL::~RenderOpenGL()
 void RenderOpenGL::OnResizeWnd(unsigned int width, unsigned int height)
 {
 	_windowWidth = (int) width;
-    _windowHeight = (int) height;
-    SetViewport(nullptr);
-    SetScissor(nullptr);
+	_windowHeight = (int) height;
+	SetViewport(nullptr);
+	SetScissor(nullptr);
 }
 
 void RenderOpenGL::SetScissor(const RectRB *rect)
@@ -113,16 +112,11 @@ void RenderOpenGL::SetViewport(const RectRB *rect)
 			rect->right - rect->left,         // width
 			rect->bottom - rect->top          // height
 			);
-		_rtViewport = *rect;
 	}
 	else
 	{
 		glOrtho(0, (GLdouble) _windowWidth, (GLdouble) _windowHeight, 0, -1, 1);
 		glViewport(0, 0, _windowWidth, _windowHeight);
-		_rtViewport.left   = 0;
-		_rtViewport.top    = 0;
-		_rtViewport.right  = _windowWidth;
-		_rtViewport.bottom = _windowHeight;
 	}
 }
 
@@ -184,7 +178,6 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetViewport(nullptr);
 		Camera(nullptr, 0, 0, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
