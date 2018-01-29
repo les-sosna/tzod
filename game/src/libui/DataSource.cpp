@@ -30,7 +30,7 @@ std::string_view ListDataSourceBinding::GetLayoutValue(const DataContext &dc) co
 {
 	static std::string empty;
 	auto listDataSource = reinterpret_cast<const ListDataSource*>(dc.GetDataContext());
-	return _column < listDataSource->GetSubItemCount(dc.GetItemIndex()) ?
+	return dc.GetItemIndex() != -1 && _column < listDataSource->GetSubItemCount(dc.GetItemIndex()) ?
 		listDataSource->GetItemText(dc.GetItemIndex(), _column) : empty;
 }
 

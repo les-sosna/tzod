@@ -87,7 +87,7 @@ vec2d List::GetItemSize(TextureManager &texman, float scale, const LayoutConstra
 
 int List::GetCurSel() const
 {
-	return _curSel;
+	return std::min(_curSel, (int) _data->GetItemCount() - 1);
 }
 
 void List::SetCurSel(int sel)

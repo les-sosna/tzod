@@ -147,8 +147,7 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 {
 	DataContext itemDC;
 	{
-		int sel = _list->GetList()->GetCurSel();
-		itemDC.SetItemIndex(sel != -1 ? sel : 0);
+		itemDC.SetItemIndex(_list->GetList()->GetCurSel());
 		itemDC.SetDataContext(_list->GetList()->GetData());
 	}
 	vec2d itemSize = _list->GetList()->GetItemTemplate()->GetContentSize(texman, itemDC, scale, layoutConstraints);
