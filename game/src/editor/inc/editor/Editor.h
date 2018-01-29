@@ -75,8 +75,8 @@ public:
 
 private:
 	vec2d CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const;
-	vec2d WorldToCanvas(const UI::LayoutContext &lc, vec2d worldPos) const;
-	FRECT WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) const;
+	vec2d WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const;
+	FRECT WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, FRECT worldRect) const;
 	GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const;
 	ObjectType GetCurrentType() const;
 	void EraseAt(vec2d worldPos);

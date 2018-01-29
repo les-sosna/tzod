@@ -24,6 +24,7 @@ struct AppWindow
 {
 	virtual AppWindowInputSink* GetInputSink() const = 0;
 	virtual void SetInputSink(AppWindowInputSink *inputSink) = 0;
+	virtual int GetDisplayRotation() const = 0;
 	virtual vec2d GetPixelSize() const = 0;
 	virtual float GetLayoutScale() const = 0;
 	virtual UI::IClipboard& GetClipboard() = 0;

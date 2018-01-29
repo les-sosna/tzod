@@ -97,6 +97,18 @@ bool UIInputRenderingController::OnSystemNavigationBack()
 		dataContext);
 }
 
+static ::DisplayOrientation DOFromDegrees(int degrees)
+{
+	switch (degrees)
+	{
+	default: assert(false);
+	case 0: return DO_0;
+	case 90: return DO_90;
+	case 180: return DO_180;
+	case 270: return DO_270;
+	}
+}
+
 void UIInputRenderingController::OnRefresh()
 {
 	// not needed for single view
@@ -104,8 +116,12 @@ void UIInputRenderingController::OnRefresh()
 
 	vec2d pxWindowSize = _appWindow.GetPixelSize();
 	IRender &render = _appWindow.GetRender();
-	RenderContext rc(_textureManager, render, static_cast<unsigned int>(pxWindowSize.x), static_cast<unsigned int>(pxWindowSize.y));
-	render.Begin();
+
+	auto displayWidth = static_cast<unsigned int>(pxWindowSize.x);
+	auto displayHeight = static_cast<unsigned int>(pxWindowSize.y);
+	render.Begin(displayWidth, displayHeight, DOFromDegrees(_appWindow.GetDisplayRotation()));
+	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
+	RenderContext rc(_textureManager, render, displayWidth, displayHeight);
 
 	UI::DataContext dataContext;
 	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), pxWindowSize, _desktop->GetEnabled(dataContext));

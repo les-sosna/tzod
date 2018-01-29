@@ -21,13 +21,14 @@ public:
 	void PopClippingRect();
 
 	void PushTransform(vec2d offset, float opacityCombined = 1);
+	void PushWorldTransform(vec2d offset, float scale);
 	void PopTransform();
 
-	RectRB GetVisibleRegion() const;
+	FRECT GetVisibleRegion() const;
 	float GetScale() const { return _scale; }
 
 	void DrawSprite(const FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
-	void DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame);
+	void DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align = alignTextLT);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir);
@@ -39,7 +40,6 @@ public:
 	void DrawSpotLight(float intensity, float radius, vec2d pos, vec2d dir, float offset, float aspect);
 	void DrawDirectLight(float intensity, float radius, vec2d pos, vec2d dir, float length);
 
-	void Camera(RectRB viewport, float x, float y, float scale);
 	void SetAmbient(float ambient);
 	void SetMode(const RenderMode mode);
 
@@ -48,6 +48,7 @@ private:
 	{
 		vec2d offset;
 		uint32_t opacity;
+		bool hardware;
 	};
 	const TextureManager &_tm;
 	IRender &_render;

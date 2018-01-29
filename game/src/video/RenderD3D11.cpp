@@ -198,14 +198,6 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 RenderD3D11::RenderD3D11(ID3D11DeviceContext2 *context, SwapChainResources &swapChainResources)
 	: _swapChainResources(swapChainResources)
 	, _context(context)
-	, _windowWidth(0)
-	, _windowHeight(0)
-	, _vaSize(0)
-	, _iaSize(0)
-	, _curtex(nullptr)
-	, _cameraEye()
-	, _cameraScale(1)
-	, _displayOrientation(DO_0)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
@@ -340,44 +332,31 @@ RenderD3D11::~RenderD3D11()
 {
 }
 
-void RenderD3D11::SetDisplayOrientation(DisplayOrientation displayOrientation)
-{
-	_displayOrientation = displayOrientation;
-}
-
-void RenderD3D11::OnResizeWnd(unsigned int width, unsigned int height)
-{
-	_windowWidth = (int) width;
-	_windowHeight = (int) height;
-	SetViewport(nullptr);
-	SetScissor(nullptr);
-}
-
-void RenderD3D11::SetScissor(const RectRB *rect)
+void RenderD3D11::SetScissor(const RectRB &rect)
 {
 	Flush();
-	RectRB scissor = rect ? *rect : RectRB{ 0, 0, _windowWidth, _windowHeight };
-	_context->RSSetScissorRects(1, &AsD3D11Rect(ApplyRectRotation(scissor, _windowWidth, _windowHeight, _displayOrientation)));
+	_context->RSSetScissorRects(1, &AsD3D11Rect(ApplyRectRotation(rect, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
-void RenderD3D11::SetViewport(const RectRB *rect)
+void RenderD3D11::SetViewport(const RectRB &rect)
 {
 	Flush();
-	_viewport = rect ? *rect : RectRB{ 0, 0, _windowWidth, _windowHeight };
+	_viewport = rect;
 	_context->RSSetViewports(1, &AsD3D11Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
-void RenderD3D11::Camera(const RectRB *vp, float x, float y, float scale)
+void RenderD3D11::SetTransform(vec2d offset, float scale)
 {
-	SetViewport(vp);
-	SetScissor(vp);
-
-	_cameraScale = scale;
-	_cameraEye = vec2d{ x, y };
+	Flush();
+	_scale = scale;
+	_offset = -offset;
 }
 
-void RenderD3D11::Begin()
+void RenderD3D11::Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
 {
+	_windowWidth = displayWidth;
+	_windowHeight = displayHeight;
+
 	ID3D11RenderTargetView *const targets[1] = { _swapChainResources.GetBackBufferRenderTargetView() };
 	_context->OMSetRenderTargets(1, targets, nullptr);
 	_context->DiscardView(targets[0]);
@@ -420,7 +399,6 @@ void RenderD3D11::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		Camera(nullptr, 0, 0, 1);
 		_context->PSSetShader(_pixelShaderColor.Get(), nullptr, 0);
 		_context->OMSetBlendState(_blendStateUI.Get(), nullptr, ~0U);
 		break;
@@ -453,20 +431,18 @@ void RenderD3D11::Flush()
 {
 	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 )
 	{
+		using namespace DirectX;
+
 		MyConstants constantBufferData;
 		float viewportHalfWidth = (float)WIDTH(_viewport) / 2;
 		float viewportHalfHeight = (float)HEIGHT(_viewport) / 2;
-		DirectX::XMMATRIX view = _mode == RM_INTERFACE ?
-			DirectX::XMMatrixTranslation(-viewportHalfWidth, -viewportHalfHeight, 0.f) :
-			DirectX::XMMatrixTranslation(
-				std::fmod(viewportHalfWidth, 1.f) / _cameraScale -_cameraEye.x,
-				std::fmod(viewportHalfHeight, 1.f) / _cameraScale - _cameraEye.y,
-				0.f
-			) * DirectX::XMMatrixScaling(_cameraScale, _cameraScale, 1.f);
-		DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicLH(
+		XMMATRIX view = XMMatrixTranslation(-_offset.x / _scale - viewportHalfWidth / _scale,
+		                                    -_offset.y / _scale - viewportHalfHeight / _scale, 0.f)
+			* XMMatrixScaling(_scale, _scale, 1.f);
+		XMMATRIX proj = XMMatrixOrthographicLH(
 			GetProjWidth(_viewport, _displayOrientation), -GetProjHeight(_viewport, _displayOrientation), -1.f, 1.f);
-		DirectX::XMMATRIX orientation = DirectX::XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
-		DirectX::XMStoreFloat4x4(&constantBufferData.viewProj, DirectX::XMMatrixTranspose(view * orientation * proj));
+		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
+		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
 
 #ifdef USE_MAP

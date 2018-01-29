@@ -43,6 +43,7 @@ public:
 	// AppWindow
 	AppWindowInputSink* GetInputSink() const override { return _inputSink; }
 	void SetInputSink(AppWindowInputSink *inputSink) override { _inputSink = inputSink; }
+	int GetDisplayRotation() const override { return 0; }
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
 	UI::IClipboard& GetClipboard() override;

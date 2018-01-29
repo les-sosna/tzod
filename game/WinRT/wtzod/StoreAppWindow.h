@@ -18,6 +18,7 @@ public:
 	// AppWindow
 	AppWindowInputSink* GetInputSink() const override { return *_inputSink; }
 	void SetInputSink(AppWindowInputSink *inputSink) override { *_inputSink = inputSink; }
+	virtual int GetDisplayRotation() const override;
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
 	UI::IClipboard& GetClipboard() override;
@@ -32,7 +33,6 @@ private:
 	Windows::UI::Input::GestureRecognizer ^_gestureRecognizer;
 	Windows::UI::Core::SystemNavigationManager ^_systemNavigationManager;
 	Windows::Graphics::Display::DisplayInformation ^_displayInformation;
-	Windows::Foundation::EventRegistrationToken _regOrientationChanged;
 	Windows::Foundation::EventRegistrationToken _regBackRequested;
 
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;

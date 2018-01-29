@@ -20,22 +20,12 @@ WorldView::~WorldView()
 
 void WorldView::Render(RenderContext &rc,
                        const World &world,
-                       const RectRB &viewport,
-                       vec2d eye,
-                       float zoom,
                        bool editorMode,
                        bool drawGrid,
                        bool nightMode) const
 {
-	eye.x = std::floor(eye.x * zoom) / zoom;
-	eye.y = std::floor(eye.y * zoom) / zoom;
+	FRECT visibleRegion = rc.GetVisibleRegion();
 
-	rc.Camera(viewport, eye.x, eye.y, zoom);
-
-	float left = std::floor((eye.x - (float)WIDTH(viewport) / 2 / zoom) * zoom) / zoom;
-	float top = std::floor((eye.y - (float)HEIGHT(viewport) / 2 / zoom) * zoom) / zoom;
-	float right = left + (float)WIDTH(viewport) / zoom;
-	float bottom = top + (float)HEIGHT(viewport) / zoom;
 
 	//
 	// draw lights to alpha channel
@@ -45,10 +35,10 @@ void WorldView::Render(RenderContext &rc,
 	rc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( nightMode )
 	{
-		float xmin = std::max(world._bounds.left, left);
-		float ymin = std::max(world._bounds.top, top);
-		float xmax = std::min(world._bounds.right, right);
-		float ymax = std::min(world._bounds.bottom, bottom);
+		float xmin = std::max(world._bounds.left, visibleRegion.left);
+		float ymin = std::max(world._bounds.top, visibleRegion.top);
+		float xmax = std::min(world._bounds.right, visibleRegion.right);
+		float ymax = std::min(world._bounds.bottom, visibleRegion.bottom);
 
 		FOREACH( world.GetList(LIST_lights), const GC_Light, pLight )
 		{
@@ -87,10 +77,10 @@ void WorldView::Render(RenderContext &rc,
 
 	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
-	int xmin = std::max(world._locationBounds.left, (int)std::floor(left / WORLD_LOCATION_SIZE - 0.5f));
-	int ymin = std::max(world._locationBounds.top, (int)std::floor(top / WORLD_LOCATION_SIZE - 0.5f));
-	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(right / WORLD_LOCATION_SIZE + 0.5f));
-	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(bottom / WORLD_LOCATION_SIZE + 0.5f));
+	int xmin = std::max(world._locationBounds.left, (int)std::floor(visibleRegion.left / WORLD_LOCATION_SIZE - 0.5f));
+	int ymin = std::max(world._locationBounds.top, (int)std::floor(visibleRegion.top / WORLD_LOCATION_SIZE - 0.5f));
+	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(visibleRegion.right / WORLD_LOCATION_SIZE + 0.5f));
+	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(visibleRegion.bottom / WORLD_LOCATION_SIZE + 0.5f));
 	for( int x = xmin; x <= xmax; ++x )
 	for( int y = ymin; y <= ymax; ++y )
 	{
@@ -132,4 +122,10 @@ void WorldView::Render(RenderContext &rc,
 	}
 
 	rc.SetMode(RM_INTERFACE);
+}
+
+vec2d ComputeWorldTransformOffset(const FRECT &canvasViewport, vec2d eye, float zoom)
+{
+	vec2d eyeOffset = Vec2dFloor(eye * zoom - Size(canvasViewport) / 2);
+	return Offset(canvasViewport) - eyeOffset;
 }

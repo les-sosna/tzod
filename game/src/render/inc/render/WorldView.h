@@ -15,9 +15,6 @@ public:
 	~WorldView();
 	void Render(RenderContext &rc,
 	            const World &world,
-	            const RectRB &viewport,
-	            vec2d eye,
-	            float zoom,
 	            bool editorMode,
 	            bool drawGrid,
 	            bool nightMode) const;
@@ -27,3 +24,5 @@ private:
 	RenderScheme &_renderScheme;
 	Terrain _terrain;
 };
+
+vec2d ComputeWorldTransformOffset(const FRECT &canvasViewport, vec2d eye, float zoom);

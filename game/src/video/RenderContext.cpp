@@ -9,7 +9,6 @@ RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned
 {
 	_transformStack.push({ vec2d{}, 255 });
 	_clipStack.push(RectRB{ 0, 0, (int)width, (int)height });
-	_render.OnResizeWnd(width, height);
 }
 
 void RenderContext::PushClippingRect(RectRB rect)
@@ -23,35 +22,44 @@ void RenderContext::PushClippingRect(RectRB rect)
 	assert(newClip.right >= newClip.left && newClip.bottom >= newClip.top);
 
 	_clipStack.push(newClip);
-	_render.SetScissor(&newClip);
+	_render.SetScissor(newClip);
 }
 
 void RenderContext::PopClippingRect()
 {
 	_clipStack.pop();
-	_render.SetScissor(&_clipStack.top());
+	_render.SetScissor(_clipStack.top());
 }
 
 void RenderContext::PushTransform(vec2d offset, float opacityCombined)
 {
-	assert(!_transformStack.empty());
-	_transformStack.push({ _transformStack.top().offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f) });
+	assert(!_transformStack.top().hardware);
+	_transformStack.push({ _transformStack.top().offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
+}
+
+void RenderContext::PushWorldTransform(vec2d offset, float scale)
+{
+	assert(!_transformStack.top().hardware);
+	_transformStack.push({ _transformStack.top().offset + offset, _transformStack.top().opacity, true /*hardware*/ });
+	_render.SetTransform(_transformStack.top().offset, scale);
+	_scale = scale;
 }
 
 void RenderContext::PopTransform()
 {
 	assert(_transformStack.size() > 1);
+	if (_transformStack.top().hardware)
+	{
+		_render.SetTransform({}, 1);
+		_scale = 1;
+	}
 	_transformStack.pop();
 }
 
-RectRB RenderContext::GetVisibleRegion() const
+FRECT RenderContext::GetVisibleRegion() const
 {
-	RectRB visibleRegion = _clipStack.top();
-	visibleRegion.left -= (int)_transformStack.top().offset.x;
-	visibleRegion.top -= (int)_transformStack.top().offset.y;
-	visibleRegion.right -= (int)_transformStack.top().offset.x;
-	visibleRegion.bottom -= (int)_transformStack.top().offset.y;
-	return visibleRegion;
+	FRECT visibleRegion = RectOffset(RectToFRect(_clipStack.top()), -_transformStack.top().offset);
+	return visibleRegion / _scale;
 }
 
 static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
@@ -73,12 +81,9 @@ void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsi
 
 	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(sprite));
 
-	if (_mode == RM_INTERFACE)
+	if (!_transformStack.top().hardware)
 	{
-		dst.left += _transformStack.top().offset.x;
-		dst.top += _transformStack.top().offset.y;
-		dst.right += _transformStack.top().offset.x;
-		dst.bottom += _transformStack.top().offset.y;
+		dst = RectOffset(dst, _transformStack.top().offset);
 	}
 
 	v[0].color = color;
@@ -106,7 +111,7 @@ void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsi
 	v[3].y = dst.bottom;
 }
 
-void RenderContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor color, unsigned int frame)
+void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
 	color = ApplyOpacity(color, _transformStack.top().opacity);
 
@@ -123,10 +128,10 @@ void RenderContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor colo
 	const float uvBorderWidth = lt.pxBorderSize * uvFrameWidth / lt.pxFrameWidth;
 	const float uvBorderHeight = lt.pxBorderSize * uvFrameHeight / lt.pxFrameHeight;
 
-	const float left = dst.left + _transformStack.top().offset.x;
-	const float top = dst.top + _transformStack.top().offset.y;
-	const float right = dst.right + _transformStack.top().offset.x;
-	const float bottom = dst.bottom + _transformStack.top().offset.y;
+	if (!_transformStack.top().hardware)
+	{
+		dst = RectOffset(dst, _transformStack.top().offset);
+	}
 
 	MyVertex *v;
 	IRender &render = _render;
@@ -136,184 +141,184 @@ void RenderContext::DrawBorder(const FRECT &dst, size_t sprite, SpriteColor colo
 	v[0].color = color;
 	v[0].u = uvFrame.left - uvBorderWidth;
 	v[0].v = uvFrame.top;
-	v[0].x = left;
-	v[0].y = top + lt.pxBorderSize;
+	v[0].x = dst.left;
+	v[0].y = dst.top + lt.pxBorderSize;
 	v[1].color = color;
 	v[1].u = uvFrame.left;
 	v[1].v = uvFrame.top;
-	v[1].x = left + lt.pxBorderSize;
-	v[1].y = top + lt.pxBorderSize;
+	v[1].x = dst.left + lt.pxBorderSize;
+	v[1].y = dst.top + lt.pxBorderSize;
 	v[2].color = color;
 	v[2].u = uvFrame.left;
 	v[2].v = uvFrame.bottom;
-	v[2].x = left + lt.pxBorderSize;
-	v[2].y = bottom - lt.pxBorderSize;
+	v[2].x = dst.left + lt.pxBorderSize;
+	v[2].y = dst.bottom - lt.pxBorderSize;
 	v[3].color = color;
 	v[3].u = uvFrame.left - uvBorderWidth;
 	v[3].v = uvFrame.bottom;
-	v[3].x = left;
-	v[3].y = bottom - lt.pxBorderSize;
+	v[3].x = dst.left;
+	v[3].y = dst.bottom - lt.pxBorderSize;
 
 	// right edge
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.right;
 	v[0].v = uvFrame.top;
-	v[0].x = right - lt.pxBorderSize;
-	v[0].y = top + lt.pxBorderSize;
+	v[0].x = dst.right - lt.pxBorderSize;
+	v[0].y = dst.top + lt.pxBorderSize;
 	v[1].color = color;
 	v[1].u = uvFrame.right + uvBorderWidth;
 	v[1].v = uvFrame.top;
-	v[1].x = right;
-	v[1].y = top + lt.pxBorderSize;
+	v[1].x = dst.right;
+	v[1].y = dst.top + lt.pxBorderSize;
 	v[2].color = color;
 	v[2].u = uvFrame.right + uvBorderWidth;
 	v[2].v = uvFrame.bottom;
-	v[2].x = right;
-	v[2].y = bottom - lt.pxBorderSize;
+	v[2].x = dst.right;
+	v[2].y = dst.bottom - lt.pxBorderSize;
 	v[3].color = color;
 	v[3].u = uvFrame.right;
 	v[3].v = uvFrame.bottom;
-	v[3].x = right - lt.pxBorderSize;
-	v[3].y = bottom - lt.pxBorderSize;
+	v[3].x = dst.right - lt.pxBorderSize;
+	v[3].y = dst.bottom - lt.pxBorderSize;
 
 	// top edge
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.left;
 	v[0].v = uvFrame.top - uvBorderHeight;
-	v[0].x = left + lt.pxBorderSize;
-	v[0].y = top;
+	v[0].x = dst.left + lt.pxBorderSize;
+	v[0].y = dst.top;
 	v[1].color = color;
 	v[1].u = uvFrame.right;
 	v[1].v = uvFrame.top - uvBorderHeight;
-	v[1].x = right - lt.pxBorderSize;
-	v[1].y = top;
+	v[1].x = dst.right - lt.pxBorderSize;
+	v[1].y = dst.top;
 	v[2].color = color;
 	v[2].u = uvFrame.right;
 	v[2].v = uvFrame.top;
-	v[2].x = right - lt.pxBorderSize;
-	v[2].y = top + lt.pxBorderSize;
+	v[2].x = dst.right - lt.pxBorderSize;
+	v[2].y = dst.top + lt.pxBorderSize;
 	v[3].color = color;
 	v[3].u = uvFrame.left;
 	v[3].v = uvFrame.top;
-	v[3].x = left + lt.pxBorderSize;
-	v[3].y = top + lt.pxBorderSize;
+	v[3].x = dst.left + lt.pxBorderSize;
+	v[3].y = dst.top + lt.pxBorderSize;
 
 	// bottom edge
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.left;
 	v[0].v = uvFrame.bottom;
-	v[0].x = left + lt.pxBorderSize;
-	v[0].y = bottom - lt.pxBorderSize;
+	v[0].x = dst.left + lt.pxBorderSize;
+	v[0].y = dst.bottom - lt.pxBorderSize;
 	v[1].color = color;
 	v[1].u = uvFrame.right;
 	v[1].v = uvFrame.bottom;
-	v[1].x = right - lt.pxBorderSize;
-	v[1].y = bottom - lt.pxBorderSize;
+	v[1].x = dst.right - lt.pxBorderSize;
+	v[1].y = dst.bottom - lt.pxBorderSize;
 	v[2].color = color;
 	v[2].u = uvFrame.right;
 	v[2].v = uvFrame.bottom + uvBorderHeight;
-	v[2].x = right - lt.pxBorderSize;
-	v[2].y = bottom;
+	v[2].x = dst.right - lt.pxBorderSize;
+	v[2].y = dst.bottom;
 	v[3].color = color;
 	v[3].u = uvFrame.left;
 	v[3].v = uvFrame.bottom + uvBorderHeight;
-	v[3].x = left + lt.pxBorderSize;
-	v[3].y = bottom;
+	v[3].x = dst.left + lt.pxBorderSize;
+	v[3].y = dst.bottom;
 
 	// left top corner
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.left - uvBorderWidth;
 	v[0].v = uvFrame.top - uvBorderHeight;
-	v[0].x = left;
-	v[0].y = top;
+	v[0].x = dst.left;
+	v[0].y = dst.top;
 	v[1].color = color;
 	v[1].u = uvFrame.left;
 	v[1].v = uvFrame.top - uvBorderHeight;
-	v[1].x = left + lt.pxBorderSize;
-	v[1].y = top;
+	v[1].x = dst.left + lt.pxBorderSize;
+	v[1].y = dst.top;
 	v[2].color = color;
 	v[2].u = uvFrame.left;
 	v[2].v = uvFrame.top;
-	v[2].x = left + lt.pxBorderSize;
-	v[2].y = top + lt.pxBorderSize;
+	v[2].x = dst.left + lt.pxBorderSize;
+	v[2].y = dst.top + lt.pxBorderSize;
 	v[3].color = color;
 	v[3].u = uvFrame.left - uvBorderWidth;
 	v[3].v = uvFrame.top;
-	v[3].x = left;
-	v[3].y = top + lt.pxBorderSize;
+	v[3].x = dst.left;
+	v[3].y = dst.top + lt.pxBorderSize;
 
 	// right top corner
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.right;
 	v[0].v = uvFrame.top - uvBorderHeight;
-	v[0].x = right - lt.pxBorderSize;
-	v[0].y = top;
+	v[0].x = dst.right - lt.pxBorderSize;
+	v[0].y = dst.top;
 	v[1].color = color;
 	v[1].u = uvFrame.right + uvBorderWidth;
 	v[1].v = uvFrame.top - uvBorderHeight;
-	v[1].x = right;
-	v[1].y = top;
+	v[1].x = dst.right;
+	v[1].y = dst.top;
 	v[2].color = color;
 	v[2].u = uvFrame.right + uvBorderWidth;
 	v[2].v = uvFrame.top;
-	v[2].x = right;
-	v[2].y = top + lt.pxBorderSize;
+	v[2].x = dst.right;
+	v[2].y = dst.top + lt.pxBorderSize;
 	v[3].color = color;
 	v[3].u = uvFrame.right;
 	v[3].v = uvFrame.top;
-	v[3].x = right - lt.pxBorderSize;
-	v[3].y = top + lt.pxBorderSize;
+	v[3].x = dst.right - lt.pxBorderSize;
+	v[3].y = dst.top + lt.pxBorderSize;
 
 	// right bottom corner
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.right;
 	v[0].v = uvFrame.bottom;
-	v[0].x = right - lt.pxBorderSize;
-	v[0].y = bottom - lt.pxBorderSize;
+	v[0].x = dst.right - lt.pxBorderSize;
+	v[0].y = dst.bottom - lt.pxBorderSize;
 	v[1].color = color;
 	v[1].u = uvFrame.right + uvBorderWidth;
 	v[1].v = uvFrame.bottom;
-	v[1].x = right;
-	v[1].y = bottom - lt.pxBorderSize;
+	v[1].x = dst.right;
+	v[1].y = dst.bottom - lt.pxBorderSize;
 	v[2].color = color;
 	v[2].u = uvFrame.right + uvBorderWidth;
 	v[2].v = uvFrame.bottom + uvBorderHeight;
-	v[2].x = right;
-	v[2].y = bottom;
+	v[2].x = dst.right;
+	v[2].y = dst.bottom;
 	v[3].color = color;
 	v[3].u = uvFrame.right;
 	v[3].v = uvFrame.bottom + uvBorderHeight;
-	v[3].x = right - lt.pxBorderSize;
-	v[3].y = bottom;
+	v[3].x = dst.right - lt.pxBorderSize;
+	v[3].y = dst.bottom;
 
 	// left bottom corner
 	v = render.DrawQuad(devtex);
 	v[0].color = color;
 	v[0].u = uvFrame.left - uvBorderWidth;
 	v[0].v = uvFrame.bottom;
-	v[0].x = left;
-	v[0].y = bottom - lt.pxBorderSize;
+	v[0].x = dst.left;
+	v[0].y = dst.bottom - lt.pxBorderSize;
 	v[1].color = color;
 	v[1].u = uvFrame.left;
 	v[1].v = uvFrame.bottom;
-	v[1].x = left + lt.pxBorderSize;
-	v[1].y = bottom - lt.pxBorderSize;
+	v[1].x = dst.left + lt.pxBorderSize;
+	v[1].y = dst.bottom - lt.pxBorderSize;
 	v[2].color = color;
 	v[2].u = uvFrame.left;
 	v[2].v = uvFrame.bottom + uvBorderHeight;
-	v[2].x = left + lt.pxBorderSize;
-	v[2].y = bottom;
+	v[2].x = dst.left + lt.pxBorderSize;
+	v[2].y = dst.bottom;
 	v[3].color = color;
 	v[3].u = uvFrame.left - uvBorderWidth;
 	v[3].v = uvFrame.bottom + uvBorderHeight;
-	v[3].x = left;
-	v[3].y = bottom;
+	v[3].x = dst.left;
+	v[3].y = dst.bottom;
 }
 
 void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align)
@@ -346,7 +351,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 		}
 	}
 
-	if (_mode == RM_INTERFACE)
+	if (!_transformStack.top().hardware)
 	{
 		origin += _transformStack.top().offset;
 	}
@@ -422,7 +427,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	if (_mode == RM_INTERFACE)
+	if (!_transformStack.top().hardware)
 	{
 		x += _transformStack.top().offset.x;
 		y += _transformStack.top().offset.y;
@@ -471,7 +476,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	if (_mode == RM_INTERFACE)
+	if (!_transformStack.top().hardware)
 	{
 		x += _transformStack.top().offset.x;
 		y += _transformStack.top().offset.y;
@@ -714,19 +719,6 @@ void RenderContext::DrawDirectLight(float intensity, float radius, vec2d pos, ve
 		v[i+1].y = pos.y + x*dir.y + y*dir.x;
 		v[i+1].color.color = 0x00000000;
 	}
-}
-
-void RenderContext::Camera(RectRB viewport, float x, float y, float scale)
-{
-	viewport.left += (int) _transformStack.top().offset.x;
-	viewport.top += (int) _transformStack.top().offset.y;
-	viewport.right += (int) _transformStack.top().offset.x;
-	viewport.bottom += (int) _transformStack.top().offset.y;
-
-	viewport = RectClamp(_clipStack.top(), viewport);
-
-	_scale = scale;
-	_render.Camera(&viewport, x, y, scale);
 }
 
 void RenderContext::SetAmbient(float ambient)

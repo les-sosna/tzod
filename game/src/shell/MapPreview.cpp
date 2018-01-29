@@ -51,22 +51,17 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 		vec2d eye = Center(world._bounds);
 		float zoom = std::max(pxViewSize.x / worldSize.x, pxViewSize.y / worldSize.y);
 
-		_worldView.Render(
-			rc,
-			world,
-			FRectToRect(pxContentRect),
-			eye,
-			zoom,
-			false, // editorMode
-			false, // drawGrid
-			false  // nightMode
-		);
+		rc.PushClippingRect(FRectToRect(pxContentRect));
+		rc.PushWorldTransform(ComputeWorldTransformOffset(pxContentRect, eye, zoom), zoom);
+		_worldView.Render(rc, world, false /*editorMode*/, false /*drawGrid*/, false /*nightMode*/);
+		rc.PopTransform();
+		rc.PopClippingRect();
 	}
 
 	if (_locked)
 	{
 		rc.DrawSprite(pxContentRect, _texLockShade.GetTextureId(texman), 0xffffffff, 0);
-		
+
 		vec2d pxSize = ToPx(_texLock.GetTextureSize(texman), lc);
 		auto rect = MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxSize) / 2), pxSize);
 		rc.DrawSprite(rect, _texLock.GetTextureId(texman), 0x88888888, 0);

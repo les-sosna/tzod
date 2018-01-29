@@ -27,18 +27,6 @@ using namespace Windows::Devices::Input;
 
 static const float c_defaultDpi = 96.0f;
 
-static ::DisplayOrientation DOFromDegrees(int degrees)
-{
-	switch (degrees)
-	{
-	default: assert(false);
-	case 0: return DO_0;
-	case 90: return DO_90;
-	case 180: return DO_180;
-	case 270: return DO_270;
-	}
-}
-
 static float PixelsFromDips(float dips, float dpi)
 {
 	return dips * dpi / c_defaultDpi;
@@ -134,13 +122,6 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	, _input(coreWindow)
 	, _render(new RenderD3D11(deviceResources.GetD3DDeviceContext(), swapChainResources))
 {
-	_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation)));
-	_regOrientationChanged = _displayInformation->OrientationChanged += ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(
-		[this](DisplayInformation^ sender, Platform::Object^)
-	{
-		_render->SetDisplayOrientation(DOFromDegrees(ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation)));
-	});
-
 	_regBackRequested = _systemNavigationManager->BackRequested += ref new Windows::Foundation::EventHandler<Windows::UI::Core::BackRequestedEventArgs ^>(
 		[inputSink = _inputSink](Platform::Object ^sender, BackRequestedEventArgs ^args)
 	{
@@ -248,7 +229,6 @@ StoreAppWindow::~StoreAppWindow()
 	_coreWindow->PointerMoved -= _regPointerMoved;
 
 	_systemNavigationManager->BackRequested -= _regBackRequested;
-	_displayInformation->OrientationChanged -= _regOrientationChanged;
 
 	// Events may still fire after the event handler is unregistered.
 	// Remove the sink so that handlers could no-op.
@@ -268,6 +248,11 @@ UI::IInput& StoreAppWindow::GetInput()
 IRender& StoreAppWindow::GetRender()
 {
 	return *_render;
+}
+
+int StoreAppWindow::GetDisplayRotation() const
+{
+	return ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation);
 }
 
 vec2d StoreAppWindow::GetPixelSize() const

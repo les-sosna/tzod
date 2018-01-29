@@ -190,7 +190,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 	if (!_itemTemplate)
 		return;
 
-	RectRB visibleRegion = rc.GetVisibleRegion();
+	RectRB visibleRegion = FRectToRect(rc.GetVisibleRegion());
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
 

@@ -6,6 +6,7 @@
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <render/WorldView.h>
+#include <video/RenderContext.h>
 #include <cassert>
 
 
@@ -104,8 +105,8 @@ void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)
 	unsigned int camCount = static_cast<unsigned int>(_cameras.size());
 	for (unsigned int camIndex = 0; camIndex != camCount; ++camIndex)
 	{
-		auto effectiveCount = IsSingleCamera() ? 1 : camCount;
-		auto effectiveIndex = IsSingleCamera() ? 0 : camIndex;
+		auto effectiveCount = IsSingleCamera() ? 4 : camCount;
+		auto effectiveIndex = IsSingleCamera() ? 3 : camIndex;
 		_cameras[camIndex].SetViewport(::GetCameraViewport(_pxWidth, _pxHeight, effectiveCount, effectiveIndex));
 	}
 }
@@ -117,12 +118,21 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) 
 		if (IsSingleCamera())
 		{
 			vec2d eye = GetMaxShakeCamera().GetCameraPos();
-			worldView.Render(rc, _world, GetMaxShakeCamera().GetViewport(), eye, _scale, false, false, _world.GetNightMode());
+			rc.PushClippingRect(GetMaxShakeCamera().GetViewport());
+			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(GetMaxShakeCamera().GetViewport()), eye, _scale), _scale);
+			worldView.Render(rc, _world, false, false, _world.GetNightMode());
+			rc.PopTransform();
+			rc.PopClippingRect();
 		}
-		else for( auto &camera: _cameras )
+		else
+		for( auto &camera: _cameras )
 		{
 			vec2d eye = camera.GetCameraPos();
-			worldView.Render(rc, _world, camera.GetViewport(), eye, _scale, false, false, _world.GetNightMode());
+			rc.PushClippingRect(camera.GetViewport());
+			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(camera.GetViewport()), eye, _scale), _scale);
+			worldView.Render(rc, _world, false, false, _world.GetNightMode());
+			rc.PopTransform();
+			rc.PopClippingRect();
 		}
 	}
 	else
@@ -131,7 +141,11 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) 
 		float zoom = std::max(_pxWidth / WIDTH(_world._bounds), _pxHeight / HEIGHT(_world._bounds));
 
 		RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
-		worldView.Render(rc, _world, viewport, eye, zoom, false, false, _world.GetNightMode());
+		rc.PushClippingRect(viewport);
+		rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
+		worldView.Render(rc, _world, false, false, _world.GetNightMode());
+		rc.PopTransform();
+		rc.PopClippingRect();
 	}
 }
 

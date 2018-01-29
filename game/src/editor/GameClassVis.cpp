@@ -32,7 +32,12 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	bool editorMode = true;
 	bool drawGrid = false;
 	bool nightMode = false;
-	_worldView.Render(rc, _world, viewport, eye, zoom, editorMode, drawGrid, nightMode);
+
+	rc.PushClippingRect(viewport);
+	rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
+	_worldView.Render(rc, _world, editorMode, drawGrid, nightMode);
+	rc.PopTransform();
+	rc.PopClippingRect();
 
 	FRECT sel = MakeRectRB(vec2d{}, lc.GetPixelSize());
 	if (sc.GetState() == "Focused")

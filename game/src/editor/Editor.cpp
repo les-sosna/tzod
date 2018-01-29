@@ -486,13 +486,19 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
 	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	_worldView.Render(rc, _world, viewport, eye, zoom, true, _conf.drawgrid.Get(), _world.GetNightMode());
+	vec2d worldTransformOffset = ComputeWorldTransformOffset(MakeRectWH(lc.GetPixelSize()), eye, zoom);
+
+	rc.PushClippingRect(viewport);
+	rc.PushWorldTransform(worldTransformOffset, zoom);
+	_worldView.Render(rc, _world, true /*editorMode*/, _conf.drawgrid.Get(), _world.GetNightMode());
+	rc.PopTransform();
+	rc.PopClippingRect();
 
 	// Selection
 	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )
 	{
-		FRECT rt = GetSelectionRect(*selectedActor); // in world coord
-		FRECT sel = WorldToCanvas(lc, rt);
+		FRECT sel = GetSelectionRect(*selectedActor); // in world coord
+		sel = WorldToCanvas(worldTransformOffset, zoom, sel);
 
 		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
@@ -510,22 +516,19 @@ vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) 
 {
 	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	return (canvasPos - lc.GetPixelSize() / 2) / zoom + eye;
+	vec2d worldTransformOffset = ComputeWorldTransformOffset(MakeRectWH(lc.GetPixelSize()), eye, zoom);
+
+	return (canvasPos - worldTransformOffset) / zoom;
 }
 
-vec2d EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, vec2d worldPos) const
+vec2d EditorLayout::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const
 {
-	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	return (worldPos - eye) * zoom + lc.GetPixelSize() / 2;
+	return worldPos * worldTransformScale + worldTransformOffset;
 }
 
-FRECT EditorLayout::WorldToCanvas(const UI::LayoutContext &lc, FRECT worldRect) const
+FRECT EditorLayout::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, FRECT worldRect) const
 {
-	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	vec2d offset = (vec2d{ worldRect.left, worldRect.top } - eye) * zoom + lc.GetPixelSize() / 2;
-	return MakeRectWH(offset, Size(worldRect) * zoom);
+	return RectOffset(worldRect * worldTransformScale, worldTransformOffset);
 }
 
 ObjectType EditorLayout::GetCurrentType() const

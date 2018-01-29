@@ -109,7 +109,7 @@ static void DrawWindowRecursive(
 		renderSettings.rc.PushClippingRect(clip);
 	}
 
-	auto visibleRegion = RectToFRect(renderSettings.rc.GetVisibleRegion());
+	FRECT visibleRegion = renderSettings.rc.GetVisibleRegion();
 
 	unsigned int childDepth = depth + 1;
 	for (auto child : wnd)

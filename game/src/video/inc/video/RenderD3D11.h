@@ -26,14 +26,11 @@ public:
 	~RenderD3D11() override;
 
 	// IRender
-	void OnResizeWnd(unsigned int width, unsigned int height) override;
-	void SetDisplayOrientation(DisplayOrientation displayOrientation) override;
+	void SetViewport(const RectRB &rect) override;
+	void SetScissor(const RectRB &rect) override;
+	void SetTransform(vec2d offset, float scale) override;
 
-	void SetViewport(const RectRB *rect) override;
-	void SetScissor(const RectRB *rect) override;
-	void Camera(const RectRB *vp, float x, float y, float scale) override;
-
-	void Begin() override;
+	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation) override;
 	void End() override;
 	void SetMode(const RenderMode mode) override;
 
@@ -66,21 +63,21 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateLight;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> _rasterizerState;
 
-	int _windowWidth;
-	int _windowHeight;
-	RectRB _viewport;
-	vec2d _cameraEye;
-	float _cameraScale;
-	DisplayOrientation _displayOrientation;
+	unsigned int _windowWidth = 0;
+	unsigned int _windowHeight = 0;
+	RectRB _viewport = {};
+	vec2d _offset = {};
+	float _scale = 1;
+	DisplayOrientation _displayOrientation = DO_0;
 
-	void* _curtex;
-	float _ambient;
+	void* _curtex = nullptr;
+	float _ambient = 1.f;
 
 	UINT16 _indexArray[INDEX_ARRAY_SIZE];
 	MyVertex _vertexArray[VERTEX_ARRAY_SIZE];
 
-	unsigned int _vaSize;      // number of filled elements in _vertexArray
-	unsigned int _iaSize;      // number of filled elements in _indexArray
+	unsigned int _vaSize = 0; // number of filled elements in _vertexArray
+	unsigned int _iaSize = 0; // number of filled elements in _indexArray
 
 	RenderMode  _mode;
 };

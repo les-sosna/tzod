@@ -86,17 +86,15 @@ public:
 struct IRender
 {
 	virtual ~IRender() = default;
-	virtual void OnResizeWnd(unsigned int width, unsigned int height) = 0;
-	virtual void SetDisplayOrientation(DisplayOrientation displayOrientation) = 0;
 
-	virtual void SetScissor(const RectRB *rect) = 0;
-	virtual void SetViewport(const RectRB *rect) = 0;
-	virtual void Camera(const RectRB *vp, float x, float y, float scale) = 0;
+	virtual void SetScissor(const RectRB &rect) = 0;
+	virtual void SetViewport(const RectRB &rect) = 0;
+	virtual void SetTransform(vec2d offset, float scale) = 0;
 
 	virtual void SetAmbient(float ambient) = 0;
-	virtual void SetMode (const RenderMode mode) = 0;
-	virtual void Begin   (void) = 0;
-	virtual void End     (void) = 0;
+	virtual void SetMode(const RenderMode mode) = 0;
+	virtual void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation) = 0;
+	virtual void End() = 0;
 
 
 	//

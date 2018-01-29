@@ -8,17 +8,15 @@
 
 class RenderOpenGL : public IRender
 {
-    int _windowWidth;
-    int _windowHeight;
-
-	GLuint _curtex;
-	float  _ambient;
+	GLint _windowHeight = 0;
+	GLuint _curtex = -1;
+	float  _ambient = 0;
 
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
 	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
 
-	unsigned int _vaSize;      // number of filled elements in _VertexArray
-	unsigned int _iaSize;      // number of filled elements in _IndexArray
+	unsigned int _vaSize = 0;      // number of filled elements in _VertexArray
+	unsigned int _iaSize = 0;      // number of filled elements in _IndexArray
 
 	RenderMode  _mode;
 
@@ -29,16 +27,13 @@ public:
 private:
 	void Flush();
 
-	void OnResizeWnd(unsigned int width, unsigned int height) override;
-	void SetDisplayOrientation(DisplayOrientation displayOrientation) override { assert(DO_0 == displayOrientation); }
+	void SetScissor(const RectRB &rect) override;
+	void SetViewport(const RectRB &rect) override;
+	void SetTransform(vec2d offset, float scale) override;
 
-	void SetViewport(const RectRB *rect) override;
-	void SetScissor(const RectRB *rect) override;
-	void Camera(const RectRB *vp, float x, float y, float scale) override;
-
-	void Begin(void) override;
-	void End(void) override;
-	void SetMode (const RenderMode mode) override;
+	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation) override;
+	void End() override;
+	void SetMode(const RenderMode mode) override;
 
 	void SetAmbient(float ambient) override;
 
@@ -60,11 +55,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderOpenGL::RenderOpenGL()
-    : _windowWidth(0)
-    , _windowHeight(0)
-    , _curtex(-1)
-    , _vaSize(0)
-    , _iaSize(0)
+	: _curtex(-1)
+	, _vaSize(0)
+	, _iaSize(0)
 {
 	memset(_IndexArray, 0, sizeof(GLushort) * INDEX_ARRAY_SIZE);
 	memset(_VertexArray, 0, sizeof(MyVertex) * VERTEX_ARRAY_SIZE);
@@ -74,68 +67,42 @@ RenderOpenGL::~RenderOpenGL()
 {
 }
 
-void RenderOpenGL::OnResizeWnd(unsigned int width, unsigned int height)
-{
-	_windowWidth = (int) width;
-	_windowHeight = (int) height;
-	SetViewport(nullptr);
-	SetScissor(nullptr);
-}
-
-void RenderOpenGL::SetScissor(const RectRB *rect)
+void RenderOpenGL::SetScissor(const RectRB &rect)
 {
 	Flush();
-	if( rect )
-	{
-		glScissor(rect->left, _windowHeight - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
-		glEnable(GL_SCISSOR_TEST);
-	}
-	else
-	{
-		glDisable(GL_SCISSOR_TEST);
-	}
+	glScissor(rect.left, _windowHeight - rect.bottom, WIDTH(rect), HEIGHT(rect));
+	glEnable(GL_SCISSOR_TEST);
 }
 
-void RenderOpenGL::SetViewport(const RectRB *rect)
+void RenderOpenGL::SetViewport(const RectRB &rect)
 {
 	Flush();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	if( rect )
-	{
-		glOrtho(0, (GLdouble) (rect->right - rect->left),
-			(GLdouble) (rect->bottom - rect->top), 0, -1, 1);
-		glViewport(
-			rect->left,                       // X
-			_windowHeight - rect->bottom,     // Y
-			rect->right - rect->left,         // width
-			rect->bottom - rect->top          // height
-			);
-	}
-	else
-	{
-		glOrtho(0, (GLdouble) _windowWidth, (GLdouble) _windowHeight, 0, -1, 1);
-		glViewport(0, 0, _windowWidth, _windowHeight);
-	}
+
+	glOrtho(0, (GLdouble) WIDTH(rect), (GLdouble) HEIGHT(rect), 0, -1, 1);
+	glViewport(
+		rect.left,                      // X
+		_windowHeight - rect.bottom,    // Y
+		WIDTH(rect),          // width
+		HEIGHT(rect)          // height
+		);
 }
 
-void RenderOpenGL::Camera(const RectRB *vp, float x, float y, float scale)
+void RenderOpenGL::SetTransform(vec2d offset, float scale)
 {
-	SetViewport(vp);
-	SetScissor(vp);
-
+	Flush();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	if (vp)
-		glTranslatef((float) (WIDTH(*vp) / 2) - x * scale, (float) (HEIGHT(*vp) / 2) - y * scale, 0);
-	else
-		glTranslatef(0, 0, 0);
+	glTranslatef(offset.x, offset.y, 0);
 	glScalef(scale, scale, 1);
 }
 
-void RenderOpenGL::Begin()
+void RenderOpenGL::Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
 {
+	_windowHeight = displayHeight;
+
 	glEnable(GL_BLEND);
 
 	glTexCoordPointer(2, GL_FLOAT,         sizeof(MyVertex), &_VertexArray->u    );
@@ -178,7 +145,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		Camera(nullptr, 0, 0, 1);
+//		Camera(nullptr, 0, 0, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -227,7 +194,8 @@ void RenderOpenGL::Flush()
 	if( _iaSize )
 	{
 		glDrawElements(GL_TRIANGLES, _iaSize, GL_UNSIGNED_SHORT, _IndexArray);
-		_vaSize = _iaSize = 0;
+		_vaSize = 0;
+		_iaSize = 0;
 	}
 }
 
@@ -246,12 +214,12 @@ MyVertex* RenderOpenGL::DrawQuad(DEV_TEXTURE tex)
 
 	MyVertex *result = &_VertexArray[_vaSize];
 
-    _IndexArray[_iaSize]   = _vaSize;
-    _IndexArray[_iaSize+1] = _vaSize+1;
-    _IndexArray[_iaSize+2] = _vaSize+2;
-    _IndexArray[_iaSize+3] = _vaSize;
-    _IndexArray[_iaSize+4] = _vaSize+2;
-    _IndexArray[_iaSize+5] = _vaSize+3;
+	_IndexArray[_iaSize]   = _vaSize;
+	_IndexArray[_iaSize+1] = _vaSize+1;
+	_IndexArray[_iaSize+2] = _vaSize+2;
+	_IndexArray[_iaSize+3] = _vaSize;
+	_IndexArray[_iaSize+4] = _vaSize+2;
+	_IndexArray[_iaSize+5] = _vaSize+3;
 
 	_iaSize += 6;
 	_vaSize += 4;
