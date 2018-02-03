@@ -105,8 +105,8 @@ void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)
 	unsigned int camCount = static_cast<unsigned int>(_cameras.size());
 	for (unsigned int camIndex = 0; camIndex != camCount; ++camIndex)
 	{
-		auto effectiveCount = IsSingleCamera() ? 4 : camCount;
-		auto effectiveIndex = IsSingleCamera() ? 3 : camIndex;
+		auto effectiveCount = IsSingleCamera() ? 1 : camCount;
+		auto effectiveIndex = IsSingleCamera() ? 0 : camIndex;
 		_cameras[camIndex].SetViewport(::GetCameraViewport(_pxWidth, _pxHeight, effectiveCount, effectiveIndex));
 	}
 }
