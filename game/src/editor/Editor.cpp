@@ -406,6 +406,12 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 {
 	switch(key)
 	{
+	case UI::Key::GamepadRightTrigger:
+		_defaultCamera.ZoomIn();
+		break;
+	case UI::Key::GamepadLeftTrigger:
+		_defaultCamera.ZoomOut();
+		break;
 	case UI::Key::Enter:
 		if( _selectedObject )
 		{
