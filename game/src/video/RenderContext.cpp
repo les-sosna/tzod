@@ -6,17 +6,18 @@ RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned
 	: _tm(tm)
 	, _render(render)
 	, _mode(RM_UNDEFINED)
+	, _currentTransform{ vec2d{}, 0xff }
 {
-	_transformStack.push({ vec2d{}, 255 });
+	_transformStack.push(_currentTransform);
 	_clipStack.push(RectRB{ 0, 0, (int)width, (int)height });
 }
 
 void RenderContext::PushClippingRect(RectRB rect)
 {
-	rect.left += (int) _transformStack.top().offset.x;
-	rect.top += (int) _transformStack.top().offset.y;
-	rect.right += (int) _transformStack.top().offset.x;
-	rect.bottom += (int) _transformStack.top().offset.y;
+	rect.left += (int)_currentTransform.offset.x;
+	rect.top += (int)_currentTransform.offset.y;
+	rect.right += (int)_currentTransform.offset.x;
+	rect.bottom += (int)_currentTransform.offset.y;
 
 	RectRB newClip = RectClamp(_clipStack.top(), rect);
 	assert(newClip.right >= newClip.left && newClip.bottom >= newClip.top);
@@ -33,32 +34,35 @@ void RenderContext::PopClippingRect()
 
 void RenderContext::PushTransform(vec2d offset, float opacityCombined)
 {
-	assert(!_transformStack.top().hardware);
-	_transformStack.push({ _transformStack.top().offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
+	assert(!_currentTransform.hardware);
+	_transformStack.push({ _currentTransform.offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
+	_currentTransform = _transformStack.top();
 }
 
 void RenderContext::PushWorldTransform(vec2d offset, float scale)
 {
-	assert(!_transformStack.top().hardware);
-	_transformStack.push({ _transformStack.top().offset + offset, _transformStack.top().opacity, true /*hardware*/ });
-	_render.SetTransform(_transformStack.top().offset, scale);
+	assert(!_currentTransform.hardware);
+	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.opacity, true /*hardware*/ });
+	_currentTransform = _transformStack.top();
 	_scale = scale;
+	_render.SetTransform(_currentTransform.offset, scale);
 }
 
 void RenderContext::PopTransform()
 {
 	assert(_transformStack.size() > 1);
-	if (_transformStack.top().hardware)
+	if (_currentTransform.hardware)
 	{
 		_render.SetTransform({}, 1);
 		_scale = 1;
 	}
 	_transformStack.pop();
+	_currentTransform = _transformStack.top();
 }
 
 FRECT RenderContext::GetVisibleRegion() const
 {
-	FRECT visibleRegion = RectOffset(RectToFRect(_clipStack.top()), -_transformStack.top().offset);
+	FRECT visibleRegion = RectOffset(RectToFRect(_clipStack.top()), -_currentTransform.offset);
 	return visibleRegion / _scale;
 }
 
@@ -71,7 +75,7 @@ static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
 
 void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
-	color = ApplyOpacity(color, _transformStack.top().opacity);
+	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
 		return;
@@ -81,9 +85,9 @@ void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsi
 
 	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(sprite));
 
-	if (!_transformStack.top().hardware)
+	if (!_currentTransform.hardware)
 	{
-		dst = RectOffset(dst, _transformStack.top().offset);
+		dst = RectOffset(dst, _currentTransform.offset);
 	}
 
 	v[0].color = color;
@@ -113,7 +117,7 @@ void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsi
 
 void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame)
 {
-	color = ApplyOpacity(color, _transformStack.top().opacity);
+	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
 		return;
@@ -128,9 +132,9 @@ void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsi
 	const float uvBorderWidth = lt.pxBorderSize * uvFrameWidth / lt.pxFrameWidth;
 	const float uvBorderHeight = lt.pxBorderSize * uvFrameHeight / lt.pxFrameHeight;
 
-	if (!_transformStack.top().hardware)
+	if (!_currentTransform.hardware)
 	{
-		dst = RectOffset(dst, _transformStack.top().offset);
+		dst = RectOffset(dst, _currentTransform.offset);
 	}
 
 	MyVertex *v;
@@ -323,7 +327,7 @@ void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsi
 
 void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align)
 {
-	color = ApplyOpacity(color, _transformStack.top().opacity);
+	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
 		return;
@@ -351,9 +355,9 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 		}
 	}
 
-	if (!_transformStack.top().hardware)
+	if (!_currentTransform.hardware)
 	{
-		origin += _transformStack.top().offset;
+		origin += _currentTransform.offset;
 	}
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
@@ -415,7 +419,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 
 void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
 {
-	color = ApplyOpacity(color, _transformStack.top().opacity);
+	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
 		return;
@@ -427,10 +431,10 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	if (!_transformStack.top().hardware)
+	if (!_currentTransform.hardware)
 	{
-		x += _transformStack.top().offset.x;
-		y += _transformStack.top().offset.y;
+		x += _currentTransform.offset.x;
+		y += _currentTransform.offset.y;
 	}
 
 	float width = lt.pxFrameWidth;
@@ -466,7 +470,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
 {
-	color = ApplyOpacity(color, _transformStack.top().opacity);
+	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
 		return;
@@ -476,10 +480,10 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	if (!_transformStack.top().hardware)
+	if (!_currentTransform.hardware)
 	{
-		x += _transformStack.top().offset.x;
-		y += _transformStack.top().offset.y;
+		x += _currentTransform.offset.x;
+		y += _currentTransform.offset.y;
 	}
 
 	float px = lt.uvPivot.x * width;
@@ -512,7 +516,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 void RenderContext::DrawIndicator(size_t tex, float x, float y, float value)
 {
-	SpriteColor color = ApplyOpacity(0xffffffff, _transformStack.top().opacity);
+	SpriteColor color = ApplyOpacity(0xffffffff, _currentTransform.opacity);
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[0];
@@ -551,7 +555,7 @@ void RenderContext::DrawIndicator(size_t tex, float x, float y, float value)
 void RenderContext::DrawLine(size_t tex, SpriteColor color,
                               float x0, float y0, float x1, float y1, float phase)
 {
-	color = ApplyOpacity(color, _transformStack.top().opacity);
+	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
 		return;
@@ -594,7 +598,7 @@ void RenderContext::DrawLine(size_t tex, SpriteColor color,
 
 void RenderContext::DrawBackground(size_t tex, FRECT bounds) const
 {
-	SpriteColor color = ApplyOpacity(0xffffffff, _transformStack.top().opacity);
+	SpriteColor color = ApplyOpacity(0xffffffff, _currentTransform.opacity);
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _render;

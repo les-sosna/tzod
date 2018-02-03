@@ -54,6 +54,7 @@ private:
 	IRender &_render;
 	std::stack<RectRB> _clipStack;
 	std::stack<Transform> _transformStack;
+	Transform _currentTransform; // local copy of _transformStack.top
 	float _scale = 1;
 	RenderMode _mode;
 };
