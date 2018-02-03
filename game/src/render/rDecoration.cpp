@@ -16,7 +16,7 @@ void R_Decoration::Draw(const World &world, const GC_Actor &actor, RenderContext
 	vec2d pos = decoration.GetPos();
 	vec2d dir = decoration.GetDirection();
 	size_t texId = _tm.FindSprite(decoration.GetTextureName());
-	rc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(texId, 0, 0xffffffff, pos, dir);
 }
 
 enumZOrder Z_Decoration::GetZ(const World &world, const GC_Actor &actor) const

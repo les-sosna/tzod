@@ -32,12 +32,12 @@ void R_Tile::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) 
 		{
 			if (0 == (tile & (1 << i)))
 			{
-				rc.DrawSprite(_texId, frames[i], _color, pos.x + dx[i], pos.y + dy[i], dir);
+				rc.DrawSprite(_texId, frames[i], _color, pos + vec2d{ dx[i], dy[i] }, dir);
 			}
 		}
 	}
 	if (_anyLOD || rc.GetScale() > 0.25)
 	{
-		rc.DrawSprite(_texId, 4, _color, pos.x, pos.y, dir);
+		rc.DrawSprite(_texId, 4, _color, pos, dir);
 	}
 }

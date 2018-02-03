@@ -18,6 +18,6 @@ void R_Shock::Draw(const World &world, const GC_Actor &actor, RenderContext &rc)
 		c.r = c.g = c.b = c.a = int((1.0f - ((shock.GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
 		vec2d pos0 = shock.GetPos();
 		vec2d pos1 = shock.GetTargetPos();
-		rc.DrawLine(_texId, c, pos0.x, pos0.y, pos1.x, pos1.y, frand(1));
+		rc.DrawLine(_texId, c, pos0, pos1, frand(1));
 	}
 }

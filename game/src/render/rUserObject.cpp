@@ -16,7 +16,7 @@ void R_UserObject::Draw(const World &world, const GC_Actor &actor, RenderContext
 	vec2d pos = userObject.GetPos();
 	vec2d dir = userObject.GetDirection();
 	size_t texId = _tm.FindSprite(userObject.GetTextureName());
-	rc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(texId, 0, 0xffffffff, pos, dir);
 }
 
 enumZOrder Z_UserObject::GetZ(const World &world, const GC_Actor &actor) const

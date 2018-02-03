@@ -70,8 +70,8 @@ void R_Particle::Draw(const World &world, const GC_Actor &actor, RenderContext &
 		}
 		float size = particle.GetSizeOverride();
 		if( size < 0 )
-			rc.DrawSprite(texId, frame, color, pos.x, pos.y, dir);
+			rc.DrawSprite(texId, frame, color, pos, dir);
 		else
-			rc.DrawSprite(texId, frame, color, pos.x, pos.y, size, size, dir);
+			rc.DrawSprite(texId, frame, color, pos, size, size, dir);
 	}
 }

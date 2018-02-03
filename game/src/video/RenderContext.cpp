@@ -417,7 +417,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 	}
 }
 
-void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, vec2d dir)
+void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, vec2d pos, vec2d dir)
 {
 	color = ApplyOpacity(color, _currentTransform.opacity);
 
@@ -433,8 +433,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	if (!_currentTransform.hardware)
 	{
-		x += _currentTransform.offset.x;
-		y += _currentTransform.offset.y;
+		pos += _currentTransform.offset;
 	}
 
 	float width = lt.pxFrameWidth;
@@ -446,29 +445,29 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 	v[0].color = color;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
-	v[0].x = x - px * dir.x + py * dir.y;
-	v[0].y = y - px * dir.y - py * dir.x;
+	v[0].x = pos.x - px * dir.x + py * dir.y;
+	v[0].y = pos.y - px * dir.y - py * dir.x;
 
 	v[1].color = color;
 	v[1].u = rt.right;
 	v[1].v = rt.top;
-	v[1].x = x + (width - px) * dir.x + py * dir.y;
-	v[1].y = y + (width - px) * dir.y - py * dir.x;
+	v[1].x = pos.x + (width - px) * dir.x + py * dir.y;
+	v[1].y = pos.y + (width - px) * dir.y - py * dir.x;
 
 	v[2].color = color;
 	v[2].u = rt.right;
 	v[2].v = rt.bottom;
-	v[2].x = x + (width - px) * dir.x - (height - py) * dir.y;
-	v[2].y = y + (width - px) * dir.y + (height - py) * dir.x;
+	v[2].x = pos.x + (width - px) * dir.x - (height - py) * dir.y;
+	v[2].y = pos.y + (width - px) * dir.y + (height - py) * dir.x;
 
 	v[3].color = color;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
-	v[3].x = x - px * dir.x - (height - py) * dir.y;
-	v[3].y = y - px * dir.y + (height - py) * dir.x;
+	v[3].x = pos.x - px * dir.x - (height - py) * dir.y;
+	v[3].y = pos.y - px * dir.y + (height - py) * dir.x;
 }
 
-void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, float x, float y, float width, float height, vec2d dir)
+void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color, vec2d pos, float width, float height, vec2d dir)
 {
 	color = ApplyOpacity(color, _currentTransform.opacity);
 
@@ -482,8 +481,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	if (!_currentTransform.hardware)
 	{
-		x += _currentTransform.offset.x;
-		y += _currentTransform.offset.y;
+		pos += _currentTransform.offset;
 	}
 
 	float px = lt.uvPivot.x * width;
@@ -492,29 +490,29 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 	v[0].color = color;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
-	v[0].x = x - px * dir.x + py * dir.y;
-	v[0].y = y - px * dir.y - py * dir.x;
+	v[0].x = pos.x - px * dir.x + py * dir.y;
+	v[0].y = pos.y - px * dir.y - py * dir.x;
 
 	v[1].color = color;
 	v[1].u = rt.right;
 	v[1].v = rt.top;
-	v[1].x = x + (width - px) * dir.x + py * dir.y;
-	v[1].y = y + (width - px) * dir.y - py * dir.x;
+	v[1].x = pos.x + (width - px) * dir.x + py * dir.y;
+	v[1].y = pos.y + (width - px) * dir.y - py * dir.x;
 
 	v[2].color = color;
 	v[2].u = rt.right;
 	v[2].v = rt.bottom;
-	v[2].x = x + (width - px) * dir.x - (height - py) * dir.y;
-	v[2].y = y + (width - px) * dir.y + (height - py) * dir.x;
+	v[2].x = pos.x + (width - px) * dir.x - (height - py) * dir.y;
+	v[2].y = pos.y + (width - px) * dir.y + (height - py) * dir.x;
 
 	v[3].color = color;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
-	v[3].x = x - px * dir.x - (height - py) * dir.y;
-	v[3].y = y - px * dir.y + (height - py) * dir.x;
+	v[3].x = pos.x - px * dir.x - (height - py) * dir.y;
+	v[3].y = pos.y - px * dir.y + (height - py) * dir.x;
 }
 
-void RenderContext::DrawIndicator(size_t tex, float x, float y, float value)
+void RenderContext::DrawIndicator(size_t tex, vec2d pos, float value)
 {
 	SpriteColor color = ApplyOpacity(0xffffffff, _currentTransform.opacity);
 
@@ -530,30 +528,29 @@ void RenderContext::DrawIndicator(size_t tex, float x, float y, float value)
 	v[0].color = color;
 	v[0].u = rt.left;
 	v[0].v = rt.top;
-	v[0].x = x - px;
-	v[0].y = y - py;
+	v[0].x = pos.x - px;
+	v[0].y = pos.y - py;
 
 	v[1].color = color;
 	v[1].u = rt.left + WIDTH(rt) * value;
 	v[1].v = rt.top;
-	v[1].x = x - px + lt.pxFrameWidth * value;
-	v[1].y = y - py;
+	v[1].x = pos.x - px + lt.pxFrameWidth * value;
+	v[1].y = pos.y - py;
 
 	v[2].color = color;
 	v[2].u = rt.left + WIDTH(rt) * value;
 	v[2].v = rt.bottom;
-	v[2].x = x - px + lt.pxFrameWidth * value;
-	v[2].y = y - py + lt.pxFrameHeight;
+	v[2].x = pos.x - px + lt.pxFrameWidth * value;
+	v[2].y = pos.y - py + lt.pxFrameHeight;
 
 	v[3].color = color;
 	v[3].u = rt.left;
 	v[3].v = rt.bottom;
-	v[3].x = x - px;
-	v[3].y = y - py + lt.pxFrameHeight;
+	v[3].x = pos.x - px;
+	v[3].y = pos.y - py + lt.pxFrameHeight;
 }
 
-void RenderContext::DrawLine(size_t tex, SpriteColor color,
-                              float x0, float y0, float x1, float y1, float phase)
+void RenderContext::DrawLine(size_t tex, SpriteColor color, vec2d begin, vec2d end, float phase)
 {
 	color = ApplyOpacity(color, _currentTransform.opacity);
 
@@ -565,35 +562,35 @@ void RenderContext::DrawLine(size_t tex, SpriteColor color,
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 
-	float len = sqrtf((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
+	float len = (begin - end).len();
 	float phase1 = phase + len / lt.pxFrameWidth;
-	float c = (x1-x0) / len;
-	float s = (y1-y0) / len;
+	float c = (end.x - begin.x) / len;
+	float s = (end.y - begin.y) / len;
 	float py = lt.pxFrameHeight / 2;
 
 	v[0].color = color;
 	v[0].u = phase;
 	v[0].v = 0;
-	v[0].x = x0 + py * s;
-	v[0].y = y0 - py * c;
+	v[0].x = begin.x + py * s;
+	v[0].y = begin.y - py * c;
 
 	v[1].color = color;
 	v[1].u = phase1;
 	v[1].v = 0;
-	v[1].x = x0 + len * c + py * s;
-	v[1].y = y0 + len * s - py * c;
+	v[1].x = begin.x + len * c + py * s;
+	v[1].y = begin.y + len * s - py * c;
 
 	v[2].color = color;
 	v[2].u = phase1;
 	v[2].v = 1;
-	v[2].x = x0 + len * c - py * s;
-	v[2].y = y0 + len * s + py * c;
+	v[2].x = begin.x + len * c - py * s;
+	v[2].y = begin.y + len * s + py * c;
 
 	v[3].color = color;
 	v[3].u = phase;
 	v[3].v = 1;
-	v[3].x = x0 - py * s;
-	v[3].y = y0 + py * c;
+	v[3].x = begin.x - py * s;
+	v[3].y = begin.y + py * c;
 }
 
 void RenderContext::DrawBackground(size_t tex, FRECT bounds) const

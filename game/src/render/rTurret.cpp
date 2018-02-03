@@ -22,14 +22,14 @@ void R_Turret::Draw(const World &world, const GC_Actor &actor, RenderContext &rc
 	unsigned int nFrames = _tm.GetFrameCount(_texPlatform);
 	if (ready == 1)
 	{
-		rc.DrawSprite(_texPlatform, nFrames - 1, 0xffffffff, pos.x, pos.y, dir);
-		rc.DrawSprite(_texWeapon, 0, 0x40000000, pos.x + 4, pos.y + 4, weapDir); // shadow
-		rc.DrawSprite(_texWeapon, 0, 0xffffffff, pos.x, pos.y, weapDir);
+		rc.DrawSprite(_texPlatform, nFrames - 1, 0xffffffff, pos, dir);
+		rc.DrawSprite(_texWeapon, 0, 0x40000000, pos + vec2d{ 4, 4 }, weapDir); // shadow
+		rc.DrawSprite(_texWeapon, 0, 0xffffffff, pos, weapDir);
 	}
 	else
 	{
 		assert(nFrames > 1);
 		unsigned int frame = (unsigned int) ((float) (nFrames - 1) * ready);
-		rc.DrawSprite(_texPlatform, frame, 0xffffffff, pos.x, pos.y, dir);
+		rc.DrawSprite(_texPlatform, frame, 0xffffffff, pos, dir);
 	}
 }

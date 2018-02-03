@@ -218,7 +218,7 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		rc.DrawSprite(bar, 0, 0x44444444, (float)i * _scale + dx, center, 2, _data[i] * scale, vec2d{ 1, 0 });
+		rc.DrawSprite(bar, 0, 0x44444444, vec2d{ (float)i * _scale + dx, center }, 2, _data[i] * scale, vec2d{ 1, 0 });
 	}
 
 	// grid
@@ -229,7 +229,7 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		for( int i = start; i <= stop; ++i )
 		{
 			float y = (float) i * _gridStepY;
-			rc.DrawSprite(bar, 0, 0x44444444, 0, labelOffset - (_rangeMax - y) * scale, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+			rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, labelOffset - (_rangeMax - y) * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 			std::ostringstream buf;
 			buf << y;
 			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
@@ -239,7 +239,7 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	}
 	else
 	{
-		rc.DrawSprite(bar, 0, 0x44444444, 0, labelOffset - _rangeMax * scale, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+		rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, labelOffset - _rangeMax * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 	}
 
 	rc.DrawBitmapText(vec2d{ 0, labelOffset - labelOffset }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, _title);

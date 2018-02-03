@@ -12,5 +12,5 @@ void R_Sprite::Draw(const World &world, const GC_Actor &actor, RenderContext &rc
 {
 	vec2d pos = actor.GetPos();
 	vec2d dir = actor.GetDirection();
-	rc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(_texId, 0, 0xffffffff, pos, dir);
 }

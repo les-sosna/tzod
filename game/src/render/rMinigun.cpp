@@ -21,7 +21,7 @@ void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, RenderCont
 	vec2d dir = GetWeapSpriteDirection(world, minigun);
 	size_t texId = minigun.GetFire() ? ((fmod(world.GetTime(), 0.1f) < 0.05f) ? _texId1 : _texId2) : _texId2;
 	DrawWeaponShadow(world, minigun, rc, texId);
-	rc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(texId, 0, 0xffffffff, pos, dir);
 }
 
 
@@ -41,7 +41,7 @@ void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, RenderContext
 		vec2d dir2 = Vec2dSubDirection(minigun.GetDirection(), delta);
 		vec2d pos1 = minigun.GetPos() + dir1 * 150.0f;
 		vec2d pos2 = minigun.GetPos() + dir2 * 150.0f;
-		rc.DrawSprite(_texId, 0, 0xffffffff, pos1.x, pos1.y, dir1);
-		rc.DrawSprite(_texId, 0, 0xffffffff, pos2.x, pos2.y, dir2);
+		rc.DrawSprite(_texId, 0, 0xffffffff, pos1, dir1);
+		rc.DrawSprite(_texId, 0, 0xffffffff, pos2, dir2);
 	}
 }

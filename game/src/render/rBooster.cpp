@@ -13,5 +13,5 @@ void R_Booster::Draw(const World &world, const GC_Actor &actor, RenderContext &r
 {
 	vec2d pos = actor.GetPos();
 	vec2d dir = Vec2dDirection(world.GetTime() * 50);
-	rc.DrawSprite(_texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(_texId, 0, 0xffffffff, pos, dir);
 }

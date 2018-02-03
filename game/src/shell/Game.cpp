@@ -270,7 +270,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 				pos += dir;
 				uint32_t opacity = uint32_t(std::min(dir.len() / 200.f, 1.f) * 255.f) & 0xff;
 				uint32_t rgb = reversing ? opacity : opacity << 8;
-				rc.DrawSprite(_texDrag.GetTextureId(texman), 0, rgb | (opacity << 24), pos.x, pos.y, dir.Norm());
+				rc.DrawSprite(_texDrag.GetTextureId(texman), 0, rgb | (opacity << 24), pos, dir.Norm());
 			}
 		}
 		
@@ -280,7 +280,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			if (time > 0)
 			{
 				vec2d pos = _gameViewHarness.WorldToCanvas(playerIndex, vehicleStateReader->GetFireTarget());
-				rc.DrawSprite(_texTarget.GetTextureId(texman), 0, 0xff00ff00, pos.x, pos.y, Vec2dDirection(_gameContext->GetWorld().GetTime()*3));
+				rc.DrawSprite(_texTarget.GetTextureId(texman), 0, 0xff00ff00, pos, Vec2dDirection(_gameContext->GetWorld().GetTime()*3));
 			}
 		}
 	}

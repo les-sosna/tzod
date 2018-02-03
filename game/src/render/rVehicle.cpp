@@ -19,8 +19,8 @@ void R_Vehicle::Draw(const World &world, const GC_Actor &actor, RenderContext &r
 	vec2d dir = vehicle.GetDirection();
 	float radius = vehicle.GetRadius();
 	size_t texId = _tm.FindSprite(vehicle.GetSkin());
-	rc.DrawSprite(texId, 0, 0x40000000, pos.x + 4, pos.y + 4, dir);
-	rc.DrawSprite(texId, 0, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(texId, 0, 0x40000000, pos + vec2d{ 4, 4 }, dir);
+	rc.DrawSprite(texId, 0, 0xffffffff, pos, dir);
 
 	if( vehicle.GetOwner() )
 	{

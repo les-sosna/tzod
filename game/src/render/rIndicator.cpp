@@ -20,7 +20,7 @@ void R_HealthIndicator::Draw(const World &world, const GC_Actor &actor, RenderCo
 	vec2d pos = rigidBody.GetPos();
 	float radius = _dynamic ? rigidBody.GetRadius() : rigidBody.GetHalfWidth();
 	float val = rigidBody.GetHealth() / rigidBody.GetHealthMax();
-	rc.DrawIndicator(_texId, pos.x, pos.y - radius - _tm.GetFrameHeight(_texId, 0), val);
+	rc.DrawIndicator(_texId, { pos.x, pos.y - radius - _tm.GetFrameHeight(_texId, 0) }, val);
 }
 
 
@@ -35,7 +35,7 @@ static void DrawWeaponIndicator(const World &world,
 	{
 		vec2d pos = vehicle->GetPos();
 		float radius = vehicle->GetRadius();
-		rc.DrawIndicator(texId, pos.x, pos.y + radius, value);
+		rc.DrawIndicator(texId, { pos.x, pos.y + radius }, value);
 	}
 }
 

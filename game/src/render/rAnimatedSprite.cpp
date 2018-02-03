@@ -16,5 +16,5 @@ void R_AnimatedSprite::Draw(const World &world, const GC_Actor &actor, RenderCon
 	vec2d pos = actor.GetPos();
 	vec2d dir = actor.GetDirection();
 	unsigned int frame = static_cast<unsigned int>(world.GetTime() * _frameRate) % _tm.GetFrameCount(_texId);
-	rc.DrawSprite(_texId, frame, 0xffffffff, pos.x, pos.y, dir);
+	rc.DrawSprite(_texId, frame, 0xffffffff, pos, dir);
 }
