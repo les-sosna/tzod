@@ -29,12 +29,29 @@ struct AIITEMINFO
 
 class AIController
 {
-	struct TargetDesc
-	{
-		GC_Vehicle *target;
-        bool bIsVisible;
-	};
+public:
+	AIController();
+	AIController(FromFile);
+	virtual ~AIController();
 
+	void Serialize(SaveFile &f);
+
+	void OnRespawn(World &world, const GC_Vehicle &vehicle);
+	void OnDie();
+
+	void debug_draw(World &world);
+
+	void SetLevel(int level);
+	int  GetLevel() const { return _difficulty; }
+
+	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);
+	bool Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
+	bool Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p);
+	void Stop();
+
+	void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc);
+
+private:
 	// ai states
 	enum aiState_l2
 	{
@@ -51,12 +68,14 @@ class AIController
 		L1_STICK,
 	} _aiState_l1;
 
-	std::unique_ptr<DrivingAgent> _drivingAgent;
-	std::unique_ptr<ShootingAgent> _shootingAgent;
+	void SetL1(aiState_l1 new_state);
+	void SetL2(aiState_l2 new_state);
 
+	void ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
+	void SelectState(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
 
-	ObjPtr<GC_Pickup>          _pickupCurrent;
-	ObjPtr<GC_RigidBodyStatic> _target;  // current target
+	void SetActive(bool active);
+	bool GetActive() const { return _isActive; }
 
 	bool IsTargetVisible(const World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
 	AIPRIORITY GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target);
@@ -66,45 +85,19 @@ class AIController
 
 	void SelectFavoriteWeapon(World &world);
 
+	struct TargetDesc
+	{
+		GC_Vehicle *target;
+		bool bIsVisible;
+	};
+
+	std::unique_ptr<DrivingAgent> _drivingAgent;
+	std::unique_ptr<ShootingAgent> _shootingAgent;
+
+	ObjPtr<GC_Pickup>          _pickupCurrent;
+	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
 	ObjectType _favoriteWeaponType;
-
 	int _difficulty;
-
-
 	bool _isActive;
-
-protected:
-
-	void ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
-
-	void SetL1(aiState_l1 new_state);
-	void SetL2(aiState_l2 new_state);
-
-	void SelectState(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
-
-	void SetActive(bool active);
-	bool GetActive() const { return _isActive; }
-
-    void Serialize(SaveFile &f);
-
-public:
-	AIController();
-	AIController(FromFile);
-	virtual ~AIController();
-
-    void OnRespawn(World &world, const GC_Vehicle &vehicle);
-    void OnDie();
-
-	void debug_draw(World &world);
-
-	void SetLevel(int level);
-	int  GetLevel() const { return _difficulty; }
-
-	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);
-	bool Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
-	bool Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p);
-	void Stop();
-
-    void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc);
 };

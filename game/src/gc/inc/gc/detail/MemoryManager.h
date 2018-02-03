@@ -18,7 +18,7 @@ template
 >
 class MemoryPool
 {
-    struct Block;
+	struct Block;
 
 	struct BlankObject
 	{
@@ -288,28 +288,28 @@ public:
 #define DECLARE_POOLED_ALLOCATION(cls)          \
 private:                                        \
     static MemoryPool<cls, sizeof(int)> __pool; \
-	static void __fin(void *allocated)          \
-	{                                           \
-		__pool.Free(allocated);                 \
-	}                                           \
+    static void __fin(void *allocated)          \
+    {                                           \
+        __pool.Free(allocated);                 \
+    }                                           \
 public:                                         \
     void* operator new(size_t count)            \
     {                                           \
         assert(sizeof(cls) == count);           \
-		void *_ptr = __pool.Alloc();            \
-		*(unsigned int*) _ptr = 0x80000000;     \
+        void *_ptr = __pool.Alloc();            \
+        *(unsigned int*) _ptr = 0x80000000;     \
         return (unsigned int*) _ptr + 1;        \
     }                                           \
     void operator delete(void *p)               \
     {                                           \
         _DBG_FILL_FREE_PATTERN(p, sizeof(cls)); \
-		unsigned int&cnt(*((unsigned int*)p-1));\
-		cnt &= 0x7fffffff;                      \
-		typedef void (*ObjFinalizerProc) (void *); \
-		if( !cnt )                              \
-			__pool.Free((unsigned int*) p - 1); \
-		else                                    \
-			*(ObjFinalizerProc*) p = __fin;     \
+        unsigned int&cnt(*((unsigned int*)p-1));\
+        cnt &= 0x7fffffff;                      \
+        typedef void (*ObjFinalizerProc) (void *); \
+        if( !cnt )                              \
+            __pool.Free((unsigned int*) p - 1); \
+        else                                    \
+            *(ObjFinalizerProc*) p = __fin;     \
     }
 
 #define IMPLEMENT_POOLED_ALLOCATION(cls)        \

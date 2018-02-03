@@ -20,20 +20,8 @@ enum TurretState
 
 class GC_Turret : public GC_RigidBodyStatic
 {
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_RigidBodyStatic base;
-
-protected:
-	ObjPtr<GC_Vehicle> _target;
-
-protected:
-	virtual void ProcessState(World &world, float dt);
-	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) = 0;
-	bool IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
-	virtual void TargetLost(World &world);
-	GC_Vehicle* EnumTargets(World &world);
-	void SelectTarget(World &world, GC_Vehicle *target);
-	void SetFire(World &world, bool fire);
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_RigidBodyStatic base;
 
 public:
 	GC_Turret(vec2d pos, TurretState state);
@@ -61,6 +49,18 @@ public:
 	void TimeStep(World &world, float dt) override;
 
 protected:
+	ObjPtr<GC_Vehicle> _target;
+
+protected:
+	virtual void ProcessState(World &world, float dt);
+	virtual void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) = 0;
+	bool IsTargetVisible(World &world, GC_Vehicle* target, GC_RigidBodyStatic** pObstacle);
+	virtual void TargetLost(World &world);
+	GC_Vehicle* EnumTargets(World &world);
+	void SelectTarget(World &world, GC_Vehicle *target);
+	void SetFire(World &world, bool fire);
+
+protected:
 	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
 		typedef GC_RigidBodyStatic::MyPropertySet BASE;
@@ -73,7 +73,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-    PropertySet* NewPropertySet() override;
+	PropertySet* NewPropertySet() override;
 
 	void SetState(World &world, TurretState state);
 
@@ -102,18 +102,18 @@ public:
 	virtual ~GC_TurretRocket();
 
 	// GC_Turret
-    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
+	void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
 
 	// GC_RigidBodyStatic
-    float GetDefaultHealth() const override { return 500; }
-    unsigned char GetPassability() const override { return 1; }
+	float GetDefaultHealth() const override { return 500; }
+	unsigned char GetPassability() const override { return 1; }
 
 	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 
 private:
 	float _timeReload;
@@ -131,18 +131,18 @@ public:
 	~GC_TurretCannon();
 
 	// GC_Turret
-    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
+	void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
 
 	// GC_RigidBodyStatic
-    float GetDefaultHealth() const override { return 600; }
-    unsigned char GetPassability() const override { return 1; }
+	float GetDefaultHealth() const override { return 600; }
+	unsigned char GetPassability() const override { return 1; }
 
 	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 
 private:
 	float _timeReload;
@@ -154,6 +154,23 @@ private:
 
 class GC_TurretBunker : public GC_Turret
 {
+public:
+	explicit GC_TurretBunker(vec2d pos);
+	explicit GC_TurretBunker(FromFile);
+	virtual ~GC_TurretBunker();
+
+	float GetReadyState() const override { return _time_wake / _time_wake_max; }
+
+	void SetInitialDir(float initialDir) override;
+
+	// GC_Object
+	void Serialize(World &world, SaveFile &f) override;
+	void MapExchange(MapFile &f) override;
+
+protected:
+	void ProcessState(World &world, float dt) override;
+	void OnDamage(World &world, DamageDesc &dd) override;
+
 private:
 	float _time;
 
@@ -170,23 +187,6 @@ public:
 
 	float _time_wake;    // 0 - hidden
 	float _time_wake_max;
-
-public:
-	explicit GC_TurretBunker(vec2d pos);
-	explicit GC_TurretBunker(FromFile);
-	virtual ~GC_TurretBunker();
-
-    float GetReadyState() const override { return _time_wake / _time_wake_max; }
-
-    void SetInitialDir(float initialDir) override;
-
-	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void MapExchange(MapFile &f) override;
-
-protected:
-    void ProcessState(World &world, float dt) override;
-    void OnDamage(World &world, DamageDesc &dd) override;
 };
 
 /////////////////////////////////////////////////////////////

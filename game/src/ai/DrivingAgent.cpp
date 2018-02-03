@@ -59,7 +59,7 @@ static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 
 float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
-	if (!PtInFRect(world._bounds, to))
+	if (!PtInFRect(world.GetBounds(), to))
 	{
 		return -1;
 	}

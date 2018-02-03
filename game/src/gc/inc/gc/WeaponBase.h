@@ -75,8 +75,8 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-    PropertySet* NewPropertySet() override;
-    void OnAttached(World &world, GC_Vehicle &vehicle) override;
+	PropertySet* NewPropertySet() override;
+	void OnAttached(World &world, GC_Vehicle &vehicle) override;
 
 private:
 	float _detachedTime = -FLT_MAX;

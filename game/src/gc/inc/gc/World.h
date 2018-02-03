@@ -68,18 +68,6 @@ private:
 
 class World
 {
-	World(const World&) = delete;
-	World& operator=(const World&) = delete;
-
-	friend class GC_Object;
-
-	void OnKill(GC_Object &obj);
-
-	std::map<const GC_Object*, std::string> _objectToStringMap;
-	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap; // TODO: try to avoid name string duplication
-
-	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
-
 public:
 	DECLARE_EVENTS(GC_Explosion);
 	DECLARE_EVENTS(GC_Pickup);
@@ -119,13 +107,6 @@ public:
 	std::vector<bool> _waterTiles;
 	std::vector<bool> _woodTiles;
 
-	bool    _gameStarted;
-	bool    _frozen;
-	bool    _nightMode;
-	FRECT   _bounds;
-	RectRB  _blockBounds;
-	RectRB  _locationBounds;
-
 	std::string _infoAuthor;
 	std::string _infoEmail;
 	std::string _infoUrl;
@@ -139,8 +120,9 @@ public:
 	bool  _safeMode;
 
 public:
-
 	explicit World(RectRB blockBounds);
+	World(const World&) = delete;
+	World& operator=(const World&) = delete;
 	~World();
 
 	void Step(float dt);
@@ -217,6 +199,8 @@ public:
 	void Seed(unsigned long seed);
 
 	float GetTime() const { return _time; }
+	const RectRB& GetLocationBounds() const { return _locationBounds; }
+	const FRECT& GetBounds() const { return _bounds; }
 
 #ifdef NETWORK_DEBUG
 	uint32_t GetChecksum() const { return _checksum; }
@@ -252,5 +236,21 @@ private:
 	};
 	std::priority_queue<Resumable> _resumables;
 	float _time;
+
+	bool _gameStarted;
+	bool _frozen;
+	bool _nightMode;
+	FRECT _bounds;
+	RectRB _blockBounds;
+	RectRB _locationBounds;
+
+	friend class GC_Object;
+
+	void OnKill(GC_Object &obj);
+
+	std::map<const GC_Object*, std::string> _objectToStringMap;
+	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap; // TODO: try to avoid name string duplication
+
+	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 };
 

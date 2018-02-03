@@ -8,6 +8,21 @@ class GC_Player;
 
 class GC_Explosion : public GC_Actor
 {
+public:
+	GC_Explosion(vec2d pos);
+	GC_Explosion(FromFile);
+	virtual ~GC_Explosion();
+
+	void SetDamage(float damage) { _damage = damage; }
+	void SetOwner(GC_Player *owner) { _owner = owner; }
+	void SetRadius(float radius);
+	void SetTimeout(World &world, float timeout);
+
+	// GC_Object
+	void Resume(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
+
+private:
 	struct FieldNode
 	{
 		FieldNode *parent;
@@ -16,20 +31,20 @@ class GC_Explosion : public GC_Actor
 		short x;
 		short y;
 		unsigned int distance : 30;
-		bool checked          :  1;
-		bool open             :  1;
+		bool checked : 1;
+		bool open : 1;
 
 		FieldNode()
 		{
 			distance = 0;
-			checked  = false;
-			open     = true;
-			parent   = nullptr;
+			checked = false;
+			open = true;
+			parent = nullptr;
 		};
 
 		float GetRealDistance() const
 		{
-			return (float) distance / 12.0f * (float) WORLD_BLOCK_SIZE;
+			return (float)distance / 12.0f * (float)WORLD_BLOCK_SIZE;
 		}
 	};
 
@@ -50,20 +65,6 @@ class GC_Explosion : public GC_Actor
 	ObjPtr<GC_Player> _owner;
 	float _damage;
 	float _radius;
-
-public:
-	GC_Explosion(vec2d pos);
-	GC_Explosion(FromFile);
-	virtual ~GC_Explosion();
-
-	void SetDamage(float damage) { _damage = damage; }
-	void SetOwner(GC_Player *owner) { _owner = owner; }
-	void SetRadius(float radius);
-	void SetTimeout(World &world, float timeout);
-
-	// GC_Object
-	void Resume(World &world) override;
-	void Serialize(World &world, SaveFile &f) override;
 };
 
 class GC_ExplosionBig : public GC_Explosion

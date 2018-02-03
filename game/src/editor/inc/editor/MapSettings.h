@@ -15,6 +15,14 @@ class World;
 
 class MapSettingsDlg : public UI::Dialog
 {
+public:
+	MapSettingsDlg(World &world/*, const ThemeManager &themeManager*/, LangCache &lang);
+	~MapSettingsDlg();
+
+	void OnOK();
+	void OnCancel();
+
+private:
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 	std::shared_ptr<DefaultComboBox> _theme;
 	std::shared_ptr<UI::Edit> _author;
@@ -23,11 +31,4 @@ class MapSettingsDlg : public UI::Dialog
 	std::shared_ptr<UI::Edit> _desc;
 	std::shared_ptr<UI::Edit> _onInit;
 	World &_world;
-
-public:
-	MapSettingsDlg(World &world/*, const ThemeManager &themeManager*/, LangCache &lang);
-	~MapSettingsDlg();
-
-	void OnOK();
-	void OnCancel();
 };

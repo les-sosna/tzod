@@ -38,28 +38,6 @@ class EditorLayout
 	, private UI::PointerSink
 	, private UI::KeyboardSink
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
-
-	EditorConfig &_conf;
-	LangCache &_lang;
-	DefaultCamera _defaultCamera;
-	std::shared_ptr<PropertyList> _propList;
-	std::shared_ptr<UI::Text> _layerDisp;
-	std::shared_ptr<UI::Text> _help;
-	std::shared_ptr<UI::CheckBox> _modeSelect;
-	std::shared_ptr<UI::CheckBox> _modeErase;
-	std::shared_ptr<DefaultListBox> _typeSelector;
-	std::shared_ptr<UI::StackLayout> _toolbar;
-	UI::Texture _fontSmall = "font_small";
-	UI::Texture _texSelection = "ui/selection";
-
-	ObjPtr<GC_Object> _selectedObject;
-	bool _isObjectNew = false;
-	int  _capturedButton = 0;
-	World &_world;
-	WorldView &_worldView;
-	QuickActions _quickActions;
-
 public:
 	EditorLayout(UI::TimeStepManager &manager,
 		TextureManager &texman,
@@ -109,4 +87,26 @@ private:
 	PointerSink* GetPointerSink() override { return this; }
 	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
+
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
+
+	EditorConfig &_conf;
+	LangCache &_lang;
+	DefaultCamera _defaultCamera;
+	std::shared_ptr<PropertyList> _propList;
+	std::shared_ptr<UI::Text> _layerDisp;
+	std::shared_ptr<UI::Text> _help;
+	std::shared_ptr<UI::CheckBox> _modeSelect;
+	std::shared_ptr<UI::CheckBox> _modeErase;
+	std::shared_ptr<DefaultListBox> _typeSelector;
+	std::shared_ptr<UI::StackLayout> _toolbar;
+	UI::Texture _fontSmall = "font_small";
+	UI::Texture _texSelection = "ui/selection";
+
+	ObjPtr<GC_Object> _selectedObject;
+	bool _isObjectNew = false;
+	int  _capturedButton = 0;
+	World &_world;
+	WorldView &_worldView;
+	QuickActions _quickActions;
 };

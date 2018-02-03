@@ -17,26 +17,6 @@ public:
 		TYPE_MULTISTRING,
 	};
 
-private:
-	std::string               _name;
-	PropertyType              _type;
-	std::string               _str_value;
-	std::vector<std::string>  _value_set;
-	union {
-		size_t             _value_index;
-		int                _int_value;
-		float              _float_value;
-	};
-	union {
-		int                _int_min;
-		float              _float_min;
-	};
-	union {
-		int                _int_max;
-		float              _float_max;
-	};
-
-public:
 	ObjectProperty(PropertyType type, std::string name);
 
 	std::string_view GetName() const;
@@ -77,4 +57,23 @@ public:
 	void   SetCurrentIndex(size_t index);
 	size_t GetListSize() const;
 	std::string_view GetListValue(size_t index) const;
+
+private:
+	std::string               _name;
+	PropertyType              _type;
+	std::string               _str_value;
+	std::vector<std::string>  _value_set;
+	union {
+		size_t             _value_index;
+		int                _int_value;
+		float              _float_value;
+	};
+	union {
+		int                _int_min;
+		float              _float_min;
+	};
+	union {
+		int                _int_max;
+		float              _float_max;
+	};
 };

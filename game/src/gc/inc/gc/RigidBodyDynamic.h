@@ -10,59 +10,6 @@
 
 class GC_RigidBodyDynamic : public GC_RigidBodyStatic
 {
-	DECLARE_LIST_MEMBER(override);
-	typedef GC_RigidBodyStatic base;
-
-	struct Contact
-	{
-		ObjPtr<GC_RigidBodyDynamic> obj1_d;
-		ObjPtr<GC_RigidBodyStatic>  obj2_s;
-		GC_RigidBodyDynamic *obj2_d;
-		vec2d origin;
-		vec2d normal;
-		vec2d tangent;
-		float total_np, total_tp;
-		float depth;
-//		bool  inactive;
-	};
-
-	typedef std::vector<Contact> ContactList;
-	static ContactList _contacts;
-	static std::stack<ContactList> _contactsStack;
-	static bool _glob_parity;
-
-	float geta_s(const vec2d &n, const vec2d &c, const GC_RigidBodyStatic *obj) const;
-	float geta_d(const vec2d &n, const vec2d &c, const GC_RigidBodyDynamic *obj) const;
-
-	void impulse(const vec2d &origin, const vec2d &impulse);
-
-	bool parity() { return CheckFlags(GC_FLAG_RBDYMAMIC_PARITY); }
-
-
-	vec2d _external_force;
-	float _external_momentum;
-	vec2d _external_impulse;
-	float _external_torque;
-
-
-	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
-	{
-		typedef GC_RigidBodyStatic::MyPropertySet BASE;
-		ObjectProperty _propM;  // mass
-		ObjectProperty _propI;  // scalar moment of inertia
-		ObjectProperty _propPercussion;
-		ObjectProperty _propFragility;
-		ObjectProperty _propNx;
-		ObjectProperty _propNy;
-		ObjectProperty _propNw;
-		ObjectProperty _propRotation;
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(World &world, bool applyToObject);
-	};
-
 public:
 	float GetSpinup() const;
 	vec2d GetBrakingLength() const;
@@ -114,7 +61,6 @@ public:
 	//--------------------------------
 
 #ifdef NETWORK_DEBUG
-public:
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(_av);
@@ -142,7 +88,59 @@ public:
 		return GC_RigidBodyStatic::checksum() ^ cs;
 	}
 #endif
-};
+private:
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_RigidBodyStatic base;
 
-///////////////////////////////////////////////////////////////////////////////
-// end of file
+	struct Contact
+	{
+		ObjPtr<GC_RigidBodyDynamic> obj1_d;
+		ObjPtr<GC_RigidBodyStatic>  obj2_s;
+		GC_RigidBodyDynamic *obj2_d;
+		vec2d origin;
+		vec2d normal;
+		vec2d tangent;
+		float total_np, total_tp;
+		float depth;
+		//		bool  inactive;
+	};
+
+	typedef std::vector<Contact> ContactList;
+	static ContactList _contacts;
+	static std::stack<ContactList> _contactsStack;
+	static bool _glob_parity;
+
+	float geta_s(const vec2d &n, const vec2d &c, const GC_RigidBodyStatic *obj) const;
+	float geta_d(const vec2d &n, const vec2d &c, const GC_RigidBodyDynamic *obj) const;
+
+	void impulse(const vec2d &origin, const vec2d &impulse);
+
+	bool parity() { return CheckFlags(GC_FLAG_RBDYMAMIC_PARITY); }
+
+
+	vec2d _external_force;
+	float _external_momentum;
+	vec2d _external_impulse;
+	float _external_torque;
+
+
+	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
+	{
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(World &world, bool applyToObject);
+
+	private:
+		typedef GC_RigidBodyStatic::MyPropertySet BASE;
+		ObjectProperty _propM;  // mass
+		ObjectProperty _propI;  // scalar moment of inertia
+		ObjectProperty _propPercussion;
+		ObjectProperty _propFragility;
+		ObjectProperty _propNx;
+		ObjectProperty _propNy;
+		ObjectProperty _propNw;
+		ObjectProperty _propRotation;
+	};
+};

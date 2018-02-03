@@ -12,13 +12,10 @@
 template <class T>
 class Grid
 {
-	T *_data;
-	RectRB _bounds;
-
 public:
 	Grid()
-	  : _data(nullptr)
-	  , _bounds()
+		: _data(nullptr)
+		, _bounds()
 	{
 	}
 
@@ -80,4 +77,8 @@ public:
 			}
 		}
 	}
+
+private:
+	T * _data;
+	RectRB _bounds;
 };

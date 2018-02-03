@@ -6,22 +6,6 @@ class GC_UserObject : public GC_RigidBodyStatic
 {
 	DECLARE_SELF_REGISTRATION(GC_UserObject);
 
-	std::string _textureName;
-	enumZOrder _zOrder;
-
-protected:
-	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
-	{
-		typedef GC_RigidBodyStatic::MyPropertySet BASE;
-		ObjectProperty _propTexture;
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(World &world, bool applyToObject);
-	};
-	PropertySet* NewPropertySet() override;
-
 public:
 	explicit GC_UserObject(vec2d pos);
 	explicit GC_UserObject(FromFile);
@@ -39,28 +23,12 @@ public:
 	void OnDestroy(World &world, const DamageDesc &dd) override;
 
 	void MapExchange(MapFile &f) override;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_Decoration : public GC_Actor
-{
-	DECLARE_SELF_REGISTRATION(GC_Decoration);
-
-	std::string _textureName;
-	float _frameRate;
-	float _time;
-	enumZOrder _zOrder;
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_RigidBodyStatic::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_RigidBodyStatic::MyPropertySet BASE;
 		ObjectProperty _propTexture;
-		ObjectProperty _propLayer;
-		ObjectProperty _propAnimate;
-		ObjectProperty _propFrame;
-		ObjectProperty _propRotation;
 	public:
 		MyPropertySet(GC_Object *object);
 		virtual int GetCount() const;
@@ -68,6 +36,17 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	PropertySet* NewPropertySet() override;
+
+private:
+	std::string _textureName;
+	enumZOrder _zOrder;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GC_Decoration : public GC_Actor
+{
+	DECLARE_SELF_REGISTRATION(GC_Decoration);
 
 public:
 	explicit GC_Decoration(vec2d pos);
@@ -83,7 +62,28 @@ public:
 	void MapExchange(MapFile &f) override;
 	void Serialize(World &world, SaveFile &f) override;
 	void TimeStep(World &world, float dt) override;
+
+protected:
+	class MyPropertySet : public GC_Actor::MyPropertySet
+	{
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(World &world, bool applyToObject);
+	private:
+		typedef GC_Actor::MyPropertySet BASE;
+		ObjectProperty _propTexture;
+		ObjectProperty _propLayer;
+		ObjectProperty _propAnimate;
+		ObjectProperty _propFrame;
+		ObjectProperty _propRotation;
+	};
+	PropertySet* NewPropertySet() override;
+
+private:
+	std::string _textureName;
+	float _frameRate;
+	float _time;
+	enumZOrder _zOrder;
 };
-
-
-// end of file

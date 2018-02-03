@@ -15,15 +15,6 @@ namespace FS
 
 class SaveFile
 {
-	typedef std::map<GC_Object*, size_t> PtrToIndex;
-	typedef std::vector<GC_Object*> IndexToPtr;
-
-	PtrToIndex _ptrToIndex;
-	IndexToPtr _indexToPtr;
-
-	FS::Stream &_stream;
-	bool _load;
-
 public:
 	SaveFile(FS::Stream &s, bool loading);
 
@@ -56,6 +47,15 @@ private:
 	void Serialize(const ObjPtr<T> &);
 	template<class T>
 	void Serialize(T *) {assert(!"you are not allowed to serialize raw pointers");}
+
+	typedef std::map<GC_Object*, size_t> PtrToIndex;
+	typedef std::vector<GC_Object*> IndexToPtr;
+
+	PtrToIndex _ptrToIndex;
+	IndexToPtr _indexToPtr;
+
+	FS::Stream &_stream;
+	bool _load;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

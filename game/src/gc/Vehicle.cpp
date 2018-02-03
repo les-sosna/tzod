@@ -377,7 +377,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	}
 
 	// die if out of level bounds
-	if( !PtInFRect(world._bounds, GetPos()) )
+	if( !PtInFRect(world.GetBounds(), GetPos()) )
 	{
 	//	if( !TakeDamage(world, GetHealth(), GetPos(), GetOwner()) )
 		{

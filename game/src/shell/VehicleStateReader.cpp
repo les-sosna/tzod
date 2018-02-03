@@ -66,7 +66,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	// lights
 	//
 	bool keyLightPressed = input.IsKeyPressed(_keyLight);
-	if (keyLightPressed && !_lastLightKeyState && world._nightMode)
+	if (keyLightPressed && !_lastLightKeyState && world.GetNightMode())
 	{
 		_lastLightsState = !_lastLightsState;
 	}

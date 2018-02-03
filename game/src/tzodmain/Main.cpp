@@ -15,7 +15,6 @@ namespace
 	class ConsoleLog final
 		: public UI::IConsoleLog
 	{
-		std::ofstream _file;
 	public:
 		ConsoleLog(const ConsoleLog&) = delete;
 		ConsoleLog& operator= (const ConsoleLog&) = delete;
@@ -35,6 +34,8 @@ namespace
 		{
 			delete this;
 		}
+	private:
+		std::ofstream _file;
 	};
 }
 

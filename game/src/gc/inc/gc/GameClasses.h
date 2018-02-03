@@ -17,10 +17,10 @@ public:
 	GC_HealthDaemon(FromFile);
 	virtual ~GC_HealthDaemon();
 
-    void SetVictim(World &world, GC_RigidBodyStatic *victim);
+	void SetVictim(World &world, GC_RigidBodyStatic *victim);
 
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 private:
 	float _time;
@@ -89,18 +89,18 @@ private:
 class GC_Text_ToolTip : public GC_Text
 {
 	DECLARE_SELF_REGISTRATION(GC_Text_ToolTip);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Text base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Text base;
 
 public:
 	GC_Text_ToolTip(vec2d pos, std::string text, Style style);
 	GC_Text_ToolTip(FromFile) : GC_Text(FromFile()) {}
 
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 private:
-    float  _time;
+	float  _time;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

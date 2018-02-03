@@ -19,14 +19,6 @@ namespace UI
 
 class GetFileNameDlg : public UI::Dialog
 {
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
-	std::shared_ptr<DefaultListBox> _files;
-	std::shared_ptr<UI::Edit> _fileName;
-	std::string _ext;
-	std::shared_ptr<FS::FileSystem> _folder;
-
-	bool _changing;
-
 public:
 	struct Params
 	{
@@ -49,4 +41,13 @@ protected:
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key);
 
 	void OnOK();
+
+private:
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
+	std::shared_ptr<DefaultListBox> _files;
+	std::shared_ptr<UI::Edit> _fileName;
+	std::string _ext;
+	std::shared_ptr<FS::FileSystem> _folder;
+
+	bool _changing;
 };

@@ -5,8 +5,6 @@
 template <class T>
 class ObjPtr
 {
-	typedef void (*ObjFinalizerProc) (void *);
-	T *_ptr;
 public:
 	ObjPtr() : _ptr(nullptr) {}
 	ObjPtr(T *f)
@@ -46,6 +44,10 @@ public:
 		assert(*this);
 		return _ptr;
 	}
+
+private:
+	typedef void(*ObjFinalizerProc) (void *);
+	T *_ptr;
 };
 
 template<class U, class T>

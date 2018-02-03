@@ -10,8 +10,8 @@ public:
 	explicit GC_Crate(FromFile);
 	~GC_Crate();
 
-    void OnDestroy(World &world, const DamageDesc &dd) override;
+	void OnDestroy(World &world, const DamageDesc &dd) override;
 
-    float GetDefaultHealth() const override { return 50; }
-    unsigned char GetPassability() const override { return 0; }
+	float GetDefaultHealth() const override { return 50; }
+	unsigned char GetPassability() const override { return 0; }
 };

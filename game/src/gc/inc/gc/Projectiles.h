@@ -14,8 +14,8 @@ class GC_Player;
 
 class GC_Projectile : public GC_Actor
 {
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Actor base;
 
 public:
 	GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail);
@@ -157,13 +157,13 @@ public:
 	virtual ~GC_BfgCore();
 
 	// GC_Object
-    void Init(World &world) override;
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Init(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
-    bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
-    void SpawnTrailParticle(World &world, const vec2d &pos) override;
+	bool OnHit(World &world, GC_RigidBodyStatic *object, const vec2d &hit, const vec2d &norm, float relativeDepth) override;
+	void SpawnTrailParticle(World &world, const vec2d &pos) override;
 
 private:
 	ObjPtr<GC_RigidBodyDynamic> _target;

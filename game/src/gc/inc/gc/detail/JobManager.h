@@ -4,11 +4,8 @@
 template <class T>
 class JobManager
 {
-	std::list<const T*> _members;
-	typename std::list<const T*>::iterator _active;
 public:
-
-    ~JobManager()
+	~JobManager()
 	{
 		assert(_members.empty());
 	}
@@ -31,7 +28,7 @@ public:
 			_active = _members.begin();
 	}
 
-    bool TakeJob(const T *member)
+	bool TakeJob(const T *member)
 	{
 		if( *_active == member )
 		{
@@ -41,4 +38,8 @@ public:
 		}
 		return false;
 	}
+
+private:
+	std::list<const T*> _members;
+	typename std::list<const T*>::iterator _active;
 };

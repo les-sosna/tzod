@@ -13,11 +13,32 @@ class GC_Vehicle;
 class GC_Trigger : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Actor base;
 
+public:
+	explicit GC_Trigger(vec2d pos);
+	explicit GC_Trigger(FromFile);
+	~GC_Trigger();
+
+	std::string_view GetOnEnter() const { return _onEnter; }
+	std::string_view GetOnLeave() const { return _onLeave; }
+
+	// GC_Object
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
+
+private:
 	class MyPropertySet : public GC_Actor::MyPropertySet
 	{
+	public:
+		MyPropertySet(GC_Object *object);
+		virtual int GetCount() const;
+		virtual ObjectProperty* GetProperty(int index);
+		virtual void MyExchange(World &world, bool applyToObject);
+
+	private:
 		typedef GC_Actor::MyPropertySet BASE;
 		ObjectProperty _propActive;
 		ObjectProperty _propTeam;
@@ -27,12 +48,6 @@ class GC_Trigger : public GC_Actor
 		ObjectProperty _propOnlyHuman;
 		ObjectProperty _propOnEnter;
 		ObjectProperty _propOnLeave;
-
-	public:
-		MyPropertySet(GC_Object *object);
-		virtual int GetCount() const;
-		virtual ObjectProperty* GetProperty(int index);
-		virtual void MyExchange(World &world, bool applyToObject);
 	};
 
 	PropertySet* NewPropertySet() override;
@@ -47,17 +62,4 @@ class GC_Trigger : public GC_Actor
 
 	bool GetVisible(World &world, const GC_Vehicle *v) const;
 	bool Test(World &world, const GC_Vehicle *v) const;
-
-public:
-	explicit GC_Trigger(vec2d pos);
-	explicit GC_Trigger(FromFile);
-	~GC_Trigger();
-
-	std::string_view GetOnEnter() const { return _onEnter; }
-	std::string_view GetOnLeave() const { return _onLeave; }
-
-	// GC_Object
-	void MapExchange(MapFile &f) override;
-	void Serialize(World &world, SaveFile &f) override;
-	void TimeStep(World &world, float dt) override;
 };

@@ -20,22 +20,22 @@ public:
 	//-----------------------------
 	void UpdateProperties();
 	FieldCell()
-        : _mySession(0xffffffff)
-        , _ppObjects(nullptr)
-        , _objCount(0)
-        , _prop(0)     // free
+		: _mySession(0xffffffff)
+		, _ppObjects(nullptr)
+		, _objCount(0)
+		, _prop(0)     // free
 	{}
 
 public:
 	const FieldCell *_prevCell;
 
-    int GetObjectsCount() const { return _objCount; }
-    GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
+	int GetObjectsCount() const { return _objCount; }
+	GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
 
-    bool IsChecked() const { return _mySession == _sessionId; }
-    void Check()           { _mySession = _sessionId;         }
+	bool IsChecked() const { return _mySession == _sessionId; }
+	void Check()           { _mySession = _sessionId;         }
 
-    void UpdatePath(float before, short x, short y)
+	void UpdatePath(float before, short x, short y)
 	{
 		int dx = abs(x - GetX());
 		int dy = abs(y - GetY());
@@ -64,7 +64,6 @@ private:
 
 class RefFieldCell
 {
-	FieldCell *_cell;
 public:
 	RefFieldCell(FieldCell &cell) { _cell = &cell; }
 	operator FieldCell& () const { return *_cell; }
@@ -72,17 +71,14 @@ public:
 	{
 		return _cell->Total() > cell._cell->Total();
 	}
+
+private:
+	FieldCell * _cell;
 };
 
 
 class Field
 {
-	FieldCell _edgeCell;
-	FieldCell **_cells;
-	RectRB _bounds;
-
-	void Clear();
-
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
 
@@ -98,4 +94,11 @@ public:
 	{
 		return PtInRect(_bounds, x, y) ? _cells[y - _bounds.top][x - _bounds.left] : _edgeCell;
 	}
+
+private:
+	FieldCell _edgeCell;
+	FieldCell **_cells;
+	RectRB _bounds;
+
+	void Clear();
 };

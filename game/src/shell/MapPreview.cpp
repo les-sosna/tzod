@@ -47,8 +47,8 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	{
 		const World &world = _worldCache.GetCachedWorld(_fs, _mapName->GetRenderValue(dc, sc));
 
-		vec2d worldSize = Size(world._bounds);
-		vec2d eye = Center(world._bounds);
+		vec2d worldSize = Size(world.GetBounds());
+		vec2d eye = Center(world.GetBounds());
 		float zoom = std::max(pxViewSize.x / worldSize.x, pxViewSize.y / worldSize.y);
 
 		rc.PushClippingRect(FRectToRect(pxContentRect));

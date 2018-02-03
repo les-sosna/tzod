@@ -13,6 +13,13 @@ class FpsCounter
 	: public UI::Text
 	, private UI::TimeStepping
 {
+public:
+	FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppState &appState);
+
+protected:
+	void OnTimeStep(const UI::InputContext &ic, float dt);
+
+private:
 	float _minDt = FLT_MAX;
 	float _maxDt = 0;
 	float _totalTime = 0;
@@ -22,12 +29,6 @@ class FpsCounter
 	int _nLights;
 	int _nBatches;
 	AppState &_appState;
-
-public:
-	FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppState &appState);
-
-protected:
-	void OnTimeStep(const UI::InputContext &ic, float dt);
 };
 
 class Oscilloscope : public UI::Rectangle

@@ -9,8 +9,8 @@
 class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Actor base;
 
 public:
 	enum enumLightType
@@ -20,17 +20,6 @@ public:
 		LIGHT_DIRECT,
 	};
 
-private:
-	float  _startTime;
-	float  _timeout;
-	float  _aspect;
-	float  _offset;
-	float  _radius;
-	float  _intensity;
-	enumLightType _type;
-	vec2d  _lightDirection;
-
-public:
 	GC_Light(vec2d pos, enumLightType type);
 	explicit GC_Light(FromFile);
 	virtual ~GC_Light();
@@ -98,8 +87,18 @@ public:
 	bool GetActive() const { return CheckFlags(GC_FLAG_LIGHT_ACTIVE); }
 	void SetActive(bool activate);
 
-    void Resume(World &world) override;
-    void Serialize(World &world, SaveFile &f) override;
+	void Resume(World &world) override;
+	void Serialize(World &world, SaveFile &f) override;
+
+private:
+	float  _startTime;
+	float  _timeout;
+	float  _aspect;
+	float  _offset;
+	float  _radius;
+	float  _intensity;
+	enumLightType _type;
+	vec2d  _lightDirection;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -117,13 +116,13 @@ public:
 	virtual ~GC_Spotlight();
 
 	// GC_Actor
-    void MoveTo(World &world, const vec2d &pos) override;
+	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
-    void Init(World &world) override;
-    void Kill(World &world) override;
-    void MapExchange(MapFile &f) override;
-    void Serialize(World &world, SaveFile &f) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
+	void MapExchange(MapFile &f) override;
+	void Serialize(World &world, SaveFile &f) override;
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -137,7 +136,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-    PropertySet* NewPropertySet() override;
+	PropertySet* NewPropertySet() override;
 
 private:
 	ObjPtr<GC_Light> _light;

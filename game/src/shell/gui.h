@@ -26,27 +26,6 @@ class ListDataSourceMaps;
 class NewGameDlg
 	: public UI::Dialog
 {
-	typedef UI::ListAdapter<ListDataSourceMaps, UI::ListBox> MapList;
-	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
-
-	TextureManager &_texman;
-	ShellConfig &_conf;
-	LangCache &_lang;
-	std::shared_ptr<MapList> _maps;
-	std::shared_ptr<DefaultListBox> _players;
-	std::shared_ptr<DefaultListBox> _bots;
-	std::shared_ptr<UI::CheckBox> _nightMode;
-	std::shared_ptr<UI::Edit> _gameSpeed;
-	std::shared_ptr<UI::Edit> _fragLimit;
-	std::shared_ptr<UI::Edit> _timeLimit;
-
-	std::shared_ptr<UI::Button> _removePlayer;
-	std::shared_ptr<UI::Button> _changePlayer;
-	std::shared_ptr<UI::Button> _removeBot;
-	std::shared_ptr<UI::Button> _changeBot;
-
-	bool _newPlayer;
-
 public:
 	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
@@ -71,12 +50,47 @@ protected:
 	void OnRemoveBot();
 
 	void OnOK();
+
+private:
+	typedef UI::ListAdapter<ListDataSourceMaps, UI::ListBox> MapList;
+	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
+
+	TextureManager &_texman;
+	ShellConfig &_conf;
+	LangCache &_lang;
+	std::shared_ptr<MapList> _maps;
+	std::shared_ptr<DefaultListBox> _players;
+	std::shared_ptr<DefaultListBox> _bots;
+	std::shared_ptr<UI::CheckBox> _nightMode;
+	std::shared_ptr<UI::Edit> _gameSpeed;
+	std::shared_ptr<UI::Edit> _fragLimit;
+	std::shared_ptr<UI::Edit> _timeLimit;
+
+	std::shared_ptr<UI::Button> _removePlayer;
+	std::shared_ptr<UI::Button> _changePlayer;
+	std::shared_ptr<UI::Button> _removeBot;
+	std::shared_ptr<UI::Button> _changeBot;
+
+	bool _newPlayer;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class EditPlayerDlg : public UI::Dialog
 {
+public:
+	EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang);
+
+	// UI::Window
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
+
+protected:
+	void OnChangeSkin(int index);
+
+	// Dialog
+	bool OnClose(int result) override;
+
+private:
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Rectangle> _skinPreview;
@@ -89,24 +103,25 @@ class EditPlayerDlg : public UI::Dialog
 	std::vector<std::pair<std::string, std::string>> _classNames;
 
 	ConfPlayerLocal _info;
-
-public:
-	EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang);
-
-	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
-
-protected:
-	void OnChangeSkin(int index);
-
-	// Dialog
-	bool OnClose(int result) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class EditBotDlg : public UI::Dialog
 {
+public:
+	EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &lang);
+
+	// UI::Window
+	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
+
+protected:
+	void OnOK();
+	void OnCancel();
+
+	void OnChangeSkin(int index);
+
+private:
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ComboBox> DefaultComboBox;
 
 	std::shared_ptr<UI::Edit> _name;
@@ -119,16 +134,4 @@ class EditBotDlg : public UI::Dialog
 	std::vector<std::pair<std::string, std::string>> _classNames;
 
 	ConfPlayerAI _info;
-
-public:
-	EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &lang);
-
-	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
-
-protected:
-	void OnOK();
-	void OnCancel();
-
-	void OnChangeSkin(int index);
 };

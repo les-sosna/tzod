@@ -8,18 +8,6 @@
 
 class RenderOpenGL : public IRender
 {
-	GLint _windowHeight = 0;
-	GLuint _curtex = -1;
-	float  _ambient = 0;
-
-	GLushort _IndexArray[INDEX_ARRAY_SIZE];
-	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
-
-	unsigned int _vaSize = 0;      // number of filled elements in _VertexArray
-	unsigned int _iaSize = 0;      // number of filled elements in _IndexArray
-
-	RenderMode  _mode;
-
 public:
 	RenderOpenGL();
 	~RenderOpenGL() override;
@@ -49,6 +37,18 @@ private:
 	MyVertex* DrawFan(unsigned int nEdges) override;
 
 	void DrawLines(const MyLine *lines, size_t count) override;
+
+	GLint _windowHeight = 0;
+	GLuint _curtex = -1;
+	float  _ambient = 0;
+
+	GLushort _IndexArray[INDEX_ARRAY_SIZE];
+	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
+
+	unsigned int _vaSize = 0;      // number of filled elements in _VertexArray
+	unsigned int _iaSize = 0;      // number of filled elements in _IndexArray
+
+	RenderMode  _mode;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

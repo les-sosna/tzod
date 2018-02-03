@@ -270,7 +270,7 @@ void EditorLayout::EraseAt(vec2d worldPos)
 void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 {
 	vec2d alignedPos = AlignToGrid(worldPos);
-	if (PtInFRect(_world._bounds, alignedPos) &&
+	if (PtInFRect(_world.GetBounds(), alignedPos) &&
 		!PickEdObject(_worldView.GetRenderScheme(), _world, alignedPos))
 	{
 		// create object
@@ -321,7 +321,7 @@ vec2d EditorLayout::AlignToGrid(vec2d worldPos) const
 
 void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 {
-	_defaultCamera.HandleMovement(ic.GetInput(), _world._bounds, dt);
+	_defaultCamera.HandleMovement(ic.GetInput(), _world.GetBounds(), dt);
 
 	// Workaround: we do not get notifications when the object is killed
 	if (!_selectedObject)
@@ -333,7 +333,7 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset)
 {
-	_defaultCamera.Move(scrollOffset, _world._bounds);
+	_defaultCamera.Move(scrollOffset, _world.GetBounds());
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)

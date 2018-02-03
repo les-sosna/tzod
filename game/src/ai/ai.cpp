@@ -497,7 +497,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 		if( L1_STICK == _aiState_l1 || _drivingAgent->_path.empty() )
 		{
 			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE);
-			t = Vec2dClamp(t, world._bounds);
+			t = Vec2dClamp(t, world.GetBounds());
 
 			if (_drivingAgent->CreatePath(world, vehicle.GetPos(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
 			{

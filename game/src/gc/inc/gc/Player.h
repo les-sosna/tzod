@@ -14,7 +14,7 @@ class GC_Vehicle;
 
 class GC_Player : public GC_Service
 {
-    DECLARE_SELF_REGISTRATION(GC_Player);
+	DECLARE_SELF_REGISTRATION(GC_Player);
 	DECLARE_LIST_MEMBER(override);
 	typedef GC_Service base;
 

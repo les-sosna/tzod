@@ -38,12 +38,6 @@ typedef unsigned int ObjectType;
 
 class PropertySet
 {
-	GC_Object       &_object;
-	ObjectProperty   _propName;
-
-protected:
-	virtual void MyExchange(World &world, bool applyToObject);
-
 public:
 	PropertySet(GC_Object *object);
 	virtual ~PropertySet() = default;
@@ -53,6 +47,13 @@ public:
 
 	virtual int GetCount() const;
 	virtual ObjectProperty* GetProperty(int index);
+
+protected:
+	virtual void MyExchange(World &world, bool applyToObject);
+
+private:
+	GC_Object & _object;
+	ObjectProperty   _propName;
 };
 
 ////////////////////////////////////////////////////////////

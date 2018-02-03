@@ -61,32 +61,6 @@ struct StateGen
 
 class Window : public std::enable_shared_from_this<Window>
 {
-	std::shared_ptr<Window> _focusChild;
-	std::deque<std::shared_ptr<Window>> _children;
-
-	std::shared_ptr<LayoutData<bool>> _enabled;
-
-	//
-	// size and position
-	//
-
-	float _x = 0;
-	float _y = 0;
-	float _width = 0;
-	float _height = 0;
-
-
-	//
-	// attributes
-	//
-
-	struct
-	{
-		bool _isVisible      : 1;
-		bool _isTopMost      : 1;
-		bool _clipChildren   : 1;
-	};
-
 public:
 	Window();
 	virtual ~Window();
@@ -171,6 +145,33 @@ public:
 
 	// rendering
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
+
+private:
+	std::shared_ptr<Window> _focusChild;
+	std::deque<std::shared_ptr<Window>> _children;
+
+	std::shared_ptr<LayoutData<bool>> _enabled;
+
+	//
+	// size and position
+	//
+
+	float _x = 0;
+	float _y = 0;
+	float _width = 0;
+	float _height = 0;
+
+
+	//
+	// attributes
+	//
+
+	struct
+	{
+		bool _isVisible : 1;
+		bool _isTopMost : 1;
+		bool _clipChildren : 1;
+	};
 };
 
 inline bool NeedsFocus(const Window *wnd, const DataContext &dc)

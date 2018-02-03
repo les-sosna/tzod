@@ -4,8 +4,15 @@
 class GC_BrickFragment : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Actor base;
+
+public:
+	GC_BrickFragment(vec2d pos, vec2d v0);
+	GC_BrickFragment(FromFile);
+
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 private:
 	int _startFrame;
@@ -14,13 +21,6 @@ private:
 	float _timeLife;
 
 	vec2d _velocity;
-
-public:
-	GC_BrickFragment(vec2d pos, vec2d v0);
-	GC_BrickFragment(FromFile);
-
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,16 +62,8 @@ enum ParticleType
 class GC_Particle : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
-
-public:
-	float _sizeOverride = -1;
-	float _time;
-	float _timeLife;
-	float _rotationSpeed;
-	vec2d _velocity;
-	ParticleType _ptype = PARTICLE_TYPE1;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Actor base;
 
 public:
 	GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient = { 1, 0 });
@@ -89,8 +81,16 @@ public:
 	void SetSizeOverride(float size) { _sizeOverride = size; }
 
 	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
+
+public:
+	float _sizeOverride = -1;
+	float _time;
+	float _timeLife;
+	float _rotationSpeed;
+	vec2d _velocity;
+	ParticleType _ptype = PARTICLE_TYPE1;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

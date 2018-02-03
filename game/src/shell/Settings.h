@@ -22,6 +22,22 @@ namespace UI
 
 class SettingsDlg : public UI::Dialog
 {
+public:
+	SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &lang);
+	virtual ~SettingsDlg();
+
+protected:
+	void OnVolumeSfx(float pos);
+	void OnVolumeMusic(float pos);
+
+	void OnAddProfile();
+	void OnEditProfile();
+	void OnDeleteProfile();
+
+	void UpdateProfilesList();
+	void OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result);
+
+private:
 	UI::ListDataSourceDefault _profilesDataSource;
 
 	std::shared_ptr<UI::StackLayout> _content;
@@ -45,21 +61,6 @@ class SettingsDlg : public UI::Dialog
 
 	ShellConfig &_conf;
 	LangCache &_lang;
-
-public:
-	SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &lang);
-	virtual ~SettingsDlg();
-
-protected:
-	void OnVolumeSfx(float pos);
-	void OnVolumeMusic(float pos);
-
-	void OnAddProfile();
-	void OnEditProfile();
-	void OnDeleteProfile();
-
-	void UpdateProfilesList();
-	void OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int result);
 };
 
 class ControlProfileDlg : public UI::Dialog

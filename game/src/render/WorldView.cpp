@@ -35,10 +35,10 @@ void WorldView::Render(RenderContext &rc,
 	rc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
 	if( nightMode )
 	{
-		float xmin = std::max(world._bounds.left, visibleRegion.left);
-		float ymin = std::max(world._bounds.top, visibleRegion.top);
-		float xmax = std::min(world._bounds.right, visibleRegion.right);
-		float ymax = std::min(world._bounds.bottom, visibleRegion.bottom);
+		float xmin = std::max(world.GetBounds().left, visibleRegion.left);
+		float ymin = std::max(world.GetBounds().top, visibleRegion.top);
+		float xmax = std::min(world.GetBounds().right, visibleRegion.right);
+		float ymax = std::min(world.GetBounds().bottom, visibleRegion.bottom);
 
 		FOREACH( world.GetList(LIST_lights), const GC_Light, pLight )
 		{
@@ -77,10 +77,10 @@ void WorldView::Render(RenderContext &rc,
 
 	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
-	int xmin = std::max(world._locationBounds.left, (int)std::floor(visibleRegion.left / WORLD_LOCATION_SIZE - 0.5f));
-	int ymin = std::max(world._locationBounds.top, (int)std::floor(visibleRegion.top / WORLD_LOCATION_SIZE - 0.5f));
-	int xmax = std::min(world._locationBounds.right - 1, (int)std::floor(visibleRegion.right / WORLD_LOCATION_SIZE + 0.5f));
-	int ymax = std::min(world._locationBounds.bottom - 1, (int)std::floor(visibleRegion.bottom / WORLD_LOCATION_SIZE + 0.5f));
+	int xmin = std::max(world.GetLocationBounds().left, (int)std::floor(visibleRegion.left / WORLD_LOCATION_SIZE - 0.5f));
+	int ymin = std::max(world.GetLocationBounds().top, (int)std::floor(visibleRegion.top / WORLD_LOCATION_SIZE - 0.5f));
+	int xmax = std::min(world.GetLocationBounds().right - 1, (int)std::floor(visibleRegion.right / WORLD_LOCATION_SIZE + 0.5f));
+	int ymax = std::min(world.GetLocationBounds().bottom - 1, (int)std::floor(visibleRegion.bottom / WORLD_LOCATION_SIZE + 0.5f));
 	for( int x = xmin; x <= xmax; ++x )
 	for( int y = ymin; y <= ymax; ++y )
 	{
@@ -112,7 +112,7 @@ void WorldView::Render(RenderContext &rc,
 
 	rc.SetMode(RM_WORLD);
 
-	_terrain.Draw(rc, world._bounds, drawGrid);
+	_terrain.Draw(rc, world.GetBounds(), drawGrid);
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{

@@ -7,11 +7,19 @@ class GC_Vehicle;
 class GC_SpawnPoint : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
+	DECLARE_LIST_MEMBER(override);
+	typedef GC_Actor base;
 
 public:
 	int   _team;    // 0 - no team
+
+public:
+	explicit GC_SpawnPoint(vec2d pos);
+	explicit GC_SpawnPoint(FromFile);
+
+	// GC_Object
+	void Serialize(World &world, SaveFile &f) override;
+	void MapExchange(MapFile &f) override;
 
 protected:
 	class MyPropertySet : public GC_Actor::MyPropertySet
@@ -25,16 +33,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
-    PropertySet* NewPropertySet() override;
-
-
-public:
-	explicit GC_SpawnPoint(vec2d pos);
-	explicit GC_SpawnPoint(FromFile);
-
-	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void MapExchange(MapFile &f) override;
+	PropertySet* NewPropertySet() override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

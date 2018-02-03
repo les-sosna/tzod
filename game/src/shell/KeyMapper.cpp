@@ -6,16 +6,17 @@
 
 class KeyMapper
 {
-	std::map<std::string, UI::Key, std::less<>> _name2code;
-	std::map<UI::Key, std::string> _code2name;
-
-	void Pair(const char *name, UI::Key code);
-
 public:
 	KeyMapper();
 
 	inline std::string_view GetName(UI::Key code) const;
 	inline UI::Key GetCode(std::string_view name) const;
+
+private:
+	std::map<std::string, UI::Key, std::less<>> _name2code;
+	std::map<UI::Key, std::string> _code2name;
+
+	void Pair(const char *name, UI::Key code);
 };
 
 static KeyMapper s_keyMapper;

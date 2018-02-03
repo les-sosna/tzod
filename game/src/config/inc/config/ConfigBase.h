@@ -238,9 +238,11 @@ class LuaConfigCacheBase
 {
 	class helper
 	{
-		ConfVarTable *_root;
 	public:
 		void InitLuaBinding(lua_State *L, const char *name);
+
+	private:
+		ConfVarTable *_root;
 	};
 	helper _helper;
 

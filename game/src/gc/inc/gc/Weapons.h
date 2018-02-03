@@ -17,18 +17,18 @@ public:
 	};
 
 	// GC_ProctileBasedWeapon
-    bool GetContinuousSeries() const override { return !GetBooster(); }
-    float GetFireEffectTime() const override { return 0.1f; }
-    float GetReloadTime() const override { return GetBooster() ? 0.13f : 2.0f; }
-    unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : SERIES_LENGTH; }
-    float GetSeriesReloadTime() const override { return 0.13f; }
+	bool GetContinuousSeries() const override { return !GetBooster(); }
+	float GetFireEffectTime() const override { return 0.1f; }
+	float GetReloadTime() const override { return GetBooster() ? 0.13f : 2.0f; }
+	unsigned int GetSeriesLength() const override { return GetBooster() ? 1 : SERIES_LENGTH; }
+	float GetSeriesReloadTime() const override { return 0.13f; }
 
 	// GC_Weapon
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
-    void AdjustVehicleClass(VehicleClass &vc) const override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,20 +67,20 @@ public:
 	explicit GC_Weap_Cannon(FromFile);
 
 	// GC_ProjectileBasedWeapon
-    float GetFireEffectTime() const override { return 0.2f; }
-    float GetReloadTime() const override { return 0.9f; }
+	float GetFireEffectTime() const override { return 0.2f; }
+	float GetReloadTime() const override { return 0.9f; }
 
 	// GC_Weapon
-    void AdjustVehicleClass(VehicleClass &vc) const override;
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
-    void OnAttached(World &world, GC_Vehicle &vehicle) override;
-    void OnShoot(World &world) override;
+	void OnAttached(World &world, GC_Vehicle &vehicle) override;
+	void OnShoot(World &world) override;
 
 private:
 	float _time_smoke;
@@ -98,15 +98,15 @@ public:
 	explicit GC_Weap_Plazma(FromFile);
 
 	// GC_ProjectileBasedWeapon
-    float GetFireEffectTime() const override { return 0.2f; }
-    float GetReloadTime() const override { return 0.3f; }
+	float GetFireEffectTime() const override { return 0.2f; }
+	float GetReloadTime() const override { return 0.3f; }
 
 	// GC_Weapon
-    void AdjustVehicleClass(VehicleClass &vc) const override;
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -120,15 +120,15 @@ public:
 	explicit GC_Weap_Gauss(FromFile);
 
 	// GC_ProjectileBasedWeapon
-    float GetFireEffectTime() const override { return 0.15f; }
-    float GetReloadTime() const override { return 1.3f; }
+	float GetFireEffectTime() const override { return 0.15f; }
+	float GetReloadTime() const override { return 1.3f; }
 
 	// GC_Weapon
-    void AdjustVehicleClass(VehicleClass &vc) const override;
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,18 +146,18 @@ public:
 	float GetFuelMax() const { return _fuel_max; }
 
 	// GC_Weapon
-    void AdjustVehicleClass(VehicleClass &vc) const override;
-    void Fire(World &world, bool fire) override;
-    bool GetFire() const override;
-    void SetBooster(World &world, GC_pu_Booster *booster) override;
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
+	void Fire(World &world, bool fire) override;
+	bool GetFire() const override;
+	void SetBooster(World &world, GC_pu_Booster *booster) override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 	// GC_Pickup
-    void Detach(World &world) override;
+	void Detach(World &world) override;
 
 	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
     void OnAttached(World &world, GC_Vehicle &vehicle) override;
@@ -185,15 +185,15 @@ public:
 	explicit GC_Weap_BFG(FromFile);
 
 	// GC_ProjectileBasedWeapon
-    bool GetContinuousSeries() const override { return true; }
-    float GetFireEffectTime() const override { return 0; }
-    float GetReloadTime() const override { return 1.1f; }
-    unsigned int GetSeriesLength() const override { return 2; }
-    float GetSeriesReloadTime() const override { return GetBooster() ? 0.0f : 0.7f; }
+	bool GetContinuousSeries() const override { return true; }
+	float GetFireEffectTime() const override { return 0; }
+	float GetReloadTime() const override { return 1.1f; }
+	unsigned int GetSeriesLength() const override { return 2; }
+	float GetSeriesReloadTime() const override { return GetBooster() ? 0.0f : 0.7f; }
 
 	// GC_Weapon
-    void AdjustVehicleClass(VehicleClass &vc) const override;
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 protected:
 	void OnShoot(World &world) override;
@@ -210,15 +210,15 @@ public:
 	explicit GC_Weap_Ripper(FromFile);
 
 	// GC_ProjectileBasedWeapon
-    float GetFireEffectTime() const override { return 0; }
-    float GetReloadTime() const override { return 0.5f; }
+	float GetFireEffectTime() const override { return 0; }
+	float GetReloadTime() const override { return 0.5f; }
 
 	// GC_Weapon
-    void AdjustVehicleClass(VehicleClass &vc) const override;
-    void SetupAI(AIWEAPSETTINGS *pSettings) override;
+	void AdjustVehicleClass(VehicleClass &vc) const override;
+	void SetupAI(AIWEAPSETTINGS *pSettings) override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
