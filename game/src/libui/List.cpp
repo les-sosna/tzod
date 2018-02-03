@@ -177,12 +177,37 @@ void List::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutCont
 	}
 }
 
+FRECT List::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+{
+	// This is not a real child but a hack for scroll to selection to work
+	assert(_itemTemplate.get() == &child);
+
+	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScale(), DefaultLayoutConstraints(lc));
+
+	bool isVertical = _flowDirection == FlowDirection::Vertical;
+
+	vec2d pxItemSize = isVertical ?
+		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };
+
+	int sel = GetCurSel();
+	assert(sel != -1);
+	vec2d pxItemOffset = isVertical ?
+		vec2d{ 0, (float)sel * pxItemSize.y } : vec2d{ (float)sel * pxItemSize.x, 0 };
+
+	return MakeRectWH(pxItemOffset, pxItemSize);
+}
+
 vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
 	vec2d pxItemSize = GetItemSize(texman, scale, layoutConstraints);
 	return _flowDirection == FlowDirection::Vertical ?
 		vec2d{ pxItemSize.x, pxItemSize.y * _data->GetItemCount() } :
 		vec2d{ pxItemSize.x * _data->GetItemCount(), pxItemSize.y };
+}
+
+std::shared_ptr<Window> List::GetFocus() const
+{
+	return GetCurSel() != -1 ? _itemTemplate : nullptr;
 }
 
 void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
