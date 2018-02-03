@@ -7,11 +7,11 @@
 #include <gc/World.h>
 
 Camera::Camera(vec2d pos, GC_Player &player)
-  : _player(player)
-  , _pos(pos)
-  , _target(pos)
-  , _time_shake(0)
-  , _time_seed(frand(1000))
+	: _player(player)
+	, _pos(pos)
+	, _target(pos)
+	, _time_shake(0)
+	, _time_seed(frand(1000))
 {
 }
 

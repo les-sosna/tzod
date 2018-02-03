@@ -12,6 +12,6 @@ Terrain::Terrain(TextureManager &tm)
 void Terrain::Draw(RenderContext &rc, const FRECT &bounds, bool drawGrid) const
 {
 	rc.DrawBackground(_texBack, bounds);
-	if( drawGrid )
+	if( drawGrid && rc.GetScale() > 0.25 )
 		rc.DrawBackground(_texGrid, bounds);
 }

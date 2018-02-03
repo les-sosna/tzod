@@ -6,7 +6,7 @@
 #include <algorithm>
 
 //                              0        1       2      3     4     5     6
-static float s_zoomLevels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 1.5f, 2.0f };
+static float s_zoomLevels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f };
 
 DefaultCamera::DefaultCamera(vec2d pos)
 	: _zoom(1)
@@ -23,13 +23,11 @@ void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
 void DefaultCamera::ZoomIn()
 {
 	_zoomLevel = std::min(_zoomLevel + 1, (int)(sizeof(s_zoomLevels) / sizeof(float)) - 1);
-	_zoom = s_zoomLevels[_zoomLevel];
 }
 
 void DefaultCamera::ZoomOut()
 {
 	_zoomLevel = std::max(_zoomLevel - 1, 0);
-	_zoom = s_zoomLevels[_zoomLevel];
 }
 
 void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, float dt)
@@ -61,6 +59,17 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 	if (input.GetGamepadState(0).rightThumbstickPos.sqr() > .5f)
 	{
 		direction += input.GetGamepadState(0).rightThumbstickPos;
+	}
+
+	float targetZoom = s_zoomLevels[_zoomLevel];
+	if (_zoom != targetZoom)
+	{
+		float exp = std::exp(-dt * 5);
+		float delta = (_zoom - targetZoom) * exp * 0.8f;
+		if (_zoom > targetZoom)
+			_zoom = std::max(targetZoom, targetZoom + delta);
+		else
+			_zoom = std::min(targetZoom, targetZoom + delta);
 	}
 
 	_speed += direction * dt * (6000 + _speed.len() * 8);
