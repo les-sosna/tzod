@@ -61,6 +61,7 @@ private:
 	void CreateAt(vec2d worldPos, bool defaultProperties);
 	void ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties);
 	vec2d AlignToGrid(vec2d worldPos) const;
+	bool CanCreateAt(vec2d worldPos) const;
 
 	void OnChangeUseLayers();
 
