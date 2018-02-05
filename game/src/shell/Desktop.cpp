@@ -408,6 +408,10 @@ void Desktop::UpdateFocus()
 	{
 		SetFocus(_navStack);
 	}
+	else if (_editor)
+	{
+		SetFocus(_editor);
+	}
 	else
 	{
 		SetFocus(_game); // may be null

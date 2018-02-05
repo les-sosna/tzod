@@ -17,7 +17,6 @@ REFLECTION_BEGIN(EditorConfig)
 	VAR_INT(   width,            1024 ) // 1M blocks "should be enough for everyone"
 	VAR_INT(   height,           1024 )
 	VAR_INT(   object,              0 )
-	VAR_BOOL(  showproperties,   true )
 	VAR_BOOL(  showservices,    false )
 	VAR_TABLE( objproperties,    nullptr )
 REFLECTION_END()

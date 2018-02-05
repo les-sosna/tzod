@@ -43,13 +43,14 @@ PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &c
 
 	_scrollView->SetContent(_psheet);
 	AddFront(_scrollView);
+	SetFocus(_scrollView);
 
 	_psheet->SetSpacing(10);
 }
 
 void PropertyList::DoExchange(bool applyToObject)
 {
-	int focus = -1;
+	int focus = 0;
 
 	if( applyToObject )
 	{
@@ -245,10 +246,6 @@ bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	case UI::Key::Enter:
 		DoExchange(true);
 		SaveToConfig(_conf, *_ps);
-		break;
-	case UI::Key::Escape:
-		_conf.showproperties.Set(false);
-		SetVisible(false);
 		break;
 	default:
 		return Dialog::OnKeyPressed(ic, key);

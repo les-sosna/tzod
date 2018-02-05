@@ -32,26 +32,16 @@ void DefaultCamera::ZoomOut()
 
 void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, float dt)
 {
-	static char  lastIn = 0, LastOut = 0;
-
-	if (!lastIn && (input.IsKeyPressed(UI::Key::PageUp)))
-		ZoomIn();
-	lastIn = input.IsKeyPressed(UI::Key::PageUp);
-
-	if (!LastOut && (input.IsKeyPressed(UI::Key::PageDown)))
-		ZoomOut();
-	LastOut = input.IsKeyPressed(UI::Key::PageDown);
-
 	vec2d direction = {};
 
-	if (input.IsKeyPressed(UI::Key::Left))
+	if (input.IsKeyPressed(UI::Key::A))
 		direction.x = -1;
-	else if (input.IsKeyPressed(UI::Key::Right))
+	else if (input.IsKeyPressed(UI::Key::D))
 		direction.x = 1;
 
-	if (input.IsKeyPressed(UI::Key::Up))
+	if (input.IsKeyPressed(UI::Key::W))
 		direction.y = -1;
-	else if (input.IsKeyPressed(UI::Key::Down))
+	else if (input.IsKeyPressed(UI::Key::S))
 		direction.y = 1;
 
 	direction.Normalize();

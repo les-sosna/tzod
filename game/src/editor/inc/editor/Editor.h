@@ -3,6 +3,7 @@
 #include "detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/ObjPtr.h>
+#include <ui/Navigation.h>
 #include <ui/PointerInput.h>
 #include <ui/Texture.h>
 #include <ui/Window.h>
@@ -37,6 +38,7 @@ class EditorLayout
 	, private UI::ScrollSink
 	, private UI::PointerSink
 	, private UI::KeyboardSink
+	, private UI::NavigationSink
 {
 public:
 	EditorLayout(UI::TimeStepManager &manager,
@@ -59,9 +61,12 @@ private:
 	ObjectType GetCurrentType() const;
 	void EraseAt(vec2d worldPos);
 	void CreateAt(vec2d worldPos, bool defaultProperties);
-	void ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties);
-	vec2d AlignToGrid(vec2d worldPos) const;
+	void ActionOrCreateAt(vec2d worldPos, bool defaultProperties);
+	void ActionOrSelectAt(vec2d worldPos);
 	bool CanCreateAt(vec2d worldPos) const;
+	FRECT GetAlignedFocusRect() const;
+	void ChooseNextType();
+	void ChoosePrevType();
 
 	void OnChangeUseLayers();
 
@@ -78,10 +83,16 @@ private:
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
 
+	// UI::NavigationSink
+	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;
+	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc) override;
+
 	// UI::Window
 	void OnTimeStep(const UI::InputContext &ic, float dt) override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+	bool HasNavigationSink() const override { return true; }
+	UI::NavigationSink* GetNavigationSink() override { return this; }
 	bool HasScrollSink() const override { return true; }
 	ScrollSink* GetScrollSink() override { return this; }
 	bool HasPointerSink() const override { return true; }
@@ -105,8 +116,11 @@ private:
 	UI::Texture _texSelection = "ui/selection";
 
 	ObjPtr<GC_Object> _selectedObject;
-	bool _isObjectNew = false;
+	ObjPtr<GC_Object> _recentlyCreatedObject;
 	int  _capturedButton = 0;
+
+	vec2d _virtualPointer = {};
+
 	World &_world;
 	WorldView &_worldView;
 	QuickActions _quickActions;

@@ -230,20 +230,18 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 
 			_selectedObject = object;
 			_propList->ConnectTo(_selectedObject->GetProperties(_world));
-			if( _conf.showproperties.Get() )
-			{
-				_propList->SetVisible(true);
-			}
+			_propList->SetVisible(true);
+			SetFocus(_propList);
 		}
 	}
 	else
 	{
 		assert(object == _selectedObject);
 		_selectedObject = nullptr;
-		_isObjectNew = false;
 
 		_propList->ConnectTo(nullptr);
 		_propList->SetVisible(false);
+		SetFocus(nullptr);
 	}
 }
 
@@ -267,9 +265,17 @@ void EditorLayout::EraseAt(vec2d worldPos)
 	}
 }
 
+static vec2d AlignToGrid(const RTTypes::EdItem &typeInfo, vec2d worldPos)
+{
+	vec2d offset = vec2d{ typeInfo.offset, typeInfo.offset };
+	vec2d halfAlign = vec2d{ typeInfo.align, typeInfo.align } / 2;
+	return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
+}
+
 void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 {
-	vec2d alignedPos = AlignToGrid(worldPos);
+	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+	vec2d alignedPos = AlignToGrid(typeInfo, worldPos);
 	if (CanCreateAt(alignedPos))
 	{
 		// create object
@@ -282,35 +288,24 @@ void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 			properties->Exchange(_world, true);
 		}
 
-		Select(&newobj, true);
-		_isObjectNew = true;
+		_recentlyCreatedObject = &newobj;
 	}
 }
 
-void EditorLayout::ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperties)
+void EditorLayout::ActionOrCreateAt(vec2d worldPos, bool defaultProperties)
 {
-	if( GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
+	if( GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
 	{
-		if( _selectedObject == object )
-		{
-			_quickActions.DoAction(*object);
+		_quickActions.DoAction(*actor);
 
-			_propList->DoExchange(false);
-			if( _isObjectNew )
-				SaveToConfig(_conf, *object->GetProperties(_world));
-		}
-		else if (_modeSelect->GetCheck())
+		if( _recentlyCreatedObject == actor )
 		{
-			Select(object, true);
+			SaveToConfig(_conf, *actor->GetProperties(_world));
 		}
 		else
 		{
-			_quickActions.DoAction(*object);
+			_recentlyCreatedObject = nullptr;
 		}
-	}
-	else if (_modeSelect->GetCheck())
-	{
-		SelectNone();
 	}
 	else
 	{
@@ -318,18 +313,62 @@ void EditorLayout::ActionOrSelectOrCreateAt(vec2d worldPos, bool defaultProperti
 	}
 }
 
-vec2d EditorLayout::AlignToGrid(vec2d worldPos) const
+void EditorLayout::ActionOrSelectAt(vec2d worldPos)
 {
-	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
-	vec2d offset = vec2d{ typeInfo.offset, typeInfo.offset };
-	vec2d halfAlign = vec2d{ typeInfo.align, typeInfo.align } / 2;
-	return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
+	if (GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
+	{
+		if (_selectedObject == object)
+		{
+			_quickActions.DoAction(*object);
+			_propList->DoExchange(false);
+		}
+		else
+		{
+			Select(object, true);
+		}
+	}
+	else
+	{
+		SelectNone();
+	}
 }
 
 bool EditorLayout::CanCreateAt(vec2d worldPos) const
 {
 	return PtInFRect(_world.GetBounds(), worldPos) &&
 		!PickEdObject(_worldView.GetRenderScheme(), _world, worldPos);
+}
+
+static FRECT GetSelectionRect(const GC_Actor &actor)
+{
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
+	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
+}
+
+FRECT EditorLayout::GetAlignedFocusRect() const
+{
+	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, _virtualPointer))
+	{
+		return GetSelectionRect(*actor);
+	}
+	else
+	{
+		auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+		vec2d alignedPos = AlignToGrid(typeInfo, _virtualPointer);
+		return MakeRectWH(alignedPos, vec2d{});
+	}
+}
+
+void EditorLayout::ChooseNextType()
+{
+	_typeSelector->GetList()->SetCurSel(std::clamp(_typeSelector->GetList()->GetCurSel() + 1,
+		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
+}
+
+void EditorLayout::ChoosePrevType()
+{
+	_typeSelector->GetList()->SetCurSel(std::clamp(_typeSelector->GetList()->GetCurSel() - 1,
+		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
 }
 
 void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
@@ -351,6 +390,8 @@ void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, 
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
+	_virtualPointer = CanvasToWorld(lc, pi.position);
+
 	if (_capturedButton)
 	{
 		vec2d worldPos = CanvasToWorld(lc, pi.position);
@@ -402,9 +443,16 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 	}
 	else if (1 == button)
 	{
-		// keep default properties if Ctrl key is not pressed
-		bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
-		ActionOrSelectOrCreateAt(worldPos, defaultProperties);
+		if (_modeSelect->GetCheck())
+		{
+			ActionOrSelectAt(worldPos);
+		}
+		else
+		{
+			// keep default properties if Ctrl key is not pressed
+			bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+			ActionOrCreateAt(worldPos, defaultProperties);
+		}
 	}
 
 	return capture;
@@ -412,7 +460,14 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 
 void EditorLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
-	ActionOrSelectOrCreateAt(CanvasToWorld(lc, pointerPosition), true);
+	if (_modeSelect->GetCheck())
+	{
+		ActionOrSelectAt(CanvasToWorld(lc, pointerPosition));
+	}
+	else
+	{
+		ActionOrCreateAt(CanvasToWorld(lc, pointerPosition), true);
+	}
 }
 
 bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
@@ -420,25 +475,32 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	switch(key)
 	{
 	case UI::Key::GamepadRightTrigger:
+	case UI::Key::PageUp:
 		_defaultCamera.ZoomIn();
 		break;
 	case UI::Key::GamepadLeftTrigger:
+	case UI::Key::PageDown:
 		_defaultCamera.ZoomOut();
 		break;
-	case UI::Key::Enter:
-		if( _selectedObject )
-		{
-			_propList->SetVisible(true);
-			_conf.showproperties.Set(true);
-		}
-		break;
 	case UI::Key::Delete:
+	case UI::Key::GamepadX:
 		if( _selectedObject )
 		{
 			GC_Object *o = _selectedObject;
 			Select(_selectedObject, false);
 			o->Kill(_world);
 		}
+		else
+		{
+			vec2d alignedPointerPos = Center(GetAlignedFocusRect());
+			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, alignedPointerPos))
+			{
+				actor->Kill(_world);
+			}
+		}
+		break;
+	case UI::Key::GamepadY:
+		ActionOrSelectAt(Center(GetAlignedFocusRect()));
 		break;
 	case UI::Key::F1:
 		_help->SetVisible(!_help->GetVisible());
@@ -449,20 +511,87 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	case UI::Key::G:
 		_conf.drawgrid.Set(!_conf.drawgrid.Get());
 		break;
-	case UI::Key::Escape:
-		if( _selectedObject )
-		{
-			Select(_selectedObject, false);
-		}
-		else
-		{
-			return false;
-		}
+	case UI::Key::LeftBracket:
+	case UI::Key::GamepadLeftShoulder:
+		ChoosePrevType();
+		break;
+	case UI::Key::RightBracket:
+	case UI::Key::GamepadRightShoulder:
+		ChooseNextType();
 		break;
 	default:
 		return false;
 	}
 	return true;
+}
+
+bool EditorLayout::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+{
+	switch (navigate)
+	{
+	case UI::Navigate::Back:
+		return !!_selectedObject;
+	case UI::Navigate::Enter:
+	case UI::Navigate::Up:
+	case UI::Navigate::Down:
+	case UI::Navigate::Left:
+	case UI::Navigate::Right:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
+{
+	if (phase != UI::NavigationPhase::Started)
+	{
+		return;
+	}
+
+	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+
+	FRECT origin = GetAlignedFocusRect();
+
+	switch (navigate)
+	{
+	case UI::Navigate::Enter:
+		ActionOrCreateAt(_virtualPointer, true);
+		break;
+	case UI::Navigate::Back:
+		if (_selectedObject)
+		{
+			Select(_selectedObject, false);
+		}
+		break;
+	case UI::Navigate::Up:
+		if (Size(origin).IsZero())
+			_virtualPointer.y = origin.top - typeInfo.align + 1;
+		else
+			_virtualPointer.y = origin.top - typeInfo.size.y / 2 + 1;
+		break;
+	case UI::Navigate::Down:
+		if (Size(origin).IsZero())
+			_virtualPointer.y = origin.bottom + typeInfo.align - 1;
+		else
+			_virtualPointer.y = origin.bottom + typeInfo.size.y / 2 - 1;
+		break;
+	case UI::Navigate::Left:
+		if (Size(origin).IsZero())
+			_virtualPointer.x = origin.left - typeInfo.align + 1;
+		else
+			_virtualPointer.x = origin.left - typeInfo.size.x / 2 + 1;
+		break;
+	case UI::Navigate::Right:
+		if (Size(origin).IsZero())
+			_virtualPointer.x = origin.right + typeInfo.align - 1;
+		else
+			_virtualPointer.x = origin.right + typeInfo.size.x / 2 - 1;
+		break;
+	default:
+		break;
+	}
 }
 
 FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
@@ -493,12 +622,6 @@ void EditorLayout::OnChangeUseLayers()
 	_layerDisp->SetVisible(_conf.uselayers.Get());
 }
 
-static FRECT GetSelectionRect(const GC_Actor &actor)
-{
-	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
-	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
-}
-
 void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	// World
@@ -520,35 +643,49 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 
-	if (ic.GetHovered())
+	if (ic.GetFocused())
 	{
-		// Mouse coordinates
-		vec2d worldPos = CanvasToWorld(lc, ic.GetMousePos());
-		std::stringstream buf;
-		buf << "x=" << floor(worldPos.x + 0.5f) << "; y=" << floor(worldPos.y + 0.5f);
-		rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
-			lc.GetScale(), _fontSmall.GetTextureId(texman), 0xffffffff, buf.str(), alignTextCT);
+		vec2d worldPos = _virtualPointer;// CanvasToWorld(lc, ic.GetMousePos());
 
 		FRECT mouseRect;
 		SpriteColor mouseRectColor;
 		if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
 		{
 			mouseRect = GetSelectionRect(*actor);
-			mouseRectColor = 0xffffffff;
+			mouseRectColor = 0xff00ffff;
 			rc.DrawBorder(mouseRect, _texSelection.GetTextureId(texman), mouseRectColor, 0);
 		}
 		else if(!_modeSelect->GetCheck())
 		{
-			vec2d mouseAligned = AlignToGrid(worldPos);
 			auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+			vec2d mouseAligned = AlignToGrid(typeInfo, worldPos);
 			mouseRect = MakeRectWH(mouseAligned - typeInfo.size / 2, typeInfo.size);
-			mouseRectColor = CanCreateAt(mouseAligned) ? 0xffffffff : 0x88888888;
+			mouseRectColor = CanCreateAt(mouseAligned) ? 0xff00ff00 : 0xff00ffff;
 			rc.DrawBorder(mouseRect, _texSelection.GetTextureId(texman), mouseRectColor, 0);
+
+			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, mouseAligned))
+			{
+				mouseRect = GetSelectionRect(*actor);
+				rc.DrawSprite(mouseRect, _texSelection.GetTextureId(texman), 0xff0000ff, 0);
+				rc.DrawBorder(mouseRect, _texSelection.GetTextureId(texman), 0x88000088, 0);
+			}
 		}
 	}
 
+#ifndef NDEBUG
+	FRECT dst = { _virtualPointer.x - 2, _virtualPointer.y - 2, _virtualPointer.x + 2, _virtualPointer.y + 2 };
+	rc.DrawSprite(dst, 0U, 0xffffffff, 0U);
+#endif
+
 	rc.PopTransform();
 	rc.PopClippingRect();
+
+	// Mouse coordinates
+	vec2d worldPos = Center(GetAlignedFocusRect());// CanvasToWorld(lc, ic.GetMousePos());
+	std::stringstream buf;
+	buf << "x=" << floor(worldPos.x + 0.5f) << "; y=" << floor(worldPos.y + 0.5f);
+	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
+		lc.GetScale(), _fontSmall.GetTextureId(texman), 0xffffffff, buf.str(), alignTextCT);
 }
 
 vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const
