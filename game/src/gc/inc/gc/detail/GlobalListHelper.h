@@ -28,7 +28,7 @@ protected:                                                              \
     virtual void Unregister(World &world, PtrList<GC_Object>::id_type pos) OVERRIDE; \
 private:                                                                \
     friend class World;                                                 \
-	friend class RTTypes
+    friend class RTTypes
 
 #define IMPLEMENT_1LIST_MEMBER(cls, list)                               \
     PtrList<GC_Object>::id_type cls::Register(World &world)             \

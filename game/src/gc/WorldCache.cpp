@@ -3,9 +3,9 @@
 #include <MapFile.h>
 #include <fs/FileSystem.h>
 
-static std::unique_ptr<World> LoadMap(FS::FileSystem &fs, std::string_view mapName)
+std::unique_ptr<World> LoadMapUncached(FS::FileSystem &fs, std::string_view mapName)
 {
-	auto stream = fs.GetFileSystem("maps")->Open(std::string(mapName) + ".map")->QueryStream();
+	auto stream = fs.Open(std::string(mapName) + ".map")->QueryStream();
 
 	MapFile file(*stream, false);
 
@@ -31,7 +31,7 @@ const World& WorldCache::GetCachedWorld(FS::FileSystem &fs, std::string_view map
 	auto existing = _cachedWorlds.find(mapName);
 	if (_cachedWorlds.end() == existing)
 	{
-		existing = _cachedWorlds.emplace(mapName, LoadMap(fs, mapName)).first;
+		existing = _cachedWorlds.emplace(mapName, LoadMapUncached(*fs.GetFileSystem("maps"), mapName)).first;
 	}
 	return *existing->second;
 }
@@ -47,6 +47,6 @@ std::unique_ptr<World> WorldCache::CheckoutCachedWorld(FS::FileSystem &fs, std::
 	}
 	else
 	{
-		return LoadMap(fs, mapName);
+		return LoadMapUncached(*fs.GetFileSystem("maps"), mapName);
 	}
 }

@@ -156,15 +156,9 @@ bool Desktop::GetEditorMode() const
 
 void Desktop::SetEditorMode(bool editorMode)
 {
-	if( _editor )
+	if (!editorMode || _appController.GetEditorModeAvailable())
 	{
-		_editor->SetVisible(editorMode);
-		if( _game )
-			_game->SetVisible(!editorMode);
-		if( editorMode && !_con->GetVisible() )
-		{
-			SetFocus(_editor);
-		}
+		_appController.SetEditorMode(GetAppState(), editorMode);
 	}
 }
 
@@ -346,7 +340,6 @@ void Desktop::OnExportMap()
 				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
 				gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
 				_logger.Printf(0, "map exported: '%s'", fileName.c_str());
-			//	_conf.cl_map.Set(fileDlg->GetFileTitle());
 			}
 		};
 		_navStack->PushNavStack(fileDlg);
@@ -466,6 +459,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		break;
 
 	case UI::Key::F5:
+	case UI::Key::GamepadView:
 		if (!_navStack->GetNavFront())
 			SetEditorMode(!GetEditorMode());
 		break;
@@ -665,11 +659,8 @@ void Desktop::OnGameContextChanged()
 		int currentTier = GetCurrentTier(_conf, _dmCampaign);
 		DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(currentTier));
 		_tierTitle->SetText(ConfBind(tierDesc.title));
-
-		SetEditorMode(false);
 	}
-
-	if (auto editorContext = std::dynamic_pointer_cast<EditorContext>(GetAppState().GetGameContext()))
+	else if (auto editorContext = std::dynamic_pointer_cast<EditorContext>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
 		_editor = std::make_shared<EditorLayout>(
@@ -680,10 +671,7 @@ void Desktop::OnGameContextChanged()
 			_conf.editor,
 			_lang,
 			_logger);
-		_editor->SetVisible(false);
 		AddBack(_editor);
-
-		SetEditorMode(true);
 	}
 
 	if (!GetAppState().GetGameContext())

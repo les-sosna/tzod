@@ -19,3 +19,5 @@ public:
 private:
 	std::map<std::string, std::unique_ptr<World>, std::less<>> _cachedWorlds;
 };
+
+std::unique_ptr<World> LoadMapUncached(FS::FileSystem &fs, std::string_view mapName);

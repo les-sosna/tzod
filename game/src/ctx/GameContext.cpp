@@ -10,10 +10,8 @@
 
 #define AI_MAX_LEVEL   4U
 
-GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
+GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings)
 	: _world(std::move(world))
-	, _campaignTier(campaignTier)
-	, _campaignMap(campaignMap)
 {
 	_world->Seed(rand());
 	_aiManager.reset(new AIManager(*_world));
@@ -133,4 +131,11 @@ void GameContext::Deserialize(FS::Stream &stream)
 
 	_scriptHarness.reset(new ScriptHarness(*_world, _scriptMessageBroadcaster));
 	_scriptHarness->Deserialize(f);
+}
+
+GameContextCampaignDM::GameContextCampaignDM(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
+	: GameContext(std::move(world), settings)
+	, _campaignTier(campaignTier)
+	, _campaignMap(campaignMap)
+{
 }

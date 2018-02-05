@@ -2,8 +2,10 @@
 #include "inc/as/AppConfig.h"
 #include "inc/as/AppConstants.h"
 #include "inc/as/AppState.h"
+#include <ctx/EditorContext.h>
 #include <ctx/Gameplay.h>
 #include <ctx/GameContext.h>
+#include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <gc/WorldCache.h>
 #include <algorithm>
@@ -60,7 +62,7 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt)
 		{
 			if (gameplay->IsGameOver())
 			{
-				if (auto campaignGC = dynamic_cast<GameContext*>(gc))
+				if (auto campaignGC = dynamic_cast<GameContextCampaignDM*>(gc))
 				{
 					if (campaignGC->GetCampaignTier() >= 0 && campaignGC->GetCampaignMap() >= 0)
 					{
@@ -91,5 +93,62 @@ void AppController::StartDMCampaignMap(AppState &appState, AppConfig &appConfig,
 
 	auto world = _worldCache->CheckoutCachedWorld(_fs, mapDesc.map_name.Get());
 	DMSettings settings = GetCampaignDMSettings(appConfig, dmCampaign, tier, map);
-	appState.SetGameContext(std::make_shared<GameContext>(std::move(world), settings, tier, map));
+	appState.SetGameContext(std::make_shared<GameContextCampaignDM>(std::move(world), settings, tier, map));
+
+	_savedEditorContext.reset();
+}
+
+void AppController::SetEditorMode(AppState &appState, bool editorMode)
+{
+	if (editorMode)
+	{
+		assert(_savedEditorContext);
+		appState.SetGameContext(std::move(_savedEditorContext));
+		_savedEditorContext.reset();
+	}
+	else
+	{
+//		assert(!_savedEditorContext);
+
+		auto editorContext = std::dynamic_pointer_cast<EditorContext>(appState.GetGameContext());
+		assert(editorContext);
+
+		auto fileName = "user/current.map";
+		editorContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
+
+		std::unique_ptr<World> world = LoadMapUncached(*_fs.GetFileSystem("user"), "current");
+
+		PlayerDesc player;
+		player.nick = "Player";
+		player.skin = "red";
+		player.cls = "default";
+		player.team = 0;
+
+		PlayerDesc player2;
+		player2.nick = "Player2";
+		player2.skin = "yellow";
+		player2.cls = "default";
+		player2.team = 0;
+
+		PlayerDesc bot;
+		bot.nick = "Enemy";
+		bot.skin = "FBI Tank";
+		bot.cls = "default";
+		bot.team = 0;
+
+		DMSettings settings;
+		settings.players.push_back(player);
+		settings.players.push_back(player2);
+		//settings.bots.push_back(bot);
+		settings.timeLimit = 300;
+
+		appState.SetGameContext(std::make_shared<GameContext>(std::move(world), settings));
+
+		_savedEditorContext = editorContext;
+	}
+}
+
+void AppController::StartNewMapEditor()
+{
+
 }

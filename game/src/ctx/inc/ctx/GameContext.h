@@ -42,7 +42,7 @@ struct DMSettings
 class GameContext : public GameContextBase
 {
 public:
-	GameContext(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap);
+	GameContext(std::unique_ptr<World> world, const DMSettings &settings);
 	virtual ~GameContext();
 	WorldController& GetWorldController() { return *_worldController; }
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }
@@ -50,9 +50,6 @@ public:
 
 	void Serialize(FS::Stream &stream);
 	void Deserialize(FS::Stream &stream);
-
-	int GetCampaignTier() const { return _campaignTier; }
-	int GetCampaignMap() const { return _campaignMap; }
 
 	// GameContextBase
 	World& GetWorld() override { return *_world; }
@@ -68,7 +65,17 @@ private:
 	std::unique_ptr<Gameplay> _gameplay;
 	std::unique_ptr<ScriptHarness> _scriptHarness;
 	std::unique_ptr<AIManager> _aiManager;
+};
 
+class GameContextCampaignDM : public GameContext
+{
+public:
+	GameContextCampaignDM(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap);
+
+	int GetCampaignTier() const { return _campaignTier; }
+	int GetCampaignMap() const { return _campaignMap; }
+
+private:
 	int _campaignTier;
 	int _campaignMap;
 };
