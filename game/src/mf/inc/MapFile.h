@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <variant>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -83,9 +84,7 @@ class MapFile
 		DATATYPE_INT    = 1,
 		DATATYPE_FLOAT  = 2,
 		DATATYPE_STRING = 3,  // max length is 0xffff
-		DATATYPE_RAW    = 4,  // max length is 0xffffffff
 	};
-
 
 	struct ChunkHeader
 	{
@@ -107,27 +106,27 @@ class MapFile
 		}
 	};
 
-	class ObjectDefinition
+	struct ObjectDefinition
 	{
-	public:
 		struct Property
 		{
 			enumDataTypes type;
 			std::string   name;
+			std::variant<int, float, std::string> value;
 			size_t CalcSize() const
 			{
-				return sizeof(enumDataTypes) + sizeof(unsigned short) + name.size();
+				return sizeof(enumDataTypes) + sizeof(uint16_t) + name.size();
 			}
 		};
 
-		std::string           _className;
-		std::vector<Property> _propertyset;
+		std::string           className;
+		std::vector<Property> propertyDefinitions;
 
 		size_t CalcSize() const
 		{
-			size_t size = sizeof(unsigned short) + _className.size();
-			for( size_t i = 0; i < _propertyset.size(); i++ )
-				size += _propertyset[i].CalcSize();
+			size_t size = sizeof(unsigned short) + className.size();
+			for( size_t i = 0; i < propertyDefinitions.size(); i++ )
+				size += propertyDefinitions[i].CalcSize();
 			return size;
 		}
 	};
@@ -145,10 +144,7 @@ private:
 	std::vector<ObjectDefinition> _managed_classes;
 	std::map<std::string, size_t> _name_to_index; // map classname to index in _managed_classes
 
-	AttributeSet _obj_attrs;
 	int  _obj_type; // index in _managed_classes
-
-	std::map<std::string, AttributeSet> _defaults;
 
 	bool _read_chunk_header(ChunkHeader &chdr);
 	void _skip_block(size_t size);
@@ -187,16 +183,12 @@ public:
 	bool getObjectAttribute(std::string_view name, float &value) const;
 	bool getObjectAttribute(std::string_view name, std::string &value) const;
 
-	void setObjectAttribute(std::string name, int value);
-	void setObjectAttribute(std::string name, float value);
-	void setObjectAttribute(std::string name, std::string_view value);
-
-	void setObjectDefault(const char *cls, const char *attr, int value);
-	void setObjectDefault(const char *cls, const char *attr, float value);
-	void setObjectDefault(const char *cls, const char *attr, std::string value);
+	void setObjectAttribute(std::string_view name, int value);
+	void setObjectAttribute(std::string_view name, float value);
+	void setObjectAttribute(std::string_view name, std::string_view value);
 
 	template<class T>
-	void Exchange(const char *name, T *value, T defaultValue)
+	void Exchange(std::string_view name, T *value, T defaultValue)
 	{
 		assert(value);
 		if( loading() )

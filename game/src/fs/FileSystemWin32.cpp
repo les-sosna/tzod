@@ -118,9 +118,16 @@ std::shared_ptr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
 std::shared_ptr<FS::Stream> FS::OSFileSystem::OSFile::QueryStream()
 {
 	assert(!_mapped && !_streamed);
-	_streamed = true;
-	std::shared_ptr<Stream> result = std::make_shared<OSStream>(shared_from_this(), _file.h);
-	return result;
+	if (_mode == ModeRead)
+	{
+		_mapped = true;
+		return std::make_shared<OSMemMap>(shared_from_this(), _file.h);
+	}
+	else
+	{
+		_streamed = true;
+		return std::make_shared<OSStream>(shared_from_this(), _file.h);
+	}
 }
 
 void FS::OSFileSystem::OSFile::Unmap()

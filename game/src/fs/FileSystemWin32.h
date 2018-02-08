@@ -4,6 +4,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <cassert>
+
 namespace FS {
 
 class OSFileSystem : public FileSystem
@@ -20,8 +22,8 @@ class OSFileSystem : public FileSystem
 			}
 		}
 	private:
-		AutoHandle(const AutoHandle&);
-		AutoHandle& operator = (const AutoHandle&);
+		AutoHandle(const AutoHandle&) = delete;
+		AutoHandle& operator = (const AutoHandle&) = delete;
 	};
 
 	class OSFile
@@ -39,15 +41,51 @@ class OSFileSystem : public FileSystem
 		virtual void Unstream();
 
 	private:
-		class OSMemMap : public MemMap
+		class OSMemMap : public MemMap, public Stream
 		{
 		public:
 			OSMemMap(std::shared_ptr<OSFile> parent, HANDLE hFile);
 			virtual ~OSMemMap();
 
-			virtual char* GetData();
-			virtual unsigned long GetSize() const;
-			virtual void SetSize(unsigned long size); // may invalidate pointer returned by GetData()
+			// MemMap
+			char* GetData() override;
+			unsigned long GetSize() const override;
+			void SetSize(unsigned long size) override; // may invalidate pointer returned by GetData()
+
+			// Stream
+			size_t Read(void *dst, size_t size, size_t count) override
+			{
+				size_t bytes = size * count;
+				if (_pos + bytes > _size)
+				{
+					return 0;
+				}
+				memcpy(dst, (const char*)_data + _pos, bytes);
+				_pos += bytes;
+				return count;
+			}
+			void Write(const void *src, size_t size) override { assert(false); }
+			void Seek(long long amount, unsigned int origin) override
+			{
+				switch (origin)
+				{
+				case SEEK_SET:
+					assert(amount >= 0 && amount <= _size);
+					_pos = static_cast<size_t>(amount);
+					break;
+				case SEEK_CUR:
+					assert((long long)_pos + amount >= 0 && (long long)_pos + amount <= _size);
+					_pos += static_cast<size_t>(amount);
+					break;
+				case SEEK_END:
+					assert(amount <= 0 && (long long)_pos + amount >= 0);
+					_pos = _size + static_cast<size_t>(amount);
+					break;
+				default:
+					assert(false);
+				}
+			}
+			long long Tell() const override { return _pos; }
 
 		private:
 			std::shared_ptr<OSFile> _file;
@@ -55,6 +93,7 @@ class OSFileSystem : public FileSystem
 			AutoHandle _map;
 			void *_data;
 			size_t _size;
+			size_t _pos = 0;
 			void SetupMapping();
 		};
 

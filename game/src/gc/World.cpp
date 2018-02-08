@@ -186,7 +186,7 @@ void World::Serialize(SaveFile &f)
 
 	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
 	{
-        objects.at(it)->Serialize(*this, f);
+		objects.at(it)->Serialize(*this, f);
 	}
 }
 

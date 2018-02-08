@@ -1,11 +1,12 @@
 #include "inc/MapFile.h"
 #include <fs/FileSystem.h>
+#include <algorithm>
 #include <cassert>
 
 bool MapFile::_read_chunk_header(ChunkHeader &chdr)
 {
 	assert(!_modeWrite);
-    return 1 == _file.Read(&chdr, sizeof(ChunkHeader), 1);
+	return 1 == _file.Read(&chdr, sizeof(ChunkHeader), 1);
 }
 
 void MapFile::_skip_block(size_t size)
@@ -269,117 +270,106 @@ void MapFile::setMapAttribute(std::string name, std::string value)
 	_mapAttrs.attrs_str[std::move(name)] = std::move(value);
 }
 
-
-
 bool MapFile::getObjectAttribute(std::string_view name, int &value) const
 {
 	assert(!_modeWrite);
-	std::map<std::string, int>::const_iterator it;
-	it = _obj_attrs.attrs_int.find(name);
-	if( _obj_attrs.attrs_int.end() == it )
-		return false;
-	value = it->second;
-	return true;
+	auto &pd = _managed_classes[_obj_type].propertyDefinitions;
+	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
+	if (it != pd.end())
+	{
+		value = std::get<int>(it->value);
+		return true;
+	}
+	return false;
 }
 
 bool MapFile::getObjectAttribute(std::string_view name, float &value) const
 {
 	assert(!_modeWrite);
-	std::map<std::string, float>::const_iterator it;
-	it = _obj_attrs.attrs_float.find(name);
-	if( _obj_attrs.attrs_float.end() == it )
-		return false;
-	value = it->second;
-	return true;
+	auto &pd = _managed_classes[_obj_type].propertyDefinitions;
+	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
+	if (it != pd.end())
+	{
+		value = std::get<float>(it->value);
+		return true;
+	}
+	return false;
 }
 
 bool MapFile::getObjectAttribute(std::string_view name, std::string &value) const
 {
 	assert(!_modeWrite);
-	std::map<std::string, std::string>::const_iterator it;
-	it = _obj_attrs.attrs_str.find(name);
-	if( _obj_attrs.attrs_str.end() == it )
-		return false;
-	value = it->second;
-	return true;
+	auto &pd = _managed_classes[_obj_type].propertyDefinitions;
+	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
+	if (it != pd.end())
+	{
+		value = std::get<std::string>(it->value);
+		return true;
+	}
+	return false;
 }
 
-void MapFile::setObjectAttribute(std::string name, int value)
+void MapFile::setObjectAttribute(std::string_view name, int value)
 {
 	if( _isNewClass )
 	{
 #ifndef NDEBUG
 		// check that given name is unique
-		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
-			assert(_managed_classes.back()._propertyset[i].name != name);
+		for( size_t i = 0; i < _managed_classes.back().propertyDefinitions.size(); i++ )
+			assert(_managed_classes.back().propertyDefinitions[i].name != name);
 #endif
 
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_INT;
-		p.name = std::move(name);
-		_managed_classes.back()._propertyset.push_back(std::move(p));
+		p.name = name;
+		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
 	_buffer.write((const char*) &value, sizeof(int));
 }
 
-void MapFile::setObjectAttribute(std::string name, float value)
+void MapFile::setObjectAttribute(std::string_view name, float value)
 {
 	if( _isNewClass )
 	{
 #ifdef _DEBUG
 		// check that given name is unique
-		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
-			assert(_managed_classes.back()._propertyset[i].name != name);
+		for( size_t i = 0; i < _managed_classes.back().propertyDefinitions.size(); i++ )
+			assert(_managed_classes.back().propertyDefinitions[i].name != name);
 #endif
 
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_FLOAT;
-		p.name = std::move(name);
-		_managed_classes.back()._propertyset.push_back(std::move(p));
+		p.name = name;
+		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
 	_buffer.write((const char*) &value, sizeof(float));
 }
 
-void MapFile::setObjectAttribute(std::string name, std::string_view value)
+void MapFile::setObjectAttribute(std::string_view name, std::string_view value)
 {
 	if( _isNewClass )
 	{
 #ifdef _DEBUG
 		// check that given name is unique
-		for( size_t i = 0; i < _managed_classes.back()._propertyset.size(); i++ )
-			assert(_managed_classes.back()._propertyset[i].name != name);
+		for( size_t i = 0; i < _managed_classes.back().propertyDefinitions.size(); i++ )
+			assert(_managed_classes.back().propertyDefinitions[i].name != name);
 #endif
 
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_STRING;
-		p.name = std::move(name);
-		_managed_classes.back()._propertyset.push_back(std::move(p));
+		p.name = name;
+		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
 	uint16_t len = (uint16_t) (value.length() & 0xffff);
 	_buffer.write((const char*) &len, 2);
 	_buffer.write(value.data(), (std::streamsize) value.length());
 }
 
-void MapFile::setObjectDefault(const char *cls, const char *attr, int value)
-{
-	_defaults[cls].attrs_int[attr] = value;
-}
-
-void MapFile::setObjectDefault(const char *cls, const char *attr, float value)
-{
-	_defaults[cls].attrs_float[attr] = value;
-}
-
-void MapFile::setObjectDefault(const char *cls, const char *attr, std::string value)
-{
-	_defaults[cls].attrs_str[attr] = std::move(value);
-}
-
 std::string_view MapFile::GetCurrentClassName() const
 {
 	assert(!_modeWrite);
 	assert(_obj_type >= 0 && _obj_type < (int) _managed_classes.size());
-    return _managed_classes[_obj_type]._className;
+	return _managed_classes[_obj_type].className;
 }
 
 void MapFile::BeginObject(const char *classname)
@@ -410,7 +400,7 @@ void MapFile::BeginObject(const char *classname)
 		_name_to_index[classname] = _managed_classes.size();
 		obj_type = (int32_t) _managed_classes.size();
 		_managed_classes.push_back(ObjectDefinition());
-		_managed_classes.back()._className = classname;
+		_managed_classes.back().className = classname;
 	}
 	else
 	{
@@ -437,12 +427,12 @@ void MapFile::WriteCurrentObject()
 		ch.chunkType = CHUNK_OBJDEF;
 		ch.chunkSize = static_cast<uint32_t>(od.CalcSize());
 		_file.Write(&ch, sizeof(ChunkHeader));
-		WriteString(od._className);
-		WriteInt((int)od._propertyset.size());
-		for( size_t i = 0; i < od._propertyset.size(); i++ )
+		WriteString(od.className);
+		WriteInt((int)od.propertyDefinitions.size());
+		for( size_t i = 0; i < od.propertyDefinitions.size(); i++ )
 		{
-			WriteInt(od._propertyset[i].type);
-			WriteString(od._propertyset[i].name);
+			WriteInt(od.propertyDefinitions[i].type);
+			WriteString(od.propertyDefinitions[i].name);
 		}
 	}
 
@@ -467,46 +457,55 @@ bool MapFile::NextObject()
 		{
 			case CHUNK_OBJDEF:
 			{
-				_managed_classes.push_back(ObjectDefinition());
+				_managed_classes.emplace_back();
 				ObjectDefinition &od = _managed_classes.back();
-				ReadString(od._className);
+				ReadString(od.className);
 				int propertyCount;
 				ReadInt(propertyCount);
-				od._propertyset.resize(propertyCount);
-				for( int i = 0; i < propertyCount; i++ )
+				od.propertyDefinitions.resize(propertyCount);
+				for (auto &prop : od.propertyDefinitions)
 				{
-					ReadInt(reinterpret_cast<int&>(od._propertyset[i].type));
-					ReadString(od._propertyset[i].name);
+					ReadInt(reinterpret_cast<int&>(prop.type));
+					ReadString(prop.name);
+					switch (prop.type)
+					{
+					case DATATYPE_INT:
+						prop.value.emplace<int>();
+						break;
+					case DATATYPE_FLOAT:
+						prop.value.emplace<float>();
+						break;
+					case DATATYPE_STRING:
+						prop.value.emplace<std::string>();
+						break;
+					default:
+						throw std::runtime_error("invalid file");
+					}
 				}
 				break;
 			}
 
 			case CHUNK_OBJECT:
 			{
-				_obj_attrs.clear();
-
 				ReadInt(_obj_type);
 				if( _obj_type < 0 || _obj_type >= (int) _managed_classes.size() )
 					throw std::runtime_error("invalid class");
 
-				const std::vector<ObjectDefinition::Property> &ps =
-					_managed_classes[_obj_type]._propertyset;
-
-				for( size_t i = 0; i < ps.size(); i++ )
+				for( auto &prop: _managed_classes[_obj_type].propertyDefinitions )
 				{
-					switch( ps[i].type )
+					switch(prop.type)
 					{
 					case DATATYPE_INT:
-						ReadInt(_obj_attrs.attrs_int[ps[i].name]);
+						ReadInt(std::get<int>(prop.value));
 						break;
 					case DATATYPE_FLOAT:
-						ReadFloat(_obj_attrs.attrs_float[ps[i].name]);
+						ReadFloat(std::get<float>(prop.value));
 						break;
 					case DATATYPE_STRING:
-						ReadString(_obj_attrs.attrs_str[ps[i].name]);
+						ReadString(std::get<std::string>(prop.value));
 						break;
 					default:
-						throw std::runtime_error("invalid file");
+						assert(false);
 					}
 				}
 				return true;
