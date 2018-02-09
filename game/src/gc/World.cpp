@@ -202,7 +202,7 @@ void World::Import(MapFile &file)
 	file.getMapAttribute("theme",    _infoTheme);
 	file.getMapAttribute("on_init",  _infoOnInit);
 
-	while( file.NextObject() )
+	while( file.ReadNextObject() )
 	{
 		ObjectType t = RTTypes::Inst().GetTypeByName(file.GetCurrentClassName());
 		if( INVALID_OBJECT_TYPE != t )
@@ -305,6 +305,8 @@ void World::Export(FS::Stream &s)
 			file.WriteCurrentObject();
 		}
 	}
+
+	file.WriteEndOfFile();
 }
 
 int World::net_rand()

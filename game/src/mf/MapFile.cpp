@@ -15,12 +15,15 @@ void MapFile::_skip_block(size_t size)
 	_file.Seek(size, SEEK_CUR);
 }
 
+static const unsigned int MAX_BUFFER_SIZE = 0x10000;
+
 MapFile::MapFile(FS::Stream &stream, bool write)
-  : _file(stream)
-  , _modeWrite(write)
-  , _headerWritten(false)
-  , _isNewClass(true)
-  , _obj_type(-1)
+	: _file(stream)
+	, _buffer(write ? new char[MAX_BUFFER_SIZE] : nullptr)
+	, _modeWrite(write)
+	, _headerWritten(false)
+	, _isNewClass(true)
+	, _objType(-1)
 {
 	if( !write )
 	{
@@ -100,7 +103,7 @@ MapFile::MapFile(FS::Stream &stream, bool write)
 	}
 }
 
-MapFile::~MapFile(void)
+MapFile::~MapFile()
 {
 }
 
@@ -110,100 +113,102 @@ void MapFile::WriteHeader()
 
 	ChunkHeader ch;
 
-
-	//
 	// open header
-	//
-
 	ch.chunkType = CHUNK_HEADER_OPEN;
 	ch.chunkSize = 0;
-	_file.Write(&ch, sizeof(ChunkHeader));
+	GetWriteBuffer<ChunkHeader>() = ch;
 
-
-	//
-	// write attributes
-	//
-
+	// write map attributes
 	ch.chunkType = CHUNK_ATTRIB;
 
-	for( std::map<std::string, int>::iterator
-		it = _mapAttrs.attrs_int.begin(); it != _mapAttrs.attrs_int.end(); ++it )
+	for( auto &attr: _mapAttrs.attrs_int )
 	{
-		ch.chunkSize = static_cast<uint32_t>(it->first.length()) + sizeof(unsigned short) + sizeof(int);
-		_file.Write(&ch, sizeof(ChunkHeader));
+		ch.chunkSize = static_cast<uint32_t>(attr.first.length()) + sizeof(unsigned short) + sizeof(int);
+		GetWriteBuffer<ChunkHeader>() = ch;
 		WriteInt(DATATYPE_INT);
-		WriteString(it->first);
-		WriteInt(it->second);
+		WriteString(attr.first);
+		WriteInt(attr.second);
 	}
 
-	for( std::map<std::string, float>::iterator
-		it = _mapAttrs.attrs_float.begin(); it != _mapAttrs.attrs_float.end(); ++it )
+	for( auto &attr: _mapAttrs.attrs_float )
 	{
-		ch.chunkSize = static_cast<uint32_t>(it->first.length()) + sizeof(unsigned short) + sizeof(float);
-		_file.Write(&ch, sizeof(ChunkHeader));
+		ch.chunkSize = static_cast<uint32_t>(attr.first.length()) + sizeof(unsigned short) + sizeof(float);
+		GetWriteBuffer<ChunkHeader>() = ch;
 		WriteInt(DATATYPE_FLOAT);
-		WriteString(it->first);
-		WriteFloat(it->second);
+		WriteString(attr.first);
+		WriteFloat(attr.second);
 	}
 
-	for( std::map<std::string, std::string>::iterator
-		it = _mapAttrs.attrs_str.begin(); it != _mapAttrs.attrs_str.end(); ++it )
+	for( auto &attr: _mapAttrs.attrs_str )
 	{
-		ch.chunkSize = static_cast<uint32_t>(it->first.length() + it->second.length()) + sizeof(unsigned short) * 2;
-		_file.Write(&ch, sizeof(ChunkHeader));
+		ch.chunkSize = static_cast<uint32_t>(attr.first.length() + attr.second.length()) + sizeof(unsigned short) * 2;
+		GetWriteBuffer<ChunkHeader>() = ch;
 		WriteInt(DATATYPE_STRING);
-		WriteString(it->first);
-		WriteString(it->second);
+		WriteString(attr.first);
+		WriteString(attr.second);
 	}
 
-
-	//
 	// close header
-	//
-
 	ch.chunkType = CHUNK_HEADER_CLOSE;
 	ch.chunkSize = 0;
-	_file.Write(&ch, sizeof(ChunkHeader));
+	GetWriteBuffer<ChunkHeader>() = ch;
 }
 
 void MapFile::WriteInt(int value)
 {
 	assert(_modeWrite);
-    uint32_t tmp = value;
-	_file.Write(&tmp, 4);
+	GetWriteBuffer<int32_t>() = value;
 }
 
 void MapFile::WriteFloat(float value)
 {
 	assert(_modeWrite);
-	_file.Write(&value, sizeof(float));
+	GetWriteBuffer<float>() = value;
 }
 
 void MapFile::WriteString(std::string_view value)
 {
 	assert(_modeWrite);
 	assert(value.length() <= 0xffff);
-	uint16_t len = (uint16_t) (value.length() & 0xffff);
-	_file.Write(&len, 2);
-    if( len )
-        _file.Write(value.data(), len);
+	GetWriteBuffer<uint16_t>() = (uint16_t)(value.length() & 0xffff);
+	if (!value.empty())
+		WriteData(value.data(), value.length());
+}
+
+void MapFile::WriteData(const void *data, size_t size)
+{
+	assert(_modeWrite);
+	memcpy(GetWriteBuffer(size), data, size);
+}
+
+inline void* MapFile::GetWriteBuffer(size_t size)
+{
+	assert(size <= MAX_BUFFER_SIZE);
+	if (_bufferSize + size > MAX_BUFFER_SIZE)
+	{
+		_file.Write(_buffer.get(), _bufferSize);
+		_bufferSize = 0;
+	}
+	void *result = _buffer.get() + _bufferSize;
+	_bufferSize += size;
+	return result;
 }
 
 void MapFile::ReadInt(int &value)
 {
 	assert(!_modeWrite);
-    int32_t tmp;
+	int32_t tmp;
 	if( 1 != _file.Read(&tmp, 4, 1) )
-        throw std::runtime_error("unexpected end of file");
-    value = tmp;
+		throw std::runtime_error("unexpected end of file");
+	value = tmp;
 }
 
 void MapFile::ReadFloat(float &value)
 {
-    static_assert(sizeof(value) == 4, "size of float is not 4");
+	static_assert(sizeof(value) == 4, "size of float is not 4");
 	assert(!_modeWrite);
 	if( 1 != _file.Read(&value, 4, 1) )
-        throw std::runtime_error("unexpected end of file");
+		throw std::runtime_error("unexpected end of file");
 }
 
 void MapFile::ReadString(std::string &value)
@@ -211,16 +216,16 @@ void MapFile::ReadString(std::string &value)
 	assert(!_modeWrite);
 	uint16_t len;
 	if( 1 != _file.Read(&len, 2, 1) )
-        throw std::runtime_error("unexpected end of file");
-    value.resize(len);
+		throw std::runtime_error("unexpected end of file");
+	value.resize(len);
 	if( len )
-        if( 1 != _file.Read(&value[0], len, 1) )
-            throw std::runtime_error("unexpected end of file");
+		if( 1 != _file.Read(&value[0], len, 1) )
+			throw std::runtime_error("unexpected end of file");
 }
 
 bool MapFile::getMapAttribute(std::string_view name, int &value) const
 {
-	std::map<std::string, int>::const_iterator it = _mapAttrs.attrs_int.find(name);
+	auto it = _mapAttrs.attrs_int.find(name);
 	if( _mapAttrs.attrs_int.end() != it )
 	{
 		value = it->second;
@@ -231,7 +236,7 @@ bool MapFile::getMapAttribute(std::string_view name, int &value) const
 
 bool MapFile::getMapAttribute(std::string_view name, float &value) const
 {
-	std::map<std::string, float>::const_iterator it = _mapAttrs.attrs_float.find(name);
+	auto it = _mapAttrs.attrs_float.find(name);
 	if( _mapAttrs.attrs_float.end() != it )
 	{
 		value = it->second;
@@ -242,7 +247,7 @@ bool MapFile::getMapAttribute(std::string_view name, float &value) const
 
 bool MapFile::getMapAttribute(std::string_view name, std::string &value) const
 {
-	std::map<std::string, std::string>::const_iterator it = _mapAttrs.attrs_str.find(name);
+	auto it = _mapAttrs.attrs_str.find(name);
 	if( _mapAttrs.attrs_str.end() != it )
 	{
 		value = it->second;
@@ -273,7 +278,7 @@ void MapFile::setMapAttribute(std::string name, std::string value)
 bool MapFile::getObjectAttribute(std::string_view name, int &value) const
 {
 	assert(!_modeWrite);
-	auto &pd = _managed_classes[_obj_type].propertyDefinitions;
+	auto &pd = _managed_classes[_objType].propertyDefinitions;
 	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
 	if (it != pd.end())
 	{
@@ -286,7 +291,7 @@ bool MapFile::getObjectAttribute(std::string_view name, int &value) const
 bool MapFile::getObjectAttribute(std::string_view name, float &value) const
 {
 	assert(!_modeWrite);
-	auto &pd = _managed_classes[_obj_type].propertyDefinitions;
+	auto &pd = _managed_classes[_objType].propertyDefinitions;
 	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
 	if (it != pd.end())
 	{
@@ -299,7 +304,7 @@ bool MapFile::getObjectAttribute(std::string_view name, float &value) const
 bool MapFile::getObjectAttribute(std::string_view name, std::string &value) const
 {
 	assert(!_modeWrite);
-	auto &pd = _managed_classes[_obj_type].propertyDefinitions;
+	auto &pd = _managed_classes[_objType].propertyDefinitions;
 	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
 	if (it != pd.end())
 	{
@@ -324,7 +329,7 @@ void MapFile::setObjectAttribute(std::string_view name, int value)
 		p.name = name;
 		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
-	_buffer.write((const char*) &value, sizeof(int));
+	_managed_classes[_objType].propertyDefinitions[_numProperties++].value = value;
 }
 
 void MapFile::setObjectAttribute(std::string_view name, float value)
@@ -342,7 +347,7 @@ void MapFile::setObjectAttribute(std::string_view name, float value)
 		p.name = name;
 		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
-	_buffer.write((const char*) &value, sizeof(float));
+	_managed_classes[_objType].propertyDefinitions[_numProperties++].value = value;
 }
 
 void MapFile::setObjectAttribute(std::string_view name, std::string_view value)
@@ -358,21 +363,22 @@ void MapFile::setObjectAttribute(std::string_view name, std::string_view value)
 		ObjectDefinition::Property p;
 		p.type = DATATYPE_STRING;
 		p.name = name;
+		p.value.emplace<std::string>();
 		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
-	uint16_t len = (uint16_t) (value.length() & 0xffff);
-	_buffer.write((const char*) &len, 2);
-	_buffer.write(value.data(), (std::streamsize) value.length());
+
+	// assign to reuse the existing string capacity
+	std::get<std::string>(_managed_classes[_objType].propertyDefinitions[_numProperties++].value) = value;
 }
 
 std::string_view MapFile::GetCurrentClassName() const
 {
 	assert(!_modeWrite);
-	assert(_obj_type >= 0 && _obj_type < (int) _managed_classes.size());
-	return _managed_classes[_obj_type].className;
+	assert(_objType >= 0 && _objType < (int) _managed_classes.size());
+	return _managed_classes[_objType].className;
 }
 
-void MapFile::BeginObject(const char *classname)
+void MapFile::BeginObject(std::string_view classname)
 {
 	assert(_modeWrite);
 
@@ -382,72 +388,81 @@ void MapFile::BeginObject(const char *classname)
 		_headerWritten = true;
 	}
 
-
-	_buffer.str(""); // clear buffer
-
-
-	//
-	// check that class is known
-	//
-
-	int32_t obj_type;
-
-	std::map<std::string, size_t>::iterator it;
-	it = _name_to_index.find(classname);
+	auto it = _name_to_index.find(classname);
 	if( _name_to_index.end() == it )
 	{
 		_isNewClass = true;
-		_name_to_index[classname] = _managed_classes.size();
-		obj_type = (int32_t) _managed_classes.size();
-		_managed_classes.push_back(ObjectDefinition());
+		_objType = (int)_managed_classes.size();
+		_name_to_index.emplace(classname, _objType);
+		_managed_classes.emplace_back();
 		_managed_classes.back().className = classname;
 	}
 	else
 	{
-		obj_type = (int32_t) it->second;
 		_isNewClass = false;
+		_objType = it->second;
 	}
 
-	_buffer.write((const char*) &obj_type, sizeof(int32_t));
+	_numProperties = 0;
 }
 
 void MapFile::WriteCurrentObject()
 {
 	assert(_modeWrite);
+	assert(_numProperties == _managed_classes[_objType].propertyDefinitions.size());
 
 	ChunkHeader ch;
 
-
-	//
-	// writing class definition
-	//
+	// object class
 	if( _isNewClass )
 	{
 		const ObjectDefinition &od = _managed_classes.back();
 		ch.chunkType = CHUNK_OBJDEF;
-		ch.chunkSize = static_cast<uint32_t>(od.CalcSize());
-		_file.Write(&ch, sizeof(ChunkHeader));
+		ch.chunkSize = 0;
+		GetWriteBuffer<ChunkHeader>() = ch;
 		WriteString(od.className);
 		WriteInt((int)od.propertyDefinitions.size());
-		for( size_t i = 0; i < od.propertyDefinitions.size(); i++ )
+		for( auto &prop: od.propertyDefinitions )
 		{
-			WriteInt(od.propertyDefinitions[i].type);
-			WriteString(od.propertyDefinitions[i].name);
+			WriteInt(prop.type);
+			WriteString(prop.name);
 		}
 	}
 
-	//
-	// writing buffered data
-	//
-	std::string str(_buffer.str());
+	// object data
 	ch.chunkType = CHUNK_OBJECT;
-	ch.chunkSize = static_cast<uint32_t>(str.size());
-	assert(ch.chunkSize > 0);
-	_file.Write(&ch, sizeof(ChunkHeader));
-	_file.Write(str.data(), ch.chunkSize);
+	ch.chunkSize = 0;
+	GetWriteBuffer<ChunkHeader>() = ch;
+
+	WriteInt(_objType);
+
+	for (auto &prop : _managed_classes[_objType].propertyDefinitions)
+	{
+		switch (prop.type)
+		{
+		case DATATYPE_INT:
+			WriteInt(std::get<int>(prop.value));
+			break;
+		case DATATYPE_FLOAT:
+			WriteFloat(std::get<float>(prop.value));
+			break;
+		case DATATYPE_STRING:
+			WriteString(std::get<std::string>(prop.value));
+			break;
+		default:
+			assert(false);
+		}
+	}
 }
 
-bool MapFile::NextObject()
+void MapFile::WriteEndOfFile()
+{
+	assert(_modeWrite);
+	_file.Write(_buffer.get(), _bufferSize);
+	_bufferSize = 0;
+}
+
+bool MapFile::ReadNextObject()
 {
 	assert(!_modeWrite);
 
@@ -487,11 +502,11 @@ bool MapFile::NextObject()
 
 			case CHUNK_OBJECT:
 			{
-				ReadInt(_obj_type);
-				if( _obj_type < 0 || _obj_type >= (int) _managed_classes.size() )
+				ReadInt(_objType);
+				if( _objType < 0 || _objType >= (int) _managed_classes.size() )
 					throw std::runtime_error("invalid class");
 
-				for( auto &prop: _managed_classes[_obj_type].propertyDefinitions )
+				for( auto &prop: _managed_classes[_objType].propertyDefinitions )
 				{
 					switch(prop.type)
 					{

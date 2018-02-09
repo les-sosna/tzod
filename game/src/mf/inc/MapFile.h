@@ -5,11 +5,10 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <string_view>
-#include <vector>
 #include <variant>
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -113,38 +112,27 @@ class MapFile
 			enumDataTypes type;
 			std::string   name;
 			std::variant<int, float, std::string> value;
-			size_t CalcSize() const
-			{
-				return sizeof(enumDataTypes) + sizeof(uint16_t) + name.size();
-			}
 		};
 
 		std::string           className;
 		std::vector<Property> propertyDefinitions;
-
-		size_t CalcSize() const
-		{
-			size_t size = sizeof(unsigned short) + className.size();
-			for( size_t i = 0; i < propertyDefinitions.size(); i++ )
-				size += propertyDefinitions[i].CalcSize();
-			return size;
-		}
 	};
 
 private:
-	std::ostringstream _buffer;
-
 	FS::Stream &_file;
-	bool   _modeWrite;
-	bool   _headerWritten;
-	bool   _isNewClass;
+	std::unique_ptr<char[]> _buffer;
+	unsigned int _bufferSize = 0;
+	bool _modeWrite;
+	bool _headerWritten = false;
+	bool _isNewClass = false;
 
 	AttributeSet _mapAttrs;
 
 	std::vector<ObjectDefinition> _managed_classes;
-	std::map<std::string, size_t> _name_to_index; // map classname to index in _managed_classes
+	std::map<std::string, int, std::less<>> _name_to_index; // map classname to index in _managed_classes
 
-	int  _obj_type; // index in _managed_classes
+	int _objType; // index in _managed_classes
+	int _numProperties; // in current object
 
 	bool _read_chunk_header(ChunkHeader &chdr);
 	void _skip_block(size_t size);
@@ -154,6 +142,12 @@ private:
 	void WriteInt(int value);
 	void WriteFloat(float value);
 	void WriteString(std::string_view value);
+	void WriteData(const void *data, size_t size);
+	inline void* GetWriteBuffer(size_t size);
+	template<class T> T& GetWriteBuffer()
+	{
+		return *reinterpret_cast<T*>(GetWriteBuffer(sizeof(T)));
+	}
 
 	void ReadInt(int &value);
 	void ReadFloat(float &value);
@@ -161,15 +155,18 @@ private:
 
 public:
 	MapFile(FS::Stream &stream, bool write);
+	MapFile(const MapFile&) = delete;
+	MapFile& operator=(const MapFile&) = delete;
 	~MapFile();
 
 	bool loading() const;
 
-	bool NextObject();
+	bool ReadNextObject();
 	std::string_view GetCurrentClassName() const;
 
-	void BeginObject(const char *classname);
+	void BeginObject(std::string_view classname);
 	void WriteCurrentObject();
+	void WriteEndOfFile();
 
 	bool getMapAttribute(std::string_view name, int &value) const;
 	bool getMapAttribute(std::string_view name, float &value) const;
@@ -201,8 +198,4 @@ public:
 			setObjectAttribute(name, *value);
 		}
 	}
-
-private:
-	MapFile(const MapFile&) = delete;
-	MapFile& operator = (const MapFile&) = delete;
 };
