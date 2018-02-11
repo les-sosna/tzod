@@ -12,7 +12,7 @@
 #include <fs/FileSystem.h>
 #include <MapFile.h>
 #include <cfloat>
-
+#include <sstream>
 
 static int DivFloor(int number, unsigned int denominator)
 {
@@ -95,11 +95,11 @@ void World::Clear()
 {
 	assert(IsSafeMode());
 
-    ObjectList &ls = GetList(LIST_objects);
-    while( !ls.empty() )
-    {
-        ls.at(ls.begin())->Kill(*this);
-    }
+	ObjectList &ls = GetList(LIST_objects);
+	while( !ls.empty() )
+	{
+		ls.at(ls.begin())->Kill(*this);
+	}
 
 	// reset info
 	_infoAuthor.clear();
