@@ -41,7 +41,7 @@ void GC_RigidBodyStatic::Kill(World &world)
 {
 	if( GetPassability() > 0 )
 		world._field.ProcessObject(this, false);
-    GC_Actor::Kill(world);
+	GC_Actor::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
@@ -49,14 +49,14 @@ void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 	if( GetPassability() > 0 )
 		world._field.ProcessObject(this, false);
 
-    GC_Actor::MoveTo(world, pos);
+	GC_Actor::MoveTo(world, pos);
 
-    if( GetPassability() > 0 )
+	if( GetPassability() > 0 )
 		world._field.ProcessObject(this, true);
 }
 
 bool GC_RigidBodyStatic::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
-                                         vec2d &outEnterNormal, float &outEnter, float &outExit) const
+                                           vec2d &outEnterNormal, float &outEnter, float &outExit) const
 {
 	assert(!std::isnan(lineCenter.x) && std::isfinite(lineCenter.x));
 	assert(!std::isnan(lineCenter.y) && std::isfinite(lineCenter.y));
