@@ -3,6 +3,7 @@
 #include <math/MyMath.h>
 #include <algorithm>
 #include <cstdlib>
+#include <memory>
 
 class Field;
 class GC_RigidBodyStatic;
@@ -69,19 +70,27 @@ public:
 
 	RectRB GetBounds() const { return _bounds; }
 
-	FieldCell& operator() (int x, int y)
-	{
-		return PtInRect(_bounds, x, y) ? _cells[y - _bounds.top][x - _bounds.left] : _edgeCell;
-	}
-
 	const FieldCell& operator() (int x, int y) const
 	{
-		return PtInRect(_bounds, x, y) ? _cells[y - _bounds.top][x - _bounds.left] : _edgeCell;
+		if (PtInRect(_bounds, x, y))
+		{
+			size_t offset = (x - _bounds.left) + (y - _bounds.top) * WIDTH(_bounds);
+			return _cells.get()[offset];
+		}
+		else
+		{
+			return _edgeCell;
+		}
+	}
+
+	FieldCell& operator() (int x, int y)
+	{
+		return const_cast<FieldCell&>(static_cast<const Field*>(this)->operator()(x, y));
 	}
 
 private:
 	FieldCell _edgeCell;
-	FieldCell **_cells;
+	std::unique_ptr<FieldCell[]> _cells;
 	RectRB _bounds;
 
 	void Clear();

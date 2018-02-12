@@ -88,15 +88,8 @@ Field::~Field()
 
 void Field::Clear()
 {
-	if( _cells )
-	{
-		for( int i = 0; i < HEIGHT(_bounds); i++ )
-			delete[] _cells[i];
-		delete[] _cells;
-
-		_cells = nullptr;
-		_bounds = {};
-	}
+	_cells.reset();
+	_bounds = {};
 }
 
 void Field::Resize(RectRB bounds)
@@ -104,10 +97,9 @@ void Field::Resize(RectRB bounds)
 	assert(WIDTH(bounds) > 0 && HEIGHT(bounds) > 0);
 	Clear();
 	_bounds = bounds;
-	_cells = new FieldCell* [HEIGHT(bounds)];
+	_cells = std::make_unique<FieldCell[]>(WIDTH(bounds) * HEIGHT(bounds));
 	for( int y = bounds.top; y < bounds.bottom; y++ )
 	{
-		_cells[y - bounds.top] = new FieldCell[WIDTH(bounds)];
 		for( int x = bounds.left; x < bounds.right; x++ )
 		{
 			if(bounds.left == x || bounds.top == y || bounds.right - 1 == x || bounds.bottom - 1 == y )
