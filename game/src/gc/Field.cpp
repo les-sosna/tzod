@@ -78,10 +78,7 @@ Field::Field()
 {
 	_cells = nullptr;
 	_bounds = {};
-
 	_edgeCell._prop = 0xFF;
-	_edgeCell._x    = -1;
-	_edgeCell._y    = -1;
 }
 
 Field::~Field()
@@ -113,8 +110,6 @@ void Field::Resize(RectRB bounds)
 		_cells[y - bounds.top] = new FieldCell[WIDTH(bounds)];
 		for( int x = bounds.left; x < bounds.right; x++ )
 		{
-			(*this)(x, y)._x = x;
-			(*this)(x, y)._y = y;
 			if(bounds.left == x || bounds.top == y || bounds.right - 1 == x || bounds.bottom - 1 == y )
 				(*this)(x, y)._prop = 0xFF;
 		}
@@ -149,3 +144,7 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
             }
         }
 }
+
+FieldCellCompare::FieldCellCompare(const Field &field)
+	: _field(field)
+{}

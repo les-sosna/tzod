@@ -57,6 +57,13 @@ static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 	return (0xFF != cell.Properties() && hasWeapon) || (0 == cell.Properties() && !hasWeapon);
 }
 
+static float EstimatePathLength(RefFieldCell begin, RefFieldCell end)
+{
+	int dx = abs(end.x - begin.x);
+	int dy = abs(end.y - begin.y);
+	return (float)std::max(dx, dy) + (float)std::min(dx, dy) * 0.4142f;
+}
+
 float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
 	if (!PtInFRect(world.GetBounds(), to))
@@ -67,35 +74,34 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	Field::NewSession();
 	Field &field = world._field;
 
-	std::priority_queue<
-		RefFieldCell, std::vector<RefFieldCell>, std::greater<RefFieldCell>
-	> open;
+	std::priority_queue<RefFieldCell, std::vector<RefFieldCell>, FieldCellCompare> open(field);
 
-	int start_x = GRID_ALIGN(int(from.x), WORLD_BLOCK_SIZE);
-	int start_y = GRID_ALIGN(int(from.y), WORLD_BLOCK_SIZE);
-	int end_x = GRID_ALIGN(int(to.x), WORLD_BLOCK_SIZE);
-	int end_y = GRID_ALIGN(int(to.y), WORLD_BLOCK_SIZE);
+	RefFieldCell startRef = { GRID_ALIGN(int(from.x), WORLD_BLOCK_SIZE), GRID_ALIGN(int(from.y), WORLD_BLOCK_SIZE) };
+	RefFieldCell endRef = { GRID_ALIGN(int(to.x), WORLD_BLOCK_SIZE) , GRID_ALIGN(int(to.y), WORLD_BLOCK_SIZE) };
 
-	FieldCell &start = field(start_x, start_y);
+	FieldCell &start = field(startRef.x, startRef.y);
 
 	if( !CheckCell(start, !!ws) )
 		return -1;
 
 	start.Check();
-	start.UpdatePath(0, end_x, end_y);
-	start._prevCell  = nullptr;
+	start._before = 0;
+	start._total = EstimatePathLength(startRef, endRef);
+	start._stepX = 0;
+	start._stepY = 0;
 
-	open.push( RefFieldCell(start) );
+	open.push(startRef);
 
 
 	while( !open.empty() )
 	{
-		FieldCell &cn = open.top();
+		RefFieldCell currentRef = open.top();
 		open.pop();
 
-		if( cn.GetX() == end_x && cn.GetY() == end_y )
-			break; // a path was found
+		FieldCell &cn = field(currentRef.x, currentRef.y);
 
+		if(currentRef == endRef)
+			break; // a path was found
 
 		// neighbor nodes check order
 		//    4 | 0 | 6
@@ -103,10 +109,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 		//    2 | n | 3
 		//   ---+---+---
 		//    7 | 1 | 5
-		//                         0  1  2  3  4  5  6  7
-		static int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
-		static int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
-		static float dist [8] = {
+		//                               0  1  2  3  4  5  6  7
+		static const int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
+		static const int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
+		static const float dist [8] = {
 			1.0f, 1.0f, 1.0f, 1.0f,
 			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // path cost
 
@@ -117,16 +123,17 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 		for( int i = 0; i < 8; ++i )
 		{
 			if( i > 3 ) // check diagonal passability
-			if( !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2  ]],
-			                     cn.GetY() + per_y[check_diag[(i-4)*2  ]]), !!ws) ||
-			    !CheckCell(field(cn.GetX() + per_x[check_diag[(i-4)*2+1]],
-			                     cn.GetY() + per_y[check_diag[(i-4)*2+1]]), !!ws) )
+			if( !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2  ]],
+			                     currentRef.y + per_y[check_diag[(i-4)*2  ]]), !!ws) ||
+			    !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2+1]],
+			                     currentRef.y + per_y[check_diag[(i-4)*2+1]]), !!ws) )
 			{
 				continue;
 			}
 
 
-			FieldCell &next = field(cn.GetX() + per_x[i], cn.GetY() + per_y[i]);
+			RefFieldCell nextRef = { currentRef.x + per_x[i], currentRef.y + per_y[i] };
+			FieldCell &next = field(nextRef.x, nextRef.y);
 			if( CheckCell(next, !!ws) )
 			{
 				// increase path cost when travel through the walls
@@ -136,12 +143,14 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 				if( !next.IsChecked() )
 				{
-					next._prevCell  = &cn;
-					next.UpdatePath(cn.Before() + dist[i] * dist_mult, end_x, end_y);
+					next._stepX = per_x[i];
+					next._stepY = per_y[i];
+					next._before = cn.Before() + dist[i] * dist_mult;
+					next._total = next._before + EstimatePathLength(nextRef, endRef);
 					next.Check();
 					//-----------------
 					if( next.Total() < max_depth )
-						open.push(RefFieldCell(next));
+						open.push(nextRef);
 				}
 
 				// next part of code causes assertions in <algorithm> because
@@ -159,38 +168,41 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 		}
 	}
 
-	if( field(end_x, end_y).IsChecked() )
+	if( field(endRef.x, endRef.y).IsChecked() )
 	{
-		// a path was found
-		const FieldCell *cell = &field(end_x, end_y);
-		float distance = cell->Before();
+		float distance = field(endRef.x, endRef.y).Before();
 
 		if( !bTest )
 		{
-			//
 			// construct a new path
-			//
 
 			ClearPath();
+
+			RefFieldCell currentRef = endRef;
+			FieldCell *current = &field(currentRef.x, currentRef.y);
 
 			PathNode node;
 
 			node.coord = to;
 			_path.push_front(node);
 
-			cell = cell->_prevCell;
-			while( nullptr != cell )
+			while( current->_stepX || current->_stepY )
 			{
-				node.coord.x = (float) (cell->GetX() * WORLD_BLOCK_SIZE);
-				node.coord.y = (float) (cell->GetY() * WORLD_BLOCK_SIZE);
+				// trace back
+				currentRef.x -= current->_stepX;
+				currentRef.y -= current->_stepY;
+				current = &field(currentRef.x, currentRef.y);
+
+				node.coord.x = (float) (currentRef.x * WORLD_BLOCK_SIZE);
+				node.coord.y = (float) (currentRef.y * WORLD_BLOCK_SIZE);
 				_path.push_front(node);
 
-				for( int i = 0; i < cell->GetObjectsCount(); ++i )
+				for( int i = 0; i < current->GetObjectsCount(); ++i )
 				{
 					assert(ws);
-					assert(cell->Properties() > 0);
+					assert(current->Properties() > 0);
 
-					GC_RigidBodyStatic *object = cell->GetObject(i);
+					GC_RigidBodyStatic *object = current->GetObject(i);
 
 					if( team && !_attackFriendlyTurrets)
 					{
@@ -202,9 +214,9 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 					}
 					_attackList.push_front(object);
 				}
-
-				cell = cell->_prevCell;
 			}
+
+			assert(startRef == currentRef);
 		}
 
 		return distance;
