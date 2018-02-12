@@ -141,29 +141,39 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				if( 1 == next.Properties() )
 					dist_mult = ws->fDistanceMultipler;
 
+				float before = cn.Before() + dist[i] * dist_mult;
+
+				// penalty for turns
+				if (cn._stepX || cn._stepY) // TODO: use initial vehicle direction
+				{
+					float c = float(cn._stepX * per_x[i] + cn._stepY * per_y[i]) /
+						(dist[i] * std::sqrt(cn._stepX*cn._stepX + cn._stepY*cn._stepY));
+					if (c < 0.5f) // 0 is 90 deg. turn
+						before += 1;
+					else if (c < 0.9f) // 0.707 is 45 deg. turn
+						before += 0.2f;
+				}
+
 				if( !next.IsChecked() )
 				{
 					next._stepX = per_x[i];
 					next._stepY = per_y[i];
-					next._before = cn.Before() + dist[i] * dist_mult;
-					next._total = next._before + EstimatePathLength(nextRef, endRef);
+					next._before = before;
+					next._total = before + EstimatePathLength(nextRef, endRef);
 					next.Check();
-					//-----------------
 					if( next.Total() < max_depth )
 						open.push(nextRef);
 				}
-
-				// next part of code causes assertions in <algorithm> because
-				// it can modify cells that are being stored in "open" queue
-
-				//else if( next._before > cn._before + dist[i] * dist_mult )
-				//{
-				//	next._before = cn._before + dist[i] * dist_mult;
-				//	next._prevCell  = &cn;
-				//	//-----------------
-				//	if( next.Total() < max_depth )
-				//		open.push(RefFieldCell(next));
-				//}
+				else if( next._before > before )
+				{
+					// Do not update _total as it would brake 'open' ordering. It only affects
+					// the node selection priority but eventually it will be handled anyway.
+					next._before = before;
+					next._stepX = per_x[i];
+					next._stepY = per_y[i];
+					if( next.Total() < max_depth )
+						open.push(nextRef);
+				}
 			}
 		}
 	}
@@ -575,7 +585,7 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 
 	_backTime -= dt;
 
-	if ((vs.gas != 0) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.1f)
+	if ((vs.gas != 0) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.3f)
 	{
 		_stickTime += dt;
 		if (_stickTime > 0.6f)
