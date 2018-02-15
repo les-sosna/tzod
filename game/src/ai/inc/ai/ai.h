@@ -65,7 +65,6 @@ private:
 	{
 		L1_NONE,
 		L1_PATH_END,
-		L1_STICK,
 	} _aiState_l1;
 
 	void SetL1(aiState_l1 new_state);

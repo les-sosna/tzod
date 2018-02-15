@@ -316,9 +316,6 @@ void AIController::SetL1(aiState_l1 new_state)
 	case L1_PATH_END:
 //		REPORT("AI switch to L1_PATH_END\n");
 		break;
-	case L1_STICK:
-//		REPORT("AI switch to L1_STICK\n");
-		break;
 	case L1_NONE:
 //		REPORT("AI switch to L1_NONE\n");
 		break;
@@ -485,16 +482,13 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 	switch( _aiState_l2 )
 	{
 	case L2_PICKUP:
-	{
-	} break;
+		break;
 	case L2_ATTACK:
-	{
 		assert(_target);
-	} break;
+		break;
 	case L2_PATH_SELECT:
-	{
 		assert(nullptr == _target);
-		if( L1_STICK == _aiState_l1 || _drivingAgent->_path.empty() )
+		if( _drivingAgent->_path.empty() )
 		{
 			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE);
 			t = Vec2dClamp(t, world.GetBounds());
@@ -509,7 +503,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 				_drivingAgent->ClearPath();
 			}
 		}
-	} break;
+		break;
 	}
 }
 
