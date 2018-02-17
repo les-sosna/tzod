@@ -1,4 +1,5 @@
 #include "TypeReg.h"
+#include "inc/gc/Field.h"
 #include "inc/gc/RigidBody.h"
 #include "inc/gc/Player.h"
 #include "inc/gc/Vehicle.h"
@@ -33,26 +34,26 @@ GC_RigidBodyStatic::~GC_RigidBodyStatic()
 void GC_RigidBodyStatic::Init(World &world)
 {
 	GC_Actor::Init(world);
-	if( GetPassability() > 0 )
-		world._field.ProcessObject(this, true);
+	if( GetPassability() > 0 && world._field )
+		world._field->ProcessObject(this, true);
 }
 
 void GC_RigidBodyStatic::Kill(World &world)
 {
-	if( GetPassability() > 0 )
-		world._field.ProcessObject(this, false);
+	if( GetPassability() > 0 && world._field )
+		world._field->ProcessObject(this, false);
 	GC_Actor::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 {
-	if( GetPassability() > 0 )
-		world._field.ProcessObject(this, false);
+	if( GetPassability() > 0 && world._field )
+		world._field->ProcessObject(this, false);
 
 	GC_Actor::MoveTo(world, pos);
 
-	if( GetPassability() > 0 )
-		world._field.ProcessObject(this, true);
+	if( GetPassability() > 0 && world._field )
+		world._field->ProcessObject(this, true);
 }
 
 bool GC_RigidBodyStatic::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
@@ -392,8 +393,8 @@ void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 	f.Serialize(_width);
 	f.Serialize(_length);
 
-	if( f.loading() && GetPassability() > 0 )
-		world._field.ProcessObject(this, true);
+	if( f.loading() && GetPassability() > 0 && world._field )
+		world._field->ProcessObject(this, true);
 }
 
 

@@ -119,7 +119,7 @@ void GameContext::Deserialize(FS::Stream &stream)
 	if( VERSION != version )
 		throw std::runtime_error("invalid version");
 
-	_world.reset(new World(RectRB{ width, height }));
+	_world.reset(new World(RectRB{ width, height }, true /* initField */));
 	_world->Deserialize(f);
 
 	// TODO: deserialize world controller

@@ -9,7 +9,7 @@
 
 GameClassVis::GameClassVis(WorldView &worldView)
 	: _worldView(worldView)
-	, _world(RectRB{-2, -2, 2, 2})
+	, _world(RectRB{-2, -2, 2, 2}, false /* initField */)
 {
 }
 

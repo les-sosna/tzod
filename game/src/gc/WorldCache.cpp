@@ -21,7 +21,7 @@ std::unique_ptr<World> LoadMapUncached(FS::FileSystem &fs, std::string_view mapN
 	file.getMapAttribute("west_bound", left);
 	file.getMapAttribute("north_bound", top);
 
-	std::unique_ptr<World> world(new World(RectRB{ left, top, left + width, top + height }));
+	std::unique_ptr<World> world(new World(RectRB{ left, top, left + width, top + height }, true /* initField */));
 	world->Import(file);
 	return world;
 }

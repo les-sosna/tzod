@@ -1,5 +1,4 @@
 #pragma once
-#include "Field.h"
 #include "Grid.h"
 #include "ObjPtr.h"
 #include "WorldEvents.h"
@@ -18,6 +17,7 @@ namespace FS
 {
 	struct Stream;
 }
+class Field;
 class MapFile;
 class SaveFile;
 class GC_Object;
@@ -116,11 +116,11 @@ public:
 
 	unsigned long _seed;
 
-	Field _field;
+	std::unique_ptr<Field> _field;
 	bool  _safeMode;
 
 public:
-	explicit World(RectRB blockBounds);
+	World(RectRB blockBounds, bool initField);
 	World(const World&) = delete;
 	World& operator=(const World&) = delete;
 	~World();

@@ -1,4 +1,5 @@
 #include "TypeReg.h"
+#include "inc/gc/Field.h"
 #include "inc/gc/Particles.h"
 #include "inc/gc/SaveFile.h"
 #include "inc/gc/Wall.h"
@@ -71,13 +72,16 @@ static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
 void GC_Wall::Init(World &world)
 {
 	GC_RigidBodyStatic::Init(world); // adds all corners
-	RemoveCorner(world._field, *this, GetCorner());
+	if (world._field)
+	{
+		RemoveCorner(*world._field, *this, GetCorner());
+	}
 }
 
 void GC_Wall::Kill(World &world)
 {
 	SetCorner(world, 0);
-    GC_RigidBodyStatic::Kill(world);
+	GC_RigidBodyStatic::Kill(world);
 }
 
 static const vec2d angles[4] = { Vec2dDirection(5*PI4), Vec2dDirection(7*PI4), Vec2dDirection(PI4), Vec2dDirection(3*PI4)};
@@ -409,9 +413,9 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 {
 	GC_RigidBodyStatic::Serialize(world, f);
 
-	if( f.loading() )
+	if( f.loading() && world._field)
 	{
-		RemoveCorner(world._field, *this, GetCorner());
+		RemoveCorner(*world._field, *this, GetCorner());
 	}
 }
 
@@ -451,40 +455,47 @@ void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 {
 	// restore current corner
-	vec2d p = GetPos() / WORLD_BLOCK_SIZE;
-	if( CheckFlags(GC_FLAG_WALL_CORNER_ALL) )
+	if (world._field)
 	{
-		int x, y;
-		switch( GetCorner() )
+		vec2d p = GetPos() / WORLD_BLOCK_SIZE;
+		if (CheckFlags(GC_FLAG_WALL_CORNER_ALL))
 		{
-		default:
-			assert(false);
-		case 1:
-			x = (int)std::floor(p.x+1);
-			y = (int)std::floor(p.y+1);
-			break;
-		case 2:
-			x = (int)std::floor(p.x);
-			y = (int)std::floor(p.y + 1);
-			break;
-		case 3:
-			x = (int)std::floor(p.x + 1);
-			y = (int)std::floor(p.y);
-			break;
-		case 4:
-			x = (int)std::floor(p.x);
-			y = (int)std::floor(p.y);
-			break;
-		}
-		x = std::max(world._field.GetBounds().left, std::min(x, world._field.GetBounds().right - 1));
-		y = std::max(world._field.GetBounds().top, std::min(y, world._field.GetBounds().bottom - 1));
+			int x, y;
+			switch (GetCorner())
+			{
+			default:
+				assert(false);
+			case 1:
+				x = (int)std::floor(p.x + 1);
+				y = (int)std::floor(p.y + 1);
+				break;
+			case 2:
+				x = (int)std::floor(p.x);
+				y = (int)std::floor(p.y + 1);
+				break;
+			case 3:
+				x = (int)std::floor(p.x + 1);
+				y = (int)std::floor(p.y);
+				break;
+			case 4:
+				x = (int)std::floor(p.x);
+				y = (int)std::floor(p.y);
+				break;
+			}
+			x = std::max(world._field->GetBounds().left, std::min(x, world._field->GetBounds().right - 1));
+			y = std::max(world._field->GetBounds().top, std::min(y, world._field->GetBounds().bottom - 1));
 
-		world._field(x, y).AddObject(this);
+			(*world._field)(x, y).AddObject(this);
+		}
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
 	SetFlags(FlagsFromCornerIndex(index), true);
-	RemoveCorner(world._field, *this, GetCorner());
+
+	if (world._field)
+	{
+		RemoveCorner(*world._field, *this, GetCorner());
+	}
 }
 
 unsigned int GC_Wall::GetCorner(void) const

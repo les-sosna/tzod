@@ -32,12 +32,12 @@ EditorContext::EditorContext(int width, int height, FS::Stream *stream)
 		bounds.right = std::max(bounds.right, width);
 		bounds.bottom = std::max(bounds.bottom, height);
 
-		_world.reset(new World(bounds));
+		_world.reset(new World(bounds, false /* initField */));
 		_world->Import(mf);
 	}
 	else
 	{
-		_world.reset(new World(bounds));
+		_world.reset(new World(bounds, false /* initField */));
 	}
 
 }

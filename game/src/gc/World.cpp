@@ -1,3 +1,4 @@
+#include "inc/gc/Field.h"
 #include "inc/gc/World.h"
 #include "inc/gc/World.inl"
 #include "inc/gc/WorldCfg.h"
@@ -38,7 +39,7 @@ static int DivCeil(int number, unsigned int denominator)
 	}
 }
 
-World::World(RectRB blockBounds)
+World::World(RectRB blockBounds, bool initField)
 	: _gameStarted(false)
 	, _frozen(false)
 	, _nightMode(false)
@@ -65,7 +66,11 @@ World::World(RectRB blockBounds)
 	grid_pickup.resize(_locationBounds);
 	grid_actors.resize(_locationBounds);
 
-	_field.Resize(RectRB{ _blockBounds.left, _blockBounds.top, _blockBounds.right + 1, _blockBounds.bottom + 1 });
+	if (initField)
+	{
+		_field = std::make_unique<Field>();
+		_field->Resize(RectRB{ _blockBounds.left, _blockBounds.top, _blockBounds.right + 1, _blockBounds.bottom + 1 });
+	}
 	_waterTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 	_woodTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 }

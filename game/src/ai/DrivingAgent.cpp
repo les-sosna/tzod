@@ -72,7 +72,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	}
 
 	Field::NewSession();
-	Field &field = world._field;
+	Field &field = *world._field;
 
 	std::priority_queue<RefFieldCell, std::vector<RefFieldCell>, FieldCellCompare> open(field);
 
@@ -205,7 +205,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				node.coord.y = (float) (currentRef.y * WORLD_BLOCK_SIZE);
 				_path.push_front(node);
 
-				for( int i = 0; i < current->GetObjectsCount(); ++i )
+				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
 					assert(ws);
 					assert(current->Properties() > 0);
