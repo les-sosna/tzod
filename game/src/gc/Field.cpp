@@ -8,11 +8,11 @@ unsigned int FieldCell::_sessionId;
 void FieldCell::UpdateProperties()
 {
 	_prop = 0;
-	for( unsigned int i = 0; i < _objCount; i++ )
+	for( unsigned int i = 0; i < GetObjectsCount(); i++ )
 	{
-		assert(_ppObjects[i]->GetPassability() > 0);
-		if( _ppObjects[i]->GetPassability() > _prop )
-			_prop = _ppObjects[i]->GetPassability();
+		assert(GetObject(i)->GetPassability() > 0);
+		if(GetObject(i)->GetPassability() > _prop )
+			_prop = GetObject(i)->GetPassability();
 	}
 }
 
@@ -21,23 +21,33 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 	assert(object);
 
 #ifndef NDEBUG
-	for( unsigned int i = 0; i < _objCount; ++i )
+	for( unsigned int i = 0; i < GetObjectsCount(); ++i )
 	{
-		assert(object != _ppObjects[i]);
+		assert(object != GetObject(i));
 	}
 #endif
 
-	GC_RigidBodyStatic **tmp = new GC_RigidBodyStatic* [_objCount + 1];
-
-	if( _ppObjects )
+	if (_objCount > 0)
 	{
-		assert(_objCount > 0);
-        std::memcpy(tmp, _ppObjects, sizeof(GC_RigidBodyStatic*) * _objCount);
-		delete[] _ppObjects;
+		std::unique_ptr<GC_RigidBodyStatic*[]> tmp(new GC_RigidBodyStatic*[_objCount + 1]);
+		if (_objCount == 1)
+		{
+			tmp[0] = _singleObject;
+		}
+		else
+		{
+			std::memcpy(tmp.get(), _objects, _objCount * sizeof(GC_RigidBodyStatic*));
+			delete[] _objects;
+		}
+		tmp[_objCount] = object;
+		_objects = tmp.release();
+	}
+	else
+	{
+		_singleObject = object;
 	}
 
-	_ppObjects = tmp;
-	_ppObjects[_objCount++] = object;
+	_objCount++;
 
 	UpdateProperties();
 }
@@ -49,26 +59,29 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 
 	if( 1 == _objCount )
 	{
-		assert(object == _ppObjects[0]);
-		_objCount = 0;
-		delete[] _ppObjects;
-		_ppObjects = nullptr;
+		assert(object == _singleObject);
+		_singleObject = nullptr;
+	}
+	else if (2 == _objCount)
+	{
+		GC_RigidBodyStatic *tmp = _objects[0] == object ? _objects[1] : _objects[0];
+		delete[] _objects;
+		_singleObject = tmp;
 	}
 	else
 	{
-		GC_RigidBodyStatic **tmp = new GC_RigidBodyStatic* [_objCount - 1];
+		auto tmp = std::make_unique<GC_RigidBodyStatic*[]>(_objCount - 1);
 		int j = 0;
 		for( unsigned int i = 0; i < _objCount; ++i )
 		{
-			if( object == _ppObjects[i] ) continue;
-			tmp[j++] = _ppObjects[i];
+			if( object != _objects[i] )
+				tmp[j++] = _objects[i];
 		}
-		_objCount--;
-		assert(j == _objCount);
-		delete[] _ppObjects;
-		_ppObjects = tmp;
+		assert(j == _objCount - 1);
+		delete[] _objects;
+		_objects = tmp.release();
 	}
-
+	_objCount--;
 	UpdateProperties();
 }
 
@@ -76,26 +89,12 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 
 Field::Field()
 {
-	_cells = nullptr;
-	_bounds = {};
 	_edgeCell._prop = 0xFF;
-}
-
-Field::~Field()
-{
-	Clear();
-}
-
-void Field::Clear()
-{
-	_cells.reset();
-	_bounds = {};
 }
 
 void Field::Resize(RectRB bounds)
 {
 	assert(WIDTH(bounds) > 0 && HEIGHT(bounds) > 0);
-	Clear();
 	_bounds = bounds;
 	_cells = std::make_unique<FieldCell[]>(WIDTH(bounds) * HEIGHT(bounds));
 	for( int y = bounds.top; y < bounds.bottom; y++ )

@@ -390,8 +390,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 			assert(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if(_drivingAgent->CreatePath(world, vehicle.GetPos(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(),
-				               AI_MAX_DEPTH, false, ws) > 0 )
+				if(_drivingAgent->CreatePath(world, vehicle.GetPos(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 				{
 					_drivingAgent->SmoothPath();
 				}

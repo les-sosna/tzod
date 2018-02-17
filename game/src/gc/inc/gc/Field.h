@@ -14,7 +14,11 @@ public:
 	static unsigned int _sessionId;
 	unsigned int _mySession = 0xffffffff;
 	//-----------------------------
-	GC_RigidBodyStatic **_ppObjects = nullptr;
+	union
+	{
+		GC_RigidBodyStatic **_objects = nullptr;
+		GC_RigidBodyStatic *_singleObject; // when _objCount==1
+	};
 	unsigned int _objCount = 0;
 	//-----------------------------
 	void UpdateProperties();
@@ -22,7 +26,7 @@ public:
 	float _before; // actual path cost to this node
 	float _total; // total path cost estimate
 
-	unsigned char _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
+	uint8_t _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
 	int8_t _stepX = 0;
 	int8_t _stepY = 0;
 
@@ -31,8 +35,11 @@ public:
 	FieldCell(const FieldCell &other) = delete;
 	FieldCell& operator = (const FieldCell &other) = delete;
 
-	int GetObjectsCount() const { return _objCount; }
-	GC_RigidBodyStatic* GetObject(int index) const { return _ppObjects[index]; }
+	unsigned int GetObjectsCount() const { return _objCount; }
+	GC_RigidBodyStatic* GetObject(unsigned int index) const
+	{
+		return _objCount > 1 ? _objects[index] : _singleObject;
+	}
 
 	bool IsChecked() const { return _mySession == _sessionId; }
 	void Check()           { _mySession = _sessionId;         }
@@ -63,7 +70,6 @@ public:
 	static void NewSession() { ++FieldCell::_sessionId; }
 
 	Field();
-	~Field();
 
 	void Resize(RectRB bounds);
 	void ProcessObject(GC_RigidBodyStatic *object, bool add);
@@ -91,9 +97,7 @@ public:
 private:
 	FieldCell _edgeCell;
 	std::unique_ptr<FieldCell[]> _cells;
-	RectRB _bounds;
-
-	void Clear();
+	RectRB _bounds = {};
 };
 
 class FieldCellCompare

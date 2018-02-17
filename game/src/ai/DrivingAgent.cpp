@@ -146,8 +146,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				// penalty for turns
 				if (cn._stepX || cn._stepY) // TODO: use initial vehicle direction
 				{
-					float c = float(cn._stepX * per_x[i] + cn._stepY * per_y[i]) /
-						(dist[i] * std::sqrt(cn._stepX*cn._stepX + cn._stepY*cn._stepY));
+					float stepSqr = float(cn._stepX*cn._stepX + cn._stepY*cn._stepY);
+					float c = float(cn._stepX * per_x[i] + cn._stepY * per_y[i]) / (dist[i] * std::sqrt(stepSqr));
 					if (c < 0.5f) // 0 is 90 deg. turn
 						before += 1;
 					else if (c < 0.9f) // 0.707 is 45 deg. turn
@@ -184,8 +184,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 		if( !bTest )
 		{
-			// construct a new path
-
 			ClearPath();
 
 			RefFieldCell currentRef = endRef;
