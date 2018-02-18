@@ -39,8 +39,6 @@ public:
 	void OnRespawn(World &world, const GC_Vehicle &vehicle);
 	void OnDie();
 
-	void debug_draw(World &world);
-
 	void SetLevel(int level);
 	int  GetLevel() const { return _difficulty; }
 

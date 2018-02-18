@@ -25,9 +25,8 @@ static void CatmullRom(const vec2d &p1, const vec2d &p2, const vec2d &p3, const 
 
 void DrivingAgent::Serialize(SaveFile &f)
 {
-	f.Serialize(_arrivalPoint);
 	f.Serialize(_backTime);
-	f.Serialize(_stickTime);
+	f.Serialize(_attackFriendlyTurrets);
 
 	if (f.loading())
 	{
@@ -189,7 +188,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			PathNode node;
 
 			node.coord = to;
-			_path.push_front(node);
+			_path.push_back(node);
 
 			while( current->_stepX || current->_stepY )
 			{
@@ -200,7 +199,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 				node.coord.x = (float) (currentRef.x * WORLD_BLOCK_SIZE);
 				node.coord.y = (float) (currentRef.y * WORLD_BLOCK_SIZE);
-				_path.push_front(node);
+				_path.push_back(node);
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
@@ -221,6 +220,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				}
 			}
 
+			std::reverse(begin(_path), end(_path));
+
 			assert(startRef == currentRef);
 		}
 
@@ -237,7 +238,7 @@ void DrivingAgent::SmoothPath()
 		return;
 
 	vec2d vn[4];
-	std::list<PathNode>::iterator it[4], tmp;
+	std::vector<PathNode>::iterator it[4], tmp;
 
 	//
 	// smooth angles
@@ -292,10 +293,16 @@ void DrivingAgent::SmoothPath()
 	}
 }
 
-std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode(const vec2d &pos, vec2d *projection, float *offset) const
+// returns:
+//   * closest path node
+//   * projection of 'pos' to the path
+//   * offset
+std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode(const vec2d &pos, vec2d *projection, float *offset) const
 {
 	assert(!_path.empty());
-	std::list<PathNode>::const_iterator it = _path.begin(), result = it;
+
+	// find closest node
+	auto it = _path.begin(), result = it;
 	float rr_min = (it->coord - pos).sqr();
 	while( ++it != _path.end() )
 	{
@@ -306,7 +313,6 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 			rr_min = rr;
 		}
 	}
-
 	assert(_path.end() != result);
 
 	if( projection )
@@ -315,9 +321,6 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 
 		float prevL = -1;
 		float nextL = -1;
-
-		vec2d prevPos;
-		vec2d nextPos;
 
 		vec2d nextDir;
 		vec2d prevDir;
@@ -328,7 +331,7 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 		float prevDir2;
 		float prevDot;
 
-		std::list<PathNode>::const_iterator prevIt = result;
+		auto prevIt = result;
 		if( _path.begin() != result )
 		{
 			--prevIt;
@@ -338,7 +341,7 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 			prevL    = prevDot / sqrtf(prevDir2);
 		}
 
-		std::list<PathNode>::const_iterator nextIt = result; ++nextIt;
+		auto nextIt = result; ++nextIt;
 		if( _path.end() != nextIt )
 		{
 			nextDir  = nextIt->coord - result->coord;
@@ -350,9 +353,7 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 		if( prevL > 0 && prevL > nextL )
 		{
 			vec2d d = prevDir * (prevDot / prevDir2);
-			prevPos  = result->coord + d;
-			*projection = prevPos;
-//			result = prevIt;
+			*projection = result->coord + d;
 			if( offset )
 			{
 				*offset = d.len();
@@ -362,8 +363,7 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 		if( nextL > 0 && nextL > prevL )
 		{
 			vec2d d = nextDir * (nextDot / nextDir2);
-			nextPos  = result->coord + d;
-			*projection = nextPos;
+			*projection = result->coord + d;
 			if( offset )
 			{
 				*offset = -d.len();
@@ -384,6 +384,8 @@ std::list<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode
 
 void DrivingAgent::ClearPath()
 {
+	_lastProgressTime = 0;
+	_pathProgress = -1;
 	_path.clear();
 	_attackList.clear();
 }
@@ -412,6 +414,11 @@ static void RotateTo(const GC_Vehicle &vehicle, VehicleState *outState, const ve
 
 void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float dt, VehicleState &vs)
 {
+	// clean the attack list
+	_attackList.remove_if([](auto &arg){ return !arg; });
+
+	vec2d arrivalPoint = {};
+
 	vec2d brake = vehicle.GetBrakingLength();
 //	float brake_len = brake.len();
 	float brakeSqr = brake.sqr();
@@ -423,16 +430,23 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 	if (!_path.empty())
 	{
 //		vec2d predictedProj;
-//		std::list<PathNode>::const_iterator predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, nullptr);
+//		auto predictedNodeIt = FindNearPathNode(predictedPos, &predictedProj, nullptr);
 
 		vec2d currentProj;
 		float offset;
-		std::list<PathNode>::const_iterator currentNodeIt = FindNearPathNode(currentPos, &currentProj, &offset);
+		auto currentNodeIt = FindNearPathNode(currentPos, &currentProj, &offset);
 
-		float desiredProjOffsetLen = vehicle.GetMaxBrakingLength() * 2;//(1 + vehicle._lv.len() / vehicle.GetMaxSpeed());
+		int newProgress = std::distance(cbegin(_path), currentNodeIt);
+		if (newProgress > _pathProgress)
+		{
+			_pathProgress = newProgress;
+			_lastProgressTime = world.GetTime();
+		}
+
+		float desiredProjOffsetLen = vehicle.GetMaxBrakingLength() * 2;
 		vec2d desiredProjOffset;
 
-		std::list<PathNode>::const_iterator it = currentNodeIt;
+		auto it = currentNodeIt;
 		if (offset > 0)
 		{
 			vec2d d = it->coord;
@@ -465,17 +479,18 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 
 		if (++currentNodeIt == _path.end() && (currentProj - currentPos).sqr() < WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE / 16)
 		{
-			_path.clear(); // end of path
+			// end of path
+			ClearPath();
 		}
 		//else
 		//{
 		//	if( (predictedPos - predictedProj).sqr() < WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE && brake_len > 1 )
 		//	{
-		//		_arrivalPoint = predictedProj + brake;
+		//		arrivalPoint = predictedProj + brake;
 		//	}
 		//	else
 		//	{
-		_arrivalPoint = desiredProjOffset;
+		arrivalPoint = desiredProjOffset;
 		//	}
 		//}
 
@@ -509,11 +524,11 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 
 	if (brake.sqr() > 0)
 	{
-		vec2d angle[] = { Vec2dDirection(PI / 4), Vec2dDirection(0), Vec2dDirection(-PI / 4) };
-		float len[] = { 1,2,1 };
-
 		float min_d = -1;
 		vec2d min_hit, min_norm;
+
+		vec2d angle[] = { Vec2dDirection(PI / 4), Vec2dDirection(0), Vec2dDirection(-PI / 4) };
+		float len[] = { 1,2,1 };
 		for (int i = 0; i < 3; ++i)
 		{
 			vec2d tmp = Vec2dAddDirection(vehicle.GetDirection(), vec2d(angle[i]));
@@ -554,57 +569,51 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 			min_norm = (min_norm - hit_dir * Vec2dDot(min_norm, hit_dir)).Normalize() + min_norm;
 			min_norm.Normalize();
 			min_norm *= 1.4142f;// sqrt(2)
-			_arrivalPoint = min_hit + min_norm * vehicle.GetRadius();
-//			DbgLine(min_hit, _arrivalPoint, 0xff0000ff);
+			arrivalPoint = min_hit + min_norm * vehicle.GetRadius();
+//			DbgLine(min_hit, arrivalPoint, 0xff0000ff);
 		}
 	}
 
-
-	//
-	// follow the path
-	//
-
-	float dst = (currentPos - _arrivalPoint).sqr();
-	if (dst > WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE / 16)
-	{
-		if (_backTime <= 0)
-		{
-			RotateTo(vehicle, &vs, _arrivalPoint, dst > brakeSqr, false);
-		}
-		else
-		{
-			vs.gas = -1;
-		}
-	}
-
-
-	_backTime -= dt;
-
-	if ((vs.gas != 0) && vehicle._lv.len() < vehicle.GetMaxSpeed() * 0.3f)
-	{
-		_stickTime += dt;
-		if (_stickTime > 0.6f)
-		{
-			_backTime = world.net_frand(0.5f);
-		}
-	}
-	else
-	{
-		_stickTime = 0;
-	}
-}
-
-void DrivingAgent::StayAway(const GC_Vehicle &vehicle, vec2d fromCenter, float radius)
-{
-	vec2d d = fromCenter - vehicle.GetPos();
+	vec2d d = _stayAwayFrom - arrivalPoint;
 	float d_len = d.len();
-	if (d_len < radius)
+	if (d_len < _stayAwayRadius)
 	{
 		if (d_len < 1)
 		{
 			d = -vehicle.GetDirection();
 			d_len = 1;
 		}
-		_arrivalPoint = vehicle.GetPos() + d * (1 - radius / d_len);
+		arrivalPoint = _stayAwayFrom - d.Norm() * _stayAwayRadius;
 	}
+
+	//
+	// follow the path
+	//
+
+	float dst = (currentPos - arrivalPoint).sqr();
+	if (dst > WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE / 16)
+	{
+		if (_backTime > 0)
+		{
+			_lastProgressTime = world.GetTime();
+			vs.gas = -1;
+		}
+		else
+		{
+			RotateTo(vehicle, &vs, arrivalPoint, dst > brakeSqr, false);
+		}
+	}
+
+	_backTime -= dt;
+
+	if (_backTime <= 0 && world.GetTime() - _lastProgressTime > 0.6f)
+	{
+		_backTime = world.net_frand(0.5f);
+	}
+}
+
+void DrivingAgent::StayAway(vec2d fromCenter, float radius)
+{
+	_stayAwayFrom = fromCenter;
+	_stayAwayRadius = radius;
 }

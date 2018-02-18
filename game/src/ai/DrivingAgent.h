@@ -2,6 +2,7 @@
 #include <gc/ObjPtr.h>
 #include <math/MyMath.h>
 #include <list>
+#include <vector>
 
 class FieldCell;
 class SaveFile;
@@ -21,14 +22,6 @@ public:
 		vec2d coord;
 	};
 
-	vec2d _arrivalPoint = {};
-	std::list<PathNode> _path;
-	AttackListType _attackList;
-
-	float _backTime = 0;
-	float _stickTime = 0;
-	bool _attackFriendlyTurrets = false;
-
 	//-------------------------------------------------------------------------
 	//  to           - coordinates of the arrival point
 	//  max_depth    - maximum search depth
@@ -36,6 +29,7 @@ public:
 	// Return: path cost or -1 if path was not found
 	//-------------------------------------------------------------------------
 	float CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
+	bool HasPath() const { return !_path.empty(); }
 
 	// clears the current path and the attack list
 	void ClearPath();
@@ -43,12 +37,26 @@ public:
 	// create additional path nodes to make it more smooth
 	void SmoothPath();
 
-	// find the nearest node to the vehicle
-	std::list<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
+	// find the nearest node and projection to the path
+	std::vector<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
 
-	void StayAway(const GC_Vehicle &vehicle, vec2d fromCenter, float radius);
+	void StayAway(vec2d fromCenter, float radius);
 
 	void ComputeState(World &world, const GC_Vehicle &vehicle, float dt, VehicleState &vs);
 	void Serialize(SaveFile &f);
+
+	void SetAttackFriendlyTurrets(bool value) { _attackFriendlyTurrets = value; }
+
+	AttackListType _attackList;
+private:
+	std::vector<PathNode> _path;
+	int _pathProgress = -1;
+	float _lastProgressTime = 0;
+
+	vec2d _stayAwayFrom = {};
+	float _stayAwayRadius = 0;
+
+	float _backTime = 0;
+	bool _attackFriendlyTurrets = false;
 };
 

@@ -49,9 +49,6 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 {
 	memset(&outVehicleState, 0, sizeof(VehicleState));
 
-	// clean the attack list
-	_drivingAgent->_attackList.remove_if( [](const ObjPtr<GC_RigidBodyStatic> &arg) -> bool { return !arg; } );
-
 	if( _pickupCurrent )
 	{
 		if( !_pickupCurrent->GetVisible() )
@@ -99,12 +96,17 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		{
 			// attack the primary target
 			_shootingAgent->AttackTarget(world, vehicle, *_target, dt, outVehicleState);
-			_drivingAgent->StayAway(vehicle, _target->GetPos(), weapSettings.fAttackRadius_min);
+			_drivingAgent->StayAway(_target->GetPos(), weapSettings.fAttackRadius_min);
 		}
-		else if (!_drivingAgent->_attackList.empty() && IsTargetVisible(world, vehicle, _drivingAgent->_attackList.front()))
+		else
 		{
-			// attack secondary targets
-			_shootingAgent->AttackTarget(world, vehicle, *_drivingAgent->_attackList.front(), dt, outVehicleState);
+			_drivingAgent->StayAway({}, 0);
+
+			if (!_drivingAgent->_attackList.empty() && IsTargetVisible(world, vehicle, _drivingAgent->_attackList.front()))
+			{
+				// attack secondary targets
+				_shootingAgent->AttackTarget(world, vehicle, *_drivingAgent->_attackList.front(), dt, outVehicleState);
+			}
 		}
 
 //		DbgLine(vehicle.GetPos(), _arrivalPoint, 0x0000ffff);
@@ -410,7 +412,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 void AIController::SetLevel(int level)
 {
 	_difficulty = level;
-	_drivingAgent->_attackFriendlyTurrets = (level == 0); // be totally stupid
+	_drivingAgent->SetAttackFriendlyTurrets(level == 0); // be totally stupid
 }
 
 bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float y)
@@ -487,7 +489,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 		break;
 	case L2_PATH_SELECT:
 		assert(nullptr == _target);
-		if( _drivingAgent->_path.empty() )
+		if( !_drivingAgent->HasPath() )
 		{
 			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE);
 			t = Vec2dClamp(t, world.GetBounds());
@@ -527,20 +529,20 @@ bool AIController::IsTargetVisible(const World &world, const GC_Vehicle &vehicle
 	if( object && object != target )
 	{
 		if( ppObstacle )
-            *ppObstacle = object;
+			*ppObstacle = object;
 		return false;
 	}
 	else
 	{
 		if( ppObstacle )
-            *ppObstacle = nullptr;
+			*ppObstacle = nullptr;
 		return true;
 	}
 }
 
 void AIController::OnRespawn(World &world, const GC_Vehicle &vehicle)
 {
-	_drivingAgent->_arrivalPoint = vehicle.GetPos();
+//	_drivingAgent->_arrivalPoint = vehicle.GetPos();
 //	_jobManager.RegisterMember(this);
 	SelectFavoriteWeapon(world);
 }
@@ -551,59 +553,3 @@ void AIController::OnDie()
 	_target = nullptr;
 	_drivingAgent->ClearPath();
 }
-
-////////////////////////////////////////////
-// debug graphics
-
-void AIController::debug_draw(World &world)
-{
-	if( !_drivingAgent->_path.empty() )
-	{
-//		Ellipse(hdc, int(_path.front().coord.x) - 2, int(_path.front().coord.y) - 2,
-//					 int(_path.front().coord.x) + 2, int(_path.front().coord.y) + 2);
-
-		auto it = _drivingAgent->_path.begin();
-		for(;;)
-		{
-//			vec2d v = it->coord;
-			if( ++it == _drivingAgent->_path.end() ) break;
-//			DbgLine(v, it->coord, 0xffffffff);
-		}
-	}
-/*
-	if( _target )
-	{
-		if( GetVehicle() )
-		{
-			DrawLine(_target->GetPos(), GetVehicle()->GetPos(), 0xff00ffff);
-		}
-	}
-*/
-
-	/*
-	CAttackList al(_AttackList);
-	int count = 1;
-	while( !al.IsEmpty() )
-	{
-		GC_RigidBodyStatic *target = al.Pop();
-		FRECT frect;
-		target->GetGlobalRect(frect);
-
-		RECT rect;
-		rect.left = (long) frect.left;
-		rect.top = (long) frect.top;
-		rect.right = (long) frect.right;
-		rect.bottom = (long) frect.bottom;
-
-
-		Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
-		char s[20];
-		sprintf(s, "%d", count);
-		DrawText(hdc, s, -1, &rect, DT_SINGLELINE|DT_CENTER|DT_VCENTER|DT_NOCLIP);
-		++count;
-	}
-*/
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// end of file

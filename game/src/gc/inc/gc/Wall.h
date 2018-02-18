@@ -27,7 +27,7 @@ public:
 	virtual ~GC_Wall();
 
 	void SetCorner(World &world, unsigned int index); // 01
-	unsigned int GetCorner(void) const; // 32
+	unsigned int GetCorner(void) const;               // 32
 
 	void SetStyle(int style); // 0-3
 	int GetStyle() const;
