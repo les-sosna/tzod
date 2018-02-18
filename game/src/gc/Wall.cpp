@@ -50,11 +50,11 @@ static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
 				y = (int)std::floor(p.y + 1);
 				break;
 			case 3:
-				x = (int)std::floor(p.x + 1);
+				x = (int)std::floor(p.x);
 				y = (int)std::floor(p.y);
 				break;
 			case 4:
-				x = (int)std::floor(p.x);
+				x = (int)std::floor(p.x + 1);
 				y = (int)std::floor(p.y);
 				break;
 		}
@@ -455,38 +455,35 @@ void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 {
 	// restore current corner
-	if (world._field)
+	vec2d p = GetPos() / WORLD_BLOCK_SIZE;
+	if (world._field && CheckFlags(GC_FLAG_WALL_CORNER_ALL))
 	{
-		vec2d p = GetPos() / WORLD_BLOCK_SIZE;
-		if (CheckFlags(GC_FLAG_WALL_CORNER_ALL))
+		int x, y;
+		switch (GetCorner())
 		{
-			int x, y;
-			switch (GetCorner())
-			{
-			default:
-				assert(false);
-			case 1:
-				x = (int)std::floor(p.x + 1);
-				y = (int)std::floor(p.y + 1);
-				break;
-			case 2:
-				x = (int)std::floor(p.x);
-				y = (int)std::floor(p.y + 1);
-				break;
-			case 3:
-				x = (int)std::floor(p.x + 1);
-				y = (int)std::floor(p.y);
-				break;
-			case 4:
-				x = (int)std::floor(p.x);
-				y = (int)std::floor(p.y);
-				break;
-			}
-			x = std::max(world._field->GetBounds().left, std::min(x, world._field->GetBounds().right - 1));
-			y = std::max(world._field->GetBounds().top, std::min(y, world._field->GetBounds().bottom - 1));
-
-			(*world._field)(x, y).AddObject(this);
+		default:
+			assert(false);
+		case 1:
+			x = (int)std::floor(p.x + 1);
+			y = (int)std::floor(p.y + 1);
+			break;
+		case 2:
+			x = (int)std::floor(p.x);
+			y = (int)std::floor(p.y + 1);
+			break;
+		case 3:
+			x = (int)std::floor(p.x);
+			y = (int)std::floor(p.y);
+			break;
+		case 4:
+			x = (int)std::floor(p.x + 1);
+			y = (int)std::floor(p.y);
+			break;
 		}
+		x = std::max(world._field->GetBounds().left, std::min(x, world._field->GetBounds().right - 1));
+		y = std::max(world._field->GetBounds().top, std::min(y, world._field->GetBounds().bottom - 1));
+
+		(*world._field)(x, y).AddObject(this);
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
