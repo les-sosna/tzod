@@ -76,8 +76,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	std::priority_queue<RefFieldCell, std::vector<RefFieldCell>, FieldCellCompare> open(field);
 
-	RefFieldCell startRef = { GRID_ALIGN(int(from.x), WORLD_BLOCK_SIZE), GRID_ALIGN(int(from.y), WORLD_BLOCK_SIZE) };
-	RefFieldCell endRef = { GRID_ALIGN(int(to.x), WORLD_BLOCK_SIZE) , GRID_ALIGN(int(to.y), WORLD_BLOCK_SIZE) };
+	RefFieldCell startRef = { (int)std::floor(from.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(from.y / WORLD_BLOCK_SIZE + 0.5f) };
+	RefFieldCell endRef = { (int)std::floor(to.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(to.y / WORLD_BLOCK_SIZE + 0.5f) };
 
 	FieldCell &start = field(startRef.x, startRef.y);
 
@@ -92,7 +92,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	open.push(startRef);
 
-
 	while( !open.empty() )
 	{
 		RefFieldCell currentRef = open.top();
@@ -100,8 +99,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 		FieldCell &cn = field(currentRef.x, currentRef.y);
 
-		if(currentRef == endRef)
-			break; // a path was found
 
 		// neighbor nodes check order
 		//    4 | 0 | 6
@@ -109,9 +106,9 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 		//    2 | n | 3
 		//   ---+---+---
 		//    7 | 1 | 5
-		//                               0  1  2  3  4  5  6  7
-		static const int   per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
-		static const int   per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
+		//                             0  1  2  3  4  5  6  7
+		static const int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
+		static const int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
 		static const float dist [8] = {
 			1.0f, 1.0f, 1.0f, 1.0f,
 			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // path cost
