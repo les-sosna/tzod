@@ -122,14 +122,14 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 		for( int i = 0; i < 8; ++i )
 		{
-			if( i > 3 ) // check diagonal passability
+/*			if( i > 3 ) // check diagonal passability
 			if( !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2  ]],
 			                     currentRef.y + per_y[check_diag[(i-4)*2  ]]), !!ws) ||
 			    !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2+1]],
 			                     currentRef.y + per_y[check_diag[(i-4)*2+1]]), !!ws) )
 			{
 				continue;
-			}
+			}*/
 
 
 			RefFieldCell nextRef = { currentRef.x + per_x[i], currentRef.y + per_y[i] };
