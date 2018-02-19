@@ -207,18 +207,24 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 {
 	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
 
-	float labelOffset = texman.GetCharHeight(_titleFont.GetTextureId(texman)) / 2;
+	float pxLabelOffset = UI::ToPx(texman.GetCharHeight(_titleFont.GetTextureId(texman)) / 2, lc);
+	float pxAvailableSpace = lc.GetPixelSize().y - pxLabelOffset * 2;
 
-	float scale = (lc.GetPixelSize().y - labelOffset * 2) / (_rangeMin - _rangeMax);
-	float center = labelOffset - _rangeMax * scale;
-	float dx = lc.GetPixelSize().x - (float) _data.size() * _scale;
+	float scale = pxAvailableSpace / (_rangeMin - _rangeMax);
+	float xoffset = lc.GetPixelSize().x - (float) _data.size() * _scale;
 
 	size_t bar = _barTexture.GetTextureId(texman);
 
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
-		rc.DrawSprite(bar, 0, 0x44444444, vec2d{ (float)i * _scale + dx, center }, 2, _data[i] * scale, vec2d{ 1, 0 });
+		FRECT rect;
+		rect.left = (float)i * _scale + xoffset;
+		rect.right = rect.left + UI::ToPx(2, lc);
+		rect.bottom = lc.GetPixelSize().y - pxLabelOffset;
+		rect.top = rect.bottom + (_data[i] - _rangeMin) * scale;
+
+		rc.DrawSprite(rect, bar, 0x44444444, 0);
 	}
 
 	// grid
@@ -229,18 +235,18 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		for( int i = start; i <= stop; ++i )
 		{
 			float y = (float) i * _gridStepY;
-			rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, labelOffset - (_rangeMax - y) * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+			rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, pxLabelOffset - (_rangeMax - y) * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 			std::ostringstream buf;
 			buf << y;
 			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
-			rc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - textWidth, labelOffset - (_rangeMax - y) * scale - labelOffset },
+			rc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - textWidth, pxLabelOffset - (_rangeMax - y) * scale - pxLabelOffset },
 				lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, buf.str());
 		}
 	}
 	else
 	{
-		rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, labelOffset - _rangeMax * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+		rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, pxLabelOffset - _rangeMax * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 	}
 
-	rc.DrawBitmapText(vec2d{ 0, labelOffset - labelOffset }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, _title);
+	rc.DrawBitmapText(vec2d{ 0, pxLabelOffset - pxLabelOffset }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, _title);
 }
