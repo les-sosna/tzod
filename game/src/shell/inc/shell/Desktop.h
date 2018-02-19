@@ -118,6 +118,7 @@ private:
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	void OnKeyReleased(UI::InputContext &ic, UI::Key key) override;
 
 	// UI::NavigationSink
 	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;

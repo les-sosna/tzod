@@ -45,6 +45,7 @@ struct ScrollSink
 struct KeyboardSink
 {
 	virtual bool OnKeyPressed(InputContext &ic, Key key) { return false; }
+	virtual void OnKeyReleased(InputContext &ic, Key key) {}
 };
 
 struct TextSink

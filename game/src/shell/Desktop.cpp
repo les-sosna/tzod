@@ -422,7 +422,11 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	{
 	case UI::Key::GraveAccent: // '~'
 		_con->SetVisible(!_con->GetVisible());
-		UpdateFocus();
+		// on show do not grab focus yet - wait until the key released
+		if (!_con->GetVisible())
+		{
+			UpdateFocus();
+		}
 		break;
 
 	case UI::Key::Escape:
@@ -465,6 +469,14 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	}
 
 	return true;
+}
+
+void Desktop::OnKeyReleased(UI::InputContext &ic, UI::Key key)
+{
+	if (UI::Key::GraveAccent == key)
+	{
+		UpdateFocus();
+	}
 }
 
 bool Desktop::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const

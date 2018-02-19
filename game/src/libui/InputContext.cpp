@@ -432,6 +432,18 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	switch (msg)
 	{
 	case Msg::KeyReleased:
+		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
+			texman,
+			*this,
+			[key, this](std::shared_ptr<Window> wnd) // visitor
+			{
+				if (KeyboardSink *keyboardSink = wnd->GetKeyboardSink())
+				{
+					keyboardSink->OnKeyReleased(*this, key);
+				}
+				return false;
+			}
+		});
 		break;
 	case Msg::KeyPressed:
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
