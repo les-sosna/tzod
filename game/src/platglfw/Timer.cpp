@@ -1,7 +1,6 @@
 #include "inc/platglfw/Timer.h"
 #include <algorithm>
 #include <cassert>
-#include <numeric>
 
 Timer::Timer()
 	: _stopCount(1) // timer is stopped initially
@@ -30,22 +29,7 @@ float Timer::GetDt()
 	if( fseconds > _time_max_dt )
 		fseconds = _time_max_dt;
 
-	// moving average
-	_movingAverageWindow.push_back(fseconds.count());
-	if (_movingAverageWindow.size() > 8)
-		_movingAverageWindow.pop_front();
-	float mean = std::accumulate(_movingAverageWindow.begin(), _movingAverageWindow.end(), 0.0f) / (float)_movingAverageWindow.size();
-
-	// moving median of moving average
-	_movingMedianWindow.push_back(mean);
-	if (_movingMedianWindow.size() > 100)
-		_movingMedianWindow.pop_front();
-	float buf[100];
-	std::copy(_movingMedianWindow.begin(), _movingMedianWindow.end(), buf);
-	std::nth_element(buf, buf + _movingMedianWindow.size() / 2, buf + _movingMedianWindow.size());
-
-	// median
-	return buf[_movingMedianWindow.size() / 2];
+	return fseconds.count();
 }
 
 

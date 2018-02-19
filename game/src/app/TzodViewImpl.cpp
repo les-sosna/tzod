@@ -5,6 +5,7 @@
 #include <shell/Desktop.h>
 #include <shell/Profiler.h>
 #include <ui/ConsoleBuffer.h>
+#include <numeric>
 
 static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &logger, IRender &render)
 {
@@ -45,12 +46,30 @@ static CounterBase counterDt("dt", "dt, ms");
 
 void TzodViewImpl::Step(float dt)
 {
-	// controller pass
 	counterDt.Push(dt);
-	_uiInputRenderingController.TimeStep(dt); // this also sends user controller state to WorldController
+
+	// moving average
+	_movingAverageWindow.push_back(dt);
+	if (_movingAverageWindow.size() > 8)
+		_movingAverageWindow.pop_front();
+	float mean = std::accumulate(_movingAverageWindow.begin(), _movingAverageWindow.end(), 0.0f) / (float)_movingAverageWindow.size();
+
+	// moving median of moving average
+	_movingMedianWindow.push_back(mean);
+	if (_movingMedianWindow.size() > 100)
+		_movingMedianWindow.pop_front();
+	float buf[100];
+	std::copy(_movingMedianWindow.begin(), _movingMedianWindow.end(), buf);
+	std::nth_element(buf, buf + _movingMedianWindow.size() / 2, buf + _movingMedianWindow.size());
+
+	// median
+	float filteredDt = buf[_movingMedianWindow.size() / 2];
+
+	// controller pass
+	_uiInputRenderingController.TimeStep(filteredDt); // this also sends user controller state to WorldController
 
 	// model pass
-	_app.Step(dt);
+	_app.Step(filteredDt);
 
 	// view pass
 #ifndef NOSOUND

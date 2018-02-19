@@ -5,6 +5,7 @@
 #include <platetc/UIInputRenderingController.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
+#include <deque>
 #include <memory>
 
 class TzodApp;
@@ -22,6 +23,8 @@ private:
 	UI::TimeStepManager _timeStepManager;
 	std::shared_ptr<UI::Window> _desktop;
 	UIInputRenderingController _uiInputRenderingController;
+	std::deque<float> _movingAverageWindow;
+	std::deque<float> _movingMedianWindow;
 #ifndef NOSOUND
 	SoundView _soundView;
 #endif
