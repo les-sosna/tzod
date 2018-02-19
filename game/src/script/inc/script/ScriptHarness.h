@@ -4,6 +4,7 @@
 #include "detail/sRigidBodyStatic.h"
 #include "detail/sTrigger.h"
 #include <gc/WorldEvents.h>
+#include <luaetc/LuaDeleter.h>
 #include <memory>
 
 class SaveFile;
@@ -29,7 +30,7 @@ public:
 private:
 	World &_world;
 	ScriptMessageSink &_messageSink;
-	lua_State *_L;
+	std::unique_ptr<lua_State, LuaStateDeleter> _L;
 
 	sPickup _sPickup;
 	sPlayer _sPlayer;

@@ -2,7 +2,6 @@
 #include "detail/ConfigConsoleHistory.h"
 #include "detail/MapCollection.h"
 #include <as/AppStateListener.h>
-#include <luaetc/LuaDeleter.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
 #include "ui/Navigation.h"
@@ -31,6 +30,7 @@ class GameLayout;
 class FpsCounter;
 class ShellConfig;
 class LangCache;
+class LuaConsole;
 class NavStack;
 
 class Desktop
@@ -75,7 +75,7 @@ private:
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
 	UI::ConsoleBuffer &_logger;
-	std::unique_ptr<lua_State, LuaStateDeleter> _globL;
+	std::unique_ptr<LuaConsole> _luaConsole;
 
 	std::shared_ptr<EditorLayout> _editor;
 	std::shared_ptr<GameLayout> _game;

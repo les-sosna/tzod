@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "GetFileName.h"
 #include "gui.h"
+#include "LuaConsole.h"
 #include "MainMenu.h"
 #include "NavStack.h"
 #include "SelectMapDlg.h"
@@ -21,7 +22,6 @@
 #include <gc/World.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
-//#include <script/script.h>
 #include <ui/Button.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
@@ -65,16 +65,12 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	, _lang(lang)
 	, _dmCampaign(dmCampaign)
 	, _logger(logger)
-	, _globL(luaL_newstate())
 	, _renderScheme(texman)
 	, _worldView(texman, _renderScheme)
 	, _mapCollection(*fs.GetFileSystem(DIR_MAPS))
 {
 	using namespace std::placeholders;
 	using namespace UI::DataSourceAliases;
-
-	if (!_globL)
-		throw std::bad_alloc();
 
 	_tierTitle = std::make_shared<UI::Text>();
 	_tierTitle->SetAlign(alignTextCC);
@@ -537,73 +533,18 @@ void Desktop::OnCommand(std::string_view cmd)
 		return;
 	}
 
-	std::string exec;
+	if (!_luaConsole)
+		_luaConsole = std::make_unique<LuaConsole>(_logger, _conf);
 
-    if( cmd[0] == '/' )
-    {
-        exec = cmd.substr(1); // cut off the first symbol and execute cmd
-    }
-    else
-    {
-//        SendTextMessage(cmd);
-        return;
-    }
-
-
-	if( luaL_loadstring(_globL.get(), exec.c_str()) )
-	{
-		lua_pop(_globL.get(), 1);
-
-		std::string tmp = "print(";
-		tmp += exec;
-		tmp += ")";
-
-		if( luaL_loadstring(_globL.get(), tmp.c_str()) )
-		{
-			lua_pop(_globL.get(), 1);
-		}
-		else
-		{
-//			script_exec(_globL.get(), tmp.c_str());
-			return;
-		}
-	}
-
-//	script_exec(_globL.get(), exec.c_str());
+	_luaConsole->Exec(cmd);
 }
 
 bool Desktop::OnCompleteCommand(std::string_view cmd, int &pos, std::string &result)
 {
-	assert(pos >= 0);
-	lua_getglobal(_globL.get(), "autocomplete"); // FIXME: can potentially throw
-	if( lua_isnil(_globL.get(), -1) )
-	{
-		lua_pop(_globL.get(), 1);
-		_logger.WriteLine(1, "There was no autocomplete module loaded");
-		return false;
-	}
-	lua_pushlstring(_globL.get(), cmd.substr(0, pos).data(), pos);
-	if( lua_pcall(_globL.get(), 1, 1, 0) )
-	{
-		_logger.WriteLine(1, lua_tostring(_globL.get(), -1));
-		lua_pop(_globL.get(), 1); // pop error message
-	}
-	else
-	{
-		const char *str = lua_tostring(_globL.get(), -1);
-		std::string insert = str ? str : "";
+	if (!_luaConsole)
+		_luaConsole = std::make_unique<LuaConsole>(_logger, _conf);
 
-		result = std::string(cmd.substr(0, pos)).append(insert).append(cmd.substr(pos));
-		pos += static_cast<int>(insert.length());
-
-		if( !result.empty() && result[0] != '/' )
-		{
-			result = std::string("/") + result;
-			++pos;
-		}
-	}
-	lua_pop(_globL.get(), 1); // pop result or error message
-	return true;
+	return _luaConsole->CompleteCommand(cmd, pos, result);
 }
 
 void Desktop::OnGameContextChanging()

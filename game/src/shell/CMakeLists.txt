@@ -16,6 +16,7 @@ add_library(shell
 	gui.h	
 	InputManager.h
 	KeyMapper.h
+	LuaConsole.h
 	MainMenu.h
 	MapList.h
 	MapPreview.h
@@ -41,6 +42,7 @@ add_library(shell
 	gui.cpp
 	InputManager.cpp
 	KeyMapper.cpp
+	LuaConsole.cpp
 	MainMenu.cpp
 	MapCollection.cpp
 	MapList.cpp
@@ -73,7 +75,7 @@ target_link_libraries(shell PRIVATE
 	ui
 	lua
 
-	PUBLIC editor luaetc render
+	PUBLIC editor render
 )
 
 target_include_directories(shell INTERFACE inc)

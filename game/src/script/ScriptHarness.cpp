@@ -21,12 +21,12 @@ extern "C"
 
 ScriptHarness::ScriptHarness(World &world, ScriptMessageSink &messageSink)
 	: _world(world)
-    , _messageSink(messageSink)
+	, _messageSink(messageSink)
 	, _L(script_open(world, messageSink))
-	, _sPickup(_world, _L)
-	, _sPlayer(_world, _L)
-	, _sRigidBodyStatic(_world, _L)
-	, _sTrigger(_world, _L)
+	, _sPickup(_world, _L.get())
+	, _sPlayer(_world, _L.get())
+	, _sRigidBodyStatic(_world, _L.get())
+	, _sTrigger(_world, _L.get())
 {
 	_world.eWorld.AddListener(*this);
 }
@@ -34,12 +34,11 @@ ScriptHarness::ScriptHarness(World &world, ScriptMessageSink &messageSink)
 ScriptHarness::~ScriptHarness()
 {
 	_world.eWorld.RemoveListener(*this);
-	lua_close(_L);
 }
 
 void ScriptHarness::Step(float dt)
 {
-	RunCmdQueue(_L, dt, _messageSink);
+	RunCmdQueue(_L.get(), dt, _messageSink);
 }
 
 void ScriptHarness::Serialize(SaveFile &f)
@@ -83,23 +82,23 @@ void ScriptHarness::Serialize(SaveFile &f)
 			return 0;
 		}
 	};
-	lua_newuserdata(_L, 0); // placeholder for restore_ptr
-	lua_setfield(_L, LUA_REGISTRYINDEX, "restore_ptr");
-	if( lua_cpcall(_L, &WriteHelper::write_user, &f) )
+	lua_newuserdata(_L.get(), 0); // placeholder for restore_ptr
+	lua_setfield(_L.get(), LUA_REGISTRYINDEX, "restore_ptr");
+	if( lua_cpcall(_L.get(), &WriteHelper::write_user, &f) )
 	{
 		std::string err = "[pluto write user] ";
-		err += lua_tostring(_L, -1);
-		lua_pop(_L, 1);
+		err += lua_tostring(_L.get(), -1);
+		lua_pop(_L.get(), 1);
 		throw std::runtime_error(err);
 	}
-	if( lua_cpcall(_L, &WriteHelper::write_queue, &f) )
+	if( lua_cpcall(_L.get(), &WriteHelper::write_queue, &f) )
 	{
 		std::string err = "[pluto write queue] ";
-		err += lua_tostring(_L, -1);
-		lua_pop(_L, 1);
+		err += lua_tostring(_L.get(), -1);
+		lua_pop(_L.get(), 1);
 		throw std::runtime_error(err);
 	}
-	lua_setfield(_L, LUA_REGISTRYINDEX, "restore_ptr");
+	lua_setfield(_L.get(), LUA_REGISTRYINDEX, "restore_ptr");
 }
 
 void ScriptHarness::Deserialize(SaveFile &f)
@@ -163,21 +162,21 @@ void ScriptHarness::Deserialize(SaveFile &f)
 			return 1;
 		}
 	};
-	lua_pushlightuserdata(_L, &f);
-	lua_pushcclosure(_L, &ReadHelper::restore_ptr, 1);
-	lua_setfield(_L, LUA_REGISTRYINDEX, "restore_ptr");
-	if( lua_cpcall(_L, &ReadHelper::read_user, &f.GetStream()) )
+	lua_pushlightuserdata(_L.get(), &f);
+	lua_pushcclosure(_L.get(), &ReadHelper::restore_ptr, 1);
+	lua_setfield(_L.get(), LUA_REGISTRYINDEX, "restore_ptr");
+	if( lua_cpcall(_L.get(), &ReadHelper::read_user, &f.GetStream()) )
 	{
 		std::string err = "[pluto read user] ";
-		err += lua_tostring(_L, -1);
-		lua_pop(_L, 1);
+		err += lua_tostring(_L.get(), -1);
+		lua_pop(_L.get(), 1);
 		throw std::runtime_error(err);
 	}
-	if( lua_cpcall(_L, &ReadHelper::read_queue, &f.GetStream()) )
+	if( lua_cpcall(_L.get(), &ReadHelper::read_queue, &f.GetStream()) )
 	{
 		std::string err = "[pluto read queue] ";
-		err += lua_tostring(_L, -1);
-		lua_pop(_L, 1);
+		err += lua_tostring(_L.get(), -1);
+		lua_pop(_L.get(), 1);
 		throw std::runtime_error(err);
 	}
 }
@@ -186,6 +185,6 @@ void ScriptHarness::OnGameStarted()
 {
 	if( !_world._infoOnInit.empty() )
 	{
-		script_exec(_L, _world._infoOnInit, "on_init");
+		script_exec(_L.get(), _world._infoOnInit, "on_init");
 	}
 }

@@ -21,6 +21,8 @@ target_link_libraries(script PRIVATE
 	# 3rd party
 	lua
 	pluto
+
+	PUBLIC luaetc
 )
 
 target_include_directories(script INTERFACE inc)
