@@ -1,5 +1,6 @@
 #include "LuaConsole.h"
 #include <config/ConfigBase.h>
+#include <fs/FileSystem.h>
 #include <ui/ConsoleBuffer.h>
 #include <stdexcept>
 
@@ -9,6 +10,9 @@ extern "C"
 #include <lualib.h>
 #include <lauxlib.h>
 }
+
+#define FILE_AUTOCOMPLETE "scripts/autocomplete.lua"
+
 
 static int print(lua_State *L)
 {
@@ -34,9 +38,18 @@ static int print(lua_State *L)
 	return 0;
 }
 
+namespace
+{
+	struct InitArgs
+	{
+		UI::ConsoleBuffer &logger;
+		std::shared_ptr<FS::MemMap> autocompleteScript;
+	};
+}
+
 static int pinit(lua_State *L)
 {
-	assert(lua_gettop(L) == 1); // logger
+	auto args = reinterpret_cast<const InitArgs*>(lua_touserdata(L, 1));
 
 	static const luaL_Reg lualibs[] = {
 		// standard Lua libs
@@ -59,9 +72,18 @@ static int pinit(lua_State *L)
 	}
 
 	// override default print function so it will print to console
-	assert(lua_gettop(L) == 1); // logger
+	lua_pushlightuserdata(L, &args->logger);
 	lua_pushcclosure(L, print, 1);
 	lua_setglobal(L, "print");
+
+	if (args->autocompleteScript)
+	{
+		if (luaL_loadbuffer(L, args->autocompleteScript->GetData(), args->autocompleteScript->GetSize(), FILE_AUTOCOMPLETE))
+		{
+			lua_error(L);
+		}
+		lua_call(L, 0, 0);
+	}
 
 	return 0;
 }
@@ -73,20 +95,26 @@ static std::string_view tostringview(lua_State *L)
 	return std::string_view(buf, size);
 }
 
-
-LuaConsole::LuaConsole(UI::ConsoleBuffer &logger, ConfVarTable &configRoot)
+LuaConsole::LuaConsole(UI::ConsoleBuffer &logger, ConfVarTable &configRoot, FS::FileSystem &fs)
 	: _logger(logger)
 	, _L(luaL_newstate())
 {
-	if (lua_cpcall(_L.get(), pinit, &logger))
-	{
-		const char *what = lua_tostring(_L.get(), -1);
-		std::runtime_error error(what ? what : "Unknown error");
-		lua_pop(_L.get(), 1);
-		throw error;
+	InitArgs args{ logger };
+
+	try {
+		args.autocompleteScript = fs.Open(FILE_AUTOCOMPLETE)->QueryMap();
+	} catch (const std::exception &e) {
+		logger.Format(1) << "Could not open " << FILE_AUTOCOMPLETE << " - " << e.what();
 	}
 
 	configRoot.InitConfigLuaBinding(_L.get(), "conf");
+
+	if (lua_cpcall(_L.get(), pinit, &args))
+	{
+		const char *what = lua_tostring(_L.get(), -1);
+		logger.Format(1) << (what ? what : "Failed to initialize Lua REPL");
+		lua_pop(_L.get(), 1);
+	}
 }
 
 void LuaConsole::Exec(std::string_view cmd)
@@ -135,7 +163,7 @@ bool LuaConsole::CompleteCommand(std::string_view cmd, int &pos, std::string &re
 	if (lua_isnil(_L.get(), -1))
 	{
 		lua_pop(_L.get(), 1);
-		_logger.WriteLine(1, "There was no autocomplete module loaded");
+		_logger.WriteLine(1, "Autocomplete is not available");
 		return false;
 	}
 	lua_pushlstring(_L.get(), cmd.substr(0, pos).data(), pos);
@@ -151,12 +179,6 @@ bool LuaConsole::CompleteCommand(std::string_view cmd, int &pos, std::string &re
 
 		result = std::string(cmd.substr(0, pos)).append(insert).append(cmd.substr(pos));
 		pos += static_cast<int>(insert.length());
-
-		if (!result.empty() && result[0] != '/')
-		{
-			result = std::string("/") + result;
-			++pos;
-		}
 	}
 	lua_pop(_L.get(), 1); // pop result or error message
 	return true;

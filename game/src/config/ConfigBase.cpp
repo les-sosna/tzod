@@ -1009,7 +1009,7 @@ void ConfVarTable::Save(std::ostream &o) const
 
 bool ConfVarTable::Load(FS::MemMap &data, const char *name)
 {
-	std::unique_ptr<lua_State, LuaStateDeleter> L(lua_open());
+	std::unique_ptr<lua_State, LuaStateDeleter> L(luaL_newstate());
 
 	// try to read and execute the file
 	if( luaL_loadbuffer(L.get(), data.GetData(), data.GetSize(), name) || lua_pcall(L.get(), 0, 0, 0) )

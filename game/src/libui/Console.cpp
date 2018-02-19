@@ -100,7 +100,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 //			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 //		}
 //		else
-        if( _history )
+		if( _history )
 		{
 			_cmdIndex = std::min(_cmdIndex, _history->GetItemCount());
 			if( _cmdIndex > 0 )
@@ -117,7 +117,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 //			_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 //		}
 //		else
-        if( _history )
+		if( _history )
 		{
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )

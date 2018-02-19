@@ -534,7 +534,7 @@ void Desktop::OnCommand(std::string_view cmd)
 	}
 
 	if (!_luaConsole)
-		_luaConsole = std::make_unique<LuaConsole>(_logger, _conf);
+		_luaConsole = std::make_unique<LuaConsole>(_logger, _conf, _fs);
 
 	_luaConsole->Exec(cmd);
 }
@@ -542,7 +542,7 @@ void Desktop::OnCommand(std::string_view cmd)
 bool Desktop::OnCompleteCommand(std::string_view cmd, int &pos, std::string &result)
 {
 	if (!_luaConsole)
-		_luaConsole = std::make_unique<LuaConsole>(_logger, _conf);
+		_luaConsole = std::make_unique<LuaConsole>(_logger, _conf, _fs);
 
 	return _luaConsole->CompleteCommand(cmd, pos, result);
 }

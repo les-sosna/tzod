@@ -8,12 +8,17 @@ namespace UI
 	class ConsoleBuffer;
 }
 
+namespace FS
+{
+	class FileSystem;
+}
+
 class ConfVarTable;
 
 class LuaConsole
 {
 public:
-	LuaConsole(UI::ConsoleBuffer &logger, ConfVarTable &configRoot);
+	LuaConsole(UI::ConsoleBuffer &logger, ConfVarTable &configRoot, FS::FileSystem &fs);
 
 	void Exec(std::string_view cmd);
 	bool CompleteCommand(std::string_view cmd, int &pos, std::string &result);
