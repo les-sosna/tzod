@@ -91,23 +91,21 @@ void FpsCounter::OnTimeStep(const UI::InputContext &ic, float dt)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Oscilloscope::Oscilloscope(float x, float y)
+Oscilloscope::Oscilloscope()
   : _rangeMin(-0.1f)
   , _rangeMax(0.1f)
   , _gridStepX(1)
   , _gridStepY(1)
-  , _scale(3)
+  , _stepSize(2)
 {
-	Move(x, y);
 	SetTexture("ui/list");
 	SetDrawBorder(true);
-	SetClipChildren(true);
 }
 
 void Oscilloscope::Push(TextureManager &texman, float value)
 {
 	_data.push_back(value);
-	size_t size = (size_t) (GetWidth() / _scale);
+	size_t size = (size_t) (GetWidth() / _stepSize);
 	if( _data.size() > size )
 	{
 		_data.erase(_data.begin(), _data.begin() + (_data.size() - size));
@@ -210,43 +208,51 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	float pxLabelOffset = UI::ToPx(texman.GetCharHeight(_titleFont.GetTextureId(texman)) / 2, lc);
 	float pxAvailableSpace = lc.GetPixelSize().y - pxLabelOffset * 2;
 
-	float scale = pxAvailableSpace / (_rangeMin - _rangeMax);
-	float xoffset = lc.GetPixelSize().x - (float) _data.size() * _scale;
+	float dataScale = pxAvailableSpace / (_rangeMin - _rangeMax);
 
-	size_t bar = _barTexture.GetTextureId(texman);
+	size_t texBar = _barTexture.GetTextureId(texman);
+
+	float pxStepSize = UI::ToPx(_stepSize, lc);
+	float pxBarWidth = pxStepSize > 2 ? pxStepSize - 1 : pxStepSize;
+
+	float xoffset = lc.GetPixelSize().x - (float)_data.size() * pxStepSize;
 
 	// data
 	for( size_t i = 0; i < _data.size(); ++i )
 	{
 		FRECT rect;
-		rect.left = (float)i * _scale + xoffset;
-		rect.right = rect.left + UI::ToPx(2, lc);
+		rect.left = (float)i * pxStepSize + xoffset;
+		rect.right = rect.left + pxBarWidth;
 		rect.bottom = lc.GetPixelSize().y - pxLabelOffset;
-		rect.top = rect.bottom + (_data[i] - _rangeMin) * scale;
+		rect.top = rect.bottom + (_data[i] - _rangeMin) * dataScale;
 
-		rc.DrawSprite(rect, bar, 0x44444444, 0);
+		rc.DrawSprite(rect, texBar, 0x44444444, 0);
 	}
 
 	// grid
+	float pxCharWidth = UI::ToPx(texman.GetCharWidth(_titleFont.GetTextureId(texman)), lc);
 	if( _gridStepY != 0 )
 	{
 		int start = int(_rangeMin / _gridStepY);
 		int stop = int(_rangeMax / _gridStepY);
 		for( int i = start; i <= stop; ++i )
 		{
-			float y = (float) i * _gridStepY;
-			rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, pxLabelOffset - (_rangeMax - y) * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+			float y = (float)i * _gridStepY;
 			std::ostringstream buf;
 			buf << y;
-			float textWidth = float(6 * buf.str().size()); // FIXME: calc true char width
-			rc.DrawBitmapText(vec2d{ lc.GetPixelSize().x - textWidth, pxLabelOffset - (_rangeMax - y) * scale - pxLabelOffset },
-				lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, buf.str());
+			std::string text = buf.str();
+			
+			float pxTextWidth = pxCharWidth * (float) text.size();
+
+			rc.DrawSprite(texBar, 0, 0x44444444, vec2d{ pxTextWidth, pxLabelOffset - (_rangeMax - y) * dataScale }, lc.GetPixelSize().x - pxTextWidth, -1, vec2d{ 1, 0 });
+			rc.DrawBitmapText(vec2d{ 0, std::floor((y - _rangeMax) * dataScale) }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, text);
 		}
 	}
 	else
 	{
-		rc.DrawSprite(bar, 0, 0x44444444, vec2d{ 0, pxLabelOffset - _rangeMax * scale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+		rc.DrawSprite(texBar, 0, 0x44444444, vec2d{ 0, pxLabelOffset - _rangeMax * dataScale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 	}
 
-	rc.DrawBitmapText(vec2d{ 0, pxLabelOffset - pxLabelOffset }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, _title);
+	// title
+	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, _title, alignTextCT);
 }

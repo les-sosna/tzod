@@ -34,7 +34,7 @@ private:
 class Oscilloscope : public UI::Rectangle
 {
 public:
-	Oscilloscope(float x, float y);
+	Oscilloscope();
 	void Push(TextureManager &texman, float value);
 	void SetRange(float rmin, float rmax);
 	void SetTitle(std::string title);
@@ -55,6 +55,6 @@ private:
 	float _rangeMax;
 	float _gridStepX;
 	float _gridStepY;
-	float _scale;
+	float _stepSize;
 };
 

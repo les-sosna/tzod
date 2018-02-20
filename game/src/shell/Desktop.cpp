@@ -105,7 +105,8 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 		float hh = 50;
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
-			auto os = std::make_shared<Oscilloscope>(xx, yy);
+			auto os = std::make_shared<Oscilloscope>();
+			os->Move(xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
