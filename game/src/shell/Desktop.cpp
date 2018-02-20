@@ -110,6 +110,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
+			os->SetTopMost(true);
 			AddFront(os);
 			CounterBase::SetMarkerCallbackStatic(i, std::bind(&Oscilloscope::Push, os, std::ref(texman), std::placeholders::_1));
 			yy += hh+5;
