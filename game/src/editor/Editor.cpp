@@ -632,7 +632,12 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 
 	rc.PushClippingRect(viewport);
 	rc.PushWorldTransform(worldTransformOffset, zoom);
-	_worldView.Render(rc, _world, true /*editorMode*/, _conf.drawgrid.Get(), _world.GetNightMode());
+	WorldViewRenderOptions options;
+	options.editorMode = true;
+	options.drawGrid = _conf.drawgrid.Get();
+	options.nightMode = _world.GetNightMode();
+	options.visualizeField = false;
+	_worldView.Render(rc, _world, options);
 
 	// Selection
 	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )

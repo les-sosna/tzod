@@ -1,16 +1,19 @@
 #include "inc/render/WorldView.h"
 #include "inc/render/RenderScheme.h"
 
+#include <gc/Field.h>
 #include <gc/Light.h>
 #include <gc/Macros.h>
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 
 #include <video/RenderContext.h>
+#include <video/TextureManager.h>
 
 WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
 	: _renderScheme(rs)
 	, _terrain(tm)
+	, _texField(tm.FindSprite("ui/selection"))
 {
 }
 
@@ -20,20 +23,14 @@ WorldView::~WorldView()
 
 void WorldView::Render(RenderContext &rc,
                        const World &world,
-                       bool editorMode,
-                       bool drawGrid,
-                       bool nightMode) const
+                       WorldViewRenderOptions options) const
 {
 	FRECT visibleRegion = rc.GetVisibleRegion();
 
-
-	//
 	// draw lights to alpha channel
-	//
-
-	rc.SetAmbient(nightMode ? (editorMode ? 0.5f : 0) : 1);
+	rc.SetAmbient(options.nightMode ? (options.editorMode ? 0.5f : 0) : 1);
 	rc.SetMode(RM_LIGHT); // this will clear the render target with the ambient set above
-	if( nightMode )
+	if( options.nightMode )
 	{
 		float xmin = std::max(world.GetBounds().left, visibleRegion.left);
 		float ymin = std::max(world.GetBounds().top, visibleRegion.top);
@@ -86,7 +83,7 @@ void WorldView::Render(RenderContext &rc,
 	{
 		FOREACH(world.grid_actors.element(x, y), const GC_Actor, object)
 		{
-			for( auto &view: _renderScheme.GetViews(*object, editorMode, nightMode) )
+			for( auto &view: _renderScheme.GetViews(*object, options.editorMode, options.nightMode) )
 			{
 				enumZOrder z = view.zfunc->GetZ(world, *object);
 				if( Z_NONE != z && object->GetGridSet() )
@@ -97,7 +94,7 @@ void WorldView::Render(RenderContext &rc,
 
 	FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
 	{
-		for( auto &view: _renderScheme.GetViews(*object, editorMode, nightMode) )
+		for( auto &view: _renderScheme.GetViews(*object, options.editorMode, options.nightMode) )
 		{
 			enumZOrder z = view.zfunc->GetZ(world, *object);
 			if( Z_NONE != z && !object->GetGridSet() )
@@ -112,7 +109,7 @@ void WorldView::Render(RenderContext &rc,
 
 	rc.SetMode(RM_WORLD);
 
-	_terrain.Draw(rc, world.GetBounds(), drawGrid);
+	_terrain.Draw(rc, world.GetBounds(), options.drawGrid);
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{
@@ -122,6 +119,29 @@ void WorldView::Render(RenderContext &rc,
 	}
 
 	rc.SetMode(RM_INTERFACE);
+
+
+	if (world._field && options.visualizeField)
+	{
+		auto bounds = world._field->GetBounds();
+
+		int xmin = std::max(bounds.left, (int)std::floor(visibleRegion.left / WORLD_BLOCK_SIZE - 0.5f));
+		int ymin = std::max(bounds.top, (int)std::floor(visibleRegion.top / WORLD_BLOCK_SIZE - 0.5f));
+		int xmax = std::min(bounds.right, (int)std::floor(visibleRegion.right / WORLD_BLOCK_SIZE + 0.5f));
+		int ymax = std::min(bounds.bottom, (int)std::floor(visibleRegion.bottom / WORLD_BLOCK_SIZE + 0.5f));
+
+		for (int x = xmin; x <= xmax; ++x)
+		{
+			for (int y = ymin; y <= ymax; ++y)
+			{
+				if ((*world._field)(x, y)._prop)
+				{
+					rc.DrawSprite(MakeRectWH(vec2d{ (float)x - 0.5f, (float)y - 0.5f } * WORLD_BLOCK_SIZE,
+					                         vec2d{ WORLD_BLOCK_SIZE , WORLD_BLOCK_SIZE }), _texField, 0xffffffff, 0);
+				}
+			}
+		}
+	}
 }
 
 vec2d ComputeWorldTransformOffset(const FRECT &canvasViewport, vec2d eye, float zoom)

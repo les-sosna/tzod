@@ -53,7 +53,7 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 		rc.PushClippingRect(FRectToRect(pxContentRect));
 		rc.PushWorldTransform(ComputeWorldTransformOffset(pxContentRect, eye, zoom), zoom);
-		_worldView.Render(rc, world, false /*editorMode*/, false /*drawGrid*/, false /*nightMode*/);
+		_worldView.Render(rc, world);
 		rc.PopTransform();
 		rc.PopClippingRect();
 	}

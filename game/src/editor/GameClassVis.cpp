@@ -29,13 +29,12 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };
 	vec2d eye{ 0, 0 };
 	float zoom = lc.GetScale();
-	bool editorMode = true;
-	bool drawGrid = false;
-	bool nightMode = false;
 
 	rc.PushClippingRect(viewport);
 	rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
-	_worldView.Render(rc, _world, editorMode, drawGrid, nightMode);
+	WorldViewRenderOptions options;
+	options.editorMode = true;
+	_worldView.Render(rc, _world, options);
 	rc.PopTransform();
 	rc.PopClippingRect();
 

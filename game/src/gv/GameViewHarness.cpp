@@ -111,8 +111,12 @@ void GameViewHarness::SetCanvasSize(int pxWidth, int pxHeight, float scale)
 	}
 }
 
-void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) const
+void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView, bool visualizeField) const
 {
+	WorldViewRenderOptions options;
+	options.nightMode = _world.GetNightMode();
+	options.visualizeField = visualizeField;
+
 	if( !_cameras.empty() )
 	{
 		if (IsSingleCamera())
@@ -120,7 +124,7 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) 
 			vec2d eye = GetMaxShakeCamera().GetCameraPos();
 			rc.PushClippingRect(GetMaxShakeCamera().GetViewport());
 			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(GetMaxShakeCamera().GetViewport()), eye, _scale), _scale);
-			worldView.Render(rc, _world, false, false, _world.GetNightMode());
+			worldView.Render(rc, _world, options);
 			rc.PopTransform();
 			rc.PopClippingRect();
 		}
@@ -130,7 +134,7 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) 
 			vec2d eye = camera.GetCameraPos();
 			rc.PushClippingRect(camera.GetViewport());
 			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(camera.GetViewport()), eye, _scale), _scale);
-			worldView.Render(rc, _world, false, false, _world.GetNightMode());
+			worldView.Render(rc, _world, options);
 			rc.PopTransform();
 			rc.PopClippingRect();
 		}
@@ -143,7 +147,7 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView) 
 		RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
 		rc.PushClippingRect(viewport);
 		rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
-		worldView.Render(rc, _world, false, false, _world.GetNightMode());
+		worldView.Render(rc, _world, options);
 		rc.PopTransform();
 		rc.PopClippingRect();
 	}

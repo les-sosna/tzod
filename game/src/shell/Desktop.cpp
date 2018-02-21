@@ -98,7 +98,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();
 
-	if( _conf.dbg_graph.Get() )
+	if( _conf.d_graph.Get() )
 	{
 		float xx = 200;
 		float yy = 3;

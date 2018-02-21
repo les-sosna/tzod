@@ -94,9 +94,8 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_REFLECTION( ui_netbotinfo,  ConfPlayerAI )
 
 	// debug
-	VAR_BOOL(  dbg_graph,          false )
-	VAR_INT(   dbg_sleep,              0 )
-	VAR_INT(   dbg_sleep_rand,         0 )
+	VAR_BOOL(  d_graph,          false )
+	VAR_BOOL(  d_field,          false )
 
 	// other
 	VAR_STR(   dm_player1,      "Arrows" )
