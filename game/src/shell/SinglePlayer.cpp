@@ -181,15 +181,15 @@ void SinglePlayer::UpdateTier()
 		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(mapIndex));
 
 		auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _worldCache);
-		mapPreview->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
-		mapPreview->SetPadding(_conf.tile_spacing.GetFloat() / 2);
+		mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
+		mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
 		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
 		mapPreview->SetLocked(locked);
 
 		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
-		mpButton->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
+		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
 		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
 		if (locked)
 		{
@@ -231,7 +231,7 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 {
 	if (_content.get() == &child)
 	{
-		vec2d pxMargins = UI::ToPx(vec2d{ _conf.tile_spacing.GetFloat(), _conf.tile_spacing.GetFloat() }, lc);
+		vec2d pxMargins = UI::ToPx(vec2d{ _conf.ui_tile_spacing.GetFloat(), _conf.ui_tile_spacing.GetFloat() }, lc);
 		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
 	}
 
@@ -240,7 +240,7 @@ FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const
 {
-	vec2d pxMargins = UI::ToPx(vec2d{ _conf.tile_spacing.GetFloat(), _conf.tile_spacing.GetFloat() }, scale);
+	vec2d pxMargins = UI::ToPx(vec2d{ _conf.ui_tile_spacing.GetFloat(), _conf.ui_tile_spacing.GetFloat() }, scale);
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints) + pxMargins * 2;
 }
 

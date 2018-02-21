@@ -114,19 +114,19 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 
 	_showFps = std::make_shared<UI::CheckBox>();
 	_showFps->SetText(ConfBind(_lang.settings_show_fps));
-	_showFps->SetCheck(_conf.ui_showfps.Get());
+	_showFps->SetCheck(_conf.d_showfps.Get());
 	_showFps->eventClick = [=]
 	{
-		_conf.ui_showfps.Set(_showFps->GetCheck());
+		_conf.d_showfps.Set(_showFps->GetCheck());
 	};
 	_content2->AddFront(_showFps);
 
 	_showTime = std::make_shared<UI::CheckBox>();
 	_showTime->SetText(ConfBind(_lang.settings_show_time));
-	_showTime->SetCheck(_conf.ui_showtime.Get());
+	_showTime->SetCheck(_conf.g_showtime.Get());
 	_showTime->eventClick = [=]
 	{
-		_conf.ui_showtime.Set(_showTime->GetCheck());
+		_conf.g_showtime.Set(_showTime->GetCheck());
 	};
 	_content2->AddFront(_showTime);
 

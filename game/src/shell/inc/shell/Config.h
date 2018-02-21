@@ -35,18 +35,14 @@ REFLECTION_BEGIN(ConfControllerProfile)
 REFLECTION_END()
 
 ///////////////////////////////////////////////////////////////////////////////
-// config map
 
 REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 
 	// display settings
-	VAR_INT(  r_render,           0 )  HELPSTRING("0 - opengl, 1 - d3d")
 	VAR_INT(  r_width,         1024 )
 	VAR_INT(  r_height,         768 )
 	VAR_INT(  r_freq,             0 )
-	VAR_INT(  r_bpp,             32 )
-	VAR_BOOL( r_fullscreen,    false )
-	VAR_INT(  r_screenshot,       1 )
+	VAR_BOOL( r_fullscreen,   false )
 
 	// server settings
 	VAR_STR(    sv_name,   "ZOD server" )
@@ -69,7 +65,6 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_BOOL(   cl_nightmode,     false )
 	VAR_STR(    cl_server,  "localhost" )
 	VAR_FLOAT(  cl_latency,           0 )
-//	VAR_FLOAT(  cl_dtwindow,          2 )
 	VAR_REFLECTION( cl_playerinfo, ConfPlayerLocal )
 
 	VAR_REFLECTION(editor, EditorConfig)
@@ -77,25 +72,26 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	// sound
 	VAR_INT( s_volume,      10000 )
 	VAR_INT( s_musicvolume, 10000 )
-	VAR_INT( s_buffer,               1000 )
 
 	// game
-	VAR_BOOL(  g_shownames,         true )
+	VAR_BOOL( g_shownames, true )
+	VAR_BOOL( g_showtime, true)
 
 	// console
 	VAR_INT(   con_maxhistory,        30 )
 	VAR_ARRAY( con_history,         nullptr )
 
 	// user interface
-	VAR_BOOL(  ui_showfps,         false )
-	VAR_BOOL(  ui_showtime,         true )
-	VAR_FLOAT( ui_foldtime,        0.25f )
-	VAR_FLOAT( ui_spacing,        100.0f )
+	VAR_FLOAT( ui_tile_size,      128.0f )
+	VAR_FLOAT( ui_tile_spacing,    16.0f )
+	VAR_FLOAT( ui_foldtime,         0.25f )
+	VAR_FLOAT( ui_nav_spacing,    100.0f )
 	VAR_REFLECTION( ui_netbotinfo,  ConfPlayerAI )
 
 	// debug
-	VAR_BOOL(  d_graph,          false )
-	VAR_BOOL(  d_field,          false )
+	VAR_BOOL( d_graph,          false )
+	VAR_BOOL( d_field,          false )
+	VAR_BOOL( d_showfps,        false )
 
 	// other
 	VAR_STR(   dm_player1,      "Arrows" )
@@ -104,8 +100,6 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_ARRAY( dm_players,                nullptr )
 	VAR_ARRAY( dm_bots,                   nullptr )
 	VAR_ARRAY( lobby_servers,    InitLobbyList )
-	VAR_FLOAT( tile_size,         128.0f )
-	VAR_FLOAT( tile_spacing,       16.0f )
 
 	VAR_INT(sp_tier, 0)
 	VAR_INT(sp_map, 0)

@@ -140,7 +140,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
 	AddFront(_timerDisplay);
 
-	_conf.ui_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
+	_conf.g_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
 	OnChangeShowTime();
 
 	SetTimeStep(true);
@@ -150,7 +150,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 GameLayout::~GameLayout()
 {
 	_gameContext->GetGameEventSource().RemoveListener(*this);
-	_conf.ui_showtime.eventChange = nullptr;
+	_conf.g_showtime.eventChange = nullptr;
 }
 
 vec2d GameLayout::GetDragDirection() const
@@ -361,7 +361,7 @@ void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManag
 
 void GameLayout::OnChangeShowTime()
 {
-	_timerDisplay->SetVisible(_conf.ui_showtime.Get());
+	_timerDisplay->SetVisible(_conf.g_showtime.Get());
 }
 
 void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)

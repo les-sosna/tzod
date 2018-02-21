@@ -95,7 +95,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 
 	_fps = std::make_shared<FpsCounter>(manager, alignTextLB, GetAppState());
 	AddFront(_fps);
-	_conf.ui_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
+	_conf.d_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
 	OnChangeShowFps();
 
 	if( _conf.d_graph.Get() )
@@ -136,7 +136,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	AddFront(_pauseButton);
 
 	_navStack = std::make_shared<NavStack>(manager);
-	_navStack->SetSpacing(_conf.ui_spacing.GetFloat());
+	_navStack->SetSpacing(_conf.ui_nav_spacing.GetFloat());
 	AddFront(_navStack);
 
 	OnGameContextChanged();
@@ -144,7 +144,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 
 Desktop::~Desktop()
 {
-	_conf.ui_showfps.eventChange = nullptr;
+	_conf.d_showfps.eventChange = nullptr;
 }
 
 bool Desktop::GetEditorMode() const
@@ -537,7 +537,7 @@ float Desktop::GetChildOpacity(const UI::Window &child) const
 
 void Desktop::OnChangeShowFps()
 {
-	_fps->SetVisible(_conf.ui_showfps.Get());
+	_fps->SetVisible(_conf.d_showfps.Get());
 }
 
 void Desktop::OnCommand(std::string_view cmd)

@@ -21,18 +21,18 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	, _mapTiles(std::make_shared<UI::ScanlineLayout>())
 {
 	SetContent(_mapTiles);
-	_mapTiles->SetElementSize(vec2d{ _conf.tile_size.GetFloat(), _conf.tile_size.GetFloat() });
+	_mapTiles->SetElementSize(vec2d{ _conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat() });
 
 	for (unsigned int mapIndex = 0; mapIndex < _mapCollection.GetMapCount(); mapIndex++)
 	{
 		auto mapPreview = std::make_shared<MapPreview>(fsRoot, _worldView, _worldCache);
-		mapPreview->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
-		mapPreview->SetPadding(_conf.tile_spacing.GetFloat() / 2);
+		mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
+		mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(_mapCollection.GetMapName(mapIndex)));
 
 		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
-		mpButton->Resize(_conf.tile_size.GetFloat(), _conf.tile_size.GetFloat());
+		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
 		mpButton->eventClick = [this, mapIndex]()
 		{
 			eventMapSelected(std::static_pointer_cast<SelectMapDlg>(shared_from_this()), mapIndex);
