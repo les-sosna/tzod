@@ -32,7 +32,7 @@ class AIController
 public:
 	AIController();
 	AIController(FromFile);
-	virtual ~AIController();
+	~AIController();
 
 	void Serialize(SaveFile &f);
 

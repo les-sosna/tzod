@@ -24,11 +24,6 @@ void AIManager::AssignAI(GC_Player *player, std::string profile)
     _aiControllers[player] = std::make_pair(std::move(profile), std::move(ctrl));
 }
 
-void AIManager::FreeAI(GC_Player *player)
-{
-
-}
-
 AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 {
 	ControllerStateMap result;

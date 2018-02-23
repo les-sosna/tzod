@@ -19,8 +19,7 @@ class AIManager
 public:
 	AIManager(World &world);
 	~AIManager();
-    void AssignAI(GC_Player *player, std::string profile);
-    void FreeAI(GC_Player *player);
+	void AssignAI(GC_Player *player, std::string profile);
 
 	typedef std::map<PtrList<GC_Object>::id_type, VehicleState> ControllerStateMap;
 	ControllerStateMap ComputeAIState(World &world, float dt);

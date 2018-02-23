@@ -43,7 +43,7 @@ GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &setting
 
 	_worldController.reset(new WorldController(*_world));
 
-	std::unique_ptr<Deathmatch> gameplay(new Deathmatch(*_world, *_worldController, _gameEventsBroadcaster));
+	auto gameplay = std::make_unique<Deathmatch>(*_world, *_worldController, _gameEventsBroadcaster);
 	gameplay->SetFragLimit(settings.fragLimit);
 	gameplay->SetTimeLimit(settings.timeLimit);
 	_gameplay = std::move(gameplay);
