@@ -40,7 +40,10 @@ static int DivCeil(int number, unsigned int denominator)
 }
 
 World::World(RectRB blockBounds, bool initField)
-	: _gameStarted(false)
+	: _seed(1)
+	, _safeMode(true)
+	, _time(0)
+	, _gameStarted(false)
 	, _frozen(false)
 	, _nightMode(false)
 	, _bounds(RectToFRect(blockBounds * WORLD_BLOCK_SIZE))
@@ -50,9 +53,6 @@ World::World(RectRB blockBounds, bool initField)
 		DivFloor(blockBounds.top * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE),
 		DivCeil(blockBounds.right * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE),
 		DivCeil(blockBounds.bottom * WORLD_BLOCK_SIZE, WORLD_LOCATION_SIZE) }
-	, _seed(1)
-	, _safeMode(true)
-	, _time(0)
 #ifdef NETWORK_DEBUG
 	, _checksum(0)
 	, _frame(0)

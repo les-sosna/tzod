@@ -282,7 +282,7 @@ bool MapFile::getObjectAttribute(std::string_view name, int &value) const
 	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
 	if (it != pd.end())
 	{
-		value = std::get<int>(it->value);
+		value = it->value_int;
 		return true;
 	}
 	return false;
@@ -295,7 +295,7 @@ bool MapFile::getObjectAttribute(std::string_view name, float &value) const
 	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
 	if (it != pd.end())
 	{
-		value = std::get<float>(it->value);
+		value = it->value_float;
 		return true;
 	}
 	return false;
@@ -308,7 +308,7 @@ bool MapFile::getObjectAttribute(std::string_view name, std::string &value) cons
 	auto it = std::find_if(begin(pd), end(pd), [&](auto &p) { return p.name == name; });
 	if (it != pd.end())
 	{
-		value = std::get<std::string>(it->value);
+		value = it->value_string;
 		return true;
 	}
 	return false;
@@ -324,12 +324,11 @@ void MapFile::setObjectAttribute(std::string_view name, int value)
 			assert(_managed_classes.back().propertyDefinitions[i].name != name);
 #endif
 
-		ObjectDefinition::Property p;
-		p.type = DATATYPE_INT;
+		ObjectDefinition::Property p(DATATYPE_INT);
 		p.name = name;
 		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
-	_managed_classes[_objType].propertyDefinitions[_numProperties++].value = value;
+	_managed_classes[_objType].propertyDefinitions[_numProperties++].value_int = value;
 }
 
 void MapFile::setObjectAttribute(std::string_view name, float value)
@@ -342,12 +341,11 @@ void MapFile::setObjectAttribute(std::string_view name, float value)
 			assert(_managed_classes.back().propertyDefinitions[i].name != name);
 #endif
 
-		ObjectDefinition::Property p;
-		p.type = DATATYPE_FLOAT;
+		ObjectDefinition::Property p(DATATYPE_FLOAT);
 		p.name = name;
 		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
-	_managed_classes[_objType].propertyDefinitions[_numProperties++].value = value;
+	_managed_classes[_objType].propertyDefinitions[_numProperties++].value_float = value;
 }
 
 void MapFile::setObjectAttribute(std::string_view name, std::string_view value)
@@ -360,15 +358,12 @@ void MapFile::setObjectAttribute(std::string_view name, std::string_view value)
 			assert(_managed_classes.back().propertyDefinitions[i].name != name);
 #endif
 
-		ObjectDefinition::Property p;
-		p.type = DATATYPE_STRING;
+		ObjectDefinition::Property p(DATATYPE_STRING);
 		p.name = name;
-		p.value.emplace<std::string>();
 		_managed_classes.back().propertyDefinitions.push_back(std::move(p));
 	}
 
-	// assign to reuse the existing string capacity
-	std::get<std::string>(_managed_classes[_objType].propertyDefinitions[_numProperties++].value) = value;
+	_managed_classes[_objType].propertyDefinitions[_numProperties++].value_string = value;
 }
 
 std::string_view MapFile::GetCurrentClassName() const
@@ -424,7 +419,7 @@ void MapFile::WriteCurrentObject()
 		WriteInt((int)od.propertyDefinitions.size());
 		for( auto &prop: od.propertyDefinitions )
 		{
-			WriteInt(prop.type);
+			WriteInt(prop._type);
 			WriteString(prop.name);
 		}
 	}
@@ -438,16 +433,16 @@ void MapFile::WriteCurrentObject()
 
 	for (auto &prop : _managed_classes[_objType].propertyDefinitions)
 	{
-		switch (prop.type)
+		switch (prop._type)
 		{
 		case DATATYPE_INT:
-			WriteInt(std::get<int>(prop.value));
+			WriteInt(prop.value_int);
 			break;
 		case DATATYPE_FLOAT:
-			WriteFloat(std::get<float>(prop.value));
+			WriteFloat(prop.value_float);
 			break;
 		case DATATYPE_STRING:
-			WriteString(std::get<std::string>(prop.value));
+			WriteString(prop.value_string);
 			break;
 		default:
 			assert(false);
@@ -477,25 +472,13 @@ bool MapFile::ReadNextObject()
 				ReadString(od.className);
 				int propertyCount;
 				ReadInt(propertyCount);
-				od.propertyDefinitions.resize(propertyCount);
-				for (auto &prop : od.propertyDefinitions)
+				od.propertyDefinitions.reserve(propertyCount);
+				for (int i = 0; i < propertyCount; i++)
 				{
-					ReadInt(reinterpret_cast<int&>(prop.type));
+					int propType;
+					ReadInt(propType);
+					auto &prop = od.propertyDefinitions.emplace_back(static_cast<enumDataTypes>(propType));
 					ReadString(prop.name);
-					switch (prop.type)
-					{
-					case DATATYPE_INT:
-						prop.value.emplace<int>();
-						break;
-					case DATATYPE_FLOAT:
-						prop.value.emplace<float>();
-						break;
-					case DATATYPE_STRING:
-						prop.value.emplace<std::string>();
-						break;
-					default:
-						throw std::runtime_error("invalid file");
-					}
 				}
 				break;
 			}
@@ -508,16 +491,16 @@ bool MapFile::ReadNextObject()
 
 				for( auto &prop: _managed_classes[_objType].propertyDefinitions )
 				{
-					switch(prop.type)
+					switch(prop._type)
 					{
 					case DATATYPE_INT:
-						ReadInt(std::get<int>(prop.value));
+						ReadInt(prop.value_int);
 						break;
 					case DATATYPE_FLOAT:
-						ReadFloat(std::get<float>(prop.value));
+						ReadFloat(prop.value_float);
 						break;
 					case DATATYPE_STRING:
-						ReadString(std::get<std::string>(prop.value));
+						ReadString(prop.value_string);
 						break;
 					default:
 						assert(false);

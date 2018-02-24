@@ -1,9 +1,5 @@
 cmake_minimum_required (VERSION 3.3)
 
-if(APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-endif()
-
 set(video_SOURCES
 	inc/video/ImageLoader.h
 	inc/video/RenderBase.h

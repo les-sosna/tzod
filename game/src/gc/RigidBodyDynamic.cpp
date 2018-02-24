@@ -92,10 +92,6 @@ bool GC_RigidBodyDynamic::_glob_parity = false;
 
 GC_RigidBodyDynamic::GC_RigidBodyDynamic(vec2d pos)
 	: GC_RigidBodyStatic(pos)
-	, _external_force()
-	, _external_momentum(0)
-	, _external_impulse()
-	, _external_torque(0)
 	, _av(0)
 	, _lv()
 	, _inv_m(1.0f / 1)
@@ -108,6 +104,10 @@ GC_RigidBodyDynamic::GC_RigidBodyDynamic(vec2d pos)
 	, _Mw(0)
 	, _percussion(1)
 	, _fragility(1)
+	, _external_force()
+	, _external_momentum(0)
+	, _external_impulse()
+	, _external_torque(0)
 {
 	if( _glob_parity )
 		SetFlags(GC_FLAG_RBDYMAMIC_PARITY, true);

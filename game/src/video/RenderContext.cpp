@@ -5,8 +5,8 @@
 RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
 	: _tm(tm)
 	, _render(render)
-	, _mode(RM_UNDEFINED)
 	, _currentTransform{ vec2d{}, 0xff }
+	, _mode(RM_UNDEFINED)
 {
 	_transformStack.push(_currentTransform);
 	_clipStack.push(RectRB{ 0, 0, (int)width, (int)height });

@@ -1,9 +1,5 @@
 cmake_minimum_required (VERSION 3.3)
 
-if(APPLE OR UNIX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-endif()
-
 add_library(ui
 	Button.cpp
 	Combo.cpp

@@ -61,14 +61,6 @@ static float GetLayoutScale(GLFWwindow *window)
 	return logicalWidth > 0 ? (float)framebuferWidth / (float)logicalWidth : 1.f;
 }
 
-static vec2d GetPixelSize(GLFWwindow *window)
-{
-	int width;
-	int height;
-	glfwGetFramebufferSize(window, &width, &height);
-	return vec2d{static_cast<float>(width), static_cast<float>(height)};
-}
-
 static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAction, int mods)
 {
 	if( auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window) )

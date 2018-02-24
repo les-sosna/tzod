@@ -9,8 +9,8 @@
 static float s_zoomLevels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f };
 
 DefaultCamera::DefaultCamera(vec2d pos)
-	: _zoom(1)
-	, _zoomLevel(4)
+	: _zoomLevel(4)
+	, _zoom(1)
 	, _pos(pos)
 {
 }

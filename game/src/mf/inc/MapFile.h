@@ -1,13 +1,9 @@
-// MapFile.h
-
 #pragma once
-
 #include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <variant>
 #include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,9 +105,60 @@ class MapFile
 	{
 		struct Property
 		{
-			enumDataTypes type;
+			Property(Property &&other)
+				: _type(other._type)
+			{
+				switch (_type)
+				{
+					case DATATYPE_INT:
+						value_int = other.value_int;
+						break;
+					case DATATYPE_FLOAT:
+						value_float = other.value_float;
+						break;
+					case DATATYPE_STRING:
+						new (&value_string) std::string(std::move(other.value_string));
+						break;
+				}
+			}
+			Property(enumDataTypes type)
+				: _type(type)
+			{
+				switch (_type)
+				{
+					case DATATYPE_INT:
+						value_int = 0;
+						break;
+					case DATATYPE_FLOAT:
+						value_float = 0;
+						break;
+					case DATATYPE_STRING:
+						new (&value_string) std::string();
+						break;
+					default:
+						throw std::runtime_error("Unknown data type");
+				}
+			}
+			~Property()
+			{
+				switch (_type)
+				{
+					case DATATYPE_INT:
+					case DATATYPE_FLOAT:
+						break;
+					case DATATYPE_STRING:
+						value_string.~basic_string();
+						break;
+				}
+			}
+			const enumDataTypes _type;
 			std::string   name;
-			std::variant<int, float, std::string> value;
+			union
+			{
+				int value_int;
+				float value_float;
+				std::string value_string;
+			};
 		};
 
 		std::string           className;

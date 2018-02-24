@@ -114,7 +114,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 		// for diagonal checks
 		//                           4     5     6     7
-		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
+//		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
 
 		for( int i = 0; i < 8; ++i )
 		{
@@ -234,7 +234,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 void DrivingAgent::SmoothPath()
 {
-	if( _path.size() < 4 )
+//	if( _path.size() < 4 )
 		return;
 
 	vec2d vn[4];
