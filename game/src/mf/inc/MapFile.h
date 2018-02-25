@@ -107,6 +107,7 @@ class MapFile
 		{
 			Property(Property &&other)
 				: _type(other._type)
+				, name(std::move(other.name))
 			{
 				switch (_type)
 				{
