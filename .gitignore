@@ -32,3 +32,4 @@ game/WinRT/ipch/
 game/WinRT/AppPackages/
 game/WinRT/wtzod/BundleArtifacts/
 game/src/.vs/
+game/data/user/
