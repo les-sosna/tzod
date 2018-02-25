@@ -126,7 +126,7 @@ namespace UI
 			return _parent->GetChild(_index);
 		}
 
-		constexpr pointer operator->() const
+		pointer operator->() const
 		{
 			assert(false); // cannot return pointer to temporary object
 			return nullptr;
@@ -203,7 +203,7 @@ namespace UI
 			return const_cast<Window*>(_parent)->GetChild(_index);
 		}
 
-		constexpr pointer operator->() const
+		pointer operator->() const
 		{
 			assert(false); // cannot return pointer to temporary object
 			return nullptr;

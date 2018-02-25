@@ -12,12 +12,20 @@ FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
     , _mapped(false)
     , _streamed(false)
 {
+	struct stat sb;
+	bool hasStat = !stat(fileName.c_str(), &sb);
+	if( !hasStat && !(_mode & ModeWrite) )
+		throw std::runtime_error(fileName + ": " + strerror(errno));
+
+	if (hasStat && S_ISDIR(sb.st_mode))
+		throw std::runtime_error(fileName + ": Is a directory");
+
     int nMode = ((_mode & ModeWrite) ? 1:0) + ((_mode & ModeRead) ? 2:0);
     assert(nMode);
     static const char *modes[] = {"", "wb", "rb", "rb+"};
     _file.f = fopen(fileName.c_str(), modes[nMode]);
     if( !_file.f )
-        throw std::runtime_error(std::string("could not open file: ") + strerror(errno));
+		throw std::runtime_error(fileName + ": " + strerror(errno));
 }
 
 FS::OSFileSystem::OSFile::~OSFile()
@@ -144,6 +152,12 @@ std::shared_ptr<FS::FileSystem> FS::CreateOSFileSystem(const std::string &rootDi
 FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory)
     : _rootDirectory(rootDirectory)
 {
+	struct stat sb;
+	if( stat(rootDirectory.c_str(), &sb) )
+		throw std::runtime_error(rootDirectory + ": " + strerror(errno));
+
+	if (!S_ISDIR(sb.st_mode))
+		std::runtime_error(rootDirectory + ": Not a directory");
 }
 
 std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
@@ -207,7 +221,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
                 if( nothrow )
                     return nullptr;
                 else
-                    throw std::runtime_error("could not create directory");
+					throw std::runtime_error("Could not create directory: " + tmpDir + ": " + strerror(errno));
             }
         }
         else
@@ -215,7 +229,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
             if( nothrow )
                 return nullptr;
             else
-                throw std::runtime_error(tmpDir + " - directory not found");
+				throw std::runtime_error(tmpDir + ": Path not found");
         }
     }
     else if( !S_ISDIR(s.st_mode) )
@@ -223,7 +237,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
         if( nothrow )
             return nullptr;
         else
-            throw std::runtime_error("not a directory");
+			throw std::runtime_error(tmpDir + ": Not a directory");
     }
 
     // at this point the directory was either found or created

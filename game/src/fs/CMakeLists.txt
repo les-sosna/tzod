@@ -7,7 +7,12 @@ else()
 	list(APPEND FileSystem_SOURCES FileSystemPosix.cpp)
 endif()
 
-add_library(filesystem ${FileSystem_SOURCES})
+add_library(filesystem
+	inc/fs/FileSystem.h
+	inc/fs/StreamWrapper.h
+	
+	${FileSystem_SOURCES}
+)
 
 target_link_libraries(filesystem PRIVATE utf8cpp)
 

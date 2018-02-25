@@ -81,6 +81,13 @@ try
 	logger.Printf(0, "Mount file system");
 	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
 
+	// mount user folder
+	// TODO: use OS specific application data
+	if( !fs->GetFileSystem("user", true/*create*/, true/*nothrow*/) )
+	{
+		logger.Printf(1, "Could not mount user folder");
+	}
+
 	TzodApp app(*fs, logger);
 
 	logger.Printf(0, "Create GL context");

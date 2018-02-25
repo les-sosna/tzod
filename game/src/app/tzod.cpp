@@ -32,15 +32,18 @@ template <class T>
 static void LoadConfigNoThrow(FS::FileSystem &fs, T &confRoot, UI::ConsoleBuffer &logger, const std::string &filename)
 try
 {
-	logger.Printf(0, "Loading config '%s'", filename.c_str());
-	if (!confRoot->Load(*fs.Open(filename)->QueryMap(), filename.c_str()))
+	if (confRoot->Load(*fs.Open(filename)->QueryMap(), filename.c_str()))
+	{
+		logger.Printf(0, "Config loaded: %s", filename.c_str());
+	}
+	else
 	{
 		logger.Format(1) << "Failed to load a config file. Using defaults.";
 	}
 }
 catch (const std::exception &e)
 {
-	logger.Printf(1, "Could not load config '%s': %s", filename.c_str(), e.what());
+	logger.Printf(1, "Could not load config: %s", e.what());
 }
 
 TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *language)
@@ -102,8 +105,15 @@ void TzodApp::Step(float dt)
 
 void TzodApp::Exit()
 {
-	_logger.Printf(0, "Saving config to '" FILE_CONFIG "'");
-	auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
-	FS::OutStreamWrapper wrapper(*s);
-	_impl->combinedConfig->Save(wrapper);
+	try
+	{
+		auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
+		FS::OutStreamWrapper wrapper(*s);
+		_impl->combinedConfig->Save(wrapper);
+		_logger.Printf(0, "Config saved: " FILE_CONFIG);
+	}
+	catch(const std::exception &e)
+	{
+		_logger.Printf(0, "Failed to save config: %s", e.what());
+	}
 }
