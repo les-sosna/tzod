@@ -1,4 +1,4 @@
-#include "AIManager.h"
+#include "inc/ctx/AIManager.h"
 #include <ai/ai.h>
 #include <gc/Player.h>
 #include <gc/Vehicle.h>
@@ -49,6 +49,16 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 		}
 	}
 	return result;
+}
+
+void AIManager::GetControllers(std::vector<const AIController*> &controllers) const
+{
+	controllers.clear();
+	controllers.reserve(_aiControllers.size());
+	for (auto &ai : _aiControllers)
+	{
+		controllers.push_back(ai.second.second.get());
+	}
 }
 
 void AIManager::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)

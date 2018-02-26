@@ -291,6 +291,12 @@ return {
      cursor={right=128, bottom=64, xframes=4, yframes=2, xpivot=1, ypivot=1},
    }
 },
+{
+   file="textures/gui/line.tga",
+   content={
+     dotted_line={},
+   }
+},
 --------------------------------------
 
 }

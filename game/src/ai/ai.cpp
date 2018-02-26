@@ -128,6 +128,11 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	}
 }
 
+const std::vector<vec2d>& AIController::GetPath() const
+{
+	return _drivingAgent->GetPath();
+}
+
 // evaluate the rate of attacking of the given target
 AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target)
 {

@@ -53,7 +53,7 @@ add_library(render
 )
 
 target_link_libraries(render
-	PRIVATE video
+	PRIVATE ai ctx video
 	PUBLIC gc
 )
 

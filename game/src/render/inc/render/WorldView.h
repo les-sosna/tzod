@@ -3,6 +3,7 @@
 #include "Terrain.h"
 #include <math/MyMath.h>
 
+class AIManager;
 class RenderContext;
 class TextureManager;
 class RenderScheme;
@@ -14,6 +15,7 @@ struct WorldViewRenderOptions
 	bool editorMode = false;
 	bool drawGrid = false;
 	bool visualizeField = false;
+	bool visualizePath = false;
 };
 
 class WorldView
@@ -23,12 +25,14 @@ public:
 	~WorldView();
 	void Render(RenderContext &rc,
 	            const World &world,
-	            WorldViewRenderOptions options = {}) const;
+	            WorldViewRenderOptions options = {},
+	            const AIManager *aiManager = nullptr) const;
 	RenderScheme &GetRenderScheme() const { return _renderScheme; }
 
 private:
 	RenderScheme &_renderScheme;
 	Terrain _terrain;
+	size_t _lineTex;
 	size_t _texField;
 };
 

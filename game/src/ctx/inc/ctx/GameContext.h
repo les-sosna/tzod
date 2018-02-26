@@ -47,6 +47,7 @@ public:
 	WorldController& GetWorldController() { return *_worldController; }
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }
 	ScriptMessageSource& GetScriptMessageSource() { return _scriptMessageBroadcaster; }
+	AIManager& GetAIManager() { return *_aiManager; }
 
 	void Serialize(FS::Stream &stream);
 	void Deserialize(FS::Stream &stream);

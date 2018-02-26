@@ -6,6 +6,7 @@
 #include <vector>
 
 class GC_Player;
+class AIManager;
 class RenderContext;
 class World;
 class WorldController;
@@ -31,7 +32,7 @@ public:
 	CanvasToWorldResult CanvasToWorld(unsigned int viewIndex, int x, int y) const;
 	vec2d WorldToCanvas(unsigned int viewIndex, vec2d worldPos) const;
 	void SetCanvasSize(int pxWidth, int pxHeight, float scale);
-	void RenderGame(RenderContext &rc, const WorldView &worldView, bool visualizeField) const;
+	void RenderGame(RenderContext &rc, const WorldView &worldView, bool visualizeField, const AIManager *aiManager) const;
 	void Step(float dt);
 
 private:

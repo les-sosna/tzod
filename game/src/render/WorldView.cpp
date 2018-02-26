@@ -1,6 +1,7 @@
 #include "inc/render/WorldView.h"
 #include "inc/render/RenderScheme.h"
-
+#include <ai/ai.h>
+#include <ctx/AIManager.h>
 #include <gc/Field.h>
 #include <gc/Light.h>
 #include <gc/Macros.h>
@@ -13,6 +14,7 @@
 WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
 	: _renderScheme(rs)
 	, _terrain(tm)
+	, _lineTex(tm.FindSprite("dotted_line"))
 	, _texField(tm.FindSprite("ui/selection"))
 {
 }
@@ -23,7 +25,8 @@ WorldView::~WorldView()
 
 void WorldView::Render(RenderContext &rc,
                        const World &world,
-                       WorldViewRenderOptions options) const
+                       WorldViewRenderOptions options,
+                       const AIManager *aiManager) const
 {
 	FRECT visibleRegion = rc.GetVisibleRegion();
 
@@ -139,6 +142,21 @@ void WorldView::Render(RenderContext &rc,
 					rc.DrawSprite(MakeRectWH(vec2d{ (float)x - 0.5f, (float)y - 0.5f } * WORLD_BLOCK_SIZE,
 					                         vec2d{ WORLD_BLOCK_SIZE , WORLD_BLOCK_SIZE }), _texField, 0xffffffff, 0);
 				}
+			}
+		}
+	}
+
+	if (aiManager && options.visualizePath)
+	{
+		std::vector<const AIController*> controllers;
+		aiManager->GetControllers(controllers);
+
+		for (auto controller: controllers)
+		{
+			auto &path = controller->GetPath();
+			for (size_t i = 1; i < path.size(); i++)
+			{
+				rc.DrawLine(_lineTex, 0x80408040, path[i - 1], path[i], 0);
 			}
 		}
 	}

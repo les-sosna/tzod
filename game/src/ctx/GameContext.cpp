@@ -1,7 +1,7 @@
+#include "inc/ctx/AIManager.h"
 #include "inc/ctx/Deathmatch.h"
 #include "inc/ctx/GameContext.h"
 #include "inc/ctx/WorldController.h"
-#include "AIManager.h"
 #include <gc/Player.h>
 #include <gc/SaveFile.h>
 #include <gc/World.h>
@@ -12,9 +12,9 @@
 
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings)
 	: _world(std::move(world))
+	, _aiManager(std::make_unique<AIManager>(*_world))
 {
 	_world->Seed(rand());
-	_aiManager.reset(new AIManager(*_world));
 
 	for( const PlayerDesc &pd: settings.players )
 	{

@@ -185,10 +185,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			RefFieldCell currentRef = endRef;
 			FieldCell *current = &field(currentRef.x, currentRef.y);
 
-			PathNode node;
-
-			node.coord = to;
-			_path.push_back(node);
+			_path.push_back(to);
 
 			while( current->_stepX || current->_stepY )
 			{
@@ -197,9 +194,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				currentRef.y -= current->_stepY;
 				current = &field(currentRef.x, currentRef.y);
 
-				node.coord.x = (float) (currentRef.x * WORLD_BLOCK_SIZE);
-				node.coord.y = (float) (currentRef.y * WORLD_BLOCK_SIZE);
-				_path.push_back(node);
+				_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
@@ -238,19 +233,16 @@ void DrivingAgent::SmoothPath()
 		return;
 
 	vec2d vn[4];
-	std::vector<PathNode>::iterator it[4], tmp;
+	std::vector<vec2d>::iterator it[4], tmp;
 
-	//
 	// smooth angles
-	//
 	if( _path.size() > 4 )
 	{
 		it[1] = _path.begin();
 		it[0] = it[1]++;
 		while( it[1] != _path.end() )
 		{
-			PathNode new_node;
-			new_node.coord = (it[0]->coord + it[1]->coord) * 0.5f;
+			vec2d new_node = (*it[0] + *it[1]) * 0.5f;
 			_path.insert(it[1], new_node);
 			if( it[0] != _path.begin() )
 				_path.erase(it[0]);
@@ -259,24 +251,21 @@ void DrivingAgent::SmoothPath()
 	}
 
 
-	//
 	// spline interpolation
-	//
-
 	tmp = _path.begin();
 	for( int i = 0; i < 4; ++i )
 	{
 		it[i] = tmp++;
-		vn[i] = it[i]->coord;
+		vn[i] = *it[i];
 	}
 
 	for(;;)
 	{
-		PathNode new_node;
+		vec2d new_node;
 
 		for( int i = 1; i < 4; ++i )
 		{
-			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node.coord, (float) i / 4.0f);
+			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node, (float) i / 4.0f);
 			_path.insert(it[2], new_node);
 		}
 
@@ -289,7 +278,7 @@ void DrivingAgent::SmoothPath()
 		if( ++it[3] == _path.end() )
 			break;
 
-		vn[3] = it[3]->coord;
+		vn[3] = *it[3];
 	}
 }
 
@@ -297,16 +286,16 @@ void DrivingAgent::SmoothPath()
 //   * closest path node
 //   * projection of 'pos' to the path
 //   * offset
-std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNode(const vec2d &pos, vec2d *projection, float *offset) const
+std::vector<vec2d>::const_iterator DrivingAgent::FindNearPathNode(const vec2d &pos, vec2d *projection, float *offset) const
 {
 	assert(!_path.empty());
 
 	// find closest node
 	auto it = _path.begin(), result = it;
-	float rr_min = (it->coord - pos).sqr();
+	float rr_min = (*it - pos).sqr();
 	while( ++it != _path.end() )
 	{
-		float rr = (it->coord - pos).sqr();
+		float rr = (*it - pos).sqr();
 		if( rr <= rr_min )
 		{
 			result = it;
@@ -317,7 +306,7 @@ std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNo
 
 	if( projection )
 	{
-		vec2d dev = pos - result->coord;
+		vec2d dev = pos - *result;
 
 		float prevL = -1;
 		float nextL = -1;
@@ -335,7 +324,7 @@ std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNo
 		if( _path.begin() != result )
 		{
 			--prevIt;
-			prevDir  = prevIt->coord - result->coord;
+			prevDir  = *prevIt - *result;
 			prevDir2 = prevDir.sqr();
 			prevDot  = Vec2dDot(prevDir, dev);
 			prevL    = prevDot / sqrtf(prevDir2);
@@ -344,7 +333,7 @@ std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNo
 		auto nextIt = result; ++nextIt;
 		if( _path.end() != nextIt )
 		{
-			nextDir  = nextIt->coord - result->coord;
+			nextDir  = *nextIt - *result;
 			nextDir2 = nextDir.sqr();
 			nextDot  = Vec2dDot(nextDir, dev);
 			nextL    = nextDot / sqrtf(nextDir2);
@@ -353,7 +342,7 @@ std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNo
 		if( prevL > 0 && prevL > nextL )
 		{
 			vec2d d = prevDir * (prevDot / prevDir2);
-			*projection = result->coord + d;
+			*projection = *result + d;
 			if( offset )
 			{
 				*offset = d.len();
@@ -363,7 +352,7 @@ std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNo
 		if( nextL > 0 && nextL > prevL )
 		{
 			vec2d d = nextDir * (nextDot / nextDir2);
-			*projection = result->coord + d;
+			*projection = *result + d;
 			if( offset )
 			{
 				*offset = -d.len();
@@ -371,7 +360,7 @@ std::vector<DrivingAgent::PathNode>::const_iterator DrivingAgent::FindNearPathNo
 		}
 		else
 		{
-			*projection = result->coord;
+			*projection = *result;
 			if( offset )
 			{
 				*offset = 0;
@@ -436,7 +425,7 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 		float offset;
 		auto currentNodeIt = FindNearPathNode(currentPos, &currentProj, &offset);
 
-		int newProgress = std::distance(cbegin(_path), currentNodeIt);
+		int newProgress = static_cast<int>(std::distance(cbegin(_path), currentNodeIt));
 		if (newProgress > _pathProgress)
 		{
 			_pathProgress = newProgress;
@@ -449,21 +438,21 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 		auto it = currentNodeIt;
 		if (offset > 0)
 		{
-			vec2d d = it->coord;
+			vec2d d = *it;
 			--it;
-			d -= it->coord;
+			d -= *it;
 			offset -= d.len();
 		}
 		offset += std::min((currentPos - currentProj).len(), desiredProjOffsetLen);
 		for (;;)
 		{
-			vec2d d = it->coord;
+			vec2d d = *it;
 			if (++it == _path.end())
 			{
 				desiredProjOffset = d;
 				break;
 			}
-			d -= it->coord;
+			d -= *it;
 			float len = d.len();
 			if (offset + len < desiredProjOffsetLen)
 			{
@@ -472,7 +461,7 @@ void DrivingAgent::ComputeState(World &world, const GC_Vehicle &vehicle, float d
 			else
 			{
 				float ratio = 1 - (desiredProjOffsetLen - offset) / len;
-				desiredProjOffset = it->coord + d * ratio;
+				desiredProjOffset = *it + d * ratio;
 				break;
 			}
 		}

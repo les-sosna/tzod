@@ -255,7 +255,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 {
 	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize((int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y, lc.GetScale());
 
-	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get());
+	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
 
 	vec2d dir = GetDragDirection();
 	bool reversing = GetEffectiveDragCount() > 1;

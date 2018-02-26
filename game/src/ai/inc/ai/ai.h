@@ -49,6 +49,8 @@ public:
 
 	void ReadControllerState(World &world, float dt, const GC_Vehicle &vehicle, VehicleState &vs, bool allowExtraCalc);
 
+	const std::vector<vec2d>& GetPath() const;
+
 private:
 	// ai states
 	enum aiState_l2

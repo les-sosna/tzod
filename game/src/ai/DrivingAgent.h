@@ -17,11 +17,6 @@ class DrivingAgent
 public:
 	typedef std::list<ObjPtr<GC_RigidBodyStatic> > AttackListType;
 
-	struct PathNode
-	{
-		vec2d coord;
-	};
-
 	//-------------------------------------------------------------------------
 	//  to           - coordinates of the arrival point
 	//  max_depth    - maximum search depth
@@ -30,6 +25,7 @@ public:
 	//-------------------------------------------------------------------------
 	float CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
 	bool HasPath() const { return !_path.empty(); }
+	const std::vector<vec2d>& GetPath() const { return _path; }
 
 	// clears the current path and the attack list
 	void ClearPath();
@@ -38,7 +34,7 @@ public:
 	void SmoothPath();
 
 	// find the nearest node and projection to the path
-	std::vector<PathNode>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
+	std::vector<vec2d>::const_iterator FindNearPathNode(const vec2d &pos, vec2d *proj, float *offset) const;
 
 	void StayAway(vec2d fromCenter, float radius);
 
@@ -49,7 +45,7 @@ public:
 
 	AttackListType _attackList;
 private:
-	std::vector<PathNode> _path;
+	std::vector<vec2d> _path;
 	int _pathProgress = -1;
 	float _lastProgressTime = 0;
 

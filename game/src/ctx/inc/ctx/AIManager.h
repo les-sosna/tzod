@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 class AIController;
 class GC_Object;
@@ -23,6 +24,8 @@ public:
 
 	typedef std::map<PtrList<GC_Object>::id_type, VehicleState> ControllerStateMap;
 	ControllerStateMap ComputeAIState(World &world, float dt);
+
+	void GetControllers(std::vector<const AIController*> &controllers) const;
 
 private:
 	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<AIController>>> _aiControllers;

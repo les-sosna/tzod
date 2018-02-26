@@ -91,6 +91,7 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	// debug
 	VAR_BOOL( d_graph,          false )
 	VAR_BOOL( d_field,          false )
+	VAR_BOOL( d_path,           false )
 	VAR_BOOL( d_showfps,        false )
 
 	// other
