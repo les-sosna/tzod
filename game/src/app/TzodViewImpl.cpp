@@ -2,9 +2,13 @@
 #include "inc/app/tzod.h"
 #include <as/AppConstants.h>
 #include <fs/FileSystem.h>
+#include <shell/Config.h>
 #include <shell/Desktop.h>
 #include <shell/Profiler.h>
 #include <ui/ConsoleBuffer.h>
+#ifndef NOSOUND
+# include <audio/SoundView.h>
+#endif
 #include <numeric>
 
 static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &logger, IRender &render)
@@ -36,8 +40,12 @@ TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodAp
 		logger))
 	, _uiInputRenderingController(appWindow, _textureManager, _timeStepManager, _desktop)
 #ifndef NOSOUND
-	, _soundView(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState())
+	, _soundView(app.GetShellConfig().s_enabled.Get() ? std::make_unique<SoundView>(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState()) : nullptr)
 #endif
+{
+}
+
+TzodViewImpl::~TzodViewImpl()
 {
 }
 
@@ -73,16 +81,19 @@ void TzodViewImpl::Step(float dt)
 
 	// view pass
 #ifndef NOSOUND
-//	vec2d pos(0, 0);
-//	if (!_world.GetList(LIST_cameras).empty())
-//	{
-//		_world.GetList(LIST_cameras).for_each([&pos](ObjectList::id_type, GC_Object *o)
+	if (_soundView)
+	{
+//		vec2d pos(0, 0);
+//		if (!_world.GetList(LIST_cameras).empty())
 //		{
-//			pos += static_cast<GC_Camera*>(o)->GetCameraPos();
-//		});
-//	}
-//	_soundView.SetListenerPos(pos);
-	_soundView.Step();
+//			_world.GetList(LIST_cameras).for_each([&pos](ObjectList::id_type, GC_Object *o)
+//			{
+//				pos += static_cast<GC_Camera*>(o)->GetCameraPos();
+//			});
+//		}
+//		_soundView->SetListenerPos(pos);
+		_soundView->Step();
+	}
 #endif
 	_uiInputRenderingController.OnRefresh();
 }

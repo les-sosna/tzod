@@ -70,8 +70,9 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_REFLECTION(editor, EditorConfig)
 
 	// sound
-	VAR_INT( s_volume,      10000 )
-	VAR_INT( s_musicvolume, 10000 )
+	VAR_BOOL( s_enabled,      true )
+	VAR_INT(  s_volume,      10000 )
+	VAR_INT(  s_musicvolume, 10000 )
 
 	// game
 	VAR_BOOL( g_shownames, true )

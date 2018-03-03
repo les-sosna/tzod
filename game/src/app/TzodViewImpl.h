@@ -1,7 +1,4 @@
 #pragma once
-#ifndef NOSOUND
-# include <audio/SoundView.h>
-#endif
 #include <platetc/UIInputRenderingController.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
@@ -9,11 +6,17 @@
 #include <memory>
 
 class TzodApp;
+class SoundView;
+namespace UI
+{
+	class ConsoleBuffer;
+}
 
 class TzodViewImpl
 {
 public:
 	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow);
+	~TzodViewImpl();
 
 	void Step(float dt);
 
@@ -26,7 +29,7 @@ private:
 	std::deque<float> _movingAverageWindow;
 	std::deque<float> _movingMedianWindow;
 #ifndef NOSOUND
-	SoundView _soundView;
+	std::unique_ptr<SoundView> _soundView;
 #endif
 };
 
