@@ -12,6 +12,7 @@ class DefaultCamera
 public:
 	explicit DefaultCamera(vec2d pos);
 
+	void MoveTo(vec2d newEyeWorldPos);
 	void Move(vec2d offset, const FRECT &worldBounds);
 	void ZoomIn();
 	void ZoomOut();
@@ -20,8 +21,10 @@ public:
 	vec2d GetEye() const { return _pos; }
 
 private:
-	int _zoomLevel;
-	float _zoom;
-	vec2d _pos;
+	int _zoomLevel = 4;
+	float _zoom = 1;
+	vec2d _pos{};
+	vec2d _targetPos{};
 	vec2d _speed{};
+	bool _movingToTarget = false;
 };

@@ -385,7 +385,7 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset)
 {
-	_defaultCamera.Move(scrollOffset, _world.GetBounds());
+	_defaultCamera.Move(scrollOffset * WORLD_BLOCK_SIZE * 3, _world.GetBounds());
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
@@ -592,6 +592,29 @@ void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, 
 	default:
 		break;
 	}
+
+	auto canvasViewport = MakeRectWH(lc.GetPixelSize());
+	vec2d eye = _defaultCamera.GetEye();
+	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	vec2d worldTransformOffset = ComputeWorldTransformOffset(canvasViewport, eye, zoom);
+
+	FRECT worldViewport = CanvasToWorld(worldTransformOffset, zoom, canvasViewport);
+	FRECT worldFocusRect = GetAlignedFocusRect();
+
+	vec2d cameraOffset = {};
+
+	if (worldFocusRect.left < worldViewport.left)
+		cameraOffset.x = worldFocusRect.left - worldViewport.left;
+	else if (worldFocusRect.right > worldViewport.right)
+		cameraOffset.x = worldFocusRect.right - worldViewport.right;
+
+	if (worldFocusRect.top < worldViewport.top)
+		cameraOffset.y = worldFocusRect.top - worldViewport.top;
+	else if (worldFocusRect.bottom > worldViewport.bottom)
+		cameraOffset.y = worldFocusRect.bottom - worldViewport.bottom;
+
+	if (!cameraOffset.IsZero())
+		_defaultCamera.MoveTo(_defaultCamera.GetEye() + cameraOffset);
 }
 
 FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
@@ -700,6 +723,11 @@ vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) 
 	vec2d worldTransformOffset = ComputeWorldTransformOffset(MakeRectWH(lc.GetPixelSize()), eye, zoom);
 
 	return (canvasPos - worldTransformOffset) / zoom;
+}
+
+FRECT EditorLayout::CanvasToWorld(vec2d worldTransformOffset, float worldTransformScale, FRECT canvasRect) const
+{
+	return RectOffset(canvasRect, -worldTransformOffset) / worldTransformScale;
 }
 
 vec2d EditorLayout::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const

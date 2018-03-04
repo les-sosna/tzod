@@ -9,15 +9,20 @@
 static float s_zoomLevels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f };
 
 DefaultCamera::DefaultCamera(vec2d pos)
-	: _zoomLevel(4)
-	, _zoom(1)
-	, _pos(pos)
+	: _pos(pos)
 {
+}
+
+void DefaultCamera::MoveTo(vec2d newEyeWorldPos)
+{
+	_speed = vec2d{};
+	_targetPos = newEyeWorldPos;
+	_movingToTarget = true;
 }
 
 void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
 {
-	_pos = Vec2dClamp(_pos - offset * 30, worldBounds);
+	_pos = Vec2dClamp(_pos - offset, worldBounds);
 }
 
 void DefaultCamera::ZoomIn()
@@ -51,26 +56,64 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 		direction += input.GetGamepadState(0).rightThumbstickPos;
 	}
 
+	// Pure exponent would move to target infinitely long.
+	// Adjust target to be slightly ahead of the desired pos.
+	// This way we reach target quicker but we need to explicitly
+	// stop in order to not pass beyond.
+
+	float expFactor = 5;
+	float targetPosPreemption = 10; // distance units
+	vec2d posDifference = _targetPos - _pos;
+	vec2d targetDirection = posDifference.Norm();
+	vec2d adjustedTragetPos = _targetPos + targetDirection * targetPosPreemption;
+	vec2d adjustedDifference = adjustedTragetPos - _pos;
+
+	// keep the speed for smooth transition
+	if (_movingToTarget && !direction.IsZero())
+	{
+		_movingToTarget = false;
+		_speed = adjustedDifference * expFactor;
+	}
+
+	float exp = std::exp(-dt * expFactor);
 	float targetZoom = s_zoomLevels[_zoomLevel];
 	if (_zoom != targetZoom)
 	{
-		float exp = std::exp(-dt * 5);
-		float delta = (_zoom - targetZoom) * exp * 0.8f;
+		// FIXME: const factor seems to be wrong. Use adjusted target zoom instead.
+		float reminder = (targetZoom - _zoom) * exp * 0.8f;
 		if (_zoom > targetZoom)
-			_zoom = std::max(targetZoom, targetZoom + delta);
+			_zoom = std::max(targetZoom, targetZoom - reminder);
 		else
-			_zoom = std::min(targetZoom, targetZoom + delta);
+			_zoom = std::min(targetZoom, targetZoom - reminder);
 	}
 
-	_speed += direction * dt * (6000 + _speed.len() * 8);
-	_speed *= expf(-dt * 10);
+	if (_movingToTarget)
+	{
+		vec2d reminder = adjustedDifference * exp;
+		if (reminder.sqr() > targetPosPreemption * targetPosPreemption)
+		{
+			_pos = adjustedTragetPos - reminder;
+		}
+		else
+		{
+			_pos = _targetPos;
+			_movingToTarget = false;
+		}
+	}
+	else
+	{
+		_speed += direction * dt * (6000 + _speed.len() * 8);
+		_speed *= expf(-dt * 10);
 
-	_pos += _speed * dt / _zoom;
-	_pos = Vec2dClamp(_pos, worldBounds);
+		_pos += _speed * dt / _zoom;
+		_pos = Vec2dClamp(_pos, worldBounds);
+	}
+
 
 	if (input.IsKeyPressed(UI::Key::Home))
 	{
-		_pos = vec2d{};
+		_targetPos = vec2d{};
 		_speed = vec2d{};
+		_movingToTarget = true;
 	}
 }

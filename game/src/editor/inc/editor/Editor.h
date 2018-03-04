@@ -55,6 +55,7 @@ public:
 
 private:
 	vec2d CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const;
+	FRECT CanvasToWorld(vec2d worldTransformOffset, float worldTransformScale, FRECT canvasRect) const;
 	vec2d WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const;
 	FRECT WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, FRECT worldRect) const;
 	GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const;
