@@ -120,6 +120,7 @@ private:
 
 	EditorConfig &_conf;
 	LangCache &_lang;
+	vec2d _virtualPointer;
 	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;
@@ -134,8 +135,6 @@ private:
 	ObjPtr<GC_Object> _selectedObject;
 	ObjPtr<GC_Object> _recentlyCreatedObject;
 	int  _capturedButton = 0;
-
-	vec2d _virtualPointer = {};
 
 	World &_world;
 	WorldView &_worldView;

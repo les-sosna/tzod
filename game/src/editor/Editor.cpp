@@ -148,13 +148,14 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
                            EditorConfig &conf,
                            LangCache &lang,
                            UI::ConsoleBuffer &logger)
-  : UI::TimeStepping(manager)
-  , _conf(conf)
-  , _lang(lang)
-  , _defaultCamera(Center(editorContext.GetOriginalBounds()))
-  , _world(editorContext.GetWorld())
-  , _worldView(worldView)
-  , _quickActions(logger, _world)
+	: UI::TimeStepping(manager)
+	, _conf(conf)
+	, _lang(lang)
+	, _virtualPointer(Center(editorContext.GetOriginalBounds()))
+	, _defaultCamera(_virtualPointer)
+	, _world(editorContext.GetWorld())
+	, _worldView(worldView)
+	, _quickActions(logger, _world)
 {
 	_help = std::make_shared<UI::Text>();
 	_help->Move(10, 10);
