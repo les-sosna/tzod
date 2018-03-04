@@ -46,7 +46,8 @@ static std::string w2s(std::wstring_view w)
 [MTAThread]
 int main(Array<String^> ^args)
 {
-	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("StoreData/data");
+	::SetCurrentDirectoryW(L"StoreData");
+	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
 	fs->Mount("user", FS::CreateOSFileSystem(w2s(ApplicationData::Current->LocalFolder->Path->Data())));
 
 	UI::ConsoleBuffer logger(100, 500);

@@ -47,6 +47,12 @@ static int init(lua_State *L)
 		lua_call(L, 1, 0);
 	}
 
+	// package.path = "data/scripts/?.lua"
+	lua_getglobal(L, "package");
+	 lua_pushliteral(L, "data/scripts/?.lua");
+	  lua_setfield(L, -2, "path");
+	 lua_pop(L, 1);
+
 	return 0;
 }
 
@@ -56,7 +62,7 @@ static int doaction(lua_State *L)
 
 	// qa = require "quick_actions"
 	lua_getglobal(L, "require");
-	lua_pushliteral(L, "data/scripts/quick_actions");
+	lua_pushliteral(L, "quick_actions");
 	lua_call(L, 1, 1);
 
 	// action = qa[typename]
