@@ -345,7 +345,7 @@ static FRECT GetSelectionRect(const GC_Actor &actor)
 	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
 }
 
-FRECT EditorLayout::GetAlignedFocusRect() const
+FRECT EditorLayout::GetNavigationOrigin() const
 {
 	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, _virtualPointer))
 	{
@@ -359,6 +359,28 @@ FRECT EditorLayout::GetAlignedFocusRect() const
 	}
 }
 
+EditorLayout::WorldCursor EditorLayout::GetCursor() const
+{
+	WorldCursor cursor = {};
+
+	vec2d worldPos = _virtualPointer;// CanvasToWorld(lc, ic.GetMousePos());
+
+	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
+	{
+		cursor.bounds = GetSelectionRect(*actor);
+		cursor.cursorType = WorldCursor::Type::Action;
+	}
+	else if (!_modeSelect->GetCheck())
+	{
+		auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+		vec2d mouseAligned = AlignToGrid(typeInfo, worldPos);
+		cursor.bounds = MakeRectWH(mouseAligned - typeInfo.size / 2, typeInfo.size);
+		cursor.cursorType = CanCreateAt(mouseAligned) ? WorldCursor::Type::Create : WorldCursor::Type::Obstructed;
+	}
+
+	return cursor;
+}
+
 void EditorLayout::ChooseNextType()
 {
 	_typeSelector->GetList()->SetCurSel(std::clamp(_typeSelector->GetList()->GetCurSel() + 1,
@@ -369,6 +391,30 @@ void EditorLayout::ChoosePrevType()
 {
 	_typeSelector->GetList()->SetCurSel(std::clamp(_typeSelector->GetList()->GetCurSel() - 1,
 		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
+}
+
+void EditorLayout::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect)
+{
+	vec2d cameraOffset = {};
+
+	auto canvasViewport = MakeRectWH(lc.GetPixelSize());
+	vec2d eye = _defaultCamera.GetEye();
+	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	vec2d worldTransformOffset = ComputeWorldTransformOffset(canvasViewport, eye, zoom);
+	FRECT worldViewport = CanvasToWorld(worldTransformOffset, zoom, canvasViewport);
+
+	if (worldRect.left < worldViewport.left)
+		cameraOffset.x = worldRect.left - worldViewport.left;
+	else if (worldRect.right > worldViewport.right)
+		cameraOffset.x = worldRect.right - worldViewport.right;
+
+	if (worldRect.top < worldViewport.top)
+		cameraOffset.y = worldRect.top - worldViewport.top;
+	else if (worldRect.bottom > worldViewport.bottom)
+		cameraOffset.y = worldRect.bottom - worldViewport.bottom;
+
+	if (!cameraOffset.IsZero())
+		_defaultCamera.MoveTo(_defaultCamera.GetEye() + cameraOffset);
 }
 
 void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
@@ -492,7 +538,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		}
 		else
 		{
-			vec2d alignedPointerPos = Center(GetAlignedFocusRect());
+			vec2d alignedPointerPos = Center(GetNavigationOrigin());
 			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, alignedPointerPos))
 			{
 				actor->Kill(_world);
@@ -500,7 +546,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		}
 		break;
 	case UI::Key::GamepadY:
-		ActionOrSelectAt(Center(GetAlignedFocusRect()));
+		ActionOrSelectAt(Center(GetNavigationOrigin()));
 		break;
 	case UI::Key::F1:
 		_help->SetVisible(!_help->GetVisible());
@@ -552,7 +598,7 @@ void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, 
 
 	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
 
-	FRECT origin = GetAlignedFocusRect();
+	FRECT origin = GetNavigationOrigin();
 
 	switch (navigate)
 	{
@@ -593,28 +639,7 @@ void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, 
 		break;
 	}
 
-	auto canvasViewport = MakeRectWH(lc.GetPixelSize());
-	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
-	vec2d worldTransformOffset = ComputeWorldTransformOffset(canvasViewport, eye, zoom);
-
-	FRECT worldViewport = CanvasToWorld(worldTransformOffset, zoom, canvasViewport);
-	FRECT worldFocusRect = GetAlignedFocusRect();
-
-	vec2d cameraOffset = {};
-
-	if (worldFocusRect.left < worldViewport.left)
-		cameraOffset.x = worldFocusRect.left - worldViewport.left;
-	else if (worldFocusRect.right > worldViewport.right)
-		cameraOffset.x = worldFocusRect.right - worldViewport.right;
-
-	if (worldFocusRect.top < worldViewport.top)
-		cameraOffset.y = worldFocusRect.top - worldViewport.top;
-	else if (worldFocusRect.bottom > worldViewport.bottom)
-		cameraOffset.y = worldFocusRect.bottom - worldViewport.bottom;
-
-	if (!cameraOffset.IsZero())
-		_defaultCamera.MoveTo(_defaultCamera.GetEye() + cameraOffset);
+	EnsureVisible(lc, RectExpand(GetCursor().bounds, WORLD_BLOCK_SIZE));
 }
 
 FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
@@ -671,31 +696,26 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 
+	// World cursor
 	if (ic.GetFocused())
 	{
-		vec2d worldPos = _virtualPointer;// CanvasToWorld(lc, ic.GetMousePos());
-
-		FRECT mouseRect;
-		SpriteColor mouseRectColor;
-		if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
+		auto cursor = GetCursor();
+		auto cursorColor = SpriteColor{};
+		switch (cursor.cursorType)
 		{
-			mouseRect = GetSelectionRect(*actor);
-			mouseRectColor = 0xff00ffff;
-			rc.DrawBorder(mouseRect, _texSelection.GetTextureId(texman), mouseRectColor, 0);
+		case WorldCursor::Type::Create:     cursorColor = 0xff00ff00; break;
+		case WorldCursor::Type::Obstructed: cursorColor = 0x8f008f00; break;
+		case WorldCursor::Type::Action:     cursorColor = 0xff00ffff; break;
 		}
-		else if(!_modeSelect->GetCheck())
-		{
-			auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
-			vec2d mouseAligned = AlignToGrid(typeInfo, worldPos);
-			mouseRect = MakeRectWH(mouseAligned - typeInfo.size / 2, typeInfo.size);
-			mouseRectColor = CanCreateAt(mouseAligned) ? 0xff00ff00 : 0xff00ffff;
-			rc.DrawBorder(mouseRect, _texSelection.GetTextureId(texman), mouseRectColor, 0);
+		rc.DrawBorder(cursor.bounds, _texSelection.GetTextureId(texman), cursorColor, 0);
 
-			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, mouseAligned))
+		if (cursor.cursorType == WorldCursor::Type::Obstructed)
+		{
+			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, Center(cursor.bounds)))
 			{
-				mouseRect = GetSelectionRect(*actor);
-				rc.DrawSprite(mouseRect, _texSelection.GetTextureId(texman), 0xff0000ff, 0);
-				rc.DrawBorder(mouseRect, _texSelection.GetTextureId(texman), 0x88000088, 0);
+				auto obstacleRect = GetSelectionRect(*actor);
+				rc.DrawSprite(obstacleRect, _texSelection.GetTextureId(texman), 0xff0000ff, 0);
+				rc.DrawBorder(obstacleRect, _texSelection.GetTextureId(texman), 0x88000088, 0);
 			}
 		}
 	}
@@ -709,7 +729,7 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	rc.PopClippingRect();
 
 	// Mouse coordinates
-	vec2d worldPos = Center(GetAlignedFocusRect());// CanvasToWorld(lc, ic.GetMousePos());
+	vec2d worldPos = Center(GetNavigationOrigin());// CanvasToWorld(lc, ic.GetMousePos());
 	std::stringstream buf;
 	buf << "x=" << floor(worldPos.x + 0.5f) << "; y=" << floor(worldPos.y + 0.5f);
 	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },

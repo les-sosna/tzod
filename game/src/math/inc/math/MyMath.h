@@ -311,6 +311,11 @@ inline RectRB FRectToRect(const FRECT &rect)
 	};
 }
 
+inline FRECT RectExpand(const FRECT &rect, float amount)
+{
+	return FRECT{ rect.left - amount, rect.top - amount, rect.right + amount, rect.bottom + amount };
+}
+
 inline FRECT RectOffset(const FRECT &rect, vec2d offset)
 {
 	return FRECT{rect.left + offset.x, rect.top + offset.y, rect.right + offset.x, rect.bottom + offset.y};

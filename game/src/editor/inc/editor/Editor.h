@@ -54,6 +54,19 @@ public:
 	void SelectNone();
 
 private:
+	struct WorldCursor
+	{
+		enum class Type
+		{
+			None,
+			Create,
+			Obstructed,
+			Action
+		};
+
+		FRECT bounds;
+		Type cursorType;
+	};
 	vec2d CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const;
 	FRECT CanvasToWorld(vec2d worldTransformOffset, float worldTransformScale, FRECT canvasRect) const;
 	vec2d WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const;
@@ -65,9 +78,11 @@ private:
 	void ActionOrCreateAt(vec2d worldPos, bool defaultProperties);
 	void ActionOrSelectAt(vec2d worldPos);
 	bool CanCreateAt(vec2d worldPos) const;
-	FRECT GetAlignedFocusRect() const;
+	FRECT GetNavigationOrigin() const;
+	WorldCursor GetCursor() const;
 	void ChooseNextType();
 	void ChoosePrevType();
+	void EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect);
 
 	void OnChangeUseLayers();
 
