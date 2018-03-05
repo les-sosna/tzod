@@ -32,6 +32,11 @@ namespace UI
 	template<class, class> class ListAdapter;
 }
 
+struct EditorCommands
+{
+	std::function<void()> playMap;
+};
+
 class EditorLayout
 	: public UI::Window
 	, private UI::TimeStepping
@@ -47,6 +52,7 @@ public:
 		WorldView &worldView,
 		EditorConfig &conf,
 		LangCache &lang,
+		EditorCommands commands,
 		UI::ConsoleBuffer &logger);
 	virtual ~EditorLayout();
 
@@ -120,6 +126,7 @@ private:
 
 	EditorConfig &_conf;
 	LangCache &_lang;
+	EditorCommands _commands;
 	vec2d _virtualPointer;
 	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;

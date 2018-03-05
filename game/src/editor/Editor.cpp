@@ -147,10 +147,12 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
                            WorldView &worldView,
                            EditorConfig &conf,
                            LangCache &lang,
+                           EditorCommands commands,
                            UI::ConsoleBuffer &logger)
 	: UI::TimeStepping(manager)
 	, _conf(conf)
 	, _lang(lang)
+	, _commands(std::move(commands))
 	, _virtualPointer(Center(editorContext.GetOriginalBounds()))
 	, _defaultCamera(_virtualPointer)
 	, _world(editorContext.GetWorld())
@@ -180,6 +182,11 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
 	_modeErase = std::make_shared<UI::CheckBox>();
 	_modeErase->SetText("Erase"_txt);
 
+	auto play = std::make_shared<UI::Button>();
+	play->SetText("Play"_txt);
+	play->SetWidth(64);
+	play->eventClick = _commands.playMap;
+
 	_typeSelector = std::make_shared<DefaultListBox>();
 	_typeSelector->GetList()->SetItemTemplate(gameClassVis);
 
@@ -194,6 +201,7 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
 	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.object.GetInt())));
 
 	_toolbar = std::make_shared<UI::StackLayout>();
+	_toolbar->AddFront(play);
 	_toolbar->AddFront(_modeSelect);
 	_toolbar->AddFront(_modeErase);
 	_toolbar->AddFront(_typeSelector);

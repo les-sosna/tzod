@@ -625,6 +625,7 @@ void Desktop::OnGameContextChanged()
 			_worldView,
 			_conf.editor,
 			_lang,
+			EditorCommands{ [] {} },
 			_logger);
 		AddBack(_editor);
 	}
