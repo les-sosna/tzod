@@ -185,9 +185,10 @@ bool InputContext::ProcessPointer(
 	_lastPointerLocation[pointerID] = pxPointerPosition;
 #endif
 
-	if (Msg::Scroll == msg)
+	if (Msg::Scroll == msg || Msg::ScrollPrecise == msg)
 	{
-		return ProcessScroll(texman, wnd, lc, dc, pxPointerPosition, pxPointerOffset);
+		return ProcessScroll(texman, wnd, lc, dc, pxPointerPosition,
+			pxPointerOffset / lc.GetScale(), Msg::ScrollPrecise == msg);
 	}
 
 	PointerSink *pointerSink = nullptr;
@@ -262,7 +263,7 @@ bool InputContext::ProcessPointer(
 	return !!pointerSink;
 }
 
-bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d scrollOffset)
+bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d scrollOffset, bool precise)
 {
 	ScrollSink *scrollSink = nullptr;
 	std::vector<std::shared_ptr<Window>> sinkPath;
@@ -283,7 +284,7 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	{
 		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
 		pxPointerPosition -= childOffsetAndLC.first;
-		scrollSink->OnScroll(texman, *this, childOffsetAndLC.second, dc, scrollOffset);
+		scrollSink->OnScroll(texman, *this, childOffsetAndLC.second, dc, scrollOffset, precise);
 		return true;
 	}
 

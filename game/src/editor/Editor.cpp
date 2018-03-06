@@ -438,9 +438,9 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	}
 }
 
-void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset)
+void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)
 {
-	_defaultCamera.Move(scrollOffset * WORLD_BLOCK_SIZE * 3, _world.GetBounds());
+	_defaultCamera.Move(scrollOffset, _world.GetBounds());
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
@@ -712,9 +712,10 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		auto cursorColor = SpriteColor{};
 		switch (cursor.cursorType)
 		{
-		case WorldCursor::Type::Create:     cursorColor = 0xff00ff00; break;
-		case WorldCursor::Type::Obstructed: cursorColor = 0x8f008f00; break;
-		case WorldCursor::Type::Action:     cursorColor = 0xff00ffff; break;
+			case WorldCursor::Type::Create:     cursorColor = 0xff00ff00; break;
+			case WorldCursor::Type::Obstructed: cursorColor = 0x8f008f00; break;
+			case WorldCursor::Type::Action:     cursorColor = 0xff00ffff; break;
+			case WorldCursor::Type::None: break;
 		}
 		rc.DrawBorder(cursor.bounds, _texSelection.GetTextureId(texman), cursorColor, 0);
 

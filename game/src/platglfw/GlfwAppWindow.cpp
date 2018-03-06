@@ -109,7 +109,12 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		{
 			vec2d pxMousePos = GetCursorPosInPixels(window);
 			vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-			inputSink->OnPointer(UI::PointerType::Mouse, UI::Msg::Scroll, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
+			auto msg = UI::Msg::Scroll;
+#ifdef __APPLE__
+			pxMouseOffset *= 10;
+			msg = UI::Msg::ScrollPrecise;
+#endif
+			inputSink->OnPointer(UI::PointerType::Mouse, msg, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
 		}
 	}
 }

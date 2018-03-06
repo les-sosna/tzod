@@ -29,6 +29,7 @@ enum class Msg
 	PointerUp,
 	PointerCancel,
 	Scroll,
+	ScrollPrecise,
 	TAP,
 };
 
@@ -76,7 +77,7 @@ public:
 #endif
 
 private:
-	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset);
+	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset, bool precise);
 
 	IInput &_input;
 	IClipboard &_clipboard;

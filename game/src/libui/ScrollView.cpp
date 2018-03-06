@@ -45,7 +45,7 @@ vec2d ScrollView::GetContentSize(TextureManager &texman, const DataContext &dc, 
 	return _content ? _content->GetContentSize(texman, dc, scale, layoutConstraints) : vec2d{};
 }
 
-void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset)
+void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)
 {
 	if (_content)
 	{
@@ -58,7 +58,7 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 
 		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScale());
 		_offset = Vec2dClamp(_offset, offsetConstraints);
-		_offset -= scrollOffset * 30;
+		_offset -= scrollOffset;
 		_offset = Vec2dClamp(_offset, offsetConstraints);
 	}
 	else
