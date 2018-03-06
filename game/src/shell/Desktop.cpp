@@ -625,7 +625,7 @@ void Desktop::OnGameContextChanged()
 			_worldView,
 			_conf.editor,
 			_lang,
-			EditorCommands{ [] {} },
+			EditorCommands{ [this] { SetEditorMode(false); } },
 			_logger);
 		AddBack(_editor);
 	}
