@@ -1,7 +1,11 @@
 #include "GLESProgram.h"
 #include "inc/video/RenderOpenGL.h"
-#include <OpenGLES/ES2/gl.h>
 #include <cstring>
+#if __ANDROID__
+#include <GLES2/gl2.h>
+#else
+#include <OpenGLES/ES2/gl.h>
+#endif
 
 #define VERTEX_ARRAY_SIZE   1024
 #define  INDEX_ARRAY_SIZE   2048
@@ -9,7 +13,6 @@
 
 class RenderGLES2 : public IRender
 {
-    unsigned int _windowWidth = 0;
     unsigned int _windowHeight = 0;
 	RectRB _rtViewport;
 	vec2d _offset = {};
@@ -138,7 +141,6 @@ void RenderGLES2::SetTransform(vec2d offset, float scale)
 
 void RenderGLES2::Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
 {
-	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
 
     glEnable(GL_BLEND);

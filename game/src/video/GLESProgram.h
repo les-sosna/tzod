@@ -1,5 +1,9 @@
 #pragma once
+#if __ANDROID__
+#include <GLES2/gl2.h>
+#else
 #include <OpenGLES/ES2/gl.h>
+#endif
 
 struct AttribLocationBinding
 {
