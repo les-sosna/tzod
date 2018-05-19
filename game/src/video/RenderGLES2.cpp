@@ -9,20 +9,20 @@
 
 class RenderGLES2 : public IRender
 {
-    unsigned int _windowWidth;
-    unsigned int _windowHeight;
+    unsigned int _windowWidth = 0;
+    unsigned int _windowHeight = 0;
 	RectRB _rtViewport;
-    vec2d _cameraEye;
-    float _cameraScale;
+	vec2d _offset = {};
+    float _scale = 1;
 
-	GLuint _curtex;
+	GLuint _curtex = -1;
 	float _ambient;
 
 	GLushort _IndexArray[INDEX_ARRAY_SIZE];
 	MyVertex _VertexArray[VERTEX_ARRAY_SIZE];
 
-	unsigned int _vaSize;      // number of filled elements in _VertexArray
-	unsigned int _iaSize;      // number of filled elements in _IndexArray
+	unsigned int _vaSize = 0;      // number of filled elements in _VertexArray
+	unsigned int _iaSize = 0;      // number of filled elements in _IndexArray
 
 	RenderMode _mode;
 
@@ -36,21 +36,15 @@ public:
 
 private:
 	void Flush();
-    int GetViewportWidth() const;
-    int GetViewportHeight() const;
-    
-    
+
     // IRender
-	void OnResizeWnd(unsigned int width, unsigned int height) override;
-	void SetDisplayOrientation(DisplayOrientation displayOrientation) override { assert(DO_0 == displayOrientation); }
+	void SetViewport(const RectRB &rect) override;
+	void SetScissor(const RectRB &rect) override;
+	void SetTransform(vec2d offset, float scale) override;
 
-	void SetViewport(const RectRB *rect) override;
-	void SetScissor(const RectRB *rect) override;
-	void Camera(const RectRB *vp, float x, float y, float scale) override;
-
-	void Begin(void) override;
-	void End(void) override;
-	void SetMode (const RenderMode mode) override;
+	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation) override;
+	void End() override;
+	void SetMode(const RenderMode mode) override;
 
 	void SetAmbient(float ambient) override;
 
@@ -109,14 +103,7 @@ static const AttribLocationBinding s_bindings[] =
 ///////////////////////////////////////////////////////////////////////////////
 
 RenderGLES2::RenderGLES2()
-    : _windowWidth(0)
-    , _windowHeight(0)
-    , _cameraEye()
-    , _cameraScale(1)
-    , _curtex(-1)
-    , _vaSize(0)
-    , _iaSize(0)
-    , _program(s_vertexShader, s_fragmentShader, s_bindings)
+    : _program(s_vertexShader, s_fragmentShader, s_bindings)
     , _viewProj(_program.GetUniformLocation("viewProj"))
     , _sampler(_program.GetUniformLocation("s_tex"))
 {
@@ -128,70 +115,32 @@ RenderGLES2::~RenderGLES2()
 {
 }
 
-void RenderGLES2::OnResizeWnd(unsigned int width, unsigned int height)
-{
-	_windowWidth = width;
-    _windowHeight = height;
-    SetViewport(nullptr);
-    SetScissor(nullptr);
-}
-
-void RenderGLES2::SetScissor(const RectRB *rect)
+void RenderGLES2::SetScissor(const RectRB &rect)
 {
 	Flush();
-	if( rect )
-	{
-		glScissor(rect->left, _windowHeight - rect->bottom, rect->right - rect->left, rect->bottom - rect->top);
-		glEnable(GL_SCISSOR_TEST);
-	}
-	else
-	{
-		glDisable(GL_SCISSOR_TEST);
-	}
+	glScissor(rect.left, _windowHeight - rect.bottom, WIDTH(rect), HEIGHT(rect));
+	glEnable(GL_SCISSOR_TEST);
 }
 
-void RenderGLES2::SetViewport(const RectRB *rect)
+void RenderGLES2::SetViewport(const RectRB &rect)
 {
 	Flush();
-
-	if( rect )
-	{
-		glViewport(rect->left, _windowHeight - rect->bottom, WIDTH(*rect), HEIGHT(*rect));
-		_rtViewport = *rect;
-	}
-	else
-	{
-		glViewport(0, 0, _windowWidth, _windowHeight);
-		_rtViewport.left   = 0;
-		_rtViewport.top    = 0;
-		_rtViewport.right  = _windowWidth;
-		_rtViewport.bottom = _windowHeight;
-	}
+	glViewport(rect.left, _windowHeight - rect.bottom, WIDTH(rect), HEIGHT(rect));
+	_rtViewport = rect;
 }
 
-void RenderGLES2::Camera(const RectRB *vp, float x, float y, float scale)
+void RenderGLES2::SetTransform(vec2d offset, float scale)
 {
     Flush();
-    
-	SetViewport(vp);
-	SetScissor(vp);
-    
-    _cameraScale = scale;
-    _cameraEye = vec2d{x, y};
+	_scale = scale;
+    _offset = offset;
 }
 
-int RenderGLES2::GetViewportWidth() const
+void RenderGLES2::Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
 {
-	return _rtViewport.right - _rtViewport.left;
-}
+	_windowWidth = displayWidth;
+	_windowHeight = displayHeight;
 
-int RenderGLES2::GetViewportHeight() const
-{
-	return _rtViewport.bottom - _rtViewport.top;
-}
-
-void RenderGLES2::Begin()
-{
     glEnable(GL_BLEND);
     
     glVertexAttribPointer(ATTRIB_POSITION, 2, GL_FLOAT, false, sizeof(MyVertex), &_VertexArray->x);
@@ -235,8 +184,6 @@ void RenderGLES2::SetMode(const RenderMode mode)
 		break;
 
 	case RM_INTERFACE:
-		SetViewport(nullptr);
-		Camera(nullptr, 0, 0, 1);
 		glEnable(GL_TEXTURE_2D);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -284,20 +231,19 @@ void RenderGLES2::Flush()
 {
 	if( _iaSize )
 	{
-        float scaleX = 2 / (float)WIDTH(_rtViewport) * _cameraScale;
-        float scaleY = -2 / (float)HEIGHT(_rtViewport) * _cameraScale;
-        float centerOffset = _mode == RM_INTERFACE ? 1 : 0;
-        
+        float scaleX = 2 / (float)WIDTH(_rtViewport) * _scale;
+        float scaleY = -2 / (float)HEIGHT(_rtViewport) * _scale;
         float mViewProj[16] = {
             scaleX, 0, 0, 0,
             0, scaleY, 0, 0,
             0, 0, 1, 0,
-            -_cameraEye.x * scaleX - centerOffset, -_cameraEye.y * scaleY + centerOffset, 0, 1,
+            _offset.x * scaleX / _scale - 1, _offset.y * scaleY / _scale + 1, 0, 1,
         };
         glUniformMatrix4fv(_viewProj, 1, 0, mViewProj);
         
 		glDrawElements(GL_TRIANGLES, _iaSize, GL_UNSIGNED_SHORT, _IndexArray);
-		_vaSize = _iaSize = 0;
+		_vaSize = 0;
+		_iaSize = 0;
 	}
 }
 

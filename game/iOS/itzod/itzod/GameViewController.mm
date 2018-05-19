@@ -80,8 +80,6 @@
 
 - (void)update
 {
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    appDelegate.app.Step(self.timeSinceLastUpdate);
     if (_tzodView)
         _tzodView->Step(self.timeSinceLastUpdate);
 }
@@ -90,8 +88,8 @@
 {
     if (_tzodView)
     {
-        auto &appWindow = ((GameView *)view).appWindow;
-        _tzodView->Render(appWindow.GetPixelWidth(), appWindow.GetPixelHeight(), appWindow.GetLayoutScale());
+//        auto &appWindow = ((GameView *)view).appWindow;
+  //      _tzodView->Render(appWindow.GetPixelWidth(), appWindow.GetPixelHeight(), appWindow.GetLayoutScale());
     }
 }
 

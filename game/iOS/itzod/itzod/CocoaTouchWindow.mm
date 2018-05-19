@@ -14,13 +14,14 @@ public:
     bool IsKeyPressed(UI::Key key) const override { return false; }
     bool IsMousePressed(int button) const override { return false; }
     vec2d GetMousePos() const override { return vec2d(); }
-	UI::GamepadState GetGamepadState() const override { return {}; }
+	UI::GamepadState GetGamepadState(unsigned int index) const override { return {}; }
+	bool GetSystemNavigationBackAvailable() const override { return false; }
 };
 
 class Clipboard : public UI::IClipboard
 {
 public:
-    const char* GetClipboardText() const override { return nullptr; }
+	std::string_view GetClipboardText() const override { return {}; }
     void SetClipboardText(std::string text) override {}
 };
 
@@ -44,10 +45,6 @@ void CocoaTouchWindow::SetSizeAndScale(float width, float height, float scale)
         _pxWidth = newPxWidth;
         _pxHeight = newPxHeight;
         _scale = scale;
-        if (_inputSink)
-        {
-            _inputSink->GetDesktop()->Resize(GetPixelWidth() / GetLayoutScale(), GetPixelHeight() / GetLayoutScale());
-        }
     }
 }
 
@@ -68,26 +65,17 @@ IRender& CocoaTouchWindow::GetRender()
     return *_render;
 }
 
-float CocoaTouchWindow::GetPixelWidth() const
+vec2d CocoaTouchWindow::GetPixelSize() const
 {
-    return _pxWidth;
+	return vec2d{ _pxWidth, _pxHeight };
 }
 
-float CocoaTouchWindow::GetPixelHeight() const
+int CocoaTouchWindow::GetDisplayRotation() const
 {
-    return _pxHeight;
+	return 0;
 }
 
 float CocoaTouchWindow::GetLayoutScale() const
 {
     return _scale;
-}
-
-void CocoaTouchWindow::SetInputSink(UI::LayoutManager *inputSink)
-{
-    _inputSink = inputSink;
-    if (_inputSink)
-    {
-        _inputSink->GetDesktop()->Resize(GetPixelWidth() / GetLayoutScale(), GetPixelHeight() / GetLayoutScale());
-    }
 }

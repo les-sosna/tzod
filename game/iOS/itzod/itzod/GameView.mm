@@ -1,10 +1,7 @@
 #import "GameView.h"
 #include "CocoaTouchWindow.h"
-#include <ui/GuiManager.h>
 #include <ui/InputContext.h>
-#include <ui/LayoutContext.h>
-#include <ui/Pointers.h>
-#include <ui/DataContext.h>
+#include <ui/PointerInput.h>
 #include <map>
 
 @interface GameView ()
@@ -51,25 +48,19 @@ static unsigned int GetPointerID(int touchIndex)
 {
     CGPoint location = [recognizer locationInView: recognizer.view];
     
-    if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+    if (AppWindowInputSink *sink = _appWindow->GetInputSink())
     {
         auto touchIndex = GetFreeTouchIndex(_touches);
         auto pointerID = GetPointerID(touchIndex);
-        auto desktop = sink->GetDesktop();
-        vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
         vec2d pxPointerPos{
             static_cast<float>(location.x * self.contentScaleFactor),
             static_cast<float>(location.y * self.contentScaleFactor)};
-        sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
-                                               desktop,
-                                               UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
-                                               UI::DataContext(),
-                                               pxPointerPos,
-                                               vec2d{},
-                                               UI::Msg::TAP,
-                                               0, // button
-                                               UI::PointerType::Touch,
-                                               pointerID);
+        sink->OnPointer(UI::PointerType::Touch,
+						UI::Msg::TAP,
+						pxPointerPos,
+						vec2d{}, // pxPointerOffset
+						0, // buttons
+						pointerID);
     }
 }
 
@@ -79,25 +70,22 @@ static unsigned int GetPointerID(int touchIndex)
     CGPoint translation = [recognizer translationInView: recognizer.view];
     [recognizer setTranslation:CGPointMake(0, 0) inView: recognizer.view];
     
-    if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+    if (AppWindowInputSink *sink = _appWindow->GetInputSink())
     {
         auto touchIndex = GetFreeTouchIndex(_touches);
         auto pointerID = GetPointerID(touchIndex);
-        auto desktop = sink->GetDesktop();
-        vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
         vec2d pxPointerPos{
             static_cast<float>(location.x * self.contentScaleFactor),
             static_cast<float>(location.y * self.contentScaleFactor)};
-        sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
-                                               desktop,
-                                               UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
-                                               UI::DataContext(),
-                                               pxPointerPos,
-                                               vec2d{static_cast<float>(translation.x), static_cast<float>(translation.y)}/30 * self.contentScaleFactor / _appWindow->GetLayoutScale(),
-                                               UI::Msg::Scroll,
-                                               0, // button
-                                               UI::PointerType::Touch,
-                                               pointerID);
+		vec2d pxPointerOffset = {
+			static_cast<float>(translation.x * self.contentScaleFactor),
+			static_cast<float>(translation.y * self.contentScaleFactor)};
+        sink->OnPointer(UI::PointerType::Touch,
+						UI::Msg::ScrollPrecise,
+						pxPointerPos,
+						pxPointerOffset,
+						0, // buttons
+						pointerID);
     }
 }
 
@@ -155,24 +143,18 @@ static unsigned int GetPointerID(int touchIndex)
         assert(0 == _touches.count(touch));
         _touches[touch] = touchIndex;
      
-        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
-            auto desktop = sink->GetDesktop();
-            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
-                                                   desktop,
-                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
-                                                   UI::DataContext(),
-                                                   pxPointerPos,
-                                                   vec2d{},
-                                                   UI::Msg::PointerDown,
-                                                   1, // button
-                                                   UI::PointerType::Touch,
-                                                   pointerID);
+            sink->OnPointer(UI::PointerType::Touch,
+							UI::Msg::PointerDown,
+							pxPointerPos,
+							vec2d{}, // pxPointerOffset
+							1, // buttons
+							pointerID);
         }
     }
     [super touchesBegan: touches withEvent: event];
@@ -189,24 +171,18 @@ static unsigned int GetPointerID(int touchIndex)
             continue;
             
         auto pointerID = GetPointerID(it->second);
-        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
-            auto desktop = sink->GetDesktop();
-            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
-                                                   desktop,
-                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
-                                                   UI::DataContext(),
-                                                   pxPointerPos,
-                                                   vec2d{},
-                                                   UI::Msg::PointerMove,
-                                                   0, // button
-                                                   UI::PointerType::Touch,
-                                                   pointerID);
+            sink->OnPointer(UI::PointerType::Touch,
+							UI::Msg::PointerMove,
+							pxPointerPos,
+							vec2d{}, // pxPointerOffset
+							0, // buttons
+							pointerID);
         }
     }
     
@@ -224,24 +200,18 @@ static unsigned int GetPointerID(int touchIndex)
             continue;
         
         auto pointerID = GetPointerID(it->second);
-        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
-            auto desktop = sink->GetDesktop();
-            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
-                                                   desktop,
-                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
-                                                   UI::DataContext(),
-                                                   pxPointerPos,
-                                                   vec2d{},
-                                                   UI::Msg::PointerUp,
-                                                   1, // button
-                                                   UI::PointerType::Touch,
-                                                   pointerID);
+            sink->OnPointer(UI::PointerType::Touch,
+							UI::Msg::PointerUp,
+							pxPointerPos,
+							vec2d{}, // pxPointerOffset
+							1, // buttons
+							pointerID);
         }
         _touches.erase(it);
     }
@@ -260,24 +230,18 @@ static unsigned int GetPointerID(int touchIndex)
             continue;
         
         auto pointerID = GetPointerID(it->second);
-        if (UI::LayoutManager *sink = _appWindow->GetInputSink())
+        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
-            auto desktop = sink->GetDesktop();
-            vec2d pxDesktopSize{_appWindow->GetPixelWidth(), _appWindow->GetPixelHeight()};
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->GetInputContext().ProcessPointer(sink->GetTextureManager(),
-                                                   desktop,
-                                                   UI::LayoutContext(1.f, _appWindow->GetLayoutScale(), pxDesktopSize, true),
-                                                   UI::DataContext(),
-                                                   pxPointerPos,
-                                                   vec2d{},
-                                                   UI::Msg::PointerCancel,
-                                                   0, // button
-                                                   UI::PointerType::Touch,
-                                                   pointerID);
+            sink->OnPointer(UI::PointerType::Touch,
+							UI::Msg::PointerCancel,
+							pxPointerPos,
+							vec2d{}, // pxPointerOffset
+							0, // buttons
+							pointerID);
         }
         _touches.erase(it);
     }
