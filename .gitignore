@@ -33,3 +33,10 @@ game/WinRT/AppPackages/
 game/WinRT/wtzod/BundleArtifacts/
 game/src/.vs/
 game/data/user/
+game/Android/.gradle/
+game/Android/.idea/
+game/Android/app/.externalNativeBuild/
+game/Android/app/build/
+game/Android/build/
+game/Android/local.properties
+*.iml
