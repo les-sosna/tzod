@@ -45,8 +45,10 @@ endif()
 # top level lib - the only one the application links with
 add_subdirectory(app)
 
-# applications
-if((NOT IOS) AND (NOT WINRT))
+# desktop applications
+if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
+	message("Building for desktop with GLFW")
+
 	add_subdirectory(platglfw)
 	add_subdirectory(tzodmain)
 	add_subdirectory(gc_tests)

@@ -11,7 +11,7 @@ set(video_SOURCES
 	TextureManager.cpp
 )
 
-if(IOS)
+if(IOS OR ANDROID)
 	list(APPEND video_SOURCES
 		inc/video/RenderOpenGL.h
 		GLESProgram.cpp

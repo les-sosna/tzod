@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.3)
 
-if((NOT IOS) AND (NOT WINRT))
+if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
