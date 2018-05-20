@@ -29,7 +29,7 @@ static int init(lua_State *L)
 		{ LUA_TABLIBNAME, luaopen_table },
 		{ LUA_STRLIBNAME, luaopen_string },
 		{ LUA_MATHLIBNAME, luaopen_math },
-#ifdef _DEBUG
+#ifndef NDEBUG
 		{ LUA_DBLIBNAME, luaopen_debug },
 #endif
 

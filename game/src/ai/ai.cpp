@@ -314,7 +314,7 @@ void AIController::SelectFavoriteWeapon(World &world)
 
 void AIController::SetL1(aiState_l1 new_state)
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	if( _aiState_l1 == new_state )
 		return;
 
@@ -337,7 +337,7 @@ void AIController::SetL1(aiState_l1 new_state)
 
 void AIController::SetL2(aiState_l2 new_state)
 {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	if( _aiState_l2 == new_state )
 		return;
 

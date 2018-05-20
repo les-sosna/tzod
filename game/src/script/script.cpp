@@ -133,7 +133,7 @@ lua_State* script_open(World &world, ScriptMessageSink &messageSink)
 //		{LUA_OSLIBNAME, luaopen_os},
 		{LUA_STRLIBNAME, luaopen_string},
 		{LUA_MATHLIBNAME, luaopen_math},
-#ifdef _DEBUG
+#ifndef NDEBUG
 		{LUA_DBLIBNAME, luaopen_debug},
 #endif
 

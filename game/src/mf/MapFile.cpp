@@ -335,7 +335,7 @@ void MapFile::setObjectAttribute(std::string_view name, float value)
 {
 	if( _isNewClass )
 	{
-#ifdef _DEBUG
+#ifndef NDEBUG
 		// check that given name is unique
 		for( size_t i = 0; i < _managed_classes.back().propertyDefinitions.size(); i++ )
 			assert(_managed_classes.back().propertyDefinitions[i].name != name);
@@ -352,7 +352,7 @@ void MapFile::setObjectAttribute(std::string_view name, std::string_view value)
 {
 	if( _isNewClass )
 	{
-#ifdef _DEBUG
+#ifndef NDEBUG
 		// check that given name is unique
 		for( size_t i = 0; i < _managed_classes.back().propertyDefinitions.size(); i++ )
 			assert(_managed_classes.back().propertyDefinitions[i].name != name);
