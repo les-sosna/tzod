@@ -1,36 +1,4 @@
-/*
- * Copyright (C) 2009 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.android.gl2jni;
-/*
- * Copyright (C) 2008 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+package com.neaoo.tzod;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -47,9 +15,6 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * A simple GLSurfaceView sub-class that demonstrate how to perform
- * OpenGL ES 2.0 rendering into a GL Surface. Note the following important
- * details:
  *
  * - The class must use a custom context factory to enable 2.0 rendering.
  *   See ContextFactory class definition below.
@@ -64,16 +29,16 @@ import javax.microedition.khronos.opengles.GL10;
  *   that matches it exactly (with regards to red/green/blue/alpha channels
  *   bit depths). Failure to do so would result in an EGL_BAD_MATCH error.
  */
-class GL2JNIView extends GLSurfaceView {
-    private static String TAG = "GL2JNIView";
+class TZODJNIView extends GLSurfaceView {
+    private static String TAG = "TZODJNIView";
     private static final boolean DEBUG = false;
 
-    public GL2JNIView(Context context) {
+    public TZODJNIView(Context context) {
         super(context);
         init(false, 0, 0);
     }
 
-    public GL2JNIView(Context context, boolean translucent, int depth, int stencil) {
+    public TZODJNIView(Context context, boolean translucent, int depth, int stencil) {
         super(context);
         init(translucent, depth, stencil);
     }
@@ -181,8 +146,7 @@ class GL2JNIView extends GLSurfaceView {
             return chooseConfig(egl, display, configs);
         }
 
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
-                EGLConfig[] configs) {
+        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
             for(EGLConfig config : configs) {
                 int d = findConfigAttrib(egl, display, config,
                         EGL10.EGL_DEPTH_SIZE, 0);
@@ -218,8 +182,7 @@ class GL2JNIView extends GLSurfaceView {
             return defaultValue;
         }
 
-        private void printConfigs(EGL10 egl, EGLDisplay display,
-            EGLConfig[] configs) {
+        private void printConfigs(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
             int numConfigs = configs.length;
             Log.w(TAG, String.format("%d configurations", numConfigs));
             for (int i = 0; i < numConfigs; i++) {
@@ -228,8 +191,7 @@ class GL2JNIView extends GLSurfaceView {
             }
         }
 
-        private void printConfig(EGL10 egl, EGLDisplay display,
-                EGLConfig config) {
+        private void printConfig(EGL10 egl, EGLDisplay display, EGLConfig config) {
             int[] attributes = {
                     EGL10.EGL_BUFFER_SIZE,
                     EGL10.EGL_ALPHA_SIZE,
@@ -325,11 +287,11 @@ class GL2JNIView extends GLSurfaceView {
 
     private static class Renderer implements GLSurfaceView.Renderer {
         public void onDrawFrame(GL10 gl) {
-            GL2JNILib.step();
+            TZODJNILib.step();
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
-            GL2JNILib.init(width, height);
+            TZODJNILib.init(width, height);
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {

@@ -6,11 +6,11 @@ set(ANDROID 1)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_BINARY_DIR}/game/src)
 
-add_library(gl2jni SHARED
+add_library(tzodjni SHARED
             src/main/cpp/gl_code.cpp)
 
 # add lib dependencies
-target_link_libraries(gl2jni
+target_link_libraries(tzodjni
 
                       app
 
