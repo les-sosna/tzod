@@ -13,6 +13,10 @@ add_library(tzodjni SHARED
 target_link_libraries(tzodjni
 
                       app
+                      filesystem
+                      plat
+                      ui
+                      video
 
                       android
                       log 

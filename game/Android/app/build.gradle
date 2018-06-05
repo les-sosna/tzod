@@ -10,6 +10,7 @@ android {
             cmake {
                 // Available argumetns are inside ${SDK}/cmake/.../android.toolchain.cmake file
                 arguments '-DANDROID_STL=c++_static'
+                cppFlags "-std=c++14 -frtti -fexceptions"
             }
         }
     }
