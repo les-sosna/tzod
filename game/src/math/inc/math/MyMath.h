@@ -83,6 +83,13 @@ public:
 		return *this;
 	}
 
+	const vec2d& operator *= (const vec2d &v)
+	{
+		x *= v.x;
+		y *= v.y;
+		return *this;
+	}
+
 	const vec2d& operator /= (float a)
 	{
 		x /= a;
