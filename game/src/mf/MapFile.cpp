@@ -2,6 +2,7 @@
 #include <fs/FileSystem.h>
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 bool MapFile::_read_chunk_header(ChunkHeader &chdr)
 {

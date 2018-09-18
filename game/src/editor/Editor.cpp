@@ -440,6 +440,10 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)
 {
+	if (!precise)
+	{
+		scrollOffset *= WORLD_BLOCK_SIZE;
+	}
 	_defaultCamera.Move(scrollOffset, _world.GetBounds());
 }
 

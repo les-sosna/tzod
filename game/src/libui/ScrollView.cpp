@@ -54,6 +54,11 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 			std::swap(scrollOffset.x, scrollOffset.y);
 		}
 
+		if (!precise)
+		{
+			scrollOffset *= Vec2dClamp(vec2d{ 32, 32 }, MakeRectWH(lc.GetPixelSize() / lc.GetScale()));
+		}
+
 		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 
 		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScale());

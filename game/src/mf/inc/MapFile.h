@@ -44,12 +44,13 @@
 
 ////////////////////////////////////////////////////////////
 
-
-#define SIGNATURE(s) ( (unsigned long) (                \
-	((((unsigned long) (s)) & 0x000000ff) << 24)|       \
-	((((unsigned long) (s)) & 0x0000ff00) <<  8)|       \
-	((((unsigned long) (s)) & 0xff000000) >> 24)|       \
-	((((unsigned long) (s)) & 0x00ff0000) >>  8)  ) )
+namespace detail
+{
+	inline constexpr uint32_t MakeSignature(char const s[5])
+	{
+		return s[0] | (s[1] << 8) | (s[2] << 16) | (s[3] << 24);
+	}
+}
 
 namespace FS
 {
@@ -65,12 +66,12 @@ class MapFile
 #endif
 	enum enumChunkTypes : uint32_t
 	{
-		CHUNK_HEADER_OPEN  = SIGNATURE('hdr{'),
-		CHUNK_ATTRIB       = SIGNATURE('attr'),
-		CHUNK_HEADER_CLOSE = SIGNATURE('}hdr'),
-		CHUNK_OBJDEF       = SIGNATURE('dfn:'),
-		CHUNK_OBJECT       = SIGNATURE('obj:'),
-		CHUNK_TEXTURE      = SIGNATURE('tex:'),
+		CHUNK_HEADER_OPEN  = detail::MakeSignature("hdr{"),
+		CHUNK_ATTRIB       = detail::MakeSignature("attr"),
+		CHUNK_HEADER_CLOSE = detail::MakeSignature("}hdr"),
+		CHUNK_OBJDEF       = detail::MakeSignature("dfn:"),
+		CHUNK_OBJECT       = detail::MakeSignature("obj:"),
+		CHUNK_TEXTURE      = detail::MakeSignature("tex:"),
 	};
 #pragma warning(pop)
 

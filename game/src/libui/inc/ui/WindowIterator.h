@@ -167,10 +167,10 @@ namespace UI
 			return WindowIterator(*const_cast<Window*>(_parent), _index + offset);
 		}
 
-		constexpr WindowIterator operator-(int offset) const
-		{
-			return WindowIterator(*const_cast<Window*>(_parent), _index - offset);
-		}
+//		constexpr WindowIterator operator-(int offset) const
+//		{
+//			return WindowIterator(*const_cast<Window*>(_parent), _index - offset);
+//		}
 
 		WindowIterator& operator++() // pre
 		{
@@ -213,25 +213,25 @@ namespace UI
 
 namespace std
 {
-	inline constexpr UI::WindowIterator begin(UI::Window &wnd)
+	inline UI::WindowIterator begin(UI::Window &wnd)
 	{
 //		return wnd.GetChildren().begin();
 		return UI::WindowIterator(wnd, 0);
 	}
 
-	inline constexpr UI::WindowIterator end(UI::Window &wnd)
+	inline UI::WindowIterator end(UI::Window &wnd)
 	{
 //		return wnd.GetChildren().end();
 		return UI::WindowIterator(wnd, wnd.GetChildrenCount());
 	}
 
-	inline constexpr UI::WindowConstIterator begin(const UI::Window &wnd)
+	inline UI::WindowConstIterator begin(const UI::Window &wnd)
 	{
 //		return wnd.GetChildren().begin();
 		return UI::WindowConstIterator(wnd, 0);
 	}
 
-	inline constexpr UI::WindowConstIterator end(const UI::Window &wnd)
+	inline UI::WindowConstIterator end(const UI::Window &wnd)
 	{
 //		return wnd.GetChildren().end();
 		return UI::WindowConstIterator(wnd, wnd.GetChildrenCount());
@@ -275,7 +275,7 @@ namespace UI
 	template <typename T>
 	detail::reversion_wrapper<T> reverse(T&& iterable) { return { iterable }; }
 
-	inline constexpr WindowConstIterator FindWindowChild(const UI::Window &wnd, const UI::Window &child)
+	inline WindowConstIterator FindWindowChild(const UI::Window &wnd, const UI::Window &child)
 	{
 		for (auto it = begin(wnd); it != end(wnd); ++it)
 		{

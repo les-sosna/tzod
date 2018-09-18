@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <stdexcept>
 
 TgaImage::TgaImage(const void *data, unsigned long size)
 {

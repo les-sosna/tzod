@@ -18,6 +18,7 @@
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
 #include <ui/Text.h>
+#include <climits>
 #include <sstream>
 #include <iomanip>
 
