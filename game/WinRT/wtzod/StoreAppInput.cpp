@@ -47,7 +47,7 @@ bool StoreAppInput::IsMousePressed(int button) const
 
 vec2d StoreAppInput::GetMousePos() const
 {
-	Point pos = _coreWindow->PointerPosition;
+	Point pos = _coreWindow->PointerPosition; // this can seem to throw access denied exception
 	float dpi = DisplayInformation::GetForCurrentView()->LogicalDpi;
 	return vec2d{ DX::ConvertDipsToPixels(pos.X - _coreWindow->Bounds.Left, dpi),
 	              DX::ConvertDipsToPixels(pos.Y - _coreWindow->Bounds.Top, dpi) };
