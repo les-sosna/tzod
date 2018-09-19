@@ -46,7 +46,7 @@ public:
 private:
 	std::map<std::string, std::shared_ptr<FileSystem>> _children;
 	// open a file that strictly belongs to this file system
-	virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode);
+	virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) = 0;
 };
 
 std::shared_ptr<FS::FileSystem> CreateOSFileSystem(const std::string &rootDirectory);

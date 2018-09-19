@@ -23,12 +23,6 @@ std::vector<std::string> FS::FileSystem::EnumAllFiles(std::string_view mask)
 	return std::vector<std::string>();
 }
 
-std::shared_ptr<FS::File> FS::FileSystem::RawOpen(const std::string &fileName, FileMode mode)
-{
-	throw std::runtime_error("Base file system can't contain any files");
-	return nullptr;
-}
-
 std::shared_ptr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
 	assert(!path.empty());
