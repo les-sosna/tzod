@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string_view>
 
+using namespace FS;
+
 static std::wstring s2w(std::string_view s)
 {
 	std::wstring w;
@@ -55,7 +57,7 @@ static std::string StrFromErr(DWORD dwMessageId)
 	}
 }
 
-FS::OSFileSystem::OSFile::OSFile(std::wstring fileName, FileMode mode)
+FileWin32::FileWin32(std::wstring fileName, FileMode mode)
 	: _mode(mode)
 	, _mapped(false)
 	, _streamed(false)
@@ -103,40 +105,40 @@ FS::OSFileSystem::OSFile::OSFile(std::wstring fileName, FileMode mode)
 	}
 }
 
-FS::OSFileSystem::OSFile::~OSFile()
+FileWin32::~FileWin32()
 {
 }
 
-std::shared_ptr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
+std::shared_ptr<MemMap> FileWin32::QueryMap()
 {
 	assert(!_mapped && !_streamed);
-	std::shared_ptr<MemMap> result = std::make_shared<OSMemMap>(shared_from_this(), _file.h);
+	std::shared_ptr<MemMap> result = std::make_shared<MemMapWin32>(shared_from_this(), _file.h);
 	_mapped = true;
 	return result;
 }
 
-std::shared_ptr<FS::Stream> FS::OSFileSystem::OSFile::QueryStream()
+std::shared_ptr<Stream> FileWin32::QueryStream()
 {
 	assert(!_mapped && !_streamed);
 	if (_mode == ModeRead)
 	{
 		_mapped = true;
-		return std::make_shared<OSMemMap>(shared_from_this(), _file.h);
+		return std::make_shared<MemMapWin32>(shared_from_this(), _file.h);
 	}
 	else
 	{
 		_streamed = true;
-		return std::make_shared<OSStream>(shared_from_this(), _file.h);
+		return std::make_shared<StreamWin32>(shared_from_this(), _file.h);
 	}
 }
 
-void FS::OSFileSystem::OSFile::Unmap()
+void FileWin32::Unmap()
 {
 	assert(_mapped && !_streamed);
 	_mapped = false;
 }
 
-void FS::OSFileSystem::OSFile::Unstream()
+void FileWin32::Unstream()
 {
 	assert(_streamed && !_mapped);
 	_streamed = false;
@@ -144,19 +146,19 @@ void FS::OSFileSystem::OSFile::Unstream()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FS::OSFileSystem::OSFile::OSStream::OSStream(std::shared_ptr<OSFile> parent, HANDLE hFile)
+StreamWin32::StreamWin32(std::shared_ptr<FileWin32> parent, HANDLE hFile)
 	: _file(parent)
 	, _hFile(hFile)
 {
 	Seek(0, SEEK_SET);
 }
 
-FS::OSFileSystem::OSFile::OSStream::~OSStream()
+StreamWin32::~StreamWin32()
 {
-    _file->Unstream();
+	_file->Unstream();
 }
 
-size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
+size_t StreamWin32::Read(void *dst, size_t size, size_t count)
 {
 	DWORD bytesRead;
 	if( !ReadFile(_hFile, dst, size * count, &bytesRead, nullptr) )
@@ -170,7 +172,7 @@ size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t c
 	return bytesRead / size;
 }
 
-void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
+void StreamWin32::Write(const void *src, size_t size)
 {
 	DWORD written;
 	BOOL result = WriteFile(_hFile, src, size, &written, nullptr);
@@ -180,7 +182,7 @@ void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
 	}
 }
 
-void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
+void StreamWin32::Seek(long long amount, unsigned int origin)
 {
 	DWORD dwMoveMethod;
 	switch( origin )
@@ -200,7 +202,7 @@ void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int ori
 	}
 }
 
-long long FS::OSFileSystem::OSFile::OSStream::Tell() const
+long long StreamWin32::Tell() const
 {
 	LARGE_INTEGER zero = { 0 };
 	LARGE_INTEGER current = { 0 };
@@ -210,7 +212,7 @@ long long FS::OSFileSystem::OSFile::OSStream::Tell() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent, HANDLE hFile)
+MemMapWin32::MemMapWin32(std::shared_ptr<FileWin32> parent, HANDLE hFile)
 	: _file(parent)
 	, _hFile(hFile)
 	, _data(nullptr)
@@ -219,7 +221,7 @@ FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent, HAN
 	SetupMapping();
 }
 
-FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
+MemMapWin32::~MemMapWin32()
 {
 	if( _data )
 	{
@@ -228,7 +230,7 @@ FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
 	_file->Unmap();
 }
 
-void FS::OSFileSystem::OSFile::OSMemMap::SetupMapping()
+void MemMapWin32::SetupMapping()
 {
 	LARGE_INTEGER size;
 	if( !GetFileSizeEx(_hFile, &size) )
@@ -256,17 +258,17 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetupMapping()
 	}
 }
 
-char* FS::OSFileSystem::OSFile::OSMemMap::GetData()
+char* MemMapWin32::GetData()
 {
 	return (char *) _data;
 }
 
-unsigned long FS::OSFileSystem::OSFile::OSMemMap::GetSize() const
+unsigned long MemMapWin32::GetSize() const
 {
 	return _size;
 }
 
-void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
+void MemMapWin32::SetSize(unsigned long size)
 {
 	BOOL bUnmapped = UnmapViewOfFile(_data);
 	_data = nullptr;
@@ -292,9 +294,42 @@ void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
 	assert(_size == size);
 }
 
+size_t MemMapWin32::Read(void *dst, size_t size, size_t count)
+{
+	size_t bytes = size * count;
+	if (_pos + bytes > _size)
+	{
+		return 0;
+	}
+	memcpy(dst, (const char*)_data + _pos, bytes);
+	_pos += bytes;
+	return count;
+}
+
+void MemMapWin32::Seek(long long amount, unsigned int origin)
+{
+	switch (origin)
+	{
+	case SEEK_SET:
+		assert(amount >= 0 && amount <= _size);
+		_pos = static_cast<size_t>(amount);
+		break;
+	case SEEK_CUR:
+		assert((long long)_pos + amount >= 0 && (long long)_pos + amount <= _size);
+		_pos += static_cast<size_t>(amount);
+		break;
+	case SEEK_END:
+		assert(amount <= 0 && (long long)_pos + amount >= 0);
+		_pos = _size + static_cast<size_t>(amount);
+		break;
+	default:
+		assert(false);
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FS::FileSystem> FS::CreateOSFileSystem(const std::string &rootDirectory)
+std::shared_ptr<FileSystem> FS::CreateOSFileSystem(const std::string &rootDirectory)
 {
 	// convert to absolute path
 	std::wstring tmpRel = s2w(rootDirectory);
@@ -304,19 +339,19 @@ std::shared_ptr<FS::FileSystem> FS::CreateOSFileSystem(const std::string &rootDi
 		if (DWORD len2 = GetFullPathNameW(tmpRel.c_str(), len, &tmpFull[0], nullptr))
 		{
 			tmpFull.resize(len2); // truncate terminating \0
-			return std::make_shared<OSFileSystem>(std::move(tmpFull));
+			return std::make_shared<FileSystemWin32>(std::move(tmpFull));
 		}
 	}
 	throw std::runtime_error(StrFromErr(GetLastError()));
 	return nullptr;
 }
 
-FS::OSFileSystem::OSFileSystem(std::wstring &&rootDirectory)
+FileSystemWin32::FileSystemWin32(std::wstring &&rootDirectory)
   : _rootDirectory(std::move(rootDirectory))
 {
 }
 
-std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
+std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 {
 	// query = _rootDirectory + '\\' + mask
 	std::wstring query = _rootDirectory + L'\\';
@@ -352,13 +387,13 @@ std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
 	return files;
 }
 
-std::shared_ptr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
+std::shared_ptr<File> FileSystemWin32::RawOpen(const std::string &fileName, FileMode mode)
 {
 	// combine with the root path
-	return std::make_shared<OSFile>(_rootDirectory + L'\\' + s2w(fileName), mode);
+	return std::make_shared<FileWin32>(_rootDirectory + L'\\' + s2w(fileName), mode);
 }
 
-std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(const std::string &path, bool create, bool nothrow)
 try
 {
 	if (std::shared_ptr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true))
@@ -438,7 +473,7 @@ try
 	if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		throw std::runtime_error("object is not a directory");
 
-	std::shared_ptr<FileSystem> child = std::make_shared<OSFileSystem>(_rootDirectory + L'\\' + s2w(dirName));
+	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemWin32>(_rootDirectory + L'\\' + s2w(dirName));
 	Mount(dirName, child);
 
 	if( std::string::npos != p )
@@ -451,4 +486,3 @@ catch (const std::exception&)
 	ss << "Failed to open directory '" << path << "'";
 	std::throw_with_nested(std::runtime_error(ss.str()));
 }
-
