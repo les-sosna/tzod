@@ -23,7 +23,7 @@ add_library(ctx
 
 target_link_libraries(ctx PRIVATE
 	ai
-	filesystem
+	fs
 	gc
 	mapfile
 	PUBLIC script

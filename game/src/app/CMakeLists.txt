@@ -22,7 +22,7 @@ target_link_libraries(app PRIVATE
 	as
 	config
 	ctx
-	filesystem
+	fs
 	loc
 	plat
 	platetc

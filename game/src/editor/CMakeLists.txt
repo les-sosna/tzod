@@ -27,7 +27,7 @@ add_library(editor
 target_link_libraries(editor PRIVATE
 	cbind
 	ctx
-	filesystem
+	fs
 	gc
 	gclua
 	gv

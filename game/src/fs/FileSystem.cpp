@@ -1,13 +1,15 @@
 #include "inc/fs/FileSystem.h"
 #include <cassert>
 
-void FS::FileSystem::Mount(const std::string &nodeName, std::shared_ptr<FileSystem> fs)
+using namespace FS;
+
+void FileSystem::Mount(const std::string &nodeName, std::shared_ptr<FileSystem> fs)
 {
 	assert(!nodeName.empty() && std::string::npos == nodeName.find('/'));
 	_children[nodeName] = fs;
 }
 
-std::shared_ptr<FS::File> FS::FileSystem::Open(const std::string &fileName, FileMode mode)
+std::shared_ptr<FS::File> FileSystem::Open(const std::string &fileName, FileMode mode)
 {
 	std::string::size_type pd = fileName.rfind('/');
 	if( pd && std::string::npos != pd ) // was a path delimiter found?
@@ -17,13 +19,13 @@ std::shared_ptr<FS::File> FS::FileSystem::Open(const std::string &fileName, File
 	return RawOpen(fileName, mode);
 }
 
-std::vector<std::string> FS::FileSystem::EnumAllFiles(std::string_view mask)
+std::vector<std::string> FileSystem::EnumAllFiles(std::string_view mask)
 {
 	// base file system can't contain any files
 	return std::vector<std::string>();
 }
 
-std::shared_ptr<FS::FileSystem> FS::FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FS::FileSystem> FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
 	assert(!path.empty());
 

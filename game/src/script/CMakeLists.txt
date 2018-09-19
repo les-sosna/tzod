@@ -12,7 +12,7 @@ add_library(script
 target_link_libraries(script PRIVATE
 	gc
 	gclua
-	filesystem
+	fs
 
 	# 3rd party
 	lua

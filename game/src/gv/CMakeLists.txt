@@ -13,7 +13,7 @@ add_library(gv
 target_link_libraries(gv PRIVATE
 	as
 	ctx
-	filesystem
+	fs
 	gc
 	render
 	video

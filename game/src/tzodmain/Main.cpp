@@ -1,7 +1,13 @@
 #include <app/tzod.h>
 #include <app/View.h>
 #include <as/AppConstants.h>
-#include <fs/FileSystem.h>
+#ifdef _WIN32
+#include <fswin/FileSystemWin32.h>
+using FileSystem = FS::FileSystemWin32;
+#else
+#include <fsstdio/FileSystemPosix.h>
+using FileSystem = FS::FileSystemPosix;
+#endif // _WIN32
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
 #include <ui/ConsoleBuffer.h>
@@ -79,7 +85,7 @@ try
 	logger.SetLog(new ConsoleLog("log.txt"));
 	logger.Printf(0, "%s", TXT_VERSION);
 	logger.Printf(0, "Mount file system");
-	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
+	auto fs = std::make_shared<FileSystem>("data");
 
 	// mount user folder
 	// TODO: use OS specific application data

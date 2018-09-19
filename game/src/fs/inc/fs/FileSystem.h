@@ -49,6 +49,4 @@ private:
 	virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) = 0;
 };
 
-std::shared_ptr<FS::FileSystem> CreateOSFileSystem(const std::string &rootDirectory);
-
 } // namespace FS

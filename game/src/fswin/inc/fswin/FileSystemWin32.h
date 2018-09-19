@@ -1,10 +1,8 @@
 #pragma once
-#include "inc/fs/FileSystem.h"
+#include <fs/FileSystem.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-
-#include <cassert>
 
 namespace FS {
 
@@ -58,7 +56,7 @@ public:
 
 	// Stream
 	size_t Read(void *dst, size_t size, size_t count) override;
-	void Write(const void *src, size_t size) override { assert(false); }
+	void Write(const void *src, size_t size) override;
 	void Seek(long long amount, unsigned int origin) override;
 	long long Tell() const override { return _pos; }
 
@@ -91,13 +89,13 @@ private:
 class FileSystemWin32 : public FileSystem
 {
 public:
-	explicit FileSystemWin32(std::wstring &&rootDirectory);
+	explicit FileSystemWin32(std::string_view rootDirectory);
 
 	std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 
 private:
-	std::wstring  _rootDirectory;
+	std::string _rootDirectory;
 	std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) override;
 };
 

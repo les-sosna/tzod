@@ -9,7 +9,7 @@ set(Audio_SOURCES
 set(Audio_LIBS
 	as
 	ctx
-	filesystem
+	fs
 	gc
 	ui #fixme: logger
 

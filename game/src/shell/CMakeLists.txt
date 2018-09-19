@@ -66,7 +66,7 @@ target_link_libraries(shell PRIVATE
 	config
 	ctx
 	editor
-	filesystem
+	fs
 	gc
 	gclua
 	gv

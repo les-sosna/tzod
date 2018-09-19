@@ -9,7 +9,7 @@ add_library(config
 )
 
 target_link_libraries(config PRIVATE
-	filesystem
+	fs
 	luaetc
 	lua #external
 )

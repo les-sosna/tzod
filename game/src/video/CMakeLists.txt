@@ -34,7 +34,7 @@ endif()
 add_library(video ${video_SOURCES})
 
 target_link_libraries(video PRIVATE
-	filesystem
+	fs
 	lua
 	luaetc
 	math

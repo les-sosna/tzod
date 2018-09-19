@@ -13,17 +13,20 @@ if(WIN32)
 	add_definitions(-DNOMINMAX)
 	add_executable(uitestapp WIN32 ${UITestApp_SOURCES})
 	set_target_properties(uitestapp PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+	set(FSLIB fswin)
 elseif(APPLE)
 	add_executable(uitestapp ${UITestApp_SOURCES}) # hack to enable retina display support
 #	add_executable(uitestapp MACOSX_BUNDLE ${UITestApp_SOURCES})
+	set(FSLIB fsstdio)
 elseif(UNIX)
 	add_executable(uitestapp ${UITestApp_SOURCES})
+	set(FSLIB fsstdio)
 else()
 	message(FATAL_ERROR "Unknown platform")
 endif()
 
 target_link_libraries(uitestapp PRIVATE
-	filesystem
+	${FSLIB}
 	platetc
 	platglfw
 	ui

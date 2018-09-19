@@ -17,7 +17,7 @@ target_link_libraries(as PRIVATE
 	config
 	ctx
 	gc
-	filesystem
+	fs
 )
 
 target_include_directories(as INTERFACE inc)

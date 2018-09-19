@@ -5,7 +5,7 @@ add_library(mapfile
 )
 
 target_link_libraries(mapfile PRIVATE
-	filesystem
+	fs
 )
 
 target_include_directories(mapfile INTERFACE inc)

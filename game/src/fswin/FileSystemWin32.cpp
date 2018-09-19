@@ -1,4 +1,4 @@
-#include "FileSystemWin32.h"
+#include "inc/fswin/FileSystemWin32.h"
 #include <utf8.h>
 #include <algorithm>
 #include <cassert>
@@ -7,11 +7,15 @@
 
 using namespace FS;
 
-static std::wstring s2w(std::string_view s)
+std::wstring PathCombine(std::string_view first, std::string_view second)
 {
-	std::wstring w;
-	utf8::utf8to16(s.begin(), s.end(), std::back_inserter(w));
-	return w;
+	// result = first + '\\' + second
+	std::wstring result;
+	result.reserve(first.size() + second.size() + 1);
+	utf8::utf8to16(first.begin(), first.end(), std::back_inserter(result));
+	result.append(L"\\");
+	utf8::utf8to16(second.begin(), second.end(), std::back_inserter(result));
+	return result;
 }
 
 static std::string w2s(std::wstring_view w)
@@ -20,6 +24,7 @@ static std::string w2s(std::wstring_view w)
 	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
 	return s;
 }
+
 static std::string StrFromErr(DWORD dwMessageId)
 {
 	WCHAR msgBuf[1024];
@@ -306,6 +311,11 @@ size_t MemMapWin32::Read(void *dst, size_t size, size_t count)
 	return count;
 }
 
+void MemMapWin32::Write(const void *src, size_t size)
+{
+	assert(false);
+}
+
 void MemMapWin32::Seek(long long amount, unsigned int origin)
 {
 	switch (origin)
@@ -329,33 +339,14 @@ void MemMapWin32::Seek(long long amount, unsigned int origin)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FileSystem> FS::CreateOSFileSystem(const std::string &rootDirectory)
-{
-	// convert to absolute path
-	std::wstring tmpRel = s2w(rootDirectory);
-	if (DWORD len = GetFullPathNameW(tmpRel.c_str(), 0, nullptr, nullptr))
-	{
-		std::wstring tmpFull(len, L'\0');
-		if (DWORD len2 = GetFullPathNameW(tmpRel.c_str(), len, &tmpFull[0], nullptr))
-		{
-			tmpFull.resize(len2); // truncate terminating \0
-			return std::make_shared<FileSystemWin32>(std::move(tmpFull));
-		}
-	}
-	throw std::runtime_error(StrFromErr(GetLastError()));
-	return nullptr;
-}
-
-FileSystemWin32::FileSystemWin32(std::wstring &&rootDirectory)
-  : _rootDirectory(std::move(rootDirectory))
+FileSystemWin32::FileSystemWin32(std::string_view rootDirectory)
+	: _rootDirectory(rootDirectory)
 {
 }
 
 std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 {
-	// query = _rootDirectory + '\\' + mask
-	std::wstring query = _rootDirectory + L'\\';
-	utf8::utf8to16(mask.begin(), mask.end(), std::back_inserter(query));
+	std::wstring query = PathCombine(_rootDirectory, mask);
 
 	WIN32_FIND_DATAW fd;
 	HANDLE hSearch = FindFirstFileExW(
@@ -390,7 +381,7 @@ std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 std::shared_ptr<File> FileSystemWin32::RawOpen(const std::string &fileName, FileMode mode)
 {
 	// combine with the root path
-	return std::make_shared<FileWin32>(_rootDirectory + L'\\' + s2w(fileName), mode);
+	return std::make_shared<FileWin32>(PathCombine(_rootDirectory, fileName), mode);
 }
 
 std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(const std::string &path, bool create, bool nothrow)
@@ -409,10 +400,7 @@ try
 
 	std::string::size_type p = path.find('/', offset);
 	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-
-	// tmpDir = _rootDirectory + '\\' + dirName
-	std::wstring tmpDir = _rootDirectory + L"\\";
-	utf8::utf8to16(dirName.begin(), dirName.end(), std::back_inserter(tmpDir));
+	std::wstring tmpDir = PathCombine(_rootDirectory, dirName);
 
 	// try to find directory
 	WIN32_FIND_DATAW fd = {0};
@@ -473,7 +461,7 @@ try
 	if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		throw std::runtime_error("object is not a directory");
 
-	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemWin32>(_rootDirectory + L'\\' + s2w(dirName));
+	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemWin32>(_rootDirectory + '\\' + dirName);
 	Mount(dirName, child);
 
 	if( std::string::npos != p )

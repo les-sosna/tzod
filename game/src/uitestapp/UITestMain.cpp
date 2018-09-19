@@ -1,6 +1,11 @@
 #include "UITestDesktop.h"
-
-#include <fs/FileSystem.h>
+#ifdef _WIN32
+#include <fswin/FileSystemWin32.h>
+using FileSystem = FS::FileSystemWin32;
+#else
+#include <fsstdio/FileSystemPosix.h>
+using FileSystem = FS::FileSystemPosix;
+#endif // _WIN32
 #include <platetc/UIInputRenderingController.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
@@ -12,7 +17,7 @@
 
 #define FILE_TEXTURES "scripts/textures.lua"
 
-static void print_what(/*UI::ConsoleBuffer &logger, */const std::exception &e, std::string prefix);
+static void print_what(const std::exception &e, std::string prefix);
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -27,7 +32,7 @@ int main(int, const char**)
 #endif
 try
 {
-	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
+	auto fs = std::make_shared<FileSystem>("data");
 
 	GlfwAppWindow appWindow(
 		"LibUI Test App",

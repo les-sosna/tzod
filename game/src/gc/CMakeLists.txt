@@ -84,7 +84,7 @@ add_library(gc
 )
 
 target_link_libraries(gc
-	PRIVATE filesystem
+	PRIVATE fs
 	PRIVATE mapfile
 	PUBLIC math
 )
