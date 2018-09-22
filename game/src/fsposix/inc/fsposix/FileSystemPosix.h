@@ -1,9 +1,9 @@
 #pragma once
-#include "inc/fs/FileSystem.h"
+#include <fs/FileSystem.h>
 
 namespace FS {
 
-class OSFileSystem : public FileSystem
+class FileSystemPosix : public FileSystem
 {
     struct AutoHandle
     {
@@ -25,7 +25,7 @@ class OSFileSystem : public FileSystem
     {
     public:
         OSFile(const std::string &fileName, FileMode mode);
-        virtual ~OSFile();
+        ~OSFile();
 
         // File
         virtual std::shared_ptr<MemMap> QueryMap();
@@ -38,11 +38,12 @@ class OSFileSystem : public FileSystem
         {
         public:
             OSMemMap(std::shared_ptr<OSFile> parent);
-            virtual ~OSMemMap();
+            ~OSMemMap();
 
-            virtual char* GetData();
-            virtual unsigned long GetSize() const;
-            virtual void SetSize(unsigned long size); // may invalidate pointer returned by GetData()
+            // MemMap
+            char* GetData() override;
+            unsigned long GetSize() const override;
+            void SetSize(unsigned long size) override; // may invalidate pointer returned by GetData()
 
         private:
             std::shared_ptr<OSFile> _file;
@@ -54,12 +55,12 @@ class OSFileSystem : public FileSystem
         {
         public:
             OSStream(std::shared_ptr<OSFile> parent);
-            virtual ~OSStream();
+            ~OSStream();
 
-            virtual size_t Read(void *dst, size_t size, size_t count);
-            virtual void Write(const void *src, size_t size);
-            virtual void Seek(long long amount, unsigned int origin);
-            virtual long long Tell() const;
+            size_t Read(void *dst, size_t size, size_t count) override;
+            void Write(const void *src, size_t size) override;
+            void Seek(long long amount, unsigned int origin) override;
+            long long Tell() const override;
 
         private:
             std::shared_ptr<OSFile> _file;
@@ -72,13 +73,13 @@ class OSFileSystem : public FileSystem
         bool _streamed;
     };
 
-    std::string  _rootDirectory;
+    std::string _rootDirectory;
 
 protected:
 	std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) override;
 
 public:
-    OSFileSystem(const std::string &rootDirectory);
+    FileSystemPosix(const std::string &rootDirectory);
 	std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 };

@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <string.h>
 
-FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
+FS::FileSystemPosix::OSFile::OSFile(const std::string &fileName, FileMode mode)
     : _mode(mode)
     , _mapped(false)
     , _streamed(false)
@@ -28,11 +28,11 @@ FS::OSFileSystem::OSFile::OSFile(const std::string &fileName, FileMode mode)
 		throw std::runtime_error(fileName + ": " + strerror(errno));
 }
 
-FS::OSFileSystem::OSFile::~OSFile()
+FS::FileSystemPosix::OSFile::~OSFile()
 {
 }
 
-std::shared_ptr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
+std::shared_ptr<FS::MemMap> FS::FileSystemPosix::OSFile::QueryMap()
 {
     assert(!_mapped && !_streamed);
 	std::shared_ptr<MemMap> result = std::make_shared<OSMemMap>(shared_from_this());
@@ -40,20 +40,20 @@ std::shared_ptr<FS::MemMap> FS::OSFileSystem::OSFile::QueryMap()
     return result;
 }
 
-std::shared_ptr<FS::Stream> FS::OSFileSystem::OSFile::QueryStream()
+std::shared_ptr<FS::Stream> FS::FileSystemPosix::OSFile::QueryStream()
 {
     assert(!_mapped && !_streamed);
     _streamed = true;
     return std::make_shared<OSStream>(shared_from_this());
 }
 
-void FS::OSFileSystem::OSFile::Unmap()
+void FS::FileSystemPosix::OSFile::Unmap()
 {
     assert(_mapped && !_streamed);
     _mapped = false;
 }
 
-void FS::OSFileSystem::OSFile::Unstream()
+void FS::FileSystemPosix::OSFile::Unstream()
 {
     assert(_streamed && !_mapped);
     _streamed = false;
@@ -61,18 +61,18 @@ void FS::OSFileSystem::OSFile::Unstream()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FS::OSFileSystem::OSFile::OSStream::OSStream(std::shared_ptr<OSFile> parent)
+FS::FileSystemPosix::OSFile::OSStream::OSStream(std::shared_ptr<OSFile> parent)
     : _file(parent)
 {
     Seek(0, SEEK_SET);
 }
 
-FS::OSFileSystem::OSFile::OSStream::~OSStream()
+FS::FileSystemPosix::OSFile::OSStream::~OSStream()
 {
     _file->Unstream();
 }
 
-size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
+size_t FS::FileSystemPosix::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
     size_t result = fread(dst, size, count, _file->_file.f);
     if( count != result && ferror(_file->_file.f) )
@@ -80,7 +80,7 @@ size_t FS::OSFileSystem::OSFile::OSStream::Read(void *dst, size_t size, size_t c
     return result;
 }
 
-void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
+void FS::FileSystemPosix::OSFile::OSStream::Write(const void *src, size_t size)
 {
     if( 1 != fwrite(src, size, 1, _file->_file.f) )
     {
@@ -88,19 +88,19 @@ void FS::OSFileSystem::OSFile::OSStream::Write(const void *src, size_t size)
     }
 }
 
-void FS::OSFileSystem::OSFile::OSStream::Seek(long long amount, unsigned int origin)
+void FS::FileSystemPosix::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
     fseek(_file->_file.f, amount, origin);
 }
 
-long long FS::OSFileSystem::OSFile::OSStream::Tell() const
+long long FS::FileSystemPosix::OSFile::OSStream::Tell() const
 {
     return ftell(_file->_file.f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
+FS::FileSystemPosix::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
     : _file(parent)
 {
     if( fseek(_file->_file.f, 0, SEEK_END) )
@@ -117,7 +117,7 @@ FS::OSFileSystem::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
     }
 }
 
-FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
+FS::FileSystemPosix::OSFile::OSMemMap::~OSMemMap()
 {
     if (!_data.empty())
     {
@@ -127,29 +127,24 @@ FS::OSFileSystem::OSFile::OSMemMap::~OSMemMap()
     _file->Unmap();
 }
 
-char* FS::OSFileSystem::OSFile::OSMemMap::GetData()
+char* FS::FileSystemPosix::OSFile::OSMemMap::GetData()
 {
     return _data.empty() ? nullptr : &_data[0];
 }
 
-unsigned long FS::OSFileSystem::OSFile::OSMemMap::GetSize() const
+unsigned long FS::FileSystemPosix::OSFile::OSMemMap::GetSize() const
 {
     return _data.size();
 }
 
-void FS::OSFileSystem::OSFile::OSMemMap::SetSize(unsigned long size)
+void FS::FileSystemPosix::OSFile::OSMemMap::SetSize(unsigned long size)
 {
     _data.resize(size);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FS::FileSystem> FS::CreateOSFileSystem(const std::string &rootDirectory)
-{
-    return std::make_shared<OSFileSystem>(rootDirectory);
-}
-
-FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory)
+FS::FileSystemPosix::FileSystemPosix(const std::string &rootDirectory)
     : _rootDirectory(rootDirectory)
 {
 	struct stat sb;
@@ -160,7 +155,7 @@ FS::OSFileSystem::OSFileSystem(const std::string &rootDirectory)
 		std::runtime_error(rootDirectory + ": Not a directory");
 }
 
-std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
+std::vector<std::string> FS::FileSystemPosix::EnumAllFiles(std::string_view mask)
 {
 	std::vector<std::string> files;
     if( DIR *dir = opendir(_rootDirectory.c_str()) )
@@ -189,12 +184,12 @@ std::vector<std::string> FS::OSFileSystem::EnumAllFiles(std::string_view mask)
 	return files;
 }
 
-std::shared_ptr<FS::File> FS::OSFileSystem::RawOpen(const std::string &fileName, FileMode mode)
+std::shared_ptr<FS::File> FS::FileSystemPosix::RawOpen(const std::string &fileName, FileMode mode)
 {
     return std::make_shared<OSFile>(_rootDirectory + '/' + fileName, mode);
 }
 
-std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FS::FileSystem> FS::FileSystemPosix::GetFileSystem(const std::string &path, bool create, bool nothrow)
 {
 	if( std::shared_ptr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true) )
     {
@@ -241,7 +236,7 @@ std::shared_ptr<FS::FileSystem> FS::OSFileSystem::GetFileSystem(const std::strin
     }
 
     // at this point the directory was either found or created
-	std::shared_ptr<FileSystem> child = std::make_shared<OSFileSystem>(_rootDirectory + '/' + dirName);
+	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemPosix>(_rootDirectory + '/' + dirName);
     Mount(dirName, child);
     if( std::string::npos != p )
         return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path

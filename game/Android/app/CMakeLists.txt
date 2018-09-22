@@ -22,7 +22,7 @@ add_library(tzodjni SHARED
 target_link_libraries(tzodjni
 
                       app
-                      fs
+                      fsposix
                       plat
                       ui
                       video
