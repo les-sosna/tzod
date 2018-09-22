@@ -187,7 +187,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		}
 		else
 		{
-			tmp = std::max(0, GetSelMin() - 1);
+			tmp = std::max(0, GetSelMin() - (GetSelLength() > 0 ? 0 : 1));
 			SetSel(tmp, tmp);
 		}
 		return true;
@@ -199,7 +199,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		}
 		else
 		{
-			tmp = std::min(GetTextLength(), GetSelMax() + 1);
+			tmp = std::min(GetTextLength(), GetSelMax() + (GetSelLength() > 0 ? 0 : 1));
 			SetSel(tmp, tmp);
 		}
 		return true;
