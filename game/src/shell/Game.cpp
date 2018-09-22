@@ -13,14 +13,14 @@
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <loc/Language.h>
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
-#include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/Rating.h>
 #include <ui/StackLayout.h>
-#include <ui/UIInput.h>
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
@@ -208,7 +208,7 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 
 void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 {
-	bool tab = ic.GetInput().IsKeyPressed(UI::Key::Tab);
+	bool tab = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
 	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
 	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
@@ -314,7 +314,7 @@ std::shared_ptr<UI::Window> GameLayout::GetFocus() const
 
 bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	if (UI::PointerType::Touch == pi.type)
+	if (Plat::PointerType::Touch == pi.type)
 	{
 		_activeDrags[pi.id].first = pi.position;
 		_activeDrags[pi.id].second = pi.position;

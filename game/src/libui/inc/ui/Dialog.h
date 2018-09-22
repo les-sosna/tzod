@@ -34,7 +34,7 @@ public:
 
 protected:
 	// KeyboardSink
-	bool OnKeyPressed(InputContext &ic, Key key) override;
+	bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
 
 	// NavigationSink
 	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;

@@ -45,7 +45,7 @@ private:
 	int _curSel;
 
 	// KeyboardSink
-	bool OnKeyPressed(InputContext &ic, Key key) override;
+	bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
 };
 
 } // namespace UI

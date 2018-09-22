@@ -1,11 +1,11 @@
 #pragma once
-#include <ui/UIInput.h>
+#include <plat/Input.h>
 
-struct JniInput final : public UI::IInput
+struct JniInput final : public Plat::Input
 {
-    bool IsKeyPressed(UI::Key key) const override;
+    bool IsKeyPressed(Plat::Key key) const override;
     bool IsMousePressed(int button) const override;
     vec2d GetMousePos() const override;
-    UI::GamepadState GetGamepadState(unsigned int index) const override;
+    Plat::GamepadState GetGamepadState(unsigned int index) const override;
     bool GetSystemNavigationBackAvailable() const override;
 };

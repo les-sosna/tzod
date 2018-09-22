@@ -1,9 +1,9 @@
 #pragma once
 
-namespace UI
+namespace Plat
 {
 	enum class Key;
 }
 
-UI::Key MapGlfwKeyCode(int platformKey);
-int UnmapGlfwKeyCode(UI::Key key);
+Plat::Key MapGlfwKeyCode(int platformKey);
+int UnmapGlfwKeyCode(Plat::Key key);

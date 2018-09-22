@@ -40,7 +40,7 @@ private:
 	UI::ConsoleBuffer &_logger;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
 };
 
 void SaveToConfig(EditorConfig &conf, const PropertySet &ps);

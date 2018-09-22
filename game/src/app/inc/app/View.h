@@ -3,11 +3,15 @@
 
 class TzodApp;
 class TzodViewImpl;
-struct AppWindow;
 
 namespace FS
 {
 	class FileSystem;
+}
+
+namespace Plat
+{
+	struct AppWindow;
 }
 
 namespace UI
@@ -18,12 +22,12 @@ namespace UI
 class TzodView
 {
 public:
-	TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow);
+	TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
 	~TzodView();
 
 	void Step(float dt);
 
 private:
-	AppWindow &_appWindow;
+	Plat::AppWindow &_appWindow;
 	std::unique_ptr<TzodViewImpl> _impl;
 };

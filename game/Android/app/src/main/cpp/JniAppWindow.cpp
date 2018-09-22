@@ -10,12 +10,12 @@ JniAppWindow::~JniAppWindow()
 {
 }
 
-AppWindowInputSink* JniAppWindow::GetInputSink() const
+Plat::AppWindowInputSink* JniAppWindow::GetInputSink() const
 {
     return _inputSink;
 }
 
-void JniAppWindow::SetInputSink(AppWindowInputSink *inputSink)
+void JniAppWindow::SetInputSink(Plat::AppWindowInputSink *inputSink)
 {
     _inputSink = inputSink;
 }
@@ -35,12 +35,12 @@ float JniAppWindow::GetLayoutScale() const
     return 1;
 }
 
-UI::IClipboard& JniAppWindow::GetClipboard()
+Plat::Clipboard& JniAppWindow::GetClipboard()
 {
     return _clipboard;
 }
 
-UI::IInput& JniAppWindow::GetInput()
+Plat::Input& JniAppWindow::GetInput()
 {
     return _input;
 }
@@ -53,7 +53,7 @@ IRender& JniAppWindow::GetRender()
 void JniAppWindow::SetCanNavigateBack(bool canNavigateBack)
 {}
 
-void JniAppWindow::SetMouseCursor(MouseCursor mouseCursor)
+void JniAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 {}
 
 void JniAppWindow::MakeCurrent()

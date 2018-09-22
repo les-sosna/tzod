@@ -6,6 +6,7 @@
 #include <gc/Player.h>
 #include <gc/VehicleClasses.h>
 #include <loc/Language.h>
+#include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/DataSource.h>
 #include <ui/LayoutContext.h>
@@ -17,7 +18,6 @@
 #include <ui/EditableText.h>
 #include <ui/Combo.h>
 #include <ui/DataSourceAdapters.h>
-#include <ui/Keys.h>
 #include <ui/ScrollView.h>
 #include <video/TextureManager.h>
 
@@ -410,18 +410,18 @@ void NewGameDlg::OnOK()
 	Close(_resultOK);
 }
 
-bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
+bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
-	case UI::Key::Enter:
-	case UI::Key::NumEnter:
+	case Plat::Key::Enter:
+	case Plat::Key::NumEnter:
 		if( GetFocus() == _players && -1 != _players->GetList()->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
 		break;
-	case UI::Key::Insert:
+	case Plat::Key::Insert:
 		OnAddPlayer();
 		break;
 	default:

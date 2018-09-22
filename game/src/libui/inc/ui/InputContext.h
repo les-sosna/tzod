@@ -9,35 +9,27 @@
 
 class TextureManager;
 
+namespace Plat
+{
+	enum class Key;
+	enum class Msg;
+	struct Clipboard;
+	struct Input;
+}
+
 namespace UI
 {
 
 class DataContext;
 class LayoutContext;
 class Window;
-enum class Key;
-struct IInput;
-struct Clipboard;
 struct PointerSink;
 struct TextSink;
-
-enum class Msg
-{
-	KeyReleased,
-	KeyPressed,
-	PointerDown,
-	PointerMove,
-	PointerUp,
-	PointerCancel,
-	Scroll,
-	ScrollPrecise,
-	TAP,
-};
 
 class InputContext
 {
 public:
-	InputContext(IInput &input);
+	InputContext(Plat::Input &input);
 
 	void ReadInput();
 
@@ -48,14 +40,14 @@ public:
 		const DataContext &dc,
 		vec2d pxPointerPosition,
 		vec2d pxPointerOffset,
-		Msg msg,
+		Plat::Msg msg,
 		int button,
-		PointerType pointerType,
+		Plat::PointerType pointerType,
 		unsigned int pointerID);
-	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, UI::Key key, float time);
+	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time);
 	bool ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
-	IInput& GetInput() const { return _input; }
+	Plat::Input& GetInput() const { return _input; }
 	TextSink* GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
 	void PushInputTransform(vec2d offset, bool focused, bool hovered);
@@ -79,7 +71,7 @@ public:
 private:
 	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset, bool precise);
 
-	IInput &_input;
+	Plat::Input &_input;
 
 	vec2d _mousePos;
 

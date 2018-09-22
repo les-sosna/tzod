@@ -2,12 +2,12 @@
 #include <cbind/ConfigBinding.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
+#include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
 #include <ui/EditableText.h>
-#include <ui/Keys.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
 #include <ui/Text.h>
@@ -119,15 +119,15 @@ void GetFileNameDlg::OnChangeName()
 	_changing = false;
 }
 
-bool GetFileNameDlg::OnKeyPressed(UI::InputContext &ic, UI::Key key)
+bool GetFileNameDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
-	//case UI::Key::Up:
-	//case UI::Key::Down:
+	//case Plat::Key::Up:
+	//case Plat::Key::Down:
 	//	static_cast<Window *>(_files)->OnKeyPressed(c);
 	//	break;
-	case UI::Key::Enter:
+	case Plat::Key::Enter:
 		OnOK();
 		break;
 	default:

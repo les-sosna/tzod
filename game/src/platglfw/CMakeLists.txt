@@ -15,9 +15,9 @@ add_library(platglfw
 find_package(OpenGL REQUIRED)
 
 target_link_libraries(platglfw
-	PRIVATE glfw ${OPENGL_gl_LIBRARY}
+	PRIVATE video glfw ${OPENGL_gl_LIBRARY}
 
-	PUBLIC plat ui
+	PUBLIC plat
 )
 
 target_include_directories(platglfw PRIVATE

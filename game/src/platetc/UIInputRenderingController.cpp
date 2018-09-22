@@ -2,12 +2,12 @@
 #include <plat/Clipboard.h>
 #include <ui/DataContext.h>
 #include <ui/GuiManager.h>
-#include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/Navigation.h>
 #include <ui/StateContext.h>
-#include <ui/UIInput.h>
 #include <ui/Window.h>
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <video/RenderContext.h>
 
 static bool CanNavigateBack(TextureManager &texman, UI::Window *wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
@@ -26,7 +26,7 @@ static bool CanNavigateBack(TextureManager &texman, UI::Window *wnd, const UI::L
 	return false;
 }
 
-UIInputRenderingController::UIInputRenderingController(AppWindow &appWindow,
+UIInputRenderingController::UIInputRenderingController(Plat::AppWindow &appWindow,
                                                        TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)
@@ -61,7 +61,7 @@ bool UIInputRenderingController::OnChar(unsigned int codepoint)
 	return false;
 }
 
-bool UIInputRenderingController::OnKey(UI::Key key, UI::Msg action)
+bool UIInputRenderingController::OnKey(Plat::Key key, Plat::Msg action)
 {
 	if (HandleClipboardShortcuts(key, action))
 		return true;
@@ -78,7 +78,7 @@ bool UIInputRenderingController::OnKey(UI::Key key, UI::Msg action)
 		_timeStepManager.GetTime());
 }
 
-bool UIInputRenderingController::OnPointer(UI::PointerType pointerType, UI::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID)
+bool UIInputRenderingController::OnPointer(Plat::PointerType pointerType, Plat::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID)
 {
 	UI::DataContext dataContext;
 	return _inputContext.ProcessPointer(
@@ -148,7 +148,7 @@ void UIInputRenderingController::OnRefresh()
 
 	_appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, _desktop.get(), layoutContext, dataContext));
 
-	MouseCursor mouseCursor = hoverTextSink ? MouseCursor::IBeam : MouseCursor::Arrow;
+	Plat::MouseCursor mouseCursor = hoverTextSink ? Plat::MouseCursor::IBeam : Plat::MouseCursor::Arrow;
 	if (_mouseCursor != mouseCursor)
 	{
 		_mouseCursor = mouseCursor;
@@ -167,18 +167,18 @@ void UIInputRenderingController::OnRefresh()
 	_appWindow.Present();
 }
 
-bool UIInputRenderingController::HandleClipboardShortcuts(UI::Key key, UI::Msg action)
+bool UIInputRenderingController::HandleClipboardShortcuts(Plat::Key key, Plat::Msg action)
 {
-	if (action == UI::Msg::KeyPressed)
+	if (action == Plat::Msg::KeyPressed)
 	{
-		bool shift = _inputContext.GetInput().IsKeyPressed(UI::Key::LeftShift) ||
-			_inputContext.GetInput().IsKeyPressed(UI::Key::RightShift);
-		bool control = _inputContext.GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
-			_inputContext.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+		bool shift = _inputContext.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
+			_inputContext.GetInput().IsKeyPressed(Plat::Key::RightShift);
+		bool control = _inputContext.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) ||
+			_inputContext.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 
 		switch (key)
 		{
-		case UI::Key::Insert:
+		case Plat::Key::Insert:
 			if (shift)
 			{
 				Paste();
@@ -190,21 +190,21 @@ bool UIInputRenderingController::HandleClipboardShortcuts(UI::Key key, UI::Msg a
 				return true;
 			}
 			break;
-		case UI::Key::V:
+		case Plat::Key::V:
 			if (control)
 			{
 				Paste();
 				return true;
 			}
 			break;
-		case UI::Key::C:
+		case Plat::Key::C:
 			if (control)
 			{
 				Copy();
 				return true;
 			}
 			break;
-		case UI::Key::X:
+		case Plat::Key::X:
 			if (control)
 			{
 				//if (0 != GetSelLength())
@@ -212,7 +212,7 @@ bool UIInputRenderingController::HandleClipboardShortcuts(UI::Key key, UI::Msg a
 				return true;
 			}
 			break;
-		case UI::Key::Delete:
+		case Plat::Key::Delete:
 			if (shift)
 			{
 				Cut();

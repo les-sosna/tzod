@@ -1,10 +1,10 @@
 #include "inc/ui/InputContext.h"
-#include "inc/ui/UIInput.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/StateContext.h"
 #include "inc/ui/Window.h"
 #include "inc/ui/WindowIterator.h"
+#include <plat/Input.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 

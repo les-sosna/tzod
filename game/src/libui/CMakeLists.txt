@@ -40,7 +40,6 @@ add_library(ui
 	inc/ui/EditableText.h
 	inc/ui/GuiManager.h
 	inc/ui/InputContext.h
-	inc/ui/Keys.h
 	inc/ui/LayoutContext.h
 	inc/ui/List.h
 	inc/ui/ListBase.h
@@ -58,7 +57,6 @@ add_library(ui
 	inc/ui/StateContext.h
 	inc/ui/Text.h
 	inc/ui/Texture.h
-	inc/ui/UIInput.h
 	inc/ui/Window.h
 	inc/ui/WindowIterator.h
 )
@@ -66,6 +64,8 @@ add_library(ui
 target_link_libraries(ui PUBLIC
 	math
 	video
+
+	PRIVATE plat
 )
 
 target_include_directories(ui INTERFACE inc)

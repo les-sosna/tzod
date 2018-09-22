@@ -4,8 +4,8 @@
 #include "inc/ui/ScrollBar.h"
 #include "inc/ui/ConsoleBuffer.h"
 #include "inc/ui/GuiManager.h"
-#include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
+#include <plat/Keys.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 #include <algorithm>
@@ -89,11 +89,11 @@ void Console::SetEcho(bool echo)
 	_echo = echo;
 }
 
-bool Console::OnKeyPressed(InputContext &ic, Key key)
+bool Console::OnKeyPressed(InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
-	case Key::Up:
+	case Plat::Key::Up:
 //		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
 //		{
 //			_scroll->SetPos(_scroll->GetPos() - 1);
@@ -110,7 +110,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			}
 		}
 		break;
-	case Key::Down:
+	case Plat::Key::Down:
 //		if( GetAsyncKeyState(VK_CONTROL) & 0x8000 ) // FIXME: workaround
 //		{
 //			_scroll->SetPos(_scroll->GetPos() + 1);
@@ -131,7 +131,7 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 			}
 		}
 		break;
-	case Key::Enter:
+	case Plat::Key::Enter:
 	{
 		auto cmd = _input->GetEditable()->GetText();
 		if( cmd.empty() )
@@ -161,24 +161,24 @@ bool Console::OnKeyPressed(InputContext &ic, Key key)
 		_autoScroll = true;
 		break;
 	}
-	case Key::PageUp:
+	case Plat::Key::PageUp:
 		_scroll->SetPos(_scroll->GetPos() - _scroll->GetPageSize());
 		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-	case Key::PageDown:
+	case Plat::Key::PageDown:
 		_scroll->SetPos(_scroll->GetPos() + _scroll->GetPageSize());
 		_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 		break;
-//	case Key::Home:
+//	case Plat::Key::Home:
 //		break;
-//	case Key::End:
+//	case Plat::Key::End:
 //		break;
-	case Key::Escape:
+	case Plat::Key::Escape:
 		if( _input->GetEditable()->GetText().empty() )
 			return false;
 		_input->GetEditable()->SetText(std::string());
 		break;
-	case Key::Tab:
+	case Plat::Key::Tab:
 		if( eventOnRequestCompleteCommand )
 		{
 			std::string result;

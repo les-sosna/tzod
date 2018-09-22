@@ -28,7 +28,7 @@ GlfwInput::GlfwInput(GLFWwindow &window)
 	: _window(window)
 {}
 
-bool GlfwInput::IsKeyPressed(UI::Key key) const
+bool GlfwInput::IsKeyPressed(Plat::Key key) const
 {
 	int platformKey = UnmapGlfwKeyCode(key);
 	return GLFW_PRESS == glfwGetKey(&_window, platformKey);
@@ -44,9 +44,9 @@ vec2d GlfwInput::GetMousePos() const
 	return GetCursorPosInPixels(&_window);
 }
 
-UI::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
+Plat::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
 {
-	UI::GamepadState gamepadState = {};
+	Plat::GamepadState gamepadState = {};
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1 + index))
 	{
 		// XBox One/360 controller mapping

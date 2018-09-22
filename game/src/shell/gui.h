@@ -30,7 +30,7 @@ public:
 	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
 
 protected:
 	void RefreshPlayersList();

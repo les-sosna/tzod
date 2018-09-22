@@ -10,6 +10,11 @@
 class RenderContext;
 class TextureManager;
 
+namespace Plat
+{
+	enum class Key;
+}
+
 namespace UI
 {
 
@@ -17,8 +22,6 @@ class DataContext;
 class InputContext;
 class LayoutContext;
 class StateContext;
-enum class Key;
-enum class PointerType;
 struct LayoutConstraints;
 struct NavigationSink;
 struct PointerSink;
@@ -44,8 +47,8 @@ struct ScrollSink
 
 struct KeyboardSink
 {
-	virtual bool OnKeyPressed(InputContext &ic, Key key) { return false; }
-	virtual void OnKeyReleased(InputContext &ic, Key key) {}
+	virtual bool OnKeyPressed(InputContext &ic, Plat::Key key) { return false; }
+	virtual void OnKeyReleased(InputContext &ic, Plat::Key key) {}
 };
 
 struct TextSink

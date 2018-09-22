@@ -1,7 +1,7 @@
 #include "inc/editor/detail/DefaultCamera.h"
 #include <gc/WorldCfg.h>
-#include <ui/Keys.h>
-#include <ui/UIInput.h>
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <chrono>
 #include <algorithm>
 
@@ -35,18 +35,18 @@ void DefaultCamera::ZoomOut()
 	_zoomLevel = std::max(_zoomLevel - 1, 0);
 }
 
-void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, float dt)
+void DefaultCamera::HandleMovement(Plat::Input &input, const FRECT &worldBounds, float dt)
 {
 	vec2d direction = {};
 
-	if (input.IsKeyPressed(UI::Key::A))
+	if (input.IsKeyPressed(Plat::Key::A))
 		direction.x = -1;
-	else if (input.IsKeyPressed(UI::Key::D))
+	else if (input.IsKeyPressed(Plat::Key::D))
 		direction.x = 1;
 
-	if (input.IsKeyPressed(UI::Key::W))
+	if (input.IsKeyPressed(Plat::Key::W))
 		direction.y = -1;
-	else if (input.IsKeyPressed(UI::Key::S))
+	else if (input.IsKeyPressed(Plat::Key::S))
 		direction.y = 1;
 
 	direction.Normalize();
@@ -110,7 +110,7 @@ void DefaultCamera::HandleMovement(UI::IInput &input, const FRECT &worldBounds, 
 	}
 
 
-	if (input.IsKeyPressed(UI::Key::Home))
+	if (input.IsKeyPressed(Plat::Key::Home))
 	{
 		_targetPos = vec2d{};
 		_speed = vec2d{};

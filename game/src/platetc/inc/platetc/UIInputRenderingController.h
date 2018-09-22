@@ -7,11 +7,11 @@ namespace UI
 	class TimeStepManager;
 }
 
-class UIInputRenderingController : public AppWindowInputSink
+class UIInputRenderingController : public Plat::AppWindowInputSink
 {
 public:
 	UIInputRenderingController(
-		AppWindow &appWindow,
+		Plat::AppWindow &appWindow,
 		TextureManager &textureManager,
 		UI::TimeStepManager &timeStepManager,
 		std::shared_ptr<UI::Window> desktop);
@@ -21,19 +21,19 @@ public:
 
 	// AppWindowInputSink
 	bool OnChar(unsigned int codepoint) override;
-	bool OnKey(UI::Key key, UI::Msg action) override;
-	bool OnPointer(UI::PointerType pointerType, UI::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID) override;
+	bool OnKey(Plat::Key key, Plat::Msg action) override;
+	bool OnPointer(Plat::PointerType pointerType, Plat::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID) override;
 	bool OnSystemNavigationBack() override;
 	void OnRefresh() override;
 
 private:
-	bool HandleClipboardShortcuts(UI::Key key, UI::Msg action);
+	bool HandleClipboardShortcuts(Plat::Key key, Plat::Msg action);
 	void Cut();
 	void Copy();
 	void Paste();
 
-	AppWindow &_appWindow;
-	MouseCursor _mouseCursor = MouseCursor::Arrow;
+	Plat::AppWindow &_appWindow;
+	Plat::MouseCursor _mouseCursor = Plat::MouseCursor::Arrow;
 	UI::InputContext _inputContext;
 	TextureManager &_textureManager;
 	UI::TimeStepManager &_timeStepManager;

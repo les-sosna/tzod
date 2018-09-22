@@ -5,6 +5,7 @@
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
 #include <loc/Language.h>
+#include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/Combo.h>
 #include <ui/ConsoleBuffer.h>
@@ -12,7 +13,6 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
 #include <ui/EditableText.h>
-#include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
 #include <ui/ListBase.h>
@@ -239,11 +239,11 @@ FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext
 	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }
 
-bool PropertyList::OnKeyPressed(UI::InputContext &ic, UI::Key key)
+bool PropertyList::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
-	case UI::Key::Enter:
+	case Plat::Key::Enter:
 		DoExchange(true);
 		SaveToConfig(_conf, *_ps);
 		break;

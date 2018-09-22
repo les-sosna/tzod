@@ -15,7 +15,7 @@ namespace UI
 class TzodViewImpl
 {
 public:
-	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow);
+	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
 	~TzodViewImpl();
 
 	void Step(float dt);

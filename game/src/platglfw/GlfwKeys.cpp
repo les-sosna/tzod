@@ -1,8 +1,8 @@
 #include "inc/platglfw/GlfwKeys.h"
-#include <ui/Keys.h>
+#include <plat/Keys.h>
 #include <GLFW/glfw3.h>
 
-UI::Key MapGlfwKeyCode(int platformKey)
+Plat::Key MapGlfwKeyCode(int platformKey)
 {
 	switch(platformKey)
 	{
@@ -12,10 +12,10 @@ UI::Key MapGlfwKeyCode(int platformKey)
 		default:
 			break;
 	}
-	return UI::Key::Unknown;
+	return Plat::Key::Unknown;
 }
 
-int UnmapGlfwKeyCode(UI::Key key)
+int UnmapGlfwKeyCode(Plat::Key key)
 {
 	switch(key)
 	{

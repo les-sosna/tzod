@@ -2,9 +2,9 @@
 
 #include <math/MyMath.h>
 
-namespace UI
+namespace Plat
 {
-	struct IInput;
+	struct Input;
 }
 
 class DefaultCamera
@@ -16,7 +16,7 @@ public:
 	void Move(vec2d offset, const FRECT &worldBounds);
 	void ZoomIn();
 	void ZoomOut();
-	void HandleMovement(UI::IInput &input, const FRECT &worldBounds, float dt);
+	void HandleMovement(Plat::Input &input, const FRECT &worldBounds, float dt);
 	float GetZoom() const { return _zoom; }
 	vec2d GetEye() const { return _pos; }
 

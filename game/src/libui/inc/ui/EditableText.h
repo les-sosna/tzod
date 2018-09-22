@@ -62,7 +62,7 @@ namespace UI
 		std::string OnCut() override;
 
 		// KeyboardSink
-		bool OnKeyPressed(InputContext &ic, Key key) override;
+		bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
 
 		// PointerSink
 		bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;

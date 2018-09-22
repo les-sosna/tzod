@@ -1,6 +1,6 @@
 #pragma once
 
-namespace UI
+namespace Plat
 {
 	enum class Key
 	{

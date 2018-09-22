@@ -2,9 +2,10 @@
 #include "inc/ui/InputContext.h"
 #include "inc/ui/List.h"
 #include "inc/ui/GuiManager.h"
-#include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/StateContext.h"
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
@@ -127,7 +128,7 @@ int List::HitTest(vec2d pxPos, const LayoutContext &lc, TextureManager &texman) 
 
 bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if( 1 == button && pi.type == PointerType::Mouse )
+	if( 1 == button && pi.type == Plat::PointerType::Mouse )
 	{
 		OnTap(ic, lc, texman, pi.position);
 	}

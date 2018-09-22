@@ -34,6 +34,7 @@ target_link_libraries(editor PRIVATE
 	loc
 	lua
 	luaetc
+	plat
 	render
 	ui
 )

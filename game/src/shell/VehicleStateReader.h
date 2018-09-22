@@ -6,9 +6,9 @@ class GameViewHarness;
 struct VehicleState;
 class GC_Vehicle;
 class World;
-namespace UI
+namespace Plat
 {
-	struct IInput;
+	struct Input;
 	enum class Key;
 }
 
@@ -17,7 +17,7 @@ class VehicleStateReader
 public:
 	VehicleStateReader();
 	void SetProfile(ConfControllerProfile &profile);
-	void ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, UI::IInput &input, vec2d dragDirection, bool reverse, VehicleState &vs);
+	void ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, Plat::Input &input, vec2d dragDirection, bool reverse, VehicleState &vs);
 
 	void OnTap(vec2d worldPos);
 	void Step(float dt);
@@ -29,29 +29,23 @@ private:
 	float _tapFireTime;
 	vec2d _tapFireTarget;
 
-	//
 	// cached values from the profile
-	//
-
-	UI::Key _keyForward;
-	UI::Key _keyBack;
-	UI::Key _keyLeft;
-	UI::Key _keyRight;
-	UI::Key _keyFire;
-	UI::Key _keyLight;
-	UI::Key _keyTowerLeft;
-	UI::Key _keyTowerRight;
-	UI::Key _keyTowerCenter;
-	UI::Key _keyNoPickup;
+	Plat::Key _keyForward;
+	Plat::Key _keyBack;
+	Plat::Key _keyLeft;
+	Plat::Key _keyRight;
+	Plat::Key _keyFire;
+	Plat::Key _keyLight;
+	Plat::Key _keyTowerLeft;
+	Plat::Key _keyTowerRight;
+	Plat::Key _keyTowerCenter;
+	Plat::Key _keyNoPickup;
 	int _gamepad;
 	bool _aimToMouse;
 	bool _moveToMouse;
 	bool _arcadeStyle;
 
-	//
 	// controller state
-	//
-
 	bool _lastLightKeyState;
 	bool _lastLightsState;
 };

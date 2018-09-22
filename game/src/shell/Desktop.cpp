@@ -22,16 +22,16 @@
 #include <gc/World.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/Console.h>
 #include <ui/ConsoleBuffer.h>
 #include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
-#include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/Text.h>
-#include <ui/UIInput.h>
 #include <video/RenderContext.h>
 
 extern "C"
@@ -418,11 +418,11 @@ void Desktop::NavigateHome()
 	UpdateFocus();
 }
 
-bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
+bool Desktop::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
-	case UI::Key::GraveAccent: // '~'
+	case Plat::Key::GraveAccent: // '~'
 		_con->SetVisible(!_con->GetVisible());
 		// on show do not grab focus yet - wait until the key released
 		if (!_con->GetVisible())
@@ -431,8 +431,8 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		}
 		break;
 
-	case UI::Key::Escape:
-	case UI::Key::GamepadMenu:
+	case Plat::Key::Escape:
+	case Plat::Key::GamepadMenu:
 		if( GetFocus() == _con )
 		{
 			_con->SetVisible(false);
@@ -448,20 +448,20 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 		}
 		break;
 
-	case UI::Key::F2:
+	case Plat::Key::F2:
 		OnSinglePlayer();
 		break;
 
-	case UI::Key::F12:
+	case Plat::Key::F12:
 		OnGameSettings();
 		break;
 
-	case UI::Key::F8:
+	case Plat::Key::F8:
 		OnMapSettings();
 		break;
 
-	case UI::Key::F5:
-	case UI::Key::GamepadView:
+	case Plat::Key::F5:
+	case Plat::Key::GamepadView:
 		if (!_navStack->GetNavFront())
 			SetEditorMode(!GetEditorMode());
 		break;
@@ -473,9 +473,9 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 	return true;
 }
 
-void Desktop::OnKeyReleased(UI::InputContext &ic, UI::Key key)
+void Desktop::OnKeyReleased(UI::InputContext &ic, Plat::Key key)
 {
-	if (UI::Key::GraveAccent == key)
+	if (Plat::Key::GraveAccent == key)
 	{
 		UpdateFocus();
 	}

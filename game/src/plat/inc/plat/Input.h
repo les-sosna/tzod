@@ -1,9 +1,29 @@
 #pragma once
 #include <math/MyMath.h>
 
-namespace UI
+namespace Plat
 {
 	enum class Key;
+
+	enum class Msg
+	{
+		KeyReleased,
+		KeyPressed,
+		PointerDown,
+		PointerMove,
+		PointerUp,
+		PointerCancel,
+		Scroll,
+		ScrollPrecise,
+		TAP,
+	};
+
+	enum class PointerType
+	{
+		Unknown,
+		Mouse,
+		Touch,
+	};
 
 	struct GamepadState
 	{
@@ -27,11 +47,11 @@ namespace UI
 		bool DPadLeft : 1;
 	};
 
-	struct IInput
+	struct Input
 	{
 		virtual bool IsKeyPressed(Key key) const = 0;
-		virtual bool IsMousePressed(int button) const = 0;
-		virtual vec2d GetMousePos() const = 0;
+		virtual bool IsMousePressed(int button) const = 0; // TODO: remove
+		virtual vec2d GetMousePos() const = 0; // TODO: remove
 		virtual GamepadState GetGamepadState(unsigned int index) const = 0;
 		virtual bool GetSystemNavigationBackAvailable() const = 0;
 	};

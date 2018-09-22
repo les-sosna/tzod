@@ -1,8 +1,7 @@
 #include "inc/platglfw/GlfwAppWindow.h"
 #include "inc/platglfw/GlfwPlatform.h"
 #include "inc/platglfw/GlfwKeys.h"
-#include <ui/InputContext.h>
-#include <ui/PointerInput.h>
+#include <plat/Input.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
@@ -67,7 +66,7 @@ static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAc
 	{
 		if (auto inputSink = self->GetInputSink())
 		{
-			UI::Msg action = (GLFW_RELEASE == platformAction) ? UI::Msg::PointerUp : UI::Msg::PointerDown;
+			Plat::Msg action = (GLFW_RELEASE == platformAction) ? Plat::Msg::PointerUp : Plat::Msg::PointerDown;
 			int buttons = 0;
 			switch (platformButton)
 			{
@@ -84,7 +83,7 @@ static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAc
 					return;
 			}
 			vec2d pxMousePos = GetCursorPosInPixels(window);
-			inputSink->OnPointer(UI::PointerType::Mouse, action, pxMousePos, vec2d{} /*offset*/, buttons, 0 /*pointerID*/);
+			inputSink->OnPointer(Plat::PointerType::Mouse, action, pxMousePos, vec2d{} /*offset*/, buttons, 0 /*pointerID*/);
 		}
 	}
 }
@@ -96,7 +95,7 @@ static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 		if (auto inputSink = self->GetInputSink())
 		{
 			vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
-			inputSink->OnPointer(UI::PointerType::Mouse, UI::Msg::PointerMove, pxMousePos, vec2d{}/*offset*/, 0 /*buttons*/, 0 /*pointerID*/);
+			inputSink->OnPointer(Plat::PointerType::Mouse, Plat::Msg::PointerMove, pxMousePos, vec2d{}/*offset*/, 0 /*buttons*/, 0 /*pointerID*/);
 		}
 	}
 }
@@ -109,12 +108,12 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 		{
 			vec2d pxMousePos = GetCursorPosInPixels(window);
 			vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-			auto msg = UI::Msg::Scroll;
+			auto msg = Plat::Msg::Scroll;
 #ifdef __APPLE__
 			pxMouseOffset *= 10;
-			msg = UI::Msg::ScrollPrecise;
+			msg = Plat::Msg::ScrollPrecise;
 #endif
-			inputSink->OnPointer(UI::PointerType::Mouse, msg, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
+			inputSink->OnPointer(Plat::PointerType::Mouse, msg, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
 		}
 	}
 }
@@ -125,8 +124,8 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platfor
 	{
 		if (auto inputSink = self->GetInputSink())
 		{
-			UI::Key key = MapGlfwKeyCode(platformKey);
-			UI::Msg action = (GLFW_RELEASE == platformAction) ? UI::Msg::KeyReleased : UI::Msg::KeyPressed;
+			Plat::Key key = MapGlfwKeyCode(platformKey);
+			Plat::Msg action = (GLFW_RELEASE == platformAction) ? Plat::Msg::KeyReleased : Plat::Msg::KeyPressed;
 			inputSink->OnKey(key, action);
 		}
 	}
@@ -202,12 +201,12 @@ GlfwAppWindow::~GlfwAppWindow()
 	glfwMakeContextCurrent(nullptr);
 }
 
-Clipboard& GlfwAppWindow::GetClipboard()
+Plat::Clipboard& GlfwAppWindow::GetClipboard()
 {
 	return *_clipboard;
 }
 
-UI::IInput& GlfwAppWindow::GetInput()
+Plat::Input& GlfwAppWindow::GetInput()
 {
 	return *_input;
 }
@@ -234,14 +233,14 @@ void GlfwAppWindow::SetCanNavigateBack(bool canNavigateBack)
 {
 }
 
-void GlfwAppWindow::SetMouseCursor(MouseCursor mouseCursor)
+void GlfwAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 {
 	switch (mouseCursor)
 	{
-	case MouseCursor::Arrow:
+	case Plat::MouseCursor::Arrow:
 		glfwSetCursor(_window.get(), _cursorArrow.get());
 		break;
-	case MouseCursor::IBeam:
+	case Plat::MouseCursor::IBeam:
 		glfwSetCursor(_window.get(), _cursorIBeam.get());
 		break;
 	default:

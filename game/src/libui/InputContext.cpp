@@ -1,11 +1,11 @@
 #include "inc/ui/DataContext.h"
 #include "inc/ui/InputContext.h"
-#include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/Navigation.h"
-#include "inc/ui/UIInput.h"
 #include "inc/ui/Window.h"
 #include "inc/ui/WindowIterator.h"
+#include <plat/Input.h>
+#include <plat/Keys.h>
 
 using namespace UI;
 
@@ -37,7 +37,7 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
-InputContext::InputContext(IInput &input)
+InputContext::InputContext(Plat::Input &input)
 	: _input(input)
 	, _isAppActive(true)
 #ifndef NDEBUG
@@ -219,19 +219,19 @@ bool InputContext::ProcessPointer(
 	const DataContext &dc,
 	vec2d pxPointerPosition,
 	vec2d pxPointerOffset,
-	Msg msg,
+	Plat::Msg msg,
 	int button,
-	PointerType pointerType,
+	Plat::PointerType pointerType,
 	unsigned int pointerID)
 {
 #ifndef NDEBUG
 	_lastPointerLocation[pointerID] = pxPointerPosition;
 #endif
 
-	if (Msg::Scroll == msg || Msg::ScrollPrecise == msg)
+	if (Plat::Msg::Scroll == msg || Plat::Msg::ScrollPrecise == msg)
 	{
 		return ProcessScroll(texman, wnd, lc, dc, pxPointerPosition,
-			pxPointerOffset / lc.GetScale(), Msg::ScrollPrecise == msg);
+			pxPointerOffset / lc.GetScale(), Plat::Msg::ScrollPrecise == msg);
 	}
 
 	PointerSink *pointerSink = nullptr;
@@ -263,7 +263,7 @@ bool InputContext::ProcessPointer(
 	{
 		auto &target = sinkPath.front();
 
-		if ((Msg::PointerDown == msg || Msg::TAP == msg) && NeedsFocus(target.get(), dc))
+		if ((Plat::Msg::PointerDown == msg || Plat::Msg::TAP == msg) && NeedsFocus(target.get(), dc))
 			PropagateFocus(sinkPath);
 
 		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
@@ -275,14 +275,14 @@ bool InputContext::ProcessPointer(
 
 		switch (msg)
 		{
-		case Msg::PointerDown:
+		case Plat::Msg::PointerDown:
 			if (pointerSink->OnPointerDown(*this, childOffsetAndLC.second, texman, pi, button))
 			{
 				_pointerCaptures[pointerID].capturePath = std::move(sinkPath);
 			}
 			break;
-		case Msg::PointerUp:
-		case Msg::PointerCancel:
+		case Plat::Msg::PointerUp:
+		case Plat::Msg::PointerCancel:
 			if (isPointerCaptured)
 			{
 				// hold strong ref to sink target and let everyhing else go away
@@ -292,10 +292,10 @@ bool InputContext::ProcessPointer(
 				pointerSink->OnPointerUp(*this, childOffsetAndLC.second, texman, pi, button);
 			}
 			break;
-		case Msg::PointerMove:
+		case Plat::Msg::PointerMove:
 			pointerSink->OnPointerMove(*this, childOffsetAndLC.second, texman, pi, isPointerCaptured);
 			break;
-		case Msg::TAP:
+		case Plat::Msg::TAP:
 			pointerSink->OnTap(*this, childOffsetAndLC.second, texman, pi.position);
 			break;
 		default:
@@ -384,53 +384,53 @@ static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, std::share
 	}
 }
 
-static Navigate GetNavigateAction(Key key, bool alt, bool shift)
+static Navigate GetNavigateAction(Plat::Key key, bool alt, bool shift)
 {
 	switch (key)
 	{
-	case Key::Enter:
-	case Key::NumEnter:
-	case Key::Space:
-	case Key::GamepadA:
+	case Plat::Key::Enter:
+	case Plat::Key::NumEnter:
+	case Plat::Key::Space:
+	case Plat::Key::GamepadA:
 		return Navigate::Enter;
 
-	case Key::Backspace:
-	case Key::Escape:
-	case Key::GamepadB:
+	case Plat::Key::Backspace:
+	case Plat::Key::Escape:
+	case Plat::Key::GamepadB:
 		return Navigate::Back;
 
-	case Key::Tab:
+	case Plat::Key::Tab:
 		return shift ? Navigate::Prev : Navigate::Next;
 
-	case Key::Up:
-	case Key::GamepadLeftThumbstickUp:
-	case Key::GamepadDPadUp:
+	case Plat::Key::Up:
+	case Plat::Key::GamepadLeftThumbstickUp:
+	case Plat::Key::GamepadDPadUp:
 		return Navigate::Up;
 
-	case Key::Down:
-	case Key::GamepadLeftThumbstickDown:
-	case Key::GamepadDPadDown:
+	case Plat::Key::Down:
+	case Plat::Key::GamepadLeftThumbstickDown:
+	case Plat::Key::GamepadDPadDown:
 		return Navigate::Down;
 
-	case Key::Left:
+	case Plat::Key::Left:
 		if (alt)
 		{
 			return Navigate::Back;
 		}
 		// fallthrough
-	case Key::GamepadLeftThumbstickLeft:
-	case Key::GamepadDPadLeft:
+	case Plat::Key::GamepadLeftThumbstickLeft:
+	case Plat::Key::GamepadDPadLeft:
 		return Navigate::Left;
 
-	case Key::Right:
-	case Key::GamepadLeftThumbstickRight:
-	case Key::GamepadDPadRight:
+	case Plat::Key::Right:
+	case Plat::Key::GamepadLeftThumbstickRight:
+	case Plat::Key::GamepadDPadRight:
 		return Navigate::Right;
 
-	case Key::Home:
+	case Plat::Key::Home:
 		return Navigate::Begin;
 
-	case Key::End:
+	case Plat::Key::End:
 		return Navigate::End;
 
 	default:
@@ -438,9 +438,9 @@ static Navigate GetNavigateAction(Key key, bool alt, bool shift)
 	}
 }
 
-bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, Key key, float time)
+bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time)
 {
-	if (key != Key::LeftShift && key != Key::RightShift && key != Key::LeftCtrl && key != Key::RightCtrl)
+	if (key != Plat::Key::LeftShift && key != Plat::Key::RightShift && key != Plat::Key::LeftCtrl && key != Plat::Key::RightCtrl)
 	{
 		_lastKeyTime = time;
 	}
@@ -449,7 +449,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 
 	switch (msg)
 	{
-	case Msg::KeyReleased:
+	case Plat::Msg::KeyReleased:
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
@@ -463,7 +463,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 			}
 		});
 		break;
-	case Msg::KeyPressed:
+	case Plat::Msg::KeyPressed:
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
@@ -481,9 +481,9 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	if (!handled)
 	{
 		Navigate navigate = GetNavigateAction(key,
-			GetInput().IsKeyPressed(Key::LeftAlt) || GetInput().IsKeyPressed(Key::RightAlt),
-			GetInput().IsKeyPressed(Key::LeftShift) || GetInput().IsKeyPressed(Key::RightShift));
-		if (Msg::KeyReleased == msg)
+			GetInput().IsKeyPressed(Plat::Key::LeftAlt) || GetInput().IsKeyPressed(Plat::Key::RightAlt),
+			GetInput().IsKeyPressed(Plat::Key::LeftShift) || GetInput().IsKeyPressed(Plat::Key::RightShift));
+		if (Plat::Msg::KeyReleased == msg)
 		{
 			if (auto wnd = _navigationSubjects[navigate].lock())
 			{

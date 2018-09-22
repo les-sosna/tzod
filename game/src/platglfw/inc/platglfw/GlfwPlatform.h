@@ -1,31 +1,31 @@
 #pragma once
-#include <ui/UIInput.h>
 #include <plat/Clipboard.h>
+#include <plat/Input.h>
 
 struct GLFWwindow;
 
-class GlfwInput : public UI::IInput
+class GlfwInput : public Plat::Input
 {
 public:
 	GlfwInput(GLFWwindow &window);
 
-	// UI::IInput
-	bool IsKeyPressed(UI::Key key) const override;
+	// Plat::Input
+	bool IsKeyPressed(Plat::Key key) const override;
 	bool IsMousePressed(int button) const override;
 	vec2d GetMousePos() const override;
-	UI::GamepadState GetGamepadState(unsigned int index) const override;
+	Plat::GamepadState GetGamepadState(unsigned int index) const override;
 	bool GetSystemNavigationBackAvailable() const override;
 
 private:
 	GLFWwindow &_window;
 };
 
-class GlfwClipboard : public Clipboard
+class GlfwClipboard : public Plat::Clipboard
 {
 public:
 	GlfwClipboard(GLFWwindow &window);
 
-	// Clipboard
+	// Plat::Clipboard
 	std::string_view GetClipboardText() const override;
 	void SetClipboardText(std::string text) override;
 

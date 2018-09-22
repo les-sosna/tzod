@@ -1,7 +1,6 @@
 #include "inc/ui/Dialog.h"
 #include "inc/ui/InputContext.h"
-#include "inc/ui/Keys.h"
-#include "inc/ui/UIInput.h"
+#include <plat/Keys.h>
 
 using namespace UI;
 
@@ -34,12 +33,12 @@ void Dialog::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutCo
 	}
 }
 
-bool Dialog::OnKeyPressed(InputContext &ic, Key key)
+bool Dialog::OnKeyPressed(InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
-	case Key::Enter:
-	case Key::NumEnter:
+	case Plat::Key::Enter:
+	case Plat::Key::NumEnter:
 		Close(_resultOK);
 		break;
 	default:

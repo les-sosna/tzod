@@ -103,7 +103,7 @@ private:
 	void OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
 	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;

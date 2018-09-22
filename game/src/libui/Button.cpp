@@ -5,7 +5,7 @@
 #include "inc/ui/Rectangle.h"
 #include "inc/ui/StateContext.h"
 #include "inc/ui/Text.h"
-#include "inc/ui/UIInput.h"
+#include <plat/Input.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 #include <algorithm>

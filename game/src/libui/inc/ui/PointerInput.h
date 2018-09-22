@@ -3,22 +3,20 @@
 
 class TextureManager;
 
+namespace Plat
+{
+	enum class PointerType;
+}
+
 namespace UI
 {
 	class InputContext;
 	class LayoutContext;
 
-	enum class PointerType
-	{
-		Unknown,
-		Mouse,
-		Touch,
-	};
-
 	struct PointerInfo
 	{
 		vec2d position;
-		PointerType type;
+		Plat::PointerType type;
 		unsigned int id;
 	};
 

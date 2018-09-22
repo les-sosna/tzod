@@ -11,6 +11,8 @@
 #include <gc/WorldCfg.h>
 #include <gv/ThemeManager.h>
 #include <loc/Language.h>
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>
 #include <ui/Button.h>
@@ -24,12 +26,10 @@
 #include <ui/ListBox.h>
 #include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
-#include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/ScrollView.h>
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
-#include <ui/UIInput.h>
 #include <video/TextureManager.h>
 
 #include <sstream>
@@ -461,7 +461,7 @@ void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Te
 		else if (1 == _capturedButton)
 		{
 			// keep default properties if Ctrl key is not pressed
-			bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+			bool defaultProperties = !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 			CreateAt(worldPos, defaultProperties);
 		}
 	}
@@ -477,7 +477,7 @@ void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, Text
 
 bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	if (pi.type == UI::PointerType::Touch)
+	if (pi.type == Plat::PointerType::Touch)
 		return false; // ignore touch here to not conflict with scroll. handle tap instead
 
 	bool capture = false;
@@ -509,7 +509,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 		else
 		{
 			// keep default properties if Ctrl key is not pressed
-			bool defaultProperties = !ic.GetInput().IsKeyPressed(UI::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+			bool defaultProperties = !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 			ActionOrCreateAt(worldPos, defaultProperties);
 		}
 	}
@@ -529,20 +529,20 @@ void EditorLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureMan
 	}
 }
 
-bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
+bool EditorLayout::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
-	case UI::Key::GamepadRightTrigger:
-	case UI::Key::PageUp:
+	case Plat::Key::GamepadRightTrigger:
+	case Plat::Key::PageUp:
 		_defaultCamera.ZoomIn();
 		break;
-	case UI::Key::GamepadLeftTrigger:
-	case UI::Key::PageDown:
+	case Plat::Key::GamepadLeftTrigger:
+	case Plat::Key::PageDown:
 		_defaultCamera.ZoomOut();
 		break;
-	case UI::Key::Delete:
-	case UI::Key::GamepadX:
+	case Plat::Key::Delete:
+	case Plat::Key::GamepadX:
 		if( _selectedObject )
 		{
 			GC_Object *o = _selectedObject;
@@ -558,24 +558,24 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, UI::Key key)
 			}
 		}
 		break;
-	case UI::Key::GamepadY:
+	case Plat::Key::GamepadY:
 		ActionOrSelectAt(Center(GetNavigationOrigin()));
 		break;
-	case UI::Key::F1:
+	case Plat::Key::F1:
 		_help->SetVisible(!_help->GetVisible());
 		break;
-	case UI::Key::F9:
+	case Plat::Key::F9:
 		_conf.uselayers.Set(!_conf.uselayers.Get());
 		break;
-	case UI::Key::G:
+	case Plat::Key::G:
 		_conf.drawgrid.Set(!_conf.drawgrid.Get());
 		break;
-	case UI::Key::LeftBracket:
-	case UI::Key::GamepadLeftShoulder:
+	case Plat::Key::LeftBracket:
+	case Plat::Key::GamepadLeftShoulder:
 		ChoosePrevType();
 		break;
-	case UI::Key::RightBracket:
-	case UI::Key::GamepadRightShoulder:
+	case Plat::Key::RightBracket:
+	case Plat::Key::GamepadRightShoulder:
 		ChooseNextType();
 		break;
 	default:

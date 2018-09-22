@@ -2,8 +2,8 @@
 #include "inc/ui/DataSource.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
-#include "inc/ui/Keys.h"
-#include "inc/ui/UIInput.h"
+#include <plat/Input.h>
+#include <plat/Keys.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
@@ -146,16 +146,16 @@ bool EditableText::OnChar(int c)
 	return false;
 }
 
-bool EditableText::OnKeyPressed(InputContext &ic, Key key)
+bool EditableText::OnKeyPressed(InputContext &ic, Plat::Key key)
 {
-	bool shift = ic.GetInput().IsKeyPressed(Key::LeftShift) ||
-		ic.GetInput().IsKeyPressed(Key::RightShift);
-	bool control = ic.GetInput().IsKeyPressed(Key::LeftCtrl) ||
-		ic.GetInput().IsKeyPressed(Key::RightCtrl);
+	bool shift = ic.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
+		ic.GetInput().IsKeyPressed(Plat::Key::RightShift);
+	bool control = ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) ||
+		ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 	int tmp;
 	switch (key)
 	{
-	case Key::Delete:
+	case Plat::Key::Delete:
 		if (0 == GetSelLength() && GetSelEnd() < GetTextLength())
 		{
 			SetText(std::string(GetText().substr(0, GetSelStart())).append(
@@ -167,7 +167,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		}
 		SetSel(GetSelMin(), GetSelMin());
 		return true;
-	case Key::Backspace:
+	case Plat::Key::Backspace:
 		tmp = std::max(0, 0 == GetSelLength() ? GetSelStart() - 1 : GetSelMin());
 		if (0 == GetSelLength() && GetSelStart() > 0)
 		{
@@ -179,7 +179,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		}
 		SetSel(tmp, tmp);
 		return true;
-	case Key::Left:
+	case Plat::Key::Left:
 		if (shift)
 		{
 			tmp = std::max(0, GetSelEnd() - 1);
@@ -191,7 +191,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 			SetSel(tmp, tmp);
 		}
 		return true;
-	case Key::Right:
+	case Plat::Key::Right:
 		if (shift)
 		{
 			tmp = std::min(GetTextLength(), GetSelEnd() + 1);
@@ -203,7 +203,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 			SetSel(tmp, tmp);
 		}
 		return true;
-	case Key::Home:
+	case Plat::Key::Home:
 		if (shift)
 		{
 			SetSel(GetSelStart(), 0);
@@ -213,7 +213,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 			SetSel(0, 0);
 		}
 		return true;
-	case Key::End:
+	case Plat::Key::End:
 		if (shift)
 		{
 			SetSel(GetSelStart(), -1);
@@ -223,7 +223,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 			SetSel(-1, -1);
 		}
 		return true;
-	case Key::Space:
+	case Plat::Key::Space:
 		return true;
 
 	default:
@@ -234,7 +234,7 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 
 bool EditableText::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if (pi.type == PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this))
+	if (pi.type == Plat::PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this))
 	{
 		int sel = HitTest(texman, pi.position, lc.GetScale());
 		SetSel(sel, sel);

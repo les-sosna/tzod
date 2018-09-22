@@ -6,9 +6,9 @@
 #include "inc/ui/ListBox.h"
 #include "inc/ui/Button.h"
 #include "inc/ui/GuiManager.h"
-#include "inc/ui/Keys.h"
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/StateContext.h"
+#include <plat/Keys.h>
 #include <video/TextureManager.h>
 
 using namespace UI;
@@ -93,18 +93,18 @@ void ComboBox::OnListLostFocus()
 	_btn->SetBackground("ui/scroll_down");
 }
 
-bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
+bool ComboBox::OnKeyPressed(InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
-	case Key::Escape:
+	case Plat::Key::Escape:
 		if( _list->GetVisible() )
 		{
 			SetFocus(nullptr);
 			return true;
 		}
 		break;
-	case Key::Enter:
+	case Plat::Key::Enter:
 		if( _list->GetVisible() )
 		{
 			if( -1 != _list->GetList()->GetCurSel() )
@@ -114,7 +114,7 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Key key)
 			}
 		}
 		break;
-	case Key::Down:
+	case Plat::Key::Down:
 		if( !_list->GetVisible() )
 			DropList();
 		return true;

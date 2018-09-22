@@ -72,6 +72,7 @@ target_link_libraries(shell PRIVATE
 	gv
 	loc
 	mapfile
+	plat
 	ui
 	lua
 

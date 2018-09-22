@@ -23,7 +23,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &
 	return textureManager;
 }
 
-TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, AppWindow &appWindow)
+TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow)
 	: _app(app)
 	, _textureManager(InitTextureManager(fs, logger, appWindow.GetRender()))
 	, _timeStepManager()

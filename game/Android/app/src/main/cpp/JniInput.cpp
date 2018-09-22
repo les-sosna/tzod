@@ -1,6 +1,6 @@
 #include "JniInput.h"
 
-bool JniInput::IsKeyPressed(UI::Key key) const
+bool JniInput::IsKeyPressed(Plat::Key key) const
 {
     return false;
 }
@@ -15,7 +15,7 @@ vec2d JniInput::GetMousePos() const
     return {};
 }
 
-UI::GamepadState JniInput::GetGamepadState(unsigned int index) const
+Plat::GamepadState JniInput::GetGamepadState(unsigned int index) const
 {
     return {};
 }

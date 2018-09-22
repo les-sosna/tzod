@@ -70,7 +70,7 @@ public:
 	~ControlProfileDlg();
 
 	// UI::Window
-	bool OnKeyPressed(UI::InputContext &ic, UI::Key key) override;
+	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
 
 private:
 	void AddAction(ConfVarString &var, std::string_view actionDisplayName);
@@ -88,7 +88,7 @@ private:
 	std::shared_ptr<UI::CheckBox> _moveToMouseChkBox;
 	std::shared_ptr<UI::CheckBox> _arcadeStyleChkBox;
 	std::string _nameOrig;
-	std::vector<UI::Key> _keyBindings;
+	std::vector<Plat::Key> _keyBindings;
 	ConfControllerProfile _profile;
 	ShellConfig &_conf;
 	LangCache &_lang;

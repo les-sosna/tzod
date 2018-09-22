@@ -1,27 +1,27 @@
 #include "VehicleStateReader.h"
 #include "KeyMapper.h"
 #include "inc/shell/Config.h"
+#include <plat/Keys.h>
+#include <plat/Input.h>
 #include <gc/VehicleState.h>
 #include <gc/Vehicle.h>
 #include <gc/Weapons.h>
 #include <gc/World.h>
 #include <gv/GameViewHarness.h>
-#include <ui/Keys.h>
-#include <ui/UIInput.h>
 #include <float.h>
 
 VehicleStateReader::VehicleStateReader()
   : _tapFireTime(-FLT_MAX)
-  , _keyForward(UI::Key::Unknown)
-  , _keyBack(UI::Key::Unknown)
-  , _keyLeft(UI::Key::Unknown)
-  , _keyRight(UI::Key::Unknown)
-  , _keyFire(UI::Key::Unknown)
-  , _keyLight(UI::Key::Unknown)
-  , _keyTowerLeft(UI::Key::Unknown)
-  , _keyTowerRight(UI::Key::Unknown)
-  , _keyTowerCenter(UI::Key::Unknown)
-  , _keyNoPickup(UI::Key::Unknown)
+  , _keyForward(Plat::Key::Unknown)
+  , _keyBack(Plat::Key::Unknown)
+  , _keyLeft(Plat::Key::Unknown)
+  , _keyRight(Plat::Key::Unknown)
+  , _keyFire(Plat::Key::Unknown)
+  , _keyLight(Plat::Key::Unknown)
+  , _keyTowerLeft(Plat::Key::Unknown)
+  , _keyTowerRight(Plat::Key::Unknown)
+  , _keyTowerCenter(Plat::Key::Unknown)
+  , _keyNoPickup(Plat::Key::Unknown)
   , _gamepad(-1)
   , _aimToMouse(false)
   , _moveToMouse(false)
@@ -51,12 +51,12 @@ void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 	_arcadeStyle = profile.arcade_style.Get();
 }
 
-void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, UI::IInput &input, vec2d dragDirection, bool reverse, VehicleState &vs)
+void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, Plat::Input &input, vec2d dragDirection, bool reverse, VehicleState &vs)
 {
 	memset(&vs, 0, sizeof(VehicleState));
 
 	vec2d mouse = input.GetMousePos();
-	UI::GamepadState gamepadState = _gamepad != -1 ? input.GetGamepadState(_gamepad) : UI::GamepadState{};
+	Plat::GamepadState gamepadState = _gamepad != -1 ? input.GetGamepadState(_gamepad) : Plat::GamepadState{};
 
 	auto c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)mouse.x, (int)mouse.y);
 
