@@ -202,7 +202,7 @@ GlfwAppWindow::~GlfwAppWindow()
 	glfwMakeContextCurrent(nullptr);
 }
 
-UI::IClipboard& GlfwAppWindow::GetClipboard()
+Clipboard& GlfwAppWindow::GetClipboard()
 {
 	return *_clipboard;
 }

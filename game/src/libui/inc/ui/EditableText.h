@@ -6,8 +6,6 @@
 
 namespace UI
 {
-	struct IClipboard;
-
 	class EditableText
 		: public Window
 		, private PointerSink
@@ -35,9 +33,6 @@ namespace UI
 		int GetSelMax() const;
 		int GetSelLength() const;
 
-		void Paste(const IClipboard &clipboard);
-		void Copy(IClipboard &clipboard) const;
-
 		std::function<void()> eventChange;
 
 		// Window
@@ -62,6 +57,9 @@ namespace UI
 
 		// TextSink
 		bool OnChar(int c) override;
+		void OnPaste(std::string_view text) override;
+		std::string_view OnCopy() const override;
+		std::string OnCut() override;
 
 		// KeyboardSink
 		bool OnKeyPressed(InputContext &ic, Key key) override;

@@ -2,11 +2,11 @@
 #include <math/MyMath.h>
 
 struct IRender;
+struct Clipboard;
 
 namespace UI
 {
 	struct IInput;
-	struct IClipboard;
 	enum class Key;
 	enum class Msg;
 	enum class PointerType;
@@ -27,7 +27,7 @@ struct AppWindow
 	virtual int GetDisplayRotation() const = 0;
 	virtual vec2d GetPixelSize() const = 0;
 	virtual float GetLayoutScale() const = 0;
-	virtual UI::IClipboard& GetClipboard() = 0;
+	virtual Clipboard& GetClipboard() = 0;
 	virtual UI::IInput& GetInput() = 0;
 	virtual IRender& GetRender() = 0;
 	virtual void SetCanNavigateBack(bool canNavigateBack) = 0;

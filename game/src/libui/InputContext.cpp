@@ -9,9 +9,36 @@
 
 using namespace UI;
 
-InputContext::InputContext(IInput &input, IClipboard &clipboard)
+struct TraverseFocusPathSettings
+{
+	TextureManager &texman;
+	InputContext &ic;
+	std::function<bool(std::shared_ptr<Window>)> visitor;
+};
+
+static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, const TraverseFocusPathSettings &settings)
+{
+	if (lc.GetEnabledCombined() && wnd->GetVisible())
+	{
+		if (auto focusedChild = wnd->GetFocus())
+		{
+			auto childRect = wnd->GetChildRect(settings.texman, lc, dc, *focusedChild);
+			LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
+
+			if (TraverseFocusPath(std::move(focusedChild), childLC, dc, settings))
+			{
+				return true;
+			}
+		}
+
+		return settings.visitor(std::move(wnd));
+	}
+
+	return false;
+}
+
+InputContext::InputContext(IInput &input)
 	: _input(input)
-	, _clipboard(clipboard)
 	, _isAppActive(true)
 #ifndef NDEBUG
 	, _lastPointerLocation()
@@ -23,6 +50,22 @@ InputContext::InputContext(IInput &input, IClipboard &clipboard)
 void InputContext::ReadInput()
 {
 	_mousePos = _input.GetMousePos();
+}
+
+TextSink* InputContext::GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
+{
+	TextSink *result = nullptr;
+	TraverseFocusPath(wnd, lc, dc,
+		TraverseFocusPathSettings{
+			texman,
+			*this,
+			[&result](std::shared_ptr<Window> wnd) // visitor
+			{
+				result = wnd->GetTextSink();
+				return !!result;
+			}
+		});
+	return result;
 }
 
 void InputContext::PushInputTransform(vec2d offset, bool focused, bool hovered)
@@ -291,35 +334,6 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 	return false;
 }
 
-
-struct TraverseFocusPathSettings
-{
-	TextureManager &texman;
-	InputContext &ic;
-	std::function<bool(std::shared_ptr<Window>)> visitor;
-};
-
-static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, const TraverseFocusPathSettings &settings)
-{
-	if (lc.GetEnabledCombined() && wnd->GetVisible())
-	{
-		if (auto focusedChild = wnd->GetFocus())
-		{
-			auto childRect = wnd->GetChildRect(settings.texman, lc, dc, *focusedChild);
-			LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
-
-			if (TraverseFocusPath(std::move(focusedChild), childLC, dc, settings))
-			{
-				return true;
-			}
-		}
-
-		return settings.visitor(std::move(wnd));
-	}
-
-	return false;
-}
-
 static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Navigate navigate, NavigationPhase phase)
 {
 	if (wnd->GetVisible() && wnd->GetEnabled(dc))
@@ -490,19 +504,6 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	}
 
 	return handled;
-}
-
-bool InputContext::ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c)
-{
-	return TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
-		texman,
-		*this,
-		[c](std::shared_ptr<Window> wnd) // visitor
-		{
-			TextSink *textSink = wnd->GetTextSink();
-			return textSink ? textSink->OnChar(c) : false;
-		}
-	});
 }
 
 bool InputContext::ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)

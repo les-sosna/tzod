@@ -1,6 +1,6 @@
 #pragma once
 #include <ui/UIInput.h>
-#include <ui/Clipboard.h>
+#include <plat/Clipboard.h>
 
 struct GLFWwindow;
 
@@ -20,12 +20,12 @@ private:
 	GLFWwindow &_window;
 };
 
-class GlfwClipboard : public UI::IClipboard
+class GlfwClipboard : public Clipboard
 {
 public:
 	GlfwClipboard(GLFWwindow &window);
 
-	// UI::IClipboard
+	// Clipboard
 	std::string_view GetClipboardText() const override;
 	void SetClipboardText(std::string text) override;
 

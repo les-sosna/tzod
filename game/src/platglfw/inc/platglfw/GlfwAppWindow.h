@@ -46,7 +46,7 @@ public:
 	int GetDisplayRotation() const override { return 0; }
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
-	UI::IClipboard& GetClipboard() override;
+	Clipboard& GetClipboard() override;
 	UI::IInput& GetInput() override;
 	IRender& GetRender() override;
 	void SetCanNavigateBack(bool canNavigateBack) override;

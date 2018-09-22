@@ -17,8 +17,9 @@ class LayoutContext;
 class Window;
 enum class Key;
 struct IInput;
-struct IClipboard;
+struct Clipboard;
 struct PointerSink;
+struct TextSink;
 
 enum class Msg
 {
@@ -36,7 +37,7 @@ enum class Msg
 class InputContext
 {
 public:
-	InputContext(IInput &input, IClipboard &clipboard);
+	InputContext(IInput &input);
 
 	void ReadInput();
 
@@ -52,11 +53,10 @@ public:
 		PointerType pointerType,
 		unsigned int pointerID);
 	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, UI::Key key, float time);
-	bool ProcessText(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, int c);
 	bool ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
-	IClipboard &GetClipboard() const { return _clipboard; }
 	IInput& GetInput() const { return _input; }
+	TextSink* GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
 	void PushInputTransform(vec2d offset, bool focused, bool hovered);
 	void PopInputTransform();
@@ -80,7 +80,6 @@ private:
 	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset, bool precise);
 
 	IInput &_input;
-	IClipboard &_clipboard;
 
 	vec2d _mousePos;
 

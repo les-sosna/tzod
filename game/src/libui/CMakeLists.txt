@@ -29,7 +29,6 @@ add_library(ui
 	Window.cpp
 
 	inc/ui/Button.h
-	inc/ui/Clipboard.h
 	inc/ui/Combo.h
 	inc/ui/Console.h
 	inc/ui/ConsoleBuffer.h

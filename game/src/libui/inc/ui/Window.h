@@ -51,6 +51,9 @@ struct KeyboardSink
 struct TextSink
 {
 	virtual bool OnChar(int c) = 0;
+	virtual void OnPaste(std::string_view text) = 0;
+	virtual std::string_view OnCopy() const = 0;
+	virtual std::string OnCut() = 0;
 };
 
 class StateContext;

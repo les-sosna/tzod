@@ -27,6 +27,11 @@ public:
 	void OnRefresh() override;
 
 private:
+	bool HandleClipboardShortcuts(UI::Key key, UI::Msg action);
+	void Cut();
+	void Copy();
+	void Paste();
+
 	AppWindow &_appWindow;
 	MouseCursor _mouseCursor = MouseCursor::Arrow;
 	UI::InputContext _inputContext;

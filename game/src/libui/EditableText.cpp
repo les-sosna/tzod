@@ -1,5 +1,4 @@
 #include "inc/ui/EditableText.h"
-#include "inc/ui/Clipboard.h"
 #include "inc/ui/DataSource.h"
 #include "inc/ui/InputContext.h"
 #include "inc/ui/LayoutContext.h"
@@ -156,41 +155,6 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 	int tmp;
 	switch (key)
 	{
-	case Key::Insert:
-		if (shift)
-		{
-			Paste(ic.GetClipboard());
-			return true;
-		}
-		else if (control)
-		{
-			Copy(ic.GetClipboard());
-			return true;
-		}
-		break;
-	case Key::V:
-		if (control)
-		{
-			Paste(ic.GetClipboard());
-			return true;
-		}
-		break;
-	case Key::C:
-		if (control)
-		{
-			Copy(ic.GetClipboard());
-			return true;
-		}
-		break;
-	case Key::X:
-		if (0 != GetSelLength() && control)
-		{
-			Copy(ic.GetClipboard());
-			SetText(std::string(GetText().substr(0, GetSelMin())).append(GetText().substr(GetSelMax())));
-			SetSel(GetSelMin(), GetSelMin());
-			return true;
-		}
-		break;
 	case Key::Delete:
 		if (0 == GetSelLength() && GetSelEnd() < GetTextLength())
 		{
@@ -199,10 +163,6 @@ bool EditableText::OnKeyPressed(InputContext &ic, Key key)
 		}
 		else
 		{
-			if (shift)
-			{
-				Copy(ic.GetClipboard());
-			}
 			SetText(std::string(GetText().substr(0, GetSelMin())).append(GetText().substr(GetSelMax())));
 		}
 		SetSel(GetSelMin(), GetSelMin());
@@ -325,28 +285,28 @@ int EditableText::HitTest(TextureManager &texman, vec2d px, float scale) const
 	return std::min(GetTextLength(), std::max(0, int(px.x / pxCharWidth)));
 }
 
-void EditableText::Paste(const IClipboard &clipboard)
+void EditableText::OnPaste(std::string_view text)
 {
-	auto data = clipboard.GetClipboardText();
-	if (!data.empty())
-	{
-		std::ostringstream buf;
-		buf << GetText().substr(0, GetSelMin());
-		buf << data;
-		buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
-		SetText(buf.str());
-		int sel = GetSelMin() + static_cast<int>(data.size());
-		SetSel(sel, sel);
-	}
+	std::ostringstream buf;
+	buf << GetText().substr(0, GetSelMin());
+	buf << text;
+	buf << GetText().substr(GetSelMax(), GetText().length() - GetSelMax());
+	SetText(buf.str());
+	int sel = GetSelMin() + static_cast<int>(text.size());
+	SetSel(sel, sel);
 }
 
-void EditableText::Copy(IClipboard &clipboard) const
+std::string_view EditableText::OnCopy() const
 {
-	auto sel = GetText().substr(GetSelMin(), GetSelLength());
-	if (!sel.empty())
-	{
-		clipboard.SetClipboardText(std::string(sel));
-	}
+	return GetText().substr(GetSelMin(), GetSelLength());
+}
+
+std::string EditableText::OnCut()
+{
+	auto result = _text.substr(GetSelMin(), GetSelLength());
+	SetText(std::string(GetText().substr(0, GetSelMin())).append(GetText().substr(GetSelMax())));
+	SetSel(GetSelMin(), GetSelMin());
+	return result;
 }
 
 vec2d EditableText::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

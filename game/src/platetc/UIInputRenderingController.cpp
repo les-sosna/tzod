@@ -1,9 +1,12 @@
 #include "inc/platetc/UIInputRenderingController.h"
+#include <plat/Clipboard.h>
 #include <ui/DataContext.h>
 #include <ui/GuiManager.h>
+#include <ui/Keys.h>
 #include <ui/LayoutContext.h>
 #include <ui/Navigation.h>
 #include <ui/StateContext.h>
+#include <ui/UIInput.h>
 #include <ui/Window.h>
 #include <video/RenderContext.h>
 
@@ -28,7 +31,7 @@ UIInputRenderingController::UIInputRenderingController(AppWindow &appWindow,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)
 	: _appWindow(appWindow)
-	, _inputContext(appWindow.GetInput(), appWindow.GetClipboard())
+	, _inputContext(appWindow.GetInput())
 	, _textureManager(textureManager)
 	, _timeStepManager(timeStepManager)
 	, _desktop(desktop)
@@ -50,21 +53,25 @@ void UIInputRenderingController::TimeStep(float dt)
 bool UIInputRenderingController::OnChar(unsigned int codepoint)
 {
 	UI::DataContext dataContext;
-	return _inputContext.ProcessText(
-		_textureManager,
-		_desktop,
-		UI::LayoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext)),
-		dataContext,
-		codepoint);
+	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
+	if (UI::TextSink *textSink = _inputContext.GetTextSink(_textureManager, _desktop, layoutContext, dataContext))
+	{
+		return textSink->OnChar(codepoint);
+	}
+	return false;
 }
 
 bool UIInputRenderingController::OnKey(UI::Key key, UI::Msg action)
 {
+	if (HandleClipboardShortcuts(key, action))
+		return true;
+
 	UI::DataContext dataContext;
+	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
 	return _inputContext.ProcessKeys(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext)),
+		layoutContext,
 		dataContext,
 		action,
 		key,
@@ -158,4 +165,103 @@ void UIInputRenderingController::OnRefresh()
 
 	render.End();
 	_appWindow.Present();
+}
+
+bool UIInputRenderingController::HandleClipboardShortcuts(UI::Key key, UI::Msg action)
+{
+	if (action == UI::Msg::KeyPressed)
+	{
+		bool shift = _inputContext.GetInput().IsKeyPressed(UI::Key::LeftShift) ||
+			_inputContext.GetInput().IsKeyPressed(UI::Key::RightShift);
+		bool control = _inputContext.GetInput().IsKeyPressed(UI::Key::LeftCtrl) ||
+			_inputContext.GetInput().IsKeyPressed(UI::Key::RightCtrl);
+
+		switch (key)
+		{
+		case UI::Key::Insert:
+			if (shift)
+			{
+				Paste();
+				return true;
+			}
+			else if (control)
+			{
+				Copy();
+				return true;
+			}
+			break;
+		case UI::Key::V:
+			if (control)
+			{
+				Paste();
+				return true;
+			}
+			break;
+		case UI::Key::C:
+			if (control)
+			{
+				Copy();
+				return true;
+			}
+			break;
+		case UI::Key::X:
+			if (control)
+			{
+				//if (0 != GetSelLength())
+				Cut();
+				return true;
+			}
+			break;
+		case UI::Key::Delete:
+			if (shift)
+			{
+				Cut();
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+
+void UIInputRenderingController::Cut()
+{
+	UI::DataContext dataContext;
+	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
+	if (UI::TextSink *textSink = _inputContext.GetTextSink(_textureManager, _desktop, layoutContext, dataContext))
+	{
+		auto text = textSink->OnCut();
+		if (!text.empty())
+		{
+			_appWindow.GetClipboard().SetClipboardText(std::move(text));
+		}
+	}
+}
+
+void UIInputRenderingController::Copy()
+{
+	UI::DataContext dataContext;
+	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
+	if (UI::TextSink *textSink = _inputContext.GetTextSink(_textureManager, _desktop, layoutContext, dataContext))
+	{
+		auto text = textSink->OnCopy();
+		if (!text.empty())
+		{
+			_appWindow.GetClipboard().SetClipboardText(std::string(text));
+		}
+	}
+}
+
+void UIInputRenderingController::Paste()
+{
+	UI::DataContext dataContext;
+	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
+	if (UI::TextSink *textSink = _inputContext.GetTextSink(_textureManager, _desktop, layoutContext, dataContext))
+	{
+		auto text = _appWindow.GetClipboard().GetClipboardText();
+		if (!text.empty())
+		{
+			textSink->OnPaste(text);
+		}
+	}
 }
