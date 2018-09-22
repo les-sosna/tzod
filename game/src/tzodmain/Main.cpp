@@ -5,7 +5,7 @@
 #include <fswin/FileSystemWin32.h>
 using FileSystem = FS::FileSystemWin32;
 #else
-#include <fsstdio/FileSystemPosix.h>
+#include <fsposix/FileSystemPosix.h>
 using FileSystem = FS::FileSystemPosix;
 #endif // _WIN32
 #include <platglfw/GlfwAppWindow.h>

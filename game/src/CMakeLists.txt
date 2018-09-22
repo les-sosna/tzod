@@ -12,7 +12,7 @@ if(WIN32)
 else()
 	find_package(OpenAL)
 	set(WITH_SOUND ${OPENAL_FOUND})
-	add_subdirectory(fsstdio)
+	add_subdirectory(fsposix)
 endif()
 
 # external libs
