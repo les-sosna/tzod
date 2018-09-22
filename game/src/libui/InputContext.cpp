@@ -440,7 +440,10 @@ static Navigate GetNavigateAction(Key key, bool alt, bool shift)
 
 bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Msg msg, Key key, float time)
 {
-	_lastKeyTime = time;
+	if (key != Key::LeftShift && key != Key::RightShift && key != Key::LeftCtrl && key != Key::RightCtrl)
+	{
+		_lastKeyTime = time;
+	}
 
 	bool handled = false;
 
