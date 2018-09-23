@@ -94,6 +94,7 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_BOOL( d_field,          false )
 	VAR_BOOL( d_path,           false )
 	VAR_BOOL( d_showfps,        false )
+	VAR_BOOL( d_artistmode,     false )
 
 	// other
 	VAR_STR(   dm_player1,      "Arrows" )
