@@ -69,7 +69,7 @@ return {
 {
    file="textures/landscape/water.tga",
    content={
-     water={left=0, top=0, right=96, bottom=96, xframes=3, yframes=3},
+     water={left=0, top=0, right=96, bottom=128, xframes=3, yframes=4},
    }
 },
 {
