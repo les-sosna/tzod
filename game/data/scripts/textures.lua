@@ -69,7 +69,7 @@ return {
 {
    file="textures/landscape/water.tga",
    content={
-     water={left=0, top=0, right=96, bottom=96, xframes=3, yframes=3},
+     water={left=0, top=0, right=96, bottom=128, xframes=3, yframes=4},
    }
 },
 {
@@ -214,8 +214,8 @@ return {
    file="textures/effects/decals.tga",
    content={
      cat_track={left=0, top=0, right=8, bottom=8},
-     bigblast={left=64, top=0, right=128, bottom=64, xscale=2, yscale=2},
-     smallblast={left=64, top=0, right=128, bottom=64},
+     bigblast={left=64, top=0, right=128, bottom=64, xscale=2, yscale=2, magfilter=true},
+     smallblast={left=64, top=0, right=128, bottom=64, magfilter=true},
    }
 },
 {
@@ -236,16 +236,16 @@ return {
 {
    file="textures/gui/fonts.tga",
    content={
-     font_small={left=100, right=212, top=0, bottom=140, xframes=16, yframes=14, xpivot=0, ypivot=0, magfilter=false},
-     font_default={left=212, top=0, right=512, bottom=240, xframes=20, yframes=12, xpivot=0, ypivot=0, magfilter=false},
-     font_digits_red={left=0, top=-64, right=95, bottom=128, xframes=5, yframes=6, xpivot=0, ypivot=0, magfilter=false},
-     font_digits_green={left=0, top=64, right=95, bottom=256, xframes=5, yframes=6, xpivot=0, ypivot=0, magfilter=false},
+     font_small={left=100, right=212, top=0, bottom=140, xframes=16, yframes=14, xpivot=0, ypivot=0},
+     font_default={left=212, top=0, right=512, bottom=240, xframes=20, yframes=12, xpivot=0, ypivot=0},
+     font_digits_red={left=0, top=-64, right=95, bottom=128, xframes=5, yframes=6, xpivot=0, ypivot=0},
+     font_digits_green={left=0, top=64, right=95, bottom=256, xframes=5, yframes=6, xpivot=0, ypivot=0},
    }
 },
 {
    file="textures/gui/controls.tga",
    content={
-     ["ui/window"]={left=48, top=144, right=96, bottom=192, xpivot=0, ypivot=0, border=2},
+     ["ui/window"]={left=48, top=144, right=96, bottom=192, xpivot=0, ypivot=0, border=2, magfilter=true},
      ["ui/scroll_back_vert"]={left=128, top=116, right=152, bottom=128, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/scroll_back_hor"]={left=160, top=116, right=184, bottom=128, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/selection"]={left=0, top=224, right=8, bottom=232, xpivot=0, ypivot=0, border=2},

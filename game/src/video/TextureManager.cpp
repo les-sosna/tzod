@@ -183,7 +183,7 @@ static LogicalTexture getlt(lua_State *L, int idx, float pxWidth, float pxHeight
 	tex.uvPivot.y = getfloat(L, idx, "ypivot", pxHeight * uvFrameHeight / 2) / (pxHeight * uvFrameHeight);
 
 	// filter
-	tex.magFilter = getbool(L, idx, "magfilter", true);
+	tex.magFilter = getbool(L, idx, "magfilter", false);
 
 	// frames
 	tex.uvFrames.reserve(xframes * yframes);

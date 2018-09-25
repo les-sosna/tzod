@@ -16,4 +16,5 @@ private:
 	SpriteColor _color;
 	vec2d _offset;
 	bool _anyLOD;
+	bool _animated;
 };
