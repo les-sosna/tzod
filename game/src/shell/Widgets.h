@@ -9,7 +9,7 @@
 class AppState;
 class TextureManager;
 
-class FpsCounter
+class FpsCounter final
 	: public UI::Text
 	, private UI::TimeStepping
 {
@@ -31,7 +31,8 @@ private:
 	AppState &_appState;
 };
 
-class Oscilloscope : public UI::Rectangle
+class Oscilloscope final
+	: public UI::Rectangle
 {
 public:
 	Oscilloscope();

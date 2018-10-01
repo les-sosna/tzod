@@ -3,7 +3,8 @@
 
 namespace FS {
 
-class FileSystemPosix : public FileSystem
+class FileSystemPosix final
+	: public FileSystem
 {
     struct AutoHandle
     {
@@ -19,7 +20,7 @@ class FileSystemPosix : public FileSystem
         AutoHandle& operator = (const AutoHandle&);
     };
 
-    class OSFile
+    class OSFile final
         : public File
         , public std::enable_shared_from_this<OSFile>
     {
@@ -34,7 +35,8 @@ class FileSystemPosix : public FileSystem
         virtual void Unstream();
 
     private:
-        class OSMemMap : public MemMap
+        class OSMemMap final
+			: public MemMap
         {
         public:
             OSMemMap(std::shared_ptr<OSFile> parent);
@@ -51,7 +53,8 @@ class FileSystemPosix : public FileSystem
             void SetupMapping();
         };
 
-        class OSStream : public Stream
+        class OSStream final
+			: public Stream
         {
         public:
             OSStream(std::shared_ptr<OSFile> parent);

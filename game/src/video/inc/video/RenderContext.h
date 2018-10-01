@@ -1,5 +1,4 @@
 #pragma once
-
 #include "RenderBase.h"
 #include <stack>
 #include <string>
@@ -12,7 +11,7 @@ enum enumAlignText {
 	alignTextLB = 6, alignTextCB = 7, alignTextRB = 8,
 };
 
-class RenderContext
+class RenderContext final
 {
 public:
 	RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height);

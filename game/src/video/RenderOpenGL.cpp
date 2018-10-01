@@ -6,7 +6,8 @@
 #define  INDEX_ARRAY_SIZE   2048
 
 
-class RenderOpenGL : public IRender
+class RenderOpenGL final
+	: public IRender
 {
 public:
 	RenderOpenGL();

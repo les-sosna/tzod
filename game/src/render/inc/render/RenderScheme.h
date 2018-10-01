@@ -4,7 +4,7 @@
 class TextureManager;
 class GC_Actor;
 
-class RenderScheme
+class RenderScheme final
 {
 public:
 	RenderScheme(TextureManager &tm);

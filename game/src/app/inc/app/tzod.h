@@ -21,7 +21,7 @@ class ShellConfig;
 class LangCache;
 class DMCampaign;
 
-class TzodApp
+class TzodApp final
 {
 public:
 	TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *language = nullptr);

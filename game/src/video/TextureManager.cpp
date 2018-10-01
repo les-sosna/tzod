@@ -18,14 +18,15 @@ extern "C"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class CheckerImage : public Image
+class CheckerImage final
+	: public Image
 {
 public:
-	// Image methods
-	virtual const void* GetData() const override { return _bytes; }
-	virtual unsigned int GetBpp() const override { return 24; }
-	virtual unsigned int GetWidth() const override { return 4; }
-	virtual unsigned int GetHeight() const override { return 4; }
+	// Image
+	const void* GetData() const override { return _bytes; }
+	unsigned int GetBpp() const override { return 24; }
+	unsigned int GetWidth() const override { return 4; }
+	unsigned int GetHeight() const override { return 4; }
 
 private:
 	static const unsigned char _bytes[];

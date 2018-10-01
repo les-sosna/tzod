@@ -4,7 +4,8 @@ namespace UI
 {
 	class List;
 
-	class HasSelection : public UI::LayoutData<bool>
+	class HasSelection final
+		: public UI::LayoutData<bool>
 	{
 	public:
 		HasSelection(std::weak_ptr<UI::List> list);

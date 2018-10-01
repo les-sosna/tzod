@@ -1,9 +1,5 @@
-// TextureManager.h
-
 #pragma once
-
 #include "RenderBase.h"
-
 #include <list>
 #include <map>
 #include <memory>
@@ -29,7 +25,7 @@ struct LogicalTexture
 	std::vector<FRECT> uvFrames;
 };
 
-class TextureManager
+class TextureManager final
 {
 public:
 	TextureManager(TextureManager&&) = default;

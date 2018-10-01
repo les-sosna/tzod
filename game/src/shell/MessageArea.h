@@ -9,7 +9,7 @@ namespace UI
 	class ConsoleBuffer;
 }
 
-class MessageArea
+class MessageArea final
 	: public UI::Window
 	, private UI::TimeStepping
 {

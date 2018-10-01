@@ -19,7 +19,7 @@ namespace UI
 	class ConsoleBuffer;
 }
 
-class TzodView
+class TzodView final
 {
 public:
 	TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);

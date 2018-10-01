@@ -7,7 +7,8 @@ class Deathmatch;
 class LangCache;
 class TextureManager;
 
-class ScoreTable : public UI::Rectangle
+class ScoreTable final
+	: public UI::Rectangle
 {
 public:
 	ScoreTable(World &world, const Deathmatch *deathmatch, LangCache &lang);

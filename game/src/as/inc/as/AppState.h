@@ -5,7 +5,7 @@
 struct GameContextBase;
 class AppStateListener;
 
-class AppState
+class AppState final
 {
 public:
 	AppState();

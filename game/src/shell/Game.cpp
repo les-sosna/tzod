@@ -29,7 +29,8 @@
 
 namespace
 {
-	class TimerDisplay : public UI::LayoutData<std::string_view>
+	class TimerDisplay final
+		: public UI::LayoutData<std::string_view>
 	{
 	public:
 		TimerDisplay(World &world, const Deathmatch *deathmatch)
@@ -66,7 +67,8 @@ namespace
 		mutable std::string _cachedString;
 	};
 
-	class DeathmatchRatingBinding : public UI::RenderData<unsigned int>
+	class DeathmatchRatingBinding final
+		: public UI::RenderData<unsigned int>
 	{
 	public:
 		DeathmatchRatingBinding(const Deathmatch &deathmatch)

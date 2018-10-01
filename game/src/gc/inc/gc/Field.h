@@ -8,7 +8,7 @@
 class Field;
 class GC_RigidBodyStatic;
 
-class FieldCell
+class FieldCell final
 {
 public:
 	static unsigned int _sessionId;
@@ -64,7 +64,7 @@ struct RefFieldCell
 	}
 };
 
-class Field
+class Field final
 {
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
@@ -100,7 +100,7 @@ private:
 	RectRB _bounds = {};
 };
 
-class FieldCellCompare
+class FieldCellCompare final
 {
 public:
 	FieldCellCompare(const Field &field);

@@ -10,7 +10,7 @@ struct Gameplay;
 struct Sound;
 struct SoundRender;
 
-class SoundHarness
+class SoundHarness final
 	: ObjectListener<GC_Pickup>
 	, ObjectListener<GC_Projectile>
 	, ObjectListener<GC_ProjectileBasedWeapon>

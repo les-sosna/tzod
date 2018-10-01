@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 
-class ObjectProperty
+class ObjectProperty final
 {
 public:
 	enum PropertyType

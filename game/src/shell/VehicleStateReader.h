@@ -12,7 +12,7 @@ namespace Plat
 	enum class Key;
 }
 
-class VehicleStateReader
+class VehicleStateReader final
 {
 public:
 	VehicleStateReader();

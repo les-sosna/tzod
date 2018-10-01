@@ -12,7 +12,7 @@ class World;
 struct AIWEAPSETTINGS;
 struct VehicleState;
 
-class DrivingAgent
+class DrivingAgent final
 {
 public:
 	typedef std::list<ObjPtr<GC_RigidBodyStatic> > AttackListType;

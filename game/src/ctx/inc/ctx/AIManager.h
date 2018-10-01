@@ -13,7 +13,7 @@ class GC_Player;
 class GC_Vehicle;
 class World;
 
-class AIManager
+class AIManager final
 	: private ObjectListener<GC_Player>
 	, private ObjectListener<World>
 {

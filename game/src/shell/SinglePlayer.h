@@ -25,7 +25,7 @@ namespace UI
 	class Text;
 }
 
-class SinglePlayer
+class SinglePlayer final
 	: public UI::Window
 	, private UI::NavigationSink
 {

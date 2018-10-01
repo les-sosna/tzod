@@ -29,7 +29,7 @@ typedef std::pair<const ObjectView*, const ObjectView*> ViewCollection;
 inline const ObjectView* begin(const ViewCollection &v) { return v.first; }
 inline const ObjectView* end(const ViewCollection &v) { return v.second; }
 
-class ObjectViewsSelector
+class ObjectViewsSelector final
 {
 public:
 	ObjectViewsSelector(ObjectViewsSelectorBuilder &&builder);

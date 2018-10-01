@@ -60,7 +60,8 @@ namespace
 		DMCampaign &_dmCampaign;
 	};
 
-	class TierProgressIndexBinding : public UI::RenderData<unsigned int>
+	class TierProgressIndexBinding final
+		: public UI::RenderData<unsigned int>
 	{
 	public:
 		TierProgressIndexBinding(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, size_t mapIndex)
@@ -86,7 +87,8 @@ namespace
 	const auto c_tierBoxFrame = std::make_shared<UI::StateBinding<unsigned int>>(1, // default
 		UI::StateBinding<unsigned int>::MapType{ { "Normal", 0 } });
 
-	class TierBox : public UI::Rectangle
+	class TierBox final
+		: public UI::Rectangle
 	{
 	public:
 		TierBox()

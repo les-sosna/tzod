@@ -13,7 +13,7 @@ namespace FS
 	class FileSystem;
 }
 
-class AppController
+class AppController final
 {
 public:
 	AppController(FS::FileSystem &fs);

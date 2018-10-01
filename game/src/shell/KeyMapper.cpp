@@ -4,7 +4,7 @@
 #include <sstream>
 #include <iomanip>
 
-class KeyMapper
+class KeyMapper final
 {
 public:
 	KeyMapper();

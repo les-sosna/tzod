@@ -24,7 +24,8 @@ struct MainMenuCommands
 	std::function<void()> close;
 };
 
-class MainMenuDlg : public UI::StackLayout
+class MainMenuDlg final
+	: public UI::StackLayout
 {
 public:
 	MainMenuDlg(LangCache &lang, MainMenuCommands commands);

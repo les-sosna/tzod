@@ -4,15 +4,16 @@
 
 class ShellConfig;
 
-class ConfigConsoleHistory : public UI::IConsoleHistory
+class ConfigConsoleHistory final
+	: public UI::IConsoleHistory
 {
 public:
 	explicit ConfigConsoleHistory(const ShellConfig &conf);
 
 	// UI::IConsoleHistory
-	virtual void Enter(std::string str);
-	virtual size_t GetItemCount() const;
-	virtual std::string_view GetItem(size_t index) const;
+	void Enter(std::string str) override;
+	size_t GetItemCount() const override;
+	std::string_view GetItem(size_t index) const override;
 
 private:
 	const ShellConfig &_conf;

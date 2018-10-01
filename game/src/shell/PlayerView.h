@@ -6,7 +6,8 @@
 class ConfVarTable;
 class ConfPlayerLocal;
 
-class PlayerView : public UI::Window
+class PlayerView final
+	: public UI::Window
 {
 public:
 	void SetPlayerConfig(ConfVarTable &playerConf);

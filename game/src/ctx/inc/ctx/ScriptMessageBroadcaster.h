@@ -5,7 +5,7 @@
 
 namespace app_detail
 {
-    class ScriptMessageBroadcaster
+    class ScriptMessageBroadcaster final
         : public ScriptMessageSink
         , public ScriptMessageSource
     {

@@ -219,6 +219,8 @@ bool UIInputRenderingController::HandleClipboardShortcuts(Plat::Key key, Plat::M
 				return true;
 			}
 			break;
+		default:
+			return false;
 		}
 	}
 	return false;

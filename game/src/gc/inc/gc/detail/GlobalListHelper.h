@@ -4,7 +4,6 @@
 
 class GC_Object;
 
-
 enum GlobalListID
 {
 	LIST_objects,

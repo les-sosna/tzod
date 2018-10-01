@@ -25,7 +25,7 @@ enum RotatorState
 
 class SaveFile;
 
-class Rotator
+class Rotator final
 {
 public:
 	Rotator(float &angle);

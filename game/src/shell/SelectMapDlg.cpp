@@ -15,7 +15,6 @@
 SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection)
 	: _worldView(worldView)
 	, _conf(conf)
-	, _lang(lang)
 	, _worldCache(worldCache)
 	, _mapCollection(mapCollection)
 	, _mapTiles(std::make_shared<UI::ScanlineLayout>())

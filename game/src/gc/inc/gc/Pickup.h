@@ -31,10 +31,6 @@ typedef float AIPRIORITY;
 #define AI_MAX_SIGHT   40.0f
 #define AI_MAX_DEPTH   256.0f
 
-
-///////////////////////////////////////////////////////////////////////////////
-// forward declarations
-
 class GC_HideLabel;
 class GC_Vehicle;
 class GC_Light;
@@ -42,7 +38,6 @@ class GC_Crosshair;
 class GC_Weapon;
 class GC_RigidBodyStatic;
 
-///////////////////////////////////////////////////////////////////////////////
 
 #define GC_FLAG_PICKUP_BLINK             (GC_FLAG_ACTOR_ << 0)
 #define GC_FLAG_PICKUP_AUTO              (GC_FLAG_ACTOR_ << 1)

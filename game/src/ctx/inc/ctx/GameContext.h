@@ -20,7 +20,6 @@ class ScriptHarness;
 class ThemeManager;
 class TextureManager;
 class WorldController;
-class LangCache;
 
 struct PlayerDesc
 {
@@ -68,7 +67,8 @@ private:
 	std::unique_ptr<AIManager> _aiManager;
 };
 
-class GameContextCampaignDM : public GameContext
+class GameContextCampaignDM final
+	: public GameContext
 {
 public:
 	GameContextCampaignDM(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap);

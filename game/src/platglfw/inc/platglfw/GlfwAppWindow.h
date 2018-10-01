@@ -17,7 +17,7 @@ struct GlfwWindowDeleter
 	void operator()(GLFWwindow *window);
 };
 
-class GlfwInitHelper
+class GlfwInitHelper final
 {
 public:
 	GlfwInitHelper();
@@ -30,7 +30,8 @@ private:
 	static unsigned int s_initCount;
 };
 
-class GlfwAppWindow : public Plat::AppWindow
+class GlfwAppWindow final
+	: public Plat::AppWindow
 {
 public:
 	GlfwAppWindow(const char *title, bool fullscreen, int width, int height);

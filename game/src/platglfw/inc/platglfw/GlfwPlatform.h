@@ -4,7 +4,8 @@
 
 struct GLFWwindow;
 
-class GlfwInput : public Plat::Input
+class GlfwInput final
+	: public Plat::Input
 {
 public:
 	GlfwInput(GLFWwindow &window);
@@ -20,7 +21,8 @@ private:
 	GLFWwindow &_window;
 };
 
-class GlfwClipboard : public Plat::Clipboard
+class GlfwClipboard final
+	: public Plat::Clipboard
 {
 public:
 	GlfwClipboard(GLFWwindow &window);

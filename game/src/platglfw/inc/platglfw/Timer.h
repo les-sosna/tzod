@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-class Timer
+class Timer final
 {
 public:
 	Timer();  // initially stopped

@@ -33,7 +33,7 @@ class LangCache;
 class LuaConsole;
 class NavStack;
 
-class Desktop
+class Desktop final
 	: public UI::Window
 	, private UI::Managerful
 	, private UI::KeyboardSink

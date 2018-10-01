@@ -150,8 +150,6 @@ bool EditableText::OnKeyPressed(InputContext &ic, Plat::Key key)
 {
 	bool shift = ic.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
 		ic.GetInput().IsKeyPressed(Plat::Key::RightShift);
-	bool control = ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) ||
-		ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 	int tmp;
 	switch (key)
 	{

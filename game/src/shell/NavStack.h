@@ -4,7 +4,7 @@
 #include <ui/WindowIterator.h>
 #include <vector>
 
-class NavStack
+class NavStack final
 	: public UI::Window
 	, private UI::Managerful
 	, private UI::PointerSink

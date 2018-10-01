@@ -112,7 +112,8 @@ void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const Layo
 
 namespace
 {
-	class FocusBinding : public RenderData<bool>
+	class FocusBinding final
+		: public RenderData<bool>
 	{
 	public:
 		// RenderData<bool>

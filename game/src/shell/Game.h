@@ -28,7 +28,7 @@ namespace UI
 	class StackLayout;
 }
 
-class GameLayout
+class GameLayout final
 	: public UI::Window
 	, public UI::TimeStepping
 	, private UI::PointerSink

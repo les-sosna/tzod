@@ -17,7 +17,8 @@ namespace UI
 	template<class, class> class ListAdapter;
 }
 
-class GetFileNameDlg : public UI::Dialog
+class GetFileNameDlg final
+	: public UI::Dialog
 {
 public:
 	struct Params

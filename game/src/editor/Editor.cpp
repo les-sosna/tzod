@@ -57,7 +57,8 @@ static bool PtOnActor(const GC_Actor &actor, vec2d pt)
 
 namespace
 {
-	class LayerDisplay : public UI::LayoutData<std::string_view>
+	class LayerDisplay final
+		: public UI::LayoutData<std::string_view>
 	{
 	public:
 		LayerDisplay(LangCache &lang, std::shared_ptr<UI::List> typeSelector)

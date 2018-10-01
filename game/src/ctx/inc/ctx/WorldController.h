@@ -8,7 +8,7 @@ class World;
 class GC_Object;
 class GC_Player;
 
-class WorldController
+class WorldController final
 {
 public:
 	explicit WorldController(World &world);

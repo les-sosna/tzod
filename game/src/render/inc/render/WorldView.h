@@ -18,7 +18,7 @@ struct WorldViewRenderOptions
 	bool visualizePath = false;
 };
 
-class WorldView
+class WorldView final
 {
 public:
 	WorldView(TextureManager &tm, RenderScheme &rs);

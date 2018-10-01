@@ -7,7 +7,8 @@
 namespace
 {
 
-class SoundDummy : public Sound
+class SoundDummy final
+	: public Sound
 {
 public:
 	virtual void SetPos(vec2d) {}
@@ -16,7 +17,8 @@ public:
 	virtual void SetPitch(float) {}
 };
 
-class SoundImpl : public Sound
+class SoundImpl final
+	: public Sound
 {
 public:
 	SoundImpl(ALuint source)

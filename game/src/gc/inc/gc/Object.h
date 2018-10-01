@@ -9,7 +9,6 @@
 
 class MapFile;
 class SaveFile;
-
 class GC_Object;
 class World;
 

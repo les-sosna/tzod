@@ -9,7 +9,8 @@ namespace UI
 
 namespace
 {
-	class ConfTextSourceAdapter : public UI::LayoutData<std::string_view>
+	class ConfTextSourceAdapter final
+		: public UI::LayoutData<std::string_view>
 	{
 	public:
 		ConfTextSourceAdapter(const ConfVarString &confString) : _confString(confString) {}

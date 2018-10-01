@@ -7,7 +7,8 @@ namespace UI
 	class TimeStepManager;
 }
 
-class UIInputRenderingController : public Plat::AppWindowInputSink
+class UIInputRenderingController final
+	: public Plat::AppWindowInputSink
 {
 public:
 	UIInputRenderingController(

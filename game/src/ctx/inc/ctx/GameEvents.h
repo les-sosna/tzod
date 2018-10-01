@@ -22,7 +22,7 @@ struct GameEventSource
 	virtual void RemoveListener(GameListener &ls) = 0;
 };
 
-class GameEventsBroadcaster
+class GameEventsBroadcaster final
 	: public GameEventSource
 	, public GameListener
 {

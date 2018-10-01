@@ -16,7 +16,8 @@ namespace UI
 	class ConsoleBuffer;
 }
 
-class SoundView : private AppStateListener
+class SoundView final
+	: private AppStateListener
 {
 public:
 	SoundView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, AppState &appState);

@@ -16,7 +16,8 @@ namespace UI
 	template<class T> struct RenderData;
 }
 
-class MapPreview: public UI::Window
+class MapPreview final
+	: public UI::Window
 {
 public:
 	MapPreview(FS::FileSystem &fs, WorldView &worldView, WorldCache &mapCache);

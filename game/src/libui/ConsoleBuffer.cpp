@@ -33,11 +33,11 @@ ConsoleBuffer::ConsoleBuffer(size_t lineLength, size_t maxLines)
   , _currentPos(0)
   , _currentLine(0)
   , _currentCount(1)
+  , _lineLength(lineLength)
+  , _lineCount(maxLines)
 #ifndef NDEBUG
   ,_locked(0)
 #endif
-    , _lineLength(lineLength)
-    , _lineCount(maxLines)
 {
 }
 

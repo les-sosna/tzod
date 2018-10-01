@@ -27,7 +27,7 @@ struct AIITEMINFO
 	AIPRIORITY priority;
 };
 
-class AIController
+class AIController final
 {
 public:
 	AIController();
