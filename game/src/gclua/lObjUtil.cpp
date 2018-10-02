@@ -64,13 +64,13 @@ int luaT_setproperty(lua_State *L, PropertySet &properties)
 				luaL_error(L, "property '%s' - expected integer value; got %s",
 				           pname, lua_typename(L, lua_type(L, -1)));
 			}
-			int v = lua_tointeger(L, -1);
+			lua_Integer v = lua_tointeger(L, -1);
 			if( v < p->GetIntMin() || v > p->GetIntMax() )
 			{
 				return luaL_error(L, "property '%s' - value %d is out of range [%d, %d]",
 				                  pname, v, p->GetIntMin(), p->GetIntMax());
 			}
-			p->SetIntValue(v);
+			p->SetIntValue(static_cast<int>(v));
 			break;
 		}
 		case ObjectProperty::TYPE_FLOAT:

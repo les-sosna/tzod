@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 #include <app/tzod.h>
-#include <fs/FileSystem.h>
+#include <fsposix/FileSystemPosix.h>
 #include <ui/ConsoleBuffer.h>
 #include <memory>
 
@@ -37,7 +37,7 @@
     chdir([resourcePath UTF8String]);
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
     NSString *language = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
-    _fs = FS::CreateOSFileSystem([dataPath UTF8String]);
+	_fs = std::make_shared<FS::FileSystemPosix>([dataPath UTF8String]);
     _logger.reset(new UI::ConsoleBuffer(100, 500));
     _app.reset(new TzodApp(*_fs, *_logger, [language UTF8String]));
     return YES;

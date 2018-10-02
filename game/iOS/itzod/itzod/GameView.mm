@@ -1,5 +1,6 @@
 #import "GameView.h"
 #include "CocoaTouchWindow.h"
+#include <plat/Input.h>
 #include <ui/InputContext.h>
 #include <ui/PointerInput.h>
 #include <map>
@@ -48,15 +49,15 @@ static unsigned int GetPointerID(int touchIndex)
 {
     CGPoint location = [recognizer locationInView: recognizer.view];
     
-    if (AppWindowInputSink *sink = _appWindow->GetInputSink())
+	if (Plat::AppWindowInputSink *sink = _appWindow->GetInputSink())
     {
         auto touchIndex = GetFreeTouchIndex(_touches);
         auto pointerID = GetPointerID(touchIndex);
         vec2d pxPointerPos{
             static_cast<float>(location.x * self.contentScaleFactor),
             static_cast<float>(location.y * self.contentScaleFactor)};
-        sink->OnPointer(UI::PointerType::Touch,
-						UI::Msg::TAP,
+        sink->OnPointer(Plat::PointerType::Touch,
+						Plat::Msg::TAP,
 						pxPointerPos,
 						vec2d{}, // pxPointerOffset
 						0, // buttons
@@ -70,7 +71,7 @@ static unsigned int GetPointerID(int touchIndex)
     CGPoint translation = [recognizer translationInView: recognizer.view];
     [recognizer setTranslation:CGPointMake(0, 0) inView: recognizer.view];
     
-    if (AppWindowInputSink *sink = _appWindow->GetInputSink())
+	if (Plat::AppWindowInputSink *sink = _appWindow->GetInputSink())
     {
         auto touchIndex = GetFreeTouchIndex(_touches);
         auto pointerID = GetPointerID(touchIndex);
@@ -80,8 +81,8 @@ static unsigned int GetPointerID(int touchIndex)
 		vec2d pxPointerOffset = {
 			static_cast<float>(translation.x * self.contentScaleFactor),
 			static_cast<float>(translation.y * self.contentScaleFactor)};
-        sink->OnPointer(UI::PointerType::Touch,
-						UI::Msg::ScrollPrecise,
+        sink->OnPointer(Plat::PointerType::Touch,
+						Plat::Msg::ScrollPrecise,
 						pxPointerPos,
 						pxPointerOffset,
 						0, // buttons
@@ -143,14 +144,14 @@ static unsigned int GetPointerID(int touchIndex)
         assert(0 == _touches.count(touch));
         _touches[touch] = touchIndex;
      
-        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
+		if (Plat::AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->OnPointer(UI::PointerType::Touch,
-							UI::Msg::PointerDown,
+            sink->OnPointer(Plat::PointerType::Touch,
+							Plat::Msg::PointerDown,
 							pxPointerPos,
 							vec2d{}, // pxPointerOffset
 							1, // buttons
@@ -171,14 +172,14 @@ static unsigned int GetPointerID(int touchIndex)
             continue;
             
         auto pointerID = GetPointerID(it->second);
-        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
+        if (Plat::AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->OnPointer(UI::PointerType::Touch,
-							UI::Msg::PointerMove,
+            sink->OnPointer(Plat::PointerType::Touch,
+							Plat::Msg::PointerMove,
 							pxPointerPos,
 							vec2d{}, // pxPointerOffset
 							0, // buttons
@@ -200,14 +201,14 @@ static unsigned int GetPointerID(int touchIndex)
             continue;
         
         auto pointerID = GetPointerID(it->second);
-        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
+        if (Plat::AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->OnPointer(UI::PointerType::Touch,
-							UI::Msg::PointerUp,
+            sink->OnPointer(Plat::PointerType::Touch,
+							Plat::Msg::PointerUp,
 							pxPointerPos,
 							vec2d{}, // pxPointerOffset
 							1, // buttons
@@ -230,14 +231,14 @@ static unsigned int GetPointerID(int touchIndex)
             continue;
         
         auto pointerID = GetPointerID(it->second);
-        if (AppWindowInputSink *sink = _appWindow->GetInputSink())
+        if (Plat::AppWindowInputSink *sink = _appWindow->GetInputSink())
         {
             CGPoint location = [touch locationInView:self];
             vec2d pxPointerPos{
                 static_cast<float>(location.x * self.contentScaleFactor),
                 static_cast<float>(location.y * self.contentScaleFactor)};
-            sink->OnPointer(UI::PointerType::Touch,
-							UI::Msg::PointerCancel,
+            sink->OnPointer(Plat::PointerType::Touch,
+							Plat::Msg::PointerCancel,
 							pxPointerPos,
 							vec2d{}, // pxPointerOffset
 							0, // buttons

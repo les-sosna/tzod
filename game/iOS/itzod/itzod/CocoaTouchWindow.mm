@@ -1,24 +1,24 @@
 #import "CocoaTouchWindow.h"
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#include <plat/Input.h>
+#include <plat/Clipboard.h>
 #include <video/RenderOpenGL.h>
-#include <ui/UIInput.h>
-#include <ui/Clipboard.h>
 #include <ui/GuiManager.h>
 #include <ui/Window.h>
 
-class Input : public UI::IInput
+class Input : public Plat::Input
 {
 public:
-    // UI::IInput
-    bool IsKeyPressed(UI::Key key) const override { return false; }
+    // Plat::Input
+    bool IsKeyPressed(Plat::Key key) const override { return false; }
     bool IsMousePressed(int button) const override { return false; }
     vec2d GetMousePos() const override { return vec2d(); }
-	UI::GamepadState GetGamepadState(unsigned int index) const override { return {}; }
+	Plat::GamepadState GetGamepadState(unsigned int index) const override { return {}; }
 	bool GetSystemNavigationBackAvailable() const override { return false; }
 };
 
-class Clipboard : public UI::IClipboard
+class Clipboard : public Plat::Clipboard
 {
 public:
 	std::string_view GetClipboardText() const override { return {}; }
@@ -48,13 +48,13 @@ void CocoaTouchWindow::SetSizeAndScale(float width, float height, float scale)
     }
 }
 
-UI::IClipboard& CocoaTouchWindow::GetClipboard()
+Plat::Clipboard& CocoaTouchWindow::GetClipboard()
 {
     static Clipboard clipboard;
     return clipboard;
 }
 
-UI::IInput& CocoaTouchWindow::GetInput()
+Plat::Input& CocoaTouchWindow::GetInput()
 {
     static Input input;
     return input;
