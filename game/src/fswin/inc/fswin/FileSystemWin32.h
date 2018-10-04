@@ -76,6 +76,7 @@ public:
 	StreamWin32(std::shared_ptr<FileWin32> parent, HANDLE hFile);
 	virtual ~StreamWin32();
 
+	// Stream
 	size_t Read(void *dst, size_t size, size_t count) override;
 	void Write(const void *src, size_t size) override;
 	void Seek(long long amount, unsigned int origin) override;
@@ -89,14 +90,15 @@ private:
 class FileSystemWin32 : public FileSystem
 {
 public:
-	explicit FileSystemWin32(std::string_view rootDirectory);
+	explicit FileSystemWin32(std::string rootDirectory);
 
-	std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false) override;
+	// FileSystem
+	std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 
 private:
 	std::string _rootDirectory;
-	std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) override;
+	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
 };
 
 } // namespace FS

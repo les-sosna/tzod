@@ -79,11 +79,11 @@ class FileSystemPosix final
     std::string _rootDirectory;
 
 protected:
-	std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) override;
+	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
 
 public:
-    FileSystemPosix(const std::string &rootDirectory);
-	std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false) override;
+    FileSystemPosix(std::string rootDirectory);
+	std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 };
 

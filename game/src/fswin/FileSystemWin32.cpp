@@ -7,7 +7,7 @@
 
 using namespace FS;
 
-std::wstring PathCombine(std::string_view first, std::string_view second)
+static std::wstring PathCombine(std::string_view first, std::string_view second)
 {
 	// result = first + '\\' + second
 	std::wstring result;
@@ -218,7 +218,7 @@ long long StreamWin32::Tell() const
 ///////////////////////////////////////////////////////////////////////////////
 
 MemMapWin32::MemMapWin32(std::shared_ptr<FileWin32> parent, HANDLE hFile)
-	: _file(parent)
+	: _file(std::move(parent))
 	, _hFile(hFile)
 	, _data(nullptr)
 	, _size(0)
@@ -339,8 +339,8 @@ void MemMapWin32::Seek(long long amount, unsigned int origin)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FileSystemWin32::FileSystemWin32(std::string_view rootDirectory)
-	: _rootDirectory(rootDirectory)
+FileSystemWin32::FileSystemWin32(std::string rootDirectory)
+	: _rootDirectory(std::move(rootDirectory))
 {
 }
 
@@ -378,18 +378,18 @@ std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 	return files;
 }
 
-std::shared_ptr<File> FileSystemWin32::RawOpen(const std::string &fileName, FileMode mode)
+std::shared_ptr<File> FileSystemWin32::RawOpen(std::string_view fileName, FileMode mode)
 {
 	// combine with the root path
 	return std::make_shared<FileWin32>(PathCombine(_rootDirectory, fileName), mode);
 }
 
-std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(std::string_view path, bool create, bool nothrow)
 try
 {
-	if (std::shared_ptr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true))
+	if (auto fs = FileSystem::GetFileSystem(path, create, true))
 	{
-		return tmp;
+		return fs;
 	}
 
 	assert(!path.empty());
@@ -398,9 +398,9 @@ try
 	std::string::size_type offset = path.find_first_not_of('/');
 	assert(std::string::npos != offset);
 
-	std::string::size_type p = path.find('/', offset);
-	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-	std::wstring tmpDir = PathCombine(_rootDirectory, dirName);
+	auto p = path.find('/', offset);
+	auto dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
+	auto tmpDir = PathCombine(_rootDirectory, dirName);
 
 	// try to find directory
 	WIN32_FIND_DATAW fd = {0};
@@ -461,7 +461,7 @@ try
 	if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		throw std::runtime_error("object is not a directory");
 
-	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemWin32>(_rootDirectory + '\\' + dirName);
+	auto child = std::make_shared<FileSystemWin32>(_rootDirectory + '\\' + dirName);
 	Mount(dirName, child);
 
 	if( std::string::npos != p )

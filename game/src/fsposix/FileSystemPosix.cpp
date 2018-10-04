@@ -144,15 +144,15 @@ void FS::FileSystemPosix::OSFile::OSMemMap::SetSize(unsigned long size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FS::FileSystemPosix::FileSystemPosix(const std::string &rootDirectory)
-    : _rootDirectory(rootDirectory)
+FS::FileSystemPosix::FileSystemPosix(std::string rootDirectory)
+	: _rootDirectory(std::move(rootDirectory))
 {
 	struct stat sb;
-	if( stat(rootDirectory.c_str(), &sb) )
-		throw std::runtime_error(rootDirectory + ": " + strerror(errno));
+	if( stat(_rootDirectory.c_str(), &sb) )
+		throw std::runtime_error(_rootDirectory + ": " + strerror(errno));
 
 	if (!S_ISDIR(sb.st_mode))
-		std::runtime_error(rootDirectory + ": Not a directory");
+		std::runtime_error(_rootDirectory + ": Not a directory");
 }
 
 std::vector<std::string> FS::FileSystemPosix::EnumAllFiles(std::string_view mask)
@@ -184,27 +184,35 @@ std::vector<std::string> FS::FileSystemPosix::EnumAllFiles(std::string_view mask
 	return files;
 }
 
-std::shared_ptr<FS::File> FS::FileSystemPosix::RawOpen(const std::string &fileName, FileMode mode)
+static std::string PathCombine(std::string_view first, std::string_view second)
 {
-    return std::make_shared<OSFile>(_rootDirectory + '/' + fileName, mode);
+	std::string result;
+	result.reserve(first.size() + second.size() + 1);
+	result.append(first).append(1, '/').append(second);
+	return result;
 }
 
-std::shared_ptr<FS::FileSystem> FS::FileSystemPosix::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FS::File> FS::FileSystemPosix::RawOpen(std::string_view fileName, FileMode mode)
 {
-	if( std::shared_ptr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true) )
+    return std::make_shared<OSFile>(PathCombine(_rootDirectory, fileName), mode);
+}
+
+std::shared_ptr<FS::FileSystem> FS::FileSystemPosix::GetFileSystem(std::string_view path, bool create, bool nothrow)
+{
+	if( auto fs = FileSystem::GetFileSystem(path, create, true /*nothrow*/) )
     {
-        return tmp;
+        return fs;
     }
 
     assert(!path.empty());
 
     // skip delimiters at the beginning
-    std::string::size_type offset = path.find_first_not_of('/');
+    auto offset = path.find_first_not_of('/');
     assert(std::string::npos != offset);
 
-    std::string::size_type p = path.find('/', offset);
-    std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-    std::string tmpDir = _rootDirectory + '/' + dirName;
+    auto p = path.find('/', offset);
+    auto dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
+    auto tmpDir = PathCombine(_rootDirectory, dirName);
 
     struct stat s;
     if( stat(tmpDir.c_str(), &s) )
@@ -236,7 +244,7 @@ std::shared_ptr<FS::FileSystem> FS::FileSystemPosix::GetFileSystem(const std::st
     }
 
     // at this point the directory was either found or created
-	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemPosix>(_rootDirectory + '/' + dirName);
+	auto child = std::make_shared<FileSystemPosix>(PathCombine(_rootDirectory, dirName));
     Mount(dirName, child);
     if( std::string::npos != p )
         return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
