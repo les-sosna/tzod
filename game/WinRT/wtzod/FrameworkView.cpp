@@ -27,7 +27,7 @@ static bool IsDeviceLost(HRESULT hr)
 	return (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET);
 }
 
-FrameworkView::FrameworkView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app)
+FrameworkView::FrameworkView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app)
 	: m_windowClosed(false)
 	, m_windowVisible(true)
 	, _fs(fs)

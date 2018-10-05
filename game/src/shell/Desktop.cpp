@@ -26,7 +26,7 @@
 #include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/Console.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #include <ui/DataSource.h>
 #include <ui/InputContext.h>
 #include <ui/GuiManager.h>
@@ -54,7 +54,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
                  ShellConfig &conf,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
-                 UI::ConsoleBuffer &logger)
+                 Plat::ConsoleBuffer &logger)
 	: Managerful(manager)
 	, AppStateListener(appState)
 	, _history(conf)

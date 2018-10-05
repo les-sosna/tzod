@@ -4,7 +4,7 @@
 #include <string>
 #include <deque>
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -14,7 +14,7 @@ class MessageArea final
 	, private UI::TimeStepping
 {
 public:
-	MessageArea(UI::TimeStepManager &manager, UI::ConsoleBuffer &logger);
+	MessageArea(UI::TimeStepManager &manager, Plat::ConsoleBuffer &logger);
 
 	void WriteLine(std::string text);
 	void Clear();
@@ -32,5 +32,5 @@ private:
 	typedef std::deque<Line> LineList;
 	LineList _lines;
 	UI::Texture _font = "font_small";
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 };

@@ -31,7 +31,7 @@
 #define MAX_TIMELIMIT   1000
 #define MAX_FRAGLIMIT   10000
 
-NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, Plat::ConsoleBuffer &logger, LangCache &lang)
   : _texman(texman)
   , _conf(conf)
   , _lang(lang)

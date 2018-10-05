@@ -5,10 +5,10 @@
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
 #include <loc/Language.h>
+#include <plat/ConsoleBuffer.h>
 #include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/Combo.h>
-#include <ui/ConsoleBuffer.h>
 #include <ui/DataSource.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
@@ -22,7 +22,7 @@
 #include <video/TextureManager.h>
 #include <algorithm>
 
-PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang)
+PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &conf, Plat::ConsoleBuffer &logger, LangCache &lang)
 	: _deleteButton(std::make_shared<UI::Button>())
 	, _scrollView(std::make_shared<UI::ScrollView>())
 	, _psheet(std::make_shared<UI::StackLayout>())

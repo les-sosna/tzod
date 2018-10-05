@@ -1,11 +1,11 @@
 #pragma once
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
 class JniConsoleLog final
-    : public UI::IConsoleLog
+    : public Plat::IConsoleLog
 {
 public:
-    // UI::IConsoleLog
+    // Plat::IConsoleLog
     void WriteLine(int severity, std::string_view str) override;
     void Release() override;
 };

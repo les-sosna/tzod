@@ -29,7 +29,7 @@ namespace wtzod
 	ref class FrameworkView sealed : public Windows::ApplicationModel::Core::IFrameworkView
 	{
 	internal:
-		FrameworkView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app);
+		FrameworkView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app);
 
 	public:
 		virtual ~FrameworkView();
@@ -59,7 +59,7 @@ namespace wtzod
 
 	private:
 		FS::FileSystem &_fs;
-		UI::ConsoleBuffer &_logger;
+		Plat::ConsoleBuffer &_logger;
 		TzodApp &_app;
 
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;

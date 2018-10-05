@@ -1,9 +1,9 @@
 #include "VehicleStateReader.h"
 #include "InputManager.h"
 #include "inc/shell/Config.h"
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
-InputManager::InputManager(ShellConfig &conf, UI::ConsoleBuffer &logger)
+InputManager::InputManager(ShellConfig &conf, Plat::ConsoleBuffer &logger)
 	: _conf(conf)
 	, _logger(logger)
 {

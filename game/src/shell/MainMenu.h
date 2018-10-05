@@ -7,7 +7,7 @@ namespace FS
 	class FileSystem;
 }
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }

@@ -24,7 +24,7 @@ struct VoiceDeleter
 class SoundRenderXA2 : public SoundRender
 {
 public:
-	explicit SoundRenderXA2(UI::ConsoleBuffer &logger);
+	explicit SoundRenderXA2(Plat::ConsoleBuffer &logger);
 	~SoundRenderXA2();
 
 	// SoundRender
@@ -35,7 +35,7 @@ public:
 	void Step() override;
 
 private:
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 
 	struct Buffer
 	{

@@ -50,7 +50,7 @@ public:
 	        ShellConfig &conf,
 	        LangCache &lang,
 	        DMCampaign &dmCampaign,
-	        UI::ConsoleBuffer &logger);
+	        Plat::ConsoleBuffer &logger);
 	virtual ~Desktop();
 
 	void ShowConsole(bool show);
@@ -74,7 +74,7 @@ private:
 	ShellConfig &_conf;
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 	std::unique_ptr<LuaConsole> _luaConsole;
 
 	std::shared_ptr<EditorLayout> _editor;

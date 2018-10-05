@@ -15,11 +15,11 @@
 #include <gc/Macros.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
+#include <plat/ConsoleBuffer.h>
 #include <ui/Button.h>
 #include <ui/Edit.h>
 #include <ui/Combo.h>
 #include <ui/Console.h>
-#include <ui/ConsoleBuffer.h>
 #include <ui/DataSourceAdapters.h>
 #include <ui/GuiManager.h>
 #include <ui/Text.h>
@@ -30,7 +30,7 @@
 #define AI_MAX_LEVEL   4U
 
 
-CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ShellConfig &conf, LangCache &lang, UI::ConsoleBuffer &logger)
+CreateServerDlg::CreateServerDlg(UI::LayoutManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ShellConfig &conf, LangCache &lang, Plat::ConsoleBuffer &logger)
   : Dialog(manager, texman, 770, 450)
   , _world(world)
   , _fs(fs)
@@ -561,7 +561,7 @@ WaitingForPlayersDlg::WaitingForPlayersDlg(UI::LayoutManager &manager, TextureMa
   , _chat(nullptr)
   , _btnOK(nullptr)
   , _btnProfile(nullptr)
-  , _buf(new UI::ConsoleBuffer(80, 500))
+  , _buf(new Plat::ConsoleBuffer(80, 500))
   , _world(world)
   , _conf(conf)
   , _lang(lang)

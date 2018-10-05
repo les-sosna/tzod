@@ -21,11 +21,15 @@ class GameClassVis;
 
 class GC_Actor;
 
+namespace Plat
+{
+	class ConsoleBuffer;
+}
+
 namespace UI
 {
 	class ListDataSourceDefault;
 	class CheckBox;
-	class ConsoleBuffer;
 	class Text;
 	class ListBox;
 	class StackLayout;
@@ -53,7 +57,7 @@ public:
 		EditorConfig &conf,
 		LangCache &lang,
 		EditorCommands commands,
-		UI::ConsoleBuffer &logger);
+		Plat::ConsoleBuffer &logger);
 	virtual ~EditorLayout();
 
 	void Select(GC_Object *object, bool bSelect);

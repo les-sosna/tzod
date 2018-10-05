@@ -9,12 +9,16 @@ namespace FS
 	class FileSystem;
 }
 
+namespace Plat
+{
+	class ConsoleBuffer;
+}
+
 namespace UI
 {
 	class Button;
 	class CheckBox;
 	class ComboBox;
-	class ConsoleBuffer;
 	class Edit;
 	class ListBox;
 	class ListDataSourceDefault;
@@ -27,7 +31,7 @@ class NewGameDlg
 	: public UI::Dialog
 {
 public:
-	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, Plat::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
 	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;

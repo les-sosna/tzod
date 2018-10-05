@@ -1,12 +1,12 @@
 #include "MessageArea.h"
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 #include <algorithm>
 
-MessageArea::MessageArea(UI::TimeStepManager &manager, UI::ConsoleBuffer &logger)
+MessageArea::MessageArea(UI::TimeStepManager &manager, Plat::ConsoleBuffer &logger)
   : UI::TimeStepping(manager)
   , _logger(logger)
 {

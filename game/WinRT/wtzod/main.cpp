@@ -2,7 +2,7 @@
 #include "FrameworkView.h"
 #include <app/tzod.h>
 #include <fs/FileSystem.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #include <utf8.h>
 
 using namespace Platform;
@@ -15,7 +15,7 @@ namespace wtzod
 	ref class FrameworkViewSource sealed : IFrameworkViewSource
 	{
 	internal:
-		FrameworkViewSource(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app)
+		FrameworkViewSource(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app)
 			: _fs(fs)
 			, _logger(logger)
 			, _app(app)
@@ -31,7 +31,7 @@ namespace wtzod
 
 	private:
 		FS::FileSystem &_fs;
-		UI::ConsoleBuffer &_logger;
+		Plat::ConsoleBuffer &_logger;
 		TzodApp &_app;
 	};
 }
@@ -50,7 +50,7 @@ int main(Array<String^> ^args)
 	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
 	fs->Mount("user", FS::CreateOSFileSystem(w2s(ApplicationData::Current->LocalFolder->Path->Data())));
 
-	UI::ConsoleBuffer logger(100, 500);
+	Plat::ConsoleBuffer logger(100, 500);
 	TzodApp app(*fs, logger);
 
 	CoreApplication::Run(ref new wtzod::FrameworkViewSource(*fs, logger, app));

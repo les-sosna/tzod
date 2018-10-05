@@ -11,13 +11,13 @@
 #include <gc/WorldCfg.h>
 #include <gv/ThemeManager.h>
 #include <loc/Language.h>
+#include <plat/ConsoleBuffer.h>
 #include <plat/Input.h>
 #include <plat/Keys.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>
 #include <ui/Button.h>
 #include <ui/Combo.h>
-#include <ui/ConsoleBuffer.h>
 #include <ui/DataSource.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
@@ -149,7 +149,7 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
                            EditorConfig &conf,
                            LangCache &lang,
                            EditorCommands commands,
-                           UI::ConsoleBuffer &logger)
+                           Plat::ConsoleBuffer &logger)
 	: UI::TimeStepping(manager)
 	, _conf(conf)
 	, _lang(lang)

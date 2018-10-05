@@ -5,7 +5,7 @@
 #include <string_view>
 #include <vector>
 
-namespace UI
+namespace Plat
 {
 
 struct IConsoleLog

@@ -11,7 +11,7 @@ set(Audio_LIBS
 	ctx
 	fs
 	gc
-	ui #fixme: logger
+	plat
 
 	# external
 	oggvorbis

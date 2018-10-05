@@ -5,13 +5,13 @@
 #include <shell/Config.h>
 #include <shell/Desktop.h>
 #include <shell/Profiler.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #ifndef NOSOUND
 # include <audio/SoundView.h>
 #endif
 #include <numeric>
 
-static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &logger, IRender &render)
+static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, IRender &render)
 {
 	TextureManager textureManager(render);
 
@@ -23,7 +23,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, UI::ConsoleBuffer &
 	return textureManager;
 }
 
-TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow)
+TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow)
 	: _app(app)
 	, _textureManager(InitTextureManager(fs, logger, appWindow.GetRender()))
 	, _timeStepManager()

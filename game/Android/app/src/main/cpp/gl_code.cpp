@@ -5,7 +5,7 @@
 #include <app/tzod.h>
 #include <app/View.h>
 #include <fsposix/FileSystemPosix.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -156,7 +156,7 @@ void renderFrame() {
 
 struct State
 {
-    UI::ConsoleBuffer logger;
+    Plat::ConsoleBuffer logger;
     std::shared_ptr<FS::FileSystem> fs;
     TzodApp app;
     JniAppWindow appWindow;

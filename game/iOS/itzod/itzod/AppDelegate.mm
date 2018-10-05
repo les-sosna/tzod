@@ -1,14 +1,14 @@
 #import "AppDelegate.h"
 #include <app/tzod.h>
 #include <fsposix/FileSystemPosix.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #include <memory>
 
 @interface AppDelegate ()
 {
     std::shared_ptr<FS::FileSystem> _fs;
     std::unique_ptr<TzodApp> _app;
-    std::unique_ptr<UI::ConsoleBuffer> _logger;
+    std::unique_ptr<Plat::ConsoleBuffer> _logger;
 }
 
 @end
@@ -26,7 +26,7 @@
     return *_app;
 }
 
-- (UI::ConsoleBuffer&)logger
+- (Plat::ConsoleBuffer&)logger
 {
     return *_logger;
 }
@@ -38,7 +38,7 @@
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
     NSString *language = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
 	_fs = std::make_shared<FS::FileSystemPosix>([dataPath UTF8String]);
-    _logger.reset(new UI::ConsoleBuffer(100, 500));
+    _logger.reset(new Plat::ConsoleBuffer(100, 500));
     _app.reset(new TzodApp(*_fs, *_logger, [language UTF8String]));
     return YES;
 }

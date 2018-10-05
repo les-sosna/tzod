@@ -7,7 +7,7 @@
 
 class TzodApp;
 class SoundView;
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -15,7 +15,7 @@ namespace UI
 class TzodViewImpl
 {
 public:
-	TzodViewImpl(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
+	TzodViewImpl(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
 	~TzodViewImpl();
 
 	void Step(float dt);

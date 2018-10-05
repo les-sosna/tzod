@@ -21,9 +21,13 @@ class ScoreTable;
 class CampaignControls;
 
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
+}
+
+namespace UI
+{
 	class Rating;
 	class StackLayout;
 }
@@ -41,7 +45,7 @@ public:
 	           WorldController &worldController,
 	           ShellConfig &conf,
 	           LangCache &lang,
-	           UI::ConsoleBuffer &logger,
+	           Plat::ConsoleBuffer &logger,
 	           CampaignControlCommands campaignControlCommands);
 	virtual ~GameLayout();
 

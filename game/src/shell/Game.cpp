@@ -94,7 +94,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
                        WorldController &worldController,
                        ShellConfig &conf,
                        LangCache &lang,
-                       UI::ConsoleBuffer &logger,
+                       Plat::ConsoleBuffer &logger,
                        CampaignControlCommands campaignControlCommands)
   : UI::TimeStepping(manager)
   , _scoreAndControls(std::make_shared<UI::StackLayout>())

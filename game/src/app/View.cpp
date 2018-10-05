@@ -7,7 +7,7 @@ static Plat::AppWindow& EnsureCurrent(Plat::AppWindow &appWindow)
 	return appWindow;
 }
 
-TzodView::TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow)
+TzodView::TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow)
 	: _appWindow(EnsureCurrent(appWindow))
 	, _impl(new TzodViewImpl(fs, logger, app, appWindow))
 {

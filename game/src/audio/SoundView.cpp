@@ -11,9 +11,9 @@
 #include <as/AppState.h>
 #include <ctx/GameContextBase.h>
 #include <fs/FileSystem.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
-SoundView::SoundView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, AppState &appState)
+SoundView::SoundView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, AppState &appState)
 	: AppStateListener(appState)
 #ifdef _WIN32
 	, _soundRender(new SoundRenderXA2(logger))
@@ -84,7 +84,7 @@ SoundView::~SoundView()
 {
 }
 
-void SoundView::LoadBuffer(FS::FileSystem &fs, UI::ConsoleBuffer &logger, SoundTemplate st, const char *fileName)
+void SoundView::LoadBuffer(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, SoundTemplate st, const char *fileName)
 try
 {
 	FormatDesc fd;

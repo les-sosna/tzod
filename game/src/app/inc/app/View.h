@@ -12,17 +12,13 @@ namespace FS
 namespace Plat
 {
 	struct AppWindow;
-}
-
-namespace UI
-{
 	class ConsoleBuffer;
 }
 
 class TzodView final
 {
 public:
-	TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
+	TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
 	~TzodView();
 
 	void Step(float dt);

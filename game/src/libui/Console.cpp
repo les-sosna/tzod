@@ -2,9 +2,9 @@
 #include "inc/ui/Edit.h"
 #include "inc/ui/EditableText.h"
 #include "inc/ui/ScrollBar.h"
-#include "inc/ui/ConsoleBuffer.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
+#include <plat/ConsoleBuffer.h>
 #include <plat/Keys.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
@@ -38,7 +38,7 @@ std::string_view ConsoleHistoryDefault::GetItem(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Console> Console::Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf)
+std::shared_ptr<Console> Console::Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, Plat::ConsoleBuffer *buf)
 {
 	auto res = std::make_shared<Console>(manager, texman);
 	res->Move(x, y);
@@ -78,7 +78,7 @@ void Console::SetHistory(IConsoleHistory *history)
 	_cmdIndex = _history ? _history->GetItemCount() : 0;
 }
 
-void Console::SetBuffer(ConsoleBuffer *buf)
+void Console::SetBuffer(Plat::ConsoleBuffer *buf)
 {
 	_buf = buf;
 	_scroll->SetDocumentSize(_buf ? (float) _buf->GetLineCount() + _scroll->GetPageSize() : 0);

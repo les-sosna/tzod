@@ -9,10 +9,14 @@ class PropertySet;
 class TextureManager;
 class World;
 
+namespace Plat
+{
+	class ConsoleBuffer;
+}
+
 namespace UI
 {
 	class Button;
-	class ConsoleBuffer;
 	class ScrollView;
 	class StackLayout;
 }
@@ -20,7 +24,7 @@ namespace UI
 class PropertyList : public UI::Dialog
 {
 public:
-	PropertyList(TextureManager &texman, World &world, EditorConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	PropertyList(TextureManager &texman, World &world, EditorConfig &conf, Plat::ConsoleBuffer &logger, LangCache &lang);
 	void ConnectTo(std::shared_ptr<PropertySet> ps);
 	void DoExchange(bool applyToObject);
 
@@ -37,7 +41,7 @@ private:
 	std::vector<std::shared_ptr<Window>> _ctrls;
 	World &_world;
 	EditorConfig &_conf;
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;

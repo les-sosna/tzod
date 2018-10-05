@@ -10,6 +10,11 @@ namespace FS
 	class FileSystem;
 }
 
+namespace Plat
+{
+	class ConsoleBuffer;
+}
+
 namespace UI
 {
 	class Text;
@@ -20,7 +25,6 @@ namespace UI
 	class CheckBox;
 	class Button;
 	class Console;
-	class ConsoleBuffer;
 	template <class, class> class ListAdapter;
 }
 class ListDataSourceMaps;
@@ -28,7 +32,7 @@ class ListDataSourceMaps;
 class CreateServerDlg : public UI::Dialog
 {
 public:
-	CreateServerDlg(UI::TimeStepManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ShellConfig &conf, LangCache &lang, UI::ConsoleBuffer &logger);
+	CreateServerDlg(UI::TimeStepManager &manager, TextureManager &texman, World &world, FS::FileSystem &fs, ShellConfig &conf, LangCache &lang, Plat::ConsoleBuffer &logger);
 	virtual ~CreateServerDlg();
 
 protected:
@@ -56,7 +60,7 @@ private:
 	FS::FileSystem &_fs;
 	ShellConfig &_conf;
 	LangCache &_lang;
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,7 +158,7 @@ private:
 	std::shared_ptr<UI::Console>    _chat;
 	std::shared_ptr<UI::Button>     _btnOK;
 	std::shared_ptr<UI::Button>     _btnProfile;
-	std::unique_ptr<UI::ConsoleBuffer>  _buf;
+	std::unique_ptr<Plat::ConsoleBuffer>  _buf;
 	//	std::unique_ptr<Subscribtion> _clientSubscribtion;
 
 	static const size_t _maxPings = 5;

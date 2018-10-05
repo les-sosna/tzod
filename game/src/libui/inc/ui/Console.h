@@ -7,10 +7,14 @@
 
 class TextureManager;
 
+namespace Plat
+{
+	class ConsoleBuffer;
+}
+
 namespace UI
 {
 
-class ConsoleBuffer;
 class ScrollBarVertical;
 class Edit;
 
@@ -45,11 +49,11 @@ class Console
 {
 public:
 	Console(TimeStepManager &manager, TextureManager &texman);
-	static std::shared_ptr<Console> Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, ConsoleBuffer *buf);
+	static std::shared_ptr<Console> Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, Plat::ConsoleBuffer *buf);
 
 	void SetColors(const SpriteColor *colors, size_t count);
 	void SetHistory(IConsoleHistory *history);
-	void SetBuffer(ConsoleBuffer *buf);
+	void SetBuffer(Plat::ConsoleBuffer *buf);
 	void SetEcho(bool echo);
 	std::function<void(std::string_view)> eventOnSendCommand;
 	std::function<bool(std::string_view, int &, std::string &)> eventOnRequestCompleteCommand;
@@ -72,7 +76,7 @@ private:
 	size_t _cmdIndex;
 	size_t _font;
 
-	ConsoleBuffer *_buf;
+	Plat::ConsoleBuffer *_buf;
 	IConsoleHistory *_history;
 	std::vector<SpriteColor> _colors;
 

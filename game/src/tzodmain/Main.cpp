@@ -8,9 +8,9 @@ using FileSystem = FS::FileSystemWin32;
 #include <fsposix/FileSystemPosix.h>
 using FileSystem = FS::FileSystemPosix;
 #endif // _WIN32
+#include <plat/ConsoleBuffer.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
-#include <ui/ConsoleBuffer.h>
 
 #include <exception>
 #include <fstream>
@@ -19,7 +19,7 @@ using FileSystem = FS::FileSystemPosix;
 namespace
 {
 	class ConsoleLog final
-		: public UI::IConsoleLog
+		: public Plat::IConsoleLog
 	{
 	public:
 		ConsoleLog(const ConsoleLog&) = delete;
@@ -57,7 +57,7 @@ static void print_what(std::ostream &os, const std::exception &e, std::string pr
 }
 
 
-static UI::ConsoleBuffer s_logger(100, 500);
+static Plat::ConsoleBuffer s_logger(100, 500);
 
 //static long xxx = _CrtSetBreakAlloc(12649);
 
@@ -80,7 +80,7 @@ try
 #if defined(_DEBUG) && defined(_WIN32) // memory leaks detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	UI::ConsoleBuffer &logger = s_logger;
+	Plat::ConsoleBuffer &logger = s_logger;
 
 	logger.SetLog(new ConsoleLog("log.txt"));
 	logger.Printf(0, "%s", TXT_VERSION);
