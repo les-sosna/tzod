@@ -1,4 +1,4 @@
-#include "JniClipboard.h"
+#include "inc/platjni/JniClipboard.h"
 
 std::string_view JniClipboard::GetClipboardText() const
 {

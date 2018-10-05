@@ -57,3 +57,6 @@ if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
 	add_subdirectory(uitestapp)
 endif()
 
+if(ANDROID)
+	add_subdirectory(platjni)
+endif()

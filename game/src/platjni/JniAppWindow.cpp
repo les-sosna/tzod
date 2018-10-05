@@ -1,4 +1,4 @@
-#include "JniAppWindow.h"
+#include "inc/platjni/JniAppWindow.h"
 #include <video/RenderOpenGL.h>
 
 JniAppWindow::JniAppWindow()

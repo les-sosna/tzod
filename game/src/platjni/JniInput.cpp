@@ -1,4 +1,4 @@
-#include "JniInput.h"
+#include "inc/platjni/JniInput.h"
 
 bool JniInput::IsKeyPressed(Plat::Key key) const
 {
