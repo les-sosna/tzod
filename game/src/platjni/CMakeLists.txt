@@ -19,6 +19,7 @@ PUBLIC
 
 PRIVATE
 	android
+	video
 )
 
 target_include_directories(platjni INTERFACE inc)

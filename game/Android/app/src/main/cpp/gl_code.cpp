@@ -151,8 +151,8 @@ void renderFrame() {
     checkGlError("glDrawArrays");
 }
 
-#include "JniAppWindow.h"
-#include "JniConsoleLog.h"
+#include <platjni/JniAppWindow.h>
+#include <platjni/JniConsoleLog.h>
 
 struct State
 {
