@@ -58,5 +58,6 @@ if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
 endif()
 
 if(ANDROID)
+	add_subdirectory(fsjni)
 	add_subdirectory(platjni)
 endif()

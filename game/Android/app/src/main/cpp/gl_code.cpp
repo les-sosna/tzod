@@ -4,7 +4,7 @@
 #include <GLES2/gl2.h>
 #include <app/tzod.h>
 #include <app/View.h>
-#include <fsposix/FileSystemPosix.h>
+#include <fsjni/FileSystemJni.h>
 #include <plat/ConsoleBuffer.h>
 
 #include <stdio.h>
@@ -164,7 +164,7 @@ struct State
 
     State()
         : logger(80, 100)
-        , fs(std::make_shared<FS::FileSystemPosix>("data"))
+        , fs(std::make_shared<FS::FileSystemJni>("data"))
         , app(*fs, logger)
         , view(*fs, logger, app, appWindow)
     {

@@ -3,23 +3,9 @@
 
 namespace FS {
 
-class FileSystemPosix final
+class FileSystemJni final
 	: public FileSystem
 {
-    struct AutoHandle
-    {
-        FILE *f = nullptr;
-        AutoHandle() {}
-        ~AutoHandle()
-        {
-            if( f )
-                fclose(f);
-        }
-    private:
-        AutoHandle(const AutoHandle&);
-        AutoHandle& operator = (const AutoHandle&);
-    };
-
     class OSFile final
         : public File
         , public std::enable_shared_from_this<OSFile>
@@ -28,12 +14,12 @@ class FileSystemPosix final
         OSFile(const std::string &fileName, FileMode mode);
         ~OSFile();
 
-        void Unmap();
-        void Unstream();
-
         // File
         std::shared_ptr<MemMap> QueryMap() override;
         std::shared_ptr<Stream> QueryStream() override;
+
+        void Unmap();
+        void Unstream();
 
     private:
         class OSMemMap final
@@ -71,7 +57,6 @@ class FileSystemPosix final
         };
 
     private:
-        AutoHandle _file;
         FileMode _mode;
         bool _mapped;
         bool _streamed;
@@ -83,7 +68,7 @@ protected:
 	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
 
 public:
-    FileSystemPosix(std::string rootDirectory);
+    FileSystemJni(std::string rootDirectory);
 	std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 };

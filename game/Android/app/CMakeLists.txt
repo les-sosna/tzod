@@ -13,7 +13,7 @@ add_library(tzodjni SHARED
 # add lib dependencies
 target_link_libraries(tzodjni
   app
-  fsposix
+  fsjni
   platjni
   ui
   video
