@@ -9,6 +9,9 @@ public:
     JniAppWindow();
     ~JniAppWindow();
 
+    void SetPixelSize(vec2d pxSize);
+
+    // Plat::AppWindow
     Plat::AppWindowInputSink* GetInputSink() const override;
     void SetInputSink(Plat::AppWindowInputSink *inputSink) override;
     int GetDisplayRotation() const override;
@@ -27,4 +30,5 @@ private:
     JniClipboard _clipboard;
     JniInput _input;
     std::unique_ptr<IRender> _render;
+    vec2d _pxSize = {};
 };

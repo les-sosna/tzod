@@ -10,6 +10,11 @@ JniAppWindow::~JniAppWindow()
 {
 }
 
+void JniAppWindow::SetPixelSize(vec2d pxSize)
+{
+    _pxSize = pxSize;
+}
+
 Plat::AppWindowInputSink* JniAppWindow::GetInputSink() const
 {
     return _inputSink;
@@ -27,7 +32,7 @@ int JniAppWindow::GetDisplayRotation() const
 
 vec2d JniAppWindow::GetPixelSize() const
 {
-    return vec2d{500, 500};
+    return _pxSize;
 }
 
 float JniAppWindow::GetLayoutScale() const

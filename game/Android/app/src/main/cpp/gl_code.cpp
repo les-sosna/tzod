@@ -66,6 +66,7 @@ std::unique_ptr<State> g_state;
 extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv * env, jobject obj, jobject assetManager, jint width, jint height)
 {
     g_state = std::make_unique<State>(AAssetManager_fromJava(env, assetManager));
+    g_state->appWindow.SetPixelSize(vec2d{static_cast<float>(width), static_cast<float>(height)});
     setupGraphics(width, height);
 }
 
