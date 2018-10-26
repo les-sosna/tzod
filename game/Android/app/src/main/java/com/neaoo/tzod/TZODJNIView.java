@@ -34,16 +34,12 @@ class TZODJNIView extends GLSurfaceView {
     public TZODJNIView(Context context) {
         super(context);
 
-        boolean translucent = false;
-
         /* By default, GLSurfaceView() creates a RGB_565 opaque surface.
          * If we want a translucent one, we should change the surface's
          * format here, using PixelFormat.TRANSLUCENT for GL Surfaces
          * is interpreted as any 32-bit surface with alpha by SurfaceFlinger.
          */
-        if (translucent) {
-            this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        }
+        this.getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
         /* Setup the context factory for 2.0 rendering.
          * See ContextFactory class definition below
@@ -55,9 +51,7 @@ class TZODJNIView extends GLSurfaceView {
          * custom config chooser. See ConfigChooser class definition
          * below.
          */
-        setEGLConfigChooser( translucent ?
-                             new ConfigChooser(8, 8, 8, 8, 0, 0) :
-                             new ConfigChooser(5, 6, 5, 0, 0, 0) );
+        setEGLConfigChooser(new ConfigChooser(8, 8, 8, 8, 0, 0));
 
         /* Set the renderer responsible for frame rendering */
         setRenderer(new Renderer(context.getAssets()));
@@ -94,9 +88,10 @@ class TZODJNIView extends GLSurfaceView {
         private static int EGL_OPENGL_ES2_BIT = 4;
         private static int[] s_configAttribs2 =
         {
-            EGL10.EGL_RED_SIZE, 4,
-            EGL10.EGL_GREEN_SIZE, 4,
-            EGL10.EGL_BLUE_SIZE, 4,
+            EGL10.EGL_RED_SIZE, 8,
+            EGL10.EGL_GREEN_SIZE, 8,
+            EGL10.EGL_BLUE_SIZE, 8,
+            EGL10.EGL_ALPHA_SIZE, 8,
             EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL10.EGL_NONE
         };
@@ -126,24 +121,18 @@ class TZODJNIView extends GLSurfaceView {
 
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
             for(EGLConfig config : configs) {
-                int d = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE, 0);
-                int s = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_STENCIL_SIZE, 0);
+                int d = findConfigAttrib(egl, display, config, EGL10.EGL_DEPTH_SIZE, 0);
+                int s = findConfigAttrib(egl, display, config, EGL10.EGL_STENCIL_SIZE, 0);
 
                 // We need at least mDepthSize and mStencilSize bits
                 if (d < mDepthSize || s < mStencilSize)
                     continue;
 
                 // We want an *exact* match for red/green/blue/alpha
-                int r = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_RED_SIZE, 0);
-                int g = findConfigAttrib(egl, display, config,
-                            EGL10.EGL_GREEN_SIZE, 0);
-                int b = findConfigAttrib(egl, display, config,
-                            EGL10.EGL_BLUE_SIZE, 0);
-                int a = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_ALPHA_SIZE, 0);
+                int r = findConfigAttrib(egl, display, config, EGL10.EGL_RED_SIZE, 0);
+                int g = findConfigAttrib(egl, display, config, EGL10.EGL_GREEN_SIZE, 0);
+                int b = findConfigAttrib(egl, display, config, EGL10.EGL_BLUE_SIZE, 0);
+                int a = findConfigAttrib(egl, display, config, EGL10.EGL_ALPHA_SIZE, 0);
 
                 if (r == mRedSize && g == mGreenSize && b == mBlueSize && a == mAlphaSize)
                     return config;
