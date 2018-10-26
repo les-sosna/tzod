@@ -153,6 +153,7 @@ void renderFrame() {
 
 #include <platjni/JniAppWindow.h>
 #include <platjni/JniConsoleLog.h>
+#include <android/asset_manager_jni.h>
 
 struct State
 {
@@ -162,9 +163,9 @@ struct State
     JniAppWindow appWindow;
     TzodView view;
 
-    State()
+    State(AAssetManager *assetManager)
         : logger(80, 100)
-        , fs(std::make_shared<FS::FileSystemJni>("data"))
+        , fs(std::make_shared<FS::FileSystemJni>(assetManager, "data"))
         , app(*fs, logger)
         , view(*fs, logger, app, appWindow)
     {
@@ -174,9 +175,9 @@ struct State
 
 std::unique_ptr<State> g_state;
 
-extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv * env, jobject obj,  jint width, jint height)
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv * env, jobject obj, jobject assetManager, jint width, jint height)
 {
-    g_state = std::make_unique<State>();
+    g_state = std::make_unique<State>(AAssetManager_fromJava(env, assetManager));
     setupGraphics(width, height);
 }
 

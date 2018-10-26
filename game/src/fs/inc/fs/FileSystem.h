@@ -16,7 +16,7 @@ enum FileMode
 
 struct MemMap
 {
-	virtual char* GetData() = 0;
+	virtual const void* GetData() const = 0;
 	virtual unsigned long GetSize() const = 0;
 	virtual void SetSize(unsigned long size) = 0; // may invalidate pointer returned by GetData()
 };

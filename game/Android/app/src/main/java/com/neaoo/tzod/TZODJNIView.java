@@ -1,6 +1,7 @@
 package com.neaoo.tzod;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -32,15 +33,8 @@ import javax.microedition.khronos.opengles.GL10;
 class TZODJNIView extends GLSurfaceView {
     public TZODJNIView(Context context) {
         super(context);
-        init(false, 0, 0);
-    }
 
-    public TZODJNIView(Context context, boolean translucent, int depth, int stencil) {
-        super(context);
-        init(translucent, depth, stencil);
-    }
-
-    private void init(boolean translucent, int depth, int stencil) {
+        boolean translucent = false;
 
         /* By default, GLSurfaceView() creates a RGB_565 opaque surface.
          * If we want a translucent one, we should change the surface's
@@ -62,11 +56,11 @@ class TZODJNIView extends GLSurfaceView {
          * below.
          */
         setEGLConfigChooser( translucent ?
-                             new ConfigChooser(8, 8, 8, 8, depth, stencil) :
-                             new ConfigChooser(5, 6, 5, 0, depth, stencil) );
+                             new ConfigChooser(8, 8, 8, 8, 0, 0) :
+                             new ConfigChooser(5, 6, 5, 0, 0, 0) );
 
         /* Set the renderer responsible for frame rendering */
-        setRenderer(new Renderer());
+        setRenderer(new Renderer(context.getAssets()));
     }
 
     private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
@@ -177,12 +171,18 @@ class TZODJNIView extends GLSurfaceView {
     }
 
     private static class Renderer implements GLSurfaceView.Renderer {
+        private AssetManager _assetManager;
+
+        public Renderer(AssetManager assetManager) {
+            _assetManager = assetManager;
+        }
+
         public void onDrawFrame(GL10 gl) {
             TZODJNILib.step();
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
-            TZODJNILib.init(width, height);
+            TZODJNILib.init(_assetManager, width, height);
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {

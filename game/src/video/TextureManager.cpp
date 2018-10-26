@@ -217,7 +217,8 @@ ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, F
 
 	lua_State *L = luaState.get();
 
-	if (0 != (luaL_loadbuffer(L, file->GetData(), file->GetSize(), packageName.c_str()) || lua_pcall(L, 0, 1, 0)))
+	if (0 != (luaL_loadbuffer(L, static_cast<const char *>(file->GetData()), file->GetSize(), packageName.c_str()) ||
+	    lua_pcall(L, 0, 1, 0)))
 	{
 		std::runtime_error e(lua_tostring(L, -1));
 		lua_close(L);

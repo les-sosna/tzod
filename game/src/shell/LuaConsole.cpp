@@ -78,7 +78,8 @@ static int pinit(lua_State *L)
 
 	if (args->autocompleteScript)
 	{
-		if (luaL_loadbuffer(L, args->autocompleteScript->GetData(), args->autocompleteScript->GetSize(), FILE_AUTOCOMPLETE))
+		if (luaL_loadbuffer(L, static_cast<const char *>(args->autocompleteScript->GetData()),
+                            args->autocompleteScript->GetSize(), FILE_AUTOCOMPLETE))
 		{
 			lua_error(L);
 		}

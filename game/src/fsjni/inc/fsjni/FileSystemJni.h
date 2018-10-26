@@ -1,7 +1,23 @@
 #pragma once
 #include <fs/FileSystem.h>
 
+struct AAsset;
+struct AAssetDir;
+struct AAssetManager;
+
 namespace FS {
+
+struct AAssetDirDeleter
+{
+    void operator() (AAssetDir *assetDir);
+};
+using AAssetDirPtr = std::unique_ptr<AAssetDir, AAssetDirDeleter>;
+
+struct AAssetDeleter
+{
+    void operator() (AAsset *asset);
+};
+using AAssetPtr = std::unique_ptr<AAsset, AAssetDeleter>;
 
 class FileSystemJni final
 	: public FileSystem
@@ -11,17 +27,17 @@ class FileSystemJni final
         , public std::enable_shared_from_this<OSFile>
     {
     public:
-        OSFile(const std::string &fileName, FileMode mode);
+        OSFile(AAssetPtr asset);
         ~OSFile();
 
         // File
         std::shared_ptr<MemMap> QueryMap() override;
         std::shared_ptr<Stream> QueryStream() override;
 
+    private:
         void Unmap();
         void Unstream();
 
-    private:
         class OSMemMap final
 			: public MemMap
         {
@@ -30,14 +46,12 @@ class FileSystemJni final
             ~OSMemMap();
 
             // MemMap
-            char* GetData() override;
+            const void* GetData() const override;
             unsigned long GetSize() const override;
             void SetSize(unsigned long size) override; // may invalidate pointer returned by GetData()
 
         private:
             std::shared_ptr<OSFile> _file;
-            std::vector<char> _data;
-            void SetupMapping();
         };
 
         class OSStream final
@@ -57,18 +71,21 @@ class FileSystemJni final
         };
 
     private:
-        FileMode _mode;
-        bool _mapped;
-        bool _streamed;
+        AAssetPtr _asset;
+        bool _mapped = false;
+        bool _streamed = false;
     };
 
+    AAssetManager *_assetManager;
     std::string _rootDirectory;
+    AAssetDirPtr _assetDir;
 
 protected:
 	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
 
 public:
-    FileSystemJni(std::string rootDirectory);
+    FileSystemJni(AAssetManager *assetManager, std::string rootDirectory);
+    ~FileSystemJni();
 	std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 };

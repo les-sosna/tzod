@@ -1,14 +1,23 @@
 #include "inc/fsjni/FileSystemJni.h"
+#include <android/asset_manager.h>
 #include <cassert>
 
 using namespace FS;
 
-FileSystemJni::OSFile::OSFile(const std::string &fileName, FileMode mode)
-    : _mode(mode)
-    , _mapped(false)
-    , _streamed(false)
+void AAssetDirDeleter::operator()(AAssetDir *assetDir)
 {
-    throw std::runtime_error("not implemented");
+    AAssetDir_close(assetDir);
+}
+
+void AAssetDeleter::operator()(AAsset *asset)
+{
+    AAsset_close(asset);
+}
+
+FileSystemJni::OSFile::OSFile(AAssetPtr asset)
+    : _asset(std::move(asset))
+{
+    assert(_asset);
 }
 
 FileSystemJni::OSFile::~OSFile()
@@ -81,7 +90,6 @@ long long FileSystemJni::OSFile::OSStream::Tell() const
 FileSystemJni::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
     : _file(parent)
 {
-    throw std::runtime_error("not implemented");
 }
 
 FileSystemJni::OSFile::OSMemMap::~OSMemMap()
@@ -89,32 +97,45 @@ FileSystemJni::OSFile::OSMemMap::~OSMemMap()
     _file->Unmap();
 }
 
-char* FileSystemJni::OSFile::OSMemMap::GetData()
+const void* FileSystemJni::OSFile::OSMemMap::GetData() const
 {
-    return _data.empty() ? nullptr : &_data[0];
+    return AAsset_getBuffer(_file->_asset.get());
 }
 
 unsigned long FileSystemJni::OSFile::OSMemMap::GetSize() const
 {
-    return _data.size();
+    return static_cast<unsigned long>(AAsset_getLength(_file->_asset.get()));
 }
 
-void FileSystemJni::OSFile::OSMemMap::SetSize(unsigned long size)
+void FileSystemJni::OSFile::OSMemMap::SetSize(unsigned long /*size*/)
 {
-    _data.resize(size);
+    throw std::runtime_error("Operation not supported");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FileSystemJni::FileSystemJni(std::string rootDirectory)
-	: _rootDirectory(std::move(rootDirectory))
+FileSystemJni::FileSystemJni(AAssetManager *assetManager, std::string rootDirectory)
+    : _assetManager(assetManager)
+    , _rootDirectory(std::move(rootDirectory))
+    , _assetDir(AAssetManager_openDir(_assetManager, _rootDirectory.c_str()))
 {
-    throw std::runtime_error("not implemented");
+    // If directory does not exist it'll appear empty. Since we can only list files but not
+    // subdirectories without going to Java there is no good way to validate the returned pointer.
+    // Assume the directory exists until we actually fail to open a file.
+    if (!_assetDir)
+        throw std::runtime_error(_rootDirectory + ": failed to open directory");
+}
+
+FileSystemJni::~FileSystemJni()
+{
 }
 
 std::vector<std::string> FileSystemJni::EnumAllFiles(std::string_view mask)
 {
 	std::vector<std::string> files;
+    AAssetDir_rewind(_assetDir.get());
+    while (const char *file = AAssetDir_getNextFileName(_assetDir.get()))
+        files.emplace_back(file);
 	return files;
 }
 
@@ -128,7 +149,11 @@ static std::string PathCombine(std::string_view first, std::string_view second)
 
 std::shared_ptr<File> FileSystemJni::RawOpen(std::string_view fileName, FileMode mode)
 {
-    return std::make_shared<OSFile>(PathCombine(_rootDirectory, fileName), mode);
+    assert(FileMode::ModeRead == mode);
+    AAssetPtr asset(AAssetManager_open(_assetManager, PathCombine(_rootDirectory, fileName).c_str(), AASSET_MODE_UNKNOWN));
+    if (!asset)
+        throw std::runtime_error(std::string(fileName) + ": Asset not found");
+    return std::make_shared<OSFile>(std::move(asset));
 }
 
 std::shared_ptr<FileSystem> FileSystemJni::GetFileSystem(std::string_view path, bool create, bool nothrow)
@@ -138,6 +163,7 @@ std::shared_ptr<FileSystem> FileSystemJni::GetFileSystem(std::string_view path, 
         return fs;
     }
 
+    assert(!create);
     assert(!path.empty());
 
     // skip delimiters at the beginning
@@ -146,35 +172,8 @@ std::shared_ptr<FileSystem> FileSystemJni::GetFileSystem(std::string_view path, 
 
     auto p = path.find('/', offset);
     auto dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-    auto tmpDir = PathCombine(_rootDirectory, dirName);
 
-//    if( !exists(tmpDir) )
-    {
-        if( create )
-        {
-            if( nothrow )
-                return nullptr;
-            else
-                throw std::runtime_error("Could not create directory: " + tmpDir + ": Read only file system");
-        }
-        else
-        {
-            if( nothrow )
-                return nullptr;
-            else
-				throw std::runtime_error(tmpDir + ": Path not found");
-        }
-    }
-//    else if( !isdir() )
-//    {
-//        if( nothrow )
-//            return nullptr;
-//        else
-//			throw std::runtime_error(tmpDir + ": Not a directory");
-//    }
-
-    // at this point the directory was either found or created
-	auto child = std::make_shared<FileSystemJni>(PathCombine(_rootDirectory, dirName));
+    auto child = std::make_shared<FileSystemJni>(_assetManager, PathCombine(_rootDirectory, dirName));
     Mount(dirName, child);
     if( std::string::npos != p )
         return child->GetFileSystem(path.substr(p), create, nothrow); // process the rest of the path
