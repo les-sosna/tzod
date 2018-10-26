@@ -7,24 +7,6 @@
 
 using namespace FS;
 
-static std::wstring PathCombine(std::string_view first, std::string_view second)
-{
-	// result = first + '\\' + second
-	std::wstring result;
-	result.reserve(first.size() + second.size() + 1);
-	utf8::utf8to16(first.begin(), first.end(), std::back_inserter(result));
-	result.append(L"\\");
-	utf8::utf8to16(second.begin(), second.end(), std::back_inserter(result));
-	return result;
-}
-
-static std::string w2s(std::wstring_view w)
-{
-	std::string s;
-	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
-	return s;
-}
-
 static std::string StrFromErr(DWORD dwMessageId)
 {
 	WCHAR msgBuf[1024];
@@ -257,15 +239,15 @@ void MemMapWin32::SetupMapping()
 	}
 
 	_data = MapViewOfFile(_map.h, FILE_MAP_READ, 0, 0, 0);
-	if( nullptr == _data )
+	if( !_data )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
-char* MemMapWin32::GetData()
+const void* MemMapWin32::GetData() const
 {
-	return (char *) _data;
+	return _data;
 }
 
 unsigned long MemMapWin32::GetSize() const
@@ -339,14 +321,39 @@ void MemMapWin32::Seek(long long amount, unsigned int origin)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FileSystemWin32::FileSystemWin32(std::string rootDirectory)
+static std::wstring WinPathCombine(std::wstring_view first, std::string_view second)
+{
+	// result = first + '\\' + second
+	std::wstring result;
+	result.reserve(first.size() + second.size() + 1);
+	result.append(first);
+	result.append(1, L'\\');
+	utf8::utf8to16(second.begin(), second.end(), std::back_inserter(result));
+	return result;
+}
+
+static std::string w2s(std::wstring_view w)
+{
+	std::string s;
+	s.reserve(w.size());
+	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
+	return s;
+}
+
+FileSystemWin32::FileSystemWin32(std::wstring rootDirectory)
 	: _rootDirectory(std::move(rootDirectory))
 {
 }
 
+FileSystemWin32::FileSystemWin32(std::string_view rootDirectory)
+{
+	_rootDirectory.reserve(rootDirectory.size());
+	utf8::utf8to16(rootDirectory.begin(), rootDirectory.end(), std::back_inserter(_rootDirectory));
+}
+
 std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 {
-	std::wstring query = PathCombine(_rootDirectory, mask);
+	std::wstring query = WinPathCombine(_rootDirectory, mask);
 
 	WIN32_FIND_DATAW fd;
 	HANDLE hSearch = FindFirstFileExW(
@@ -381,7 +388,7 @@ std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 std::shared_ptr<File> FileSystemWin32::RawOpen(std::string_view fileName, FileMode mode)
 {
 	// combine with the root path
-	return std::make_shared<FileWin32>(PathCombine(_rootDirectory, fileName), mode);
+	return std::make_shared<FileWin32>(WinPathCombine(_rootDirectory, fileName), mode);
 }
 
 std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(std::string_view path, bool create, bool nothrow)
@@ -400,7 +407,7 @@ try
 
 	auto p = path.find('/', offset);
 	auto dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-	auto tmpDir = PathCombine(_rootDirectory, dirName);
+	auto tmpDir = WinPathCombine(_rootDirectory, dirName);
 
 	// try to find directory
 	WIN32_FIND_DATAW fd = {0};
@@ -461,7 +468,7 @@ try
 	if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		throw std::runtime_error("object is not a directory");
 
-	auto child = std::make_shared<FileSystemWin32>(_rootDirectory + '\\' + dirName);
+	auto child = std::make_shared<FileSystemWin32>(tmpDir);
 	Mount(dirName, child);
 
 	if( std::string::npos != p )

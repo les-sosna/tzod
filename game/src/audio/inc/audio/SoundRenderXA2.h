@@ -11,7 +11,7 @@ struct IXAudio2Voice;
 struct IXAudio2SourceVoice;
 struct IXAudio2MasteringVoice;
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
