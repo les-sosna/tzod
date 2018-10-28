@@ -37,7 +37,7 @@ vec2d JniAppWindow::GetPixelSize() const
 
 float JniAppWindow::GetLayoutScale() const
 {
-    return 1;
+    return 2;
 }
 
 Plat::Clipboard& JniAppWindow::GetClipboard()

@@ -2,10 +2,6 @@ package com.neaoo.tzod;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.WindowManager;
-
-import java.io.File;
 
 public class TZODJNIActivity extends Activity {
 

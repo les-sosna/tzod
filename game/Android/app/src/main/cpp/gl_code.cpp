@@ -19,26 +19,6 @@ static void printGLString(const char *name, GLenum s) {
     LOGI("GL %s = %s\n", name, v);
 }
 
-static void checkGlError(const char* op) {
-    for (GLint error = glGetError(); error; error
-            = glGetError()) {
-        LOGI("after %s() glError (0x%x)\n", op, error);
-    }
-}
-
-bool setupGraphics(int w, int h) {
-    printGLString("Version", GL_VERSION);
-    printGLString("Vendor", GL_VENDOR);
-    printGLString("Renderer", GL_RENDERER);
-    printGLString("Extensions", GL_EXTENSIONS);
-
-    LOGI("setupGraphics(%d, %d)", w, h);
-
-    glViewport(0, 0, w, h);
-    checkGlError("glViewport");
-    return true;
-}
-
 #include <platjni/JniAppWindow.h>
 #include <platjni/JniConsoleLog.h>
 #include <android/asset_manager_jni.h>
@@ -63,14 +43,22 @@ struct State
 
 std::unique_ptr<State> g_state;
 
-extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv * env, jobject obj, jobject assetManager, jint width, jint height)
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv *env, jobject obj, jobject assetManager)
 {
     g_state = std::make_unique<State>(AAssetManager_fromJava(env, assetManager));
-    g_state->appWindow.SetPixelSize(vec2d{static_cast<float>(width), static_cast<float>(height)});
-    setupGraphics(width, height);
+
+    printGLString("Version", GL_VERSION);
+    printGLString("Vendor", GL_VENDOR);
+    printGLString("Renderer", GL_RENDERER);
+    printGLString("Extensions", GL_EXTENSIONS);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv * env, jobject obj)
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_resize(JNIEnv *env, jobject obj, jint width, jint height)
+{
+    g_state->appWindow.SetPixelSize(vec2d{static_cast<float>(width), static_cast<float>(height)});
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *env, jobject obj)
 {
     g_state->view.Step(0.16);
 }
