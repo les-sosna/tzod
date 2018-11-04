@@ -38,7 +38,8 @@ void ButtonBase::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManag
 
 bool ButtonBase::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
+	// touch or primary button only
+	if( !ic.HasCapturedPointers(this) && (Plat::PointerType::Touch == pi.type || 1 == button) )
 	{
 		if( eventMouseDown )
 			eventMouseDown(pi.position.x, pi.position.y);

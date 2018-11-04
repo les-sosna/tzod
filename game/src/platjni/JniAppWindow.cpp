@@ -1,4 +1,5 @@
 #include "inc/platjni/JniAppWindow.h"
+#include <plat/Input.h>
 #include <video/RenderOpenGL.h>
 
 JniAppWindow::JniAppWindow()
@@ -13,6 +14,12 @@ JniAppWindow::~JniAppWindow()
 void JniAppWindow::SetPixelSize(vec2d pxSize)
 {
     _pxSize = pxSize;
+}
+
+void JniAppWindow::Tap(float x, float y)
+{
+    _inputSink->OnPointer(Plat::PointerType::Touch, Plat::Msg::PointerDown, vec2d{x, y}, vec2d{}, 0, 0);
+    _inputSink->OnPointer(Plat::PointerType::Touch, Plat::Msg::PointerUp, vec2d{x, y}, vec2d{}, 0, 0);
 }
 
 Plat::AppWindowInputSink* JniAppWindow::GetInputSink() const

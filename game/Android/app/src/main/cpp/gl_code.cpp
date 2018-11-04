@@ -60,5 +60,10 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_resize(JNIEnv *
 
 extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *env, jobject obj)
 {
-    g_state->view.Step(0.16);
+    g_state->view.Step(0.016f);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_tap(JNIEnv *env, jobject obj, jfloat x, jfloat y)
+{
+    g_state->appWindow.Tap(x, y);
 }

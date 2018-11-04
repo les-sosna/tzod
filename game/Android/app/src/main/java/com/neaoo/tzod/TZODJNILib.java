@@ -11,4 +11,6 @@ public class TZODJNILib {
     public static native void init(AssetManager assetManager);
     public static native void resize(int width, int height);
     public static native void step();
+
+    public static native void tap(float x, float y);
 }

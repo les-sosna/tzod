@@ -56,7 +56,6 @@ void FileSystemJni::OSFile::Unstream()
 FileSystemJni::OSFile::OSStream::OSStream(std::shared_ptr<OSFile> parent)
     : _file(parent)
 {
-    Seek(0, SEEK_SET);
 }
 
 FileSystemJni::OSFile::OSStream::~OSStream()
@@ -66,8 +65,12 @@ FileSystemJni::OSFile::OSStream::~OSStream()
 
 size_t FileSystemJni::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
-    throw std::runtime_error("not implemented");
-    return 0;
+    auto bytesRead = AAsset_read(_file->_asset.get(), dst, size * count);
+    if (bytesRead < 0)
+        throw std::runtime_error("Asset read error");
+    if( bytesRead % size )
+        throw std::runtime_error("Unexpected end of asset data");
+    return bytesRead / size;
 }
 
 void FileSystemJni::OSFile::OSStream::Write(const void *, size_t)
@@ -77,12 +80,12 @@ void FileSystemJni::OSFile::OSStream::Write(const void *, size_t)
 
 void FileSystemJni::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
-    throw std::runtime_error("not implemented");
+    AAsset_seek(_file->_asset.get(), amount, origin);
 }
 
 long long FileSystemJni::OSFile::OSStream::Tell() const
 {
-    return 0;
+    return AAsset_seek(_file->_asset.get(), 0, SEEK_CUR);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

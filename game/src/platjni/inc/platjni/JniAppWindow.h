@@ -10,6 +10,7 @@ public:
     ~JniAppWindow();
 
     void SetPixelSize(vec2d pxSize);
+    void Tap(float x, float y);
 
     // Plat::AppWindow
     Plat::AppWindowInputSink* GetInputSink() const override;
