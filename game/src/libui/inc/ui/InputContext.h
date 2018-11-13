@@ -2,6 +2,7 @@
 #include "Navigation.h"
 #include "PointerInput.h"
 #include <math/MyMath.h>
+#include <plat/Input.h>
 #include <memory>
 #include <stack>
 #include <unordered_map>
@@ -11,10 +12,7 @@ class TextureManager;
 
 namespace Plat
 {
-	enum class Key;
-	enum class Msg;
 	struct Clipboard;
-	struct Input;
 }
 
 namespace UI
@@ -73,7 +71,7 @@ private:
 
 	Plat::Input &_input;
 
-	vec2d _mousePos;
+	Plat::PointerState _pointerState;
 
 	struct InputStackFrame
 	{

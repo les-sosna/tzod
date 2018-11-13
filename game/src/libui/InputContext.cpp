@@ -49,7 +49,7 @@ InputContext::InputContext(Plat::Input &input)
 
 void InputContext::ReadInput()
 {
-	_mousePos = _input.GetMousePos();
+	_pointerState = _input.GetPointerState(0);
 }
 
 TextSink* InputContext::GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
@@ -86,7 +86,7 @@ void InputContext::PopInputTransform()
 
 vec2d InputContext::GetMousePos() const
 {
-	return _mousePos - _transformStack.top().offset;
+	return _pointerState.position - _transformStack.top().offset;
 }
 
 bool InputContext::GetFocused() const

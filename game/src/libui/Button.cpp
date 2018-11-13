@@ -19,7 +19,7 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 
 	vec2d pointerPosition = ic.GetMousePos();
 	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pointerPosition);
-	bool pointerPressed = ic.GetInput().IsMousePressed(1);
+	bool pointerPressed = ic.GetInput().GetPointerState(0).pressed;
 
 	if ((pointerInside && pointerPressed && ic.HasCapturedPointers(this)) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;

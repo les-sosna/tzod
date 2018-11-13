@@ -276,7 +276,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 			itemDC.SetItemIndex(i);
 		}
 
-		rs.ic.PushInputTransform(pxItemOffset, true, true);
+		rs.ic.PushInputTransform(pxItemOffset, true /*focused*/, true /*hovered*/);
 		rc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), pxItemSize, lc.GetEnabledCombined());

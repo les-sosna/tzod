@@ -373,7 +373,7 @@ EditorLayout::WorldCursor EditorLayout::GetCursor() const
 {
 	WorldCursor cursor = {};
 
-	vec2d worldPos = _virtualPointer;// CanvasToWorld(lc, ic.GetMousePos());
+	vec2d worldPos = _virtualPointer;
 
 	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
 	{
@@ -744,7 +744,7 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	rc.PopClippingRect();
 
 	// Mouse coordinates
-	vec2d worldPos = Center(GetNavigationOrigin());// CanvasToWorld(lc, ic.GetMousePos());
+	vec2d worldPos = Center(GetNavigationOrigin());
 	std::stringstream buf;
 	buf << "x=" << floor(worldPos.x + 0.5f) << "; y=" << floor(worldPos.y + 0.5f);
 	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },

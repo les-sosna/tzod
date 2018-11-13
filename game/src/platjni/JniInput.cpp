@@ -5,12 +5,7 @@ bool JniInput::IsKeyPressed(Plat::Key key) const
     return false;
 }
 
-bool JniInput::IsMousePressed(int button) const
-{
-    return false;
-}
-
-vec2d JniInput::GetMousePos() const
+Plat::PointerState JniInput::GetPointerState(unsigned int index) const
 {
     return {};
 }

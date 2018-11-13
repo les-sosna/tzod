@@ -54,7 +54,7 @@ void TimeStepManager::TimeStep(std::shared_ptr<Window> desktop, InputContext &ic
 			}
 		}
 
-		ic.PushInputTransform(vec2d{}, focused, false);
+		ic.PushInputTransform(vec2d{}, focused, false /*hovered*/);
 
 		(*_tsCurrent)->OnTimeStep(ic, dt);
 

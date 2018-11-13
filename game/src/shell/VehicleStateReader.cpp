@@ -55,10 +55,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 {
 	memset(&vs, 0, sizeof(VehicleState));
 
-	vec2d mouse = input.GetMousePos();
 	Plat::GamepadState gamepadState = _gamepad != -1 ? input.GetGamepadState(_gamepad) : Plat::GamepadState{};
-
-	auto c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)mouse.x, (int)mouse.y);
 
 	World &world = gameViewHarness.GetWorld();
 
@@ -132,13 +129,20 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 		}
 	}
 
+	GameViewHarness::CanvasToWorldResult c2w = {};
+	Plat::PointerState pointerState = input.GetPointerState(0);
+	if (pointerState.type == Plat::PointerType::Mouse)
+	{
+		c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)pointerState.position.x, (int)pointerState.position.y);
+	}
+
 	// move with mouse
 	if( _moveToMouse )
 	{
-		vs.attack = vs.attack || input.IsMousePressed(1);
-		vs.pickup = vs.pickup || input.IsMousePressed(3);
+		vs.attack = vs.attack || pointerState.button1;
+		vs.pickup = vs.pickup || pointerState.button3;
 
-		if( input.IsMousePressed(2) && c2w.visible )
+		if( c2w.visible && pointerState.button2 )
 		{
 			vec2d bodyDirection = c2w.worldPos - vehicle.GetPos() - vehicle.GetBrakingLength();
 			if( bodyDirection.sqr() > 10 )
@@ -197,10 +201,10 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	//
 	if( _aimToMouse )
 	{
-		vs.attack = vs.attack || input.IsMousePressed(1);
+		vs.attack = vs.attack || pointerState.button1;
 		if( !_moveToMouse )
 		{
-			vs.pickup = vs.pickup || input.IsMousePressed(2);
+			vs.pickup = vs.pickup || pointerState.button2;
 		}
 
 		if( vehicle.GetWeapon() && c2w.visible )
