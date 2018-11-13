@@ -51,12 +51,15 @@ class TZODJNIView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        float x = e.getX();
-        float y = e.getY();
-
-        switch (e.getAction()) {
+        int actionMasked = e.getActionMasked();
+        switch (actionMasked) {
             case MotionEvent.ACTION_DOWN:
-                TZODJNILib.tap(e.getX(), e.getY());
+            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_MOVE:
+                int pointerIndex = e.getActionIndex();
+                TZODJNILib.pointer(actionMasked, e.getPointerId(pointerIndex), e.getX(pointerIndex), e.getY(pointerIndex));
         }
 
         return true;
@@ -65,12 +68,11 @@ class TZODJNIView extends GLSurfaceView {
     private static class ContextFactoryES20 implements GLSurfaceView.EGLContextFactory {
         private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
-            int[] attrib_list = {
+            int[] attributes = {
                 EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL10.EGL_NONE
             };
-            EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
-            return context;
+            return egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attributes);
         }
 
         public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
@@ -139,14 +141,12 @@ class TZODJNIView extends GLSurfaceView {
     private static class Renderer implements GLSurfaceView.Renderer {
         private AssetManager _assetManager;
 
-        public Renderer(AssetManager assetManager) {
+        private Renderer(AssetManager assetManager) {
             _assetManager = assetManager;
         }
 
         @Override
-        public void onDrawFrame(GL10 gl) {
-            TZODJNILib.step();
-        }
+        public void onDrawFrame(GL10 gl) { TZODJNILib.step(); }
 
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {

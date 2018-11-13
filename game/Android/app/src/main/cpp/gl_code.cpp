@@ -22,6 +22,7 @@ static void printGLString(const char *name, GLenum s) {
 #include <platjni/JniAppWindow.h>
 #include <platjni/JniConsoleLog.h>
 #include <android/asset_manager_jni.h>
+#include <android/input.h>
 
 struct State
 {
@@ -63,7 +64,32 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *en
     g_state->view.Step(0.016f);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_tap(JNIEnv *env, jobject obj, jfloat x, jfloat y)
+#include <plat/Input.h>
+
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_pointer(
+        JNIEnv *env, jobject obj, jint actionMasked, jint pointerId, jfloat x, jfloat y)
 {
-    g_state->appWindow.Tap(x, y);
+    Plat::Msg action;
+    switch (actionMasked)
+    {
+    case AMOTION_EVENT_ACTION_DOWN:
+    case AMOTION_EVENT_ACTION_POINTER_DOWN:
+        action = Plat::Msg::PointerDown;
+        break;
+    case AMOTION_EVENT_ACTION_UP:
+    case AMOTION_EVENT_ACTION_POINTER_UP:
+        action = Plat::Msg::PointerUp;
+        break;
+    case AMOTION_EVENT_ACTION_MOVE:
+        action = Plat::Msg::PointerMove;
+        break;
+    default:
+        return;
+    }
+
+    Plat::PointerType pointerType = Plat::PointerType::Touch;
+    vec2d pxPointerPos = {x, y};
+    vec2d pxPointerOffset = {};
+    int buttons = 0;
+    g_state->appWindow.GetInputSink()->OnPointer(pointerType, action, pxPointerPos, pxPointerOffset, buttons, (unsigned) pointerId);
 }

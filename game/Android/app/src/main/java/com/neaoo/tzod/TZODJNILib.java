@@ -12,5 +12,5 @@ public class TZODJNILib {
     public static native void resize(int width, int height);
     public static native void step();
 
-    public static native void tap(float x, float y);
+    public static native void pointer(int actionMasked, int pointerId, float x, float y);
 }
