@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-static const float MIN_THUMB_SIZE = 10.f;
+static constexpr float MIN_THUMB_SIZE = 10.f;
 
 using namespace UI;
 
@@ -26,10 +26,6 @@ ScrollBarBase::ScrollBarBase()
 
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
 	_btnDownRight->eventClick = std::bind(&ScrollBarBase::OnDownRight, this);
-
-	_btnBox->eventMouseUp = std::bind(&ScrollBarBase::OnBoxMouseUp, this, std::placeholders::_1, std::placeholders::_2);
-	_btnBox->eventMouseDown = std::bind(&ScrollBarBase::OnBoxMouseDown, this, std::placeholders::_1, std::placeholders::_2);
-	_btnBox->eventMouseMove = std::bind(&ScrollBarBase::OnBoxMouseMove, this, std::placeholders::_1, std::placeholders::_2);
 
 	SetDrawBorder(true);
 	SetShowButtons(true);

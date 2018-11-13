@@ -24,9 +24,6 @@ public:
 	};
 
 	std::function<void(void)> eventClick;
-	std::function<void(float, float)> eventMouseDown;
-	std::function<void(float, float)> eventMouseUp;
-	std::function<void(float, float)> eventMouseMove;
 
 	State GetState(const LayoutContext &lc, const InputContext &ic) const;
 
@@ -42,17 +39,16 @@ private:
 	virtual void OnClick() {}
 
 	// NavigationSink
-	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
+	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override final;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override final;
 
 	// PointerSink
-	void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
-	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
-	void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
-	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
+	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
+	void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
+	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override final;
 
 	// StateGen
-	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const override;
+	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const override final;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +57,8 @@ class Rectangle;
 class Text;
 template<class T> struct LayoutData;
 
-class Button : public ButtonBase
+class Button final
+	: public ButtonBase
 {
 public:
 	Button();
@@ -88,7 +85,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class TextButton : public ButtonBase
+class TextButton final
+	: public ButtonBase
 {
 public:
 	TextButton();
@@ -106,7 +104,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class CheckBox : public ButtonBase
+class CheckBox final
+	: public ButtonBase
 {
 public:
 	CheckBox();

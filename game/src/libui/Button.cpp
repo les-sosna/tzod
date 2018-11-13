@@ -30,31 +30,15 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	return stateNormal;
 }
 
-void ButtonBase::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
-{
-	if( eventMouseMove )
-		eventMouseMove(pi.position.x, pi.position.y);
-}
-
 bool ButtonBase::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	// touch or primary button only
-	if( !ic.HasCapturedPointers(this) && (Plat::PointerType::Touch == pi.type || 1 == button) )
-	{
-		if( eventMouseDown )
-			eventMouseDown(pi.position.x, pi.position.y);
-		return true;
-	}
-	return false;
+	return !ic.HasCapturedPointers(this) && (Plat::PointerType::Touch == pi.type || 1 == button);
 }
 
 void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	auto size = lc.GetPixelSize();
-	bool pointerInside = pi.position.x < size.x && pi.position.y < size.y && pi.position.x >= 0 && pi.position.y >= 0;
-	if( eventMouseUp )
-		eventMouseUp(pi.position.x, pi.position.y);
-	if( pointerInside )
+	if( PtInFRect(MakeRectWH(lc.GetPixelSize()), pi.position) )
 	{
 		DoClick();
 	}
