@@ -17,14 +17,13 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	if (!lc.GetEnabledCombined())
 		return stateDisabled;
 
-	vec2d pointerPosition = ic.GetMousePos();
-	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pointerPosition);
+	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), ic.GetMousePos());
 	bool pointerPressed = ic.GetInput().GetPointerState(0).pressed;
 
 	if ((pointerInside && pointerPressed && ic.HasCapturedPointers(this)) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;
 
-	if (ic.GetHovered())
+	if ((!pointerPressed && ic.GetHovered()) || ic.HasCapturedPointers(this))
 		return stateHottrack;
 
 	return stateNormal;
