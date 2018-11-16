@@ -9,23 +9,24 @@ namespace DX
 	class DeviceResources;
 }
 
-class StoreAppWindow : public AppWindow
+class StoreAppWindow final
+	: public Plat::AppWindow
 {
 public:
 	StoreAppWindow(Windows::UI::Core::CoreWindow^ coreWindow, DX::DeviceResources &deviceResources, SwapChainResources &swapChainResources);
 	~StoreAppWindow();
 
 	// AppWindow
-	AppWindowInputSink* GetInputSink() const override { return *_inputSink; }
-	void SetInputSink(AppWindowInputSink *inputSink) override { *_inputSink = inputSink; }
+	Plat::AppWindowInputSink* GetInputSink() const override { return *_inputSink; }
+	void SetInputSink(Plat::AppWindowInputSink *inputSink) override { *_inputSink = inputSink; }
 	virtual int GetDisplayRotation() const override;
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
-	UI::IClipboard& GetClipboard() override;
-	UI::IInput& GetInput() override;
+	Plat::Clipboard& GetClipboard() override;
+	Plat::Input& GetInput() override;
 	IRender& GetRender() override;
 	void SetCanNavigateBack(bool canNavigateBack) override;
-	void SetMouseCursor(MouseCursor mouseCursor) override;
+	void SetMouseCursor(Plat::MouseCursor mouseCursor) override;
 	void Present() override;
 	void MakeCurrent() override {}
 
@@ -38,13 +39,13 @@ private:
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;
 	Windows::UI::Core::CoreCursor ^_cursorArrow;
 	Windows::UI::Core::CoreCursor ^_cursorIBeam;
-	MouseCursor _mouseCursor = MouseCursor::Arrow;
+	Plat::MouseCursor _mouseCursor = Plat::MouseCursor::Arrow;
 	DX::DeviceResources &_deviceResources;
 	SwapChainResources &_swapChainResources;
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;
 	std::unique_ptr<IRender> _render;
-	std::shared_ptr<AppWindowInputSink *> _inputSink = std::make_shared<AppWindowInputSink*>();
+	std::shared_ptr<Plat::AppWindowInputSink *> _inputSink = std::make_shared<Plat::AppWindowInputSink*>();
 
 	Windows::Foundation::EventRegistrationToken _regPointerMoved;
 	Windows::Foundation::EventRegistrationToken _regPointerPressed;

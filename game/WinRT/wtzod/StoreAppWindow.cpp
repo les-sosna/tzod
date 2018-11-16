@@ -32,22 +32,22 @@ static float PixelsFromDips(float dips, float dpi)
 	return dips * dpi / c_defaultDpi;
 }
 
-static bool DispatchPointerMessage(AppWindowInputSink &inputSink, PointerEventArgs ^args, float dpi, UI::Msg msgHint)
+static bool DispatchPointerMessage(Plat::AppWindowInputSink &inputSink, PointerEventArgs ^args, float dpi, Plat::Msg msgHint)
 {
-	UI::PointerType pointerType;
+	Plat::PointerType pointerType;
 	switch (args->CurrentPoint->PointerDevice->PointerDeviceType)
 	{
 	case PointerDeviceType::Mouse:
 	case PointerDeviceType::Pen:
-		pointerType = UI::PointerType::Mouse;
+		pointerType = Plat::PointerType::Mouse;
 		break;
 
 	case PointerDeviceType::Touch:
-		pointerType = UI::PointerType::Touch;
+		pointerType = Plat::PointerType::Touch;
 		break;
 
 	default:
-		pointerType = UI::PointerType::Unknown;
+		pointerType = Plat::PointerType::Unknown;
 		break;
 	}
 
@@ -74,26 +74,26 @@ static bool DispatchPointerMessage(AppWindowInputSink &inputSink, PointerEventAr
 		break;
 	}
 
-	UI::Msg msg;
+	Plat::Msg msg;
 	switch (args->CurrentPoint->Properties->PointerUpdateKind)
 	{
 	case PointerUpdateKind::LeftButtonPressed:
 	case PointerUpdateKind::RightButtonPressed:
 	case PointerUpdateKind::MiddleButtonPressed:
-		msg = UI::Msg::PointerDown;
+		msg = Plat::Msg::PointerDown;
 		break;
 
 	case PointerUpdateKind::LeftButtonReleased:
 	case PointerUpdateKind::RightButtonReleased:
 	case PointerUpdateKind::MiddleButtonReleased:
-		msg = UI::Msg::PointerUp;
+		msg = Plat::Msg::PointerUp;
 		break;
 
 	default:
 		switch (msgHint)
 		{
-		case UI::Msg::Scroll:
-		case UI::Msg::PointerMove:
+		case Plat::Msg::Scroll:
+		case Plat::Msg::PointerMove:
 			msg = msgHint;
 			break;
 		default:
@@ -138,7 +138,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerMove);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, Plat::Msg::PointerMove);
 		}
 	});
 
@@ -149,7 +149,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerDown);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, Plat::Msg::PointerDown);
 		}
 	});
 
@@ -161,7 +161,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::PointerUp);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, Plat::Msg::PointerUp);
 		}
 	});
 
@@ -174,7 +174,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 
 		if (*inputSink)
 		{
-			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, UI::Msg::Scroll);
+			args->Handled = DispatchPointerMessage(**inputSink, args, displayInformation->LogicalDpi, Plat::Msg::Scroll);
 		}
 	});
 
@@ -187,7 +187,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 			float dpi = displayInformation->LogicalDpi;
 			vec2d pxPointerPosition{ PixelsFromDips(args->Position.X, dpi), PixelsFromDips(args->Position.Y, dpi) };
 			unsigned int pointerID = 111; // should be unique enough :)
-			(*inputSink)->OnPointer(UI::PointerType::Touch, UI::Msg::TAP, pxPointerPosition, vec2d{}/*offset*/, 1/*buttons*/, pointerID);
+			(*inputSink)->OnPointer(Plat::PointerType::Touch, Plat::Msg::TAP, pxPointerPosition, vec2d{}/*offset*/, 1/*buttons*/, pointerID);
 		}
 	});
 
@@ -196,7 +196,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->OnKey(MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey), UI::Msg::KeyPressed);
+			args->Handled = (*inputSink)->OnKey(MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey), Plat::Msg::KeyPressed);
 		}
 	});
 
@@ -205,7 +205,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow^ coreWindow, DX::DeviceResources &devi
 	{
 		if (*inputSink)
 		{
-			args->Handled = (*inputSink)->OnKey(MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey), UI::Msg::KeyReleased);
+			args->Handled = (*inputSink)->OnKey(MapWinStoreKeyCode(args->VirtualKey, args->KeyStatus.IsExtendedKey), Plat::Msg::KeyReleased);
 		}
 	});
 
@@ -235,12 +235,12 @@ StoreAppWindow::~StoreAppWindow()
 	*_inputSink = nullptr;
 }
 
-UI::IClipboard& StoreAppWindow::GetClipboard()
+Plat::Clipboard& StoreAppWindow::GetClipboard()
 {
 	return _clipboard;
 }
 
-UI::IInput& StoreAppWindow::GetInput()
+Plat::Input& StoreAppWindow::GetInput()
 {
 	return _input;
 }
@@ -273,17 +273,17 @@ void StoreAppWindow::SetCanNavigateBack(bool canNavigateBack)
 		canNavigateBack ? AppViewBackButtonVisibility::Visible : AppViewBackButtonVisibility::Collapsed;
 }
 
-void StoreAppWindow::SetMouseCursor(MouseCursor mouseCursor)
+void StoreAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 {
 	if (_mouseCursor != mouseCursor)
 	{
 		_mouseCursor = mouseCursor;
 		switch (mouseCursor)
 		{
-		case MouseCursor::Arrow:
+		case Plat::MouseCursor::Arrow:
 			_coreWindow->PointerCursor = _cursorArrow;
 			break;
-		case MouseCursor::IBeam:
+		case Plat::MouseCursor::IBeam:
 			_coreWindow->PointerCursor = _cursorIBeam;
 			break;
 		default:

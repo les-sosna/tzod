@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "FrameworkView.h"
 #include <app/tzod.h>
-#include <fs/FileSystem.h>
+#include <fswin/FileSystemWin32.h>
 #include <plat/ConsoleBuffer.h>
 #include <utf8.h>
 
@@ -36,19 +36,12 @@ namespace wtzod
 	};
 }
 
-static std::string w2s(std::wstring_view w)
-{
-	std::string s;
-	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
-	return s;
-}
-
 [MTAThread]
 int main(Array<String^> ^args)
 {
 	::SetCurrentDirectoryW(L"StoreData");
-	std::shared_ptr<FS::FileSystem> fs = FS::CreateOSFileSystem("data");
-	fs->Mount("user", FS::CreateOSFileSystem(w2s(ApplicationData::Current->LocalFolder->Path->Data())));
+	auto fs = std::make_shared<FS::FileSystemWin32>(L"data");
+	fs->Mount("user", std::make_shared<FS::FileSystemWin32>(ApplicationData::Current->LocalFolder->Path->Data()));
 
 	Plat::ConsoleBuffer logger(100, 500);
 	TzodApp app(*fs, logger);

@@ -1,17 +1,17 @@
 #pragma once
-#include <ui/UIInput.h>
+#include <plat/Input.h>
 #include <memory>
 
-class StoreAppInput : public UI::IInput
+class StoreAppInput final
+	: public Plat::Input
 {
 public:
 	StoreAppInput(Windows::UI::Core::CoreWindow ^coreWindow);
 
 	// UI::IInput
-	bool IsKeyPressed(UI::Key key) const override;
-	bool IsMousePressed(int button) const override;
-	vec2d GetMousePos() const override;
-	UI::GamepadState GetGamepadState(unsigned int index) const override;
+	bool IsKeyPressed(Plat::Key key) const override;
+	Plat::PointerState GetPointerState(unsigned int index) const override;
+	Plat::GamepadState GetGamepadState(unsigned int index) const override;
 	bool GetSystemNavigationBackAvailable() const override { return true; }
 
 private:

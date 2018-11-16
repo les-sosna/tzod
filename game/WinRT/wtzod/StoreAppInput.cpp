@@ -15,7 +15,7 @@ StoreAppInput::StoreAppInput(CoreWindow ^coreWindow)
 {
 }
 
-bool StoreAppInput::IsKeyPressed(UI::Key key) const
+bool StoreAppInput::IsKeyPressed(Plat::Key key) const
 {
 	Windows::System::VirtualKey virtualKey = UnmapWinStoreKeyCode(key);
 	if (Windows::System::VirtualKey::None != virtualKey)
@@ -25,37 +25,27 @@ bool StoreAppInput::IsKeyPressed(UI::Key key) const
 	return false;
 }
 
-bool StoreAppInput::IsMousePressed(int button) const
+Plat::PointerState StoreAppInput::GetPointerState(unsigned int index) const
 {
-	VirtualKey virtualKey;
-	switch (button)
+	Plat::PointerState pointerState = {};
+	if (index == 0)
 	{
-	case 1:
-		virtualKey = VirtualKey::LeftButton;
-		break;
-	case 2:
-		virtualKey = VirtualKey::RightButton;
-		break;
-	case 3:
-		virtualKey = VirtualKey::MiddleButton;
-		break;
-	default:
-		return false;
+		Point pos = _coreWindow->PointerPosition;
+		float dpi = DisplayInformation::GetForCurrentView()->LogicalDpi;
+		pointerState.position = vec2d{ DX::ConvertDipsToPixels(pos.X - _coreWindow->Bounds.Left, dpi),
+		                               DX::ConvertDipsToPixels(pos.Y - _coreWindow->Bounds.Top, dpi) };
+		pointerState.button1 = (_coreWindow->GetKeyState(VirtualKey::LeftButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
+		pointerState.button2 = (_coreWindow->GetKeyState(VirtualKey::RightButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
+		pointerState.button3 = (_coreWindow->GetKeyState(VirtualKey::MiddleButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
+		pointerState.pressed = pointerState.button1 || pointerState.button2 || pointerState.button3;
+		pointerState.type = Plat::PointerType::Mouse;
 	}
-	return (_coreWindow->GetKeyState(virtualKey) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
+	return pointerState;
 }
 
-vec2d StoreAppInput::GetMousePos() const
+Plat::GamepadState StoreAppInput::GetGamepadState(unsigned int index) const
 {
-	Point pos = _coreWindow->PointerPosition;
-	float dpi = DisplayInformation::GetForCurrentView()->LogicalDpi;
-	return vec2d{ DX::ConvertDipsToPixels(pos.X - _coreWindow->Bounds.Left, dpi),
-	              DX::ConvertDipsToPixels(pos.Y - _coreWindow->Bounds.Top, dpi) };
-}
-
-UI::GamepadState StoreAppInput::GetGamepadState(unsigned int index) const
-{
-	UI::GamepadState result = {};
+	Plat::GamepadState result = {};
 
 	IVectorView<Gamepad^> ^gamepads = Gamepad::Gamepads;
 	if (index < gamepads->Size)

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace UI
+namespace Plat
 {
 	enum class Key;
 }
@@ -13,5 +13,5 @@ namespace Windows
 	}
 }
 
-UI::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExtended);
-Windows::System::VirtualKey UnmapWinStoreKeyCode(UI::Key key);
+Plat::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExtended);
+Windows::System::VirtualKey UnmapWinStoreKeyCode(Plat::Key key);
