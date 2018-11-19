@@ -222,11 +222,14 @@ bool InputContext::ProcessPointer(
 	Plat::Msg msg,
 	int button,
 	Plat::PointerType pointerType,
-	unsigned int pointerID)
+	unsigned int pointerID,
+	float time)
 {
 #ifndef NDEBUG
 	_lastPointerLocation[pointerID] = pxPointerPosition;
 #endif
+
+	_lastPointerTime = time;
 
 	if (Plat::Msg::Scroll == msg || Plat::Msg::ScrollPrecise == msg)
 	{
@@ -440,6 +443,8 @@ static Navigate GetNavigateAction(Plat::Key key, bool alt, bool shift)
 
 bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time)
 {
+	bool currentlyActiveInputMethod = _lastKeyTime > _lastPointerTime;
+
 	if (key != Plat::Key::LeftShift && key != Plat::Key::RightShift && key != Plat::Key::LeftCtrl && key != Plat::Key::RightCtrl)
 	{
 		_lastKeyTime = time;
@@ -478,7 +483,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		assert(false);
 	}
 
-	if (!handled)
+	if (currentlyActiveInputMethod && !handled)
 	{
 		Navigate navigate = GetNavigateAction(key,
 			GetInput().IsKeyPressed(Plat::Key::LeftAlt) || GetInput().IsKeyPressed(Plat::Key::RightAlt),

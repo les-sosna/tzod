@@ -41,7 +41,8 @@ public:
 		Plat::Msg msg,
 		int button,
 		Plat::PointerType pointerType,
-		unsigned int pointerID);
+		unsigned int pointerID,
+		float time);
 	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time);
 	bool ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
@@ -56,6 +57,7 @@ public:
 	bool GetHovered() const;
 	std::shared_ptr<Window> GetNavigationSubject(Navigate navigate) const;
 	float GetLastKeyTime() const { return _lastKeyTime; }
+	float GetLastPointerTime() const { return _lastPointerTime; }
 
 	const std::vector<std::shared_ptr<Window>>* GetCapturePath(unsigned int pointerID) const;
 	bool HasCapturedPointers(const Window* wnd) const;
@@ -82,6 +84,7 @@ private:
 	std::stack<InputStackFrame> _transformStack;
 
 	float _lastKeyTime = 0;
+	float _lastPointerTime = 0;
 
 	struct PointerCapture
 	{

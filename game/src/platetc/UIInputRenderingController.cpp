@@ -91,7 +91,8 @@ bool UIInputRenderingController::OnPointer(Plat::PointerType pointerType, Plat::
 		action,
 		buttons,
 		pointerType,
-		pointerID);
+		pointerID,
+		_timeStepManager.GetTime());
 }
 
 bool UIInputRenderingController::OnSystemNavigationBack()

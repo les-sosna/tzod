@@ -19,11 +19,12 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 
 	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), ic.GetMousePos());
 	bool pointerPressed = ic.GetInput().GetPointerState(0).pressed;
-
 	if ((pointerInside && pointerPressed && ic.HasCapturedPointers(this)) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;
 
-	if ((!pointerPressed && ic.GetHovered()) || ic.HasCapturedPointers(this))
+	bool focusActive = (ic.GetLastKeyTime() > ic.GetLastPointerTime()) && ic.GetFocused();
+	bool pointerActive = (ic.GetLastPointerTime() > ic.GetLastKeyTime()) && (ic.HasCapturedPointers(this) || (ic.GetHovered() && !pointerPressed));
+	if (focusActive || pointerActive)
 		return stateHottrack;
 
 	return stateNormal;
@@ -62,7 +63,7 @@ void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const Inpu
 		sc.SetState("Hover");
 		break;
 	case stateNormal:
-		sc.SetState(ic.GetFocused() ? "Focused" : "Idle");
+		sc.SetState("Idle");
 		break;
 	case stateDisabled:
 		sc.SetState("Disabled");
@@ -94,24 +95,8 @@ void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const Layo
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace
-{
-	class FocusBinding final
-		: public RenderData<bool>
-	{
-	public:
-		// RenderData<bool>
-		bool GetRenderValue(const DataContext &dc, const StateContext &sc) const override
-		{
-			return sc.GetState() == "Focused";
-		}
-	};
-}
-
-static const auto c_textUnderline = std::make_shared<FocusBinding>();
-
-static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xffffffff, // default
-	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
+static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xffeeeeee, // default
+	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xaaaaaaaa }, { "Hover", 0xffffffff }, { "Pushed", 0xffffffff } });
 
 static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
 	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, { "Pushed", 2 } });
@@ -124,7 +109,6 @@ Button::Button()
 
 	_text->SetAlign(alignTextCC);
 	_text->SetFontColor(c_textColor);
-	_text->SetUnderline(c_textUnderline);
 
 	SetBackground("ui/button");
 	Resize(96, 24);
