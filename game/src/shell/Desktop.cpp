@@ -390,7 +390,10 @@ void Desktop::ShowMainMenu()
 
 void Desktop::UpdateFocus()
 {
-	_pauseButton->SetVisible(!!GetAppState().GetGameContext() || !_navStack->IsOnTop<MainMenuDlg>());
+	bool hasGameContext = !!GetAppState().GetGameContext();
+	bool showingMainMenu = _navStack->IsOnTop<MainMenuDlg>();
+
+	_pauseButton->SetVisible(hasGameContext || !showingMainMenu);
 
 	if (_con->GetVisible())
 	{

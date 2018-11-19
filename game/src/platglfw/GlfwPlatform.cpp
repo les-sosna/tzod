@@ -92,7 +92,7 @@ Plat::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
 
 bool GlfwInput::GetSystemNavigationBackAvailable() const
 {
-	return true;
+	return true; // keyboard Esc should be available
 }
 
 
