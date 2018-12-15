@@ -74,13 +74,10 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 			rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 		}
-		else if (sc.GetState() == "Focused")
-		{
-			rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
-		}
 		else if (sc.GetState() == "Hover")
 		{
-			rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0x44444444, 0);
+			rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xaaaaaaaa, 0);
+			rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xaaaaaaaa, 0);
 		}
 	}
 }
