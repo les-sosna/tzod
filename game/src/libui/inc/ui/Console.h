@@ -1,5 +1,6 @@
 #pragma once
 #include "Rectangle.h"
+#include "PointerInput.h"
 #include <deque>
 #include <functional>
 #include <string>
@@ -46,6 +47,7 @@ class Console
 	, private TimeStepping
 	, private ScrollSink
 	, private KeyboardSink
+	, private PointerSink
 {
 public:
 	Console(TimeStepManager &manager, TextureManager &texman);
@@ -63,11 +65,14 @@ public:
 	ScrollSink* GetScrollSink() override { return this; }
 	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
+	bool HasPointerSink() const override { return true; }
+	PointerSink* GetPointerSink() override { return this; }
+
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	std::shared_ptr<Window> GetFocus() const override;
 
-	// Managerful
+	// TimeStepping
 	void OnTimeStep(const InputContext &ic, float dt) override;
 
 private:
