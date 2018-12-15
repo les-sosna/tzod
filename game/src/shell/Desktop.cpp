@@ -366,6 +366,10 @@ void Desktop::OnMapSettings()
 
 void Desktop::ShowMainMenu()
 {
+	if (_navStack->IsOnTop<MainMenuDlg>())
+		return;
+	assert(!CanNavigateBack());
+
 	MainMenuCommands commands;
 	commands.singlePlayer = std::bind(&Desktop::OnSinglePlayer, this);
 	commands.splitScreen = std::bind(&Desktop::OnSplitScreen, this);
