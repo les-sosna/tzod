@@ -124,15 +124,10 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
-		if (!_navStack->GetNavFront())
-		{
-			ShowMainMenu();
-		}
+		if (CanNavigateBack())
+			NavigateBack();
 		else
-		{
-			_navStack->PopNavStack();
-			UpdateFocus();
-		}
+			ShowMainMenu();
 	};
 	AddFront(_pauseButton);
 
@@ -390,11 +385,6 @@ void Desktop::ShowMainMenu()
 
 void Desktop::UpdateFocus()
 {
-	bool hasGameContext = !!GetAppState().GetGameContext();
-	bool showingMainMenu = _navStack->IsOnTop<MainMenuDlg>();
-
-	_pauseButton->SetVisible(hasGameContext || !showingMainMenu);
-
 	if (_con->GetVisible())
 	{
 		SetFocus(_con);
@@ -411,6 +401,10 @@ void Desktop::UpdateFocus()
 	{
 		SetFocus(_game); // may be null
 	}
+
+	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
+	bool isGameRunning = !!GetAppState().GetGameContext();
+	_pauseButton->SetVisible(CanNavigateBack() || isGameRunning);
 }
 
 void Desktop::NavigateHome()
@@ -420,6 +414,26 @@ void Desktop::NavigateHome()
 		_navStack->PopNavStack(wnd.get());
 	}
 	UpdateFocus();
+}
+
+void Desktop::NavigateBack()
+{
+	if (GetFocus() == _con)
+		_con->SetVisible(false);
+	else
+		_navStack->PopNavStack();
+	UpdateFocus();
+}
+
+bool Desktop::CanNavigateBack() const
+{
+	if (GetFocus() == _con)
+		return true;
+
+	// Can navigate all the way back if there is game running, otherwise have to stop at main menu
+	bool isGameRunning = !!GetAppState().GetGameContext();
+	bool atMainMenu = _navStack->IsOnTop<MainMenuDlg>();
+	return _navStack->GetNavFront() && (isGameRunning || !atMainMenu);
 }
 
 bool Desktop::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
@@ -436,20 +450,9 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 		break;
 
 	case Plat::Key::Escape:
-	case Plat::Key::GamepadMenu:
-		if( GetFocus() == _con )
-		{
-			_con->SetVisible(false);
-			UpdateFocus();
-		}
-		else if (!_navStack->GetNavFront())
-		{
-			ShowMainMenu();
-		}
-		else
-		{
-			return false;
-		}
+		if (CanNavigateBack())
+			return false; // keep unhandled, will use navigation sink
+		ShowMainMenu();
 		break;
 
 	case Plat::Key::F2:
@@ -494,16 +497,14 @@ void Desktop::OnKeyReleased(UI::InputContext &ic, Plat::Key key)
 
 bool Desktop::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
-	return UI::Navigate::Back == navigate &&
-		_navStack->GetNavFront() && (!_navStack->IsOnTop<MainMenuDlg>() || GetAppState().GetGameContext());
+	return UI::Navigate::Back == navigate && CanNavigateBack();
 }
 
 void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
 	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{
-		_navStack->PopNavStack();
-		UpdateFocus();
+		NavigateBack();
 	}
 }
 

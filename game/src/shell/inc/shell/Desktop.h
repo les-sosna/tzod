@@ -111,6 +111,8 @@ private:
 	void UpdateFocus();
 
 	void NavigateHome();
+	void NavigateBack();
+	bool CanNavigateBack() const;
 
 	// AppStateListener
 	void OnGameContextChanging() override;

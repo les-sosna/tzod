@@ -436,6 +436,9 @@ static Navigate GetNavigateAction(Plat::Key key, bool alt, bool shift)
 	case Plat::Key::End:
 		return Navigate::End;
 
+	case Plat::Key::GamepadMenu:
+		return Navigate::Menu;
+
 	default:
 		return Navigate::None;
 	}
@@ -485,16 +488,19 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 
 	if (currentlyActiveInputMethod && !handled)
 	{
-		Navigate navigate = GetNavigateAction(key,
-			GetInput().IsKeyPressed(Plat::Key::LeftAlt) || GetInput().IsKeyPressed(Plat::Key::RightAlt),
-			GetInput().IsKeyPressed(Plat::Key::LeftShift) || GetInput().IsKeyPressed(Plat::Key::RightShift));
+		bool alt = GetInput().IsKeyPressed(Plat::Key::LeftAlt) || GetInput().IsKeyPressed(Plat::Key::RightAlt);
+		bool shift = GetInput().IsKeyPressed(Plat::Key::LeftShift) || GetInput().IsKeyPressed(Plat::Key::RightShift);
+		Navigate navigate = GetNavigateAction(key, alt, shift);
 		if (Plat::Msg::KeyReleased == msg)
 		{
 			if (auto wnd = _navigationSubjects[navigate].lock())
 			{
 				// FIXME: reconstruct the actual LC
-				wnd->GetNavigationSink()->OnNavigate(navigate, NavigationPhase::Completed, lc, dc);
 				_navigationSubjects[navigate].reset();
+				auto navigationSink = wnd->GetNavigationSink();
+				assert(navigationSink);
+				if (navigationSink->CanNavigate(navigate, lc, dc))
+					navigationSink->OnNavigate(navigate, NavigationPhase::Completed, lc, dc);
 				handled = true;
 			}
 		}

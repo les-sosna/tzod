@@ -20,6 +20,7 @@ namespace UI
 		Right,
 		Begin,
 		End,
+		Menu,
 	};
 
 	enum class NavigationPhase
