@@ -4,6 +4,8 @@
 #include "inc/ui/Navigation.h"
 #include "inc/ui/Window.h"
 #include "inc/ui/WindowIterator.h"
+#include <plat/AppWindow.h>
+#include <plat/Clipboard.h>
 #include <plat/Input.h>
 #include <plat/Keys.h>
 
@@ -13,7 +15,7 @@ struct TraverseFocusPathSettings
 {
 	TextureManager &texman;
 	InputContext &ic;
-	std::function<bool(std::shared_ptr<Window>)> visitor;
+	std::function<bool(std::shared_ptr<Window>, const LayoutContext &lc, const DataContext &dc)> visitor;
 };
 
 static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, const TraverseFocusPathSettings &settings)
@@ -31,7 +33,7 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 			}
 		}
 
-		return settings.visitor(std::move(wnd));
+		return settings.visitor(std::move(wnd), lc, dc);
 	}
 
 	return false;
@@ -59,7 +61,7 @@ TextSink* InputContext::GetTextSink(TextureManager &texman, std::shared_ptr<Wind
 		TraverseFocusPathSettings{
 			texman,
 			*this,
-			[&result](std::shared_ptr<Window> wnd) // visitor
+			[&result](std::shared_ptr<Window> wnd, auto lc, auto dc) // visitor
 			{
 				result = wnd->GetTextSink();
 				return !!result;
@@ -461,7 +463,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
-			[key, this](std::shared_ptr<Window> wnd) // visitor
+			[key, this](std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc) // visitor
 			{
 				if (KeyboardSink *keyboardSink = wnd->GetKeyboardSink())
 				{
@@ -475,7 +477,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
-			[key, this](std::shared_ptr<Window> wnd) // visitor
+			[key, this](std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc) // visitor
 			{
 				KeyboardSink *keyboardSink = wnd->GetKeyboardSink();
 				return keyboardSink ? keyboardSink->OnKeyPressed(*this, key) : false;
@@ -518,6 +520,61 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	}
 
 	return handled;
+}
+
+bool InputContext::ProcessText(
+	TextureManager &texman,
+	std::shared_ptr<Window> wnd,
+	Plat::AppWindow &appWindow,
+	TextOperation textOperation,
+	int codepoint)
+{
+	DataContext dataContext;
+	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), wnd->GetEnabled(dataContext));
+
+	TraverseFocusPath(wnd, layoutContext, dataContext,
+		TraverseFocusPathSettings{
+			texman,
+			*this,
+			[&appWindow, textOperation, codepoint](std::shared_ptr<Window> focusWnd, const LayoutContext &focusLC, const DataContext &focusDC) // visitor
+			{
+				if (focusWnd->HasTextSink())
+				{
+					TextSink *textSink = focusWnd->GetTextSink();
+					switch (textOperation)
+					{
+					case TextOperation::ClipboardCut:
+						if (auto text = textSink->OnCut(); !text.empty())
+						{
+							appWindow.GetClipboard().SetClipboardText(std::move(text));
+						}
+						break;
+
+					case TextOperation::ClipboardCopy:
+						if (auto text = textSink->OnCopy(); !text.empty())
+						{
+							appWindow.GetClipboard().SetClipboardText(std::string(text));
+						}
+						break;
+
+					case TextOperation::ClipboardPaste:
+						if (auto text = appWindow.GetClipboard().GetClipboardText(); !text.empty())
+						{
+							textSink->OnPaste(text);
+						}
+						break;
+
+					case TextOperation::CharacterInput:
+						return textSink->OnChar(codepoint);
+					}
+
+					return true;
+				}
+				return false;
+			}
+		});
+
+	return false;
 }
 
 bool InputContext::ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)

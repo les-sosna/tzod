@@ -12,7 +12,7 @@ class TextureManager;
 
 namespace Plat
 {
-	struct Clipboard;
+	struct AppWindow;
 }
 
 namespace UI
@@ -23,6 +23,14 @@ class LayoutContext;
 class Window;
 struct PointerSink;
 struct TextSink;
+
+enum class TextOperation
+{
+	ClipboardCut,
+	ClipboardCopy,
+	ClipboardPaste,
+	CharacterInput
+};
 
 class InputContext
 {
@@ -43,8 +51,28 @@ public:
 		Plat::PointerType pointerType,
 		unsigned int pointerID,
 		float time);
-	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time);
-	bool ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
+
+	bool ProcessKeys(
+		TextureManager &texman,
+		std::shared_ptr<Window> wnd,
+		const LayoutContext &lc,
+		const DataContext &dc,
+		Plat::Msg msg,
+		Plat::Key key,
+		float time);
+
+	bool ProcessText(
+		TextureManager &texman,
+		std::shared_ptr<Window> wnd,
+		Plat::AppWindow &appWindow,
+		TextOperation textOperation,
+		int codepoint = 0);
+
+	bool ProcessSystemNavigationBack(
+		TextureManager &texman,
+		std::shared_ptr<Window> wnd,
+		const LayoutContext &lc,
+		const DataContext &dc);
 
 	Plat::Input& GetInput() const { return _input; }
 	TextSink* GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
