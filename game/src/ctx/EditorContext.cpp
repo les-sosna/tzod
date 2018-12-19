@@ -1,4 +1,5 @@
 #include "inc/ctx/EditorContext.h"
+#include <gc/Indicators.h>
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 #include <MapFile.h>
@@ -38,8 +39,8 @@ EditorContext::EditorContext(int width, int height, FS::Stream *stream)
 	else
 	{
 		_world.reset(new World(bounds, false /* initField */));
+		_world->New<GC_SpawnPoint>(vec2d{});
 	}
-
 }
 
 EditorContext::~EditorContext()
