@@ -532,11 +532,12 @@ bool InputContext::ProcessText(
 	DataContext dataContext;
 	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), wnd->GetEnabled(dataContext));
 
+	bool modified = false;
 	bool handled = TraverseFocusPath(wnd, layoutContext, dataContext,
 		TraverseFocusPathSettings{
 			texman,
 			*this,
-			[&appWindow, textOperation, codepoint](std::shared_ptr<Window> focusWnd, const LayoutContext &focusLC, const DataContext &focusDC) // visitor
+			[&appWindow, textOperation, codepoint, &modified](std::shared_ptr<Window> focusWnd, const LayoutContext &focusLC, const DataContext &focusDC) // visitor
 			{
 				if (focusWnd->HasTextSink())
 				{
@@ -547,6 +548,7 @@ bool InputContext::ProcessText(
 						if (auto text = textSink->OnCut(); !text.empty())
 						{
 							appWindow.GetClipboard().SetClipboardText(std::move(text));
+							modified = true;
 						}
 						break;
 
@@ -561,11 +563,13 @@ bool InputContext::ProcessText(
 						if (auto text = appWindow.GetClipboard().GetClipboardText(); !text.empty())
 						{
 							textSink->OnPaste(text);
+							modified = true;
 						}
 						break;
 
 					case TextOperation::CharacterInput:
-						return textSink->OnChar(codepoint);
+						modified = textSink->OnChar(codepoint);
+						return modified;
 					}
 
 					return true;
@@ -574,7 +578,7 @@ bool InputContext::ProcessText(
 			}
 		});
 
-	if (handled)
+	if (modified)
 	{
 		EnsureVisibleMostDescendantFocus(texman, wnd, layoutContext, dataContext);
 	}
