@@ -28,6 +28,10 @@ public:
 	void SetCurSel(int sel);
 
 	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
+	FlowDirection GetFlowDirection() const { return _flowDirection; }
+
+	void SetEnableNavigation(bool enableNavigation) { _enableNavigation = enableNavigation; }
+	bool GetEnableNavigation() const { return _enableNavigation; }
 
 	std::shared_ptr<Window> GetItemTemplate() const { return _itemTemplate; }
 	void SetItemTemplate(std::shared_ptr<Window> itemTemplate);
@@ -41,7 +45,7 @@ public:
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
-	bool HasNavigationSink() const override { return true; }
+	bool HasNavigationSink() const override { return _enableNavigation; }
 	NavigationSink *GetNavigationSink() override { return this; }
 	std::shared_ptr<Window> GetFocus() const override;
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
@@ -71,6 +75,7 @@ private:
 	ListDataSource *_data;
 
 	int _curSel;
+	bool _enableNavigation = true;
 
 	int GetNextIndex(Navigate navigate) const;
 

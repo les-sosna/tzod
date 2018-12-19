@@ -134,6 +134,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 
 	_tierSelector->SetItemTemplate(std::make_shared<TierBox>());
 	_tierSelector->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_tierSelector->SetEnableNavigation(false);
 	_tierSelector->SetCurSel(GetCurrentTier(_conf, _dmCampaign));
 	_tierSelector->eventChangeCurSel = [=](int index)
 	{
