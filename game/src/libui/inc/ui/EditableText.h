@@ -36,6 +36,8 @@ namespace UI
 		std::function<void()> eventChange;
 
 		// Window
+		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		std::shared_ptr<Window> GetFocus() const override;
 		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 		bool HasPointerSink() const override { return true; }
 		PointerSink* GetPointerSink() override { return this; }
@@ -46,6 +48,7 @@ namespace UI
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
 	private:
+		std::shared_ptr<Window> _fakeCursorPlaceholder = std::make_shared<Window>();
 		std::string _text;
 		int _selStart = 0;
 		int _selEnd = 0;
@@ -54,6 +57,7 @@ namespace UI
 		Texture _selection = "ui/editsel";
 
 		int HitTest(TextureManager &texman, vec2d px, float scale) const;
+		FRECT GetCursorRect(TextureManager &texman, const LayoutContext &lc) const;
 
 		// TextSink
 		bool OnChar(int c) override;

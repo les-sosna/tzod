@@ -261,7 +261,7 @@ return {
      ["ui/listsel"]={left=0, right=32, top=192, bottom=208, xpivot=0, ypivot=0, border=2},
      ["ui/edit"]={left=64, right=72, top=200, bottom=208, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/editsel"]={left=40, right=48, top=200, bottom=208, xpivot=0, ypivot=0, border=2},
-     ["ui/editcursor"]={left=34, right=40, top=193, bottom=207, xpivot=0, ypivot=0},
+     ["ui/editcursor"]={left=34, right=35, top=193, bottom=207, xpivot=0, ypivot=0},
      ["ui/console"]={left=64, right=72, top=200, bottom=208, xframes=1, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/combo"]={left=64, right=96, top=192, bottom=200, xframes=4, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/combo_list"]={left=64, right=72, top=192, bottom=200, xframes=1, yframes=1, xpivot=0, ypivot=0, border=2},

@@ -102,6 +102,24 @@ int EditableText::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
+FRECT EditableText::GetCursorRect(TextureManager &texman, const LayoutContext &lc) const
+{
+	size_t font = _font.GetTextureId(texman);
+	float pxCharWidth = ToPx(texman.GetCharWidth(font), lc);
+	return MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ ToPx(texman.GetFrameWidth(_cursor.GetTextureId(texman), 0), lc), lc.GetPixelSize().y });
+}
+
+FRECT EditableText::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+{
+	assert(_fakeCursorPlaceholder.get() == &child);
+	return GetCursorRect(texman, lc);
+}
+
+std::shared_ptr<Window> EditableText::GetFocus() const
+{
+	return _fakeCursorPlaceholder;
+}
+
 void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	size_t font = _font.GetTextureId(texman);
@@ -127,8 +145,7 @@ void EditableText::Draw(const DataContext &dc, const StateContext &sc, const Lay
 	// cursor
 	if (ic.GetFocused() && fmodf(time - ic.GetLastKeyTime(), 1.0f) < 0.5f)
 	{
-		FRECT rt = MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ ToPx(texman.GetFrameWidth(_cursor.GetTextureId(texman), 0), lc), lc.GetPixelSize().y });
-		rc.DrawSprite(rt, _cursor.GetTextureId(texman), 0xffffffff, 0);
+		rc.DrawSprite(GetCursorRect(texman, lc), _cursor.GetTextureId(texman), 0xffffffff, 0);
 	}
 }
 

@@ -532,7 +532,7 @@ bool InputContext::ProcessText(
 	DataContext dataContext;
 	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), wnd->GetEnabled(dataContext));
 
-	TraverseFocusPath(wnd, layoutContext, dataContext,
+	bool handled = TraverseFocusPath(wnd, layoutContext, dataContext,
 		TraverseFocusPathSettings{
 			texman,
 			*this,
@@ -574,7 +574,12 @@ bool InputContext::ProcessText(
 			}
 		});
 
-	return false;
+	if (handled)
+	{
+		EnsureVisibleMostDescendantFocus(texman, wnd, layoutContext, dataContext);
+	}
+
+	return handled;
 }
 
 bool InputContext::ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
