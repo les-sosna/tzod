@@ -44,7 +44,7 @@ class FileSystemPosix final
             ~OSMemMap();
 
             // MemMap
-            char* GetData() override;
+            const void* GetData() const override;
             unsigned long GetSize() const override;
             void SetSize(unsigned long size) override; // may invalidate pointer returned by GetData()
 
