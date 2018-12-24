@@ -32,6 +32,7 @@ namespace UI
 	class CheckBox;
 	class Text;
 	class ListBox;
+	class Rectangle;
 	class StackLayout;
 	template<class, class> class ListAdapter;
 }
@@ -135,7 +136,7 @@ private:
 	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;
-	std::shared_ptr<UI::Text> _help;
+	std::shared_ptr<UI::Rectangle> _helpBox;
 	std::shared_ptr<UI::CheckBox> _modeSelect;
 	std::shared_ptr<UI::CheckBox> _modeErase;
 	std::shared_ptr<DefaultListBox> _typeSelector;

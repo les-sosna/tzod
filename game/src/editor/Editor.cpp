@@ -141,6 +141,13 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 	return nullptr;
 }
 
+static std::shared_ptr<UI::Text> MakeHelpText(LangCache &lang)
+{
+	auto helpText = std::make_shared<UI::Text>();
+	helpText->SetText(ConfBind(lang.f1_help_editor));
+	helpText->SetAlign(alignTextLT);
+	return helpText;
+}
 
 EditorLayout::EditorLayout(UI::TimeStepManager &manager,
                            TextureManager &texman,
@@ -160,12 +167,12 @@ EditorLayout::EditorLayout(UI::TimeStepManager &manager,
 	, _worldView(worldView)
 	, _quickActions(logger, _world)
 {
-	_help = std::make_shared<UI::Text>();
-	_help->Move(10, 10);
-	_help->SetText(ConfBind(_lang.f1_help_editor));
-	_help->SetAlign(alignTextLT);
-	_help->SetVisible(false);
-	AddFront(_help);
+	_helpBox = std::make_shared<UI::Rectangle>();
+	_helpBox->SetTexture("ui/list");
+	_helpBox->Resize(384, 256);
+	_helpBox->SetVisible(false);
+	_helpBox->AddFront(MakeHelpText(_lang));
+	AddFront(_helpBox);
 
 	_propList = std::make_shared<PropertyList>(texman, _world, conf, logger, lang);
 	_propList->SetVisible(false);
@@ -563,7 +570,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 		ActionOrSelectAt(Center(GetNavigationOrigin()));
 		break;
 	case Plat::Key::F1:
-		_help->SetVisible(!_help->GetVisible());
+		_helpBox->SetVisible(!_helpBox->GetVisible());
 		break;
 	case Plat::Key::F9:
 		_conf.uselayers.Set(!_conf.uselayers.Get());
@@ -590,7 +597,7 @@ bool EditorLayout::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &l
 	switch (navigate)
 	{
 	case UI::Navigate::Back:
-		return !!_selectedObject;
+		return _helpBox->GetVisible() || !!_selectedObject;
 	case UI::Navigate::Enter:
 	case UI::Navigate::Up:
 	case UI::Navigate::Down:
@@ -620,7 +627,11 @@ void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, 
 		ActionOrCreateAt(_virtualPointer, true);
 		break;
 	case UI::Navigate::Back:
-		if (_selectedObject)
+		if (_helpBox->GetVisible())
+		{
+			_helpBox->SetVisible(false);
+		}
+		else if (_selectedObject)
 		{
 			Select(_selectedObject, false);
 		}
@@ -674,6 +685,11 @@ FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext
 		float pxWidth = std::floor(100 * lc.GetScale());
 		float pxRight = _toolbar ? GetChildRect(texman, lc, dc, *_toolbar).left : lc.GetPixelSize().x;
 		return FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y };
+	}
+	if (_helpBox.get() == &child)
+	{
+		vec2d pxHelpBoxSize = _helpBox->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		return MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxHelpBoxSize) / 2), pxHelpBoxSize);
 	}
 
 	return UI::Window::GetChildRect(texman, lc, dc, child);
