@@ -60,10 +60,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdexcept>
+
 template<class T>
 void SaveFile::Serialize(T &obj)
 {
-	assert(typeid(obj) != typeid(std::string));
 	assert(typeid(obj) != typeid(std::string));
     assert(!std::strstr(typeid(obj).name(), "shared_ptr"));
 	assert(!std::strstr(typeid(obj).name(), "ObjPtr"));

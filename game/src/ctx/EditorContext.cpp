@@ -3,6 +3,7 @@
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 #include <MapFile.h>
+#include <stdexcept>
 
 EditorContext::EditorContext(int width, int height, FS::Stream *stream)
 {
