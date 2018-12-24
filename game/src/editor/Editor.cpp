@@ -448,11 +448,21 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 
 void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)
 {
-	if (!precise)
+	if (precise)
 	{
-		scrollOffset *= WORLD_BLOCK_SIZE;
+		_defaultCamera.Move(scrollOffset, _world.GetBounds());
 	}
-	_defaultCamera.Move(scrollOffset, _world.GetBounds());
+	else
+	{
+		if (scrollOffset.y > 0)
+		{
+			_defaultCamera.ZoomIn();
+		}
+		else
+		{
+			_defaultCamera.ZoomOut();
+		}
+	}
 }
 
 void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
