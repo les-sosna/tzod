@@ -133,6 +133,7 @@ private:
 	LangCache &_lang;
 	EditorCommands _commands;
 	vec2d _virtualPointer;
+	vec2d _prevPointerPosition;
 	DefaultCamera _defaultCamera;
 	std::shared_ptr<PropertyList> _propList;
 	std::shared_ptr<UI::Text> _layerDisp;

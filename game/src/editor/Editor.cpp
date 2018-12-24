@@ -472,15 +472,21 @@ void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Te
 	if (_capturedButton)
 	{
 		vec2d worldPos = CanvasToWorld(lc, pi.position);
-		if (2 == _capturedButton)
+		switch (_capturedButton)
 		{
-			EraseAt(worldPos);
-		}
-		else if (1 == _capturedButton)
-		{
+		case 1:
 			// keep default properties if Ctrl key is not pressed
-			bool defaultProperties = !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
-			CreateAt(worldPos, defaultProperties);
+			CreateAt(worldPos, !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl));
+			break;
+
+		case 2:
+			EraseAt(worldPos);
+			break;
+
+		case 4:
+			_defaultCamera.Move((pi.position - _prevPointerPosition) / _defaultCamera.GetZoom() / lc.GetScale(), _world.GetBounds());
+			_prevPointerPosition = pi.position;
+			break;
 		}
 	}
 }
@@ -530,6 +536,10 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 			bool defaultProperties = !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 			ActionOrCreateAt(worldPos, defaultProperties);
 		}
+	}
+	else if (4 == button)
+	{
+		_prevPointerPosition = pi.position;
 	}
 
 	return capture;
