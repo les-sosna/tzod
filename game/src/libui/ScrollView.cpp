@@ -30,6 +30,8 @@ FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 	if (_content.get() == &child)
 	{
 		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc));
+		if (_stretchContent)
+			pxContentMeasuredSize = Vec2dMax(pxContentMeasuredSize, size);
 		vec2d pxContentOffset = Vec2dClamp(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
 		vec2d pxContentSize = vec2d{
 			_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,

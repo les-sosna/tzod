@@ -15,6 +15,9 @@ namespace UI
 		void SetVerticalScrollEnabled(bool enabled) { _verticalScrollEnabled = enabled; }
 		void SetHorizontalScrollEnabled(bool enabled) { _horizontalScrollEnabled = enabled; }
 
+		void SetStretchContent(bool stretchContent) { _stretchContent = stretchContent; }
+		bool GetStretchContent() const { return _stretchContent; }
+
 		// Window
 		bool HasScrollSink() const override { return true; }
 		ScrollSink* GetScrollSink() override { return this; }
@@ -27,6 +30,7 @@ namespace UI
 		vec2d _offset = {};
 		bool _verticalScrollEnabled = true;
 		bool _horizontalScrollEnabled = false;
+		bool _stretchContent = false;
 
 		// ScrollSink
 		void OnScroll(TextureManager &texman, const UI::InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset, bool precise) override;

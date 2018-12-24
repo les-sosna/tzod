@@ -25,6 +25,7 @@ Edit::Edit()
 	_scrollView->SetContent(_editable);
 	_scrollView->SetHorizontalScrollEnabled(true);
 	_scrollView->SetVerticalScrollEnabled(false);
+	_scrollView->SetStretchContent(true);
 
 	Resize(100, 16);
 }
