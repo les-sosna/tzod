@@ -259,11 +259,13 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
 
+	// On-screen controls
 	vec2d dir = GetDragDirection();
 	bool reversing = GetEffectiveDragCount() > 1;
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 	{
+		// Draw touch drag indicator
 		if (!dir.IsZero())
 		{
 			if (const GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
@@ -276,6 +278,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			}
 		}
 		
+		// Draw tap target
 		if (const VehicleStateReader *vehicleStateReader = _inputMgr.GetVehicleStateReader(playerIndex))
 		{
 			float time = vehicleStateReader->GetRemainingFireTime();
