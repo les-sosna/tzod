@@ -1,4 +1,4 @@
-#include "inc/editor/Editor.h"
+#include "inc/editor/EditorWorldView.h"
 #include "inc/editor/Config.h"
 #include "PropertyList.h"
 #include "GameClassVis.h"

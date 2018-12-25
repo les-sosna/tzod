@@ -17,7 +17,7 @@
 #include <as/AppState.h>
 #include <cbind/ConfigBinding.h>
 #include <ctx/EditorContext.h>
-#include <editor/Editor.h>
+#include <editor/EditorMain.h>
 #include <editor/MapSettings.h>
 #include <gc/World.h>
 #include <fs/FileSystem.h>
