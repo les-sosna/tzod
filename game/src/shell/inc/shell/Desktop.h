@@ -25,7 +25,7 @@ namespace UI
 class AppConfig;
 class AppController;
 class MainMenuDlg;
-class EditorLayout;
+class EditorMain;
 class GameLayout;
 class FpsCounter;
 class ShellConfig;
@@ -77,7 +77,7 @@ private:
 	Plat::ConsoleBuffer &_logger;
 	std::unique_ptr<LuaConsole> _luaConsole;
 
-	std::shared_ptr<EditorLayout> _editor;
+	std::shared_ptr<EditorMain> _editor;
 	std::shared_ptr<GameLayout> _game;
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::Rectangle> _background;

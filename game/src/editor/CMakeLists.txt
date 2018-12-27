@@ -15,6 +15,7 @@ add_library(editor
 
 	Config.cpp
 	DefaultCamera.cpp
+	EditorMain.cpp
 	EditorWorldView.cpp
 	GameClassVis.cpp
 	MapList.cpp

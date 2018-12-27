@@ -634,7 +634,7 @@ void Desktop::OnGameContextChanged()
 	else if (auto editorContext = std::dynamic_pointer_cast<EditorContext>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
-		_editor = std::make_shared<EditorLayout>(
+		_editor = std::make_shared<EditorMain>(
 			GetTimeStepManager(),
 			_texman,
 			*editorContext,
