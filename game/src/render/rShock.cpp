@@ -1,5 +1,6 @@
 #include "rShock.h"
 #include <gc/Pickup.h>
+#include <gc/World.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 
@@ -15,7 +16,7 @@ void R_Shock::Draw(const World &world, const GC_Actor &actor, RenderContext &rc)
 	if( !shock.GetGridSet() )
 	{
 		SpriteColor c;
-		c.r = c.g = c.b = c.a = int((1.0f - ((shock.GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
+		c.r = c.g = c.b = c.a = int((1.0f - ((world.GetTime() - shock.GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f)) * 255.0f);
 		vec2d pos0 = shock.GetPos();
 		vec2d pos1 = shock.GetTargetPos();
 		rc.DrawLine(_texId, c, pos0, pos1, frand(1));

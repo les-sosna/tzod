@@ -64,7 +64,7 @@ public:
 	bool GetAttached() const { return CheckFlags(GC_FLAG_PICKUP_ATTACHED); }
 	float GetRadius() const { return 8.0f; }
 
-	float GetRespawnTime() const;
+	float GetRespawnTime() const { return _timeRespawn; }
 	void  SetRespawnTime(float respawnTime);
 
 	bool GetIsDefaultItem() const { return CheckFlags(GC_FLAG_PICKUP_IS_DEFAULT_ITEM); }
@@ -76,7 +76,8 @@ public:
 	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
 	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
 
-	float GetTimeAttached() const { assert(GetAttached()); return _timeAttached; }
+	float GetTimeAttached() const { assert(GetAttached()); return _timeLastStateChange; }
+	float GetTimeDisappeared() const { assert(!GetVisible()); return _timeLastStateChange; }
 
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
@@ -99,7 +100,7 @@ public:
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
 		^ reinterpret_cast<const DWORD&>(GetPos().y)
-		^ reinterpret_cast<const DWORD&>(_timeAttached);
+		^ reinterpret_cast<const DWORD&>(_timeLastStateChange);
 		return GC_Actor::checksum() ^ cs;
 	}
 #endif
@@ -122,7 +123,7 @@ protected:
 
 private:
 	std::string _scriptOnPickup;   // on_pickup(who)
-	float _timeAttached = 0;
+	float _timeLastStateChange = 0;
 	float _timeRespawn = 0;
 	vec2d _respawnPos = {};
 
@@ -166,7 +167,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PROTECT_TIME        20.0f
+#define SHIELD_TIMEOUT  20.0f
 
 struct DamageDesc;
 
@@ -239,7 +240,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define BOOSTER_TIME        20.0f
+#define BOOSTER_TIMEOUT        20.0f
 
 class GC_pu_Booster : public GC_Pickup
 {
