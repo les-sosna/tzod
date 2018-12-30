@@ -41,7 +41,7 @@ class GC_RigidBodyStatic;
 #define GC_FLAG_PICKUP_BLINK             (GC_FLAG_ACTOR_ << 0)
 #define GC_FLAG_PICKUP_AUTO              (GC_FLAG_ACTOR_ << 1)
 #define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 3)
+#define GC_FLAG_PICKUP_HIDDEN            (GC_FLAG_ACTOR_ << 3)
 #define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 4)
 #define GC_FLAG_PICKUP_IS_DEFAULT_ITEM   (GC_FLAG_ACTOR_ << 5)
 #define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 6)
@@ -53,8 +53,7 @@ class GC_Pickup : public GC_Actor
     typedef GC_Actor base;
 
 public:
-	explicit GC_Pickup(vec2d pos);
-	explicit GC_Pickup(FromFile);
+	using GC_Actor::GC_Actor;
 	virtual ~GC_Pickup();
 
 	void Attach(World &world, GC_Vehicle &vehicle);
@@ -73,8 +72,8 @@ public:
 	bool GetRespawn() const { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
 	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
 
-	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
-	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
+	void SetVisible(bool visible) { SetFlags(GC_FLAG_PICKUP_HIDDEN, !visible); }
+	bool GetVisible() const { return !CheckFlags(GC_FLAG_PICKUP_HIDDEN); }
 
 	float GetTimeAttached() const { assert(GetAttached()); return _timeLastStateChange; }
 	float GetTimeDisappeared() const { assert(!GetVisible()); return _timeLastStateChange; }

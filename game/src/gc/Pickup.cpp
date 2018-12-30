@@ -17,19 +17,6 @@
 IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
 IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
-GC_Pickup::GC_Pickup(vec2d pos)
-  : GC_Actor(pos)
-{
-	SetRespawn(false);
-	SetBlinking(false);
-	SetVisible(true);
-}
-
-GC_Pickup::GC_Pickup(FromFile)
-  : GC_Actor(FromFile())
-{
-}
-
 GC_Pickup::~GC_Pickup()
 {
 }
