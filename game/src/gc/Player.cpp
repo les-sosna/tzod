@@ -161,7 +161,9 @@ void GC_Player::TimeStep(World &world, float dt)
 
 				_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
 
-				world.New<GC_pu_Shield>(pBestPoint->GetPos()).Attach(world, *_vehicle, true);
+				auto &initialShield = world.New<GC_pu_Shield>(pBestPoint->GetPos());
+				initialShield.SetIsDefaultItem(true);
+				initialShield.Attach(world, *_vehicle);
 
 				GC_Object* found = world.FindObject(_vehname);
 				if( found && _vehicle != found )

@@ -41,7 +41,7 @@ private:
 	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
 
 	// ObjectListener<GC_Pickup>
-	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool pickedUp) override;
+	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
 	void OnDetach(GC_Pickup &obj) override;
 	void OnRespawn(GC_Pickup &obj) override;
 	void OnDisappear(GC_Pickup &obj) override;

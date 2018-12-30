@@ -297,7 +297,7 @@ static int object_equip(lua_State *L)
 	if( pickup->GetAttached() )
 		pickup->Detach(world);
 
-	pickup->Attach(world, *target, false);
+	pickup->Attach(world, *target);
 
 	return 0;
 }

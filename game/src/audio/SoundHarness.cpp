@@ -158,9 +158,9 @@ static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, SoundTemplate
 	return sound;
 }
 
-void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool asInitial)
+void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
-	if (asInitial)
+	if (obj.GetIsDefaultItem())
 		return;
 
 	ObjectType type = obj.GetType();

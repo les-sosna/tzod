@@ -19,8 +19,6 @@ IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
 
 GC_Pickup::GC_Pickup(vec2d pos)
   : GC_Actor(pos)
-  , _timeAttached(0)
-  , _timeRespawn(0)
 {
 	SetRespawn(false);
 	SetBlinking(false);
@@ -39,14 +37,13 @@ GC_Pickup::~GC_Pickup()
 void GC_Pickup::Init(World &world)
 {
 	GC_Actor::Init(world);
-	_label = &world.New<GC_HideLabel>(GetPos());
+	_respawnPos = GetPos();
 }
 
 void GC_Pickup::Kill(World &world)
 {
 	if (GetAttached())
 		Detach(world);
-	SAFE_KILL(world, _label);
 	GC_Actor::Kill(world);
 }
 
@@ -54,25 +51,20 @@ void GC_Pickup::Serialize(World &world, SaveFile &f)
 {
 	GC_Actor::Serialize(world, f);
 
+	f.Serialize(_scriptOnPickup);
 	f.Serialize(_timeAttached);
 	f.Serialize(_timeRespawn);
-	f.Serialize(_scriptOnPickup);
-	f.Serialize(_label);
+	f.Serialize(_respawnPos);
 }
 
-void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle, bool asInitial)
+void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle)
 {
-	if (asInitial)
-	{
-		SAFE_KILL(world, _label);
-	}
-
 	assert(!GetAttached());
 	_timeAttached = 0;
 	SetFlags(GC_FLAG_PICKUP_ATTACHED, true);
 	MoveTo(world, vehicle.GetPos());
 	for( auto ls: world.eGC_Pickup._listeners )
-		ls->OnAttach(*this, vehicle, asInitial);
+		ls->OnAttach(*this, vehicle);
 	OnAttached(world, vehicle);
 }
 
@@ -94,10 +86,10 @@ void GC_Pickup::Disappear(World &world)
 	SetVisible(false);
 	_timeAttached = 0;
 
-	if (_label)
-		MoveTo(world, _label->GetPos());
-	else
+	if (GetIsDefaultItem())
 		Kill(world);
+	else
+		MoveTo(world, _respawnPos);
 }
 
 void GC_Pickup::SetRespawnTime(float respawnTime)

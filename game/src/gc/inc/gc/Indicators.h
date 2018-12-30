@@ -35,13 +35,3 @@ protected:
 	};
 	PropertySet* NewPropertySet() override;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_HideLabel : public GC_Actor
-{
-	DECLARE_SELF_REGISTRATION(GC_HideLabel);
-public:
-	GC_HideLabel(vec2d pos);
-	GC_HideLabel(FromFile);
-};

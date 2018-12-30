@@ -57,8 +57,8 @@ private:
 
 ////////////////////////////////////////////////////////////
 
-#define GC_FLAG_OBJECT_NAMED                  0x00000001
-#define GC_FLAG_OBJECT_                       0x00000002
+#define GC_FLAG_OBJECT_NAMED                  0x00000001u
+#define GC_FLAG_OBJECT_                       0x00000002u
 
 typedef PtrList<GC_Object> ObjectList;
 typedef void (GC_Object::*NOTIFYPROC) (World &world, GC_Object *sender, void *param);

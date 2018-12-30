@@ -24,7 +24,7 @@ sPickup::~sPickup()
 	_world.eGC_Pickup.RemoveListener(*this);
 }
 
-void sPickup::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool asInitial)
+void sPickup::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
 	if( !obj.GetOnPickup().empty() )
 	{

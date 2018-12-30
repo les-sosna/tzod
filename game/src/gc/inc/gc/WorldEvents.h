@@ -14,7 +14,7 @@ class GC_Pickup;
 class GC_Vehicle;
 template<> struct ObjectListener<GC_Pickup>
 {
-	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool pickedUp) = 0;
+	virtual void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) = 0;
 	virtual void OnDetach(GC_Pickup &obj) = 0;
 	virtual void OnRespawn(GC_Pickup &obj) = 0;
 	virtual void OnDisappear(GC_Pickup &obj) = 0;

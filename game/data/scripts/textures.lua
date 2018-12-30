@@ -32,7 +32,6 @@ return {
    file="textures/editor/labels.tga",
    content={
      editor_respawn={left=0, top=0, right=32, bottom=32},
-     editor_item={left=64, top=0, right=128, bottom=64},
    }
 },
 {

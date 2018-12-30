@@ -169,7 +169,6 @@ class EditorViewsBuilder : public ObjectViewsSelectorBuilder
 public:
 	EditorViewsBuilder(TextureManager &tm)
 	{
-		AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 		AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
 		AddView<GC_Trigger>(Make<Z_Const>(Z_WOOD), Make<R_Sprite>(tm, "editor_trigger"));
 	}

@@ -31,7 +31,6 @@ typedef float AIPRIORITY;
 #define AI_MAX_SIGHT   40.0f
 #define AI_MAX_DEPTH   256.0f
 
-class GC_HideLabel;
 class GC_Vehicle;
 class GC_Light;
 class GC_Crosshair;
@@ -44,7 +43,8 @@ class GC_RigidBodyStatic;
 #define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
 #define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 3)
 #define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 4)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 5)
+#define GC_FLAG_PICKUP_IS_DEFAULT_ITEM   (GC_FLAG_ACTOR_ << 5)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 6)
 
 class GC_Pickup : public GC_Actor
 {
@@ -57,9 +57,7 @@ public:
 	explicit GC_Pickup(FromFile);
 	virtual ~GC_Pickup();
 
-	bool IsInitial() const { return !_label; } // initials do not have the label to respawn at
-
-	void Attach(World &world, GC_Vehicle &vehicle, bool asInitial);
+	void Attach(World &world, GC_Vehicle &vehicle);
 
 	const std::string& GetOnPickup() const { return _scriptOnPickup; }
 
@@ -69,7 +67,10 @@ public:
 	float GetRespawnTime() const;
 	void  SetRespawnTime(float respawnTime);
 
-	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
+	bool GetIsDefaultItem() const { return CheckFlags(GC_FLAG_PICKUP_IS_DEFAULT_ITEM); }
+	void SetIsDefaultItem(bool value) { SetFlags(GC_FLAG_PICKUP_IS_DEFAULT_ITEM, value); }
+
+	bool GetRespawn() const { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
 	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
 
 	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
@@ -120,11 +121,10 @@ protected:
 	PropertySet* NewPropertySet() override;
 
 private:
-	ObjPtr<GC_HideLabel>  _label;
-
-	std::string  _scriptOnPickup;   // on_pickup(who)
-	float  _timeAttached;
-	float  _timeRespawn;
+	std::string _scriptOnPickup;   // on_pickup(who)
+	float _timeAttached = 0;
+	float _timeRespawn = 0;
+	vec2d _respawnPos = {};
 
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) = 0;
 };

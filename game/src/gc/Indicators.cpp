@@ -103,20 +103,3 @@ void GC_SpawnPoint::MyPropertySet::MyExchange(World &world, bool applyToObject)
 		_propDir.SetFloatValue(tmp->GetDirection().Angle());
 	}
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-IMPLEMENT_SELF_REGISTRATION(GC_HideLabel)
-{
-	return true;
-}
-
-GC_HideLabel::GC_HideLabel(vec2d pos)
-  : GC_Actor(pos)
-{
-}
-
-GC_HideLabel::GC_HideLabel(FromFile)
-  : GC_Actor(FromFile())
-{
-}
