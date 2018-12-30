@@ -1,7 +1,6 @@
 #include "TypeReg.h"
 #include "inc/gc/Turrets.h"
 #include "inc/gc/Explosion.h"
-#include "inc/gc/Indicators.h"
 #include "inc/gc/Vehicle.h"
 #include "inc/gc/Player.h"
 #include "inc/gc/Projectiles.h"

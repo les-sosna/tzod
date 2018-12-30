@@ -22,11 +22,11 @@
 #include "RenderCfg.h"
 #include <gc/Crate.h>
 #include <gc/GameClasses.h>
-#include <gc/Indicators.h>
 #include <gc/Light.h>
 #include <gc/Particles.h>
 #include <gc/Projectiles.h>
 #include <gc/RigidBody.h>
+#include <gc/SpawnPoint.h>
 #include <gc/Trigger.h>
 #include <gc/Turrets.h>
 #include <gc/UserObjects.h>

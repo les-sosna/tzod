@@ -1,7 +1,7 @@
 #include "TypeReg.h"
 #include "inc/gc/Pickup.h"
 #include "inc/gc/Explosion.h"
-#include "inc/gc/Indicators.h"
+#include "inc/gc/SpawnPoint.h"
 #include "inc/gc/Light.h"
 #include "inc/gc/Macros.h"
 #include "inc/gc/Particles.h"

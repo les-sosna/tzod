@@ -7,7 +7,6 @@ add_library(gc
 	inc/gc/Field.h
 	inc/gc/GameClasses.h
 	inc/gc/Grid.h
-	inc/gc/Indicators.h
 	inc/gc/Light.h
 	inc/gc/Macros.h
 	inc/gc/MessageBox.h
@@ -24,6 +23,7 @@ add_library(gc
 	inc/gc/SaveFile.h
 	inc/gc/Serialization.h
 	inc/gc/Service.h
+	inc/gc/SpawnPoint.h
 	inc/gc/Trigger.h
 	inc/gc/Turrets.h
 	inc/gc/TypeSystem.h
@@ -54,7 +54,6 @@ add_library(gc
 	Explosion.cpp
 	Field.cpp
 	GameClasses.cpp
-	Indicators.cpp
 	Light.cpp
 #	MessageBox.cpp
 	Object.cpp
@@ -68,6 +67,7 @@ add_library(gc
 	Rotator.cpp
 	SaveFile.cpp
 	Service.cpp
+	SpawnPoint.cpp
 	Trigger.cpp
 	Turrets.cpp
 	TypeReg.h
@@ -84,9 +84,8 @@ add_library(gc
 )
 
 target_link_libraries(gc
-	PRIVATE fs
 	PRIVATE mapfile
-	PUBLIC math
+	PUBLIC fs math
 )
 
 target_include_directories(gc INTERFACE inc)

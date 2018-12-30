@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Actor.h"
 
 class GC_Vehicle;
@@ -11,7 +10,7 @@ class GC_SpawnPoint : public GC_Actor
 	typedef GC_Actor base;
 
 public:
-	int   _team;    // 0 - no team
+	int _team;    // 0 - no team
 
 public:
 	explicit GC_SpawnPoint(vec2d pos);

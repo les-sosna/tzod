@@ -1,5 +1,5 @@
 #include "inc/ctx/EditorContext.h"
-#include <gc/Indicators.h>
+#include <gc/SpawnPoint.h>
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 #include <MapFile.h>
