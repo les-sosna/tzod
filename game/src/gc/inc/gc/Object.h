@@ -70,7 +70,7 @@ class GC_Object
 
 public:
 	GC_Object() = default;
-	virtual ~GC_Object();
+	virtual ~GC_Object() = 0;
 
 	ObjectList::id_type GetId() const { return _posLIST_objects; }
 

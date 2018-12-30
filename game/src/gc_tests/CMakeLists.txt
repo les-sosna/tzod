@@ -3,9 +3,11 @@ project(GCTests)
 
 add_executable(gc_tests
 	PtrList_tests.cpp
+	Serialization_tests.cpp
 )
 
 target_link_libraries(gc_tests PRIVATE
+	fsmem
 	gc
 	gtest_main
 )

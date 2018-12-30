@@ -127,7 +127,7 @@ void World::Clear()
 		_dump = nullptr;
 	}
 #endif
-    assert(GetList(LIST_objects).empty());
+	assert(GetList(LIST_objects).empty());
 }
 
 World::~World()
@@ -139,6 +139,7 @@ World::~World()
 
 void World::Deserialize(SaveFile &f)
 {
+	assert(f.loading());
 	assert(IsSafeMode());
 	assert(GetList(LIST_objects).empty());
 
@@ -168,12 +169,11 @@ void World::Deserialize(SaveFile &f)
 
 void World::Serialize(SaveFile &f)
 {
+	assert(!f.loading());
 	assert(IsSafeMode());
 
-	//
 	// pointers to game objects
-	//
-    ObjectList &objects = GetList(LIST_objects);
+	ObjectList &objects = GetList(LIST_objects);
 	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
 	{
 		GC_Object *object = objects.at(it);
@@ -184,11 +184,7 @@ void World::Serialize(SaveFile &f)
 	ObjectType terminator(INVALID_OBJECT_TYPE);
 	f.Serialize(terminator);
 
-
-	//
 	// write objects contents in the same order as pointers
-	//
-
 	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
 	{
 		objects.at(it)->Serialize(*this, f);
