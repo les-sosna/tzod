@@ -61,7 +61,6 @@ private:
 #define GC_FLAG_OBJECT_                       0x00000002u
 
 typedef PtrList<GC_Object> ObjectList;
-typedef void (GC_Object::*NOTIFYPROC) (World &world, GC_Object *sender, void *param);
 
 class GC_Object
 {
@@ -70,7 +69,7 @@ class GC_Object
 	DECLARE_LIST_MEMBER(;);
 
 public:
-	GC_Object();
+	GC_Object() = default;
 	virtual ~GC_Object();
 
 	ObjectList::id_type GetId() const { return _posLIST_objects; }
@@ -100,6 +99,6 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 private:
-	unsigned int _flags;
+	unsigned int _flags = 0;
 	ObjectList::id_type _posLIST_objects;
 };
