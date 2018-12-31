@@ -11,15 +11,15 @@ TEST(Serialization, CanSerializeEmptyWorld)
 		SaveFile f(stream, false /*loading*/);
 		World world({ 0, 0, 16, 16 }, false /*initField*/);
 		world.Serialize(f);
-		EXPECT_EQ(4, stream.Tell());
+		EXPECT_EQ(10, stream.Tell());
 	}
 
 	stream.Seek(0, SEEK_SET);
 	{
 		World world({ 0, 0, 16, 16 }, false /*initField*/); // FIXME: restore bounds from file
 		SaveFile f(stream, true /*loading*/);
-		world.Deserialize(f);
-		EXPECT_EQ(4, stream.Tell());
+		world.Serialize(f);
+		EXPECT_EQ(10, stream.Tell());
 	}
 }
 
@@ -40,7 +40,7 @@ TEST(Serialization, CanSerializeNamedActor)
 	{
 		World world({ 0, 0, 16, 16 }, false /*initField*/);
 		SaveFile f(stream, true /*loading*/);
-		world.Deserialize(f);
+		world.Serialize(f);
 		EXPECT_EQ(size, stream.Tell());
 		EXPECT_TRUE(world.FindObject("abc") != nullptr);
 	}

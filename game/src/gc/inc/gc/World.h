@@ -139,7 +139,6 @@ public:
 		return *t;
 	}
 
-	void Deserialize(SaveFile &f);
 	void Serialize(SaveFile &f);
 
 	FRECT GetOccupiedBounds() const;

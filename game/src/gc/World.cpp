@@ -137,55 +137,47 @@ World::~World()
 	assert(GetList(LIST_objects).empty() && _garbage.empty());
 }
 
-void World::Deserialize(SaveFile &f)
+void World::Serialize(SaveFile &f)
 {
-	assert(f.loading());
 	assert(IsSafeMode());
-	assert(GetList(LIST_objects).empty());
+	assert(GetList(LIST_objects).empty() || !f.loading());
 
 	f.Serialize(_gameStarted);
 	f.Serialize(_time);
 	f.Serialize(_nightMode);
 
-	// fill pointers cache
-	for(;;)
-	{
-		ObjectType type;
-		f.Serialize(type);
-		if( INVALID_OBJECT_TYPE == type ) // end of list signal
-			break;
-		if( GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type) )
-			f.RegPointer(obj);
-		else
-			throw std::runtime_error("Load error: unknown object type");
-	}
-
-	// read objects contents in the same order as pointers
-	for( ObjectList::id_type it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); it = GetList(LIST_objects).next(it) )
-	{
-		GetList(LIST_objects).at(it)->Serialize(*this, f);
-	}
-}
-
-void World::Serialize(SaveFile &f)
-{
-	assert(!f.loading());
-	assert(IsSafeMode());
-
-	// pointers to game objects
 	ObjectList &objects = GetList(LIST_objects);
-	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
+	if (f.loading())
 	{
-		GC_Object *object = objects.at(it);
-		ObjectType type = object->GetType();
-		f.Serialize(type);
-		f.RegPointer(object);
+		// fill pointers cache
+		for (;;)
+		{
+			ObjectType type;
+			f.Serialize(type);
+			if (INVALID_OBJECT_TYPE == type) // end of list signal
+				break;
+			if (GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type))
+				f.RegPointer(obj);
+			else
+				throw std::runtime_error("Load error: unknown object type");
+		}
 	}
-	ObjectType terminator(INVALID_OBJECT_TYPE);
-	f.Serialize(terminator);
+	else
+	{
+		// pointers to game objects
+		for (auto it = objects.begin(); it != objects.end(); it = objects.next(it))
+		{
+			GC_Object *object = objects.at(it);
+			ObjectType type = object->GetType();
+			f.Serialize(type);
+			f.RegPointer(object);
+		}
+		ObjectType terminator(INVALID_OBJECT_TYPE);
+		f.Serialize(terminator);
+	}
 
-	// write objects contents in the same order as pointers
-	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
+	// serialize objects contents in the same order as pointers
+	for (ObjectList::id_type it = objects.begin(); it != objects.end(); it = objects.next(it))
 	{
 		objects.at(it)->Serialize(*this, f);
 	}
