@@ -221,17 +221,6 @@ private:
 			: obj(std::move(obj_))
 			, time(time_)
 		{}
-#ifdef _MSC_VER
-		Resumable(Resumable && other)
-			: obj(std::move(other.obj))
-			, time(other.time)
-		{}
-		void operator=(Resumable && other)
-		{
-			obj = std::move(other.obj);
-			time = other.time;
-		}
-#endif
 	};
 	std::priority_queue<Resumable> _resumables;
 	float _time;
