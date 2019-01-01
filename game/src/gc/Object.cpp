@@ -33,13 +33,13 @@ void PropertySet::MyExchange(World &world, bool applyToObject)
 		}
 		else
 		{
-			GetObject()->SetName(world, newName);
+			GetObject()->SetName(world, std::string(newName));
 		}
 	}
 	else
 	{
-		const char *name = GetObject()->GetName(world);
-		_propName.SetStringValue(name ? name : "");
+		auto name = GetObject()->GetName(world);
+		_propName.SetStringValue(std::string(name));
 	}
 }
 
@@ -70,7 +70,7 @@ GC_Object::~GC_Object()
 void GC_Object::Kill(World &world)
 {
 	world.OnKill(*this);
-	SetName(world, std::string_view());
+	SetName(world, {});
 	Unregister(world, _posLIST_objects);
 	delete this;
 }
@@ -81,52 +81,52 @@ void GC_Object::Serialize(World &world, SaveFile &f)
 
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
+		std::string name;
 		if( f.loading() )
 		{
-			std::string name;
 			f.Serialize(name);
-
-			assert(!world._objectToStringMap.count(this));
-			assert(!world._nameToObjectMap.count(name));
-			world._objectToStringMap[this] = name;
-			world._nameToObjectMap[name] = this;
+			if (name.empty())
+				throw std::runtime_error("empty object name");
+			auto itb = world._nameToObjectMap.emplace(std::move(name), this);
+			if (!itb.second)
+				throw std::runtime_error("duplicate object name");
+			world._objectToStringMap.emplace(this, itb.first->first);
 		}
 		else
 		{
-			std::string name = GetName(world);
+			name = GetName(world);
 			f.Serialize(name);
 		}
 	}
 }
 
-const char* GC_Object::GetName(World &world) const
+std::string_view GC_Object::GetName(World &world) const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
 		assert(world._objectToStringMap.count(this));
-		return world._objectToStringMap[this].c_str();
+		return world._objectToStringMap[this];
 	}
-	return nullptr;
+	return {};
 }
 
-void GC_Object::SetName(World &world, std::string_view name)
+void GC_Object::SetName(World &world, std::string name)
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		assert(world._objectToStringMap.count(this));
-		auto &oldName = world._objectToStringMap[this];
-		assert(world._nameToObjectMap.count(oldName));
-		world._nameToObjectMap.erase(oldName);
-		world._objectToStringMap.erase(this); // this invalidates oldName ref
 		SetFlags(GC_FLAG_OBJECT_NAMED, false);
+		auto o2sIt = world._objectToStringMap.find(this);
+		auto n2oIt = world._nameToObjectMap.find(o2sIt->second);
+		world._nameToObjectMap.erase(n2oIt);
+		world._objectToStringMap.erase(o2sIt);
 	}
 
 	if( !name.empty() )
 	{
 		assert(!world._objectToStringMap.count(this));
 		assert(!world._nameToObjectMap.count(name));
-		world._objectToStringMap[this] = name;
-		world._nameToObjectMap[std::string(name)] = this;
+		auto itb = world._nameToObjectMap.emplace(std::move(name), this);
+		world._objectToStringMap.emplace(this, itb.first->first);
 		SetFlags(GC_FLAG_OBJECT_NAMED, true);
 	}
 }

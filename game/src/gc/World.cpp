@@ -292,8 +292,8 @@ void World::Export(FS::Stream &s)
 		if( RTTypes::Inst().IsRegistered(object->GetType()) )
 		{
 			file.BeginObject(RTTypes::Inst().GetTypeInfo(object->GetType()).name);
-			if (const char *optName = object->GetName(*this))
-				file.setObjectAttribute("name", std::string(optName));
+			if (auto optName = object->GetName(*this); !optName.empty())
+				file.setObjectAttribute("name", optName);
 			object->MapExchange(file);
 			file.WriteCurrentObject();
 		}

@@ -236,8 +236,8 @@ private:
 
 	void OnKill(GC_Object &obj);
 
-	std::map<const GC_Object*, std::string> _objectToStringMap;
-	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap; // TODO: try to avoid name string duplication
+	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap;
+	std::map<const GC_Object*, std::string_view> _objectToStringMap; // string owned by _nameToObjectMap
 
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 };

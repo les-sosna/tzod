@@ -251,50 +251,50 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
-	GC_Player *tmp = static_cast<GC_Player *>(GetObject());
+	GC_Player *player = static_cast<GC_Player *>(GetObject());
 
 	if( applyToObject )
 	{
-		tmp->SetTeam(_propTeam.GetIntValue());
-		tmp->SetScore(_propScore.GetIntValue());
-		tmp->SetNick(std::string(_propNick.GetStringValue()));
-		tmp->SetClass(std::string(_propClass.GetListValue(_propClass.GetCurrentIndex())));
-		tmp->SetSkin(std::string(_propSkin.GetStringValue()));
-		tmp->_scriptOnDie = _propOnDie.GetStringValue();
-		tmp->_scriptOnRespawn = _propOnRespawn.GetStringValue();
+		player->SetTeam(_propTeam.GetIntValue());
+		player->SetScore(_propScore.GetIntValue());
+		player->SetNick(std::string(_propNick.GetStringValue()));
+		player->SetClass(std::string(_propClass.GetListValue(_propClass.GetCurrentIndex())));
+		player->SetSkin(std::string(_propSkin.GetStringValue()));
+		player->_scriptOnDie = _propOnDie.GetStringValue();
+		player->_scriptOnRespawn = _propOnRespawn.GetStringValue();
 
 		auto vehName = _propVehName.GetStringValue();
-		if( tmp->GetVehicle() )
+		if(player->GetVehicle() )
 		{
 			GC_Object* found = world.FindObject(vehName);
-			if( found && tmp->GetVehicle() != found )
+			if( found && player->GetVehicle() != found )
 			{
 //				_logger.Printf(1, "WARNING: object with name \"%s\" already exists", name);
 			}
 			else
 			{
-				tmp->GetVehicle()->SetName(world, vehName);
-				tmp->_vehname = vehName;
+				player->GetVehicle()->SetName(world, std::string(vehName));
+				player->_vehname = vehName;
 			}
 		}
 		else
 		{
-			tmp->_vehname = vehName;
+			player->_vehname = vehName;
 		}
 	}
 	else
 	{
-		_propOnRespawn.SetStringValue(tmp->_scriptOnRespawn);
-		_propOnDie.SetStringValue(tmp->_scriptOnDie);
-		_propTeam.SetIntValue(tmp->GetTeam());
-		_propScore.SetIntValue(tmp->GetScore());
-		_propNick.SetStringValue(std::string(tmp->GetNick()));
-		_propVehName.SetStringValue(tmp->_vehname);
-		_propSkin.SetStringValue(std::string(tmp->GetSkin()));
+		_propOnRespawn.SetStringValue(player->_scriptOnRespawn);
+		_propOnDie.SetStringValue(player->_scriptOnDie);
+		_propTeam.SetIntValue(player->GetTeam());
+		_propScore.SetIntValue(player->GetScore());
+		_propNick.SetStringValue(std::string(player->GetNick()));
+		_propVehName.SetStringValue(player->_vehname);
+		_propSkin.SetStringValue(std::string(player->GetSkin()));
 
 		for( size_t i = 0; i < _propClass.GetListSize(); ++i )
 		{
-			if( tmp->GetClass() == _propClass.GetListValue(i) )
+			if( player->GetClass() == _propClass.GetListValue(i) )
 			{
 				_propClass.SetCurrentIndex(i);
 				break;
