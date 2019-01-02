@@ -18,7 +18,7 @@ public:
 	void Init(World &world) override;
 	void Kill(World &world) override;
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GI_NeighborAware

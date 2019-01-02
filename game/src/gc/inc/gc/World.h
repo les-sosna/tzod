@@ -102,7 +102,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_rigid_s;
 	Grid<PtrList<GC_Object>>  grid_walls;
 	Grid<PtrList<GC_Object>>  grid_pickup;
-	Grid<PtrList<GC_Object>>  grid_actors;
+	Grid<PtrList<GC_Object>>  grid_moving;
 
 	std::vector<bool> _waterTiles;
 	std::vector<bool> _woodTiles;

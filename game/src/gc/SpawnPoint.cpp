@@ -10,33 +10,33 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 {
-	ED_ACTOR("respawn_point", "obj_respawn",
+	ED_MOVING_OBJECT("respawn_point", "obj_respawn",
 	    0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, WORLD_BLOCK_SIZE/2);
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_SpawnPoint, LIST_respawns);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_SpawnPoint, LIST_respawns);
 
 GC_SpawnPoint::GC_SpawnPoint(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _team(0)
 {
 }
 
 GC_SpawnPoint::GC_SpawnPoint(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
 void GC_SpawnPoint::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_team);
 }
 
 void GC_SpawnPoint::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 
 	float dir = GetDirection().Angle();
 

@@ -2,20 +2,20 @@
 #include "Object.h"
 #include <math/MyMath.h>
 
-#define GC_FLAG_ACTOR_INGRIDSET     (GC_FLAG_OBJECT_ << 0)
-#define GC_FLAG_ACTOR_              (GC_FLAG_OBJECT_ << 1)
+#define GC_FLAG_MO_INGRIDSET     (GC_FLAG_OBJECT_ << 0)
+#define GC_FLAG_MO_              (GC_FLAG_OBJECT_ << 1)
 
-class GC_Actor : public GC_Object
+class GC_MovingObject : public GC_Object
 {
 public:
-	explicit GC_Actor(vec2d pos);
-	explicit GC_Actor(FromFile) {}
+	explicit GC_MovingObject(vec2d pos);
+	explicit GC_MovingObject(FromFile) {}
 
 	vec2d GetDirection() const { return _direction; }
 	void SetDirection(const vec2d &d) { assert(fabs(d.sqr()-1)<1e-5); _direction = d; }
 
-	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_ACTOR_INGRIDSET, bGridSet); }
-	bool GetGridSet() const { return CheckFlags(GC_FLAG_ACTOR_INGRIDSET); }
+	void SetGridSet(bool bGridSet) { SetFlags(GC_FLAG_MO_INGRIDSET, bGridSet); }
+	bool GetGridSet() const { return CheckFlags(GC_FLAG_MO_INGRIDSET); }
 
 	vec2d GetPos() const { return _pos; }
 	virtual void MoveTo(World &world, const vec2d &pos);

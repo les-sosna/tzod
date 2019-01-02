@@ -48,7 +48,7 @@ public:
 	float GetDefaultRespawnTime() const override { return 6.0f; }
 	AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object

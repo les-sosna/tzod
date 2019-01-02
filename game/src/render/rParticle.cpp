@@ -43,10 +43,10 @@ R_Particle::R_Particle(TextureManager &tm)
 		_ptype2texId[p.first] = tm.FindSprite(p.second);
 }
 
-void R_Particle::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Particle::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Particle*>(&actor));
-	const GC_Particle &particle = static_cast<const GC_Particle&>(actor);
+	assert(dynamic_cast<const GC_Particle*>(&mo));
+	const GC_Particle &particle = static_cast<const GC_Particle&>(mo);
 	ParticleType ptype = particle.GetParticleType();
 	if (ptype < (int) _ptype2texId.size() && particle.GetTime() < particle.GetLifeTime())
 	{

@@ -1,12 +1,12 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 #include "NeighborAware.h"
 #include "ObjPtr.h"
 
 class GC_RigidBodyStatic;
 class GC_Player;
 
-class GC_HealthDaemon : public GC_Actor
+class GC_HealthDaemon : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);
 	DECLARE_LIST_MEMBER(override);
@@ -31,9 +31,9 @@ private:
 
 /////////////////////////////////////////////////////////////
 
-#define GC_FLAG_WOOD_                       (GC_FLAG_ACTOR_ << 0)
+#define GC_FLAG_WOOD_                       (GC_FLAG_MO_ << 0)
 
-class GC_Wood : public GC_Actor
+class GC_Wood : public GC_MovingObject
               , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Wood);
@@ -43,7 +43,7 @@ public:
 	explicit GC_Wood(FromFile);
 	virtual ~GC_Wood();
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GI_NeighborAware
@@ -56,7 +56,7 @@ public:
 
 /////////////////////////////////////////////////////////////
 
-class GC_Text : public GC_Actor
+class GC_Text : public GC_MovingObject
 {
 public:
 	enum Style
@@ -67,7 +67,7 @@ public:
 	};
 
 	GC_Text(vec2d pos, std::string text);
-	explicit GC_Text(FromFile) : GC_Actor(FromFile()) {}
+	explicit GC_Text(FromFile) : GC_MovingObject(FromFile()) {}
 	virtual ~GC_Text() = 0;
 
 	void SetText(std::string text) { _text = std::move(text); }

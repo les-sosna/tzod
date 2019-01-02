@@ -1,9 +1,9 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 
-#define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_ACTOR_ << 0) // penetration of projectiles
-#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_RBSTATIC_           (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_RBSTATIC_TRACE0     (GC_FLAG_MO_ << 0) // penetration of projectiles
+#define GC_FLAG_RBSTATIC_DESTROYED  (GC_FLAG_MO_ << 1)
+#define GC_FLAG_RBSTATIC_           (GC_FLAG_MO_ << 2)
 
 class GC_Player;
 
@@ -14,7 +14,7 @@ struct DamageDesc
 	GC_Player *from;
 };
 
-class GC_RigidBodyStatic : public GC_Actor
+class GC_RigidBodyStatic : public GC_MovingObject
 {
 	DECLARE_GRID_MEMBER();
 
@@ -49,7 +49,7 @@ public:
 	virtual unsigned char GetPassability() const = 0;
 	virtual GC_Player* GetOwner() const { return nullptr; }
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
@@ -63,14 +63,14 @@ public:
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x) ^ reinterpret_cast<const DWORD&>(GetPos().y);
 		cs ^= reinterpret_cast<const DWORD&>(_health);
 		cs ^= reinterpret_cast<const DWORD&>(_width) ^ reinterpret_cast<const DWORD&>(_length);
-		return GC_Actor::checksum() ^ cs;
+		return GC_MovingObject::checksum() ^ cs;
 	}
 #endif
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propOnDestroy;
 		ObjectProperty _propOnDamage;
 		ObjectProperty _propHealth;

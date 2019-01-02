@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 #include "detail/Rotator.h"
 
@@ -38,21 +38,21 @@ class GC_Weapon;
 class GC_RigidBodyStatic;
 
 
-#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_PICKUP_HIDDEN            (GC_FLAG_ACTOR_ << 3)
-#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 4)
-#define GC_FLAG_PICKUP_IS_DEFAULT_ITEM   (GC_FLAG_ACTOR_ << 5)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 6)
+#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_MO_ << 0)
+#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_MO_ << 1)
+#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_MO_ << 2)
+#define GC_FLAG_PICKUP_HIDDEN            (GC_FLAG_MO_ << 3)
+#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_MO_ << 4)
+#define GC_FLAG_PICKUP_IS_DEFAULT_ITEM   (GC_FLAG_MO_ << 5)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_MO_ << 6)
 
-class GC_Pickup : public GC_Actor
+class GC_Pickup : public GC_MovingObject
 {
 	DECLARE_LIST_MEMBER(override);
 	DECLARE_GRID_MEMBER();
 
 public:
-	using GC_Actor::GC_Actor;
+	using GC_MovingObject::GC_MovingObject;
 	virtual ~GC_Pickup();
 
 	void Attach(World &world, GC_Vehicle &vehicle);
@@ -99,14 +99,14 @@ public:
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
 		^ reinterpret_cast<const DWORD&>(GetPos().y)
 		^ reinterpret_cast<const DWORD&>(_timeLastStateChange);
-		return GC_Actor::checksum() ^ cs;
+		return GC_MovingObject::checksum() ^ cs;
 	}
 #endif
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
 		ObjectProperty _propOnPickup;
 

@@ -75,7 +75,7 @@ void WorldView::Render(RenderContext &rc,
 	}
 
 
-	static std::vector<std::pair<const GC_Actor*, const ObjectRFunc*>> zLayers[Z_COUNT];
+	static std::vector<std::pair<const GC_MovingObject*, const ObjectRFunc*>> zLayers[Z_COUNT];
 
 	int xmin = std::max(world.GetLocationBounds().left, (int)std::floor(visibleRegion.left / WORLD_LOCATION_SIZE - 0.5f));
 	int ymin = std::max(world.GetLocationBounds().top, (int)std::floor(visibleRegion.top / WORLD_LOCATION_SIZE - 0.5f));
@@ -84,7 +84,7 @@ void WorldView::Render(RenderContext &rc,
 	for( int x = xmin; x <= xmax; ++x )
 	for( int y = ymin; y <= ymax; ++y )
 	{
-		FOREACH(world.grid_actors.element(x, y), const GC_Actor, object)
+		FOREACH(world.grid_moving.element(x, y), const GC_MovingObject, object)
 		{
 			for( auto &view: _renderScheme.GetViews(*object, options.editorMode, options.nightMode) )
 			{
@@ -95,7 +95,7 @@ void WorldView::Render(RenderContext &rc,
 		}
 	}
 
-	FOREACH( world.GetList(LIST_gsprites), GC_Actor, object )
+	FOREACH( world.GetList(LIST_gsprites), GC_MovingObject, object )
 	{
 		for( auto &view: _renderScheme.GetViews(*object, options.editorMode, options.nightMode) )
 		{
@@ -116,8 +116,8 @@ void WorldView::Render(RenderContext &rc,
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{
-		for( auto &actorWithView: zLayers[z] )
-			actorWithView.second->Draw(world, *actorWithView.first, rc);
+		for( auto &moWithView: zLayers[z] )
+			moWithView.second->Draw(world, *moWithView.first, rc);
 		zLayers[z].clear();
 	}
 

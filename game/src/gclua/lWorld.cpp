@@ -1,6 +1,6 @@
 #include "inc/gclua/lObjUtil.h"
 #include "inc/gclua/lWorld.h"
-#include <gc/Actor.h>
+#include <gc/MovingObject.h>
 #include <gc/Service.h>
 #include <gc/TypeSystem.h>
 #include <gc/World.h>
@@ -35,7 +35,7 @@ int world_actor(lua_State *L)
 	}
 
     World &world = luaT_getworld(L);
-    GC_Actor &obj = RTTypes::Inst().CreateActor(world, type, vec2d{x, y});
+    GC_MovingObject &obj = RTTypes::Inst().CreateObject(world, type, vec2d{x, y});
 
 	if( 4 == n )
 	{
@@ -132,7 +132,7 @@ int world_exists(lua_State *L)
 	}
 
 	const char *name = luaL_checkstring(L, 1);
-    World &world = luaT_getworld(L);
+	World &world = luaT_getworld(L);
 	lua_pushboolean(L, nullptr != world.FindObject(name));
 	return 1;
 }

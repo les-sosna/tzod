@@ -7,7 +7,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
-	ED_ACTOR("user_object", "obj_user_object", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("user_object", "obj_user_object", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 
@@ -106,12 +106,12 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 {
-	ED_ACTOR("user_sprite", "obj_user_sprite", 7, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("user_sprite", "obj_user_sprite", 7, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 
 GC_Decoration::GC_Decoration(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _textureName("turret_platform")
   , _frameRate(0)
   , _time(0)
@@ -120,7 +120,7 @@ GC_Decoration::GC_Decoration(vec2d pos)
 }
 
 GC_Decoration::GC_Decoration(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -136,7 +136,7 @@ void GC_Decoration::SetZ(enumZOrder z)
 
 void GC_Decoration::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_textureName);
 	f.Serialize(_frameRate);
 	f.Serialize(_time);
@@ -145,7 +145,7 @@ void GC_Decoration::Serialize(World &world, SaveFile &f)
 
 void GC_Decoration::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 
 	int z = GetZ();
 	int frame = 0;//GetCurrentFrame();

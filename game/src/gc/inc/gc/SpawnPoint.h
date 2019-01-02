@@ -1,9 +1,9 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 
 class GC_Vehicle;
 
-class GC_SpawnPoint : public GC_Actor
+class GC_SpawnPoint : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
 	DECLARE_LIST_MEMBER(override);
@@ -20,9 +20,9 @@ public:
 	void MapExchange(MapFile &f) override;
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propTeam;
 		ObjectProperty _propDir;
 	public:

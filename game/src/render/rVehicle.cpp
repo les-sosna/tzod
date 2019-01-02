@@ -10,10 +10,10 @@ R_Vehicle::R_Vehicle(TextureManager &tm)
 {
 }
 
-void R_Vehicle::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Vehicle::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Vehicle*>(&actor));
-	auto &vehicle = static_cast<const GC_Vehicle&>(actor);
+	assert(dynamic_cast<const GC_Vehicle*>(&mo));
+	auto &vehicle = static_cast<const GC_Vehicle&>(mo);
 
 	vec2d pos = vehicle.GetPos();
 	vec2d dir = vehicle.GetDirection();

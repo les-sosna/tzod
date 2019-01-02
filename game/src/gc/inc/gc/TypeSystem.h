@@ -8,7 +8,7 @@
 #include <set>
 #include <vector>
 
-class GC_Actor;
+class GC_MovingObject;
 class GC_Service;
 
 class RTTypes
@@ -18,12 +18,12 @@ public:
 	{
 		union
 		{
-			GC_Actor& (*CreateActor) (World &, float, float);
+			GC_MovingObject& (*CreateObject) (World &, float, float);
 			GC_Service& (*CreateService) (World &);
 		};
 		union
 		{
-			GC_Actor& (*CreateDetachedActor)(vec2d pos);
+			GC_MovingObject& (*CreateDetachedObject)(vec2d pos);
 			GC_Service& (*CreateDetachedService)();
 		};
 		int           layer;
@@ -41,7 +41,7 @@ private:
 	typedef std::vector<ObjectType> index2type;
 
 	template<class T>
-	static GC_Actor& DetachedActorCtor(vec2d pos)
+	static GC_MovingObject& DetachedObjectCtor(vec2d pos)
 	{
 		return *new T(pos);
 	}
@@ -53,7 +53,7 @@ private:
 	}
 
 	template<class T>
-	static GC_Actor& ActorCtor(World &world, float x, float y)
+	static GC_MovingObject& ObjectCtor(World &world, float x, float y)
 	{
 		return world.New<T>(vec2d{ x, y });
 	}
@@ -84,7 +84,7 @@ public:
 	//
 
 	template<class T>
-	void RegisterActor( const char *name, const char *desc, int layer, float width,
+	void RegisterObject( const char *name, const char *desc, int layer, float width,
 	                    float height, float align, float offset )
 	{
 		assert( !IsRegistered(T::GetTypeStatic()) );
@@ -97,8 +97,8 @@ public:
 		ei.align = align;
 		ei.offset = offset;
 		ei.service = false;
-		ei.CreateActor = ActorCtor<T>;
-		ei.CreateDetachedActor = DetachedActorCtor<T>;
+		ei.CreateObject = ObjectCtor<T>;
+		ei.CreateDetachedObject = DetachedObjectCtor<T>;
 		_t2i[T::GetTypeStatic()] = ei;
 		_n2t[name] = T::GetTypeStatic();
 		_i2t.push_back(T::GetTypeStatic());
@@ -173,7 +173,7 @@ public:
 	GC_Object* CreateFromFile(World &world, ObjectType type);
 
 	// for editor
-	GC_Actor& CreateActor(World &world, ObjectType type, vec2d pos);
+	GC_MovingObject& CreateObject(World &world, ObjectType type, vec2d pos);
 	GC_Service& CreateService(World &world, ObjectType type);
 
 

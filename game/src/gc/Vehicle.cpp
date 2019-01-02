@@ -247,7 +247,7 @@ void GC_Vehicle::MoveTo(World &world, const vec2d &pos)
 		_weapon->MoveTo(world, pos);
 	if (_shield)
 		_shield->MoveTo(world, pos);
-	GC_Actor::MoveTo(world, pos);
+	GC_MovingObject::MoveTo(world, pos);
 }
 
 void GC_Vehicle::SetControllerState(const VehicleState &vs)
@@ -402,7 +402,7 @@ vec2d GC_Vehicle::GetLightPos2() const
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 {
-	ED_ACTOR("tank", "obj_tank", 1, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("tank", "obj_tank", 1, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
 	return true;
 }
 

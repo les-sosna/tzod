@@ -12,10 +12,10 @@
 #include "inc/gc/WorldEvents.h"
 #include "inc/gc/SaveFile.h"
 
-IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Projectile, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_Projectile, LIST_timestep);
 
 GC_Projectile::GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _velocity(v.len())
   , _ignore(ignore)
   , _owner(owner)
@@ -31,7 +31,7 @@ GC_Projectile::GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_
 }
 
 GC_Projectile::GC_Projectile(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -41,7 +41,7 @@ GC_Projectile::~GC_Projectile()
 
 void GC_Projectile::Init(World &world)
 {
-	GC_Actor::Init(world);
+	GC_MovingObject::Init(world);
 	_light = &world.New<GC_Light>(GetPos(), GC_Light::LIGHT_POINT);
 	_trailPath = world.net_frand(_trailDensity);
 }
@@ -52,12 +52,12 @@ void GC_Projectile::Kill(World &world)
 	{
 		_light->Kill(world);
 	}
-    GC_Actor::Kill(world);
+    GC_MovingObject::Kill(world);
 }
 
 void GC_Projectile::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
 	f.Serialize(_trailDensity);
 	f.Serialize(_trailPath);
@@ -70,7 +70,7 @@ void GC_Projectile::Serialize(World &world, SaveFile &f)
 void GC_Projectile::MoveTo(World &world, const vec2d &pos)
 {
 	_light->MoveTo(world, pos);
-	GC_Actor::MoveTo(world, pos);
+	GC_MovingObject::MoveTo(world, pos);
 }
 
 void GC_Projectile::MoveWithTrail(World &world, const vec2d &pos, bool trail)

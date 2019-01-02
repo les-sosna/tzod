@@ -24,7 +24,7 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		return;
 
 	_world.Clear();
-	RTTypes::Inst().CreateActor(_world, RTTypes::Inst().GetTypeByName(_className->GetRenderValue(dc, sc)), vec2d{});
+	RTTypes::Inst().CreateObject(_world, RTTypes::Inst().GetTypeByName(_className->GetRenderValue(dc, sc)), vec2d{});
 
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };
 	vec2d eye{ 0, 0 };

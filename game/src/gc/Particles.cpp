@@ -8,10 +8,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_BrickFragment, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_BrickFragment, LIST_timestep);
 
 GC_BrickFragment::GC_BrickFragment(vec2d pos, vec2d v0)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _startFrame(rand())
   , _time(0)
   , _timeLife(frand(0.5f) + 1.0f)
@@ -20,13 +20,13 @@ GC_BrickFragment::GC_BrickFragment(vec2d pos, vec2d v0)
 }
 
 GC_BrickFragment::GC_BrickFragment(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
 void GC_BrickFragment::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_startFrame);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);
@@ -54,10 +54,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Particle, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_Particle, LIST_timestep);
 
 GC_Particle::GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _time(0)
   , _timeLife(lifeTime)
   , _rotationSpeed(0)
@@ -69,13 +69,13 @@ GC_Particle::GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime,
 }
 
 GC_Particle::GC_Particle(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
 void GC_Particle::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_sizeOverride);
 	f.Serialize(_time);
 	f.Serialize(_timeLife);

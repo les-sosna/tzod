@@ -18,7 +18,7 @@ class WorldView;
 class RenderScheme;
 class GameClassVis;
 
-class GC_Actor;
+class GC_MovingObject;
 
 class EditorWorldView
 	: public UI::Window
@@ -61,7 +61,7 @@ private:
 	FRECT CanvasToWorld(vec2d worldTransformOffset, float worldTransformScale, FRECT canvasRect) const;
 	vec2d WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const;
 	FRECT WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, FRECT worldRect) const;
-	GC_Actor* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const;
+	GC_MovingObject* PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const;
 	void EraseAt(vec2d worldPos);
 	void CreateAt(vec2d worldPos, bool defaultProperties);
 	void ActionOrCreateAt(vec2d worldPos, bool defaultProperties);

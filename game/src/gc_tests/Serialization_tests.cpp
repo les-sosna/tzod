@@ -23,7 +23,7 @@ TEST(Serialization, CanSerializeEmptyWorld)
 	}
 }
 
-TEST(Serialization, CanSerializeNamedActor)
+TEST(Serialization, CanSerializeNamedObject)
 {
 	FS::MemoryStream stream;
 	{

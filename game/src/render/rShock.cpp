@@ -9,10 +9,10 @@ R_Shock::R_Shock(TextureManager &tm)
 {
 }
 
-void R_Shock::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Shock::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_pu_Shock*>(&actor));
-	auto &shock = static_cast<const GC_pu_Shock&>(actor);
+	assert(dynamic_cast<const GC_pu_Shock*>(&mo));
+	auto &shock = static_cast<const GC_pu_Shock&>(mo);
 	if( !shock.GetGridSet() )
 	{
 		SpriteColor c;

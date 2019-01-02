@@ -9,11 +9,11 @@ GC_Object* RTTypes::CreateFromFile(World &world, ObjectType type)
 	return &it->second(world);
 }
 
-GC_Actor& RTTypes::CreateActor(World &world, ObjectType type, vec2d pos)
+GC_MovingObject& RTTypes::CreateObject(World &world, ObjectType type, vec2d pos)
 {
 	assert(IsRegistered(type));
 	assert(!GetTypeInfo(type).service);
-	return GetTypeInfo(type).CreateActor(world, pos.x, pos.y);
+	return GetTypeInfo(type).CreateObject(world, pos.x, pos.y);
 }
 
 GC_Service& RTTypes::CreateService(World &world, ObjectType type)

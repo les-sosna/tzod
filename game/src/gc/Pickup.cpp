@@ -14,8 +14,8 @@
 #include <MapFile.h>
 
 
-IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Pickup, LIST_pickups);
-IMPLEMENT_GRID_MEMBER(GC_Actor, GC_Pickup, grid_pickup);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_Pickup, LIST_pickups);
+IMPLEMENT_GRID_MEMBER(GC_MovingObject, GC_Pickup, grid_pickup);
 
 GC_Pickup::~GC_Pickup()
 {
@@ -23,7 +23,7 @@ GC_Pickup::~GC_Pickup()
 
 void GC_Pickup::Init(World &world)
 {
-	GC_Actor::Init(world);
+	GC_MovingObject::Init(world);
 	_respawnPos = GetPos();
 }
 
@@ -31,12 +31,12 @@ void GC_Pickup::Kill(World &world)
 {
 	if (GetAttached())
 		Detach(world);
-	GC_Actor::Kill(world);
+	GC_MovingObject::Kill(world);
 }
 
 void GC_Pickup::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
 	f.Serialize(_scriptOnPickup);
 	f.Serialize(_timeLastStateChange);
@@ -115,7 +115,7 @@ void GC_Pickup::Resume(World &world)
 
 void GC_Pickup::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }
@@ -535,7 +535,6 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 	}
 	else
 	{
-		// disappear if actor is not a weapon.
 		Disappear(world);
 	}
 }

@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.3)
 
 add_library(gc
-	inc/gc/Actor.h
 	inc/gc/Crate.h
 	inc/gc/Explosion.h
 	inc/gc/Field.h
@@ -10,6 +9,7 @@ add_library(gc
 	inc/gc/Light.h
 	inc/gc/Macros.h
 	inc/gc/MessageBox.h
+	inc/gc/MovingObject.h
 	inc/gc/NeighborAware.h
 	inc/gc/Object.h
 	inc/gc/ObjectProperty.h
@@ -49,13 +49,13 @@ add_library(gc
 	inc/gc/detail/PtrList.h
 	inc/gc/detail/Rotator.h
 
-	Actor.cpp
 	Crate.cpp
 	Explosion.cpp
 	Field.cpp
 	GameClasses.cpp
 	Light.cpp
 #	MessageBox.cpp
+	MovingObject.cpp
 	Object.cpp
 	ObjectProperty.cpp
 	Particles.cpp

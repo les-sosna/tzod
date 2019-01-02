@@ -10,12 +10,12 @@ R_FireSpark::R_FireSpark(TextureManager &tm)
 {
 }
 
-void R_FireSpark::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_FireSpark::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_FireSpark*>(&actor));
-	auto &fire = static_cast<const GC_FireSpark&>(actor);
+	assert(dynamic_cast<const GC_FireSpark*>(&mo));
+	auto &fire = static_cast<const GC_FireSpark&>(mo);
 
-	auto idAsSeed = actor.GetId();
+	auto idAsSeed = mo.GetId();
 	uint32_t seed = reinterpret_cast<const uint32_t&>(idAsSeed);
 	uint32_t rand = ((uint64_t)seed * 279470273UL) % 4294967291UL;
 

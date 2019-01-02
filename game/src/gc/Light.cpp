@@ -12,10 +12,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Light, LIST_lights);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_Light, LIST_lights);
 
 GC_Light::GC_Light(vec2d pos, enumLightType type)
-	: GC_Actor(pos)
+	: GC_MovingObject(pos)
 	, _startTime(-FLT_MAX)
 	, _timeout(0)
 	, _aspect(1)
@@ -29,7 +29,7 @@ GC_Light::GC_Light(vec2d pos, enumLightType type)
 }
 
 GC_Light::GC_Light(FromFile)
-	: GC_Actor(FromFile())
+	: GC_MovingObject(FromFile())
 {
 }
 
@@ -39,7 +39,7 @@ GC_Light::~GC_Light()
 
 void GC_Light::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
 	f.Serialize(_lightDirection);
 	f.Serialize(_aspect);
@@ -80,13 +80,13 @@ IMPLEMENT_SELF_REGISTRATION(GC_Spotlight)
 }
 
 GC_Spotlight::GC_Spotlight(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
 {
 	SetFlags(GC_FLAG_SPOTLIGHT_ACTIVE, true);
 }
 
 GC_Spotlight::GC_Spotlight(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -96,7 +96,7 @@ GC_Spotlight::~GC_Spotlight()
 
 void GC_Spotlight::Init(World &world)
 {
-	GC_Actor::Init(world);
+	GC_MovingObject::Init(world);
 	_light = &world.New<GC_Light>(GetPos() + GetDirection() * 7, GC_Light::LIGHT_SPOT);
 	_light->SetActive(CheckFlags(GC_FLAG_SPOTLIGHT_ACTIVE));
 	_light->SetRadius(200);
@@ -109,24 +109,24 @@ void GC_Spotlight::Init(World &world)
 void GC_Spotlight::Kill(World &world)
 {
 	SAFE_KILL(world, _light);
-    GC_Actor::Kill(world);
+    GC_MovingObject::Kill(world);
 }
 
 void GC_Spotlight::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_light);
 }
 
 void GC_Spotlight::MoveTo(World &world, const vec2d &pos)
 {
 	_light->MoveTo(world, pos + GetDirection() * 7);
-	GC_Actor::MoveTo(world, pos);
+	GC_MovingObject::MoveTo(world, pos);
 }
 
 void GC_Spotlight::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 
 	float dir = GetDirection().Angle();
 	int active = CheckFlags(GC_FLAG_SPOTLIGHT_ACTIVE) ? 1 : 0;

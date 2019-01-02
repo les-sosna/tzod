@@ -61,7 +61,7 @@ public:
 	unsigned char GetPassability() const override { return 0; } // not an obstacle
 	GC_Player* GetOwner() const override { return _player; }
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object

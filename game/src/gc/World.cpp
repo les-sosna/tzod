@@ -64,7 +64,7 @@ World::World(RectRB blockBounds, bool initField)
 	grid_rigid_s.resize(_locationBounds);
 	grid_walls.resize(_locationBounds);
 	grid_pickup.resize(_locationBounds);
-	grid_actors.resize(_locationBounds);
+	grid_moving.resize(_locationBounds);
 
 	if (initField)
 	{
@@ -212,7 +212,7 @@ void World::Import(MapFile &file)
 				float y = 0;
 				file.getObjectAttribute("x", x);
 				file.getObjectAttribute("y", y);
-				obj = &ei.CreateDetachedActor({ x, y });
+				obj = &ei.CreateDetachedObject({ x, y });
 			}
 			obj->MapExchange(file);
 			std::string name;
@@ -236,7 +236,7 @@ FRECT World::GetOccupiedBounds() const
 			auto &typeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
 			if (!typeInfo.service)
 			{
-				vec2d pos = static_cast<GC_Actor*>(object)->GetPos();
+				vec2d pos = static_cast<GC_MovingObject*>(object)->GetPos();
 				vec2d halfSize = typeInfo.size / 2;
 				bounds.left = std::min(bounds.left, pos.x - halfSize.x);
 				bounds.top = std::min(bounds.top, pos.y - halfSize.y);

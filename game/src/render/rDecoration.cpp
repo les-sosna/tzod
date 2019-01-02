@@ -8,10 +8,10 @@ R_Decoration::R_Decoration(TextureManager &tm)
 {
 }
 
-void R_Decoration::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Decoration::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Decoration*>(&actor));
-	auto &decoration = static_cast<const GC_Decoration&>(actor);
+	assert(dynamic_cast<const GC_Decoration*>(&mo));
+	auto &decoration = static_cast<const GC_Decoration&>(mo);
 
 	vec2d pos = decoration.GetPos();
 	vec2d dir = decoration.GetDirection();
@@ -19,10 +19,10 @@ void R_Decoration::Draw(const World &world, const GC_Actor &actor, RenderContext
 	rc.DrawSprite(texId, 0, 0xffffffff, pos, dir);
 }
 
-enumZOrder Z_Decoration::GetZ(const World &world, const GC_Actor &actor) const
+enumZOrder Z_Decoration::GetZ(const World &world, const GC_MovingObject &mo) const
 {
-	assert(dynamic_cast<const GC_Decoration*>(&actor));
-	auto &decoration = static_cast<const GC_Decoration&>(actor);
+	assert(dynamic_cast<const GC_Decoration*>(&mo));
+	auto &decoration = static_cast<const GC_Decoration&>(mo);
 	return decoration.GetZ();
 }
 

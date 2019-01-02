@@ -34,16 +34,16 @@ static bool PtInRigidBody(const GC_RigidBodyStatic &rbs, vec2d delta)
 	return true;
 }
 
-static bool PtOnActor(const GC_Actor &actor, vec2d pt)
+static bool PtInObject(const GC_MovingObject &mo, vec2d pt)
 {
-	vec2d delta = pt - actor.GetPos();
-	if (auto rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
+	vec2d delta = pt - mo.GetPos();
+	if (auto rbs = dynamic_cast<const GC_RigidBodyStatic*>(&mo))
 		return PtInRigidBody(*rbs, delta);
-	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(mo.GetType()).size / 2;
 	return PtOnFRect(MakeRectRB(-halfSize, halfSize), delta);
 }
 
-GC_Actor* EditorWorldView::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
+GC_MovingObject* EditorWorldView::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
 {
 	int layer = -1;
 	if (_conf.uselayers.Get())
@@ -51,33 +51,33 @@ GC_Actor* EditorWorldView::PickEdObject(const RenderScheme &rs, World &world, co
 		layer = RTTypes::Inst().GetTypeInfo(_currentType).layer;
 	}
 
-	GC_Actor* zLayers[Z_COUNT];
+	GC_MovingObject* zLayers[Z_COUNT];
 	memset(zLayers, 0, sizeof(zLayers));
 
 	std::vector<ObjectList*> receive;
-	world.grid_actors.OverlapPoint(receive, pt / WORLD_LOCATION_SIZE);
+	world.grid_moving.OverlapPoint(receive, pt / WORLD_LOCATION_SIZE);
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
 		ObjectList *ls = *rit;
 		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			auto actor = static_cast<GC_Actor*>(ls->at(it));
-			if (RTTypes::Inst().IsRegistered(actor->GetType()) && PtOnActor(*actor, pt))
+			auto mo = static_cast<GC_MovingObject*>(ls->at(it));
+			if (RTTypes::Inst().IsRegistered(mo->GetType()) && PtInObject(*mo, pt))
 			{
 				enumZOrder maxZ = Z_NONE;
-				for (auto &view: rs.GetViews(*actor, true, false))
+				for (auto &view: rs.GetViews(*mo, true, false))
 				{
-					maxZ = std::max(maxZ, view.zfunc->GetZ(world, *actor));
+					maxZ = std::max(maxZ, view.zfunc->GetZ(world, *mo));
 				}
 
 				if( Z_NONE != maxZ )
 				{
 					for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 					{
-						if( actor->GetType() == RTTypes::Inst().GetTypeByIndex(i)
+						if( mo->GetType() == RTTypes::Inst().GetTypeByIndex(i)
 							&& (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
 						{
-							zLayers[maxZ] = actor;
+							zLayers[maxZ] = mo;
 						}
 					}
 				}
@@ -184,7 +184,7 @@ void EditorWorldView::CreateAt(vec2d worldPos, bool defaultProperties)
 	if (CanCreateAt(alignedPos))
 	{
 		// create object
-		GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, _currentType, alignedPos);
+		GC_MovingObject &newobj = RTTypes::Inst().CreateObject(_world, _currentType, alignedPos);
 		std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
 		if (!defaultProperties)
@@ -199,13 +199,13 @@ void EditorWorldView::CreateAt(vec2d worldPos, bool defaultProperties)
 
 void EditorWorldView::ActionOrCreateAt(vec2d worldPos, bool defaultProperties)
 {
-	if( GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
+	if( GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
 	{
-		_quickActions.DoAction(*actor);
+		_quickActions.DoAction(*mo);
 
-		if( _recentlyCreatedObject == actor )
+		if( _recentlyCreatedObject == mo )
 		{
-			SaveToConfig(_conf, *actor->GetProperties(_world));
+			SaveToConfig(_conf, *mo->GetProperties(_world));
 		}
 		else
 		{
@@ -244,17 +244,17 @@ bool EditorWorldView::CanCreateAt(vec2d worldPos) const
 		!PickEdObject(_worldView.GetRenderScheme(), _world, worldPos);
 }
 
-static FRECT GetSelectionRect(const GC_Actor &actor)
+static FRECT GetSelectionRect(const GC_MovingObject &mo)
 {
-	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
-	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(mo.GetType()).size / 2;
+	return MakeRectRB(mo.GetPos() - halfSize, mo.GetPos() + halfSize);
 }
 
 FRECT EditorWorldView::GetNavigationOrigin() const
 {
-	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, _virtualPointer))
+	if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, _virtualPointer))
 	{
-		return GetSelectionRect(*actor);
+		return GetSelectionRect(*mo);
 	}
 	else
 	{
@@ -270,9 +270,9 @@ EditorWorldView::WorldCursor EditorWorldView::GetCursor() const
 
 	vec2d worldPos = _virtualPointer;
 
-	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
+	if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
 	{
-		cursor.bounds = GetSelectionRect(*actor);
+		cursor.bounds = GetSelectionRect(*mo);
 		cursor.cursorType = WorldCursor::Type::Action;
 	}
 	else if (!_selectOnly)
@@ -456,9 +456,9 @@ bool EditorWorldView::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 		else
 		{
 			vec2d alignedPointerPos = Center(GetNavigationOrigin());
-			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, alignedPointerPos))
+			if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, alignedPointerPos))
 			{
-				actor->Kill(_world);
+				mo->Kill(_world);
 			}
 		}
 		break;
@@ -574,9 +574,9 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 	_worldView.Render(rc, _world, options);
 
 	// Selection
-	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )
+	if( auto selectedObject = PtrDynCast<const GC_MovingObject>(_selectedObject) )
 	{
-		FRECT sel = GetSelectionRect(*selectedActor);
+		FRECT sel = GetSelectionRect(*selectedObject);
 
 		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
@@ -598,9 +598,9 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 
 		if (cursor.cursorType == WorldCursor::Type::Obstructed)
 		{
-			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, Center(cursor.bounds)))
+			if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, Center(cursor.bounds)))
 			{
-				auto obstacleRect = GetSelectionRect(*actor);
+				auto obstacleRect = GetSelectionRect(*mo);
 				rc.DrawSprite(obstacleRect, _texSelection.GetTextureId(texman), 0xff0000ff, 0);
 				rc.DrawBorder(obstacleRect, _texSelection.GetTextureId(texman), 0x88000088, 0);
 			}

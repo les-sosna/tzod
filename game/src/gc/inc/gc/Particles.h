@@ -1,7 +1,7 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 
-class GC_BrickFragment : public GC_Actor
+class GC_BrickFragment : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
 	DECLARE_LIST_MEMBER(override);
@@ -55,10 +55,10 @@ enum ParticleType
 
 #define SPEED_SMOKE vec2d{0, -40.0f}
 
-#define GC_FLAG_PARTICLE_FADE            (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_PARTICLE_                (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_PARTICLE_FADE            (GC_FLAG_MO_ << 0)
+#define GC_FLAG_PARTICLE_                (GC_FLAG_MO_ << 1)
 
-class GC_Particle : public GC_Actor
+class GC_Particle : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
 	DECLARE_LIST_MEMBER(override);

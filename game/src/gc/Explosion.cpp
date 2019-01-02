@@ -10,14 +10,14 @@
 #include "inc/gc/SaveFile.h"
 
 GC_Explosion::GC_Explosion(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _damage(1)
   , _radius(32)
 {
 }
 
 GC_Explosion::GC_Explosion(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -37,7 +37,7 @@ void GC_Explosion::SetTimeout(World &world, float timeout)
 
 void GC_Explosion::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_damage);
 	f.Serialize(_radius);
 	f.Serialize(_owner);

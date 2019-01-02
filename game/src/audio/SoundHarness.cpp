@@ -406,13 +406,13 @@ void SoundHarness::OnNewObject(GC_Object &obj)
 {
 	ObjectType type = obj.GetType();
 	if (GC_ExplosionBig::GetTypeStatic() == type)
-		_soundRender.PlayOnce(SoundTemplate::BoomBig, static_cast<const GC_Actor &>(obj).GetPos());
+		_soundRender.PlayOnce(SoundTemplate::BoomBig, static_cast<const GC_MovingObject &>(obj).GetPos());
 	else if (GC_ExplosionStandard::GetTypeStatic() == type)
-		_soundRender.PlayOnce(SoundTemplate::BoomStandard, static_cast<const GC_Actor &>(obj).GetPos());
+		_soundRender.PlayOnce(SoundTemplate::BoomStandard, static_cast<const GC_MovingObject &>(obj).GetPos());
 	else if (GC_Rocket::GetTypeStatic() == type)
-		_attached.emplace(static_cast<const GC_Actor*>(&obj),
+		_attached.emplace(static_cast<const GC_MovingObject*>(&obj),
 			CreatePlayingLooped(_soundRender, SoundTemplate::RocketFly,
-								[&](Sound &s){ s.SetPos(static_cast<const GC_Actor &>(obj).GetPos()); }));
+								[&](Sound &s){ s.SetPos(static_cast<const GC_MovingObject &>(obj).GetPos()); }));
 	else if (GC_Tank_Light::GetTypeStatic() == type)
 		_vehicleMove.emplace(static_cast<const GC_Vehicle*>(&obj),
 							 CreatePlayingLooped(_soundRender, SoundTemplate::TankMove,

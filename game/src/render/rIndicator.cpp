@@ -12,10 +12,10 @@ R_HealthIndicator::R_HealthIndicator(TextureManager &tm, bool dynamic)
 {
 }
 
-void R_HealthIndicator::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_HealthIndicator::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_RigidBodyStatic*>(&actor));
-	auto &rigidBody = static_cast<const GC_RigidBodyStatic&>(actor);
+	assert(dynamic_cast<const GC_RigidBodyStatic*>(&mo));
+	auto &rigidBody = static_cast<const GC_RigidBodyStatic&>(mo);
 
 	vec2d pos = rigidBody.GetPos();
 	float radius = _dynamic ? rigidBody.GetRadius() : rigidBody.GetHalfWidth();
@@ -46,10 +46,10 @@ R_AmmoIndicator::R_AmmoIndicator(TextureManager &tm)
 {
 }
 
-void R_AmmoIndicator::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_AmmoIndicator::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
-	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
+	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&mo));
+	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(mo);
 	float value = 1 - (float) weapon.GetNumShots() / (float) weapon.GetSeriesLength();
 	DrawWeaponIndicator(world, _tm, rc, _texId, weapon, value);
 }
@@ -61,9 +61,9 @@ R_FuelIndicator::R_FuelIndicator(TextureManager &tm)
 {
 }
 
-void R_FuelIndicator::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_FuelIndicator::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Weap_Ram*>(&actor));
-	auto &ram = static_cast<const GC_Weap_Ram&>(actor);
+	assert(dynamic_cast<const GC_Weap_Ram*>(&mo));
+	auto &ram = static_cast<const GC_Weap_Ram&>(mo);
 	DrawWeaponIndicator(world, _tm, rc, _texId, ram, ram.GetFuel() / ram.GetFuelMax());
 }
