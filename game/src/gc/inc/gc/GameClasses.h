@@ -9,8 +9,7 @@ class GC_Player;
 class GC_HealthDaemon : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_HealthDaemon);
-    DECLARE_LIST_MEMBER(override);
-    typedef GC_Actor base;
+	DECLARE_LIST_MEMBER(override);
 
 public:
 	GC_HealthDaemon(vec2d pos, GC_Player *owner, float damagePerSecond, float time);
@@ -38,7 +37,6 @@ class GC_Wood : public GC_Actor
               , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Wood);
-	typedef GC_Actor base;
 
 public:
 	explicit GC_Wood(vec2d pos);
@@ -90,7 +88,6 @@ class GC_Text_ToolTip : public GC_Text
 {
 	DECLARE_SELF_REGISTRATION(GC_Text_ToolTip);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Text base;
 
 public:
 	GC_Text_ToolTip(vec2d pos, std::string text, Style style);

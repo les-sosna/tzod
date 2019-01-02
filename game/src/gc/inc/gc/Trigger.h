@@ -14,7 +14,6 @@ class GC_Trigger : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	explicit GC_Trigger(vec2d pos);

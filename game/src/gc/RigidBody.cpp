@@ -10,7 +10,7 @@
 #include <MapFile.h>
 #include <cfloat>
 
-IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
+IMPLEMENT_GRID_MEMBER(GC_Actor, GC_RigidBodyStatic, grid_rigid_s);
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(vec2d pos)
   : GC_Actor(pos)

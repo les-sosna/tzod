@@ -15,7 +15,6 @@ class GC_Player;
 class GC_Projectile : public GC_Actor
 {
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail);

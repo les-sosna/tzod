@@ -17,7 +17,6 @@ struct DamageDesc
 class GC_RigidBodyStatic : public GC_Actor
 {
 	DECLARE_GRID_MEMBER();
-	typedef GC_Actor base;
 
 public:
 	explicit GC_RigidBodyStatic(vec2d pos);

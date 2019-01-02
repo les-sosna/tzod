@@ -16,7 +16,6 @@ struct VehicleClass;
 class GC_Vehicle : public GC_RigidBodyDynamic
 {
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_RigidBodyDynamic base;
 
 public:
 	explicit GC_Vehicle(vec2d pos);

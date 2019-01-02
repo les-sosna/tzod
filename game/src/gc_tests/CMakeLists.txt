@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.3)
 project(GCTests)
 
 add_executable(gc_tests
+	Pickup_tests.cpp
 	PtrList_tests.cpp
 	Serialization_tests.cpp
 )

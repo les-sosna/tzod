@@ -15,7 +15,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_SpawnPoint)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_SpawnPoint, LIST_respawns);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_SpawnPoint, LIST_respawns);
 
 GC_SpawnPoint::GC_SpawnPoint(vec2d pos)
   : GC_Actor(pos)

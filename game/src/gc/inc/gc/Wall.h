@@ -19,7 +19,6 @@ class GC_Wall : public GC_RigidBodyStatic
 {
 	DECLARE_GRID_MEMBER();
 	DECLARE_SELF_REGISTRATION(GC_Wall);
-    typedef GC_RigidBodyStatic base;
 
 public:
 	explicit GC_Wall(vec2d pos);

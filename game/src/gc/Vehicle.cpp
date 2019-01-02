@@ -13,7 +13,7 @@
 #include "inc/gc/SaveFile.h"
 
 
-IMPLEMENT_1LIST_MEMBER(GC_Vehicle, LIST_vehicles);
+IMPLEMENT_1LIST_MEMBER(GC_RigidBodyDynamic, GC_Vehicle, LIST_vehicles);
 
 GC_Vehicle::GC_Vehicle(vec2d pos)
   : GC_RigidBodyDynamic(pos)

@@ -81,14 +81,16 @@ public:
 
 	virtual void Kill(World &world);
 	virtual void MapExchange(MapFile &f);
-	virtual void Init(World &world);
-	virtual void Resume(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
 	virtual ObjectType GetType() const = 0;
 #ifdef NETWORK_DEBUG
 	virtual uint32_t checksum() const { return 0; }
 #endif
+
+private: // overrides don't have to call base class
+	virtual void Init(World &world) {}
+	virtual void Resume(World &world) {}
+	virtual void TimeStep(World &world, float dt) {}
 
 protected:
 	void SetFlags(unsigned int flags, bool value) { _flags = value ? (_flags|flags) : (_flags & ~flags); }

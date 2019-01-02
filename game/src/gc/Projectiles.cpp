@@ -12,7 +12,7 @@
 #include "inc/gc/WorldEvents.h"
 #include "inc/gc/SaveFile.h"
 
-IMPLEMENT_1LIST_MEMBER(GC_Projectile, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Projectile, LIST_timestep);
 
 GC_Projectile::GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail)
   : GC_Actor(pos)
@@ -116,8 +116,6 @@ static void ApplyHitDamage(World &world, GC_RigidBodyStatic &target, const Damag
 
 void GC_Projectile::TimeStep(World &world, float dt)
 {
-	GC_Actor::TimeStep(world, dt);
-
 	vec2d dx = GetDirection() * (_velocity * dt);
 	std::vector<World::CollisionPoint> obstacles;
 	world.TraceAll(world.grid_rigid_s, GetPos(), dx, obstacles);

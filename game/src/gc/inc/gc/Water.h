@@ -8,7 +8,6 @@ class GC_Water : public GC_RigidBodyStatic
                , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Water);
-	typedef GC_RigidBodyStatic base;
 
 public:
 	GC_Water(vec2d pos);

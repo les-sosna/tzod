@@ -21,7 +21,6 @@ enum TurretState
 class GC_Turret : public GC_RigidBodyStatic
 {
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_RigidBodyStatic base;
 
 public:
 	GC_Turret(vec2d pos, TurretState state);

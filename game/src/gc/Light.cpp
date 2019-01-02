@@ -12,7 +12,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Light)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Light, LIST_lights);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Light, LIST_lights);
 
 GC_Light::GC_Light(vec2d pos, enumLightType type)
 	: GC_Actor(pos)

@@ -21,7 +21,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Player, LIST_players);
+IMPLEMENT_1LIST_MEMBER(GC_Service, GC_Player, LIST_players);
 
 GC_Player::GC_Player()
 {
@@ -141,7 +141,6 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 
 void GC_Player::Init(World &world)
 {
-	GC_Service::Init(world);
 	world.Timeout(*this, PLAYER_RESPAWN_DELAY);
 }
 

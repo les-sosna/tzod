@@ -44,7 +44,7 @@ protected:                                                                  \
     void LeaveContexts(World &world, int locX, int locY) override;          \
 private:
 
-#define IMPLEMENT_GRID_MEMBER(cls, grid)                                    \
+#define IMPLEMENT_GRID_MEMBER(base, cls, grid)                              \
     void cls::EnterContexts(World &world, int locX, int locY)               \
     {                                                                       \
         base::EnterContexts(world, locX, locY);                             \
@@ -64,4 +64,3 @@ private:
         }                                                                   \
         assert(false);                                                      \
     }
-

@@ -5,7 +5,6 @@ class GC_BrickFragment : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_BrickFragment);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	GC_BrickFragment(vec2d pos, vec2d v0);
@@ -63,7 +62,6 @@ class GC_Particle : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Particle);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient = { 1, 0 });

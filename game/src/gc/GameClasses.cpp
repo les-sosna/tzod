@@ -94,7 +94,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_HealthDaemon, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_HealthDaemon, LIST_timestep);
 
 GC_HealthDaemon::GC_HealthDaemon(vec2d pos, GC_Player *owner, float damage, float time)
   : GC_Actor(pos)
@@ -187,7 +187,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Text_ToolTip, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Text, GC_Text_ToolTip, LIST_timestep);
 
 GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, std::string text, Style style)
   : GC_Text(pos, std::move(text))

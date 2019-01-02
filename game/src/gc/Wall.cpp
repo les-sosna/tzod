@@ -13,7 +13,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wall)
 	return true;
 }
 
-IMPLEMENT_GRID_MEMBER(GC_Wall, grid_walls);
+IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, GC_Wall, grid_walls);
 
 GC_Wall::GC_Wall(vec2d pos)
   : GC_RigidBodyStatic(pos)

@@ -16,7 +16,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Trigger, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Trigger, LIST_timestep);
 
 GC_Trigger::GC_Trigger(vec2d pos)
   : GC_Actor(pos)

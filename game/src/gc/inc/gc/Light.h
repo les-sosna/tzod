@@ -10,7 +10,6 @@ class GC_Light : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	enum enumLightType

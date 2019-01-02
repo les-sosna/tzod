@@ -7,7 +7,6 @@ class GC_SpawnPoint : public GC_Actor
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	int _team;    // 0 - no team

@@ -131,18 +131,6 @@ void GC_Object::SetName(World &world, std::string name)
 	}
 }
 
-void GC_Object::Init(World &world)
-{
-}
-
-void GC_Object::Resume(World &world)
-{
-}
-
-void GC_Object::TimeStep(World &world, float dt)
-{
-}
-
 std::shared_ptr<PropertySet> GC_Object::GetProperties(World &world)
 {
 	std::shared_ptr<PropertySet> ps(NewPropertySet());

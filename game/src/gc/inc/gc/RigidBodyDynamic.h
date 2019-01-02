@@ -90,7 +90,6 @@ public:
 #endif
 private:
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_RigidBodyStatic base;
 
 	struct Contact
 	{
@@ -102,7 +101,7 @@ private:
 		vec2d tangent;
 		float total_np, total_tp;
 		float depth;
-		//		bool  inactive;
+//		bool  inactive;
 	};
 
 	typedef std::vector<Contact> ContactList;

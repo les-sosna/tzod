@@ -8,7 +8,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_BrickFragment)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_BrickFragment, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_BrickFragment, LIST_timestep);
 
 GC_BrickFragment::GC_BrickFragment(vec2d pos, vec2d v0)
   : GC_Actor(pos)
@@ -54,7 +54,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Particle)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Particle, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Actor, GC_Particle, LIST_timestep);
 
 GC_Particle::GC_Particle(vec2d pos, vec2d v, ParticleType ptype, float lifeTime, vec2d orient)
   : GC_Actor(pos)

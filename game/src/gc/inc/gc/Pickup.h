@@ -50,7 +50,6 @@ class GC_Pickup : public GC_Actor
 {
 	DECLARE_LIST_MEMBER(override);
 	DECLARE_GRID_MEMBER();
-    typedef GC_Actor base;
 
 public:
 	using GC_Actor::GC_Actor;
@@ -89,11 +88,11 @@ public:
 	virtual float GetDefaultRespawnTime() const = 0;
 
 	// GC_Object
-    void Init(World &world) override;
-    void Kill(World &world) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
 	void MapExchange(MapFile &f) override;
 	void Serialize(World &world, SaveFile &f) override;
-	void TimeStep(World &world, float dt) override;
+	void Resume(World &world) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
@@ -197,6 +196,8 @@ private:
 
 	friend class GC_Vehicle;
 	void OnOwnerDamage(World &world, DamageDesc &dd);
+
+	DECLARE_LIST_MEMBER(override);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -207,7 +208,6 @@ class GC_pu_Shock : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Pickup base;
 
 public:
 	GC_pu_Shock(vec2d pos);
@@ -244,6 +244,7 @@ private:
 class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
+	DECLARE_LIST_MEMBER(override);
 
 public:
 	GC_pu_Booster(vec2d pos);

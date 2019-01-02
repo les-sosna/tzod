@@ -21,6 +21,8 @@ struct AIWEAPSETTINGS
 
 class GC_Weapon : public GC_Pickup
 {
+	DECLARE_LIST_MEMBER(override);
+
 public:
 	explicit GC_Weapon(vec2d pos);
 	explicit GC_Weapon(FromFile);
