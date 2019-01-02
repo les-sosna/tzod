@@ -21,12 +21,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 	return true;
 }
 
-IMPLEMENT_2LIST_MEMBER(GC_Player, LIST_players, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Player, LIST_players);
 
 GC_Player::GC_Player()
-  : _timeRespawn(PLAYER_RESPAWN_DELAY)
-  , _team(0)
-  , _score(0)
 {
 	SetSkin("red");
 }
@@ -51,7 +48,6 @@ void GC_Player::Serialize(World &world, SaveFile &f)
 	f.Serialize(_class);
 	f.Serialize(_score);
 	f.Serialize(_team);
-	f.Serialize(_timeRespawn);
 	f.Serialize(_vehicle);
 }
 
@@ -106,19 +102,19 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 {
 	std::vector<GC_SpawnPoint*> points;
 
-	GC_SpawnPoint *pBestPoint = nullptr;
+	GC_SpawnPoint *bestPoint = nullptr;
 	float max_dist = -1;
 
 	FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
 	{
-		GC_SpawnPoint *pSpawnPoint = (GC_SpawnPoint*) object;
-		if( pSpawnPoint->_team && (pSpawnPoint->_team != team) )
+		GC_SpawnPoint *spawnPoint = (GC_SpawnPoint*) object;
+		if( spawnPoint->_team && (spawnPoint->_team != team) )
 			continue;
 
 		float dist = -1;
 		FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pVeh )
 		{
-			float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
+			float d = (pVeh->GetPos() - spawnPoint->GetPos()).sqr();
 			if( d < dist || dist < 0 ) dist = d;
 		}
 
@@ -126,67 +122,63 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 			continue;
 
 		if( dist < 0 || dist > 400*WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE )
-			points.push_back(pSpawnPoint);
+			points.push_back(spawnPoint);
 
 		if( dist > max_dist )
 		{
 			max_dist = dist;
-			pBestPoint = pSpawnPoint;
+			bestPoint = spawnPoint;
 		}
 	}
 
 	if( !points.empty() )
 	{
-		pBestPoint = points[world.net_rand() % points.size()];
+		bestPoint = points[world.net_rand() % points.size()];
 	}
 
-	return pBestPoint;
+	return bestPoint;
 }
 
-void GC_Player::TimeStep(World &world, float dt)
+void GC_Player::Init(World &world)
 {
-	GC_Service::TimeStep(world, dt);
+	GC_Service::Init(world);
+	world.Timeout(*this, PLAYER_RESPAWN_DELAY);
+}
 
-	if( !GetVehicle() )
+void GC_Player::Resume(World &world)
+{
+	assert(!GetVehicle());
+
+	if (GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team))
 	{
-		_timeRespawn -= dt;
-		if( _timeRespawn <= 0 )
+		world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
+
+		_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
+
+		auto &initialShield = world.New<GC_pu_Shield>(pBestPoint->GetPos());
+		initialShield.SetIsDefaultItem(true);
+		initialShield.Attach(world, *_vehicle);
+
+		GC_Object* found = world.FindObject(_vehname);
+		if (found && _vehicle != found)
 		{
-			assert(!GetVehicle());
-			_timeRespawn = PLAYER_RESPAWN_DELAY;
-
-			if (GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team))
-			{
-				world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
-
-				_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
-
-				auto &initialShield = world.New<GC_pu_Shield>(pBestPoint->GetPos());
-				initialShield.SetIsDefaultItem(true);
-				initialShield.Attach(world, *_vehicle);
-
-				GC_Object* found = world.FindObject(_vehname);
-				if( found && _vehicle != found )
-				{
-//					_logger.Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
-				}
-				else
-				{
-					_vehicle->SetName(world, _vehname.c_str());
-				}
-				_vehicle->SetDirection(pBestPoint->GetDirection());
-				_vehicle->SetPlayer(world, this);
-
-				for( auto ls: world.eGC_Player._listeners )
-					ls->OnRespawn(*this, *_vehicle);
-			}
-			else
-			{
-//				char buf[64];
-//				sprintf(buf, _lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
-//				_logger.WriteLine(1, buf);
-			}
+//			_logger.Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
 		}
+		else
+		{
+			_vehicle->SetName(world, _vehname.c_str());
+		}
+		_vehicle->SetDirection(pBestPoint->GetDirection());
+		_vehicle->SetPlayer(world, this);
+
+		for (auto ls : world.eGC_Player._listeners)
+			ls->OnRespawn(*this, *_vehicle);
+	}
+	else
+	{
+//		char buf[64];
+//		sprintf(buf, _lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
+//		_logger.WriteLine(1, buf);
 	}
 }
 
@@ -196,6 +188,7 @@ void GC_Player::OnVehicleDestroy(World &world)
 	_vehicle = nullptr;
 	for( auto ls: world.eGC_Player._listeners )
 		ls->OnDie(*this);
+	world.Timeout(*this, PLAYER_RESPAWN_DELAY);
 }
 
 PropertySet* GC_Player::NewPropertySet()

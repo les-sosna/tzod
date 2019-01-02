@@ -55,7 +55,8 @@ public:
 	void Kill(World &world) override;
 	void Serialize(World &world, SaveFile &f) override;
 	void MapExchange(MapFile &f) override;
-	void TimeStep(World &world, float dt) override;
+	void Init(World &world) override;
+	void Resume(World &world) override;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -80,16 +81,15 @@ protected:
 	PropertySet* NewPropertySet() override;
 
 private:
-	float     _timeRespawn;
-	int       _team;
-	int       _score;
-	int       _numDeaths = 0;
-	std::string  _nick;
-	std::string  _class;
-	std::string  _skin;
-	std::string  _vehname;
-	std::string  _scriptOnDie;
-	std::string  _scriptOnRespawn;
+	int _team = 0;
+	int _score = 0;
+	int _numDeaths = 0;
+	std::string _nick;
+	std::string _class;
+	std::string _skin;
+	std::string _vehname;
+	std::string _scriptOnDie;
+	std::string _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
 
 	friend class GC_Vehicle;
