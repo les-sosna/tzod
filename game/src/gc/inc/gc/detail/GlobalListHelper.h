@@ -7,7 +7,7 @@ class GC_Object;
 enum GlobalListID
 {
 	LIST_objects,
-    LIST_timestep,
+	LIST_timestep,
 	LIST_services,
 	LIST_respawns,
 	LIST_players,
@@ -15,7 +15,7 @@ enum GlobalListID
 	LIST_vehicles,
 	LIST_pickups,
 	LIST_lights,
-    LIST_gsprites,
+	LIST_gsprites,
 	//------------------
 	GLOBAL_LIST_COUNT
 };

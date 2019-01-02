@@ -39,7 +39,6 @@ private:
 	typedef std::map<ObjectType, EdItem> type2item;
 	typedef std::map<std::string, ObjectType, std::less<>> name2type;
 	typedef std::vector<ObjectType> index2type;
-	typedef std::map<ObjectType, GC_Object& (*) (World&)> FromFileMap;
 
 	template<class T>
 	static GC_Actor& DetachedActorCtor(vec2d pos)
@@ -170,12 +169,12 @@ public:
 	// object creation
 	//
 
-    // for serialization
+	// for serialization
 	GC_Object* CreateFromFile(World &world, ObjectType type);
 
-    // for editor
+	// for editor
 	GC_Actor& CreateActor(World &world, ObjectType type, vec2d pos);
-    GC_Service& CreateService(World &world, ObjectType type);
+	GC_Service& CreateService(World &world, ObjectType type);
 
 
 private:
@@ -184,7 +183,7 @@ private:
 	name2type _n2t;
 	index2type _i2t; // sort by desc
 	// for serialization
-	FromFileMap _ffm;
+	std::map<ObjectType, GC_Object& (*) (World&)> _ffm;
 	// common
 	std::set<std::string> _types;
 	// use as singleton only
