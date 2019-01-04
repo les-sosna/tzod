@@ -23,7 +23,7 @@ public:
 	//-----------------------------
 	void UpdateProperties();
 
-	float _before; // actual path cost to this node
+	int _before; // actual path cost to this node
 
 	uint8_t _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
 	int8_t _stepX = 0;
@@ -48,7 +48,7 @@ public:
 
 	unsigned char Properties() const { return _prop; }
 
-	float Before() const { return _before; }
+	int Before() const { return _before; }
 };
 
 struct RefFieldCell

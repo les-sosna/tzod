@@ -56,15 +56,38 @@ inline static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 	return (hasWeapon && 0xFF != cell.Properties()) || (!hasWeapon && 0 == cell.Properties());
 }
 
-static float EstimatePathLength(RefFieldCell begin, RefFieldCell end)
+static constexpr int BLOCK_MULTIPLIER = 985;
+static constexpr int BLOCK_MULTIPLIER_DIAG = 1393;
+
+// for diagonal checks
+//                                        4     5     6     7
+// static constexpr int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
+
+// neighbor nodes check order
+//    4 | 0 | 6
+//   ---+---+---
+//    2 | n | 3
+//   ---+---+---
+//    7 | 1 | 5
+//                                 0  1  2  3  4  5  6  7
+static constexpr int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
+static constexpr int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
+static constexpr int dist[8] = { // relative path cost
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER, BLOCK_MULTIPLIER, BLOCK_MULTIPLIER,
+	BLOCK_MULTIPLIER_DIAG, BLOCK_MULTIPLIER_DIAG, BLOCK_MULTIPLIER_DIAG, BLOCK_MULTIPLIER_DIAG };
+
+// upper bound of Euclidean distance
+static int EstimatePathLength(RefFieldCell begin, RefFieldCell end)
 {
-	int dx = abs(end.x - begin.x);
-	int dy = abs(end.y - begin.y);
-	return (float)std::max(dx, dy) + (float)std::min(dx, dy) * 0.4142f;
+	int dx = std::abs(end.x - begin.x);
+	int dy = std::abs(end.y - begin.y);
+	return std::max(dx, dy) * BLOCK_MULTIPLIER + std::min(dx, dy) * (BLOCK_MULTIPLIER_DIAG - BLOCK_MULTIPLIER);
 }
 
 float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
+	int maxRelativeDepth = int(max_depth * (float)BLOCK_MULTIPLIER);
+
 	if (!PtInFRect(world.GetBounds(), to))
 	{
 		return -1;
@@ -76,7 +99,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	struct OpenListNode
 	{
 		RefFieldCell cellRef;
-		float totalEstimate;
+		int totalEstimate;
 
 		bool operator<(OpenListNode other) const
 		{
@@ -107,24 +130,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 		FieldCell &current = field(currentNode.cellRef.x, currentNode.cellRef.y);
 
-
-		// neighbor nodes check order
-		//    4 | 0 | 6
-		//   ---+---+---
-		//    2 | n | 3
-		//   ---+---+---
-		//    7 | 1 | 5
-		//                          0  1  2  3  4  5  6  7
-		constexpr int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
-		constexpr int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
-		constexpr float dist [8] = {
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // path cost
-
-		// for diagonal checks
-		//                           4     5     6     7
-//		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
-
 		for( int i = 0; i < 8; ++i )
 		{
 /*			if( i > 3 ) // check diagonal passability
@@ -142,11 +147,11 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			if( CheckCell(next, !!ws) )
 			{
 				// increase path cost when travel through the walls
-				float dist_mult = 1;
+				int dist_mult = 1;
 				if( 1 == next.Properties() )
-					dist_mult = ws->fDistanceMultipler;
+					dist_mult = ws->distanceMultipler;
 
-				float nextBefore = current.Before() + dist[i] * dist_mult;
+				int nextBefore = current.Before() + dist[i] * dist_mult;
 
 #if 0 // too expensive
 				// penalty for turns
@@ -169,8 +174,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 					next._stepX = per_x[i];
 					next._stepY = per_y[i];
 
-					float nextTotal = nextBefore + EstimatePathLength(nextRef, endRef);
-					if (nextTotal < max_depth)
+					int nextTotal = nextBefore + EstimatePathLength(nextRef, endRef);
+					if (nextTotal < maxRelativeDepth)
 					{
 						// may add same cell ref with a different total
 						open.push({ nextRef, nextTotal });
@@ -182,14 +187,14 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	if( field(endRef.x, endRef.y).IsChecked() )
 	{
-		float distance = field(endRef.x, endRef.y).Before();
+		float distance = (float)field(endRef.x, endRef.y).Before() / (float)BLOCK_MULTIPLIER;
 
 		if( !bTest )
 		{
 			ClearPath();
 
 			RefFieldCell currentRef = endRef;
-			FieldCell *current = &field(currentRef.x, currentRef.y);
+			const FieldCell *current = &field(currentRef.x, currentRef.y);
 
 			_path.push_back(to);
 

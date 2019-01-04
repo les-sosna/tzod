@@ -12,7 +12,7 @@ struct AIWEAPSETTINGS
 	float fAttackRadius_min;
 	float fAttackRadius_max;
 	float fAttackRadius_crit;  // if you closer than critical distance you may damage your self
-	float fDistanceMultipler;  // applies when traveling through brick walls
+	int distanceMultipler;  // applies when traveling through brick walls
 	bool  bNeedOutstrip;       // false if the projectile speed is unlimited
 };
 
