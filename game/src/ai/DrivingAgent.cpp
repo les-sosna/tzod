@@ -51,9 +51,9 @@ void DrivingAgent::Serialize(SaveFile &f)
 
 
 // check the cell's passability taking into account current weapon settings
-static bool CheckCell(const FieldCell &cell, bool hasWeapon)
+inline static bool CheckCell(const FieldCell &cell, bool hasWeapon)
 {
-	return (0xFF != cell.Properties() && hasWeapon) || (0 == cell.Properties() && !hasWeapon);
+	return (hasWeapon && 0xFF != cell.Properties()) || (!hasWeapon && 0 == cell.Properties());
 }
 
 static float EstimatePathLength(RefFieldCell begin, RefFieldCell end)
@@ -105,10 +105,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 		//    2 | n | 3
 		//   ---+---+---
 		//    7 | 1 | 5
-		//                             0  1  2  3  4  5  6  7
-		static const int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
-		static const int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
-		static const float dist [8] = {
+		//                          0  1  2  3  4  5  6  7
+		constexpr int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
+		constexpr int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
+		constexpr float dist [8] = {
 			1.0f, 1.0f, 1.0f, 1.0f,
 			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // path cost
 
@@ -139,6 +139,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 				float before = cn.Before() + dist[i] * dist_mult;
 
+#if 0 // too expensive
 				// penalty for turns
 				if (cn._stepX || cn._stepY) // TODO: use initial vehicle direction
 				{
@@ -149,6 +150,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 					else if (c < 0.9f) // 0.707 is 45 deg. turn
 						before += 0.2f;
 				}
+#endif
 
 				if( !next.IsChecked() )
 				{

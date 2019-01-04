@@ -58,7 +58,7 @@ struct RefFieldCell
 	int x : 16;
 	int y : 16;
 
-	bool operator==(const RefFieldCell &other) const
+	bool operator==(RefFieldCell other) const
 	{
 		return x == other.x && y == other.y;
 	}
@@ -105,7 +105,7 @@ class FieldCellCompare final
 public:
 	FieldCellCompare(const Field &field);
 
-	bool operator()(const RefFieldCell &a, const RefFieldCell &b) const
+	bool operator()(RefFieldCell a, RefFieldCell b) const
 	{
 		return _field(a.x, a.y).Total() > _field(b.x, b.y).Total();
 	}
