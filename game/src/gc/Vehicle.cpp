@@ -305,8 +305,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 		float smoke_dt = 1.0f / (60.0f * (1.0f - GetHealth() / (GetHealthMax() * 0.5f)));
 		for(; _time_smoke > 0; _time_smoke -= smoke_dt)
 		{
-			auto &p = world.New<GC_Particle>(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, PARTICLE_SMOKE, 1.5f);
-			p._time = frand(1.0f);
+			world.New<GC_Particle>(GetPos() + vrand(frand(24.0f)), SPEED_SMOKE, PARTICLE_SMOKE, 1.5f, frand(1.0f));
 		}
 	}
 
@@ -342,7 +341,8 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	e /= len;
 	while( _trackPathL < len )
 	{
-		auto &p = world.New<GC_ParticleDecal>(trackL + e * _trackPathL, vec2d{}, PARTICLE_CATTRACK, 12.0f, e);
+		auto &p = world.New<GC_Decal>(trackL + e * _trackPathL, PARTICLE_CATTRACK, 12.0f);
+		p.SetDirection(e);
 		p.SetFade(true);
 		_trackPathL += trackDensity;
 	}
@@ -353,7 +353,8 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	e  /= len;
 	while( _trackPathR < len )
 	{
-		auto &p = world.New<GC_ParticleDecal>(trackR + e * _trackPathR, vec2d{}, PARTICLE_CATTRACK, 12.0f, e);
+		auto &p = world.New<GC_Decal>(trackR + e * _trackPathR, PARTICLE_CATTRACK, 12.0f);
+		p.SetDirection(e);
 		p.SetFade(true);
 		_trackPathR += trackDensity;
 	}

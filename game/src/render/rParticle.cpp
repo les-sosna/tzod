@@ -1,10 +1,11 @@
 #include "rParticle.h"
-#include <gc/Particles.h>
+#include <gc/Decal.h>
+#include <gc/World.h>
 #include <video/TextureManager.h>
 #include <video/RenderContext.h>
 #include <algorithm>
 
-static std::pair<ParticleType, const char*> textures[] = {
+static std::pair<DecalType, const char*> textures[] = {
 	{ PARTICLE_FIRE1, "particle_fire" },
 	{ PARTICLE_FIRE2, "particle_fire2" },
 	{ PARTICLE_FIRE3, "particle_fire3" },
@@ -45,18 +46,19 @@ R_Particle::R_Particle(TextureManager &tm)
 
 void R_Particle::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Particle*>(&mo));
-	const GC_Particle &particle = static_cast<const GC_Particle&>(mo);
-	ParticleType ptype = particle.GetParticleType();
-	if (ptype < (int) _ptype2texId.size() && particle.GetTime() < particle.GetLifeTime())
+	assert(dynamic_cast<const GC_Decal*>(&mo));
+	const GC_Decal &decal = static_cast<const GC_Decal&>(mo);
+	DecalType ptype = decal.GetDecalType();
+	float ptime = world.GetTime() - decal.GetTimeCreated();
+	if (ptype < (int) _ptype2texId.size() && ptime < decal.GetLifeTime())
 	{
 		size_t texId = _ptype2texId[ptype];
-		float state = particle.GetTime() / particle.GetLifeTime();
+		float state = ptime / decal.GetLifeTime();
 		auto frame = std::min(_tm.GetFrameCount(texId) - 1, (unsigned int) ((float) _tm.GetFrameCount(texId) * state));
-		vec2d pos = particle.GetPos();
-		vec2d dir = particle.GetRotationSpeed() > 0 ? Vec2dDirection(particle.GetRotationSpeed() * particle.GetTime()) : particle.GetDirection();
+		vec2d pos = decal.GetPos();
+		vec2d dir = Vec2dAddDirection(decal.GetDirection(), Vec2dDirection(decal.GetRotationSpeed() * ptime));
 		SpriteColor color;
-		if (particle.GetFade())
+		if (decal.GetFade())
 		{
 			unsigned char op = (unsigned char) int(255.0f * (1.0f - state));
 			color.r = op;
@@ -68,7 +70,7 @@ void R_Particle::Draw(const World &world, const GC_MovingObject &mo, RenderConte
 		{
 			color = 0xffffffff;
 		}
-		float size = particle.GetSizeOverride();
+		float size = decal.GetSizeOverride();
 		if( size < 0 )
 			rc.DrawSprite(texId, frame, color, pos, dir);
 		else

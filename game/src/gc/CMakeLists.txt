@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.3)
 
 add_library(gc
 	inc/gc/Crate.h
+	inc/gc/Decal.h
 	inc/gc/Explosion.h
 	inc/gc/Field.h
 	inc/gc/GameClasses.h
@@ -50,6 +51,7 @@ add_library(gc
 	inc/gc/detail/Rotator.h
 
 	Crate.cpp
+	Decal.cpp
 	Explosion.cpp
 	Field.cpp
 	GameClasses.cpp

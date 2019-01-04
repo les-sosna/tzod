@@ -207,6 +207,7 @@ public:
 #endif
 
 	ResumableObject* Timeout(GC_Object &obj, float timeout);
+	size_t GetResumableCount() const { return _resumables.size(); }
 
 private:
 	struct Resumable

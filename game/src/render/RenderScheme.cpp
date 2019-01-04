@@ -155,9 +155,9 @@ public:
 
 		AddView<GC_BrickFragment>(Make<Z_Const>(Z_PARTICLE), Make<R_BrickFragment>(tm));
 		AddView<GC_Particle>(Make<Z_Const>(Z_PARTICLE), Make<R_Particle>(tm));
-		AddView<GC_ParticleExplosion>(Make<Z_Const>(Z_EXPLODE), Make<R_Particle>(tm));
-		AddView<GC_ParticleDecal>(Make<Z_Const>(Z_WATER), Make<R_Particle>(tm));
-		AddView<GC_ParticleGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
+		AddView<GC_Decal>(Make<Z_Const>(Z_WATER), Make<R_Particle>(tm));
+		AddView<GC_DecalExplosion>(Make<Z_Const>(Z_EXPLODE), Make<R_Particle>(tm));
+		AddView<GC_DecalGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
 
 		AddView<GC_UserObject>(Make<Z_UserObject>(), Make<R_UserObject>(tm));
 		AddView<GC_Decoration>(Make<Z_Decoration>(), Make<R_Decoration>(tm));
