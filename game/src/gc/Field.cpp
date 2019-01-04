@@ -120,22 +120,20 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 	int ymin = std::min(_bounds.bottom - 1, std::max(_bounds.top, (int)std::floor(p.y - r + 0.5f)));
 	int ymax = std::min(_bounds.bottom - 1, std::max(_bounds.top, (int)std::floor(p.y + r + 0.5f)));
 
-	for( int x = xmin; x <= xmax; x++ )
-        for( int y = ymin; y <= ymax; y++ )
-        {
-            if( add )
-            {
-                (*this)(x, y).AddObject(object);
-            }
-            else
-            {
-                (*this)(x, y).RemoveObject(object);
-                if(_bounds.left == x || _bounds.top == y || _bounds.right-1 == x || _bounds.bottom-1 == y )
-                    (*this)(x, y)._prop = 0xFF;
-            }
-        }
+	for (int x = xmin; x <= xmax; x++)
+	{
+		for (int y = ymin; y <= ymax; y++)
+		{
+			if (add)
+			{
+				(*this)(x, y).AddObject(object);
+			}
+			else
+			{
+				(*this)(x, y).RemoveObject(object);
+				if (_bounds.left == x || _bounds.top == y || _bounds.right - 1 == x || _bounds.bottom - 1 == y)
+					(*this)(x, y)._prop = 0xFF;
+			}
+		}
+	}
 }
-
-FieldCellCompare::FieldCellCompare(const Field &field)
-	: _field(field)
-{}

@@ -24,7 +24,6 @@ public:
 	void UpdateProperties();
 
 	float _before; // actual path cost to this node
-	float _total; // total path cost estimate
 
 	uint8_t _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
 	int8_t _stepX = 0;
@@ -49,7 +48,6 @@ public:
 
 	unsigned char Properties() const { return _prop; }
 
-	float Total() const { return _total; }
 	float Before() const { return _before; }
 };
 
@@ -99,18 +97,3 @@ private:
 	std::unique_ptr<FieldCell[]> _cells;
 	RectRB _bounds = {};
 };
-
-class FieldCellCompare final
-{
-public:
-	FieldCellCompare(const Field &field);
-
-	bool operator()(RefFieldCell a, RefFieldCell b) const
-	{
-		return _field(a.x, a.y).Total() > _field(b.x, b.y).Total();
-	}
-
-private:
-	const Field &_field;
-};
-

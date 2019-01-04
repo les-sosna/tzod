@@ -73,7 +73,17 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	Field::NewSession();
 	Field &field = *world._field;
 
-	std::priority_queue<RefFieldCell, std::vector<RefFieldCell>, FieldCellCompare> open(field);
+	struct OpenListNode
+	{
+		RefFieldCell cellRef;
+		float totalEstimate;
+
+		bool operator<(OpenListNode other) const
+		{
+			return totalEstimate > other.totalEstimate;
+		}
+	};
+	std::priority_queue<OpenListNode> open;
 
 	RefFieldCell startRef = { (int)std::floor(from.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(from.y / WORLD_BLOCK_SIZE + 0.5f) };
 	RefFieldCell endRef = { (int)std::floor(to.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(to.y / WORLD_BLOCK_SIZE + 0.5f) };
@@ -85,18 +95,17 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	start.Check();
 	start._before = 0;
-	start._total = EstimatePathLength(startRef, endRef);
 	start._stepX = 0;
 	start._stepY = 0;
 
-	open.push(startRef);
+	open.push({ startRef, EstimatePathLength(startRef, endRef) });
 
 	while( !open.empty() )
 	{
-		RefFieldCell currentRef = open.top();
+		OpenListNode currentNode = open.top();
 		open.pop();
 
-		FieldCell &cn = field(currentRef.x, currentRef.y);
+		FieldCell &current = field(currentNode.cellRef.x, currentNode.cellRef.y);
 
 
 		// neighbor nodes check order
@@ -128,7 +137,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			}*/
 
 
-			RefFieldCell nextRef = { currentRef.x + per_x[i], currentRef.y + per_y[i] };
+			RefFieldCell nextRef = { currentNode.cellRef.x + per_x[i], currentNode.cellRef.y + per_y[i] };
 			FieldCell &next = field(nextRef.x, nextRef.y);
 			if( CheckCell(next, !!ws) )
 			{
@@ -137,7 +146,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				if( 1 == next.Properties() )
 					dist_mult = ws->fDistanceMultipler;
 
-				float before = cn.Before() + dist[i] * dist_mult;
+				float nextBefore = current.Before() + dist[i] * dist_mult;
 
 #if 0 // too expensive
 				// penalty for turns
@@ -152,25 +161,20 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				}
 #endif
 
-				if( !next.IsChecked() )
+				// never visited or found a better path to node
+				if( !next.IsChecked() || nextBefore < next._before)
 				{
-					next._stepX = per_x[i];
-					next._stepY = per_y[i];
-					next._before = before;
-					next._total = before + EstimatePathLength(nextRef, endRef);
 					next.Check();
-					if( next.Total() < max_depth )
-						open.push(nextRef);
-				}
-				else if( next._before > before )
-				{
-					// Do not update _total as it would brake 'open' ordering. It only affects
-					// the node selection priority but eventually it will be handled anyway.
-					next._before = before;
+					next._before = nextBefore;
 					next._stepX = per_x[i];
 					next._stepY = per_y[i];
-					if( next.Total() < max_depth )
-						open.push(nextRef);
+
+					float nextTotal = nextBefore + EstimatePathLength(nextRef, endRef);
+					if (nextTotal < max_depth)
+					{
+						// may add same cell ref with a different total
+						open.push({ nextRef, nextTotal });
+					}
 				}
 			}
 		}
