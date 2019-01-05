@@ -82,7 +82,9 @@ void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 	const size_t maxLines = 8;
 
-	float pxLineHeight = ToPx(texman.GetCharHeight(_font.GetTextureId(texman)) - 1, lc);
+	vec2d pxMargin = ToPx(vec2d{ 3, 3 }, lc);
+	float pxTextHeight = ToPx(texman.GetCharHeight(_font.GetTextureId(texman)), lc);
+	float pxLineHeight = pxTextHeight + pxMargin.y;
 	for (size_t i = 0; i < players.size(); ++i)
 	{
 		if (i == maxLines)
@@ -93,8 +95,7 @@ void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 		{
 			vec2d lt = ToPx(vec2d{ SCORE_POS_NUMBER, SCORE_NAMES_TOP }, lc) + pxOffset;
 			float pxWidth = lc.GetPixelSize().x - ToPx(SCORE_POS_SCORE, lc) - lt.x;
-			vec2d pxMargin = ToPx(vec2d{ 3, 3 }, lc);
-			FRECT pxRect = MakeRectWH(lt - pxMargin, vec2d{ pxWidth, pxLineHeight } + pxMargin * 2);
+			FRECT pxRect = MakeRectWH(lt - pxMargin, vec2d{ pxWidth, pxTextHeight } + pxMargin * 2);
 			rc.DrawSprite(pxRect, _texHighlight.GetTextureId(texman), 0xffffffff, 0);
 			rc.DrawBorder(pxRect, _texHighlight.GetTextureId(texman), 0xffffffff, 0);
 		}
