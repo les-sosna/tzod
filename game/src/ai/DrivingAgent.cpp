@@ -113,7 +113,12 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			return totalEstimate > other.totalEstimate;
 		}
 	};
-	std::priority_queue<OpenListNode> open;
+	struct OpenList : public std::priority_queue<OpenListNode>
+	{
+		void clear() { c.clear(); }
+	};
+	static OpenList open;
+	open.clear();
 
 	RefFieldCell startRef = { (int)std::floor(from.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(from.y / WORLD_BLOCK_SIZE + 0.5f) };
 	RefFieldCell endRef = { (int)std::floor(to.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(to.y / WORLD_BLOCK_SIZE + 0.5f) };
