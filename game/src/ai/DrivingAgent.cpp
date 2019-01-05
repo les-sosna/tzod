@@ -58,10 +58,6 @@ inline static bool CheckCell(int cellProp, bool hasWeapon)
 static constexpr int BLOCK_MULTIPLIER = 985;
 static constexpr int BLOCK_MULTIPLIER_DIAG = 1393;
 
-// for diagonal checks
-//                                        4     5     6     7
-// static constexpr int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
-
 // neighbor nodes check order
 //    4 | 0 | 6
 //   ---+---+---
@@ -133,7 +129,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	start._prev = -1;
 
 	open.push({ startRef, EstimatePathLength(startRef, endRef) });
-
 	while( !open.empty() )
 	{
 		OpenListNode currentNode = open.top();
@@ -145,16 +140,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 		for( int i = 0; i < 8; ++i )
 		{
-/*			if( i > 3 ) // check diagonal passability
-			if( !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2  ]],
-			                     currentRef.y + per_y[check_diag[(i-4)*2  ]]), !!ws) ||
-			    !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2+1]],
-			                     currentRef.y + per_y[check_diag[(i-4)*2+1]]), !!ws) )
-			{
-				continue;
-			}*/
-
-
 			RefFieldCell nextRef = { currentNode.cellRef.x + per_x[i], currentNode.cellRef.y + per_y[i] };
 			FieldCell &next = field(nextRef.x, nextRef.y);
 			int nextProp = next.Properties();
@@ -216,7 +201,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
-					assert(ws);
+					assert(hasWeapon);
 					assert(current->Properties() > 0);
 
 					GC_RigidBodyStatic *object = current->GetObject(i);
@@ -234,7 +219,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 			}
 
 			std::reverse(begin(_path), end(_path));
-
 			assert(startRef == currentRef);
 		}
 
