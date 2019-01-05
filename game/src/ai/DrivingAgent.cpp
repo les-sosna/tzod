@@ -69,11 +69,23 @@ static constexpr int BLOCK_MULTIPLIER_DIAG = 1393;
 //   ---+---+---
 //    7 | 1 | 5
 //                                 0  1  2  3  4  5  6  7
-static constexpr int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
-static constexpr int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
+static constexpr int per_x[8] = {  1, 1, 0,-1,-1,-1, 0, 1 };  // node x offset
+static constexpr int per_y[8] = {  0, 1, 1, 1, 0,-1,-1,-1 };  // node y offset
 static constexpr int dist[8] = { // relative path cost
-	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER, BLOCK_MULTIPLIER, BLOCK_MULTIPLIER,
-	BLOCK_MULTIPLIER_DIAG, BLOCK_MULTIPLIER_DIAG, BLOCK_MULTIPLIER_DIAG, BLOCK_MULTIPLIER_DIAG };
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG,
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG,
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG,
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG };
+static constexpr int turn_cost[8] = {
+	0, // no turn
+	BLOCK_MULTIPLIER / 5, // 45 degrees
+	BLOCK_MULTIPLIER, // 90 degrees
+	BLOCK_MULTIPLIER, // impossible
+	BLOCK_MULTIPLIER, // impossible
+	BLOCK_MULTIPLIER, // impossible
+	BLOCK_MULTIPLIER, // 90 degrees
+	BLOCK_MULTIPLIER / 5 // 45 degrees
+};
 
 // upper bound of Euclidean distance
 static int EstimatePathLength(RefFieldCell begin, RefFieldCell end)
@@ -155,18 +167,12 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 				int nextBefore = current.Before() + dist[i] * dist_mult;
 
-#if 0 // too expensive
 				// penalty for turns
-				if (current._stepX || current._stepY) // TODO: use initial vehicle direction
+				if (current._prev != -1) // TODO: use initial vehicle direction
 				{
-					float stepSqr = float(current._stepX*current._stepX + current._stepY*current._stepY);
-					float c = float(current._stepX * per_x[i] + current._stepY * per_y[i]) / (dist[i] * std::sqrt(stepSqr));
-					if (c < 0.5f) // 0 is 90 deg. turn
-						before += 1;
-					else if (c < 0.9f) // 0.707 is 45 deg. turn
-						before += 0.2f;
+					int turn = (i - current._prev) & 7;
+					nextBefore += turn_cost[turn];
 				}
-#endif
 
 				// never visited or found a better path to node
 				if( !next.IsChecked() || nextBefore < next._before)
