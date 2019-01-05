@@ -67,24 +67,13 @@ class Field final
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
 
-	Field();
-
-	void Resize(RectRB bounds);
-	void ProcessObject(GC_RigidBodyStatic *object, bool add);
-
-	RectRB GetBounds() const { return _bounds; }
+	void Resize(int width, int height);
+	void ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object, bool add);
 
 	const FieldCell& operator() (int x, int y) const
 	{
-		if (PtInRect(_bounds, x, y))
-		{
-			size_t offset = (x - _bounds.left) + (y - _bounds.top) * WIDTH(_bounds);
-			return _cells.get()[offset];
-		}
-		else
-		{
-			return _edgeCell;
-		}
+		assert(x >= 0 && x < _width && y >= 0 && y < _height);
+		return _cells.get()[x + y * _width];
 	}
 
 	FieldCell& operator() (int x, int y)
@@ -93,7 +82,7 @@ public:
 	}
 
 private:
-	FieldCell _edgeCell;
 	std::unique_ptr<FieldCell[]> _cells;
-	RectRB _bounds = {};
+	int _width = 0;
+	int _height = 0;
 };

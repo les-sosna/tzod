@@ -31,8 +31,9 @@ GC_Wall::~GC_Wall()
 {
 }
 
-static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
+static void RemoveCorner(World &world, GC_RigidBodyStatic &obj, int corner)
 {
+	assert(world._field);
 	if (corner)
 	{
 		vec2d p = obj.GetPos() / WORLD_BLOCK_SIZE;
@@ -58,11 +59,13 @@ static void RemoveCorner(Field &field, GC_RigidBodyStatic &obj, int corner)
 				y = (int)std::floor(p.y);
 				break;
 		}
-		x = std::max(field.GetBounds().left, std::min(x, field.GetBounds().right - 1));
-		y = std::max(field.GetBounds().top, std::min(y, field.GetBounds().bottom - 1));
+		auto blockBounds = world.GetBlockBounds();
+		x = std::max(blockBounds.left, std::min(x, blockBounds.right));
+		y = std::max(blockBounds.top, std::min(y, blockBounds.bottom));
 
-		field(x, y).RemoveObject(&obj);
-		if(field.GetBounds().left == x || field.GetBounds().top == y || field.GetBounds().right - 1 == x || field.GetBounds().bottom - 1 == y )
+		auto &field = *world._field;
+		field(x - blockBounds.left, y - blockBounds.top).RemoveObject(&obj);
+		if( blockBounds.left == x || blockBounds.top == y || blockBounds.right == x || blockBounds.bottom == y )
 		{
 			field(x, y)._prop = 0xFF;
 		}
@@ -74,7 +77,7 @@ void GC_Wall::Init(World &world)
 	GC_RigidBodyStatic::Init(world); // adds all corners
 	if (world._field)
 	{
-		RemoveCorner(*world._field, *this, GetCorner());
+		RemoveCorner(world, *this, GetCorner());
 	}
 }
 
@@ -415,7 +418,7 @@ void GC_Wall::Serialize(World &world, SaveFile &f)
 
 	if( f.loading() && world._field)
 	{
-		RemoveCorner(*world._field, *this, GetCorner());
+		RemoveCorner(world, *this, GetCorner());
 	}
 }
 
@@ -480,10 +483,11 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 			y = (int)std::floor(p.y);
 			break;
 		}
-		x = std::max(world._field->GetBounds().left, std::min(x, world._field->GetBounds().right - 1));
-		y = std::max(world._field->GetBounds().top, std::min(y, world._field->GetBounds().bottom - 1));
+		auto blockBounds = world.GetBlockBounds();
+		x = std::max(blockBounds.left, std::min(x, blockBounds.right));
+		y = std::max(blockBounds.top, std::min(y, blockBounds.bottom));
 
-		(*world._field)(x, y).AddObject(this);
+		(*world._field)(x - blockBounds.left, y - blockBounds.top).AddObject(this);
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);
@@ -491,11 +495,11 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 
 	if (world._field)
 	{
-		RemoveCorner(*world._field, *this, GetCorner());
+		RemoveCorner(world, *this, GetCorner());
 	}
 }
 
-unsigned int GC_Wall::GetCorner(void) const
+unsigned int GC_Wall::GetCorner() const
 {
 	switch( GetFlags() & GC_FLAG_WALL_CORNER_ALL )
 	{

@@ -199,6 +199,7 @@ public:
 
 	float GetTime() const { return _time; }
 	const RectRB& GetLocationBounds() const { return _locationBounds; }
+	const RectRB& GetBlockBounds() const { return _blockBounds; }
 	const FRECT& GetBounds() const { return _bounds; }
 
 #ifdef NETWORK_DEBUG

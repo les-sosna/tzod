@@ -69,7 +69,7 @@ World::World(RectRB blockBounds, bool initField)
 	if (initField)
 	{
 		_field = std::make_unique<Field>();
-		_field->Resize(RectRB{ _blockBounds.left, _blockBounds.top, _blockBounds.right + 1, _blockBounds.bottom + 1 });
+		_field->Resize(WIDTH(_blockBounds) + 1, HEIGHT(_blockBounds) + 1);
 	}
 	_waterTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 	_woodTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));

@@ -87,38 +87,35 @@ void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
 
 ////////////////////////////////////////////////////////////
 
-Field::Field()
+void Field::Resize(int width, int height)
 {
-	_edgeCell._prop = 0xFF;
-}
-
-void Field::Resize(RectRB bounds)
-{
-	assert(WIDTH(bounds) > 0 && HEIGHT(bounds) > 0);
-	_bounds = bounds;
-	_cells = std::make_unique<FieldCell[]>(WIDTH(bounds) * HEIGHT(bounds));
-	for( int y = bounds.top; y < bounds.bottom; y++ )
+	assert(width > 0 && height > 0);
+	_cells = std::make_unique<FieldCell[]>(width * height);
+	_width = width;
+	_height = height;
+	for( int y = 0; y < height; y++ )
 	{
-		for( int x = bounds.left; x < bounds.right; x++ )
+		for( int x = 0; x < width; x++ )
 		{
-			if(bounds.left == x || bounds.top == y || bounds.right - 1 == x || bounds.bottom - 1 == y )
+			if( 0 == x || 0 == y || _width - 1 == x || _height - 1 == y )
 				(*this)(x, y)._prop = 0xFF;
 		}
 	}
 	FieldCell::_sessionId = 0;
 }
 
-void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
+void Field::ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object, bool add)
 {
 	float r = object->GetRadius() / WORLD_BLOCK_SIZE;
 	vec2d p = object->GetPos() / WORLD_BLOCK_SIZE;
 
+	assert(WIDTH(blockBounds) + 1 == _width && HEIGHT(blockBounds) + 1 == _height);
 	assert(r >= 0);
 
-	int xmin = std::min(_bounds.right - 1, std::max(_bounds.left, (int)std::floor(p.x - r + 0.5f)));
-	int xmax = std::min(_bounds.right - 1, std::max(_bounds.left, (int)std::floor(p.x + r + 0.5f)));
-	int ymin = std::min(_bounds.bottom - 1, std::max(_bounds.top, (int)std::floor(p.y - r + 0.5f)));
-	int ymax = std::min(_bounds.bottom - 1, std::max(_bounds.top, (int)std::floor(p.y + r + 0.5f)));
+	int xmin = std::min(blockBounds.right, std::max(blockBounds.left, (int)std::floor(p.x - r + 0.5f)));
+	int xmax = std::min(blockBounds.right, std::max(blockBounds.left, (int)std::floor(p.x + r + 0.5f)));
+	int ymin = std::min(blockBounds.bottom, std::max(blockBounds.top, (int)std::floor(p.y - r + 0.5f)));
+	int ymax = std::min(blockBounds.bottom, std::max(blockBounds.top, (int)std::floor(p.y + r + 0.5f)));
 
 	for (int x = xmin; x <= xmax; x++)
 	{
@@ -126,13 +123,13 @@ void Field::ProcessObject(GC_RigidBodyStatic *object, bool add)
 		{
 			if (add)
 			{
-				(*this)(x, y).AddObject(object);
+				(*this)(x - blockBounds.left, y - blockBounds.top).AddObject(object);
 			}
 			else
 			{
-				(*this)(x, y).RemoveObject(object);
-				if (_bounds.left == x || _bounds.top == y || _bounds.right - 1 == x || _bounds.bottom - 1 == y)
-					(*this)(x, y)._prop = 0xFF;
+				(*this)(x - blockBounds.left, y - blockBounds.top).RemoveObject(object);
+				if (blockBounds.left == x || blockBounds.top == y || blockBounds.right == x || blockBounds.bottom == y)
+					(*this)(x - blockBounds.left, y - blockBounds.top)._prop = 0xFF;
 			}
 		}
 	}

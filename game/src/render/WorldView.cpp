@@ -15,7 +15,7 @@ WorldView::WorldView(TextureManager &tm, RenderScheme &rs)
 	: _renderScheme(rs)
 	, _terrain(tm)
 	, _lineTex(tm.FindSprite("dotted_line"))
-	, _texField(tm.FindSprite("ui/selection"))
+	, _texField(tm.FindSprite("ui/window"))
 {
 }
 
@@ -126,7 +126,7 @@ void WorldView::Render(RenderContext &rc,
 
 	if (world._field && options.visualizeField)
 	{
-		auto bounds = world._field->GetBounds();
+		auto bounds = world.GetBlockBounds();
 
 		int xmin = std::max(bounds.left, (int)std::floor(visibleRegion.left / WORLD_BLOCK_SIZE - 0.5f));
 		int ymin = std::max(bounds.top, (int)std::floor(visibleRegion.top / WORLD_BLOCK_SIZE - 0.5f));
@@ -137,7 +137,7 @@ void WorldView::Render(RenderContext &rc,
 		{
 			for (int y = ymin; y <= ymax; ++y)
 			{
-				if ((*world._field)(x, y)._prop)
+				if ((*world._field)(x - bounds.left, y - bounds.top)._prop)
 				{
 					rc.DrawSprite(MakeRectWH(vec2d{ (float)x - 0.5f, (float)y - 0.5f } * WORLD_BLOCK_SIZE,
 					                         vec2d{ WORLD_BLOCK_SIZE , WORLD_BLOCK_SIZE }), _texField, 0xffffffff, 0);
