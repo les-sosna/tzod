@@ -26,8 +26,7 @@ public:
 	int _before; // actual path cost to this node
 
 	uint8_t _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
-	int8_t _stepX = 0;
-	int8_t _stepY = 0;
+	int8_t _prev = -1;
 
 public:
 	FieldCell() = default;

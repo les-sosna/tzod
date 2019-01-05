@@ -118,8 +118,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	start.Check();
 	start._before = 0;
-	start._stepX = 0;
-	start._stepY = 0;
+	start._prev = -1;
 
 	open.push({ startRef, EstimatePathLength(startRef, endRef) });
 
@@ -158,10 +157,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 #if 0 // too expensive
 				// penalty for turns
-				if (cn._stepX || cn._stepY) // TODO: use initial vehicle direction
+				if (current._stepX || current._stepY) // TODO: use initial vehicle direction
 				{
-					float stepSqr = float(cn._stepX*cn._stepX + cn._stepY*cn._stepY);
-					float c = float(cn._stepX * per_x[i] + cn._stepY * per_y[i]) / (dist[i] * std::sqrt(stepSqr));
+					float stepSqr = float(current._stepX*current._stepX + current._stepY*current._stepY);
+					float c = float(current._stepX * per_x[i] + current._stepY * per_y[i]) / (dist[i] * std::sqrt(stepSqr));
 					if (c < 0.5f) // 0 is 90 deg. turn
 						before += 1;
 					else if (c < 0.9f) // 0.707 is 45 deg. turn
@@ -174,8 +173,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				{
 					next.Check();
 					next._before = nextBefore;
-					next._stepX = per_x[i];
-					next._stepY = per_y[i];
+					next._prev = i;
 
 					int nextTotal = nextBefore + EstimatePathLength(nextRef, endRef);
 					if (nextTotal < maxRelativeDepth)
@@ -201,11 +199,11 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 			_path.push_back(to);
 
-			while( current->_stepX || current->_stepY )
+			while( current->_prev != -1 )
 			{
 				// trace back
-				currentRef.x -= current->_stepX;
-				currentRef.y -= current->_stepY;
+				currentRef.x -= per_x[current->_prev];
+				currentRef.y -= per_y[current->_prev];
 				current = &field(currentRef.x, currentRef.y);
 
 				_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
