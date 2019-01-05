@@ -126,6 +126,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	while( !open.empty() )
 	{
 		OpenListNode currentNode = open.top();
+		if (currentNode.cellRef == endRef)
+			break; // guaranteed to be optimal when taken from the top of priority queue
 		open.pop();
 
 		FieldCell &current = field(currentNode.cellRef.x, currentNode.cellRef.y);
