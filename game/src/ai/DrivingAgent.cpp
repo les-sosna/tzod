@@ -49,11 +49,10 @@ void DrivingAgent::Serialize(SaveFile &f)
 	}
 }
 
-
 // check the cell's passability taking into account current weapon settings
-inline static bool CheckCell(const FieldCell &cell, bool hasWeapon)
+inline static bool CheckCell(int cellProp, bool hasWeapon)
 {
-	return (hasWeapon && 0xFF != cell.Properties()) || (!hasWeapon && 0 == cell.Properties());
+	return (hasWeapon && 0xFF != cellProp) || (!hasWeapon && 0 == cellProp);
 }
 
 static constexpr int BLOCK_MULTIPLIER = 985;
@@ -113,7 +112,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	FieldCell &start = field(startRef.x, startRef.y);
 
-	if( !CheckCell(start, !!ws) )
+	bool hasWeapon = !!ws;
+	if( !CheckCell(start.Properties(), hasWeapon) )
 		return -1;
 
 	start.Check();
@@ -146,11 +146,12 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 			RefFieldCell nextRef = { currentNode.cellRef.x + per_x[i], currentNode.cellRef.y + per_y[i] };
 			FieldCell &next = field(nextRef.x, nextRef.y);
-			if( CheckCell(next, !!ws) )
+			int nextProp = next.Properties();
+			if( CheckCell(nextProp, hasWeapon) )
 			{
 				// increase path cost when travel through the walls
 				int dist_mult = 1;
-				if( 1 == next.Properties() )
+				if( 1 == nextProp )
 					dist_mult = ws->distanceMultipler;
 
 				int nextBefore = current.Before() + dist[i] * dist_mult;
