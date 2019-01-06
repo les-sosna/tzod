@@ -236,30 +236,32 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 void DrivingAgent::SmoothPath()
 {
-//	if( _path.size() < 4 )
+	if( _path.size() < 4 )
 		return;
 
+	std::list<vec2d> path(_path.begin(), _path.end());
+
 	vec2d vn[4];
-	std::vector<vec2d>::iterator it[4], tmp;
+	std::list<vec2d>::iterator it[4], tmp;
 
 	// smooth angles
-	if( _path.size() > 4 )
+	if( path.size() > 4 )
 	{
-		it[1] = _path.begin();
+		it[1] = path.begin();
 		it[0] = it[1]++;
-		while( it[1] != _path.end() )
+		while( it[1] != path.end() )
 		{
 			vec2d new_node = (*it[0] + *it[1]) * 0.5f;
-			_path.insert(it[1], new_node);
-			if( it[0] != _path.begin() )
-				_path.erase(it[0]);
+			path.insert(it[1], new_node);
+			if( it[0] != path.begin() )
+				path.erase(it[0]);
 			it[0] = it[1]++;
 		}
 	}
 
 
 	// spline interpolation
-	tmp = _path.begin();
+	tmp = path.begin();
 	for( int i = 0; i < 4; ++i )
 	{
 		it[i] = tmp++;
@@ -273,7 +275,7 @@ void DrivingAgent::SmoothPath()
 		for( int i = 1; i < 4; ++i )
 		{
 			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node, (float) i / 4.0f);
-			_path.insert(it[2], new_node);
+			path.insert(it[2], new_node);
 		}
 
 		for( int i = 0; i < 3; ++i )
@@ -282,11 +284,13 @@ void DrivingAgent::SmoothPath()
 			vn[i] = vn[i+1];
 		}
 
-		if( ++it[3] == _path.end() )
+		if( ++it[3] == path.end() )
 			break;
 
 		vn[3] = *it[3];
 	}
+
+	_path.assign(path.begin(), path.end());
 }
 
 // returns:
