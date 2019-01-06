@@ -142,9 +142,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
 	AddFront(_timerDisplay);
 
-	_conf.g_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
-	OnChangeShowTime();
-
 	SetTimeStep(true);
 	_gameContext->GetGameEventSource().AddListener(*this);
 }
@@ -152,7 +149,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 GameLayout::~GameLayout()
 {
 	_gameContext->GetGameEventSource().RemoveListener(*this);
-	_conf.g_showtime.eventChange = nullptr;
 }
 
 vec2d GameLayout::GetDragDirection() const
@@ -303,7 +299,7 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	}
 	if (_timerDisplay.get() == &child)
 	{
-		return UI::CanvasLayout(size / scale, _timerDisplay->GetSize(), scale);
+		return MakeRectWH(size - vec2d{1, 1}, {});
 	}
 	if (_msg.get() == &child)
 	{
@@ -362,11 +358,6 @@ void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManag
 			}
 		}
 	}
-}
-
-void GameLayout::OnChangeShowTime()
-{
-	_timerDisplay->SetVisible(_conf.g_showtime.Get());
 }
 
 void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)

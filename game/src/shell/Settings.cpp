@@ -121,15 +121,6 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	};
 	_content2->AddFront(_showFps);
 
-	_showTime = std::make_shared<UI::CheckBox>();
-	_showTime->SetText(ConfBind(_lang.settings_show_time));
-	_showTime->SetCheck(_conf.g_showtime.Get());
-	_showTime->eventClick = [=]
-	{
-		_conf.g_showtime.Set(_showTime->GetCheck());
-	};
-	_content2->AddFront(_showTime);
-
 	_showNames = std::make_shared<UI::CheckBox>();
 	_showNames->SetText(ConfBind(_lang.settings_show_names));
 	_showNames->SetCheck(_conf.g_shownames.Get());

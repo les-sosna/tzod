@@ -76,7 +76,6 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 
 	// game
 	VAR_BOOL( g_shownames, true )
-	VAR_BOOL( g_showtime, true)
 
 	// console
 	VAR_INT(   con_maxhistory,        30 )
