@@ -209,9 +209,15 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	bool tab = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
 	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
+	float lastDieTime = 0;
 	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
+	{
 		allDead &= !player->GetVehicle();
-	_score->SetVisible(tab || gameOver || (allDead && _gameContext->GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
+		lastDieTime = std::max(lastDieTime, player->GetDieTime());
+	}
+	float time = _gameContext->GetWorld().GetTime();
+	constexpr float showScoreDelay = 0.3f;
+	_score->SetVisible(tab || gameOver || (allDead && time > PLAYER_RESPAWN_DELAY && time > lastDieTime + showScoreDelay));
 	if (_campaignControls)
 		_campaignControls->SetVisible(gameOver);
 	if (_rating)

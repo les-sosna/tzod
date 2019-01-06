@@ -49,6 +49,7 @@ void GC_Player::Serialize(World &world, SaveFile &f)
 	f.Serialize(_score);
 	f.Serialize(_team);
 	f.Serialize(_vehicle);
+	f.Serialize(_timeVehicleDestroyed);
 }
 
 void GC_Player::MapExchange(MapFile &f)
@@ -183,6 +184,7 @@ void GC_Player::Resume(World &world)
 
 void GC_Player::OnVehicleDestroy(World &world)
 {
+	_timeVehicleDestroyed = world.GetTime();
 	_numDeaths++;
 	_vehicle = nullptr;
 	for( auto ls: world.eGC_Player._listeners )

@@ -25,6 +25,7 @@ public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	std::string_view GetOnDie() const { return _scriptOnDie; }
 	std::string_view GetOnRespawn() const { return _scriptOnRespawn; }
+	float GetDieTime() const { return _timeVehicleDestroyed; }
 
 	void SetSkin(std::string skin);
 	std::string_view GetSkin() const { return _skin; }
@@ -90,6 +91,7 @@ private:
 	std::string _scriptOnDie;
 	std::string _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
+	float _timeVehicleDestroyed = 0;
 
 	friend class GC_Vehicle;
 	void OnVehicleDestroy(World &world);
