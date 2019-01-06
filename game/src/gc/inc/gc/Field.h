@@ -59,6 +59,10 @@ struct RefFieldCell
 	{
 		return x == other.x && y == other.y;
 	}
+	bool operator!=(RefFieldCell other) const
+	{
+		return x != other.x || y != other.y;
+	}
 };
 
 class Field final

@@ -76,9 +76,9 @@ static constexpr int turn_cost[8] = {
 	0, // no turn
 	BLOCK_MULTIPLIER / 5, // 45 degrees
 	BLOCK_MULTIPLIER, // 90 degrees
-	BLOCK_MULTIPLIER, // impossible
-	BLOCK_MULTIPLIER, // impossible
-	BLOCK_MULTIPLIER, // impossible
+	BLOCK_MULTIPLIER*2, // 135
+	BLOCK_MULTIPLIER*3, // 180
+	BLOCK_MULTIPLIER*2, // 135
 	BLOCK_MULTIPLIER, // 90 degrees
 	BLOCK_MULTIPLIER / 5 // 45 degrees
 };
@@ -91,7 +91,7 @@ static int EstimatePathLength(RefFieldCell begin, RefFieldCell end)
 	return std::max(dx, dy) * BLOCK_MULTIPLIER + std::min(dx, dy) * (BLOCK_MULTIPLIER_DIAG - BLOCK_MULTIPLIER);
 }
 
-float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
+float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
 	int maxRelativeDepth = int(max_depth * (float)BLOCK_MULTIPLIER);
 
@@ -131,7 +131,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	start.Check();
 	start._before = 0;
-	start._prev = -1;
+	start._prev = int(dir.Angle() / PI2 * 8 + 0.5f)&7;
 
 	open.push({ startRef, EstimatePathLength(startRef, endRef) });
 	while( !open.empty() )
@@ -155,14 +155,8 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 				if( 1 == nextProp )
 					dist_mult = ws->distanceMultipler;
 
-				int nextBefore = current.Before() + dist[i] * dist_mult;
-
-				// penalty for turns
-				if (current._prev != -1) // TODO: use initial vehicle direction
-				{
-					int turn = (i - current._prev) & 7;
-					nextBefore += turn_cost[turn];
-				}
+				// including penalty for turns
+				int nextBefore = current.Before() + dist[i] * dist_mult + turn_cost[(i - current._prev) & 7];
 
 				// never visited or found a better path to node
 				if( !next.IsChecked() || nextBefore < next._before)
@@ -195,14 +189,12 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 			_path.push_back(to);
 
-			while( current->_prev != -1 )
+			while( currentRef != startRef )
 			{
 				// trace back
 				currentRef.x -= per_x[current->_prev];
 				currentRef.y -= per_y[current->_prev];
 				current = &field(currentRef.x, currentRef.y);
-
-				_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
@@ -221,7 +213,13 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 					}
 					_attackList.push_front(object);
 				}
+
+				// skip first node, will use exact 'from' location instead
+				if( currentRef != startRef )
+					_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
 			}
+
+			_path.push_back(from);
 
 			std::reverse(begin(_path), end(_path));
 			assert(startRef == currentRef);

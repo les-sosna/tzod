@@ -23,7 +23,7 @@ public:
 	//  bTest        - if true then path cost is evaluated only; current path remains unchanged
 	// Return: path cost or -1 if path was not found
 	//-------------------------------------------------------------------------
-	float CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
+	float CreatePath(World &world, vec2d from, vec2d dir, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws);
 	bool HasPath() const { return !_path.empty(); }
 	const std::vector<vec2d>& GetPath() const { return _path; }
 

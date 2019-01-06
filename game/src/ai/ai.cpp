@@ -199,7 +199,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 		if( targets[i].bIsVisible )
 			l = (targets[i].target->GetPos() - vehicle.GetPos()).len() / WORLD_BLOCK_SIZE;
 		else
-			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), targets[i].target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
+			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), targets[i].target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 
         if( l >= 0 )
 		{
@@ -266,7 +266,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 			if( nullptr == items[i] ) continue;
 			assert(items[i]->GetVisible());
 			if( items[i]->GetAttached() ) continue;
-			float l = _drivingAgent->CreatePath(world, vehicle.GetPos(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
+			float l = _drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 			// TODO: path cost should be non linear function of the length
 			if( l >= 0 )
 			{
@@ -375,7 +375,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 
 		if( ii_target.priority > ii_item.priority )
 		{
-			if(_drivingAgent->CreatePath(world, vehicle.GetPos(), _target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
+			if(_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), _target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 			{
 				_drivingAgent->SmoothPath();
 			}
@@ -397,7 +397,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 			assert(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if(_drivingAgent->CreatePath(world, vehicle.GetPos(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
+				if(_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 				{
 					_drivingAgent->SmoothPath();
 				}
@@ -425,7 +425,7 @@ bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float
     AIWEAPSETTINGS ws;
     if( vehicle.GetWeapon() )
         vehicle.GetWeapon()->SetupAI(&ws);
-	if (_drivingAgent->CreatePath(world, vehicle.GetPos(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0)
+	if (_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0)
     {
 		_drivingAgent->SmoothPath();
         SetL1(L1_NONE);
@@ -454,7 +454,7 @@ bool AIController::Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p)
         if( vehicle.GetWeapon() )
             vehicle.GetWeapon()->SetupAI(&ws);
 
-        if(_drivingAgent->CreatePath(world, vehicle.GetPos(), p->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
+        if(_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), p->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
         {
 			_drivingAgent->SmoothPath();
             _pickupCurrent = p;
@@ -499,7 +499,7 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE);
 			t = Vec2dClamp(t, world.GetBounds());
 
-			if (_drivingAgent->CreatePath(world, vehicle.GetPos(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
+			if (_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
 			{
 				_drivingAgent->SmoothPath();
 				SetL1(L1_NONE);
