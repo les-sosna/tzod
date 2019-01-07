@@ -13,5 +13,5 @@ public:
 	void OnDestroy(World &world, const DamageDesc &dd) override;
 
 	float GetDefaultHealth() const override { return 50; }
-	uint8_t GetObstacleFlags() const override { return 0; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 };
