@@ -131,7 +131,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 
 	start.Check();
 	start._before = 0;
-	start._prev = int(dir.Angle() / PI2 * 8 + 0.5f)&7;
+	start._prev = int(dir.Angle() / PI2 * 8 + 0.5f) & 7;
 
 	open.push({ startRef, EstimatePathLength(startRef, endRef) });
 	while( !open.empty() )
