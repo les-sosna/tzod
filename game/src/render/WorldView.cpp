@@ -137,7 +137,7 @@ void WorldView::Render(RenderContext &rc,
 		{
 			for (int y = ymin; y <= ymax; ++y)
 			{
-				if ((*world._field)(x - bounds.left, y - bounds.top)._prop)
+				if ((*world._field)(x - bounds.left, y - bounds.top).ObstacleFlags())
 				{
 					rc.DrawSprite(MakeRectWH(vec2d{ (float)x - 0.5f, (float)y - 0.5f } * WORLD_BLOCK_SIZE,
 					                         vec2d{ WORLD_BLOCK_SIZE , WORLD_BLOCK_SIZE }), _texField, 0xffffffff, 0);

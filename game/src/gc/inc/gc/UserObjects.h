@@ -16,7 +16,7 @@ public:
 	void SetTextureName(std::string name) { _textureName.swap(name); }
 	const std::string& GetTextureName() const { return _textureName; }
 
-	unsigned char GetPassability() const override { return 1; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 	float GetDefaultHealth() const override { return 500; }
 
 	void Serialize(World &world, SaveFile &f) override;

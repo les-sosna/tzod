@@ -49,12 +49,6 @@ void DrivingAgent::Serialize(SaveFile &f)
 	}
 }
 
-// check the cell's passability taking into account current weapon settings
-inline static bool CheckCell(int cellProp, bool hasWeapon)
-{
-	return (hasWeapon && 0xFF != cellProp) || (!hasWeapon && 0 == cellProp);
-}
-
 static constexpr int BLOCK_MULTIPLIER = 985;
 static constexpr int BLOCK_MULTIPLIER_DIAG = 1393;
 
@@ -125,8 +119,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 
 	FieldCell &start = field(startRef.x, startRef.y);
 
-	bool hasWeapon = !!ws;
-	if( !CheckCell(start.Properties(), hasWeapon) )
+	// if have weapon can pass through walls, turrets, etc. but now concrete or water
+	const uint8_t passabilityMask = ~(ws ? 1u : 0u);
+
+	if( start.ObstacleFlags() & passabilityMask )
 		return -1;
 
 	start.Check();
@@ -147,15 +143,13 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 		{
 			RefFieldCell nextRef = { currentNode.cellRef.x + per_x[i], currentNode.cellRef.y + per_y[i] };
 			FieldCell &next = field(nextRef.x, nextRef.y);
-			int nextProp = next.Properties();
-			if( CheckCell(nextProp, hasWeapon) )
+			auto nextObstacleFlags = next.ObstacleFlags();
+			if( 0 == (nextObstacleFlags & passabilityMask) )
 			{
-				// increase path cost when travel through the walls
-				int dist_mult = 1;
-				if( 1 == nextProp )
-					dist_mult = ws->distanceMultipler;
+				// increase path cost when travel through obstacles
+				int dist_mult = nextObstacleFlags ? ws->distanceMultipler : 1;
 
-				// including penalty for turns
+				// total cost to 'next' including penalty for turns
 				int nextBefore = current.Before() + dist[i] * dist_mult + turn_cost[(i - current._prev) & 7];
 
 				// never visited or found a better path to node
@@ -198,9 +192,6 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
-					assert(hasWeapon);
-					assert(current->Properties() > 0);
-
 					GC_RigidBodyStatic *object = current->GetObject(i);
 
 					if( team && !_attackFriendlyTurrets)

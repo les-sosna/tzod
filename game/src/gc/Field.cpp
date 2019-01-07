@@ -7,12 +7,11 @@ unsigned int FieldCell::_sessionId;
 
 void FieldCell::UpdateProperties()
 {
-	_prop = 0;
+	_obstacleFlags = 0;
 	for( unsigned int i = 0; i < GetObjectsCount(); i++ )
 	{
-		assert(GetObject(i)->GetPassability() > 0);
-		if(GetObject(i)->GetPassability() > _prop )
-			_prop = GetObject(i)->GetPassability();
+		assert(GetObject(i)->GetObstacleFlags());
+		_obstacleFlags |= GetObject(i)->GetObstacleFlags();
 	}
 }
 
@@ -98,7 +97,7 @@ void Field::Resize(int width, int height)
 		for( int x = 0; x < width; x++ )
 		{
 			if( 0 == x || 0 == y || _width - 1 == x || _height - 1 == y )
-				(*this)(x, y)._prop = 0xFF;
+				(*this)(x, y)._obstacleFlags = 0xFF;
 		}
 	}
 	FieldCell::_sessionId = 0;
@@ -129,7 +128,7 @@ void Field::ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object,
 			{
 				(*this)(x - blockBounds.left, y - blockBounds.top).RemoveObject(object);
 				if (blockBounds.left == x || blockBounds.top == y || blockBounds.right == x || blockBounds.bottom == y)
-					(*this)(x - blockBounds.left, y - blockBounds.top)._prop = 0xFF;
+					(*this)(x - blockBounds.left, y - blockBounds.top)._obstacleFlags = 0xFF;
 			}
 		}
 	}

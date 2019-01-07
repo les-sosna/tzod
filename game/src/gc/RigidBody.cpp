@@ -34,25 +34,25 @@ GC_RigidBodyStatic::~GC_RigidBodyStatic()
 void GC_RigidBodyStatic::Init(World &world)
 {
 	GC_MovingObject::Init(world);
-	if( GetPassability() > 0 && world._field )
+	if( GetObstacleFlags() && world._field )
 		world._field->ProcessObject(world.GetBlockBounds(), this, true);
 }
 
 void GC_RigidBodyStatic::Kill(World &world)
 {
-	if( GetPassability() > 0 && world._field )
+	if( GetObstacleFlags() && world._field )
 		world._field->ProcessObject(world.GetBlockBounds(), this, false);
 	GC_MovingObject::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 {
-	if( GetPassability() > 0 && world._field )
+	if( GetObstacleFlags() && world._field )
 		world._field->ProcessObject(world.GetBlockBounds(), this, false);
 
 	GC_MovingObject::MoveTo(world, pos);
 
-	if( GetPassability() > 0 && world._field )
+	if( GetObstacleFlags() && world._field )
 		world._field->ProcessObject(world.GetBlockBounds(), this, true);
 }
 
@@ -393,7 +393,7 @@ void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 	f.Serialize(_width);
 	f.Serialize(_length);
 
-	if( f.loading() && GetPassability() > 0 && world._field )
+	if( f.loading() && GetObstacleFlags() && world._field )
 		world._field->ProcessObject(world.GetBlockBounds(), this, true);
 }
 

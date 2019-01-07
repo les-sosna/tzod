@@ -25,7 +25,8 @@ public:
 
 	int _before; // actual path cost to this node
 
-	uint8_t _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
+	// each bit describes a separate obstacle group: 0 - passable, 1 - occupied
+	uint8_t _obstacleFlags = 0;
 	int8_t _prev = -1;
 
 public:
@@ -45,7 +46,7 @@ public:
 	void AddObject(GC_RigidBodyStatic *object);
 	void RemoveObject(GC_RigidBodyStatic *object);
 
-	unsigned char Properties() const { return _prop; }
+	uint8_t ObstacleFlags() const { return _obstacleFlags; }
 
 	int Before() const { return _before; }
 };

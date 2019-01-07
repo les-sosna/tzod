@@ -25,7 +25,7 @@ public:
 	int GetNeighbors(const World &world) const override;
 
 	// GC_RigidBodyStatic
-	unsigned char GetPassability() const override { return 0xFF; }  // impassable
+	uint8_t GetObstacleFlags() const override { return 0x40; }
 	float GetDefaultHealth() const override { return 0; }
 
 protected:

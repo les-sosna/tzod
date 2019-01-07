@@ -58,7 +58,7 @@ public:
 	void SetControllerState(const VehicleState &vs);
 
 	// GC_RigidBodyStatic
-	unsigned char GetPassability() const override { return 0; } // not an obstacle
+	uint8_t GetObstacleFlags() const override { return 0; } // not an obstacle
 	GC_Player* GetOwner() const override { return _player; }
 
 	// GC_MovingObject

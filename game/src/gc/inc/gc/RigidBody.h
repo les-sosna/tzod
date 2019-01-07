@@ -46,7 +46,7 @@ public:
 	void TakeDamage(World &world, DamageDesc dd);
 
 	virtual float GetDefaultHealth() const = 0;
-	virtual unsigned char GetPassability() const = 0;
+	virtual uint8_t GetObstacleFlags() const = 0;
 	virtual GC_Player* GetOwner() const { return nullptr; }
 
 	// GC_MovingObject

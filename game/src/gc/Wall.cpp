@@ -66,9 +66,7 @@ static void RemoveCorner(World &world, GC_RigidBodyStatic &obj, int corner)
 		auto &field = *world._field;
 		field(x - blockBounds.left, y - blockBounds.top).RemoveObject(&obj);
 		if( blockBounds.left == x || blockBounds.top == y || blockBounds.right == x || blockBounds.bottom == y )
-		{
-			field(x, y)._prop = 0xFF;
-		}
+			field(x - blockBounds.left, y - blockBounds.top)._obstacleFlags = 0xFF;
 	}
 }
 
