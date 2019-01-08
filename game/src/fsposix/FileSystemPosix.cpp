@@ -127,7 +127,7 @@ FS::FileSystemPosix::OSFile::OSMemMap::~OSMemMap()
     _file->Unmap();
 }
 
-char* FS::FileSystemPosix::OSFile::OSMemMap::GetData()
+const void* FS::FileSystemPosix::OSFile::OSMemMap::GetData() const
 {
     return _data.empty() ? nullptr : &_data[0];
 }
