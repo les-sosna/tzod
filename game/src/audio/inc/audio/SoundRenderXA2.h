@@ -28,7 +28,7 @@ public:
 	~SoundRenderXA2();
 
 	// SoundRender
-	std::unique_ptr<Sound> CreateLopped(SoundTemplate st) override;
+	std::unique_ptr<Sound> CreateLooped(SoundTemplate st) override;
 	void LoadBuffer(SoundTemplate st, const void *data, size_t size, FormatDesc format) override;
 	void PlayOnce(SoundTemplate st, vec2d pos) override;
 	void SetListenerPos(vec2d pos) override;
