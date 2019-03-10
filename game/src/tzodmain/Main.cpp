@@ -1,3 +1,4 @@
+#include "ConsoleLog.h"
 #include <app/tzod.h>
 #include <app/Version.h>
 #include <app/View.h>
@@ -8,42 +9,9 @@ using FileSystem = FS::FileSystemWin32;
 #include <fsposix/FileSystemPosix.h>
 using FileSystem = FS::FileSystemPosix;
 #endif // _WIN32
-#include <plat/ConsoleBuffer.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
-
 #include <exception>
-#include <fstream>
-#include <iostream>
-
-namespace
-{
-	class ConsoleLog final
-		: public Plat::IConsoleLog
-	{
-	public:
-		ConsoleLog(const ConsoleLog&) = delete;
-		ConsoleLog& operator= (const ConsoleLog&) = delete;
-
-		explicit ConsoleLog(const char *filename)
-			: _file(filename, std::ios::out | std::ios::trunc)
-		{
-		}
-
-		// IConsoleLog
-		void WriteLine(int severity, std::string_view str) override
-		{
-			_file << str << std::endl;
-			std::cout << str << std::endl;
-		}
-		void Release() override
-		{
-			delete this;
-		}
-	private:
-		std::ofstream _file;
-	};
-}
 
 static void print_what(std::ostream &os, const std::exception &e, std::string prefix = std::string())
 {
@@ -55,7 +23,6 @@ static void print_what(std::ostream &os, const std::exception &e, std::string pr
 		print_what(os, nested, prefix + "> ");
 	}
 }
-
 
 static Plat::ConsoleBuffer s_logger(100, 500);
 
@@ -80,22 +47,20 @@ try
 #if defined(_DEBUG) && defined(_WIN32) // memory leaks detection
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	Plat::ConsoleBuffer &logger = s_logger;
-
-	logger.SetLog(new ConsoleLog("log.txt"));
-	logger.Printf(0, "%s", TZOD_VERSION);
+	s_logger.SetLog(new ConsoleLog("log.txt"));
+	s_logger.Printf(0, "%s", TZOD_VERSION);
 	auto fs = std::make_shared<FileSystem>("data");
 
 	// mount user folder
 	// TODO: use OS specific application data
 	if( !fs->GetFileSystem("user", true/*create*/, true/*nothrow*/) )
 	{
-		logger.Printf(1, "Could not mount user folder");
+		s_logger.Printf(1, "Could not mount user folder");
 	}
 
-	TzodApp app(*fs, logger);
+	TzodApp app(*fs, s_logger);
 
-	logger.Printf(0, "Create GL context");
+	s_logger.Printf(0, "Create GL context");
 	GlfwAppWindow appWindow(
 		TZOD_VERSION,
 		false, // conf.r_fullscreen.Get(),
@@ -103,7 +68,7 @@ try
 		768 //app.GetShellConfig().r_height.GetInt()
 	);
 
-	TzodView view(*fs, logger, app, appWindow);
+	TzodView view(*fs, s_logger, app, appWindow);
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);
@@ -116,7 +81,7 @@ try
 
 	app.Exit();
 
-	logger.Printf(0, "Normal exit.");
+	s_logger.Printf(0, "Normal exit.");
 
 	return 0;
 }
