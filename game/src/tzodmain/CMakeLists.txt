@@ -22,8 +22,6 @@ endif()
 
 target_link_libraries(tzodmain PRIVATE
 	app
-	as
 	platglfw
-	ui
 	${FSLIB}
 )

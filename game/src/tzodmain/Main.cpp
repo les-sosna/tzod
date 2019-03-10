@@ -1,6 +1,6 @@
 #include <app/tzod.h>
+#include <app/Version.h>
 #include <app/View.h>
-#include <as/AppConstants.h>
 #ifdef _WIN32
 #include <fswin/FileSystemWin32.h>
 using FileSystem = FS::FileSystemWin32;
@@ -83,8 +83,7 @@ try
 	Plat::ConsoleBuffer &logger = s_logger;
 
 	logger.SetLog(new ConsoleLog("log.txt"));
-	logger.Printf(0, "%s", TXT_VERSION);
-	logger.Printf(0, "Mount file system");
+	logger.Printf(0, "%s", TZOD_VERSION);
 	auto fs = std::make_shared<FileSystem>("data");
 
 	// mount user folder
@@ -98,7 +97,7 @@ try
 
 	logger.Printf(0, "Create GL context");
 	GlfwAppWindow appWindow(
-		TXT_VERSION,
+		TZOD_VERSION,
 		false, // conf.r_fullscreen.Get(),
 		1024, //app.GetShellConfig().r_width.GetInt(),
 		768 //app.GetShellConfig().r_height.GetInt()
@@ -128,7 +127,7 @@ catch (const std::exception &e)
 	s_logger.Format(1) << os.str();
 #ifdef _WIN32
 	OutputDebugStringA(os.str().c_str());
-	MessageBoxA(nullptr, os.str().c_str(), TXT_VERSION, MB_ICONERROR);
+	MessageBoxA(nullptr, os.str().c_str(), TZOD_VERSION, MB_ICONERROR);
 #endif
 	return 1;
 }
