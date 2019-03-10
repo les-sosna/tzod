@@ -236,7 +236,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 	int i_min = std::max(0, regionBegin / advance);
 	int i_max = std::max(0, (regionEnd + advance - 1) / advance);
 
-	int hotItem = ic.GetHovered() ? HitTest(ic.GetMousePos(), lc, texman) : -1;
+	int hotItem = ic.GetHovered() ? HitTest(ic.GetPointerPos(0), lc, texman) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{

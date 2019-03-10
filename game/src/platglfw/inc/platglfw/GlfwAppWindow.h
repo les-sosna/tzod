@@ -1,9 +1,8 @@
 #pragma once
+#include "GlfwPlatform.h"
 #include <plat/AppWindow.h>
 #include <memory>
 
-class GlfwClipboard;
-class GlfwInput;
 struct GLFWcursor;
 struct GLFWwindow;
 
@@ -48,7 +47,7 @@ public:
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
 	Plat::Clipboard& GetClipboard() override;
-	Plat::Input& GetInput() override;
+	GlfwInput& GetInput() override;
 	IRender& GetRender() override;
 	void SetCanNavigateBack(bool canNavigateBack) override;
 	void SetMouseCursor(Plat::MouseCursor mouseCursor) override;

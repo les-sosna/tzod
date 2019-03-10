@@ -86,8 +86,21 @@ void InputContext::PopInputTransform()
 	_transformStack.pop();
 }
 
-vec2d InputContext::GetMousePos() const
+Plat::PointerType InputContext::GetPointerType(unsigned int index) const
 {
+	if (index == 0)
+	{
+		return _pointerState.type;
+	}
+	else
+	{
+		return Plat::PointerType::Unknown;
+	}
+}
+
+vec2d InputContext::GetPointerPos(unsigned int index) const
+{
+	assert(GetPointerType(index) != Plat::PointerType::Unknown);
 	return _pointerState.position - _transformStack.top().offset;
 }
 

@@ -583,7 +583,11 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 	}
 
 	// World cursor
-	if (ic.GetFocused() && _capturedButton != 4)
+	bool pointerIsMoreRecent = ic.GetLastPointerTime() > ic.GetLastKeyTime();
+	bool activePointerInput = ic.GetHovered() && pointerIsMoreRecent;
+	bool activeKeyInput = ic.GetFocused() && !pointerIsMoreRecent;
+	bool insideMiddleMouseDrag = _capturedButton == 4;
+	if (!insideMiddleMouseDrag && (activeKeyInput || activePointerInput))
 	{
 		auto cursor = GetCursor();
 		auto cursorColor = SpriteColor{};

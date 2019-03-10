@@ -24,6 +24,7 @@ struct VoiceDeleter
 class SoundRenderXA2 : public SoundRender
 {
 public:
+	// Note: the ctor may pump windows messages due to how xaudio works
 	explicit SoundRenderXA2(Plat::ConsoleBuffer &logger);
 	~SoundRenderXA2();
 
