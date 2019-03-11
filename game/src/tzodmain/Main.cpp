@@ -9,6 +9,7 @@ using FileSystem = FS::FileSystemWin32;
 #include <fsposix/FileSystemPosix.h>
 using FileSystem = FS::FileSystemPosix;
 #endif // _WIN32
+#include <plat/Folders.h>
 #include <platglfw/GlfwAppWindow.h>
 #include <platglfw/Timer.h>
 #include <exception>
@@ -49,18 +50,14 @@ try
 #endif
 	s_logger.SetLog(new ConsoleLog("log.txt"));
 	s_logger.Printf(0, "%s", TZOD_VERSION);
-	auto fs = std::make_shared<FileSystem>("data");
 
-	// mount user folder
-	// TODO: use OS specific application data
-	if( !fs->GetFileSystem("user", true/*create*/, true/*nothrow*/) )
-	{
-		s_logger.Printf(1, "Could not mount user folder");
-	}
+	auto fs = std::make_shared<FileSystem>("data");
+	auto user = std::make_shared<FileSystem>(Plat::GetAppDataFolder())->GetFileSystem("Tank Zone of Death", true);
+	fs->Mount("user", user);
 
 	TzodApp app(*fs, s_logger);
 
-	s_logger.Printf(0, "Create GL context");
+	s_logger.Printf(0, "Creating GL context");
 	GlfwAppWindow appWindow(
 		TZOD_VERSION,
 		false, // conf.r_fullscreen.Get(),
