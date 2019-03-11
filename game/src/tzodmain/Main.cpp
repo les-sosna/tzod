@@ -76,7 +76,7 @@ try
 		view.Step(timer.GetDt());
 	}
 
-	app.Exit();
+	app.SaveConfig();
 
 	s_logger.Printf(0, "Normal exit.");
 

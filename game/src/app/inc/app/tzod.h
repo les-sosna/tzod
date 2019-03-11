@@ -35,7 +35,7 @@ public:
 	DMCampaign &GetDMCampaign();
 
 	void Step(float dt);
-	void Exit();
+	void SaveConfig();
 
 private:
 	FS::FileSystem &_fs;
