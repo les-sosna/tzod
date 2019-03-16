@@ -153,7 +153,8 @@ void UIInputRenderingController::OnRefresh()
 #ifndef NDEBUG
 	for (auto &id2pos : rs.ic.GetLastPointerLocation())
 	{
-		FRECT dst = { id2pos.second.x - 4, id2pos.second.y - 4, id2pos.second.x + 4, id2pos.second.y + 4 };
+		vec2d pos = Vec2dFloor(id2pos.second);
+		FRECT dst = { pos.x - 4, pos.y - 4, pos.x + 4, pos.y + 4 };
 		rs.rc.DrawSprite(dst, 0U, 0xffffffff, 0U);
 	}
 #endif
