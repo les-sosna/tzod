@@ -12,10 +12,10 @@ R_WeaponMinigun::R_WeaponMinigun(TextureManager &tm)
 {
 }
 
-void R_WeaponMinigun::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_WeaponMinigun::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Weap_Minigun*>(&actor));
-	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
+	assert(dynamic_cast<const GC_Weap_Minigun*>(&mo));
+	auto &minigun = static_cast<const GC_Weap_Minigun&>(mo);
 
 	vec2d pos = minigun.GetPos();
 	vec2d dir = GetWeapSpriteDirection(world, minigun);
@@ -30,10 +30,10 @@ R_Crosshair2::R_Crosshair2(TextureManager &tm)
 {
 }
 
-void R_Crosshair2::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Crosshair2::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Weap_Minigun*>(&actor));
-	auto &minigun = static_cast<const GC_Weap_Minigun&>(actor);
+	assert(dynamic_cast<const GC_Weap_Minigun*>(&mo));
+	auto &minigun = static_cast<const GC_Weap_Minigun&>(mo);
 	if (minigun.GetAttached())
 	{
 		vec2d delta = Vec2dDirection(minigun.GetHeat(world) * 0.1f / WEAP_MG_TIME_RELAX);

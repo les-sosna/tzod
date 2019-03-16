@@ -6,7 +6,7 @@
 
 struct VehicleState;
 struct AIWEAPSETTINGS;
-class GC_Actor;
+class GC_MovingObject;
 class GC_RigidBodyStatic;
 class GC_Pickup;
 class GC_Player;
@@ -23,7 +23,7 @@ typedef float AIPRIORITY;
 
 struct AIITEMINFO
 {
-	ObjPtr<GC_Actor> object;
+	ObjPtr<GC_MovingObject> object;
 	AIPRIORITY priority;
 };
 

@@ -22,11 +22,11 @@
 #include "RenderCfg.h"
 #include <gc/Crate.h>
 #include <gc/GameClasses.h>
-#include <gc/Indicators.h>
 #include <gc/Light.h>
 #include <gc/Particles.h>
 #include <gc/Projectiles.h>
 #include <gc/RigidBody.h>
+#include <gc/SpawnPoint.h>
 #include <gc/Trigger.h>
 #include <gc/Turrets.h>
 #include <gc/UserObjects.h>
@@ -36,20 +36,20 @@
 #include <gc/Weapons.h>
 #include <gc/World.h>
 
-static bool HasBooster(const World &world, const GC_Actor &actor)
+static bool HasBooster(const World &world, const GC_MovingObject &mo)
 {
-	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	return nullptr != static_cast<const GC_Weapon&>(actor).GetBooster();
+	assert(dynamic_cast<const GC_Weapon*>(&mo));
+	return nullptr != static_cast<const GC_Weapon&>(mo).GetBooster();
 }
-static bool IsPickupVisible(const World &world, const GC_Actor &actor)
+static bool IsPickupVisible(const World &world, const GC_MovingObject &mo)
 {
-	assert(dynamic_cast<const GC_Pickup*>(&actor));
-	return static_cast<const GC_Pickup&>(actor).GetVisible();
+	assert(dynamic_cast<const GC_Pickup*>(&mo));
+	return static_cast<const GC_Pickup&>(mo).GetVisible();
 }
-static bool IsPickupAttached(const World &world, const GC_Actor &actor)
+static bool IsPickupAttached(const World &world, const GC_MovingObject &mo)
 {
-	assert(dynamic_cast<const GC_Pickup*>(&actor));
-	return static_cast<const GC_Pickup&>(actor).GetAttached();
+	assert(dynamic_cast<const GC_Pickup*>(&mo));
+	return static_cast<const GC_Pickup&>(mo).GetAttached();
 }
 
 template <class T, class ...Args>
@@ -155,9 +155,9 @@ public:
 
 		AddView<GC_BrickFragment>(Make<Z_Const>(Z_PARTICLE), Make<R_BrickFragment>(tm));
 		AddView<GC_Particle>(Make<Z_Const>(Z_PARTICLE), Make<R_Particle>(tm));
-		AddView<GC_ParticleExplosion>(Make<Z_Const>(Z_EXPLODE), Make<R_Particle>(tm));
-		AddView<GC_ParticleDecal>(Make<Z_Const>(Z_WATER), Make<R_Particle>(tm));
-		AddView<GC_ParticleGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
+		AddView<GC_Decal>(Make<Z_Const>(Z_WATER), Make<R_Particle>(tm));
+		AddView<GC_DecalExplosion>(Make<Z_Const>(Z_EXPLODE), Make<R_Particle>(tm));
+		AddView<GC_DecalGauss>(Make<Z_Const>(Z_GAUSS_RAY), Make<R_Particle>(tm));
 
 		AddView<GC_UserObject>(Make<Z_UserObject>(), Make<R_UserObject>(tm));
 		AddView<GC_Decoration>(Make<Z_Decoration>(), Make<R_Decoration>(tm));
@@ -169,7 +169,6 @@ class EditorViewsBuilder : public ObjectViewsSelectorBuilder
 public:
 	EditorViewsBuilder(TextureManager &tm)
 	{
-		AddView<GC_HideLabel>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_item"));
 		AddView<GC_SpawnPoint>(Make<Z_Const>(Z_EDITOR), Make<R_Sprite>(tm, "editor_respawn"));
 		AddView<GC_Trigger>(Make<Z_Const>(Z_WOOD), Make<R_Sprite>(tm, "editor_trigger"));
 	}
@@ -191,15 +190,15 @@ RenderScheme::RenderScheme(TextureManager &tm)
 {
 }
 
-ViewCollection RenderScheme::GetViews(const GC_Actor &actor, bool editorMode, bool nightMode) const
+ViewCollection RenderScheme::GetViews(const GC_MovingObject &mo, bool editorMode, bool nightMode) const
 {
 	// In editor mode give priority to _editorViews
 	ViewCollection viewCollection = {};
 	if (editorMode)
-		viewCollection = _editorViews.GetViews(actor);
+		viewCollection = _editorViews.GetViews(mo);
 	if (begin(viewCollection) == end(viewCollection) && nightMode)
-		viewCollection = _nightViews.GetViews(actor);
+		viewCollection = _nightViews.GetViews(mo);
 	if (begin(viewCollection) == end(viewCollection))
-		viewCollection = _gameViews.GetViews(actor);
+		viewCollection = _gameViews.GetViews(mo);
 	return viewCollection;
 }

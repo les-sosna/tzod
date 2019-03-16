@@ -1,7 +1,7 @@
 #include "TypeReg.h"
 #include "inc/gc/Pickup.h"
 #include "inc/gc/Explosion.h"
-#include "inc/gc/Indicators.h"
+#include "inc/gc/SpawnPoint.h"
 #include "inc/gc/Light.h"
 #include "inc/gc/Macros.h"
 #include "inc/gc/Particles.h"
@@ -14,23 +14,8 @@
 #include <MapFile.h>
 
 
-IMPLEMENT_2LIST_MEMBER(GC_Pickup, LIST_pickups, LIST_timestep);
-IMPLEMENT_GRID_MEMBER(GC_Pickup, grid_pickup);
-
-GC_Pickup::GC_Pickup(vec2d pos)
-  : GC_Actor(pos)
-  , _timeAttached(0)
-  , _timeRespawn(0)
-{
-	SetRespawn(false);
-	SetBlinking(false);
-	SetVisible(true);
-}
-
-GC_Pickup::GC_Pickup(FromFile)
-  : GC_Actor(FromFile())
-{
-}
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_Pickup, LIST_pickups);
+IMPLEMENT_GRID_MEMBER(GC_MovingObject, GC_Pickup, grid_pickup);
 
 GC_Pickup::~GC_Pickup()
 {
@@ -38,41 +23,35 @@ GC_Pickup::~GC_Pickup()
 
 void GC_Pickup::Init(World &world)
 {
-	GC_Actor::Init(world);
-	_label = &world.New<GC_HideLabel>(GetPos());
+	GC_MovingObject::Init(world);
+	_respawnPos = GetPos();
 }
 
 void GC_Pickup::Kill(World &world)
 {
 	if (GetAttached())
 		Detach(world);
-	SAFE_KILL(world, _label);
-	GC_Actor::Kill(world);
+	GC_MovingObject::Kill(world);
 }
 
 void GC_Pickup::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
-	f.Serialize(_timeAttached);
-	f.Serialize(_timeRespawn);
 	f.Serialize(_scriptOnPickup);
-	f.Serialize(_label);
+	f.Serialize(_timeLastStateChange);
+	f.Serialize(_timeRespawn);
+	f.Serialize(_respawnPos);
 }
 
-void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle, bool asInitial)
+void GC_Pickup::Attach(World &world, GC_Vehicle &vehicle)
 {
-	if (asInitial)
-	{
-		SAFE_KILL(world, _label);
-	}
-
 	assert(!GetAttached());
-	_timeAttached = 0;
+	_timeLastStateChange = world.GetTime();
 	SetFlags(GC_FLAG_PICKUP_ATTACHED, true);
 	MoveTo(world, vehicle.GetPos());
 	for( auto ls: world.eGC_Pickup._listeners )
-		ls->OnAttach(*this, vehicle, asInitial);
+		ls->OnAttach(*this, vehicle);
 	OnAttached(world, vehicle);
 }
 
@@ -92,12 +71,17 @@ void GC_Pickup::Disappear(World &world)
 	if( GetAttached() )
 		Detach(world);
 	SetVisible(false);
-	_timeAttached = 0;
+	_timeLastStateChange = world.GetTime();
 
-	if (_label)
-		MoveTo(world, _label->GetPos());
-	else
+	if (GetIsDefaultItem())
+	{
 		Kill(world);
+	}
+	else
+	{
+		MoveTo(world, _respawnPos);
+		world.Timeout(*this, _timeRespawn);
+	}
 }
 
 void GC_Pickup::SetRespawnTime(float respawnTime)
@@ -105,43 +89,33 @@ void GC_Pickup::SetRespawnTime(float respawnTime)
 	_timeRespawn = respawnTime;
 }
 
-float GC_Pickup::GetRespawnTime() const
-{
-	return _timeRespawn;
-}
-
 void GC_Pickup::SetBlinking(bool blink)
 {
 	SetFlags(GC_FLAG_PICKUP_BLINK, blink);
 }
 
-void GC_Pickup::TimeStep(World &world, float dt)
+void GC_Pickup::Resume(World &world)
 {
-	_timeAttached += dt;
-
-	if( !GetAttached() && !GetVisible() )
+	if (!GetAttached())
 	{
-		if( _timeAttached > _timeRespawn )  // FIXME
-		{
-			SetRespawn(false);
-			SetVisible(true);
-			for( auto ls: world.eGC_Pickup._listeners )
-				ls->OnRespawn(*this);
+		assert(!GetVisible());
 
-			for( int n = 0; n < 50; ++n )
-			{
-				vec2d a = Vec2dDirection(PI2 * (float) n / 50);
-				world.New<GC_Particle>(GetPos() + a * 25, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
-			}
+		SetRespawn(false);
+		SetVisible(true);
+		for (auto ls : world.eGC_Pickup._listeners)
+			ls->OnRespawn(*this);
+
+		for (int n = 0; n < 50; ++n)
+		{
+			vec2d a = Vec2dDirection(PI2 * (float)n / 50);
+			world.New<GC_Particle>(GetPos() + a * 25, a * 25, PARTICLE_TYPE1, frand(0.5f) + 0.1f);
 		}
 	}
-
-	GC_Actor::TimeStep(world, dt);
 }
 
 void GC_Pickup::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 	MAP_EXCHANGE_FLOAT(respawn_time,  _timeRespawn, GetDefaultRespawnTime());
 	MAP_EXCHANGE_STRING(on_pickup, _scriptOnPickup, "");
 }
@@ -207,7 +181,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Health)
 GC_pu_Health::GC_pu_Health(vec2d pos)
   : GC_Pickup(pos)
 {
-	SetRespawnTime( GetDefaultRespawnTime() );
+	SetRespawnTime(GetDefaultRespawnTime());
 }
 
 GC_pu_Health::GC_pu_Health(FromFile)
@@ -261,6 +235,8 @@ void GC_pu_Mine::OnAttached(World &world, GC_Vehicle &vehicle)
 
 /////////////////////////////////////////////////////////////
 
+IMPLEMENT_1LIST_MEMBER(GC_Pickup, GC_pu_Shield, LIST_timestep);
+
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Shield)
 {
 	ED_ITEM( "pu_shield", "obj_shield", 4 /*layer*/ );
@@ -271,7 +247,7 @@ GC_pu_Shield::GC_pu_Shield(vec2d pos)
   : GC_Pickup(pos)
   , _timeHit(0)
 {
-	SetRespawnTime( GetDefaultRespawnTime() );
+	SetRespawnTime(GetDefaultRespawnTime());
 }
 
 GC_pu_Shield::GC_pu_Shield(FromFile)
@@ -306,11 +282,9 @@ void GC_pu_Shield::Detach(World &world)
 
 void GC_pu_Shield::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStep(world, dt);
-
 	if( GetAttached() )
 	{
-		if( GetTimeAttached() + 2.0f > PROTECT_TIME )
+		if( world.GetTime() - GetTimeAttached() + 2.0f > SHIELD_TIMEOUT )
 		{
 			if( !GetBlinking() )
 			{
@@ -318,7 +292,7 @@ void GC_pu_Shield::TimeStep(World &world, float dt)
 					ls->OnExpiring(*this);
 				SetBlinking(true);
 			}
-			if( GetTimeAttached() > PROTECT_TIME )
+			if( world.GetTime() - GetTimeAttached() > SHIELD_TIMEOUT )
 			{
 				Disappear(world);
 			}
@@ -363,7 +337,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_pu_Shock)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_pu_Shock, LIST_gsprites);
+IMPLEMENT_2LIST_MEMBER(GC_Pickup, GC_pu_Shock, LIST_gsprites, LIST_timestep);
 
 GC_pu_Shock::GC_pu_Shock(vec2d pos)
   : GC_Pickup(pos)
@@ -383,8 +357,8 @@ GC_pu_Shock::~GC_pu_Shock()
 
 void GC_pu_Shock::Kill(World &world)
 {
-    SAFE_KILL(world, _light);
-    GC_Pickup::Kill(world);
+	SAFE_KILL(world, _light);
+	GC_Pickup::Kill(world);
 }
 
 void GC_pu_Shock::Serialize(World &world, SaveFile &f)
@@ -457,8 +431,6 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 
 void GC_pu_Shock::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStep(world, dt);
-
 	if( GetAttached() )
 	{
 		if (!_vehicle)
@@ -470,7 +442,7 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 		{
 			if (GetGridSet())
 			{
-				if (GetTimeAttached() >= SHOCK_TIMEOUT)
+				if (world.GetTime() - GetTimeAttached() >= SHOCK_TIMEOUT)
 				{
 					if (GC_Vehicle *pNearTarget = FindNearVehicle(world, _vehicle))
 					{
@@ -496,7 +468,7 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 			}
 			else
 			{
-				float a = (GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f;
+				float a = (world.GetTime() - GetTimeAttached() - SHOCK_TIMEOUT) * 5.0f;
 				if (a > 1)
 				{
 					Disappear(world);
@@ -511,6 +483,8 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_1LIST_MEMBER(GC_Pickup, GC_pu_Booster, LIST_timestep);
 
 IMPLEMENT_SELF_REGISTRATION(GC_pu_Booster)
 {
@@ -561,7 +535,6 @@ void GC_pu_Booster::OnAttached(World &world, GC_Vehicle &vehicle)
 	}
 	else
 	{
-		// disappear if actor is not a weapon.
 		Disappear(world);
 	}
 }
@@ -578,10 +551,9 @@ void GC_pu_Booster::Detach(World &world)
 
 void GC_pu_Booster::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStep(world, dt);
 	if( GetAttached() )
 	{
-		if( GetTimeAttached() > BOOSTER_TIME )
+		if( world.GetTime() - GetTimeAttached() > BOOSTER_TIMEOUT )
 		{
 			Disappear(world);
 		}

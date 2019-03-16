@@ -102,7 +102,7 @@ public:
 	Grid<PtrList<GC_Object>>  grid_rigid_s;
 	Grid<PtrList<GC_Object>>  grid_walls;
 	Grid<PtrList<GC_Object>>  grid_pickup;
-	Grid<PtrList<GC_Object>>  grid_actors;
+	Grid<PtrList<GC_Object>>  grid_moving;
 
 	std::vector<bool> _waterTiles;
 	std::vector<bool> _woodTiles;
@@ -139,7 +139,6 @@ public:
 		return *t;
 	}
 
-	void Deserialize(SaveFile &f);
 	void Serialize(SaveFile &f);
 
 	FRECT GetOccupiedBounds() const;
@@ -200,6 +199,7 @@ public:
 
 	float GetTime() const { return _time; }
 	const RectRB& GetLocationBounds() const { return _locationBounds; }
+	const RectRB& GetBlockBounds() const { return _blockBounds; }
 	const FRECT& GetBounds() const { return _bounds; }
 
 #ifdef NETWORK_DEBUG
@@ -208,6 +208,7 @@ public:
 #endif
 
 	ResumableObject* Timeout(GC_Object &obj, float timeout);
+	size_t GetResumableCount() const { return _resumables.size(); }
 
 private:
 	struct Resumable
@@ -222,17 +223,6 @@ private:
 			: obj(std::move(obj_))
 			, time(time_)
 		{}
-#ifdef _MSC_VER
-		Resumable(Resumable && other)
-			: obj(std::move(other.obj))
-			, time(other.time)
-		{}
-		void operator=(Resumable && other)
-		{
-			obj = std::move(other.obj);
-			time = other.time;
-		}
-#endif
 	};
 	std::priority_queue<Resumable> _resumables;
 	float _time;
@@ -248,8 +238,8 @@ private:
 
 	void OnKill(GC_Object &obj);
 
-	std::map<const GC_Object*, std::string> _objectToStringMap;
-	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap; // TODO: try to avoid name string duplication
+	std::map<std::string, const GC_Object*, std::less<>> _nameToObjectMap;
+	std::map<const GC_Object*, std::string_view> _objectToStringMap; // string owned by _nameToObjectMap
 
 	PtrList<GC_Object> _objectLists[GLOBAL_LIST_COUNT];
 };

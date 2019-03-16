@@ -8,7 +8,7 @@ class R_Turret : public ObjectRFunc
 {
 public:
 	R_Turret(TextureManager &tm, const char *texPlatform, const char *texWeapon);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	TextureManager &_tm;

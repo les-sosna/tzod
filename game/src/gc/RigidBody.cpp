@@ -10,10 +10,10 @@
 #include <MapFile.h>
 #include <cfloat>
 
-IMPLEMENT_GRID_MEMBER(GC_RigidBodyStatic, grid_rigid_s);
+IMPLEMENT_GRID_MEMBER(GC_MovingObject, GC_RigidBodyStatic, grid_rigid_s);
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _health(1)
   , _health_max(1)
   , _radius(0)
@@ -23,7 +23,7 @@ GC_RigidBodyStatic::GC_RigidBodyStatic(vec2d pos)
 }
 
 GC_RigidBodyStatic::GC_RigidBodyStatic(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -33,27 +33,27 @@ GC_RigidBodyStatic::~GC_RigidBodyStatic()
 
 void GC_RigidBodyStatic::Init(World &world)
 {
-	GC_Actor::Init(world);
-	if( GetPassability() > 0 && world._field )
-		world._field->ProcessObject(this, true);
+	GC_MovingObject::Init(world);
+	if( GetObstacleFlags() && world._field )
+		world._field->ProcessObject(world.GetBlockBounds(), this, true);
 }
 
 void GC_RigidBodyStatic::Kill(World &world)
 {
-	if( GetPassability() > 0 && world._field )
-		world._field->ProcessObject(this, false);
-	GC_Actor::Kill(world);
+	if( GetObstacleFlags() && world._field )
+		world._field->ProcessObject(world.GetBlockBounds(), this, false);
+	GC_MovingObject::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 {
-	if( GetPassability() > 0 && world._field )
-		world._field->ProcessObject(this, false);
+	if( GetObstacleFlags() && world._field )
+		world._field->ProcessObject(world.GetBlockBounds(), this, false);
 
-	GC_Actor::MoveTo(world, pos);
+	GC_MovingObject::MoveTo(world, pos);
 
-	if( GetPassability() > 0 && world._field )
-		world._field->ProcessObject(this, true);
+	if( GetObstacleFlags() && world._field )
+		world._field->ProcessObject(world.GetBlockBounds(), this, true);
 }
 
 bool GC_RigidBodyStatic::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
@@ -368,7 +368,7 @@ vec2d GC_RigidBodyStatic::GetVertex(int index) const
 
 void GC_RigidBodyStatic::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 
 	MAP_EXCHANGE_FLOAT(  health,     _health,     GetDefaultHealth());
 	MAP_EXCHANGE_FLOAT(  health_max, _health_max, GetDefaultHealth());
@@ -383,7 +383,7 @@ void GC_RigidBodyStatic::MapExchange(MapFile &f)
 
 void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
 	f.Serialize(_scriptOnDestroy);
 	f.Serialize(_scriptOnDamage);
@@ -393,8 +393,8 @@ void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 	f.Serialize(_width);
 	f.Serialize(_length);
 
-	if( f.loading() && GetPassability() > 0 && world._field )
-		world._field->ProcessObject(this, true);
+	if( f.loading() && GetObstacleFlags() && world._field )
+		world._field->ProcessObject(world.GetBlockBounds(), this, true);
 }
 
 

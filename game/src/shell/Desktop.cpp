@@ -17,7 +17,7 @@
 #include <as/AppState.h>
 #include <cbind/ConfigBinding.h>
 #include <ctx/EditorContext.h>
-#include <editor/Editor.h>
+#include <editor/EditorMain.h>
 #include <editor/MapSettings.h>
 #include <gc/World.h>
 #include <fs/FileSystem.h>
@@ -634,7 +634,7 @@ void Desktop::OnGameContextChanged()
 	else if (auto editorContext = std::dynamic_pointer_cast<EditorContext>(GetAppState().GetGameContext()))
 	{
 		assert(!_editor);
-		_editor = std::make_shared<EditorLayout>(
+		_editor = std::make_shared<EditorMain>(
 			GetTimeStepManager(),
 			_texman,
 			*editorContext,

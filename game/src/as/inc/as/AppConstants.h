@@ -11,5 +11,3 @@
 
 #define FILE_TEXTURES    DIR_SCRIPTS"/textures.lua"
 #define FILE_STARTUP     DIR_SCRIPTS"/init.lua"
-
-#define TXT_VERSION      "Tank: Zone of Death (1.52.0)"

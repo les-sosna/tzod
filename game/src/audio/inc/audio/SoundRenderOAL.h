@@ -11,7 +11,7 @@ public:
 	~SoundRenderOAL();
 
 	// SoundRender
-	std::unique_ptr<Sound> CreateLopped(SoundTemplate sound) override;
+	std::unique_ptr<Sound> CreateLooped(SoundTemplate sound) override;
     void LoadBuffer(SoundTemplate st, const void *data, size_t size, FormatDesc format) override;
 	void PlayOnce(SoundTemplate sound, vec2d pos) override;
     void SetListenerPos(vec2d pos) override;

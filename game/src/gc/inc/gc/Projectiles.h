@@ -1,5 +1,5 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 
 class GC_RigidBodyStatic;
@@ -8,14 +8,13 @@ class GC_Light;
 class GC_Vehicle;
 class GC_Player;
 
-#define GC_FLAG_PROJECTILE_ADVANCED      (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_PROJECTILE_TRAIL         (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_PROJECTILE_              (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_PROJECTILE_ADVANCED      (GC_FLAG_MO_ << 0)
+#define GC_FLAG_PROJECTILE_TRAIL         (GC_FLAG_MO_ << 1)
+#define GC_FLAG_PROJECTILE_              (GC_FLAG_MO_ << 2)
 
-class GC_Projectile : public GC_Actor
+class GC_Projectile : public GC_MovingObject
 {
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	GC_Projectile(vec2d pos, vec2d v, GC_RigidBodyStatic *ignore, GC_Player *owner, bool advanced, bool trail);
@@ -27,7 +26,7 @@ public:
 	GC_Player* GetOwner() const { return _owner; }
 	float GetVelocity() const { return _velocity; }
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
@@ -41,7 +40,7 @@ public:
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x);
 		cs ^= reinterpret_cast<const DWORD&>(GetPos().y);
 		cs ^= reinterpret_cast<const DWORD&>(_velocity);
-		return GC_Actor::checksum() ^ cs;
+		return GC_MovingObject::checksum() ^ cs;
 	}
 #endif
 

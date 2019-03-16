@@ -247,15 +247,15 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 
 FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
+	float inputHeight = _input->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y;
 	if (_input.get() == &child)
 	{
-		float inputHeight = _input->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y;
-		return MakeRectRB(vec2d{0, lc.GetPixelSize().y - inputHeight}, lc.GetPixelSize());
+		return MakeRectRB(vec2d{ 0, lc.GetPixelSize().y - inputHeight }, lc.GetPixelSize());
 	}
 	if (_scroll.get() == &child)
 	{
 		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScale());
-		return MakeRectRB(vec2d{lc.GetPixelSize().x - scrollWidth}, lc.GetPixelSize());
+		return MakeRectWH(vec2d{ lc.GetPixelSize().x - scrollWidth }, vec2d{ scrollWidth, lc.GetPixelSize().y - inputHeight });
 	}
 	return Rectangle::GetChildRect(texman, lc, dc, child);
 }

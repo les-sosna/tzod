@@ -243,11 +243,11 @@ static int object_setposition(lua_State *L)
 		return luaL_error(L, "3 arguments expected; got %d", n);
 	}
 
-	GC_Actor *actor = checkobject<GC_Actor>(L, 1);
+	GC_MovingObject *mo = checkobject<GC_MovingObject>(L, 1);
 	float x = (float) luaL_checknumber(L, 2);
 	float y = (float) luaL_checknumber(L, 3);
 	World &world = luaT_getworld(L);
-	actor->MoveTo(world, { x, y });
+	mo->MoveTo(world, { x, y });
 	return 1;
 }
 
@@ -260,9 +260,9 @@ static int object_getposition(lua_State *L)
 		return luaL_error(L, "1 argument expected; got %d", n);
 	}
 
-	GC_Actor *actor = checkobject<GC_Actor>(L, 1);
-	lua_pushnumber(L, actor->GetPos().x);
-	lua_pushnumber(L, actor->GetPos().y);
+	GC_MovingObject *mo = checkobject<GC_MovingObject>(L, 1);
+	lua_pushnumber(L, mo->GetPos().x);
+	lua_pushnumber(L, mo->GetPos().y);
 
 	return 2;
 }
@@ -297,7 +297,7 @@ static int object_equip(lua_State *L)
 	if( pickup->GetAttached() )
 		pickup->Detach(world);
 
-	pickup->Attach(world, *target, false);
+	pickup->Attach(world, *target);
 
 	return 0;
 }

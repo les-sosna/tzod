@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-class GC_Actor;
+class GC_MovingObject;
 class GC_Weapon;
 struct GameContextBase;
 struct Gameplay;
@@ -33,7 +33,7 @@ private:
 	const Gameplay *_gameplay;
 		SoundRender &_soundRender;
 	int _secondsLeftLastStep = -1;
-	std::unordered_map<const GC_Actor*, std::unique_ptr<Sound>> _attached;
+	std::unordered_map<const GC_MovingObject*, std::unique_ptr<Sound>> _attached;
 	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretFire;
 	std::unordered_map<const GC_Turret*, std::unique_ptr<Sound>> _turretRotate;
 	std::unordered_map<const GC_Vehicle*, std::unique_ptr<Sound>> _vehicleMove;
@@ -41,7 +41,7 @@ private:
 	std::unordered_map<const GC_Weapon*, std::unique_ptr<Sound>> _weaponRotate;
 
 	// ObjectListener<GC_Pickup>
-	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle, bool pickedUp) override;
+	void OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle) override;
 	void OnDetach(GC_Pickup &obj) override;
 	void OnRespawn(GC_Pickup &obj) override;
 	void OnDisappear(GC_Pickup &obj) override;

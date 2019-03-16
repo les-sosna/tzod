@@ -60,6 +60,7 @@ void GC_Weapon::MyPropertySet::MyExchange(World &world, bool applyToObject)
 	}
 }
 
+IMPLEMENT_1LIST_MEMBER(GC_Pickup, GC_Weapon, LIST_timestep);
 
 GC_Weapon::GC_Weapon(vec2d pos)
   : GC_Pickup(pos)
@@ -186,8 +187,6 @@ void GC_Weapon::Kill(World &world)
 
 void GC_Weapon::TimeStep(World &world, float dt)
 {
-	GC_Pickup::TimeStep(world, dt);
-
 	if( GetAttached() )
 	{
 		ProcessRotate(world, dt);
@@ -238,12 +237,16 @@ void GC_ProjectileBasedWeapon::Shoot(World &world)
 
 void GC_ProjectileBasedWeapon::Resume(World &world)
 {
-	_firing = nullptr;
-	if( _numShots >= GetSeriesLength() )
-		_numShots = 0;
-	if (GetFire() || (GetContinuousSeries() && _numShots > 0))
+	GC_Weapon::Resume(world);
+	if (GetAttached())
 	{
-		Shoot(world);
+		_firing = nullptr;
+		if (_numShots >= GetSeriesLength())
+			_numShots = 0;
+		if (GetFire() || (GetContinuousSeries() && _numShots > 0))
+		{
+			Shoot(world);
+		}
 	}
 }
 

@@ -16,7 +16,7 @@ public:
 	void SetTextureName(std::string name) { _textureName.swap(name); }
 	const std::string& GetTextureName() const { return _textureName; }
 
-	unsigned char GetPassability() const override { return 1; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 	float GetDefaultHealth() const override { return 500; }
 
 	void Serialize(World &world, SaveFile &f) override;
@@ -44,7 +44,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC_Decoration : public GC_Actor
+class GC_Decoration : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_Decoration);
 
@@ -64,7 +64,7 @@ public:
 	void TimeStep(World &world, float dt) override;
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
 	public:
 		MyPropertySet(GC_Object *object);
@@ -72,7 +72,7 @@ protected:
 		virtual ObjectProperty* GetProperty(int index);
 		virtual void MyExchange(World &world, bool applyToObject);
 	private:
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propTexture;
 		ObjectProperty _propLayer;
 		ObjectProperty _propAnimate;

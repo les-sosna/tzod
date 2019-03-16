@@ -1,17 +1,15 @@
 #pragma once
-
-#include "Actor.h"
+#include "MovingObject.h"
 
 class GC_Vehicle;
 
-class GC_SpawnPoint : public GC_Actor
+class GC_SpawnPoint : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_SpawnPoint);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
-	int   _team;    // 0 - no team
+	int _team;    // 0 - no team
 
 public:
 	explicit GC_SpawnPoint(vec2d pos);
@@ -22,9 +20,9 @@ public:
 	void MapExchange(MapFile &f) override;
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propTeam;
 		ObjectProperty _propDir;
 	public:
@@ -34,14 +32,4 @@ protected:
 		virtual void MyExchange(World &world, bool applyToObject);
 	};
 	PropertySet* NewPropertySet() override;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GC_HideLabel : public GC_Actor
-{
-	DECLARE_SELF_REGISTRATION(GC_HideLabel);
-public:
-	GC_HideLabel(vec2d pos);
-	GC_HideLabel(FromFile);
 };

@@ -12,7 +12,7 @@ struct AIWEAPSETTINGS
 	float fAttackRadius_min;
 	float fAttackRadius_max;
 	float fAttackRadius_crit;  // if you closer than critical distance you may damage your self
-	float fDistanceMultipler;  // applies when traveling through brick walls
+	int distanceMultipler;  // applies when traveling through brick walls
 	bool  bNeedOutstrip;       // false if the projectile speed is unlimited
 };
 
@@ -21,6 +21,8 @@ struct AIWEAPSETTINGS
 
 class GC_Weapon : public GC_Pickup
 {
+	DECLARE_LIST_MEMBER(override);
+
 public:
 	explicit GC_Weapon(vec2d pos);
 	explicit GC_Weapon(FromFile);
@@ -46,7 +48,7 @@ public:
 	float GetDefaultRespawnTime() const override { return 6.0f; }
 	AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object

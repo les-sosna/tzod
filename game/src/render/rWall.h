@@ -8,7 +8,7 @@ class R_Wall : public ObjectRFunc
 {
 public:
 	R_Wall(TextureManager &tm, const char *tex);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	enum {WALL, LT, RT, RB, LB};

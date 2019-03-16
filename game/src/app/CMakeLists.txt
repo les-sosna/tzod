@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.3)
 
 add_library(app
 	inc/app/tzod.h
+	inc/app/Version.h
 	inc/app/View.h
 
 	CombinedConfig.cpp

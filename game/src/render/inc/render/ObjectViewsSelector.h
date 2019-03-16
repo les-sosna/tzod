@@ -1,6 +1,6 @@
 #pragma once
 #include "ObjectView.h"
-#include <gc/Actor.h>
+#include <gc/MovingObject.h>
 #include <vector>
 #include <memory>
 #include <map>
@@ -33,9 +33,9 @@ class ObjectViewsSelector final
 {
 public:
 	ObjectViewsSelector(ObjectViewsSelectorBuilder &&builder);
-	inline ViewCollection GetViews(const GC_Actor &actor) const
+	inline ViewCollection GetViews(const GC_MovingObject &mo) const
 	{
-		ObjectType type = actor.GetType();
+		ObjectType type = mo.GetType();
 		if (type + 1 < _typeToFirstView.size())
 		{
 			return { _typeToFirstView[type], _typeToFirstView[type + 1] };

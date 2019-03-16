@@ -8,7 +8,7 @@ class R_BrickFragment : public ObjectRFunc
 {
 public:
 	R_BrickFragment(TextureManager &tm);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	TextureManager &_tm;

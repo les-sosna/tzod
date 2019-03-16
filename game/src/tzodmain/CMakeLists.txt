@@ -6,7 +6,7 @@ if(WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0501) # Windows XP
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-DNOMINMAX)
-	add_executable(tzodmain WIN32 Main.cpp)
+	add_executable(tzodmain WIN32 Main.cpp res/tank.rc)
 	set_target_properties(tzodmain PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
 	set(FSLIB fswin)
 elseif(APPLE)
@@ -22,8 +22,6 @@ endif()
 
 target_link_libraries(tzodmain PRIVATE
 	app
-	as
 	platglfw
-	ui
 	${FSLIB}
 )

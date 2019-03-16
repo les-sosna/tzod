@@ -1,8 +1,14 @@
 cmake_minimum_required (VERSION 3.3)
 
 set(Audio_SOURCES
+	inc/audio/SoundRender.h
+	inc/audio/SoundView.h
+
 	OggVorbis.cpp
+	OggVorbis.h
 	SoundHarness.cpp
+	SoundHarness.h
+	SoundTemplates.h
 	SoundView.cpp
 )
 

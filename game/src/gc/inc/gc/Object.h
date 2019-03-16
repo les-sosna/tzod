@@ -57,11 +57,10 @@ private:
 
 ////////////////////////////////////////////////////////////
 
-#define GC_FLAG_OBJECT_NAMED                  0x00000001
-#define GC_FLAG_OBJECT_                       0x00000002
+#define GC_FLAG_OBJECT_NAMED                  0x00000001u
+#define GC_FLAG_OBJECT_                       0x00000002u
 
 typedef PtrList<GC_Object> ObjectList;
-typedef void (GC_Object::*NOTIFYPROC) (World &world, GC_Object *sender, void *param);
 
 class GC_Object
 {
@@ -70,26 +69,28 @@ class GC_Object
 	DECLARE_LIST_MEMBER(;);
 
 public:
-	GC_Object();
-	virtual ~GC_Object();
+	GC_Object() = default;
+	virtual ~GC_Object() = 0;
 
 	ObjectList::id_type GetId() const { return _posLIST_objects; }
 
-	const char* GetName(World &world) const;
-	void SetName(World &world, std::string_view name);
+	std::string_view GetName(World &world) const;
+	void SetName(World &world, std::string name);
 
 	std::shared_ptr<PropertySet> GetProperties(World &world);
 
 	virtual void Kill(World &world);
 	virtual void MapExchange(MapFile &f);
-	virtual void Init(World &world);
-	virtual void Resume(World &world);
 	virtual void Serialize(World &world, SaveFile &f);
-	virtual void TimeStep(World &world, float dt);
 	virtual ObjectType GetType() const = 0;
 #ifdef NETWORK_DEBUG
 	virtual uint32_t checksum() const { return 0; }
 #endif
+
+private: // overrides don't have to call base class
+	virtual void Init(World &world) {}
+	virtual void Resume(World &world) {}
+	virtual void TimeStep(World &world, float dt) {}
 
 protected:
 	void SetFlags(unsigned int flags, bool value) { _flags = value ? (_flags|flags) : (_flags & ~flags); }
@@ -100,6 +101,6 @@ protected:
 	virtual PropertySet* NewPropertySet();
 
 private:
-	unsigned int _flags;
+	unsigned int _flags = 0;
 	ObjectList::id_type _posLIST_objects;
 };

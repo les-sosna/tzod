@@ -88,6 +88,17 @@ static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAc
 	}
 }
 
+static void OnCursorEnter(GLFWwindow* window, int entered)
+{
+	if (auto self = (GlfwAppWindow*)glfwGetWindowUserPointer(window))
+	{
+		if (auto inputSink = self->GetInputSink())
+		{
+			self->GetInput().SetMousePresent(!!entered);
+		}
+	}
+}
+
 static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
@@ -180,6 +191,7 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 	, _render(RenderCreateOpenGL())
 {
 	glfwSetMouseButtonCallback(_window.get(), OnMouseButton);
+	glfwSetCursorEnterCallback(_window.get(), OnCursorEnter);
 	glfwSetCursorPosCallback(_window.get(), OnCursorPos);
 	glfwSetScrollCallback(_window.get(), OnScroll);
 	glfwSetKeyCallback(_window.get(), OnKey);
@@ -206,7 +218,7 @@ Plat::Clipboard& GlfwAppWindow::GetClipboard()
 	return *_clipboard;
 }
 
-Plat::Input& GlfwAppWindow::GetInput()
+GlfwInput& GlfwAppWindow::GetInput()
 {
 	return *_input;
 }

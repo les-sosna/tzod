@@ -1,20 +1,19 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 
-#define GC_FLAG_TRIGGER_ENABLED       (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_TRIGGER_ONLYVISIBLE   (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_TRIGGER_ONLYHUMAN     (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_TRIGGER_ACTIVATED     (GC_FLAG_ACTOR_ << 3)
-#define GC_FLAG_TRIGGER_              (GC_FLAG_ACTOR_ << 4)
+#define GC_FLAG_TRIGGER_ENABLED       (GC_FLAG_MO_ << 0)
+#define GC_FLAG_TRIGGER_ONLYVISIBLE   (GC_FLAG_MO_ << 1)
+#define GC_FLAG_TRIGGER_ONLYHUMAN     (GC_FLAG_MO_ << 2)
+#define GC_FLAG_TRIGGER_ACTIVATED     (GC_FLAG_MO_ << 3)
+#define GC_FLAG_TRIGGER_              (GC_FLAG_MO_ << 4)
 
 class GC_Vehicle;
 
-class GC_Trigger : public GC_Actor
+class GC_Trigger : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_Trigger);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	explicit GC_Trigger(vec2d pos);
@@ -30,7 +29,7 @@ public:
 	void TimeStep(World &world, float dt) override;
 
 private:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
 	public:
 		MyPropertySet(GC_Object *object);
@@ -39,7 +38,7 @@ private:
 		virtual void MyExchange(World &world, bool applyToObject);
 
 	private:
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propActive;
 		ObjectProperty _propTeam;
 		ObjectProperty _propRadius;

@@ -50,7 +50,6 @@ private:
 	std::shared_ptr<UI::Button> _deleteProfile;
 
 	std::shared_ptr<UI::CheckBox> _showFps;
-	std::shared_ptr<UI::CheckBox> _showTime;
 	std::shared_ptr<UI::CheckBox> _showNames;
 
 	std::shared_ptr<UI::ScrollBarHorizontal> _volumeSfx;

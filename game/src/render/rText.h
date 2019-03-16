@@ -8,7 +8,7 @@ class R_Text : public ObjectRFunc
 {
 public:
 	R_Text(TextureManager &tm);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	size_t _fontDefault;

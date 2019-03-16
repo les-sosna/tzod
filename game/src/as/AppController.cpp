@@ -52,7 +52,7 @@ AppController::~AppController()
 {
 }
 
-void AppController::Step(AppState &appState, AppConfig &appConfig, float dt)
+void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, bool &outConfigChanged)
 {
 	if (GameContextBase *gc = appState.GetGameContext().get())
 	{
@@ -71,6 +71,7 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt)
 						tierprogress.EnsureIndex(campaignGC->GetCampaignMap());
 						int currentRating = tierprogress.GetNum(campaignGC->GetCampaignMap()).GetInt();
 						tierprogress.SetNum(campaignGC->GetCampaignMap(), std::max(currentRating, gameplay->GetRating()));
+						outConfigChanged = true;
 					}
 				}
 			}

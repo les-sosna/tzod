@@ -16,10 +16,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Trigger)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Trigger, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_Trigger, LIST_timestep);
 
 GC_Trigger::GC_Trigger(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _radius(1)
   , _radiusDelta(0)
   , _team(0)
@@ -28,7 +28,7 @@ GC_Trigger::GC_Trigger(vec2d pos)
 }
 
 GC_Trigger::GC_Trigger(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -54,7 +54,7 @@ bool GC_Trigger::Test(World &world, const GC_Vehicle *v) const
 
 void GC_Trigger::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
 	f.Serialize(_radius);
 	f.Serialize(_radiusDelta);
@@ -66,7 +66,7 @@ void GC_Trigger::Serialize(World &world, SaveFile &f)
 
 void GC_Trigger::MapExchange(MapFile &f)
 {
-	GC_Actor::MapExchange(f);
+	GC_MovingObject::MapExchange(f);
 
 	int onlyVisible = CheckFlags(GC_FLAG_TRIGGER_ONLYVISIBLE);
 	int onlyHuman = CheckFlags(GC_FLAG_TRIGGER_ONLYHUMAN);

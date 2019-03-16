@@ -8,7 +8,6 @@ class GC_Water : public GC_RigidBodyStatic
                , public GI_NeighborAware
 {
 	DECLARE_SELF_REGISTRATION(GC_Water);
-	typedef GC_RigidBodyStatic base;
 
 public:
 	GC_Water(vec2d pos);
@@ -19,14 +18,14 @@ public:
 	void Init(World &world) override;
 	void Kill(World &world) override;
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GI_NeighborAware
 	int GetNeighbors(const World &world) const override;
 
 	// GC_RigidBodyStatic
-	unsigned char GetPassability() const override { return 0xFF; }  // impassable
+	uint8_t GetObstacleFlags() const override { return 0x40; }
 	float GetDefaultHealth() const override { return 0; }
 
 protected:

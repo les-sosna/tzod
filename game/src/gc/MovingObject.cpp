@@ -1,7 +1,7 @@
-#include "inc/gc/Actor.h"
+#include "inc/gc/MovingObject.h"
+#include "inc/gc/SaveFile.h"
 #include "inc/gc/World.h"
 #include "inc/gc/WorldCfg.h"
-#include "inc/gc/SaveFile.h"
 #include <MapFile.h>
 
 // Workaround for IMPLEMENT_GRID_MEMBER macro used in the base class
@@ -11,30 +11,29 @@ namespace base
 	inline static void LeaveContexts(World&, int, int){}
 }
 
-IMPLEMENT_GRID_MEMBER(GC_Actor, grid_actors)
+IMPLEMENT_GRID_MEMBER(base, GC_MovingObject, grid_moving)
 
-GC_Actor::GC_Actor(vec2d pos)
+GC_MovingObject::GC_MovingObject(vec2d pos)
 	: _pos(pos)
 	, _direction{ 1, 0 }
 {
-	SetFlags(GC_FLAG_ACTOR_INGRIDSET, true);
+	SetFlags(GC_FLAG_MO_INGRIDSET, true);
 }
 
-void GC_Actor::Init(World &world)
+void GC_MovingObject::Init(World &world)
 {
-	GC_Object::Init(world);
 	_locationX = std::max(world.GetLocationBounds().left, std::min((int)std::floor(_pos.x / WORLD_LOCATION_SIZE), world.GetLocationBounds().right - 1));
 	_locationY = std::max(world.GetLocationBounds().top, std::min((int)std::floor(_pos.y / WORLD_LOCATION_SIZE), world.GetLocationBounds().bottom - 1));
 	EnterContexts(world, _locationX, _locationY);
 }
 
-void GC_Actor::Kill(World &world)
+void GC_MovingObject::Kill(World &world)
 {
 	LeaveContexts(world, _locationX, _locationY);
 	GC_Object::Kill(world);
 }
 
-void GC_Actor::Serialize(World &world, SaveFile &f)
+void GC_MovingObject::Serialize(World &world, SaveFile &f)
 {
 	GC_Object::Serialize(world, f);
 	f.Serialize(_locationX);
@@ -46,7 +45,7 @@ void GC_Actor::Serialize(World &world, SaveFile &f)
 		EnterContexts(world, _locationX, _locationY);
 }
 
-void GC_Actor::MoveTo(World &world, const vec2d &pos)
+void GC_MovingObject::MoveTo(World &world, const vec2d &pos)
 {
 	_pos = pos;
 
@@ -62,7 +61,7 @@ void GC_Actor::MoveTo(World &world, const vec2d &pos)
 	}
 }
 
-void GC_Actor::MapExchange(MapFile &f)
+void GC_MovingObject::MapExchange(MapFile &f)
 {
 	GC_Object::MapExchange(f);
 

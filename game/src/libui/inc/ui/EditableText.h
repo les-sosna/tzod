@@ -57,6 +57,7 @@ namespace UI
 		Texture _selection = "ui/editsel";
 
 		int HitTest(TextureManager &texman, vec2d px, float scale) const;
+		float GetCursorWidth(TextureManager &texman, float scale) const;
 		FRECT GetCursorRect(TextureManager &texman, const LayoutContext &lc) const;
 
 		// TextSink

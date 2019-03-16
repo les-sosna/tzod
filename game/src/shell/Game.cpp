@@ -142,9 +142,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
 	AddFront(_timerDisplay);
 
-	_conf.g_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
-	OnChangeShowTime();
-
 	SetTimeStep(true);
 	_gameContext->GetGameEventSource().AddListener(*this);
 }
@@ -152,7 +149,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 GameLayout::~GameLayout()
 {
 	_gameContext->GetGameEventSource().RemoveListener(*this);
-	_conf.g_showtime.eventChange = nullptr;
 }
 
 vec2d GameLayout::GetDragDirection() const
@@ -213,9 +209,15 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	bool tab = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
 	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
+	float lastDieTime = 0;
 	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
+	{
 		allDead &= !player->GetVehicle();
-	_score->SetVisible(tab || gameOver || (allDead && _gameContext->GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
+		lastDieTime = std::max(lastDieTime, player->GetDieTime());
+	}
+	float time = _gameContext->GetWorld().GetTime();
+	constexpr float showScoreDelay = 0.3f;
+	_score->SetVisible(tab || gameOver || (allDead && time > PLAYER_RESPAWN_DELAY && time > lastDieTime + showScoreDelay));
 	if (_campaignControls)
 		_campaignControls->SetVisible(gameOver);
 	if (_rating)
@@ -259,11 +261,13 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
 
+	// On-screen controls
 	vec2d dir = GetDragDirection();
 	bool reversing = GetEffectiveDragCount() > 1;
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 	{
+		// Draw touch drag indicator
 		if (!dir.IsZero())
 		{
 			if (const GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
@@ -276,6 +280,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			}
 		}
 		
+		// Draw tap target
 		if (const VehicleStateReader *vehicleStateReader = _inputMgr.GetVehicleStateReader(playerIndex))
 		{
 			float time = vehicleStateReader->GetRemainingFireTime();
@@ -300,7 +305,7 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	}
 	if (_timerDisplay.get() == &child)
 	{
-		return UI::CanvasLayout(size / scale, _timerDisplay->GetSize(), scale);
+		return MakeRectWH(size - vec2d{1, 1}, {});
 	}
 	if (_msg.get() == &child)
 	{
@@ -359,11 +364,6 @@ void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManag
 			}
 		}
 	}
-}
-
-void GameLayout::OnChangeShowTime()
-{
-	_timerDisplay->SetVisible(_conf.g_showtime.Get());
 }
 
 void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)

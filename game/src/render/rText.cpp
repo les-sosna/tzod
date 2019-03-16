@@ -10,10 +10,10 @@ R_Text::R_Text(TextureManager &tm)
 {
 }
 
-void R_Text::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Text::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Text*>(&actor));
-	auto &text = static_cast<const GC_Text&>(actor);
+	assert(dynamic_cast<const GC_Text*>(&mo));
+	auto &text = static_cast<const GC_Text&>(mo);
 	vec2d pos = text.GetPos();
 	size_t font;
 	switch (text.GetStyle())

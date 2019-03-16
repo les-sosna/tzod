@@ -1,8 +1,6 @@
-#include "inc/editor/Editor.h"
 #include "inc/editor/Config.h"
+#include "inc/editor/EditorWorldView.h"
 #include "PropertyList.h"
-#include "GameClassVis.h"
-#include <cbind/ConfigBinding.h>
 #include <ctx/EditorContext.h>
 #include <gc/Object.h>
 #include <gc/Pickup.h>
@@ -10,30 +8,20 @@
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
 #include <gv/ThemeManager.h>
-#include <loc/Language.h>
 #include <plat/ConsoleBuffer.h>
 #include <plat/Input.h>
 #include <plat/Keys.h>
 #include <render/WorldView.h>
 #include <render/RenderScheme.h>
-#include <ui/Button.h>
 #include <ui/Combo.h>
 #include <ui/DataSource.h>
 #include <ui/GuiManager.h>
 #include <ui/InputContext.h>
 #include <ui/Text.h>
-#include <ui/List.h>
-#include <ui/ListBox.h>
-#include <ui/DataSource.h>
-#include <ui/DataSourceAdapters.h>
 #include <ui/LayoutContext.h>
 #include <ui/ScrollView.h>
-#include <ui/StackLayout.h>
 #include <ui/StateContext.h>
 #include <video/TextureManager.h>
-
-#include <sstream>
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,85 +34,50 @@ static bool PtInRigidBody(const GC_RigidBodyStatic &rbs, vec2d delta)
 	return true;
 }
 
-static bool PtOnActor(const GC_Actor &actor, vec2d pt)
+static bool PtInObject(const GC_MovingObject &mo, vec2d pt)
 {
-	vec2d delta = pt - actor.GetPos();
-	if (auto rbs = dynamic_cast<const GC_RigidBodyStatic*>(&actor))
+	vec2d delta = pt - mo.GetPos();
+	if (auto rbs = dynamic_cast<const GC_RigidBodyStatic*>(&mo))
 		return PtInRigidBody(*rbs, delta);
-	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(mo.GetType()).size / 2;
 	return PtOnFRect(MakeRectRB(-halfSize, halfSize), delta);
 }
 
-namespace
-{
-	class LayerDisplay final
-		: public UI::LayoutData<std::string_view>
-	{
-	public:
-		LayerDisplay(LangCache &lang, std::shared_ptr<UI::List> typeSelector)
-			: _lang(lang)
-			, _typeSelector(std::move(typeSelector))
-		{}
-
-		// LayoutData<std::string_view>
-		std::string_view GetLayoutValue(const UI::DataContext &dc) const override
-		{
-			int index = _typeSelector->GetCurSel();
-			if (_cachedIndex != index)
-			{
-				std::ostringstream oss;
-				oss << _lang.layer.Get()
-					<< RTTypes::Inst().GetTypeInfo(static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(index))).layer
-					<< ": ";
-				_cachedString = oss.str();
-				_cachedIndex = index;
-			}
-			return _cachedString;
-		}
-
-	private:
-		LangCache &_lang;
-		std::shared_ptr<UI::List> _typeSelector;
-		mutable int _cachedIndex = -1;
-		mutable std::string _cachedString;
-	};
-}
-
-GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
+GC_MovingObject* EditorWorldView::PickEdObject(const RenderScheme &rs, World &world, const vec2d &pt) const
 {
 	int layer = -1;
 	if (_conf.uselayers.Get())
 	{
-		layer = RTTypes::Inst().GetTypeInfo(GetCurrentType()).layer;
+		layer = RTTypes::Inst().GetTypeInfo(_currentType).layer;
 	}
 
-	GC_Actor* zLayers[Z_COUNT];
+	GC_MovingObject* zLayers[Z_COUNT];
 	memset(zLayers, 0, sizeof(zLayers));
 
 	std::vector<ObjectList*> receive;
-	world.grid_actors.OverlapPoint(receive, pt / WORLD_LOCATION_SIZE);
+	world.grid_moving.OverlapPoint(receive, pt / WORLD_LOCATION_SIZE);
 	for( auto rit = receive.begin(); rit != receive.end(); ++rit )
 	{
 		ObjectList *ls = *rit;
 		for( auto it = ls->begin(); it != ls->end(); it = ls->next(it) )
 		{
-			auto actor = static_cast<GC_Actor*>(ls->at(it));
-			if (RTTypes::Inst().IsRegistered(actor->GetType()) && PtOnActor(*actor, pt))
+			auto mo = static_cast<GC_MovingObject*>(ls->at(it));
+			if (RTTypes::Inst().IsRegistered(mo->GetType()) && PtInObject(*mo, pt))
 			{
 				enumZOrder maxZ = Z_NONE;
-				for (auto &view: rs.GetViews(*actor, true, false))
+				for (auto &view: rs.GetViews(*mo, true, false))
 				{
-					maxZ = std::max(maxZ, view.zfunc->GetZ(world, *actor));
+					maxZ = std::max(maxZ, view.zfunc->GetZ(world, *mo));
 				}
 
 				if( Z_NONE != maxZ )
 				{
 					for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
 					{
-						if( actor->GetType() == RTTypes::Inst().GetTypeByIndex(i)
+						if( mo->GetType() == RTTypes::Inst().GetTypeByIndex(i)
 							&& (-1 == layer || RTTypes::Inst().GetTypeInfoByIndex(i).layer == layer) )
 						{
-							zLayers[maxZ] = actor;
+							zLayers[maxZ] = mo;
 						}
 					}
 				}
@@ -141,91 +94,33 @@ GC_Actor* EditorLayout::PickEdObject(const RenderScheme &rs, World &world, const
 	return nullptr;
 }
 
-
-EditorLayout::EditorLayout(UI::TimeStepManager &manager,
-                           TextureManager &texman,
-                           EditorContext &editorContext,
-                           WorldView &worldView,
-                           EditorConfig &conf,
-                           LangCache &lang,
-                           EditorCommands commands,
-                           Plat::ConsoleBuffer &logger)
+EditorWorldView::EditorWorldView(UI::TimeStepManager &manager,
+                                 TextureManager &texman,
+                                 EditorContext &editorContext,
+                                 WorldView &worldView,
+                                 EditorConfig &conf,
+                                 LangCache &lang,
+                                 Plat::ConsoleBuffer &logger)
 	: UI::TimeStepping(manager)
 	, _conf(conf)
-	, _lang(lang)
-	, _commands(std::move(commands))
 	, _virtualPointer(Center(editorContext.GetOriginalBounds()))
 	, _defaultCamera(_virtualPointer)
 	, _world(editorContext.GetWorld())
 	, _worldView(worldView)
 	, _quickActions(logger, _world)
 {
-	_help = std::make_shared<UI::Text>();
-	_help->Move(10, 10);
-	_help->SetText(ConfBind(_lang.f1_help_editor));
-	_help->SetAlign(alignTextLT);
-	_help->SetVisible(false);
-	AddFront(_help);
-
-	_propList = std::make_shared<PropertyList>(texman, _world, conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(texman, editorContext.GetWorld(), conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
-
-	auto gameClassVis = std::make_shared<GameClassVis>(_worldView);
-	gameClassVis->Resize(64, 64);
-	gameClassVis->SetGameClass(std::make_shared<UI::ListDataSourceBinding>(0));
-
-	using namespace UI::DataSourceAliases;
-
-	_modeSelect = std::make_shared<UI::CheckBox>();
-	_modeSelect->SetText("Select"_txt);
-
-	_modeErase = std::make_shared<UI::CheckBox>();
-	_modeErase->SetText("Erase"_txt);
-
-	auto play = std::make_shared<UI::Button>();
-	play->SetText("Play"_txt);
-	play->SetWidth(64);
-	play->eventClick = _commands.playMap;
-
-	_typeSelector = std::make_shared<DefaultListBox>();
-	_typeSelector->GetList()->SetItemTemplate(gameClassVis);
-
-	for( unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i )
-	{
-		if (!RTTypes::Inst().GetTypeInfoByIndex(i).service)
-		{
-			auto &typeInfo = RTTypes::Inst().GetTypeInfoByIndex(i);
-			_typeSelector->GetData()->AddItem(typeInfo.name, RTTypes::Inst().GetTypeByIndex(i));
-		}
-	}
-	_typeSelector->GetList()->SetCurSel(std::min(_typeSelector->GetData()->GetItemCount() - 1, std::max(0, _conf.object.GetInt())));
-
-	_toolbar = std::make_shared<UI::StackLayout>();
-	_toolbar->AddFront(play);
-	_toolbar->AddFront(_modeSelect);
-	_toolbar->AddFront(_modeErase);
-	_toolbar->AddFront(_typeSelector);
-	AddFront(_toolbar);
-
-	_layerDisp = std::make_shared<UI::Text>();
-	_layerDisp->SetAlign(alignTextRT);
-	_layerDisp->SetText(std::make_shared<LayerDisplay>(_lang, _typeSelector->GetList()));
-	AddFront(_layerDisp);
-
-	assert(!_conf.uselayers.eventChange);
-	_conf.uselayers.eventChange = std::bind(&EditorLayout::OnChangeUseLayers, this);
-	OnChangeUseLayers();
 
 	SetTimeStep(true);
 }
 
-EditorLayout::~EditorLayout()
+EditorWorldView::~EditorWorldView()
 {
-	_conf.uselayers.eventChange = nullptr;
 }
 
-void EditorLayout::Select(GC_Object *object, bool bSelect)
+void EditorWorldView::Select(GC_Object *object, bool bSelect)
 {
 	assert(object);
 
@@ -255,7 +150,7 @@ void EditorLayout::Select(GC_Object *object, bool bSelect)
 	}
 }
 
-void EditorLayout::SelectNone()
+void EditorWorldView::SelectNone()
 {
 	if( _selectedObject )
 	{
@@ -263,7 +158,7 @@ void EditorLayout::SelectNone()
 	}
 }
 
-void EditorLayout::EraseAt(vec2d worldPos)
+void EditorWorldView::EraseAt(vec2d worldPos)
 {
 	while (GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
 	{
@@ -282,14 +177,14 @@ static vec2d AlignToGrid(const RTTypes::EdItem &typeInfo, vec2d worldPos)
 	return Vec2dFloor((worldPos + halfAlign - offset) / typeInfo.align) * typeInfo.align + offset;
 }
 
-void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
+void EditorWorldView::CreateAt(vec2d worldPos, bool defaultProperties)
 {
-	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+	auto &typeInfo = RTTypes::Inst().GetTypeInfo(_currentType);
 	vec2d alignedPos = AlignToGrid(typeInfo, worldPos);
 	if (CanCreateAt(alignedPos))
 	{
 		// create object
-		GC_Actor &newobj = RTTypes::Inst().CreateActor(_world, GetCurrentType(), alignedPos);
+		GC_MovingObject &newobj = RTTypes::Inst().CreateObject(_world, _currentType, alignedPos);
 		std::shared_ptr<PropertySet> properties = newobj.GetProperties(_world);
 
 		if (!defaultProperties)
@@ -302,15 +197,15 @@ void EditorLayout::CreateAt(vec2d worldPos, bool defaultProperties)
 	}
 }
 
-void EditorLayout::ActionOrCreateAt(vec2d worldPos, bool defaultProperties)
+void EditorWorldView::ActionOrCreateAt(vec2d worldPos, bool defaultProperties)
 {
-	if( GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
+	if( GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos) )
 	{
-		_quickActions.DoAction(*actor);
+		_quickActions.DoAction(*mo);
 
-		if( _recentlyCreatedObject == actor )
+		if( _recentlyCreatedObject == mo )
 		{
-			SaveToConfig(_conf, *actor->GetProperties(_world));
+			SaveToConfig(_conf, *mo->GetProperties(_world));
 		}
 		else
 		{
@@ -323,7 +218,7 @@ void EditorLayout::ActionOrCreateAt(vec2d worldPos, bool defaultProperties)
 	}
 }
 
-void EditorLayout::ActionOrSelectAt(vec2d worldPos)
+void EditorWorldView::ActionOrSelectAt(vec2d worldPos)
 {
 	if (GC_Object *object = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
 	{
@@ -343,46 +238,46 @@ void EditorLayout::ActionOrSelectAt(vec2d worldPos)
 	}
 }
 
-bool EditorLayout::CanCreateAt(vec2d worldPos) const
+bool EditorWorldView::CanCreateAt(vec2d worldPos) const
 {
 	return PtInFRect(_world.GetBounds(), worldPos) &&
 		!PickEdObject(_worldView.GetRenderScheme(), _world, worldPos);
 }
 
-static FRECT GetSelectionRect(const GC_Actor &actor)
+static FRECT GetSelectionRect(const GC_MovingObject &mo)
 {
-	vec2d halfSize = RTTypes::Inst().GetTypeInfo(actor.GetType()).size / 2;
-	return MakeRectRB(actor.GetPos() - halfSize, actor.GetPos() + halfSize);
+	vec2d halfSize = RTTypes::Inst().GetTypeInfo(mo.GetType()).size / 2;
+	return MakeRectRB(mo.GetPos() - halfSize, mo.GetPos() + halfSize);
 }
 
-FRECT EditorLayout::GetNavigationOrigin() const
+FRECT EditorWorldView::GetNavigationOrigin() const
 {
-	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, _virtualPointer))
+	if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, _virtualPointer))
 	{
-		return GetSelectionRect(*actor);
+		return GetSelectionRect(*mo);
 	}
 	else
 	{
-		auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+		auto &typeInfo = RTTypes::Inst().GetTypeInfo(_currentType);
 		vec2d alignedPos = AlignToGrid(typeInfo, _virtualPointer);
 		return MakeRectWH(alignedPos, vec2d{});
 	}
 }
 
-EditorLayout::WorldCursor EditorLayout::GetCursor() const
+EditorWorldView::WorldCursor EditorWorldView::GetCursor() const
 {
 	WorldCursor cursor = {};
 
 	vec2d worldPos = _virtualPointer;
 
-	if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
+	if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, worldPos))
 	{
-		cursor.bounds = GetSelectionRect(*actor);
+		cursor.bounds = GetSelectionRect(*mo);
 		cursor.cursorType = WorldCursor::Type::Action;
 	}
-	else if (!_modeSelect->GetCheck())
+	else if (!_selectOnly)
 	{
-		auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+		auto &typeInfo = RTTypes::Inst().GetTypeInfo(_currentType);
 		vec2d mouseAligned = AlignToGrid(typeInfo, worldPos);
 		cursor.bounds = MakeRectWH(mouseAligned - typeInfo.size / 2, typeInfo.size);
 		cursor.cursorType = CanCreateAt(mouseAligned) ? WorldCursor::Type::Create : WorldCursor::Type::Obstructed;
@@ -391,19 +286,7 @@ EditorLayout::WorldCursor EditorLayout::GetCursor() const
 	return cursor;
 }
 
-void EditorLayout::ChooseNextType()
-{
-	_typeSelector->GetList()->SetCurSel(std::clamp(_typeSelector->GetList()->GetCurSel() + 1,
-		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
-}
-
-void EditorLayout::ChoosePrevType()
-{
-	_typeSelector->GetList()->SetCurSel(std::clamp(_typeSelector->GetList()->GetCurSel() - 1,
-		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
-}
-
-void EditorLayout::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect)
+void EditorWorldView::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect)
 {
 	vec2d cameraOffset = {};
 
@@ -427,7 +310,7 @@ void EditorLayout::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect)
 		_defaultCamera.MoveTo(_defaultCamera.GetEye() + cameraOffset);
 }
 
-void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
+void EditorWorldView::OnTimeStep(const UI::InputContext &ic, float dt)
 {
 	_defaultCamera.HandleMovement(ic.GetInput(), _world.GetBounds(), dt);
 
@@ -439,44 +322,60 @@ void EditorLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	}
 }
 
-void EditorLayout::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)
+void EditorWorldView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)
 {
-	if (!precise)
+	if (precise)
 	{
-		scrollOffset *= WORLD_BLOCK_SIZE;
+		_defaultCamera.Move(scrollOffset, _world.GetBounds());
 	}
-	_defaultCamera.Move(scrollOffset, _world.GetBounds());
+	else
+	{
+		if (scrollOffset.y > 0)
+		{
+			_defaultCamera.ZoomIn();
+		}
+		else
+		{
+			_defaultCamera.ZoomOut();
+		}
+	}
 }
 
-void EditorLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void EditorWorldView::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	_virtualPointer = CanvasToWorld(lc, pi.position);
 
 	if (_capturedButton)
 	{
 		vec2d worldPos = CanvasToWorld(lc, pi.position);
-		if (2 == _capturedButton)
+		switch (_capturedButton)
 		{
-			EraseAt(worldPos);
-		}
-		else if (1 == _capturedButton)
-		{
+		case 1:
 			// keep default properties if Ctrl key is not pressed
-			bool defaultProperties = !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
-			CreateAt(worldPos, defaultProperties);
+			CreateAt(worldPos, !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl));
+			break;
+
+		case 2:
+			EraseAt(worldPos);
+			break;
+
+		case 4:
+			_defaultCamera.Move((pi.position - _prevPointerPosition) / _defaultCamera.GetZoom() / lc.GetScale(), _world.GetBounds());
+			_prevPointerPosition = pi.position;
+			break;
 		}
 	}
 }
 
-void EditorLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+void EditorWorldView::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	if (_capturedButton == button )
+	if (_capturedButton == button)
 	{
 		_capturedButton = 0;
 	}
 }
 
-bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool EditorWorldView::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (pi.type == Plat::PointerType::Touch)
 		return false; // ignore touch here to not conflict with scroll. handle tap instead
@@ -503,7 +402,7 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 	}
 	else if (1 == button)
 	{
-		if (_modeSelect->GetCheck())
+		if (_selectOnly)
 		{
 			ActionOrSelectAt(worldPos);
 		}
@@ -514,13 +413,17 @@ bool EditorLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Te
 			ActionOrCreateAt(worldPos, defaultProperties);
 		}
 	}
+	else if (4 == button)
+	{
+		_prevPointerPosition = pi.position;
+	}
 
 	return capture;
 }
 
-void EditorLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void EditorWorldView::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
-	if (_modeSelect->GetCheck())
+	if (_selectOnly)
 	{
 		ActionOrSelectAt(CanvasToWorld(lc, pointerPosition));
 	}
@@ -530,7 +433,7 @@ void EditorLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureMan
 	}
 }
 
-bool EditorLayout::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool EditorWorldView::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -553,31 +456,17 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 		else
 		{
 			vec2d alignedPointerPos = Center(GetNavigationOrigin());
-			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, alignedPointerPos))
+			if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, alignedPointerPos))
 			{
-				actor->Kill(_world);
+				mo->Kill(_world);
 			}
 		}
 		break;
 	case Plat::Key::GamepadY:
 		ActionOrSelectAt(Center(GetNavigationOrigin()));
 		break;
-	case Plat::Key::F1:
-		_help->SetVisible(!_help->GetVisible());
-		break;
-	case Plat::Key::F9:
-		_conf.uselayers.Set(!_conf.uselayers.Get());
-		break;
 	case Plat::Key::G:
 		_conf.drawgrid.Set(!_conf.drawgrid.Get());
-		break;
-	case Plat::Key::LeftBracket:
-	case Plat::Key::GamepadLeftShoulder:
-		ChoosePrevType();
-		break;
-	case Plat::Key::RightBracket:
-	case Plat::Key::GamepadRightShoulder:
-		ChooseNextType();
 		break;
 	default:
 		return false;
@@ -585,7 +474,7 @@ bool EditorLayout::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 	return true;
 }
 
-bool EditorLayout::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
 	switch (navigate)
 	{
@@ -603,14 +492,14 @@ bool EditorLayout::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &l
 	}
 }
 
-void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
+void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{
 		return;
 	}
 
-	auto &typeInfo = RTTypes::Inst().GetTypeInfo(GetCurrentType());
+	auto &typeInfo = RTTypes::Inst().GetTypeInfo(_currentType);
 
 	FRECT origin = GetNavigationOrigin();
 
@@ -656,35 +545,18 @@ void EditorLayout::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, 
 	EnsureVisible(lc, RectExpand(GetCursor().bounds, WORLD_BLOCK_SIZE));
 }
 
-FRECT EditorLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+FRECT EditorWorldView::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
-	float scale = lc.GetScale();
-	vec2d size = lc.GetPixelSize();
-
-	if (_layerDisp.get() == &child)
-	{
-		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
-	}
-	if (_toolbar.get() == &child)
-	{
-		return FRECT{ size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, 0, size.x, size.y };
-	}
 	if (_propList.get() == &child)
 	{
 		float pxWidth = std::floor(100 * lc.GetScale());
-		float pxRight = _toolbar ? GetChildRect(texman, lc, dc, *_toolbar).left : lc.GetPixelSize().x;
+		float pxRight = lc.GetPixelSize().x;
 		return FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y };
 	}
-
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-void EditorLayout::OnChangeUseLayers()
-{
-	_layerDisp->SetVisible(_conf.uselayers.Get());
-}
-
-void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
@@ -702,16 +574,20 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	_worldView.Render(rc, _world, options);
 
 	// Selection
-	if( auto selectedActor = PtrDynCast<const GC_Actor>(_selectedObject) )
+	if( auto selectedObject = PtrDynCast<const GC_MovingObject>(_selectedObject) )
 	{
-		FRECT sel = GetSelectionRect(*selectedActor);
+		FRECT sel = GetSelectionRect(*selectedObject);
 
 		rc.DrawSprite(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 		rc.DrawBorder(sel, _texSelection.GetTextureId(texman), 0xffffffff, 0);
 	}
 
 	// World cursor
-	if (ic.GetFocused())
+	bool pointerIsMoreRecent = ic.GetLastPointerTime() > ic.GetLastKeyTime();
+	bool activePointerInput = ic.GetHovered() && pointerIsMoreRecent;
+	bool activeKeyInput = ic.GetFocused() && !pointerIsMoreRecent;
+	bool insideMiddleMouseDrag = _capturedButton == 4;
+	if (!insideMiddleMouseDrag && (activeKeyInput || activePointerInput))
 	{
 		auto cursor = GetCursor();
 		auto cursorColor = SpriteColor{};
@@ -726,9 +602,9 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 
 		if (cursor.cursorType == WorldCursor::Type::Obstructed)
 		{
-			if (GC_Actor *actor = PickEdObject(_worldView.GetRenderScheme(), _world, Center(cursor.bounds)))
+			if (GC_MovingObject *mo = PickEdObject(_worldView.GetRenderScheme(), _world, Center(cursor.bounds)))
 			{
-				auto obstacleRect = GetSelectionRect(*actor);
+				auto obstacleRect = GetSelectionRect(*mo);
 				rc.DrawSprite(obstacleRect, _texSelection.GetTextureId(texman), 0xff0000ff, 0);
 				rc.DrawBorder(obstacleRect, _texSelection.GetTextureId(texman), 0x88000088, 0);
 			}
@@ -751,7 +627,7 @@ void EditorLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		lc.GetScale(), _fontSmall.GetTextureId(texman), 0xffffffff, buf.str(), alignTextCT);
 }
 
-vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const
+vec2d EditorWorldView::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const
 {
 	vec2d eye = _defaultCamera.GetEye();
 	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
@@ -760,24 +636,17 @@ vec2d EditorLayout::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) 
 	return (canvasPos - worldTransformOffset) / zoom;
 }
 
-FRECT EditorLayout::CanvasToWorld(vec2d worldTransformOffset, float worldTransformScale, FRECT canvasRect) const
+FRECT EditorWorldView::CanvasToWorld(vec2d worldTransformOffset, float worldTransformScale, FRECT canvasRect) const
 {
 	return RectOffset(canvasRect, -worldTransformOffset) / worldTransformScale;
 }
 
-vec2d EditorLayout::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const
+vec2d EditorWorldView::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, vec2d worldPos) const
 {
 	return worldPos * worldTransformScale + worldTransformOffset;
 }
 
-FRECT EditorLayout::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, FRECT worldRect) const
+FRECT EditorWorldView::WorldToCanvas(vec2d worldTransformOffset, float worldTransformScale, FRECT worldRect) const
 {
 	return RectOffset(worldRect * worldTransformScale, worldTransformOffset);
-}
-
-ObjectType EditorLayout::GetCurrentType() const
-{
-	int selectedIndex = std::max(0, _typeSelector->GetList()->GetCurSel()); // ignore -1
-	_conf.object.SetInt(selectedIndex);
-	return static_cast<ObjectType>(_typeSelector->GetData()->GetItemData(selectedIndex));
 }

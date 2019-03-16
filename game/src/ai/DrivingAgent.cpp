@@ -49,22 +49,46 @@ void DrivingAgent::Serialize(SaveFile &f)
 	}
 }
 
+static constexpr int BLOCK_MULTIPLIER = 985;
+static constexpr int BLOCK_MULTIPLIER_DIAG = 1393;
 
-// check the cell's passability taking into account current weapon settings
-static bool CheckCell(const FieldCell &cell, bool hasWeapon)
+// neighbor nodes check order
+//    4 | 0 | 6
+//   ---+---+---
+//    2 | n | 3
+//   ---+---+---
+//    7 | 1 | 5
+//                                 0  1  2  3  4  5  6  7
+static constexpr int per_x[8] = {  1, 1, 0,-1,-1,-1, 0, 1 };  // node x offset
+static constexpr int per_y[8] = {  0, 1, 1, 1, 0,-1,-1,-1 };  // node y offset
+static constexpr int dist[8] = { // relative path cost
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG,
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG,
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG,
+	BLOCK_MULTIPLIER, BLOCK_MULTIPLIER_DIAG };
+static constexpr int turn_cost[8] = {
+	0, // no turn
+	BLOCK_MULTIPLIER / 5, // 45 degrees
+	BLOCK_MULTIPLIER, // 90 degrees
+	BLOCK_MULTIPLIER*2, // 135
+	BLOCK_MULTIPLIER*3, // 180
+	BLOCK_MULTIPLIER*2, // 135
+	BLOCK_MULTIPLIER, // 90 degrees
+	BLOCK_MULTIPLIER / 5 // 45 degrees
+};
+
+// upper bound of Euclidean distance
+static int EstimatePathLength(RefFieldCell begin, RefFieldCell end)
 {
-	return (0xFF != cell.Properties() && hasWeapon) || (0 == cell.Properties() && !hasWeapon);
+	int dx = std::abs(end.x - begin.x);
+	int dy = std::abs(end.y - begin.y);
+	return std::max(dx, dy) * BLOCK_MULTIPLIER + std::min(dx, dy) * (BLOCK_MULTIPLIER_DIAG - BLOCK_MULTIPLIER);
 }
 
-static float EstimatePathLength(RefFieldCell begin, RefFieldCell end)
+float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
 {
-	int dx = abs(end.x - begin.x);
-	int dy = abs(end.y - begin.y);
-	return (float)std::max(dx, dy) + (float)std::min(dx, dy) * 0.4142f;
-}
+	int maxRelativeDepth = int(max_depth * (float)BLOCK_MULTIPLIER);
 
-float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, float max_depth, bool bTest, const AIWEAPSETTINGS *ws)
-{
 	if (!PtInFRect(world.GetBounds(), to))
 	{
 		return -1;
@@ -73,102 +97,74 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 	Field::NewSession();
 	Field &field = *world._field;
 
-	std::priority_queue<RefFieldCell, std::vector<RefFieldCell>, FieldCellCompare> open(field);
+	struct OpenListNode
+	{
+		RefFieldCell cellRef;
+		int totalEstimate;
+
+		bool operator<(OpenListNode other) const
+		{
+			return totalEstimate > other.totalEstimate;
+		}
+	};
+	struct OpenList : public std::priority_queue<OpenListNode>
+	{
+		void clear() { c.clear(); }
+	};
+	static OpenList open;
+	open.clear();
 
 	RefFieldCell startRef = { (int)std::floor(from.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(from.y / WORLD_BLOCK_SIZE + 0.5f) };
 	RefFieldCell endRef = { (int)std::floor(to.x / WORLD_BLOCK_SIZE + 0.5f), (int)std::floor(to.y / WORLD_BLOCK_SIZE + 0.5f) };
 
 	FieldCell &start = field(startRef.x, startRef.y);
 
-	if( !CheckCell(start, !!ws) )
+	// if have weapon can pass through walls, turrets, etc. but now concrete or water
+	const uint8_t passabilityMask = ~(ws ? 1u : 0u);
+
+	if( start.ObstacleFlags() & passabilityMask )
 		return -1;
 
 	start.Check();
 	start._before = 0;
-	start._total = EstimatePathLength(startRef, endRef);
-	start._stepX = 0;
-	start._stepY = 0;
+	start._prev = int(dir.Angle() / PI2 * 8 + 0.5f) & 7;
 
-	open.push(startRef);
-
+	open.push({ startRef, EstimatePathLength(startRef, endRef) });
 	while( !open.empty() )
 	{
-		RefFieldCell currentRef = open.top();
+		OpenListNode currentNode = open.top();
+		if (currentNode.cellRef == endRef)
+			break; // guaranteed to be optimal when taken from the top of priority queue
 		open.pop();
 
-		FieldCell &cn = field(currentRef.x, currentRef.y);
-
-
-		// neighbor nodes check order
-		//    4 | 0 | 6
-		//   ---+---+---
-		//    2 | n | 3
-		//   ---+---+---
-		//    7 | 1 | 5
-		//                             0  1  2  3  4  5  6  7
-		static const int per_x[8] = {  0, 0,-1, 1,-1, 1, 1,-1 };  // node x offset
-		static const int per_y[8] = { -1, 1, 0, 0,-1, 1,-1, 1 };  // node y offset
-		static const float dist [8] = {
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.4142f, 1.4142f, 1.4142f, 1.4142f };             // path cost
-
-		// for diagonal checks
-		//                           4     5     6     7
-//		static int check_diag[] = { 0,2,  1,3,  3,0,  2,1 };
+		FieldCell &current = field(currentNode.cellRef.x, currentNode.cellRef.y);
 
 		for( int i = 0; i < 8; ++i )
 		{
-/*			if( i > 3 ) // check diagonal passability
-			if( !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2  ]],
-			                     currentRef.y + per_y[check_diag[(i-4)*2  ]]), !!ws) ||
-			    !CheckCell(field(currentRef.x + per_x[check_diag[(i-4)*2+1]],
-			                     currentRef.y + per_y[check_diag[(i-4)*2+1]]), !!ws) )
-			{
-				continue;
-			}*/
-
-
-			RefFieldCell nextRef = { currentRef.x + per_x[i], currentRef.y + per_y[i] };
+			RefFieldCell nextRef = { currentNode.cellRef.x + per_x[i], currentNode.cellRef.y + per_y[i] };
 			FieldCell &next = field(nextRef.x, nextRef.y);
-			if( CheckCell(next, !!ws) )
+			auto nextObstacleFlags = next.ObstacleFlags();
+			if( 0 == (nextObstacleFlags & passabilityMask) )
 			{
-				// increase path cost when travel through the walls
-				float dist_mult = 1;
-				if( 1 == next.Properties() )
-					dist_mult = ws->fDistanceMultipler;
+				// increase path cost when travel through obstacles
+				int dist_mult = nextObstacleFlags ? ws->distanceMultipler : 1;
 
-				float before = cn.Before() + dist[i] * dist_mult;
+				// total cost to 'next' including penalty for turns
+				int nextBefore = current.Before() + dist[i] * dist_mult + turn_cost[(i - current._prev) & 7];
 
-				// penalty for turns
-				if (cn._stepX || cn._stepY) // TODO: use initial vehicle direction
+				// never visited or found a better path to node
+				if( !next.IsChecked() || nextBefore < next._before)
 				{
-					float stepSqr = float(cn._stepX*cn._stepX + cn._stepY*cn._stepY);
-					float c = float(cn._stepX * per_x[i] + cn._stepY * per_y[i]) / (dist[i] * std::sqrt(stepSqr));
-					if (c < 0.5f) // 0 is 90 deg. turn
-						before += 1;
-					else if (c < 0.9f) // 0.707 is 45 deg. turn
-						before += 0.2f;
-				}
-
-				if( !next.IsChecked() )
-				{
-					next._stepX = per_x[i];
-					next._stepY = per_y[i];
-					next._before = before;
-					next._total = before + EstimatePathLength(nextRef, endRef);
 					next.Check();
-					if( next.Total() < max_depth )
-						open.push(nextRef);
-				}
-				else if( next._before > before )
-				{
-					// Do not update _total as it would brake 'open' ordering. It only affects
-					// the node selection priority but eventually it will be handled anyway.
-					next._before = before;
-					next._stepX = per_x[i];
-					next._stepY = per_y[i];
-					if( next.Total() < max_depth )
-						open.push(nextRef);
+					next._before = nextBefore;
+					next._prev = i;
+
+					int nextTotal = nextBefore + EstimatePathLength(nextRef, endRef);
+					if (nextTotal < maxRelativeDepth)
+					{
+						// may add same cell ref with a different total
+						open.push({ nextRef, nextTotal });
+					}
 				}
 			}
 		}
@@ -176,31 +172,26 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 	if( field(endRef.x, endRef.y).IsChecked() )
 	{
-		float distance = field(endRef.x, endRef.y).Before();
+		float distance = (float)field(endRef.x, endRef.y).Before() / (float)BLOCK_MULTIPLIER;
 
 		if( !bTest )
 		{
 			ClearPath();
 
 			RefFieldCell currentRef = endRef;
-			FieldCell *current = &field(currentRef.x, currentRef.y);
+			const FieldCell *current = &field(currentRef.x, currentRef.y);
 
 			_path.push_back(to);
 
-			while( current->_stepX || current->_stepY )
+			while( currentRef != startRef )
 			{
 				// trace back
-				currentRef.x -= current->_stepX;
-				currentRef.y -= current->_stepY;
+				currentRef.x -= per_x[current->_prev];
+				currentRef.y -= per_y[current->_prev];
 				current = &field(currentRef.x, currentRef.y);
-
-				_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
-					assert(ws);
-					assert(current->Properties() > 0);
-
 					GC_RigidBodyStatic *object = current->GetObject(i);
 
 					if( team && !_attackFriendlyTurrets)
@@ -213,10 +204,15 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 					}
 					_attackList.push_front(object);
 				}
+
+				// skip first node, will use exact 'from' location instead
+				if( currentRef != startRef )
+					_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
 			}
 
-			std::reverse(begin(_path), end(_path));
+			_path.push_back(from);
 
+			std::reverse(begin(_path), end(_path));
 			assert(startRef == currentRef);
 		}
 
@@ -229,30 +225,32 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d to, int team, flo
 
 void DrivingAgent::SmoothPath()
 {
-//	if( _path.size() < 4 )
+	if( _path.size() < 4 )
 		return;
 
+	std::list<vec2d> path(_path.begin(), _path.end());
+
 	vec2d vn[4];
-	std::vector<vec2d>::iterator it[4], tmp;
+	std::list<vec2d>::iterator it[4], tmp;
 
 	// smooth angles
-	if( _path.size() > 4 )
+	if( path.size() > 4 )
 	{
-		it[1] = _path.begin();
+		it[1] = path.begin();
 		it[0] = it[1]++;
-		while( it[1] != _path.end() )
+		while( it[1] != path.end() )
 		{
 			vec2d new_node = (*it[0] + *it[1]) * 0.5f;
-			_path.insert(it[1], new_node);
-			if( it[0] != _path.begin() )
-				_path.erase(it[0]);
+			path.insert(it[1], new_node);
+			if( it[0] != path.begin() )
+				path.erase(it[0]);
 			it[0] = it[1]++;
 		}
 	}
 
 
 	// spline interpolation
-	tmp = _path.begin();
+	tmp = path.begin();
 	for( int i = 0; i < 4; ++i )
 	{
 		it[i] = tmp++;
@@ -266,7 +264,7 @@ void DrivingAgent::SmoothPath()
 		for( int i = 1; i < 4; ++i )
 		{
 			CatmullRom(vn[0], vn[1], vn[2], vn[3], new_node, (float) i / 4.0f);
-			_path.insert(it[2], new_node);
+			path.insert(it[2], new_node);
 		}
 
 		for( int i = 0; i < 3; ++i )
@@ -275,11 +273,13 @@ void DrivingAgent::SmoothPath()
 			vn[i] = vn[i+1];
 		}
 
-		if( ++it[3] == _path.end() )
+		if( ++it[3] == path.end() )
 			break;
 
 		vn[3] = *it[3];
 	}
+
+	_path.assign(path.begin(), path.end());
 }
 
 // returns:

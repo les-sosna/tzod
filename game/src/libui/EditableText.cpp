@@ -102,11 +102,16 @@ int EditableText::GetSelMax() const
 	return std::max(GetSelStart(), GetSelEnd());
 }
 
+float EditableText::GetCursorWidth(TextureManager &texman, float scale) const
+{
+	return ToPx(texman.GetFrameWidth(_cursor.GetTextureId(texman), 0), scale);
+}
+
 FRECT EditableText::GetCursorRect(TextureManager &texman, const LayoutContext &lc) const
 {
 	size_t font = _font.GetTextureId(texman);
 	float pxCharWidth = ToPx(texman.GetCharWidth(font), lc);
-	return MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ ToPx(texman.GetFrameWidth(_cursor.GetTextureId(texman), 0), lc), lc.GetPixelSize().y });
+	return MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ GetCursorWidth(texman, lc.GetScale()), lc.GetPixelSize().y });
 }
 
 FRECT EditableText::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
@@ -326,5 +331,6 @@ std::string EditableText::OnCut()
 
 vec2d EditableText::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	return ToPx(vec2d{ texman.GetCharWidth(_font.GetTextureId(texman)) * GetTextLength() + 20, texman.GetCharHeight(_font.GetTextureId(texman)) }, scale);
+	vec2d pxActualTextSize = ToPx(vec2d{ texman.GetCharWidth(_font.GetTextureId(texman)) * GetTextLength(), texman.GetCharHeight(_font.GetTextureId(texman)) }, scale);
+	return pxActualTextSize + vec2d{ GetCursorWidth(texman, scale), 0 };
 }

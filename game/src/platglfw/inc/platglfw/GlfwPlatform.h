@@ -9,6 +9,7 @@ class GlfwInput final
 {
 public:
 	GlfwInput(GLFWwindow &window);
+	void SetMousePresent(bool mousePresent) { _mousePresent = mousePresent; }
 
 	// Plat::Input
 	bool IsKeyPressed(Plat::Key key) const override;
@@ -18,6 +19,7 @@ public:
 
 private:
 	GLFWwindow &_window;
+	bool _mousePresent = false;
 };
 
 class GlfwClipboard final

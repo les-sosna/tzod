@@ -5,8 +5,8 @@
 #include <MapFile.h>
 
 PropertySet::PropertySet(GC_Object *object)
-  : _object(*object)
-  , _propName(ObjectProperty::TYPE_STRING, "name")
+	: _object(*object)
+	, _propName(ObjectProperty::TYPE_STRING, "name")
 {
 }
 
@@ -33,13 +33,13 @@ void PropertySet::MyExchange(World &world, bool applyToObject)
 		}
 		else
 		{
-			GetObject()->SetName(world, newName);
+			GetObject()->SetName(world, std::string(newName));
 		}
 	}
 	else
 	{
-		const char *name = GetObject()->GetName(world);
-		_propName.SetStringValue(name ? name : "");
+		auto name = GetObject()->GetName(world);
+		_propName.SetStringValue(std::string(name));
 	}
 }
 
@@ -54,19 +54,14 @@ void PropertySet::Exchange(World &world, bool applyToObject)
 ObjectList::id_type GC_Object::Register(World &world)
 {
 	assert(ObjectList::id_type() == _posLIST_objects);
-    _posLIST_objects = world.GetList(LIST_objects).insert(this);
-    return _posLIST_objects;
+	_posLIST_objects = world.GetList(LIST_objects).insert(this);
+	return _posLIST_objects;
 }
 void GC_Object::Unregister(World &world, ObjectList::id_type pos)
 {
-    world.GetList(LIST_objects).erase(pos);
+	world.GetList(LIST_objects).erase(pos);
 }
 
-
-GC_Object::GC_Object()
-  : _flags(0)
-{
-}
 
 GC_Object::~GC_Object()
 {
@@ -75,8 +70,8 @@ GC_Object::~GC_Object()
 void GC_Object::Kill(World &world)
 {
 	world.OnKill(*this);
-	SetName(world, std::string_view());
-    Unregister(world, _posLIST_objects);
+	SetName(world, {});
+	Unregister(world, _posLIST_objects);
 	delete this;
 }
 
@@ -86,76 +81,54 @@ void GC_Object::Serialize(World &world, SaveFile &f)
 
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
+		std::string name;
 		if( f.loading() )
 		{
-			std::string name;
 			f.Serialize(name);
-
-			assert( 0 == world._objectToStringMap.count(this) );
-			assert( 0 == world._nameToObjectMap.count(name) );
-			world._objectToStringMap[this] = name;
-			world._nameToObjectMap[name] = this;
+			if (name.empty())
+				throw std::runtime_error("empty object name");
+			auto itb = world._nameToObjectMap.emplace(std::move(name), this);
+			if (!itb.second)
+				throw std::runtime_error("duplicate object name");
+			world._objectToStringMap.emplace(this, itb.first->first);
 		}
 		else
 		{
-			std::string name = GetName(world);
+			name = GetName(world);
 			f.Serialize(name);
 		}
 	}
 }
 
-const char* GC_Object::GetName(World &world) const
+std::string_view GC_Object::GetName(World &world) const
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		assert( world._objectToStringMap.count(this) );
-		return world._objectToStringMap[this].c_str();
+		assert(world._objectToStringMap.count(this));
+		return world._objectToStringMap[this];
 	}
-	return nullptr;
+	return {};
 }
 
-void GC_Object::SetName(World &world, std::string_view name)
+void GC_Object::SetName(World &world, std::string name)
 {
 	if( CheckFlags(GC_FLAG_OBJECT_NAMED) )
 	{
-		//
-		// remove old name
-		//
-
-		assert(world._objectToStringMap.count(this));
-		auto &oldName = world._objectToStringMap[this];
-		assert(world._nameToObjectMap.count(oldName));
-		world._nameToObjectMap.erase(oldName);
-		world._objectToStringMap.erase(this); // this invalidates oldName ref
 		SetFlags(GC_FLAG_OBJECT_NAMED, false);
+		auto o2sIt = world._objectToStringMap.find(this);
+		auto n2oIt = world._nameToObjectMap.find(o2sIt->second);
+		world._nameToObjectMap.erase(n2oIt);
+		world._objectToStringMap.erase(o2sIt);
 	}
 
 	if( !name.empty() )
 	{
-		//
-		// set new name
-		//
-
-		assert( 0 == world._objectToStringMap.count(this) );
-		assert( 0 == world._nameToObjectMap.count(name) );
-
-		world._objectToStringMap[this] = name;
-		world._nameToObjectMap[std::string(name)] = this;
-
+		assert(!world._objectToStringMap.count(this));
+		assert(!world._nameToObjectMap.count(name));
+		auto itb = world._nameToObjectMap.emplace(std::move(name), this);
+		world._objectToStringMap.emplace(this, itb.first->first);
 		SetFlags(GC_FLAG_OBJECT_NAMED, true);
 	}
-}
-
-void GC_Object::Init(World &world)
-{
-}
-
-void GC_Object::Resume(World &world)
-{
-}
-
-void GC_Object::TimeStep(World &world, float dt)
-{
 }
 
 std::shared_ptr<PropertySet> GC_Object::GetProperties(World &world)

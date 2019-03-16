@@ -1,5 +1,6 @@
 #include "inc/fs/FileSystem.h"
 #include <cassert>
+#include <stdexcept>
 
 using namespace FS;
 

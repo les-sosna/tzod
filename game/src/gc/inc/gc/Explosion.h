@@ -1,12 +1,12 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 #include "WorldCfg.h"
 #include <map>
 
 class GC_Player;
 
-class GC_Explosion : public GC_Actor
+class GC_Explosion : public GC_MovingObject
 {
 public:
 	GC_Explosion(vec2d pos);

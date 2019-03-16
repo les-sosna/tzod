@@ -165,12 +165,12 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 	{
 		rs.hoverPath = *capturePath;
 	}
-	else
+	else if (rs.ic.GetPointerType(0) != Plat::PointerType::Unknown)
 	{
 		for (bool topMostPass : {true, false})
 		{
 			AreaSinkSearch search{ rs.texman, dc, topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, rs.ic.GetMousePos(), desktop.GetTopMost()))
+			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, rs.ic.GetPointerPos(0), desktop.GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;

@@ -3,6 +3,7 @@
 #include <fs/FileSystem.h>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
+#include <stdexcept>
 
 namespace
 {
