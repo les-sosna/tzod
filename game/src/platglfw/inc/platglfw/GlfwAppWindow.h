@@ -39,6 +39,10 @@ public:
 	static void PollEvents();
 
 	bool ShouldClose() const;
+	int _windowedTop = 0;
+	int _windowedLeft = 0;
+	int _windowedWidth = 0;
+	int _windowedHeight = 0;
 
 	// AppWindow
 	Plat::AppWindowInputSink* GetInputSink() const override { return _inputSink; }
