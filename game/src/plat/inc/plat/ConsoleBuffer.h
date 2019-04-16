@@ -25,7 +25,7 @@ class ConsoleBuffer
 		{
 		}
 
-		StreamHelper(StreamHelper &&other)
+		StreamHelper(StreamHelper &&other) noexcept
 			: m_con(other.m_con)
 			, m_severity(other.m_severity)
 			, m_buf(std::move(other.m_buf))
