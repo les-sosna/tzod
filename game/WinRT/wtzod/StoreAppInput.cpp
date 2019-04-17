@@ -30,8 +30,8 @@ Plat::PointerState StoreAppInput::GetPointerState(unsigned int index) const
 	Plat::PointerState pointerState = {};
 	if (index == 0)
 	{
-		Point pos = _coreWindow->PointerPosition;
-		float dpi = DisplayInformation::GetForCurrentView()->LogicalDpi;
+	Point pos = _coreWindow->PointerPosition; // this can seem to throw access denied exception
+	float dpi = DisplayInformation::GetForCurrentView()->LogicalDpi;
 		pointerState.position = vec2d{ DX::ConvertDipsToPixels(pos.X - _coreWindow->Bounds.Left, dpi),
 		                               DX::ConvertDipsToPixels(pos.Y - _coreWindow->Bounds.Top, dpi) };
 		pointerState.button1 = (_coreWindow->GetKeyState(VirtualKey::LeftButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
