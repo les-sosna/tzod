@@ -163,9 +163,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platfor
 {
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		if (GLFW_KEY_ENTER == platformKey && GLFW_PRESS == platformAction &&
-			(glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
-			 glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS))
+		if (!!(mods & GLFW_MOD_ALT) && GLFW_KEY_ENTER == platformKey && GLFW_PRESS == platformAction)
 		{
 			if (GLFWmonitor * monitor = glfwGetWindowMonitor(window) ? nullptr : GetCurrentMonitor(window))
 			{
@@ -173,6 +171,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platfor
 				glfwGetWindowPos(window, &self->_windowedLeft, &self->_windowedTop);
 				glfwSetWindowMonitor(window, monitor, 0, 0,
 					glfwGetVideoMode(monitor)->width, glfwGetVideoMode(monitor)->height, GLFW_DONT_CARE);
+				glfwSwapInterval(1);
 			}
 			else
 			{
