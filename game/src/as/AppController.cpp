@@ -70,8 +70,11 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, boo
 						ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(campaignGC->GetCampaignTier());
 						tierprogress.EnsureIndex(campaignGC->GetCampaignMap());
 						int currentRating = tierprogress.GetNum(campaignGC->GetCampaignMap()).GetInt();
-						tierprogress.SetNum(campaignGC->GetCampaignMap(), std::max(currentRating, gameplay->GetRating()));
-						outConfigChanged = true;
+						if (gameplay->GetRating() > currentRating)
+						{
+							tierprogress.SetNum(campaignGC->GetCampaignMap(), gameplay->GetRating());
+							outConfigChanged = true;
+						}
 					}
 				}
 			}

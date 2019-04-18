@@ -129,11 +129,59 @@ static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 	}
 }
 
+static GLFWmonitor* GetCurrentMonitor(GLFWwindow* window)
+{
+	GLFWmonitor* bestMonitor = glfwGetPrimaryMonitor();
+	int bestOverlap = 0;
+
+	int wx, wy, ww, wh;
+	glfwGetWindowPos(window, &wx, &wy);
+	glfwGetWindowSize(window, &ww, &wh);
+
+	int count = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	for (int i = 0; i < count; i++)
+	{
+		int mx, my;
+		glfwGetMonitorPos(monitors[i], &mx, &my);
+		const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
+
+		int overlap = std::max(0, std::min(wx + ww, mx + mode->width) - std::max(wx, mx)) *
+		              std::max(0, std::min(wy + wh, my + mode->height) - std::max(wy, my));
+
+		if (bestOverlap < overlap)
+		{
+			bestOverlap = overlap;
+			bestMonitor = monitors[i];
+		}
+	}
+
+	return bestMonitor;
+}
+
 static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platformAction, int mods)
 {
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		if (auto inputSink = self->GetInputSink())
+		if (GLFW_KEY_ENTER == platformKey && GLFW_PRESS == platformAction &&
+			(glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
+			 glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS))
+		{
+			if (GLFWmonitor * monitor = glfwGetWindowMonitor(window) ? nullptr : GetCurrentMonitor(window))
+			{
+				glfwGetWindowSize(window, &self->_windowedWidth, &self->_windowedHeight);
+				glfwGetWindowPos(window, &self->_windowedLeft, &self->_windowedTop);
+				glfwSetWindowMonitor(window, monitor, 0, 0,
+					glfwGetVideoMode(monitor)->width, glfwGetVideoMode(monitor)->height, GLFW_DONT_CARE);
+			}
+			else
+			{
+				glfwSetWindowMonitor(window, nullptr,
+					self->_windowedTop, self->_windowedLeft,
+					self->_windowedWidth, self->_windowedHeight, GLFW_DONT_CARE);
+			}
+		}
+		else if (auto inputSink = self->GetInputSink())
 		{
 			Plat::Key key = MapGlfwKeyCode(platformKey);
 			Plat::Msg action = (GLFW_RELEASE == platformAction) ? Plat::Msg::KeyReleased : Plat::Msg::KeyPressed;
