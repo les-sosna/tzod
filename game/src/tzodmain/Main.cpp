@@ -66,15 +66,14 @@ try
 	);
 
 	TzodView view(*fs, s_logger, app, appWindow);
-
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
-	while (!appWindow.ShouldClose())
-	{
-		GlfwAppWindow::PollEvents();
-		view.Step(timer.GetDt());
-	}
+	do {
+		view.GetAppWindowInputSink().OnRefresh(appWindow);
+		GlfwAppWindow::PollEvents(view.GetAppWindowInputSink());
+		view.Step(app, timer.GetDt());
+	} while (!appWindow.ShouldClose());
 
 	app.SaveConfig();
 

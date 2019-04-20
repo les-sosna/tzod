@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 
+static Plat::AppWindowInputSink* s_inputSink;
+
 unsigned int GlfwInitHelper::s_initCount = 0;
 
 GlfwInitHelper::GlfwInitHelper()
@@ -32,7 +34,7 @@ GlfwInitHelper::~GlfwInitHelper()
 	}
 }
 
-GlfwInitHelper::GlfwInitHelper(GlfwInitHelper &&other)
+GlfwInitHelper::GlfwInitHelper(GlfwInitHelper &&other) noexcept
 	: _isActive(true)
 {
 	assert(other._isActive);
@@ -62,70 +64,62 @@ static float GetLayoutScale(GLFWwindow *window)
 
 static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAction, int mods)
 {
+	assert(s_inputSink);
 	if( auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window) )
 	{
-		if (auto inputSink = self->GetInputSink())
+		Plat::Msg action = (GLFW_RELEASE == platformAction) ? Plat::Msg::PointerUp : Plat::Msg::PointerDown;
+		int buttons = 0;
+		switch (platformButton)
 		{
-			Plat::Msg action = (GLFW_RELEASE == platformAction) ? Plat::Msg::PointerUp : Plat::Msg::PointerDown;
-			int buttons = 0;
-			switch (platformButton)
-			{
-				case GLFW_MOUSE_BUTTON_LEFT:
-					buttons |= 0x01;
-					break;
-				case GLFW_MOUSE_BUTTON_RIGHT:
-					buttons |= 0x02;
-					break;
-				case GLFW_MOUSE_BUTTON_MIDDLE:
-					buttons |= 0x04;
-					break;
-				default:
-					return;
-			}
-			vec2d pxMousePos = GetCursorPosInPixels(window);
-			inputSink->OnPointer(Plat::PointerType::Mouse, action, pxMousePos, vec2d{} /*offset*/, buttons, 0 /*pointerID*/);
+			case GLFW_MOUSE_BUTTON_LEFT:
+				buttons |= 0x01;
+				break;
+			case GLFW_MOUSE_BUTTON_RIGHT:
+				buttons |= 0x02;
+				break;
+			case GLFW_MOUSE_BUTTON_MIDDLE:
+				buttons |= 0x04;
+				break;
+			default:
+				return;
 		}
+		vec2d pxMousePos = GetCursorPosInPixels(window);
+		s_inputSink->OnPointer(*self, Plat::PointerType::Mouse, action, pxMousePos, vec2d{} /*offset*/, buttons, 0 /*pointerID*/);
 	}
 }
 
 static void OnCursorEnter(GLFWwindow* window, int entered)
 {
+	assert(s_inputSink);
 	if (auto self = (GlfwAppWindow*)glfwGetWindowUserPointer(window))
 	{
-		if (auto inputSink = self->GetInputSink())
-		{
-			self->GetInput().SetMousePresent(!!entered);
-		}
+		self->GetInput().SetMousePresent(!!entered);
 	}
 }
 
 static void OnCursorPos(GLFWwindow *window, double xpos, double ypos)
 {
+	assert(s_inputSink);
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		if (auto inputSink = self->GetInputSink())
-		{
-			vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
-			inputSink->OnPointer(Plat::PointerType::Mouse, Plat::Msg::PointerMove, pxMousePos, vec2d{}/*offset*/, 0 /*buttons*/, 0 /*pointerID*/);
-		}
+		vec2d pxMousePos = GetCursorPosInPixels(window, xpos, ypos);
+		s_inputSink->OnPointer(*self, Plat::PointerType::Mouse, Plat::Msg::PointerMove, pxMousePos, vec2d{}/*offset*/, 0 /*buttons*/, 0 /*pointerID*/);
 	}
 }
 
 static void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
+	assert(s_inputSink);
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		if (auto inputSink = self->GetInputSink())
-		{
-			vec2d pxMousePos = GetCursorPosInPixels(window);
-			vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
-			auto msg = Plat::Msg::Scroll;
+		vec2d pxMousePos = GetCursorPosInPixels(window);
+		vec2d pxMouseOffset = GetCursorPosInPixels(window, xoffset, yoffset);
+		auto msg = Plat::Msg::Scroll;
 #ifdef __APPLE__
-			pxMouseOffset *= 10;
-			msg = Plat::Msg::ScrollPrecise;
+		pxMouseOffset *= 10;
+		msg = Plat::Msg::ScrollPrecise;
 #endif
-			inputSink->OnPointer(Plat::PointerType::Mouse, msg, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
-		}
+		s_inputSink->OnPointer(*self, Plat::PointerType::Mouse, msg, pxMousePos, pxMouseOffset, 0 /*buttons*/, 0 /*pointerID*/);
 	}
 }
 
@@ -161,6 +155,7 @@ static GLFWmonitor* GetCurrentMonitor(GLFWwindow* window)
 
 static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platformAction, int mods)
 {
+	assert(s_inputSink);
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
 		if (!!(mods & GLFW_MOD_ALT) && GLFW_KEY_ENTER == platformKey && GLFW_PRESS == platformAction)
@@ -180,37 +175,36 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platfor
 					self->_windowedWidth, self->_windowedHeight, GLFW_DONT_CARE);
 			}
 		}
-		else if (auto inputSink = self->GetInputSink())
+		else
 		{
 			Plat::Key key = MapGlfwKeyCode(platformKey);
 			Plat::Msg action = (GLFW_RELEASE == platformAction) ? Plat::Msg::KeyReleased : Plat::Msg::KeyPressed;
-			inputSink->OnKey(key, action);
+			s_inputSink->OnKey(*self, key, action);
 		}
 	}
 }
 
 static void OnChar(GLFWwindow *window, unsigned int codepoint)
 {
+	assert(s_inputSink);
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
 		if( codepoint < 57344 || codepoint > 63743 ) // ignore Private Use Area characters
 		{
-			if (auto inputSink = self->GetInputSink())
-			{
-				inputSink->OnChar(codepoint);
-			}
+			s_inputSink->OnChar(*self, codepoint);
 		}
 	}
 }
 
 static void OnRefresh(GLFWwindow *window)
 {
+	// Workaround: XAudio may spin message pump outside of the main loop during initialization
+	if (!s_inputSink)
+		return;
+
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		if (auto inputSink = self->GetInputSink())
-		{
-			inputSink->OnRefresh();
-		}
+		s_inputSink->OnRefresh(*self);
 	}
 }
 
@@ -272,6 +266,7 @@ GlfwInput& GlfwAppWindow::GetInput()
 
 IRender& GlfwAppWindow::GetRender()
 {
+	glfwMakeContextCurrent(_window.get());
 	return *_render;
 }
 
@@ -308,15 +303,11 @@ void GlfwAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 	}
 }
 
-void GlfwAppWindow::MakeCurrent()
-{
-	glfwMakeContextCurrent(_window.get());
-}
-
 void GlfwAppWindow::Present()
 {
 	assert(glfwGetCurrentContext() == _window.get());
 	glfwSwapBuffers(_window.get());
+	glFinish(); // prevent gpu queue growth to reduce input lag, only seems to help in full screen
 }
 
 bool GlfwAppWindow::ShouldClose() const
@@ -324,7 +315,10 @@ bool GlfwAppWindow::ShouldClose() const
 	return !!glfwWindowShouldClose(_window.get());
 }
 
-void GlfwAppWindow::PollEvents() // static
+void GlfwAppWindow::PollEvents(Plat::AppWindowInputSink& inputSink) // static
 {
+	assert(!s_inputSink);
+	s_inputSink = &inputSink;
 	glfwPollEvents();
+	s_inputSink = nullptr;
 }

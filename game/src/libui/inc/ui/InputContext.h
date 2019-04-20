@@ -35,7 +35,7 @@ enum class TextOperation
 class InputContext
 {
 public:
-	InputContext(Plat::Input &input);
+	explicit InputContext(Plat::Input &input);
 
 	void ReadInput();
 

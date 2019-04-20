@@ -16,7 +16,7 @@
 SoundView::SoundView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, AppState &appState)
 	: AppStateListener(appState)
 #ifdef _WIN32
-	, _soundRender(new SoundRenderXA2(logger))
+	, _soundRender(new SoundRenderXA2(logger)) // this may pump windows messages
 #else
 	, _soundRender(new SoundRenderOAL())
 #endif
