@@ -1,4 +1,4 @@
-#include <plat/Folders>
+#include <plat/Folders.h>
 
 std::string Plat::GetAppDataFolder()
 {
