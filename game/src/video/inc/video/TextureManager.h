@@ -32,8 +32,8 @@ public:
 	explicit TextureManager(IRender &render);
 	~TextureManager();
 
-	int LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions);
-	void UnloadAllTextures();
+	int LoadPackage(IRender& render, std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions);
+	void UnloadAllTextures(IRender& render) noexcept;
 
 	size_t FindSprite(std::string_view name) const;
 	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const { return _logicalTextures[texIndex].second->id; }
@@ -50,8 +50,6 @@ public:
 	float GetCharWidth(size_t fontTexture) const;
 
 private:
-	IRender &_render;
-
 	struct TexDesc
 	{
 		DEV_TEXTURE id;
@@ -65,9 +63,9 @@ private:
 	std::map<std::string, size_t, std::less<>> _mapName_to_Index;// index in _logicalTextures
 	std::vector<std::pair<LogicalTexture, std::list<TexDesc>::iterator>> _logicalTextures;
 
-	std::list<TexDesc>::iterator LoadTexture(const std::shared_ptr<Image> &image, bool magFilter);
+	std::list<TexDesc>::iterator LoadTexture(IRender& render, const std::shared_ptr<Image> &image, bool magFilter);
 
-	void CreateChecker(); // Create checker texture without name and with index=0
+	void CreateChecker(IRender& render); // Create checker texture without name and with index=0
 };
 
 std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>

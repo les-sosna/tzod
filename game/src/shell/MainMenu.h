@@ -31,6 +31,5 @@ public:
 	MainMenuDlg(LangCache &lang, MainMenuCommands commands);
 
 private:
-	LangCache &_lang;
 	MainMenuCommands _commands;
 };

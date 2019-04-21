@@ -369,7 +369,7 @@ void EditorWorldView::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc,
 
 void EditorWorldView::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
-	if (_capturedButton == button )
+	if (_capturedButton == button)
 	{
 		_capturedButton = 0;
 	}
@@ -583,7 +583,11 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 	}
 
 	// World cursor
-	if (ic.GetFocused())
+	bool pointerIsMoreRecent = ic.GetLastPointerTime() > ic.GetLastKeyTime();
+	bool activePointerInput = ic.GetHovered() && pointerIsMoreRecent;
+	bool activeKeyInput = ic.GetFocused() && !pointerIsMoreRecent;
+	bool insideMiddleMouseDrag = _capturedButton == 4;
+	if (!insideMiddleMouseDrag && (activeKeyInput || activePointerInput))
 	{
 		auto cursor = GetCursor();
 		auto cursorColor = SpriteColor{};

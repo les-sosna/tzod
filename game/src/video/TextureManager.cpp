@@ -43,27 +43,26 @@ const unsigned char CheckerImage::_bytes[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 TextureManager::TextureManager(IRender &render)
-    : _render(render)
 {
-	CreateChecker();
+	CreateChecker(render);
 }
 
 TextureManager::~TextureManager()
 {
-	UnloadAllTextures();
+	assert(_devTextures.empty());
 }
 
-void TextureManager::UnloadAllTextures()
+void TextureManager::UnloadAllTextures(IRender& render) noexcept
 {
 	for (auto &t: _devTextures)
-		_render.TexFree(t.id);
+		render.TexFree(t.id);
 	_devTextures.clear();
 	_mapImage_to_TexDescIter.clear();
 	_mapName_to_Index.clear();
 	_logicalTextures.clear();
 }
 
-std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const std::shared_ptr<Image> &image, bool magFilter)
+std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(IRender& render, const std::shared_ptr<Image> &image, bool magFilter)
 {
 	auto it = _mapImage_to_TexDescIter.find(image);
 	if( _mapImage_to_TexDescIter.end() != it )
@@ -73,7 +72,7 @@ std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const s
 	else
 	{
 		TexDesc td;
-		if( !_render.TexCreate(td.id, *image, magFilter) )
+		if( !render.TexCreate(td.id, *image, magFilter) )
 		{
 			throw std::runtime_error("error in render device");
 		}
@@ -89,7 +88,7 @@ std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(const s
 	}
 }
 
-void TextureManager::CreateChecker()
+void TextureManager::CreateChecker(IRender& render)
 {
 	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
 	assert(_mapName_to_Index.empty());
@@ -97,7 +96,7 @@ void TextureManager::CreateChecker()
 
 	TexDesc td;
 	CheckerImage c;
-	if( !_render.TexCreate(td.id, c, false) )
+	if( !render.TexCreate(td.id, c, false) )
 	{
 		TRACE("ERROR: error in render device");
 		assert(false);
@@ -281,14 +280,14 @@ ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, F
 	return result;
 }
 
-int TextureManager::LoadPackage(std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions)
+int TextureManager::LoadPackage(IRender& render, std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions)
 {
 	for (auto &item: definitions)
 	{
 		LogicalTexture &tex = std::get<2>(item);
 		if( !tex.uvFrames.empty() )
 		{
-			std::list<TexDesc>::iterator texDescIter = LoadTexture(std::get<0>(item), std::get<2>(item).magFilter);
+			std::list<TexDesc>::iterator texDescIter = LoadTexture(render, std::get<0>(item), std::get<2>(item).magFilter);
 			texDescIter->refCount++;
 
 			auto emplaced = _mapName_to_Index.emplace(std::get<1>(item), _logicalTextures.size());

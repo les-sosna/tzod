@@ -35,7 +35,7 @@ enum class TextOperation
 class InputContext
 {
 public:
-	InputContext(Plat::Input &input);
+	explicit InputContext(Plat::Input &input);
 
 	void ReadInput();
 
@@ -80,7 +80,8 @@ public:
 	void PushInputTransform(vec2d offset, bool focused, bool hovered);
 	void PopInputTransform();
 
-	vec2d GetMousePos() const;
+	Plat::PointerType GetPointerType(unsigned int index) const;
+	vec2d GetPointerPos(unsigned int index) const;
 	bool GetFocused() const;
 	bool GetHovered() const;
 	std::shared_ptr<Window> GetNavigationSubject(Navigate navigate) const;
@@ -101,7 +102,7 @@ private:
 
 	Plat::Input &_input;
 
-	Plat::PointerState _pointerState;
+	Plat::PointerState _pointerState = {};
 
 	struct InputStackFrame
 	{

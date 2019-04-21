@@ -100,10 +100,16 @@ DMCampaign& TzodApp::GetDMCampaign()
 
 void TzodApp::Step(float dt)
 {
-	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt);
+	bool configChanged = false;
+	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt, &configChanged);
+
+	if (configChanged)
+	{
+		SaveConfig();
+	}
 }
 
-void TzodApp::Exit()
+void TzodApp::SaveConfig()
 {
 	try
 	{

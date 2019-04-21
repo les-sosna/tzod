@@ -16,7 +16,7 @@ struct Sound
 
 struct SoundRender
 {
-	virtual std::unique_ptr<Sound> CreateLopped(SoundTemplate sound) = 0;
+	virtual std::unique_ptr<Sound> CreateLooped(SoundTemplate sound) = 0;
 	virtual void LoadBuffer(SoundTemplate st, const void *data, size_t size, FormatDesc format) = 0;
 	virtual void PlayOnce(SoundTemplate sound, vec2d pos) = 0;
 	virtual void SetListenerPos(vec2d pos) = 0;

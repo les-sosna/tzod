@@ -4,6 +4,7 @@ add_library(plat
 	inc/plat/AppWindow.h
 	inc/plat/Clipboard.h
 	inc/plat/ConsoleBuffer.h
+	inc/plat/Folders.h
 	inc/plat/Input.h
 	inc/plat/Keys.h
 

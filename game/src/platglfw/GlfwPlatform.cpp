@@ -37,8 +37,9 @@ bool GlfwInput::IsKeyPressed(Plat::Key key) const
 Plat::PointerState GlfwInput::GetPointerState(unsigned int index) const
 {
 	Plat::PointerState result = { Plat::PointerType::Unknown };
-	if (index == 0)
+	if (index == 0 && _mousePresent)
 	{
+		result.type = Plat::PointerType::Mouse;
 		result.button1 = GLFW_PRESS == glfwGetMouseButton(&_window, 0);
 		result.button2 = GLFW_PRESS == glfwGetMouseButton(&_window, 1);
 		result.button3 = GLFW_PRESS == glfwGetMouseButton(&_window, 2);

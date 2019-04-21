@@ -46,7 +46,8 @@ SoundHarness::~SoundHarness()
 
 static void SetupVehicleMoveSound(const GC_Vehicle &vehicle, Sound &sound)
 {
-	float v = vehicle._lv.len() / vehicle.GetMaxSpeed();
+	float maxSpeed = vehicle.GetMaxSpeed();
+	float v = maxSpeed > 0 ? vehicle._lv.len() / maxSpeed : 0.f;
 	sound.SetPitch(std::min(1.0f, 0.5f + 0.5f * v));
 	sound.SetVolume(std::min(1.0f, 0.1f + 0.9f * v));
 	sound.SetPos(vehicle.GetPos());
@@ -149,15 +150,6 @@ void SoundHarness::Step()
 	}
 }
 
-template <class F>
-static std::unique_ptr<Sound> CreatePlayingLooped(SoundRender &sr, SoundTemplate st, F &&setup)
-{
-	std::unique_ptr<Sound> sound = sr.CreateLopped(st);
-	setup(*sound);
-	sound->SetPlaying(true);
-	return sound;
-}
-
 void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 {
 	if (obj.GetIsDefaultItem())
@@ -178,20 +170,20 @@ void SoundHarness::OnAttach(GC_Pickup &obj, GC_Vehicle &vehicle)
 	{
 		if (vehicle.GetWeapon())
 		{
-			_attached.emplace(&obj, CreatePlayingLooped(_soundRender, SoundTemplate::B_Loop, [&](Sound &s){ s.SetPos(obj.GetPos()); }));
+			_attached.emplace(&obj, _soundRender.CreateLooped(SoundTemplate::B_Loop));
 			_soundRender.PlayOnce(SoundTemplate::B_Start, obj.GetPos());
 		}
 	}
 	else if (auto weapon = dynamic_cast<GC_Weapon*>(&obj))
 	{
 		_soundRender.PlayOnce(SoundTemplate::w_Pickup, obj.GetPos());
-		_weaponRotate.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::TowerRotate));
+		_weaponRotate.emplace(weapon, _soundRender.CreateLooped(SoundTemplate::TowerRotate));
 		if (GC_Weap_Minigun::GetTypeStatic() == type)
-			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::MinigunFire));
+			_weaponFire.emplace(weapon, _soundRender.CreateLooped(SoundTemplate::MinigunFire));
 		else if (GC_Weap_Zippo::GetTypeStatic() == type)
-			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::RamEngine));
+			_weaponFire.emplace(weapon, _soundRender.CreateLooped(SoundTemplate::RamEngine));
 		else if (GC_Weap_Ram::GetTypeStatic() == type)
-			_weaponFire.emplace(weapon, _soundRender.CreateLopped(SoundTemplate::RamEngine));
+			_weaponFire.emplace(weapon, _soundRender.CreateLooped(SoundTemplate::RamEngine));
 	}
 }
 
@@ -341,7 +333,7 @@ void SoundHarness::OnFireStateChange(GC_Turret &obj)
 	if (obj.GetFire())
 	{
 		if (GC_TurretMinigun::GetTypeStatic() == obj.GetType())
-			_turretFire.emplace(static_cast<const GC_Turret*>(&obj), _soundRender.CreateLopped(SoundTemplate::MinigunFire));
+			_turretFire.emplace(static_cast<const GC_Turret*>(&obj), _soundRender.CreateLooped(SoundTemplate::MinigunFire));
 	}
 	else
 	{
@@ -378,7 +370,7 @@ void SoundHarness::OnRotationStateChange(GC_Turret &turret)
 	else
 	{
 		if (turret.GetRotationState() != RS_STOPPED)
-			_turretRotate.emplace(&turret, _soundRender.CreateLopped(SoundTemplate::TowerRotate));
+			_turretRotate.emplace(&turret, _soundRender.CreateLooped(SoundTemplate::TowerRotate));
 	}
 }
 
@@ -410,11 +402,7 @@ void SoundHarness::OnNewObject(GC_Object &obj)
 	else if (GC_ExplosionStandard::GetTypeStatic() == type)
 		_soundRender.PlayOnce(SoundTemplate::BoomStandard, static_cast<const GC_MovingObject &>(obj).GetPos());
 	else if (GC_Rocket::GetTypeStatic() == type)
-		_attached.emplace(static_cast<const GC_MovingObject*>(&obj),
-			CreatePlayingLooped(_soundRender, SoundTemplate::RocketFly,
-								[&](Sound &s){ s.SetPos(static_cast<const GC_MovingObject &>(obj).GetPos()); }));
+		_attached.emplace(static_cast<const GC_MovingObject*>(&obj), _soundRender.CreateLooped(SoundTemplate::RocketFly));
 	else if (GC_Tank_Light::GetTypeStatic() == type)
-		_vehicleMove.emplace(static_cast<const GC_Vehicle*>(&obj),
-							 CreatePlayingLooped(_soundRender, SoundTemplate::TankMove,
-												 [&](Sound &s){ SetupVehicleMoveSound(static_cast<const GC_Vehicle &>(obj), s); }));
+		_vehicleMove.emplace(static_cast<const GC_Vehicle*>(&obj), _soundRender.CreateLooped(SoundTemplate::TankMove));
 }

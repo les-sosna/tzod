@@ -82,7 +82,7 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_ARRAY( con_history,         nullptr )
 
 	// user interface
-	VAR_FLOAT( ui_tile_size,      128.0f )
+	VAR_FLOAT( ui_tile_size,      256.0f )
 	VAR_FLOAT( ui_tile_spacing,    16.0f )
 	VAR_FLOAT( ui_foldtime,         0.25f )
 	VAR_FLOAT( ui_nav_spacing,    100.0f )

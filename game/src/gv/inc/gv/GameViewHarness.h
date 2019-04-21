@@ -38,11 +38,11 @@ public:
 private:
 	World &_world;
 	std::vector<Camera> _cameras;
-	int _pxWidth;
-	int _pxHeight;
-	float _scale;
+	int _pxWidth = 0;
+	int _pxHeight = 0;
+	float _scale = 1;
 
-	mutable const Camera *_maxShakeCamera;
+	mutable const Camera *_maxShakeCamera = nullptr;
 	const Camera& GetMaxShakeCamera() const;
 	bool IsSingleCamera() const;
 
