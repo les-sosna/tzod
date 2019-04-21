@@ -51,7 +51,7 @@ try
 	s_logger.SetLog(new ConsoleLog("log.txt"));
 	s_logger.Printf(0, "%s", TZOD_VERSION);
 
-	auto fs = std::make_shared<FileSystem>("data");
+	auto fs = std::make_shared<FileSystem>(Plat::GetBundleResourcesFolder())->GetFileSystem("data");
 	auto user = std::make_shared<FileSystem>(Plat::GetAppDataFolder())->GetFileSystem("Tank Zone of Death", true);
 	fs->Mount("user", user);
 

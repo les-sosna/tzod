@@ -7,3 +7,8 @@ std::string Plat::GetAppDataFolder()
 	NSString *applicationSupportDirectory = paths.firstObject;
 	return applicationSupportDirectory.UTF8String;
 }
+
+std::string Plat::GetBundleResourcesFolder()
+{
+	return NSBundle.mainBundle.resourcePath.UTF8String;
+}
