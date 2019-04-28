@@ -33,6 +33,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( editor_map_settings, "Map settings" )
 
 	VAR_STR( settings_btn, "SETTINGS" )
+	VAR_STR( quit_btn, "QUIT")
 
 	VAR_STR( get_file_name_title, "File name" )
 	VAR_STR( get_file_name_save_game, "Save Game" )

@@ -8,13 +8,13 @@ class TzodApp;
 class SoundView;
 namespace Plat
 {
-	struct AppWindow;
+	struct AppWindowCommandClose;
 	class ConsoleBuffer;
 }
 
 struct TzodViewImpl
 {
-	TzodViewImpl(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, Plat::Input& input, IRender& render, TzodApp& app);
+	TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose *cmdClose, Plat::ConsoleBuffer &logger, Plat::Input& input, IRender& render, TzodApp& app);
 	~TzodViewImpl();
 
 	TextureManager textureManager;

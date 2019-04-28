@@ -22,6 +22,7 @@
 #include <gc/World.h>
 #include <fs/FileSystem.h>
 #include <loc/Language.h>
+#include <plat/AppWindow.h>
 #include <plat/Input.h>
 #include <plat/Keys.h>
 #include <ui/Button.h>
@@ -54,7 +55,8 @@ Desktop::Desktop(UI::TimeStepManager &manager,
                  ShellConfig &conf,
                  LangCache &lang,
                  DMCampaign &dmCampaign,
-                 Plat::ConsoleBuffer &logger)
+                 Plat::ConsoleBuffer &logger,
+                 Plat::AppWindowCommandClose* cmdClose)
 	: Managerful(manager)
 	, AppStateListener(appState)
 	, _history(conf)
@@ -66,6 +68,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	, _lang(lang)
 	, _dmCampaign(dmCampaign)
 	, _logger(logger)
+	, _cmdCloseAppWindow(cmdClose)
 	, _renderScheme(texman)
 	, _worldView(texman, _renderScheme)
 	, _mapCollection(*fs.GetFileSystem(DIR_MAPS))
@@ -376,13 +379,17 @@ void Desktop::ShowMainMenu()
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
-	commands.close = [=]()
+	commands.close = [=]
 	{
 		if (GetAppState().GetGameContext()) // do not return to nothing
 		{
 			NavigateHome();
 		}
 	};
+	if (_cmdCloseAppWindow)
+	{
+		commands.quitGame = [=] { _cmdCloseAppWindow->RequestClose(); };
+	}
 	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_lang, std::move(commands)));
 	UpdateFocus();
 }

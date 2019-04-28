@@ -31,6 +31,7 @@ private:
 
 class GlfwAppWindow final
 	: public Plat::AppWindow
+	, private Plat::AppWindowCommandClose
 {
 public:
 	GlfwAppWindow(const char *title, bool fullscreen, int width, int height);
@@ -54,6 +55,10 @@ public:
 	void SetCanNavigateBack(bool canNavigateBack) override;
 	void SetMouseCursor(Plat::MouseCursor mouseCursor) override;
 	void Present() override;
+	Plat::AppWindowCommandClose* CmdClose() override { return this; }
+
+	// AppWindowCommandClose
+	void RequestClose() override;
 
 private:
 	GlfwInitHelper _initHelper;

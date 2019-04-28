@@ -44,5 +44,15 @@ MainMenuDlg::MainMenuDlg(LangCache &lang,
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.gameSettings;
 	AddFront(button);
+
+	if (_commands.quitGame)
+	{
+		button = std::make_shared<UI::Button>();
+		button->SetFont("font_default");
+		button->SetText(ConfBind(lang.quit_btn));
+		button->Resize(c_buttonWidth, c_buttonHeight);
+		button->eventClick = _commands.quitGame;
+		AddFront(button);
+	}
 }
 

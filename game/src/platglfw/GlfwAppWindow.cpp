@@ -315,6 +315,11 @@ bool GlfwAppWindow::ShouldClose() const
 	return !!glfwWindowShouldClose(_window.get());
 }
 
+void GlfwAppWindow::RequestClose()
+{
+	glfwSetWindowShouldClose(_window.get(), 1);
+}
+
 void GlfwAppWindow::PollEvents(Plat::AppWindowInputSink& inputSink) // static
 {
 	assert(!s_inputSink);

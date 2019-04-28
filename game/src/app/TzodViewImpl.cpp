@@ -21,7 +21,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer
 	return textureManager;
 }
 
-TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, Plat::Input &input, IRender& render, TzodApp &app)
+TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose* cmdClose, Plat::ConsoleBuffer &logger, Plat::Input &input, IRender& render, TzodApp &app)
 	: textureManager(InitTextureManager(fs, logger, render))
 	, timeStepManager()
 	, desktop(std::make_shared<Desktop>(
@@ -34,7 +34,8 @@ TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, Plat
 		app.GetShellConfig(),
 		app.GetLang(),
 		app.GetDMCampaign(),
-		logger))
+		logger,
+		cmdClose))
 	, uiInputRenderingController(input, textureManager, timeStepManager, desktop)
 #ifndef NOSOUND
 	, soundView(app.GetShellConfig().s_enabled.Get() ? std::make_unique<SoundView>(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState()) : nullptr)
