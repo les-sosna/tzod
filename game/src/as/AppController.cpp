@@ -60,7 +60,7 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, boo
 
 		if (auto gameplay = gc->GetGameplay())
 		{
-			if (gameplay->IsGameOver())
+			if (gameplay->GetGameOverTime() <= gc->GetWorld().GetTime())
 			{
 				if (auto campaignGC = dynamic_cast<GameContextCampaignDM*>(gc))
 				{

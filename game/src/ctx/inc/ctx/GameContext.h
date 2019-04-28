@@ -47,6 +47,7 @@ public:
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }
 	ScriptMessageSource& GetScriptMessageSource() { return _scriptMessageBroadcaster; }
 	AIManager& GetAIManager() { return *_aiManager; }
+	float GetGameplayTime() const { return _gameplayTime; }
 
 	void Serialize(FS::Stream &stream);
 	void Deserialize(FS::Stream &stream);
@@ -55,7 +56,7 @@ public:
 	World& GetWorld() override { return *_world; }
 	Gameplay* GetGameplay() override;
 	void Step(float dt) override;
-	bool IsActive() const override;
+	bool IsWorldActive() const override;
 
 private:
 	GameEventsBroadcaster _gameEventsBroadcaster;
@@ -65,6 +66,7 @@ private:
 	std::unique_ptr<Gameplay> _gameplay;
 	std::unique_ptr<ScriptHarness> _scriptHarness;
 	std::unique_ptr<AIManager> _aiManager;
+	float _gameplayTime = 0;
 };
 
 class GameContextCampaignDM final

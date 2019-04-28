@@ -60,6 +60,8 @@ public:
 private:
 	vec2d GetDragDirection() const;
 	unsigned int GetEffectiveDragCount() const;
+	float GetLastPlayerDieTime() const;
+	bool GetAllPlayerDead() const;
 
 	std::shared_ptr<MessageArea> _msg;
 	std::shared_ptr<UI::StackLayout> _scoreAndControls;

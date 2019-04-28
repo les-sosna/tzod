@@ -204,24 +204,48 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 	return count;
 }
 
-void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
+bool GameLayout::GetAllPlayerDead() const
 {
-	bool tab = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
-	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
-	float lastDieTime = 0;
+	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
+		allDead &= (player->GetNumDeaths() > 0 && !player->GetVehicle());
+	return allDead;
+}
+
+float GameLayout::GetLastPlayerDieTime() const
+{
+	float lastDieTime = FLT_MAX;
 	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
 	{
-		allDead &= !player->GetVehicle();
-		lastDieTime = std::max(lastDieTime, player->GetDieTime());
+		if (player->GetNumDeaths() > 0)
+		{
+			if (lastDieTime == FLT_MAX)
+				lastDieTime = 0;
+			lastDieTime = std::max(lastDieTime, player->GetDieTime());
+		}
 	}
-	float time = _gameContext->GetWorld().GetTime();
+	return lastDieTime;
+}
+
+void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
+{
+	float gameplayTime = _gameContext->GetGameplayTime();
+	float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
+	float lastDieTime = GetLastPlayerDieTime();
+
 	constexpr float showScoreDelay = 0.3f;
-	_score->SetVisible(tab || gameOver || (allDead && time > PLAYER_RESPAWN_DELAY && time > lastDieTime + showScoreDelay));
+	constexpr float showRatingDelay = 1.0f;
+	constexpr float showControlsDelay = 2.0f;
+
+	bool showScoreWhenDead = lastDieTime <= gameplayTime - showScoreDelay && GetAllPlayerDead();
+	bool showScoreWhenGameOver = gameOverTime <= gameplayTime - showScoreDelay;
+	bool showScoreWhenTabPressed = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
+
+	_score->SetVisible(showScoreWhenTabPressed || showScoreWhenDead || showScoreWhenGameOver);
 	if (_campaignControls)
-		_campaignControls->SetVisible(gameOver);
+		_campaignControls->SetVisible(gameOverTime <= gameplayTime - showControlsDelay);
 	if (_rating)
-		_rating->SetVisible(gameOver);
+		_rating->SetVisible(gameOverTime <= gameplayTime - showRatingDelay);
 
 	_gameViewHarness.Step(dt);
 

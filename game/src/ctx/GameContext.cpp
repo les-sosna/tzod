@@ -62,7 +62,8 @@ Gameplay* GameContext::GetGameplay()
 
 void GameContext::Step(float dt)
 {
-	if (IsActive())
+	_gameplayTime += dt;
+	if (IsWorldActive())
 	{
 		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
 		_world->Step(dt);
@@ -70,9 +71,9 @@ void GameContext::Step(float dt)
 	}
 }
 
-bool GameContext::IsActive() const
+bool GameContext::IsWorldActive() const
 {
-	bool isActive = !_gameplay->IsGameOver();
+	bool isActive = _world->GetTime() < _gameplay->GetGameOverTime();
 
 	if (isActive)
 	{
