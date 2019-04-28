@@ -174,7 +174,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platfor
 			else
 			{
 				glfwSetWindowMonitor(window, nullptr,
-					self->_windowedTop, self->_windowedLeft,
+					self->_windowedLeft, self->_windowedTop,
 					self->_windowedWidth, self->_windowedHeight, GLFW_DONT_CARE);
 			}
 		}
