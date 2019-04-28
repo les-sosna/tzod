@@ -459,6 +459,12 @@ static Navigate GetNavigateAction(Plat::Key key, bool alt, bool shift)
 	}
 }
 
+static bool AllowNonActiveNavigation(Navigate navigate)
+{
+	return navigate == Navigate::Back ||
+		navigate == Navigate::Menu;
+}
+
 bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time)
 {
 	bool currentlyActiveInputMethod = _lastKeyTime > _lastPointerTime;
@@ -470,6 +476,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 
 	bool handled = false;
 
+	// raw key events
 	switch (msg)
 	{
 	case Plat::Msg::KeyReleased:
@@ -501,7 +508,8 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		assert(false);
 	}
 
-	if (currentlyActiveInputMethod && !handled)
+	// navigation
+	if (!handled)
 	{
 		bool alt = GetInput().IsKeyPressed(Plat::Key::LeftAlt) || GetInput().IsKeyPressed(Plat::Key::RightAlt);
 		bool shift = GetInput().IsKeyPressed(Plat::Key::LeftShift) || GetInput().IsKeyPressed(Plat::Key::RightShift);
@@ -519,7 +527,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 				handled = true;
 			}
 		}
-		else
+		else if (currentlyActiveInputMethod || AllowNonActiveNavigation(navigate))
 		{
 			auto handledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, navigate, NavigationPhase::Started);
 			handled = !!handledBy;
