@@ -226,7 +226,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( action_tower_left, "Turn weapon left" )
 	VAR_STR( action_tower_right, "Turn weapon right" )
 	VAR_STR( action_tower_center, "Center weapon" )
-	VAR_STR( action_no_pickup, "Do not pickup" )
+	VAR_STR( action_pickup, "Pickup item" )
 
 
 	//

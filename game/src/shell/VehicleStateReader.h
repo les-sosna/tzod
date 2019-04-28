@@ -26,24 +26,24 @@ public:
 	float GetRemainingFireTime() const { return _tapFireTime; }
 
 private:
-	float _tapFireTime;
-	vec2d _tapFireTarget;
+	float _tapFireTime{};
+	vec2d _tapFireTarget{};
 
 	// cached values from the profile
-	Plat::Key _keyForward;
-	Plat::Key _keyBack;
-	Plat::Key _keyLeft;
-	Plat::Key _keyRight;
-	Plat::Key _keyFire;
-	Plat::Key _keyLight;
-	Plat::Key _keyTowerLeft;
-	Plat::Key _keyTowerRight;
-	Plat::Key _keyTowerCenter;
-	Plat::Key _keyNoPickup;
-	int _gamepad;
-	bool _aimToMouse;
-	bool _moveToMouse;
-	bool _arcadeStyle;
+	Plat::Key _keyForward{};
+	Plat::Key _keyBack{};
+	Plat::Key _keyLeft{};
+	Plat::Key _keyRight{};
+	Plat::Key _keyFire{};
+	Plat::Key _keyLight{};
+	Plat::Key _keyTowerLeft{};
+	Plat::Key _keyTowerRight{};
+	Plat::Key _keyTowerCenter{};
+	Plat::Key _keyPickup{};
+	int _gamepad = -1;
+	bool _aimToMouse = false;
+	bool _moveToMouse = false;
+	bool _arcadeStyle = false;
 
 	// controller state
 	bool _lastLightKeyState;
