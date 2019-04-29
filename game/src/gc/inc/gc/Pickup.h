@@ -78,6 +78,7 @@ public:
 
 	// if 0 then item considered useless and will not be taken
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const { return AIP_NORMAL; }
+	virtual bool ShouldPickup(const GC_Vehicle& veh) const { return true; }
 
 	virtual void Detach(World &world);
 	virtual void Disappear(World &world);

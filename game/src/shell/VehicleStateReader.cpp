@@ -60,8 +60,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	//
 	// pickup
 	//
-	vs.pickup = !vehicle.GetWeapon()
-		|| input.IsKeyPressed(_keyPickup)
+	vs.pickup = input.IsKeyPressed(_keyPickup)
 		|| (input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack))
 		|| (input.IsKeyPressed(_keyLeft) && input.IsKeyPressed(_keyRight));
 

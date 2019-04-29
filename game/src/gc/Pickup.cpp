@@ -456,7 +456,7 @@ void GC_pu_Shock::TimeStep(World &world, float dt)
 					}
 					else
 					{
-						_vehicle->TakeDamage(world, DamageDesc{ 1000, _vehicle->GetPos(), _vehicle->GetOwner() });
+						// _vehicle->TakeDamage(world, DamageDesc{ 1000, _vehicle->GetPos(), _vehicle->GetOwner() });
 						Disappear(world);
 					}
 				}
