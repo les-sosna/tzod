@@ -29,12 +29,15 @@ struct PlayerDesc
 	unsigned int team;
 };
 
+enum class AIDiffuculty;
+
 struct DMSettings
 {
 	std::vector<PlayerDesc> players;
 	std::vector<PlayerDesc> bots;
-	int fragLimit = 0;
-	float timeLimit = 0;
+	AIDiffuculty difficulty{};
+	int fragLimit{};
+	float timeLimit{};
 };
 
 

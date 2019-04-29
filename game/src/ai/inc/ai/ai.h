@@ -27,6 +27,13 @@ struct AIITEMINFO
 	AIPRIORITY priority;
 };
 
+enum class AIDiffuculty
+{
+	Easy,
+	Medium,
+	Hard
+};
+
 class AIController final
 {
 public:
@@ -39,8 +46,8 @@ public:
 	void OnRespawn(World &world, const GC_Vehicle &vehicle);
 	void OnDie();
 
-	void SetLevel(int level);
-	int  GetLevel() const { return _difficulty; }
+	void SetDifficulty(AIDiffuculty diffuculty);
+	AIDiffuculty GetDiffuculty() const { return _difficulty; }
 
 	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);
 	bool Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
@@ -97,6 +104,6 @@ private:
 	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
 	ObjectType _favoriteWeaponType;
-	int _difficulty;
+	AIDiffuculty _difficulty;
 	bool _isActive;
 };

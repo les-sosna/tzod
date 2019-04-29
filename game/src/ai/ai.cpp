@@ -16,7 +16,7 @@ AIController::AIController()
   : _drivingAgent(new DrivingAgent())
   , _shootingAgent(new ShootingAgent())
   , _favoriteWeaponType(INVALID_OBJECT_TYPE)
-  , _difficulty(2)
+  , _difficulty(AIDiffuculty::Medium)
   , _isActive(true)
 {
 	SetL2(L2_PATH_SELECT);
@@ -62,7 +62,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		}
 	}
 
-	AIWEAPSETTINGS weapSettings;
+	AIWEAPSETTINGS weapSettings{};
 	if( vehicle.GetWeapon() )
 		vehicle.GetWeapon()->SetupAI(&weapSettings);
 
@@ -115,16 +115,15 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	// headlight control
 	switch( _difficulty )
 	{
-	case 0:
-	case 1:
+	case AIDiffuculty::Easy:
 		outVehicleState.light = true;
 		break;
-	case 2:
-	case 3:
+	case AIDiffuculty::Medium:
 		outVehicleState.light = (nullptr != _target);
 		break;
-	default:
+	case AIDiffuculty::Hard:
 		outVehicleState.light = false;
+		break;
 	}
 }
 
@@ -414,10 +413,11 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 	}
 }
 
-void AIController::SetLevel(int level)
+void AIController::SetDifficulty(AIDiffuculty diffuculty)
 {
-	_difficulty = level;
-	_drivingAgent->SetAttackFriendlyTurrets(level == 0); // be totally stupid
+	_difficulty = diffuculty;
+	_drivingAgent->SetAttackFriendlyTurrets(diffuculty == AIDiffuculty::Easy); // be totally stupid
+	_shootingAgent->SetAccuracy((int)diffuculty);
 }
 
 bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float y)

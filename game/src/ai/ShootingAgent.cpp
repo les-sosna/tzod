@@ -46,13 +46,13 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 		{
 			_currentOffset = _desiredOffset;
 
-			static float d_array[5] = { 0.186f, 0.132f, 0.09f, 0.05f, 0.00f };
+			static float d_array[5] = { 0.5f, 0.25f, 0.00f };
 
 			float d = d_array[_accuracy];
 
-			if (_accuracy > 2)
+			if (_accuracy > 0)
 			{
-				d = d_array[_accuracy] * fabs(targetAsVehicle->_lv.len()) / targetAsVehicle->GetMaxSpeed();
+				d = d_array[_accuracy] * (fabs(targetAsVehicle->_lv.len()) / targetAsVehicle->GetMaxSpeed() / 2 + 0.5f);
 			}
 
 			_desiredOffset = (d > 0) ? (world.net_frand(d) - d * 0.5f) : 0;
@@ -73,7 +73,7 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 	myVehicle.GetWeapon()->SetupAI(&weapSettings);
 
 	vec2d fake = target.GetPos();
-	if (weapSettings.bNeedOutstrip && _accuracy > 1 && targetAsVehicle)
+	if (weapSettings.bNeedOutstrip && _accuracy > 0 && targetAsVehicle)
 	{
 		world.CalcOutstrip(myVehicle.GetPos(), weapSettings.fProjectileSpeed, targetAsVehicle->GetPos(), targetAsVehicle->_lv, fake);
 	}
@@ -84,6 +84,6 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 
 void ShootingAgent::SetAccuracy(int accuracy)
 {
-	assert(accuracy >= 0 && accuracy < 5);
+	assert(accuracy >= 0 && accuracy < 2);
 	_accuracy = accuracy;
 }

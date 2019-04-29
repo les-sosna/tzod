@@ -227,9 +227,6 @@ void Desktop::OnSinglePlayer()
 	if (_navStack->IsOnStack<NewGameDlg>() || _navStack->IsOnStack<SinglePlayer>())
 		return;
 
-//	if (_navStack->IsOnTop<SettingsDlg>())
-//		_navStack->PopNavStack();
-
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
 		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache());

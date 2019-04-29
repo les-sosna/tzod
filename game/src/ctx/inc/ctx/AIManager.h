@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+enum class AIDiffuculty;
 class AIController;
 class GC_Object;
 class GC_Player;
@@ -20,7 +21,7 @@ class AIManager final
 public:
 	AIManager(World &world);
 	~AIManager();
-	void AssignAI(GC_Player *player, std::string profile);
+	void AssignAI(GC_Player *player, AIDiffuculty diffuculty);
 
 	typedef std::map<PtrList<GC_Object>::id_type, VehicleState> ControllerStateMap;
 	ControllerStateMap ComputeAIState(World &world, float dt);
@@ -28,7 +29,7 @@ public:
 	void GetControllers(std::vector<const AIController*> &controllers) const;
 
 private:
-	std::map<GC_Player *, std::pair<std::string, std::unique_ptr<AIController>>> _aiControllers;
+	std::map<GC_Player *, std::unique_ptr<AIController>> _aiControllers;
 	World &_world;
 
 	// ObjectListener<GC_Player>
