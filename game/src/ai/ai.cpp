@@ -506,7 +506,7 @@ bool AIController::IsTargetVisible(const World &world, const GC_Vehicle &vehicle
 {
 	assert(vehicle.GetWeapon());
 
-	if( GC_Weap_Gauss::GetTypeStatic() == vehicle.GetWeapon()->GetType() )  // FIXME!
+	if( GC_Weap_Gauss::GetTypeStatic() == vehicle.GetWeapon()->GetType() && _difficulty == AIDiffuculty::Hard )
 		return true;
 
 	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) world.TraceNearest(

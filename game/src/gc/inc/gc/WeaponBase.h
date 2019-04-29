@@ -5,7 +5,7 @@
 
 struct VehicleClass;
 
-struct AIWEAPSETTINGS
+struct AIWEAPSETTINGS 
 {
 	float fMaxAttackAngleCos;
 	float fProjectileSpeed;
