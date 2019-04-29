@@ -76,21 +76,12 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	{
 		_drivingAgent->ComputeState(world, vehicle, dt, outVehicleState);
 
-
-		// check if the primary target is still alive
-		//	if( !_target && IsAttacking() )
-		//	{
-		//		FreeTarget(); // free killed target
-		//		ClearPath();
-		//	}
-
 		if (!vehicle.GetWeapon())
 		{
 			// no targets if no weapon
 			_target = nullptr;
 			_drivingAgent->_attackList.clear();
 		}
-
 
 		if (_target && IsTargetVisible(world, vehicle, _target))
 		{
@@ -133,7 +124,7 @@ const std::vector<vec2d>& AIController::GetPath() const
 }
 
 // evaluate the rate of attacking of the given target
-AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target)
+AIPRIORITY AIController::GetTargetRank(const GC_Vehicle &vehicle, GC_Vehicle &target)
 {
 	assert(vehicle.GetWeapon());
 
@@ -157,14 +148,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 	if( !vehicle.GetWeapon() )
 		return false;
 
-	AIPRIORITY optimal = AIP_NOTREQUIRED;
-	GC_Vehicle *pOptTarget = nullptr;
-
 	std::vector<TargetDesc> targets;
-
-	//
-	// check targets
-	//
 
 	FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, object )
 	{
@@ -192,28 +176,31 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 		}
 	}
 
-	for( size_t i = 0; i < targets.size(); ++i )
+	AIPRIORITY optimal = AIP_NOTREQUIRED;
+	GC_Vehicle* bestTarget = nullptr;
+
+	for( const auto& targetDesc: targets )
 	{
 		float l;
-		if( targets[i].bIsVisible )
-			l = (targets[i].target->GetPos() - vehicle.GetPos()).len() / WORLD_BLOCK_SIZE;
+		if( targetDesc.bIsVisible )
+			l = (targetDesc.target->GetPos() - vehicle.GetPos()).len() / WORLD_BLOCK_SIZE;
 		else
-			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), targets[i].target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
+			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), targetDesc.target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 
         if( l >= 0 )
 		{
-            assert(targets[i].target);
-			AIPRIORITY p = GetTargetRate(vehicle, *targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
+            assert(targetDesc.target);
+			AIPRIORITY p = GetTargetRank(vehicle, *targetDesc.target) - AIP_NORMAL * l / AI_MAX_DEPTH;
 
 			if( p > optimal )
 			{
 				optimal = p;
-				pOptTarget = targets[i].target;
+				bestTarget = targetDesc.target;
 			}
 		}
 	}
 
-	info.object   = pOptTarget;
+	info.object   = bestTarget;
 	info.priority = optimal;
 
 	return optimal > AIP_NOTREQUIRED;

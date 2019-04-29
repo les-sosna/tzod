@@ -84,7 +84,7 @@ private:
 	bool GetActive() const { return _isActive; }
 
 	bool IsTargetVisible(const World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
-	AIPRIORITY GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target);
+	AIPRIORITY GetTargetRank(const GC_Vehicle &vehicle, GC_Vehicle &target);
 
 	bool FindTarget(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
 	bool FindItem(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
