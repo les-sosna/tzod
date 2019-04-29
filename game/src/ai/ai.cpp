@@ -347,8 +347,9 @@ void AIController::SetL2(aiState_l2 new_state)
 
 void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
-	AIITEMINFO ii_item;
-	FindItem(world, vehicle, ii_item, ws);
+	AIITEMINFO ii_item{};
+	if (_difficulty != AIDiffuculty::Easy || !vehicle.GetWeapon()) // easy only look for weapons
+		FindItem(world, vehicle, ii_item, ws);
 
 	if( AIITEMINFO ii_target = FindTarget(world, vehicle, ws) )
 	{
