@@ -467,7 +467,7 @@ static bool AllowNonActiveNavigation(Navigate navigate)
 
 bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time)
 {
-	bool currentlyActiveInputMethod = _lastKeyTime > _lastPointerTime;
+	bool currentlyActiveInputMethod = _lastKeyTime >= _lastPointerTime;
 
 	if (key != Plat::Key::LeftShift && key != Plat::Key::RightShift && key != Plat::Key::LeftCtrl && key != Plat::Key::RightCtrl)
 	{
