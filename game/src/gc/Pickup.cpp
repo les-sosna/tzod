@@ -397,8 +397,7 @@ void GC_pu_Shock::Detach(World &world)
 
 GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic *ignore) const
 {
-	float min_dist = AI_MAX_SIGHT * WORLD_BLOCK_SIZE;
-	float dist;
+	float min_dist = 20 * WORLD_BLOCK_SIZE;
 
 	GC_Vehicle *pNearTarget = nullptr;
 	FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pTargetObj )
@@ -406,7 +405,7 @@ GC_Vehicle* GC_pu_Shock::FindNearVehicle(World &world, const GC_RigidBodyStatic 
 		if( pTargetObj != ignore )
 		{
 			// distance to the object
-			dist = (GetPos() - pTargetObj->GetPos()).len();
+			float dist = (GetPos() - pTargetObj->GetPos()).len();
 
 			if( dist < min_dist )
 			{

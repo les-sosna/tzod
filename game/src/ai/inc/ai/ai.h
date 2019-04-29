@@ -25,6 +25,7 @@ struct AIITEMINFO
 {
 	ObjPtr<GC_MovingObject> object;
 	AIPRIORITY priority;
+	operator bool() const { return !!object; }
 };
 
 enum class AIDiffuculty
@@ -86,7 +87,7 @@ private:
 	bool IsTargetVisible(const World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
 	AIPRIORITY GetTargetRank(const GC_Vehicle &vehicle, GC_Vehicle &target);
 
-	bool FindTarget(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
+	AIITEMINFO FindTarget(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
 	bool FindItem(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
 
 	void SelectFavoriteWeapon(World &world);
