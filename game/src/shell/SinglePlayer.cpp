@@ -172,8 +172,8 @@ namespace
 				: _confValue(confValue)
 			{}
 			// UI::Window
-			bool HasNavigationSink() const { return true; }
-			NavigationSink* GetNavigationSink() { return this; }
+			bool HasNavigationSink() const override { return true; }
+			NavigationSink* GetNavigationSink() override { return this; }
 
 		private:
 			// UI::NavigationSink
@@ -190,14 +190,19 @@ namespace
 			}
 			void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext& lc, const UI::DataContext& dc) override
 			{
-				switch (navigate)
+				if (phase == UI::NavigationPhase::Started)
 				{
-				case UI::Navigate::Left:
-					_confValue.SetInt(std::max(0, _confValue.GetInt() - 1));
-					break;
-				case UI::Navigate::Right:
-					_confValue.SetInt(std::min(2, _confValue.GetInt() + 1));
-					break;
+					switch (navigate)
+					{
+						case UI::Navigate::Left:
+							_confValue.SetInt(std::max(0, _confValue.GetInt() - 1));
+							break;
+						case UI::Navigate::Right:
+							_confValue.SetInt(std::min(2, _confValue.GetInt() + 1));
+							break;
+						default:
+							break;
+					}
 				}
 			}
 

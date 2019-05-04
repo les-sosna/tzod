@@ -55,14 +55,7 @@ static float GetLayoutScale(GLFWwindow *window)
 {
 	float xscale, yscale;
 	glfwGetWindowContentScale(window, &xscale, &yscale);
-
-	int framebuferWidth;
-	glfwGetFramebufferSize(window, &framebuferWidth, nullptr);
-
-	int logicalWidth;
-	glfwGetWindowSize(window, &logicalWidth, nullptr);
-
-	return (logicalWidth > 0 ? (float)framebuferWidth / (float)logicalWidth : 1.f) * xscale;
+	return xscale;
 }
 
 static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAction, int mods)

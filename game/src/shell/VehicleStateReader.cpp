@@ -8,7 +8,7 @@
 #include <gc/Weapons.h>
 #include <gc/World.h>
 #include <gv/GameViewHarness.h>
-#include <float.h>
+#include <cfloat>
 
 VehicleStateReader::VehicleStateReader()
   : _tapFireTime(-FLT_MAX)

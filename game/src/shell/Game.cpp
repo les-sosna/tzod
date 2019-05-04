@@ -25,8 +25,9 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-#include <sstream>
+#include <cfloat>
 #include <iomanip>
+#include <sstream>
 
 namespace
 {

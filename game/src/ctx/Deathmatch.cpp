@@ -6,7 +6,7 @@
 #include <gc/Vehicle.h>
 #include <gc/World.h>
 #include <gc/SaveFile.h>
-#include <climits>
+#include <cfloat>
 
 Deathmatch::Deathmatch(World &world, WorldController &worldController, GameListener &gameListener)
 	: _world(world)
