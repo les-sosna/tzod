@@ -28,14 +28,10 @@ ScoreTable::ScoreTable(World &world, const Deathmatch *deathmatch, LangCache &la
   , _lang(lang)
 {
 	Resize(420, 256);
-	SetTexture("ui/list");
-	SetDrawBorder(true);
 }
 
 void ScoreTable::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
 {
-	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
-
 	std::vector<GC_Player*> players;
 	FOREACH( _world.GetList(LIST_players), GC_Player, player )
 	{

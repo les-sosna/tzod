@@ -20,7 +20,7 @@ public:
 
 	// Gameplay
 	void Step() override;
-	bool IsGameOver() const override;
+	float GetGameOverTime() const override;
 	float GetTimeLimit() const override { return _timeLimit; }
 	int GetRating() const override;
 	void Serialize(SaveFile &f) override;
@@ -32,6 +32,9 @@ private:
 	int _fragLimit = 0;
 	float _timeLimit = 0;
 	int _maxScore = 0;
+	float _maxScoreTime = 0;
+
+	int GetPlayerRating(GC_Player& player) const;
 
 	// ObjectListener<GC_RigidBodyStatic>
 	void OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd) override;

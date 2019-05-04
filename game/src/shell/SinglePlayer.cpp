@@ -14,6 +14,7 @@
 #include <ui/DataSource.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
+#include <ui/Rating.h>
 #include <ui/Rectangle.h>
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
@@ -106,6 +107,105 @@ namespace
 			return MakeRectWH(lc.GetPixelSize() / 4, lc.GetPixelSize() / 2);
 		}
 	};
+
+	class DifficultySelector final
+		: public UI::ButtonBase
+	{
+	public:
+		DifficultySelector(ConfVarNumber& confValue)
+			: _confValue(confValue)
+		{
+			Resize(144, 48);
+
+			auto background = std::make_shared<UI::Rectangle>();
+			background->SetTexture("ui/button");
+			background->SetFrame(std::make_shared<UI::StateBinding<unsigned int>>(0, // default
+				UI::StateBinding<unsigned int>::MapType{ { "Hover", 1 }, { "Pushed", 1 } }));
+			AddFront(background);
+
+			auto rating = std::make_shared<UI::Rating>();
+			rating->SetRating(std::make_shared<DifficultyConfigBinding>(confValue));
+			AddFront(rating);
+
+			auto proxy = std::make_shared<NavigationProxy>(confValue);
+			AddFront(proxy);
+			SetFocus(proxy);
+		}
+
+		// Window
+		FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override
+		{
+			return MakeRectWH(lc.GetPixelSize());
+		}
+
+	private:
+		// ButtonBase
+		void OnClick() override
+		{
+			_confValue.SetInt((_confValue.GetInt() + 1) % 3);
+		}
+
+		class DifficultyConfigBinding final
+			: public UI::RenderData<unsigned int>
+		{
+		public:
+			DifficultyConfigBinding(const ConfVarNumber& confValue)
+				: _confValue(confValue)
+			{}
+
+			// UI::RenderData<unsigned int>
+			unsigned int GetRenderValue(const UI::DataContext& dc, const UI::StateContext& sc) const override
+			{
+				return _confValue.GetInt() + 1;
+			}
+
+		private:
+			const ConfVarNumber& _confValue;
+		};
+
+		class NavigationProxy final
+			: public UI::Window
+			, private UI::NavigationSink
+		{
+		public:
+			explicit NavigationProxy(ConfVarNumber& confValue)
+				: _confValue(confValue)
+			{}
+			// UI::Window
+			bool HasNavigationSink() const { return true; }
+			NavigationSink* GetNavigationSink() { return this; }
+
+		private:
+			// UI::NavigationSink
+			bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext& lc, const UI::DataContext& dc) const override
+			{
+				switch (navigate)
+				{
+				case UI::Navigate::Left:
+				case UI::Navigate::Right:
+					return true;
+				default:
+					return false;
+				}
+			}
+			void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext& lc, const UI::DataContext& dc) override
+			{
+				switch (navigate)
+				{
+				case UI::Navigate::Left:
+					_confValue.SetInt(std::max(0, _confValue.GetInt() - 1));
+					break;
+				case UI::Navigate::Right:
+					_confValue.SetInt(std::min(2, _confValue.GetInt() + 1));
+					break;
+				}
+			}
+
+			ConfVarNumber& _confValue;
+		};
+
+		ConfVarNumber& _confValue;
+	};
 }
 
 SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache)
@@ -119,9 +219,8 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
-	auto placeholder = std::make_shared<UI::Window>();
-	placeholder->Resize(48, 48);
-	_content->AddFront(placeholder); // FIXME: hack placeholder
+	auto difficultySelector = std::make_shared<DifficultySelector>(appConfig.sp_difficulty);
+	_content->AddFront(difficultySelector);
 
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_mapTiles);

@@ -27,10 +27,6 @@ typedef float AIPRIORITY;
 #define AIP_SHOCK           (AIP_NORMAL)        // the priority of a shock item
 #define AIP_SHIELD          (AIP_NORMAL)        // the priority of a shield item
 
-// TODO: move to ai
-#define AI_MAX_SIGHT   40.0f
-#define AI_MAX_DEPTH   256.0f
-
 class GC_Vehicle;
 class GC_Light;
 class GC_Crosshair;
@@ -82,6 +78,7 @@ public:
 
 	// if 0 then item considered useless and will not be taken
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const { return AIP_NORMAL; }
+	virtual bool ShouldPickup(const GC_Vehicle& veh) const { return true; }
 
 	virtual void Detach(World &world);
 	virtual void Disappear(World &world);

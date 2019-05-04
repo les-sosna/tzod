@@ -46,6 +46,7 @@ REFLECTION_END()
 REFLECTION_BEGIN(AppConfig)
 	VAR_ARRAY(sp_tiersprogress, nullptr)
 	VAR_REFLECTION(sp_playerinfo, ConfPlayerLocal)
+	VAR_INT(sp_difficulty, 0)
 REFLECTION_END()
 
 bool IsTierComplete(AppConfig &appConfig, const DMCampaign &dmCampaign, int tierIndex);

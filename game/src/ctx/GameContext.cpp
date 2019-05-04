@@ -8,8 +8,6 @@
 #include <gc/WorldCfg.h>
 #include <script/ScriptHarness.h>
 
-#define AI_MAX_LEVEL   4U
-
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings)
 	: _world(std::move(world))
 	, _aiManager(std::make_unique<AIManager>(*_world))
@@ -37,8 +35,7 @@ GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &setting
 		player.SetSkin(pd.skin);
 		player.SetTeam(pd.team);
 
-		_aiManager->AssignAI(&player, "123");
-//        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
+		_aiManager->AssignAI(&player, settings.difficulty);
 	}
 
 	_worldController.reset(new WorldController(*_world));
@@ -62,7 +59,8 @@ Gameplay* GameContext::GetGameplay()
 
 void GameContext::Step(float dt)
 {
-	if (IsActive())
+	_gameplayTime += dt;
+	if (IsWorldActive())
 	{
 		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
 		_world->Step(dt);
@@ -70,9 +68,9 @@ void GameContext::Step(float dt)
 	}
 }
 
-bool GameContext::IsActive() const
+bool GameContext::IsWorldActive() const
 {
-	bool isActive = !_gameplay->IsGameOver();
+	bool isActive = _world->GetTime() < _gameplay->GetGameOverTime();
 
 	if (isActive)
 	{

@@ -14,6 +14,11 @@ namespace FS
 	class FileSystem;
 }
 
+namespace Plat
+{
+	struct AppWindowCommandClose;
+}
+
 namespace UI
 {
 	class Console;
@@ -50,7 +55,8 @@ public:
 	        ShellConfig &conf,
 	        LangCache &lang,
 	        DMCampaign &dmCampaign,
-	        Plat::ConsoleBuffer &logger);
+	        Plat::ConsoleBuffer &logger,
+			Plat::AppWindowCommandClose* cmdClose = nullptr);
 	virtual ~Desktop();
 
 	void ShowConsole(bool show);
@@ -75,6 +81,7 @@ private:
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
 	Plat::ConsoleBuffer &_logger;
+	Plat::AppWindowCommandClose* _cmdCloseAppWindow;
 	std::unique_ptr<LuaConsole> _luaConsole;
 
 	std::shared_ptr<EditorMain> _editor;

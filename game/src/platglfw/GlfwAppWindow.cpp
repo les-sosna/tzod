@@ -53,13 +53,16 @@ void GlfwWindowDeleter::operator()(GLFWwindow *window)
 
 static float GetLayoutScale(GLFWwindow *window)
 {
+	float xscale, yscale;
+	glfwGetWindowContentScale(window, &xscale, &yscale);
+
 	int framebuferWidth;
 	glfwGetFramebufferSize(window, &framebuferWidth, nullptr);
 
 	int logicalWidth;
 	glfwGetWindowSize(window, &logicalWidth, nullptr);
 
-	return logicalWidth > 0 ? (float)framebuferWidth / (float)logicalWidth : 1.f;
+	return (logicalWidth > 0 ? (float)framebuferWidth / (float)logicalWidth : 1.f) * xscale;
 }
 
 static void OnMouseButton(GLFWwindow *window, int platformButton, int platformAction, int mods)
@@ -171,7 +174,7 @@ static void OnKey(GLFWwindow *window, int platformKey, int scancode, int platfor
 			else
 			{
 				glfwSetWindowMonitor(window, nullptr,
-					self->_windowedTop, self->_windowedLeft,
+					self->_windowedLeft, self->_windowedTop,
 					self->_windowedWidth, self->_windowedHeight, GLFW_DONT_CARE);
 			}
 		}
@@ -313,6 +316,11 @@ void GlfwAppWindow::Present()
 bool GlfwAppWindow::ShouldClose() const
 {
 	return !!glfwWindowShouldClose(_window.get());
+}
+
+void GlfwAppWindow::RequestClose()
+{
+	glfwSetWindowShouldClose(_window.get(), 1);
 }
 
 void GlfwAppWindow::PollEvents(Plat::AppWindowInputSink& inputSink) // static

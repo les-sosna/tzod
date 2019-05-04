@@ -17,7 +17,10 @@ namespace Plat
 		IBeam
 	};
 
-	struct AppWindowInputSink;
+	struct AppWindowCommandClose
+	{
+		virtual void RequestClose() = 0;
+	};
 
 	struct AppWindow
 	{
@@ -30,6 +33,8 @@ namespace Plat
 		virtual void SetCanNavigateBack(bool canNavigateBack) = 0;
 		virtual void SetMouseCursor(MouseCursor mouseCursor) = 0;
 		virtual void Present() = 0;
+
+		virtual AppWindowCommandClose* CmdClose() { return nullptr; }
 	};
 
 	struct AppWindowInputSink

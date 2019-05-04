@@ -22,7 +22,7 @@ ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputConte
 	if ((pointerInside && pointerPressed && ic.HasCapturedPointers(this)) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;
 
-	bool focusActive = (ic.GetLastKeyTime() > ic.GetLastPointerTime()) && ic.GetFocused();
+	bool focusActive = (ic.GetLastKeyTime() >= ic.GetLastPointerTime()) && ic.GetFocused();
 	bool pointerActive = (ic.GetLastPointerTime() > ic.GetLastKeyTime()) && (ic.HasCapturedPointers(this) || (ic.GetHovered() && !pointerPressed));
 	if (focusActive || pointerActive)
 		return stateHottrack;

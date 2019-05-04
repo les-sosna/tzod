@@ -29,6 +29,7 @@ namespace Plat
 namespace UI
 {
 	class Rating;
+	class Rectangle;
 	class StackLayout;
 }
 
@@ -53,6 +54,7 @@ public:
 	void OnTimeStep(const UI::InputContext &ic, float dt) override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	float GetChildOpacity(const UI::Window& child) const override;
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 	std::shared_ptr<Window> GetFocus() const override;
@@ -60,8 +62,11 @@ public:
 private:
 	vec2d GetDragDirection() const;
 	unsigned int GetEffectiveDragCount() const;
+	float GetLastPlayerDieTime() const;
+	bool GetAllPlayerDead() const;
 
 	std::shared_ptr<MessageArea> _msg;
+	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::StackLayout> _scoreAndControls;
 	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<ScoreTable> _score;

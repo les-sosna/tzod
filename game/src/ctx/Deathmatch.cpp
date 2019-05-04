@@ -30,31 +30,34 @@ void Deathmatch::Step()
 //	}
 }
 
-int Deathmatch::GetRating() const
+int Deathmatch::GetPlayerRating(GC_Player& player) const
 {
-	int maxRating = 0;
-
-	if (IsGameOver())
-	{
-		for (auto player : _worldController.GetLocalPlayers())
-		{
-			if (player->GetScore() == _maxScore)
-			{
-				int rating = 1;
-				rating += (player->GetNumDeaths() == 0);
-				rating += (_world.GetTime() < _timeLimit);
-				maxRating = std::max(maxRating, rating);
-			}
-		}
-	}
-
-	return maxRating;
+	if (player.GetScore() < _maxScore)
+		return 0;
+	int rating = 1;
+	rating += (player.GetNumDeaths() == 0);
+	rating += (_world.GetTime() < _timeLimit);
+	return rating;
 }
 
-bool Deathmatch::IsGameOver() const
+int Deathmatch::GetRating() const
 {
-	return (_timeLimit > 0 && _world.GetTime() >= _timeLimit) ||
-		(_fragLimit > 0 && _maxScore >= _fragLimit);
+	if (GetGameOverTime() < _world.GetTime())
+		return 0;
+	int maxPlayerRating = 0;
+	for (auto player : _worldController.GetLocalPlayers())
+		maxPlayerRating = std::max(maxPlayerRating, GetPlayerRating(*player));
+	return maxPlayerRating;
+}
+
+float Deathmatch::GetGameOverTime() const
+{
+	float gameOverTime = FLT_MAX;
+	if (_timeLimit > 0)
+		gameOverTime = std::min(gameOverTime, _timeLimit);
+	if (_fragLimit > 0 && _maxScore >= _fragLimit)
+		gameOverTime = std::min(gameOverTime, _maxScoreTime);
+	return gameOverTime;
 }
 
 void Deathmatch::Serialize(SaveFile &f)
@@ -123,5 +126,6 @@ void Deathmatch::OnDestroy(GC_RigidBodyStatic &obj, const DamageDesc &dd)
 		for (auto player : _worldController.GetAIPlayers())
 			maxScore = std::max(maxScore, player->GetScore());
 		_maxScore = maxScore;
+		_maxScoreTime = _world.GetTime();
 	}
 }
