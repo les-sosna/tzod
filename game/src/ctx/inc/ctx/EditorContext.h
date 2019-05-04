@@ -21,7 +21,7 @@ public:
 	// GameContextBase
 	World& GetWorld() override { return *_world; }
 	Gameplay* GetGameplay() override { return nullptr; }
-	void Step(float dt) override;
+	void Step(float dt, AppConfig &appConfig, bool *outConfigChanged) override;
 	bool IsWorldActive() const override { return false; }
 
 private:

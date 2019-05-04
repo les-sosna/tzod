@@ -58,7 +58,7 @@ public:
 	// GameContextBase
 	World& GetWorld() override { return *_world; }
 	Gameplay* GetGameplay() override;
-	void Step(float dt) override;
+	void Step(float dt, AppConfig &appConfig, bool *outConfigChanged) override;
 	bool IsWorldActive() const override;
 
 private:
@@ -80,6 +80,9 @@ public:
 
 	int GetCampaignTier() const { return _campaignTier; }
 	int GetCampaignMap() const { return _campaignMap; }
+
+	// GameContextBase
+	void Step(float dt, AppConfig &appConfig, bool *outConfigChanged) override;
 
 private:
 	int _campaignTier;

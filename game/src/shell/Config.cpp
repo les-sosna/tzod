@@ -37,7 +37,7 @@ static void InitLobbyList(ConfVarArray &lobby_servers)
 /////////////////////////////////////////////
 // Utility access functions
 
-#include <as/AppConfig.h>
+#include <ctx/AppConfig.h>
 #include <algorithm>
 
 int GetCurrentTier(const ShellConfig &conf, const DMCampaign &dmCampaign)

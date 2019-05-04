@@ -12,7 +12,7 @@
 #include <config/ConfigCache.h>
 
 #ifndef CONFIG_CACHE_PASS2
-# include <as/AppConfig.h>
+# include <ctx/AppConfig.h>
 # include <editor/Config.h>
 #endif
 

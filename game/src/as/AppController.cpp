@@ -1,7 +1,7 @@
 #include "inc/as/AppController.h"
-#include "inc/as/AppConfig.h"
 #include "inc/as/AppConstants.h"
 #include "inc/as/AppState.h"
+#include <ctx/AppConfig.h>
 #include <ctx/EditorContext.h>
 #include <ctx/Gameplay.h>
 #include <ctx/GameContext.h>
@@ -56,29 +56,7 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, boo
 {
 	if (GameContextBase *gc = appState.GetGameContext().get())
 	{
-		gc->Step(dt);
-
-		if (auto gameplay = gc->GetGameplay())
-		{
-			if (gameplay->GetGameOverTime() <= gc->GetWorld().GetTime())
-			{
-				if (auto campaignGC = dynamic_cast<GameContextCampaignDM*>(gc))
-				{
-					if (campaignGC->GetCampaignTier() >= 0 && campaignGC->GetCampaignMap() >= 0)
-					{
-						appConfig.sp_tiersprogress.EnsureIndex(campaignGC->GetCampaignTier());
-						ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(campaignGC->GetCampaignTier());
-						tierprogress.EnsureIndex(campaignGC->GetCampaignMap());
-						int currentRating = tierprogress.GetNum(campaignGC->GetCampaignMap()).GetInt();
-						if (gameplay->GetRating() > currentRating)
-						{
-							tierprogress.SetNum(campaignGC->GetCampaignMap(), gameplay->GetRating());
-							*outConfigChanged = true;
-						}
-					}
-				}
-			}
-		}
+		gc->Step(dt, appConfig, outConfigChanged);
 	}
 }
 

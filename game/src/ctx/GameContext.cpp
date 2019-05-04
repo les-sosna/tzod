@@ -1,4 +1,5 @@
 #include "inc/ctx/AIManager.h"
+#include "inc/ctx/AppConfig.h"
 #include "inc/ctx/Deathmatch.h"
 #include "inc/ctx/GameContext.h"
 #include "inc/ctx/WorldController.h"
@@ -57,7 +58,7 @@ Gameplay* GameContext::GetGameplay()
 	return _gameplay.get();
 }
 
-void GameContext::Step(float dt)
+void GameContext::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
 {
 	_gameplayTime += dt;
 	if (IsWorldActive())
@@ -131,9 +132,31 @@ void GameContext::Deserialize(FS::Stream &stream)
 	_scriptHarness->Deserialize(f);
 }
 
+///////////////////////////////////////////////////////
+
 GameContextCampaignDM::GameContextCampaignDM(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
 	: GameContext(std::move(world), settings)
 	, _campaignTier(campaignTier)
 	, _campaignMap(campaignMap)
 {
+}
+
+void GameContextCampaignDM::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
+{
+	GameContext::Step(dt, appConfig, outConfigChanged);
+	auto gameplay = GetGameplay();
+	assert(gameplay);
+	if (gameplay->GetGameOverTime() <= GetWorld().GetTime() &&
+		GetCampaignTier() >= 0 && GetCampaignMap() >= 0)
+	{
+		appConfig.sp_tiersprogress.EnsureIndex(GetCampaignTier());
+		ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(GetCampaignTier());
+		tierprogress.EnsureIndex(GetCampaignMap());
+		int currentRating = tierprogress.GetNum(GetCampaignMap()).GetInt();
+		if (gameplay->GetRating() > currentRating)
+		{
+			tierprogress.SetNum(GetCampaignMap(), gameplay->GetRating());
+			*outConfigChanged = true;
+		}
+	}
 }
