@@ -47,17 +47,20 @@ public:
 	GameContext(std::unique_ptr<World> world, const DMSettings &settings);
 	virtual ~GameContext();
 	WorldController& GetWorldController() { return *_worldController; }
+	const WorldController& GetWorldController() const { return *_worldController; }
 	GameEventSource& GetGameEventSource() { return _gameEventsBroadcaster; }
 	ScriptMessageSource& GetScriptMessageSource() { return _scriptMessageBroadcaster; }
 	AIManager& GetAIManager() { return *_aiManager; }
+	AIDiffuculty GetDifficulty() const { return _difficulty; }
 	float GetGameplayTime() const { return _gameplayTime; }
+	bool IsGameplayActive() const;
 
 	void Serialize(FS::Stream &stream);
 	void Deserialize(FS::Stream &stream);
 
 	// GameContextBase
 	World& GetWorld() override { return *_world; }
-	Gameplay* GetGameplay() override;
+	Gameplay* GetGameplay() const override;
 	void Step(float dt, AppConfig &appConfig, bool *outConfigChanged) override;
 	bool IsWorldActive() const override;
 
@@ -69,6 +72,7 @@ private:
 	std::unique_ptr<Gameplay> _gameplay;
 	std::unique_ptr<ScriptHarness> _scriptHarness;
 	std::unique_ptr<AIManager> _aiManager;
+	const AIDiffuculty _difficulty;
 	float _gameplayTime = 0;
 };
 
@@ -78,13 +82,13 @@ class GameContextCampaignDM final
 public:
 	GameContextCampaignDM(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap);
 
-	int GetCampaignTier() const { return _campaignTier; }
-	int GetCampaignMap() const { return _campaignMap; }
+	int GetRating() const;
 
 	// GameContextBase
 	void Step(float dt, AppConfig &appConfig, bool *outConfigChanged) override;
 
 private:
-	int _campaignTier;
-	int _campaignMap;
+	bool IsVictory() const;
+	const int _campaignTier;
+	const int _campaignMap;
 };

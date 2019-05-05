@@ -10,7 +10,7 @@ WorldController::WorldController(World &world)
 {
 }
 
-std::vector<GC_Player*> WorldController::GetLocalPlayers()
+std::vector<GC_Player*> WorldController::GetLocalPlayers() const
 {
 	std::vector<GC_Player*> players;
 	FOREACH(_world.GetList(LIST_players), GC_Player, player)
@@ -24,7 +24,7 @@ std::vector<GC_Player*> WorldController::GetLocalPlayers()
 	return players;
 }
 
-std::vector<GC_Player*> WorldController::GetAIPlayers()
+std::vector<GC_Player*> WorldController::GetAIPlayers() const
 {
 	std::vector<GC_Player*> players;
 	FOREACH(_world.GetList(LIST_players), GC_Player, player)

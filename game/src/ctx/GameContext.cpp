@@ -12,6 +12,7 @@
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings)
 	: _world(std::move(world))
 	, _aiManager(std::make_unique<AIManager>(*_world))
+	, _difficulty(settings.difficulty)
 {
 	_world->Seed(rand());
 
@@ -53,14 +54,16 @@ GameContext::~GameContext()
 {
 }
 
-Gameplay* GameContext::GetGameplay()
+Gameplay* GameContext::GetGameplay() const
 {
 	return _gameplay.get();
 }
 
 void GameContext::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
 {
-	_gameplayTime += dt;
+	if (IsGameplayActive())
+		_gameplayTime += dt;
+
 	if (IsWorldActive())
 	{
 		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
@@ -69,23 +72,17 @@ void GameContext::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
 	}
 }
 
+bool GameContext::IsGameplayActive() const
+{
+	for (auto player : _worldController->GetLocalPlayers())
+		if (!player->GetIsActive())
+			return false;
+	return true;
+}
+
 bool GameContext::IsWorldActive() const
 {
-	bool isActive = _world->GetTime() < _gameplay->GetGameOverTime();
-
-	if (isActive)
-	{
-		for (auto player : _worldController->GetLocalPlayers())
-		{
-			if (!player->GetIsActive())
-			{
-				isActive = false;
-				break;
-			}
-		}
-	}
-
-	return isActive;
+	return (_world->GetTime() < _gameplay->GetGameOverTime()) && IsGameplayActive();
 }
 
 void GameContext::Serialize(FS::Stream &stream)
@@ -141,21 +138,41 @@ GameContextCampaignDM::GameContextCampaignDM(std::unique_ptr<World> world, const
 {
 }
 
+int GameContextCampaignDM::GetRating() const
+{
+	return IsVictory() ? ((int)GetDifficulty() + 1) : 0;
+}
+
+bool GameContextCampaignDM::IsVictory() const
+{
+	int maxBotScore = INT_MIN;
+	for (auto botPlayer : GetWorldController().GetAIPlayers())
+		maxBotScore = std::max(maxBotScore, botPlayer->GetScore());
+
+	for (auto player : GetWorldController().GetLocalPlayers())
+	{
+		if (player->GetScore() > maxBotScore)
+			return true;
+	}
+	return false;
+}
+
 void GameContextCampaignDM::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
 {
 	GameContext::Step(dt, appConfig, outConfigChanged);
 	auto gameplay = GetGameplay();
 	assert(gameplay);
 	if (gameplay->GetGameOverTime() <= GetWorld().GetTime() &&
-		GetCampaignTier() >= 0 && GetCampaignMap() >= 0)
+		_campaignTier >= 0 && _campaignMap >= 0 && IsVictory())
 	{
-		appConfig.sp_tiersprogress.EnsureIndex(GetCampaignTier());
-		ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(GetCampaignTier());
-		tierprogress.EnsureIndex(GetCampaignMap());
-		int currentRating = tierprogress.GetNum(GetCampaignMap()).GetInt();
-		if (gameplay->GetRating() > currentRating)
+		appConfig.sp_tiersprogress.EnsureIndex(_campaignTier);
+		ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(_campaignTier);
+		tierprogress.EnsureIndex(_campaignMap);
+		int currentRating = tierprogress.GetNum(_campaignMap).GetInt();
+		int rating = GetRating();
+		if (rating > currentRating)
 		{
-			tierprogress.SetNum(GetCampaignMap(), gameplay->GetRating());
+			tierprogress.SetNum(_campaignMap, rating);
 			*outConfigChanged = true;
 		}
 	}

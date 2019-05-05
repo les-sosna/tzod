@@ -23,31 +23,6 @@ Deathmatch::~Deathmatch()
 
 void Deathmatch::Step()
 {
-//	if( IsGameOver() )
-//	{
-//		for( auto ls: eWorld._listeners )
-//			ls->OnGameFinished();
-//	}
-}
-
-int Deathmatch::GetPlayerRating(GC_Player& player) const
-{
-	if (player.GetScore() < _maxScore)
-		return 0;
-	int rating = 1;
-	rating += (player.GetNumDeaths() == 0);
-	rating += (_world.GetTime() < _timeLimit);
-	return rating;
-}
-
-int Deathmatch::GetRating() const
-{
-	if (GetGameOverTime() < _world.GetTime())
-		return 0;
-	int maxPlayerRating = 0;
-	for (auto player : _worldController.GetLocalPlayers())
-		maxPlayerRating = std::max(maxPlayerRating, GetPlayerRating(*player));
-	return maxPlayerRating;
 }
 
 float Deathmatch::GetGameOverTime() const

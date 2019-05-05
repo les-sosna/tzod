@@ -69,22 +69,22 @@ namespace
 		mutable std::string _cachedString;
 	};
 
-	class DeathmatchRatingBinding final
+	class DeathmatchCampaignRatingBinding final
 		: public UI::RenderData<unsigned int>
 	{
 	public:
-		DeathmatchRatingBinding(const Deathmatch &deathmatch)
-			: _deathmatch(deathmatch)
+		DeathmatchCampaignRatingBinding(const GameContextCampaignDM &campaignContext)
+			: _campaignContext(campaignContext)
 		{}
 
 		// UI::RenderData<unsigned int>
 		unsigned int GetRenderValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
-			return _deathmatch.GetRating();
+			return _campaignContext.GetRating();
 		}
 
 	private:
-		const Deathmatch &_deathmatch;
+		const GameContextCampaignDM &_campaignContext;
 	};
 }
 
@@ -124,16 +124,15 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 	_msg = std::make_shared<MessageArea>(manager, logger);
 	AddFront(_msg);
 
-	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
-
-	if (deathmatch)
+	if ( auto campaignContext = dynamic_cast<GameContextCampaignDM*>(_gameContext.get()))
 	{
 		_rating = std::make_shared<UI::Rating>();
-		_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(*deathmatch));
+		_rating->SetRating(std::make_shared<DeathmatchCampaignRatingBinding>(*campaignContext));
 		_rating->SetVisible(false);
 		_scoreAndControls->AddFront(_rating);
 	}
 
+	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
 	_score = std::make_shared<ScoreTable>(_gameContext->GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
