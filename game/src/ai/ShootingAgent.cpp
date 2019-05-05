@@ -84,6 +84,6 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 
 void ShootingAgent::SetAccuracy(int accuracy)
 {
-	assert(accuracy >= 0 && accuracy < 2);
+	assert(accuracy >= 0 && accuracy < 3);
 	_accuracy = accuracy;
 }
