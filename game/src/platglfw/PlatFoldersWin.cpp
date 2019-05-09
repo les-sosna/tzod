@@ -26,3 +26,8 @@ std::string Plat::GetAppDataFolder()
 	}
 	return result;
 }
+
+std::string Plat::GetBundleResourcesFolder()
+{
+	return ".";
+}
