@@ -165,11 +165,15 @@ float NavStack::GetChildOpacity(const Window &child) const
 	}
 
 	auto &children = GetChildren();
-	if (!children.empty() && children.back().get() == &child)
+	if (children.back().get() == &child)
 	{
 		return transition;
 	}
-	return 1 - transition;
+	else if (children[children.size() - 2].get() == &child)
+	{
+		return 1 - transition;
+	}
+	return 0;
 }
 
 void NavStack::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
