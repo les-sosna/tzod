@@ -4,6 +4,11 @@
 
 namespace DX
 {
+	inline bool IsDeviceLost(HRESULT hr)
+	{
+		return (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET);
+	}
+
 	inline void ThrowIfFailed(HRESULT hr)
 	{
 		if (FAILED(hr))
