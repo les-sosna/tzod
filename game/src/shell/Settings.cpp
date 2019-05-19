@@ -477,70 +477,58 @@ MainSettingsDlg::MainSettingsDlg(LangCache& lang, MainSettingsCommands commands)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PlayerSettings::PlayerSettings(ShellConfig& conf, LangCache& lang)
+SettingsListBase::SettingsListBase()
 {
 	SetFlowDirection(UI::FlowDirection::Vertical);
 	SetSpacing(20);
-
-	auto nickname = std::make_shared<StringSetting>(conf.cl_playerinfo.nick);
-	nickname->SetTitle(ConfBind(lang.settings_player_nick));
-	AddFront(nickname);
-	SetFocus(nickname);
 }
 
-vec2d PlayerSettings::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+vec2d SettingsListBase::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
 	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
 	return vec2d{ std::floor(400 * scale), stackContentSize.y };
 }
 
+template <class WidgetType, class ConfVarType>
+void SettingsListBase::AddSetting(const ConfVarString& title, ConfVarType& confVar)
+{
+	auto widget = std::make_shared<WidgetType>(confVar);
+	widget->SetTitle(ConfBind(title));
+	AddFront(widget);
+	if (!GetFocus())
+		SetFocus(widget);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
+
+PlayerSettings::PlayerSettings(ShellConfig& conf, LangCache& lang)
+{
+	AddSetting<StringSetting>(lang.settings_player_nick, conf.cl_playerinfo.nick);
+}
 
 ControlsSettings::ControlsSettings(ShellConfig& conf, LangCache& lang)
 {
-	using namespace UI::DataSourceAliases;
+	ConfControllerProfile profile(&conf.dm_profiles.GetTable(conf.dm_profiles.GetKeys().front()));
 
-	SetFlowDirection(UI::FlowDirection::Vertical);
-	SetSpacing(20);
+	AddSetting<BooleanSetting>(lang.profile_mouse_aim, profile.aim_to_mouse);
+	AddSetting<BooleanSetting>(lang.profile_mouse_move, profile.move_to_mouse);
+	AddSetting<BooleanSetting>(lang.profile_arcade_style, profile.arcade_style);
 
-	auto underConstruction = std::make_shared<UI::Text>();
-	underConstruction->SetFont("font_default");
-	underConstruction->SetText("Under construction"_txt);
-	AddFront(underConstruction);
-	SetFocus(underConstruction);
+	AddSetting<KeyBindSetting>(lang.action_move_forward, profile.key_forward);
+	AddSetting<KeyBindSetting>(lang.action_move_backward, profile.key_back);
+	AddSetting<KeyBindSetting>(lang.action_turn_left, profile.key_left);
+	AddSetting<KeyBindSetting>(lang.action_turn_right, profile.key_right);
+	AddSetting<KeyBindSetting>(lang.action_fire, profile.key_fire);
+	AddSetting<KeyBindSetting>(lang.action_toggle_lights, profile.key_light);
+	AddSetting<KeyBindSetting>(lang.action_tower_left, profile.key_tower_left);
+	AddSetting<KeyBindSetting>(lang.action_tower_center, profile.key_tower_center);
+	AddSetting<KeyBindSetting>(lang.action_tower_right, profile.key_tower_right);
+	AddSetting<KeyBindSetting>(lang.action_pickup, profile.key_pickup);
 }
-
-vec2d ControlsSettings::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
-{
-	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
-	return vec2d{ std::floor(400 * scale), stackContentSize.y };
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 AdvancedSettings::AdvancedSettings(ShellConfig& conf, LangCache& lang)
 {
-	using namespace UI::DataSourceAliases;
-
-	SetFlowDirection(UI::FlowDirection::Vertical);
-	SetSpacing(20);
-
-	auto fullscreen = std::make_shared<BooleanSetting>(conf.r_fullscreen);
-	fullscreen->SetTitle(ConfBind(lang.settings_advanced_fullscreen));
-	AddFront(fullscreen);
-	SetFocus(fullscreen);
-
-	auto vsync = std::make_shared<BooleanSetting>(conf.r_vsync);
-	vsync->SetTitle(ConfBind(lang.settings_advanced_vsync));
-	AddFront(vsync);
-
-	auto showfps = std::make_shared<BooleanSetting>(conf.d_showfps);
-	showfps->SetTitle(ConfBind(lang.settings_advanced_framestats));
-	AddFront(showfps);
-}
-
-vec2d AdvancedSettings::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
-{
-	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
-	return vec2d{ std::floor(350 * scale), stackContentSize.y };
+	AddSetting<BooleanSetting>(lang.settings_advanced_fullscreen, conf.r_fullscreen);
+	AddSetting<BooleanSetting>(lang.settings_advanced_vsync, conf.r_vsync);
+	AddSetting<BooleanSetting>(lang.settings_advanced_framestats, conf.d_showfps);
 }

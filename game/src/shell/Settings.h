@@ -112,29 +112,33 @@ public:
 	MainSettingsDlg(LangCache& lang, MainSettingsCommands commands);
 };
 
-class PlayerSettings : public UI::StackLayout
+class SettingsListBase : public UI::StackLayout
+{
+public:
+	SettingsListBase();
+
+	// UI::Window
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+
+protected:
+	template <class WidgetType, class ConfVarType>
+	void AddSetting(const ConfVarString& title, ConfVarType& confVar);
+};
+
+class PlayerSettings : public SettingsListBase
 {
 public:
 	PlayerSettings(ShellConfig &conf, LangCache& lang);
-
-	// UI::Window
-	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 };
 
-class ControlsSettings : public UI::StackLayout
+class ControlsSettings : public SettingsListBase
 {
 public:
 	ControlsSettings(ShellConfig& conf, LangCache& lang);
-
-	// UI::Window
-	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 };
 
-class AdvancedSettings : public UI::StackLayout
+class AdvancedSettings : public SettingsListBase
 {
 public:
 	AdvancedSettings(ShellConfig& conf, LangCache& lang);
-
-	// UI::Window
-	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 };

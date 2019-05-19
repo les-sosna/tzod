@@ -1,4 +1,5 @@
 #include "ConfigWidgets.h"
+#include <cbind/ConfigBinding.h>
 #include <ui/Button.h>
 #include <ui/Edit.h>
 #include <ui/Text.h>
@@ -88,4 +89,48 @@ vec2d BooleanSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 std::shared_ptr<UI::Window> BooleanSetting::GetFocus() const
 {
 	return _valueCheckBox;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+KeyBindSetting::KeyBindSetting(ConfVarString& stringKeyVar)
+	: _stringKeyVar(stringKeyVar)
+	, _title(std::make_shared<UI::Text>())
+	, _keyName(std::make_shared<UI::Text>())
+{
+	_title->SetFont("font_default");
+	_keyName->SetFont("font_default");
+	_keyName->SetText(ConfBind(stringKeyVar));
+	_keyName->SetAlign(alignTextRT);
+	AddFront(_title);
+	AddFront(_keyName);
+}
+
+void KeyBindSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
+{
+	_title->SetText(title);
+}
+
+// UI::Window
+FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+{
+	if (_title.get() == &child)
+	{
+		return MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y);
+	}
+	else if (_keyName.get() == &child)
+	{
+		return MakeRectRB(vec2d{ lc.GetPixelSize().x, 0 }, lc.GetPixelSize());
+	}
+	return UI::Window::GetChildRect(texman, lc, dc, child);
+}
+
+vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	return vec2d{ 0, _title->GetContentSize(texman, dc, scale, layoutConstraints).y };
+}
+
+std::shared_ptr<UI::Window> KeyBindSetting::GetFocus() const
+{
+	return nullptr;
 }

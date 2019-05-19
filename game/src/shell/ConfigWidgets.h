@@ -49,3 +49,21 @@ private:
 	std::shared_ptr<UI::CheckBox> _valueCheckBox;
 };
 
+class KeyBindSetting : public UI::Window
+{
+public:
+	KeyBindSetting(ConfVarString& stringKeyVar);
+
+	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
+
+	// UI::Window
+	FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+	std::shared_ptr<UI::Window> GetFocus() const override;
+
+private:
+	ConfVarString& _stringKeyVar;
+	std::shared_ptr<UI::Text> _title;
+	std::shared_ptr<UI::Text> _keyName;
+};
+
