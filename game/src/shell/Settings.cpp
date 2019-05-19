@@ -437,3 +437,110 @@ bool ControlProfileDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 	}
 	return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "ConfigWidgets.h"
+
+static const float c_buttonWidth = 200;
+static const float c_buttonHeight = 50;
+
+MainSettingsDlg::MainSettingsDlg(LangCache& lang, MainSettingsCommands commands)
+{
+	SetFlowDirection(UI::FlowDirection::Vertical);
+	SetSpacing(20);
+
+	std::shared_ptr<UI::Button> button;
+
+	button = std::make_shared<UI::Button>();
+	button->SetFont("font_default");
+	button->SetText(ConfBind(lang.settings_player));
+	button->Resize(c_buttonWidth, c_buttonHeight);
+	button->eventClick = commands.player;
+	AddFront(button);
+	SetFocus(button);
+
+	button = std::make_shared<UI::Button>();
+	button->SetFont("font_default");
+	button->SetText(ConfBind(lang.settings_controls));
+	button->Resize(c_buttonWidth, c_buttonHeight);
+	button->eventClick = commands.controls;
+	AddFront(button);
+
+	button = std::make_shared<UI::Button>();
+	button->SetFont("font_default");
+	button->SetText(ConfBind(lang.settings_advanced));
+	button->Resize(c_buttonWidth, c_buttonHeight);
+	button->eventClick = commands.advanced;
+	AddFront(button);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+PlayerSettings::PlayerSettings(ShellConfig& conf, LangCache& lang)
+{
+	SetFlowDirection(UI::FlowDirection::Vertical);
+	SetSpacing(20);
+
+	auto nickname = std::make_shared<StringSetting>(conf.cl_playerinfo.nick);
+	nickname->SetTitle(ConfBind(lang.settings_player_nick));
+	AddFront(nickname);
+	SetFocus(nickname);
+}
+
+vec2d PlayerSettings::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
+	return vec2d{ std::floor(400 * scale), stackContentSize.y };
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+ControlsSettings::ControlsSettings(ShellConfig& conf, LangCache& lang)
+{
+	using namespace UI::DataSourceAliases;
+
+	SetFlowDirection(UI::FlowDirection::Vertical);
+	SetSpacing(20);
+
+	auto underConstruction = std::make_shared<UI::Text>();
+	underConstruction->SetFont("font_default");
+	underConstruction->SetText("Under construction"_txt);
+	AddFront(underConstruction);
+	SetFocus(underConstruction);
+}
+
+vec2d ControlsSettings::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
+	return vec2d{ std::floor(400 * scale), stackContentSize.y };
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+AdvancedSettings::AdvancedSettings(ShellConfig& conf, LangCache& lang)
+{
+	using namespace UI::DataSourceAliases;
+
+	SetFlowDirection(UI::FlowDirection::Vertical);
+	SetSpacing(20);
+
+	auto fullscreen = std::make_shared<BooleanSetting>(conf.r_fullscreen);
+	fullscreen->SetTitle(ConfBind(lang.settings_advanced_fullscreen));
+	AddFront(fullscreen);
+	SetFocus(fullscreen);
+
+	auto vsync = std::make_shared<BooleanSetting>(conf.r_vsync);
+	vsync->SetTitle(ConfBind(lang.settings_advanced_vsync));
+	AddFront(vsync);
+
+	auto showfps = std::make_shared<BooleanSetting>(conf.d_showfps);
+	showfps->SetTitle(ConfBind(lang.settings_advanced_framestats));
+	AddFront(showfps);
+}
+
+vec2d AdvancedSettings::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
+	return vec2d{ std::floor(350 * scale), stackContentSize.y };
+}

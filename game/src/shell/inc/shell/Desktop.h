@@ -102,7 +102,10 @@ private:
 	void OnSplitScreen();
 	void OnOpenMap();
 	void OnExportMap();
-	void OnGameSettings();
+	void OnSettingsMain();
+	void OnPlayerSettings();
+	void OnControlsSettings();
+	void OnAdvancedSettings();
 	void OnMapSettings();
 	bool GetEditorMode() const;
 	void SetEditorMode(bool editorMode);

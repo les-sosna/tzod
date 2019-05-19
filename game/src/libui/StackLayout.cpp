@@ -60,6 +60,8 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 
 vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
+	assert(GetWidth() == 0 && GetHeight() == 0); // explicit size is ignored
+
 	float pxTotalSize = 0; // in flow direction
 	unsigned int sumComponent = FlowDirection::Vertical == _flowDirection;
 

@@ -341,14 +341,43 @@ void Desktop::OnExportMap()
 	}
 }
 
-void Desktop::OnGameSettings()
+void Desktop::OnSettingsMain()
 {
-	if (_navStack->IsOnStack<SettingsDlg>())
+	if (_navStack->IsOnStack<MainSettingsDlg>())
 		return;
 
-	auto dlg = std::make_shared<SettingsDlg>(_texman, _conf, _lang);
-	dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender);};
-	_navStack->PushNavStack(dlg);
+	MainSettingsCommands commands;
+	commands.player = std::bind(&Desktop::OnPlayerSettings, this);
+	commands.controls = std::bind(&Desktop::OnControlsSettings, this);
+	commands.advanced = std::bind(&Desktop::OnAdvancedSettings, this);
+	_navStack->PushNavStack(std::make_shared<MainSettingsDlg>(_lang, std::move(commands)));
+	UpdateFocus();
+}
+
+void Desktop::OnPlayerSettings()
+{
+	if (_navStack->IsOnStack<PlayerSettings>())
+		return;
+
+	_navStack->PushNavStack(std::make_shared<PlayerSettings>(_conf, _lang));
+	UpdateFocus();
+}
+
+void Desktop::OnControlsSettings()
+{
+	if (_navStack->IsOnStack<ControlsSettings>())
+		return;
+
+	_navStack->PushNavStack(std::make_shared<ControlsSettings>(_conf, _lang));
+	UpdateFocus();
+}
+
+void Desktop::OnAdvancedSettings()
+{
+	if (_navStack->IsOnStack<AdvancedSettings>())
+		return;
+
+	_navStack->PushNavStack(std::make_shared<AdvancedSettings>(_conf, _lang));
 	UpdateFocus();
 }
 
@@ -375,7 +404,7 @@ void Desktop::ShowMainMenu()
 	commands.splitScreen = std::bind(&Desktop::OnSplitScreen, this);
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
-	commands.gameSettings = std::bind(&Desktop::OnGameSettings, this);
+	commands.gameSettings = std::bind(&Desktop::OnSettingsMain, this);
 	commands.close = [=]
 	{
 		if (GetAppState().GetGameContext()) // do not return to nothing
@@ -468,7 +497,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 		break;
 
 	case Plat::Key::F12:
-		OnGameSettings();
+		OnSettingsMain();
 		break;
 
 	case Plat::Key::F8:

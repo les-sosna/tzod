@@ -33,6 +33,15 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( editor_map_settings, "Map settings" )
 
 	VAR_STR( settings_btn, "SETTINGS" )
+	VAR_STR( settings_title, "SETTINGS" )
+	VAR_STR( settings_player, "PLAYER" )
+	VAR_STR( settings_player_nick, "NICKNAME" )
+	VAR_STR( settings_controls, "CONTROLS" )
+	VAR_STR( settings_advanced, "ADVANCED" )
+	VAR_STR( settings_advanced_fullscreen, "FULL SCREEN" )
+	VAR_STR( settings_advanced_vsync, "V-SYNC" )
+	VAR_STR( settings_advanced_framestats, "FRAME STATS" )
+
 	VAR_STR( quit_btn, "QUIT")
 
 	VAR_STR( get_file_name_title, "File name" )
@@ -195,7 +204,6 @@ REFLECTION_BEGIN(LangCache)
 	// Settings
 	//
 
-	VAR_STR( settings_title, "Settings" )
 	VAR_STR( settings_player1, "Player 1" )
 	VAR_STR( settings_player2, "Player 2" )
 	VAR_STR( settings_profiles, "Profiles" )

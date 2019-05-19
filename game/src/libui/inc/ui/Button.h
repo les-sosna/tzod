@@ -109,24 +109,35 @@ class CheckBox final
 {
 public:
 	CheckBox();
+
+	enum class BoxPosition
+	{
+		Left,
+		Right
+	};
+
+	void SetBoxPosition(BoxPosition boxPosition) { _boxPosition = boxPosition; }
+	BoxPosition GetBoxPosition() const { return _boxPosition; }
 	
 	void SetCheck(bool checked);
 	bool GetCheck() const { return _isChecked; }
 
+	void SetFont(Texture fontTexture);
 	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
+
+	// Window
+	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time) const override;
+	FRECT GetChildRect(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
+	vec2d GetContentSize(TextureManager& texman, const DataContext& dc, float scale, const LayoutConstraints& layoutConstraints) const override;
 
 protected:
 	// ButtonBase
 	void OnClick() override;
 
-	// Window
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
-	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
-
 private:
 	std::shared_ptr<Text> _text;
 	Texture _boxTexture = "ui/checkbox";
+	BoxPosition _boxPosition = BoxPosition::Left;
 	bool _isChecked = false;
 };
 

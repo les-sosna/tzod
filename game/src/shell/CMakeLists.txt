@@ -11,6 +11,7 @@ add_library(shell
 	Campaign.h
 	CampaignControlCommands.h
 	CampaignControls.h
+	ConfigWidgets.h
 	Game.h
 	GetFileName.h
 	gui.h	
@@ -36,6 +37,7 @@ add_library(shell
 	CampaignControls.cpp
 	Config.cpp
 	ConfigConsoleHistory.cpp
+	ConfigWidgets.cpp
 	Desktop.cpp
 	Game.cpp
 	GetFileName.cpp

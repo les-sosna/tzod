@@ -95,3 +95,46 @@ private:
 	int   _activeIndex;
 	bool  _createNewProfile;
 };
+
+
+#include <ui/StackLayout.h>
+
+struct MainSettingsCommands
+{
+	std::function<void()> player;
+	std::function<void()> controls;
+	std::function<void()> advanced;
+};
+
+class MainSettingsDlg : public UI::StackLayout
+{
+public:
+	MainSettingsDlg(LangCache& lang, MainSettingsCommands commands);
+};
+
+class PlayerSettings : public UI::StackLayout
+{
+public:
+	PlayerSettings(ShellConfig &conf, LangCache& lang);
+
+	// UI::Window
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+};
+
+class ControlsSettings : public UI::StackLayout
+{
+public:
+	ControlsSettings(ShellConfig& conf, LangCache& lang);
+
+	// UI::Window
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+};
+
+class AdvancedSettings : public UI::StackLayout
+{
+public:
+	AdvancedSettings(ShellConfig& conf, LangCache& lang);
+
+	// UI::Window
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+};

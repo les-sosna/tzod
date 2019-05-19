@@ -267,6 +267,11 @@ void CheckBox::OnClick()
 	SetCheck(!GetCheck());
 }
 
+void CheckBox::SetFont(Texture fontTexture)
+{
+	_text->SetFont(std::move(fontTexture));
+}
+
 void CheckBox::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
 	_text->SetText(std::move(text));
@@ -276,7 +281,7 @@ FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 {
 	if (_text.get() == &child)
 	{
-		float pxBoxWidth = ToPx(_boxTexture.GetTextureSize(texman), lc).x;
+		float pxBoxWidth = _boxPosition == BoxPosition::Left ? ToPx(_boxTexture.GetTextureSize(texman), lc).x : 0;
 		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
 		return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
 	}
@@ -289,8 +294,8 @@ void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 	unsigned int frame = _isChecked ? state + 4 : state;
 
 	vec2d pxBoxSize = ToPx(_boxTexture.GetTextureSize(texman), lc);
-
-	auto box = MakeRectWH(vec2d{0, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
+	float boxLeft = _boxPosition == BoxPosition::Right ? lc.GetPixelSize().x - pxBoxSize.x : 0;
+	auto box = MakeRectWH(vec2d{ boxLeft, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
 	rc.DrawSprite(box, _boxTexture.GetTextureId(texman), 0xffffffff, frame);
 }
 

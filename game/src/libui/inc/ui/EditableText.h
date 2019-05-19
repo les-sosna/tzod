@@ -15,6 +15,8 @@ namespace UI
 	public:
 		EditableText();
 
+		void SetFont(Texture fontTexture) { _font = std::move(fontTexture); }
+
 		int GetTextLength() const;
 
 		std::string_view GetText() const;
