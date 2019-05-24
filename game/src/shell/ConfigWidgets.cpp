@@ -1,5 +1,7 @@
 #include "ConfigWidgets.h"
+#include "KeyMapper.h"
 #include <cbind/ConfigBinding.h>
+#include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/Edit.h>
 #include <ui/Text.h>
@@ -140,10 +142,15 @@ vec2d KeyBindSetting::KeyBindSettingContent::GetContentSize(TextureManager& texm
 }
 
 KeyBindSetting::KeyBindSetting(ConfVarString& stringKeyVar)
-	: _content(std::make_shared<KeyBindSettingContent>(stringKeyVar))
+	: _stringKeyVar(stringKeyVar)
+	, _content(std::make_shared<KeyBindSettingContent>(stringKeyVar))
 	, _button(std::make_shared<UI::ContentButton>())
 {
 	_button->SetContent(_content);
+	_button->eventClick = [=]
+	{
+		_waitingForKey = true;
+	};
 	AddFront(_button);
 }
 
@@ -157,6 +164,11 @@ FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutConte
 	return MakeRectWH(lc.GetPixelSize());
 }
 
+float KeyBindSetting::GetChildOpacity(const UI::Window& child) const
+{
+	return _waitingForKey ? 0.5f : 1;
+}
+
 vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
 	return _button->GetContentSize(texman, dc, scale, layoutConstraints);
@@ -165,4 +177,20 @@ vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 std::shared_ptr<UI::Window> KeyBindSetting::GetFocus() const
 {
 	return _button;
+}
+
+bool KeyBindSetting::OnKeyPressed(UI::InputContext& ic, Plat::Key key)
+{
+	if (_waitingForKey)
+	{
+		if (Plat::Key::Escape != key)
+			_stringKeyVar.Set(GetKeyName(key));
+		_waitingForKey = false;
+		return true;
+	}
+	else if (Plat::Key::Delete == key)
+	{
+		_stringKeyVar.Set("");
+	}
+	return false;
 }

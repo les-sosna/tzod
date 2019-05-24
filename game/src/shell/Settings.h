@@ -68,7 +68,7 @@ public:
 	ControlProfileDlg(std::string_view profileName, ShellConfig &conf, LangCache &lang);
 	~ControlProfileDlg();
 
-	// UI::Window
+	// UI::KeyboardSink
 	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
 
 private:

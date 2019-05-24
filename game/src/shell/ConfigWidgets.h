@@ -48,7 +48,9 @@ private:
 	std::shared_ptr<UI::CheckBox> _valueCheckBox;
 };
 
-class KeyBindSetting final : public UI::Window
+class KeyBindSetting final
+	: public UI::Window
+	, private UI::KeyboardSink
 {
 public:
 	KeyBindSetting(ConfVarString& stringKeyVar);
@@ -56,10 +58,16 @@ public:
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
+	float GetChildOpacity(const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	std::shared_ptr<UI::Window> GetFocus() const override;
+	bool HasKeyboardSink() const override { return true; }
+	UI::KeyboardSink* GetKeyboardSink() override { return this; }
 
 private:
+	// UI::KeyboardSink
+	bool OnKeyPressed(UI::InputContext& ic, Plat::Key key) override;
+
 	class KeyBindSettingContent : public UI::Window
 	{
 	public:
@@ -75,6 +83,8 @@ private:
 		std::shared_ptr<UI::Text> _keyName;
 	};
 
+	ConfVarString& _stringKeyVar;
 	std::shared_ptr<KeyBindSettingContent> _content;
 	std::shared_ptr<UI::ContentButton> _button;
+	bool _waitingForKey = false;
 };
