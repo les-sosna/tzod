@@ -5,6 +5,7 @@
 namespace UI
 {
 	class CheckBox;
+	class ContentButton;
 	class Edit;
 	class Text;
 	template<class T> struct LayoutData;
@@ -14,7 +15,6 @@ class StringSetting : public UI::Window
 {
 public:
 	StringSetting(ConfVarString& stringVar);
-
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
 	void SetDefaultValue(std::string value) { _defaultValue = std::move(value); }
@@ -36,7 +36,6 @@ class BooleanSetting : public UI::Window
 {
 public:
 	BooleanSetting(ConfVarBool& stringVar);
-
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
 	// UI::Window
@@ -49,11 +48,10 @@ private:
 	std::shared_ptr<UI::CheckBox> _valueCheckBox;
 };
 
-class KeyBindSetting : public UI::Window
+class KeyBindSetting final : public UI::Window
 {
 public:
 	KeyBindSetting(ConfVarString& stringKeyVar);
-
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
 	// UI::Window
@@ -62,8 +60,21 @@ public:
 	std::shared_ptr<UI::Window> GetFocus() const override;
 
 private:
-	ConfVarString& _stringKeyVar;
-	std::shared_ptr<UI::Text> _title;
-	std::shared_ptr<UI::Text> _keyName;
-};
+	class KeyBindSettingContent : public UI::Window
+	{
+	public:
+		KeyBindSettingContent(const ConfVarString& stringKeyVar);
+		void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
+		// UI::Window
+		FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
+		vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+
+	private:
+		std::shared_ptr<UI::Text> _title;
+		std::shared_ptr<UI::Text> _keyName;
+	};
+
+	std::shared_ptr<KeyBindSettingContent> _content;
+	std::shared_ptr<UI::ContentButton> _button;
+};

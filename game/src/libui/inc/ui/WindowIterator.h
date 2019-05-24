@@ -215,25 +215,21 @@ namespace std
 {
 	inline UI::WindowIterator begin(UI::Window &wnd)
 	{
-//		return wnd.GetChildren().begin();
 		return UI::WindowIterator(wnd, 0);
 	}
 
 	inline UI::WindowIterator end(UI::Window &wnd)
 	{
-//		return wnd.GetChildren().end();
 		return UI::WindowIterator(wnd, wnd.GetChildrenCount());
 	}
 
 	inline UI::WindowConstIterator begin(const UI::Window &wnd)
 	{
-//		return wnd.GetChildren().begin();
 		return UI::WindowConstIterator(wnd, 0);
 	}
 
 	inline UI::WindowConstIterator end(const UI::Window &wnd)
 	{
-//		return wnd.GetChildren().end();
 		return UI::WindowConstIterator(wnd, wnd.GetChildrenCount());
 	}
 

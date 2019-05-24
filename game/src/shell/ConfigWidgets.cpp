@@ -92,27 +92,34 @@ std::shared_ptr<UI::Window> BooleanSetting::GetFocus() const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+//#include <ui/StateContext.h>
+#include <ui/DataSource.h>
 
-KeyBindSetting::KeyBindSetting(ConfVarString& stringKeyVar)
-	: _stringKeyVar(stringKeyVar)
-	, _title(std::make_shared<UI::Text>())
+static const auto c_textColor = std::make_shared<UI::StateBinding<SpriteColor>>(0xffeeeeee, // default
+	UI::StateBinding<SpriteColor>::MapType{ { "Disabled", 0xaaaaaaaa }, { "Hover", 0xffffffff }, { "Pushed", 0xffffffff } });
+
+KeyBindSetting::KeyBindSettingContent::KeyBindSettingContent(const ConfVarString& stringKeyVar)
+	: _title(std::make_shared<UI::Text>())
 	, _keyName(std::make_shared<UI::Text>())
 {
 	_title->SetFont("font_default");
+	_title->SetFontColor(c_textColor);
+	AddFront(_title);
+
 	_keyName->SetFont("font_default");
 	_keyName->SetText(ConfBind(stringKeyVar));
 	_keyName->SetAlign(alignTextRT);
-	AddFront(_title);
+	_keyName->SetFontColor(c_textColor);
 	AddFront(_keyName);
 }
 
-void KeyBindSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
+void KeyBindSetting::KeyBindSettingContent::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
 {
-	_title->SetText(title);
+	_title->SetText(std::move(title));
 }
 
 // UI::Window
-FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+FRECT KeyBindSetting::KeyBindSettingContent::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
 	if (_title.get() == &child)
 	{
@@ -125,12 +132,37 @@ FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutConte
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
+vec2d KeyBindSetting::KeyBindSettingContent::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	vec2d pxTitleSize = _title->GetContentSize(texman, dc, scale, layoutConstraints);
+	vec2d pxValueSize = _keyName->GetContentSize(texman, dc, scale, layoutConstraints);
+	return vec2d{ pxTitleSize.x + pxValueSize.x, std::max(pxTitleSize.y, pxValueSize.y) };
+}
+
+KeyBindSetting::KeyBindSetting(ConfVarString& stringKeyVar)
+	: _content(std::make_shared<KeyBindSettingContent>(stringKeyVar))
+	, _button(std::make_shared<UI::ContentButton>())
+{
+	_button->SetContent(_content);
+	AddFront(_button);
+}
+
+void KeyBindSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
+{
+	_content->SetTitle(std::move(title));
+}
+
+FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+{
+	return MakeRectWH(lc.GetPixelSize());
+}
+
 vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
-	return vec2d{ 0, _title->GetContentSize(texman, dc, scale, layoutConstraints).y };
+	return _button->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 std::shared_ptr<UI::Window> KeyBindSetting::GetFocus() const
 {
-	return nullptr;
+	return _button;
 }

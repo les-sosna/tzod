@@ -85,21 +85,21 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class TextButton final
+class ContentButton final
 	: public ButtonBase
 {
 public:
-	TextButton();
-
-	void SetFont(Texture fontTexture);
-	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
+	std::shared_ptr<Window> GetContent() const { return _content; }
+	void SetContent(std::shared_ptr<Window> content) { _content = std::move(content); }
 
 	// Window
+	unsigned int GetChildrenCount() const override;
+	std::shared_ptr<const Window> GetChild(unsigned int index) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
 private:
-	std::shared_ptr<Text> _text;
+	std::shared_ptr<Window> _content;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

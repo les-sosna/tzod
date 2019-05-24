@@ -214,38 +214,27 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TextButton
+// ContentButton
 
-TextButton::TextButton()
-	: _text(std::make_shared<Text>())
+unsigned int ContentButton::GetChildrenCount() const
 {
-	AddFront(_text);
-	_text->SetFontColor(c_textColor);
+	return !!_content;
 }
 
-vec2d TextButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
+std::shared_ptr<const Window> ContentButton::GetChild(unsigned int index) const
 {
-	return _text->GetContentSize(texman, dc, scale, layoutConstraints);
+	assert(_content && index == 0);
+	return _content;
 }
 
-void TextButton::SetFont(Texture fontTexture)
+vec2d ContentButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	_text->SetFont(std::move(fontTexture));
+	return _content ? _content->GetContentSize(texman, dc, scale, layoutConstraints) : vec2d{};
 }
 
-void TextButton::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
+FRECT ContentButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	_text->SetText(std::move(text));
-}
-
-FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
-{
-	if (_text.get() == &child)
-	{
-		return MakeRectWH(lc.GetPixelSize());
-	}
-
-	return ButtonBase::GetChildRect(texman, lc, dc, child);
+	return MakeRectWH(lc.GetPixelSize());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
