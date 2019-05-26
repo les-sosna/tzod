@@ -58,6 +58,6 @@ private:
 	std::shared_ptr<UI::List> _tierSelector;
 
 	// UI::NavigationSink
-	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;
-	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc) override;
+	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const override;
+	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc) override;
 };

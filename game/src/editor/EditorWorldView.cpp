@@ -474,7 +474,7 @@ bool EditorWorldView::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 	return true;
 }
 
-bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const
 {
 	switch (navigate)
 	{
@@ -492,7 +492,7 @@ bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext
 	}
 }
 
-void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
+void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{

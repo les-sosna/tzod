@@ -14,7 +14,7 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 {
 	if (wnd)
 	{
-		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(UI::Navigate::Back, lc, dc))
+		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(UI::Navigate::Back, lc))
 			return true;
 		if (auto focusedChild = wnd->GetFocus())
 		{

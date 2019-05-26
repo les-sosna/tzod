@@ -165,12 +165,12 @@ int List::GetNextIndex(Navigate navigate) const
 	}
 }
 
-bool List::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
+bool List::CanNavigate(Navigate navigate, const LayoutContext &lc) const
 {
 	return GetNextIndex(navigate) != GetCurSel();
 }
 
-void List::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
+void List::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
 {
 	if (NavigationPhase::Started == phase)
 	{

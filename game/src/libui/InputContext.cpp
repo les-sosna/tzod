@@ -341,9 +341,9 @@ static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texma
 		{
 			return handledBy;
 		}
-		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(navigate, lc, dc))
+		else if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(navigate, lc))
 		{
-			navigationSink->OnNavigate(navigate, phase, lc, dc);
+			navigationSink->OnNavigate(navigate, phase, lc);
 			return wnd;
 		}
 	}
@@ -495,8 +495,8 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 				_navigationSubjects[navigate].reset();
 				auto navigationSink = wnd->GetNavigationSink();
 				assert(navigationSink);
-				if (navigationSink->CanNavigate(navigate, lc, dc))
-					navigationSink->OnNavigate(navigate, NavigationPhase::Completed, lc, dc);
+				if (navigationSink->CanNavigate(navigate, lc))
+					navigationSink->OnNavigate(navigate, NavigationPhase::Completed, lc);
 				handled = true;
 			}
 		}
@@ -586,7 +586,7 @@ bool InputContext::ProcessSystemNavigationBack(TextureManager &texman, std::shar
 	if (startedHandledBy)
 	{
 		// FIXME: reconstruct the actual LC
-		startedHandledBy->GetNavigationSink()->OnNavigate(Navigate::Back, NavigationPhase::Completed, lc, dc);
+		startedHandledBy->GetNavigationSink()->OnNavigate(Navigate::Back, NavigationPhase::Completed, lc);
 	}
 	return !!startedHandledBy;
 }

@@ -68,12 +68,12 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 	return nullptr;
 }
 
-bool ScanlineLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
+bool ScanlineLayout::CanNavigate(Navigate navigate, const LayoutContext &lc) const
 {
 	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(lc, navigate);
 }
 
-void ScanlineLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
+void ScanlineLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
 {
 	if (NavigationPhase::Started == phase)
 	{

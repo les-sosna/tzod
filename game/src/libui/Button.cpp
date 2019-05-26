@@ -80,12 +80,12 @@ void ButtonBase::DoClick()
 		eventClick();
 }
 
-bool ButtonBase::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
+bool ButtonBase::CanNavigate(Navigate navigate, const LayoutContext &lc) const
 {
 	return Navigate::Enter == navigate && eventClick;
 }
 
-void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
+void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
 {
 	if (NavigationPhase::Completed == phase && Navigate::Enter == navigate)
 	{

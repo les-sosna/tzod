@@ -37,8 +37,8 @@ protected:
 	bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
 
 	// NavigationSink
-	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
+	bool CanNavigate(Navigate navigate, const LayoutContext &lc) const override;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc) override;
 
 private:
 	virtual bool OnClose(int result) { return true; }

@@ -84,8 +84,8 @@ private:
 	void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// NavigationSink
-	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
+	bool CanNavigate(Navigate navigate, const LayoutContext &lc) const override;
+	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc) override;
 };
 
 } // namespace UI

@@ -532,12 +532,12 @@ void Desktop::OnKeyReleased(const UI::InputContext &ic, Plat::Key key)
 	}
 }
 
-bool Desktop::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+bool Desktop::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const
 {
 	return UI::Navigate::Back == navigate && CanNavigateBack();
 }
 
-void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
+void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc)
 {
 	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{

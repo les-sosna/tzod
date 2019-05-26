@@ -106,12 +106,12 @@ std::shared_ptr<Window> StackLayout::GetNavigateTarget(Navigate navigate)
 	}
 }
 
-bool StackLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
+bool StackLayout::CanNavigate(Navigate navigate, const LayoutContext &lc) const
 {
 	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(navigate);
 }
 
-void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
+void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
 {
 	if (NavigationPhase::Started == phase)
 	{
