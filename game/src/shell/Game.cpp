@@ -235,7 +235,7 @@ float GameLayout::GetLastPlayerDieTime() const
 	return lastDieTime;
 }
 
-void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
+void GameLayout::OnTimeStep(Plat::Input &input, bool focused, float dt)
 {
 	float gameplayTime = _gameContext->GetGameplayTime();
 	float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
@@ -246,7 +246,7 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 
 	bool showScoreWhenDead = lastDieTime <= gameplayTime - showScoreDelay && GetAllPlayerDead();
 	bool showScoreWhenGameOver = gameOverTime <= gameplayTime - showScoreDelay;
-	bool showScoreWhenTabPressed = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
+	bool showScoreWhenTabPressed = input.IsKeyPressed(Plat::Key::Tab);
 
 	_score->SetVisible(showScoreWhenTabPressed || showScoreWhenDead || showScoreWhenGameOver);
 	if (_campaignControls)
@@ -258,9 +258,9 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (auto player : players)
-		player->SetIsActive(ic.GetFocused());
+		player->SetIsActive(focused);
 
-	if (ic.GetFocused())
+	if (focused)
 	{
 		WorldController::ControllerStateMap controlStates;
 
@@ -275,8 +275,7 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 				{
 					VehicleState vs;
-					vehicleStateReader->ReadVehicleState(_gameViewHarness, *vehicle, playerIndex,
-						ic.GetInput(), dragDirection, reversing, vs);
+					vehicleStateReader->ReadVehicleState(_gameViewHarness, *vehicle, playerIndex, input, dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
@@ -286,11 +285,11 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	}
 }
 
-void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	int pxWidth = (int)lc.GetPixelSize().x;
 	int pxHeight = (int)lc.GetPixelSize().y;
-	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f); // lc.GetScale()
+	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f); // lc.GetScaleCombined()
 	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize(pxWidth, pxHeight, scale);
 
 	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
@@ -329,7 +328,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_background.get() == &child)
@@ -341,7 +340,7 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	}
 	if (_scoreAndControls.get() == &child)
 	{
-		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
 	}
 	if (_timerDisplay.get() == &child)
@@ -355,7 +354,7 @@ FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-float GameLayout::GetChildOpacity(const UI::Window& child) const
+float GameLayout::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window& child) const
 {
 	if (_background.get() == &child)
 	{
@@ -371,7 +370,7 @@ std::shared_ptr<UI::Window> GameLayout::GetFocus() const
 	return _scoreAndControls;
 }
 
-bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool GameLayout::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (Plat::PointerType::Touch == pi.type)
 	{
@@ -382,12 +381,12 @@ bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Text
 	return false;
 }
 
-void GameLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+void GameLayout::OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	_activeDrags.erase(pi.id);
 }
 
-void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void GameLayout::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	if( captured )
 	{
@@ -402,7 +401,7 @@ void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Text
 	}
 }
 
-void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void GameLayout::OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)

@@ -93,7 +93,7 @@ void ComboBox::OnListLostFocus()
 	_btn->SetBackground("ui/scroll_down");
 }
 
-bool ComboBox::OnKeyPressed(InputContext &ic, Plat::Key key)
+bool ComboBox::OnKeyPressed(const InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
@@ -126,7 +126,7 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Plat::Key key)
 
 FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_list.get() == &child)
@@ -155,14 +155,13 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 	return vec2d{ itemSize.x + pxBtnSize.x, std::max(itemSize.y, pxBtnSize.y) };
 }
 
-void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
+	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
 
 	if (_list->GetList()->GetCurSel() != -1)
 	{
-		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman, time };
+		UI::RenderSettings rs{ ic, rc, texman, time };
 
 		DataContext itemDC;
 		{
@@ -171,7 +170,7 @@ void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 		}
 
 		vec2d pxItemSize = { lc.GetPixelSize().x - ToPx(_btn->GetWidth(), lc), lc.GetPixelSize().y };
-		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), pxItemSize, lc.GetEnabledCombined());
+		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScaleCombined(), lc.GetPixelOffsetCombined(), pxItemSize, lc.GetEnabledCombined(), lc.GetFocusedCombined());
 		RenderUIRoot(*_list->GetList()->GetItemTemplate(), rs, itemLC, itemDC, sc);
 	}
 }

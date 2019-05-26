@@ -25,7 +25,7 @@ UITestDesktop::UITestDesktop()
 
 FRECT UITestDesktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_testRect.get() == &child)

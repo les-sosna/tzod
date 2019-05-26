@@ -10,7 +10,7 @@
 #include <plat/Keys.h>
 #include <video/RenderContext.h>
 
-static bool CanNavigateBack(TextureManager &texman, UI::Window *wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
+static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, UI::Window *wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
 	if (wnd)
 	{
@@ -19,8 +19,8 @@ static bool CanNavigateBack(TextureManager &texman, UI::Window *wnd, const UI::L
 		if (auto focusedChild = wnd->GetFocus())
 		{
 			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-			UI::LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
-			return CanNavigateBack(texman, focusedChild.get(), childLC, dc);
+			UI::LayoutContext childLC(ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
+			return CanNavigateBack(texman, ic, focusedChild.get(), childLC, dc);
 		}
 	}
 	return false;
@@ -58,7 +58,7 @@ bool UIInputRenderingController::OnKey(Plat::AppWindow& appWindow, Plat::Key key
 		return true;
 
 	UI::DataContext dataContext;
-	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
+	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive());
 	return _inputContext.ProcessKeys(
 		_textureManager,
 		_desktop,
@@ -75,7 +75,7 @@ bool UIInputRenderingController::OnPointer(Plat::AppWindow& appWindow, Plat::Poi
 	return _inputContext.ProcessPointer(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext)),
+		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive()),
 		dataContext,
 		pxPointerPos,
 		pxPointerOffset,
@@ -92,7 +92,7 @@ bool UIInputRenderingController::OnSystemNavigationBack(Plat::AppWindow& appWind
 	return _inputContext.ProcessSystemNavigationBack(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext)),
+		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive()),
 		dataContext);
 }
 
@@ -120,7 +120,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 	RenderContext rc(_textureManager, render, displayWidth, displayHeight);
 
 	UI::DataContext dataContext;
-	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), pxWindowSize, _desktop->GetEnabled(dataContext));
+	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive());
 	UI::RenderSettings rs{ _inputContext, rc, _textureManager, _timeStepManager.GetTime() };
 
 	UI::RenderUIRoot(*_desktop, rs, layoutContext, dataContext, UI::StateContext());
@@ -135,7 +135,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 		}
 	}
 
-	appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, _desktop.get(), layoutContext, dataContext));
+	appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, _inputContext, _desktop.get(), layoutContext, dataContext));
 
 	Plat::MouseCursor mouseCursor = hoverTextSink ? Plat::MouseCursor::IBeam : Plat::MouseCursor::Arrow;
 	if (_mouseCursor != mouseCursor)

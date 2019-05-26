@@ -473,7 +473,7 @@ bool Desktop::CanNavigateBack() const
 	return _navStack->GetNavFront() && (isGameRunning || !atMainMenu);
 }
 
-bool Desktop::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool Desktop::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
@@ -524,7 +524,7 @@ bool Desktop::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 	return true;
 }
 
-void Desktop::OnKeyReleased(UI::InputContext &ic, Plat::Key key)
+void Desktop::OnKeyReleased(const UI::InputContext &ic, Plat::Key key)
 {
 	if (Plat::Key::GraveAccent == key)
 	{
@@ -559,11 +559,11 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 	}
 	if (_con.get() == &child)
 	{
-		return MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } *lc.GetScale()), Vec2dFloor(lc.GetPixelSize().x - 10 * lc.GetScale(), lc.GetPixelSize().y / 2));
+		return MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } *lc.GetScaleCombined()), Vec2dFloor(lc.GetPixelSize().x - 10 * lc.GetScaleCombined(), lc.GetPixelSize().y / 2));
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScale() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)) / lc.GetScale(), lc.GetScale());
+		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScaleCombined() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)) / lc.GetScaleCombined(), lc.GetScaleCombined());
 	}
 	if (_tierTitle.get() == &child)
 	{
@@ -572,7 +572,7 @@ FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc,
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-float Desktop::GetChildOpacity(const UI::Window &child) const
+float Desktop::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window &child) const
 {
 	if (_tierTitle.get() == &child)
 	{
@@ -581,7 +581,7 @@ float Desktop::GetChildOpacity(const UI::Window &child) const
 		else
 			return 0;
 	}
-	return UI::Window::GetChildOpacity(child);
+	return UI::Window::GetChildOpacity(lc, ic, child);
 }
 
 void Desktop::OnChangeShowFps()

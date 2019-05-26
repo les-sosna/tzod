@@ -14,7 +14,7 @@ using namespace UI;
 struct TraverseFocusPathSettings
 {
 	TextureManager &texman;
-	InputContext &ic;
+	const InputContext &ic;
 	std::function<bool(std::shared_ptr<Window>, const LayoutContext &lc, const DataContext &dc)> visitor;
 };
 
@@ -25,7 +25,7 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 		if (auto focusedChild = wnd->GetFocus())
 		{
 			auto childRect = wnd->GetChildRect(settings.texman, lc, dc, *focusedChild);
-			LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
+			LayoutContext childLC(settings.ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
 
 			if (TraverseFocusPath(std::move(focusedChild), childLC, dc, settings))
 			{
@@ -46,7 +46,6 @@ InputContext::InputContext(Plat::Input &input)
 	, _lastPointerLocation()
 #endif
 {
-	_transformStack.emplace(InputStackFrame{vec2d{}, true, true});
 }
 
 void InputContext::ReadInput()
@@ -70,22 +69,6 @@ TextSink* InputContext::GetTextSink(TextureManager &texman, std::shared_ptr<Wind
 	return result;
 }
 
-void InputContext::PushInputTransform(vec2d offset, bool focused, bool hovered)
-{
-	assert(!_transformStack.empty());
-	_transformStack.push(InputStackFrame{
-		_transformStack.top().offset + offset,
-		_transformStack.top().focused && focused,
-		_transformStack.top().hovered && hovered
-	});
-}
-
-void InputContext::PopInputTransform()
-{
-	assert(_transformStack.size() > 1);
-	_transformStack.pop();
-}
-
 Plat::PointerType InputContext::GetPointerType(unsigned int index) const
 {
 	if (index == 0)
@@ -98,20 +81,10 @@ Plat::PointerType InputContext::GetPointerType(unsigned int index) const
 	}
 }
 
-vec2d InputContext::GetPointerPos(unsigned int index) const
+vec2d InputContext::GetPointerPos(unsigned int index, const LayoutContext& lc) const
 {
 	assert(GetPointerType(index) != Plat::PointerType::Unknown);
-	return _pointerState.position - _transformStack.top().offset;
-}
-
-bool InputContext::GetFocused() const
-{
-	return _transformStack.top().focused;
-}
-
-bool InputContext::GetHovered() const
-{
-	return _transformStack.top().hovered;
+	return _pointerState.position - lc.GetPixelOffsetCombined();
 }
 
 std::shared_ptr<Window> InputContext::GetNavigationSubject(Navigate navigate) const
@@ -185,7 +158,7 @@ SinkType* UI::FindAreaSink(
 				if (!childInsideTopMost || search.topMostPass)
 				{
 					auto childRect = wnd->GetChildRect(search.texman, lc, search.dc, *child);
-					LayoutContext childLC(*wnd, lc, *child, Size(childRect), search.dc);
+					LayoutContext childLC(search.ic, *wnd, lc, *child, search.dc, Offset(childRect), Size(childRect));
 					sink = FindAreaSink<SinkType>(search, child, childLC, pxPointerPosition - Offset(childRect), childInsideTopMost);
 
 					if (sink)
@@ -212,19 +185,16 @@ static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
 		path[i]->SetFocus(path[i - 1]);
 }
 
-static std::pair<vec2d, LayoutContext> RestoreOffsetAndLayoutContext(LayoutContext lc, const DataContext &dc, TextureManager &texman, const std::vector<std::shared_ptr<Window>> &path)
+static LayoutContext RestoreLayoutContext(TextureManager& texman, const InputContext& ic, LayoutContext lc, const DataContext &dc, const std::vector<std::shared_ptr<Window>> &path)
 {
-	vec2d offset{};
 	for (size_t i = path.size() - 1; i > 0; i--)
 	{
 		auto &child = path[i - 1];
 		auto &parent = path[i];
-
 		auto childRect = parent->GetChildRect(texman, lc, dc, *child);
-		offset += Offset(childRect);
-		lc = LayoutContext(*parent, lc, *child, Size(childRect), dc);
+		lc = LayoutContext(ic, *parent, lc, *child, dc, Offset(childRect), Size(childRect));
 	}
-	return{ offset, lc };
+	return lc;
 }
 
 bool InputContext::ProcessPointer(
@@ -249,7 +219,7 @@ bool InputContext::ProcessPointer(
 	if (Plat::Msg::Scroll == msg || Plat::Msg::ScrollPrecise == msg)
 	{
 		return ProcessScroll(texman, wnd, lc, dc, pxPointerPosition,
-			pxPointerOffset / lc.GetScale(), Plat::Msg::ScrollPrecise == msg);
+			pxPointerOffset / lc.GetScaleCombined(), Plat::Msg::ScrollPrecise == msg);
 	}
 
 	PointerSink *pointerSink = nullptr;
@@ -267,7 +237,7 @@ bool InputContext::ProcessPointer(
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ texman, dc, topMostPass };
+			AreaSinkSearch search{ texman, *this, dc, topMostPass };
 			pointerSink = FindAreaSink<PointerSink>(search, wnd, lc, pxPointerPosition, wnd->GetTopMost());
 			if (pointerSink)
 			{
@@ -284,17 +254,17 @@ bool InputContext::ProcessPointer(
 		if ((Plat::Msg::PointerDown == msg || Plat::Msg::TAP == msg) && NeedsFocus(target.get(), dc))
 			PropagateFocus(sinkPath);
 
-		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
+		auto childLC = RestoreLayoutContext(texman, *this, lc, dc, sinkPath);
 
 		PointerInfo pi;
-		pi.position = pxPointerPosition - childOffsetAndLC.first;
+		pi.position = pxPointerPosition - childLC.GetPixelOffsetCombined();
 		pi.type = pointerType;
 		pi.id = pointerID;
 
 		switch (msg)
 		{
 		case Plat::Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, childOffsetAndLC.second, texman, pi, button))
+			if (pointerSink->OnPointerDown(*this, childLC, texman, pi, button))
 			{
 				_pointerCaptures[pointerID].capturePath = std::move(sinkPath);
 			}
@@ -307,14 +277,14 @@ bool InputContext::ProcessPointer(
 				auto target = std::move(sinkPath.front());
 				sinkPath.clear();
 				_pointerCaptures.erase(pointerID);
-				pointerSink->OnPointerUp(*this, childOffsetAndLC.second, texman, pi, button);
+				pointerSink->OnPointerUp(*this, childLC, texman, pi, button);
 			}
 			break;
 		case Plat::Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, childOffsetAndLC.second, texman, pi, isPointerCaptured);
+			pointerSink->OnPointerMove(*this, childLC, texman, pi, isPointerCaptured);
 			break;
 		case Plat::Msg::TAP:
-			pointerSink->OnTap(*this, childOffsetAndLC.second, texman, pi.position);
+			pointerSink->OnTap(*this, childLC, texman, pi.position);
 			break;
 		default:
 			assert(false);
@@ -327,32 +297,32 @@ bool InputContext::ProcessPointer(
 bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d scrollOffset, bool precise)
 {
 	ScrollSink *scrollSink = nullptr;
-	std::vector<std::shared_ptr<Window>> sinkPath;
+	std::vector<std::shared_ptr<Window>> scrollSinkPath;
 
 	// look for topmost windows first
 	for (bool topMostPass : {true, false})
 	{
-		AreaSinkSearch search{ texman, dc, topMostPass };
+		AreaSinkSearch search{ texman, *this, dc, topMostPass };
 		scrollSink = FindAreaSink<ScrollSink>(search, wnd, lc, pxPointerPosition, wnd->GetTopMost());
 		if (scrollSink)
 		{
-			sinkPath = std::move(search.outSinkPath);
+			scrollSinkPath = std::move(search.outSinkPath);
 			break;
 		}
 	}
 
 	if (scrollSink)
 	{
-		auto childOffsetAndLC = RestoreOffsetAndLayoutContext(lc, dc, texman, sinkPath);
-		pxPointerPosition -= childOffsetAndLC.first;
-		scrollSink->OnScroll(texman, *this, childOffsetAndLC.second, dc, scrollOffset, precise);
+		auto childLC = RestoreLayoutContext(texman, *this, lc, dc, scrollSinkPath);
+		pxPointerPosition -= childLC.GetPixelOffsetCombined();
+		scrollSink->OnScroll(texman, *this, childLC, dc, scrollOffset, precise);
 		return true;
 	}
 
 	return false;
 }
 
-static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Navigate navigate, NavigationPhase phase)
+static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texman, const InputContext& ic, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Navigate navigate, NavigationPhase phase)
 {
 	if (wnd->GetVisible() && wnd->GetEnabled(dc))
 	{
@@ -360,8 +330,8 @@ static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texma
 		if (auto focusedChild = wnd->GetFocus())
 		{
 			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-			LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
-			handledBy = NavigateMostDescendantFocus(texman, std::move(focusedChild), childLC, dc, navigate, phase);
+			LayoutContext childLC(ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
+			handledBy = NavigateMostDescendantFocus(texman, ic, std::move(focusedChild), childLC, dc, navigate, phase);
 		}
 
 		if (handledBy)
@@ -377,14 +347,14 @@ static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texma
 	return nullptr;
 }
 
-static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
+static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, const InputContext& ic, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
 {
 	if (auto focusedChild = wnd->GetFocus())
 	{
 		auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-		LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
+		LayoutContext childLC(ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
 
-		FRECT pxFocusRect = EnsureVisibleMostDescendantFocus(texman, focusedChild, childLC, dc);
+		FRECT pxFocusRect = EnsureVisibleMostDescendantFocus(texman, ic, focusedChild, childLC, dc);
 
 		if (auto scrollSink = wnd->GetScrollSink())
 		{
@@ -529,13 +499,13 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		}
 		else if (currentlyActiveInputMethod || AllowNonActiveNavigation(navigate))
 		{
-			auto handledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, navigate, NavigationPhase::Started);
+			auto handledBy = NavigateMostDescendantFocus(texman, *this, wnd, lc, dc, navigate, NavigationPhase::Started);
 			handled = !!handledBy;
 			_navigationSubjects[navigate] = std::move(handledBy);
 
 			if (handled)
 			{
-				EnsureVisibleMostDescendantFocus(texman, wnd, lc, dc);
+				EnsureVisibleMostDescendantFocus(texman, *this, wnd, lc, dc);
 			}
 		}
 	}
@@ -551,7 +521,7 @@ bool InputContext::ProcessText(
 	int codepoint)
 {
 	DataContext dataContext;
-	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), appWindow.GetPixelSize(), wnd->GetEnabled(dataContext));
+	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), wnd->GetEnabled(dataContext), true /* focused */);
 
 	bool modified = false;
 	bool handled = TraverseFocusPath(wnd, layoutContext, dataContext,
@@ -601,7 +571,7 @@ bool InputContext::ProcessText(
 
 	if (modified)
 	{
-		EnsureVisibleMostDescendantFocus(texman, wnd, layoutContext, dataContext);
+		EnsureVisibleMostDescendantFocus(texman, *this, wnd, layoutContext, dataContext);
 	}
 
 	return handled;
@@ -609,7 +579,7 @@ bool InputContext::ProcessText(
 
 bool InputContext::ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
 {
-	auto startedHandledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, Navigate::Back, NavigationPhase::Started);
+	auto startedHandledBy = NavigateMostDescendantFocus(texman, *this, wnd, lc, dc, Navigate::Back, NavigationPhase::Started);
 	if (startedHandledBy)
 	{
 		// FIXME: reconstruct the actual LC

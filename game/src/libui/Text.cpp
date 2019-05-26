@@ -16,12 +16,12 @@ void Text::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 	_text = std::move(text);
 }
 
-void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	if (_text && !_fontTexture.Empty())
 	{
 		SpriteColor color = _fontColor ? _fontColor->GetRenderValue(dc, sc) : 0xffffffff;
-		rc.DrawBitmapText(vec2d{}, lc.GetScale(), _fontTexture.GetTextureId(texman), color, _text->GetLayoutValue(dc), _align);
+		rc.DrawBitmapText(vec2d{}, lc.GetScaleCombined(), _fontTexture.GetTextureId(texman), color, _text->GetLayoutValue(dc), _align);
 
 		if (_underline && _underline->GetRenderValue(dc, sc))
 		{
@@ -29,12 +29,12 @@ void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 			static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
 			static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
 
-			vec2d contentSize = GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+			vec2d contentSize = GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 			FRECT rect;
 			rect.left = -std::floor(contentSize.x * dx[_align] / 2);
 			rect.top = contentSize.y - std::floor(contentSize.y * dy[_align] / 2);
 			rect.right = rect.left + contentSize.x;
-			rect.bottom = rect.top + std::ceil(lc.GetScale());
+			rect.bottom = rect.top + std::ceil(lc.GetScaleCombined());
 			rc.DrawSprite(rect, _underlineTexture.GetTextureId(texman), color, 0);
 		}
 	}

@@ -63,7 +63,7 @@ public:
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
-	float GetChildOpacity(const UI::Window &child) const override;
+	float GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window &child) const override;
 
 protected:
 	bool HasNavigationSink() const override { return true; }
@@ -129,8 +129,8 @@ private:
 	void OnGameContextChanged() override;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
-	void OnKeyReleased(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
+	void OnKeyReleased(const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
 	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;

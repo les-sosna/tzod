@@ -99,7 +99,7 @@ vec2d NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutCon
 	{
 		for (auto wnd : *this)
 		{
-			pxNavStackSize += wnd->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+			pxNavStackSize += wnd->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 		}
 		float pxSpacing = (float)(GetChildren().size() - 1) * UI::ToPx(_spacing, lc);
 		pxNavStackSize += vec2d{ pxSpacing, pxSpacing };
@@ -121,12 +121,12 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 	unsigned int dim = (_flowDirection == UI::FlowDirection::Vertical);
 
 	float pxTotalStackSize = GetNavStackPixelSize(texman, lc, dc)[dim];
-	float pxStagingSize = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc))[dim];
+	float pxStagingSize = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc))[dim];
 	float pxTransitionTarget = (lc.GetPixelSize()[dim] + pxStagingSize) / 2 - pxTotalStackSize;
 
 	const UI::Window *preStaging = children.size() > 1 ? children[children.size() - 2].get() : nullptr;
 	float pxSpacing = UI::ToPx(_spacing, lc);
-	float pxPreStagingSize = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc))[dim] : 0;
+	float pxPreStagingSize = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc))[dim] : 0;
 	float pxTransitionStart = (lc.GetPixelSize()[dim] + pxPreStagingSize) / 2 - (pxTotalStackSize - pxStagingSize - pxSpacing);
 
 	if (_state == State::GoingBack)
@@ -139,7 +139,7 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 	for (auto wnd : *this)
 	{
 		auto layoutConstraints = DefaultLayoutConstraints(lc);
-		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScale(), layoutConstraints);
+		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScaleCombined(), layoutConstraints);
 		pxWndSize = Vec2dMin(pxWndSize, layoutConstraints.maxPixelSize);
 		if (wnd.get() == &child)
 		{
@@ -156,7 +156,7 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 	return UI::Window::GetChildRect(texman, lc, dc, child);
 }
 
-float NavStack::GetChildOpacity(const Window &child) const
+float NavStack::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const Window &child) const
 {
 	float transition = GetTransitionTimeLeft() / _foldTime;
 	if (_state == State::GoingForward)
@@ -176,19 +176,19 @@ float NavStack::GetChildOpacity(const Window &child) const
 	return 0;
 }
 
-void NavStack::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void NavStack::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 }
 
-bool NavStack::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool NavStack::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	return true;
 }
 
-void NavStack::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+void NavStack::OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 }
 
-void NavStack::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void NavStack::OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 }

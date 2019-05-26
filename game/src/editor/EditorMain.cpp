@@ -163,7 +163,7 @@ void EditorMain::ChoosePrevType()
 		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
 }
 
-bool EditorMain::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool EditorMain::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch (key)
 	{
@@ -222,7 +222,7 @@ void EditorMain::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, co
 
 FRECT EditorMain::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_editorWorldView.get() == &child)
@@ -239,7 +239,7 @@ FRECT EditorMain::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	}
 	if (_helpBox.get() == &child)
 	{
-		vec2d pxHelpBoxSize = _helpBox->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		vec2d pxHelpBoxSize = _helpBox->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 		return MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxHelpBoxSize) / 2), pxHelpBoxSize);
 	}
 	return UI::Window::GetChildRect(texman, lc, dc, child);

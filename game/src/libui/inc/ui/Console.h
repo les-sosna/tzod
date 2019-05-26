@@ -68,12 +68,12 @@ public:
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	std::shared_ptr<Window> GetFocus() const override;
 
 	// TimeStepping
-	void OnTimeStep(const InputContext &ic, float dt) override;
+	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
 
 private:
 	std::shared_ptr<ScrollBarVertical> _scroll;
@@ -91,7 +91,7 @@ private:
 	void OnScrollBar(float pos);
 
 	// KeyboardSink
-	bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
 
 	// ScrollSink
 	void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset, bool precise) override;

@@ -25,7 +25,7 @@ public:
 
 	std::function<void(void)> eventClick;
 
-	State GetState(const LayoutContext &lc, const InputContext &ic) const;
+	State GetState(const LayoutContext &lc, const InputContext &ic, bool hovered) const;
 
 	// Window
 	bool HasNavigationSink() const override { return true; }
@@ -43,12 +43,12 @@ private:
 	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override final;
 
 	// PointerSink
-	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
-	void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
-	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override final;
+	bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
+	void OnPointerUp(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
+	void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override final;
 
 	// StateGen
-	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const override final;
+	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const override final;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ public:
 	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
 	// Window
-	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time) const override;
+	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time, bool hovered) const override;
 	FRECT GetChildRect(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const DataContext& dc, float scale, const LayoutConstraints& layoutConstraints) const override;
 

@@ -58,7 +58,7 @@ private:
 	void ChoosePrevType();
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
 	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;

@@ -119,7 +119,7 @@ void GetFileNameDlg::OnChangeName()
 	_changing = false;
 }
 
-bool GetFileNameDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool GetFileNameDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{

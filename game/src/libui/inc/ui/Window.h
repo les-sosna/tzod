@@ -13,6 +13,7 @@ class TextureManager;
 namespace Plat
 {
 	enum class Key;
+	struct Input;
 }
 
 namespace UI
@@ -47,8 +48,8 @@ struct ScrollSink
 
 struct KeyboardSink
 {
-	virtual bool OnKeyPressed(InputContext &ic, Plat::Key key) { return false; }
-	virtual void OnKeyReleased(InputContext &ic, Plat::Key key) {}
+	virtual bool OnKeyPressed(const InputContext &ic, Plat::Key key) { return false; }
+	virtual void OnKeyReleased(const InputContext &ic, Plat::Key key) {}
 };
 
 struct TextSink
@@ -63,7 +64,7 @@ class StateContext;
 
 struct StateGen
 {
-	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const = 0;
+	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const = 0;
 };
 
 class Window : public std::enable_shared_from_this<Window>
@@ -90,7 +91,7 @@ public:
 	}
 
 	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
-	virtual float GetChildOpacity(const Window &child) const { return 1; }
+	virtual float GetChildOpacity(const LayoutContext& lc, const InputContext& ic, const Window &child) const { return 1; }
 
 	//
 	// Input
@@ -151,7 +152,7 @@ public:
 	virtual std::shared_ptr<Window> GetFocus() const;
 
 	// rendering
-	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
+	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}
 
 private:
 	std::shared_ptr<Window> _focusChild;
@@ -210,7 +211,7 @@ public:
 
 	void SetTimeStep(bool enable);
 
-	virtual void OnTimeStep(const InputContext &ic, float dt) {}
+	virtual void OnTimeStep(Plat::Input &input, bool focused, float dt) {}
 
 private:
 	std::list<TimeStepping*>::iterator _timeStepReg;

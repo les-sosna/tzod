@@ -24,7 +24,7 @@ void ScrollView::SetContent(std::shared_ptr<Window> content)
 
 FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_content.get() == &child)
@@ -58,12 +58,12 @@ void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, co
 
 		if (!precise)
 		{
-			scrollOffset *= Vec2dClamp(vec2d{ 32, 32 }, MakeRectWH(lc.GetPixelSize() / lc.GetScale()));
+			scrollOffset *= Vec2dClamp(vec2d{ 32, 32 }, MakeRectWH(lc.GetPixelSize() / lc.GetScaleCombined()));
 		}
 
-		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 
-		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScale());
+		FRECT offsetConstraints = MakeRectWH((pxContentMeasuredSize - lc.GetPixelSize()) / lc.GetScaleCombined());
 		_offset = Vec2dClamp(_offset, offsetConstraints);
 		_offset -= scrollOffset;
 		_offset = Vec2dClamp(_offset, offsetConstraints);
@@ -78,12 +78,12 @@ void ScrollView::EnsureVisible(TextureManager &texman, const LayoutContext &lc, 
 {
 	if (_content)
 	{
-		vec2d pxContentSize = _content->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		vec2d pxContentSize = _content->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 
-		FRECT focusOffsetConstraints = MakeRectRB(Offset(pxFocusRect) + Size(pxFocusRect) - lc.GetPixelSize(), Offset(pxFocusRect)) / lc.GetScale();
+		FRECT focusOffsetConstraints = MakeRectRB(Offset(pxFocusRect) + Size(pxFocusRect) - lc.GetPixelSize(), Offset(pxFocusRect)) / lc.GetScaleCombined();
 		_offset = Vec2dClamp(_offset, focusOffsetConstraints);
 
-		FRECT contentOffsetConstraints = MakeRectWH((pxContentSize - lc.GetPixelSize()) / lc.GetScale());
+		FRECT contentOffsetConstraints = MakeRectWH((pxContentSize - lc.GetPixelSize()) / lc.GetScaleCombined());
 		_offset = Vec2dClamp(_offset, contentOffsetConstraints);
 	}
 }

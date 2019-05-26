@@ -117,7 +117,7 @@ void List::SetCurSel(int sel)
 
 int List::HitTest(vec2d pxPos, const LayoutContext &lc, TextureManager &texman) const
 {
-	vec2d which = pxPos / GetItemSize(texman, lc.GetScale(), DefaultLayoutConstraints(lc));
+	vec2d which = pxPos / GetItemSize(texman, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 	int index = _flowDirection == FlowDirection::Vertical ? int(which.y) : int(which.x);
 	if( index < 0 || index >= _data->GetItemCount() )
 	{
@@ -126,7 +126,7 @@ int List::HitTest(vec2d pxPos, const LayoutContext &lc, TextureManager &texman) 
 	return index;
 }
 
-bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+bool List::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	if( 1 == button && pi.type == Plat::PointerType::Mouse )
 	{
@@ -135,7 +135,7 @@ bool List::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &te
 	return false;
 }
 
-void List::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void List::OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	int index = HitTest(pointerPosition, lc, texman);
 	SetCurSel(index);
@@ -183,7 +183,7 @@ FRECT List::GetChildRect(TextureManager &texman, const LayoutContext &lc, const 
 	// This is not a real child but a hack for scroll to selection to work
 	assert(_itemTemplate.get() == &child);
 
-	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScale(), DefaultLayoutConstraints(lc));
+	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
 
@@ -211,7 +211,7 @@ std::shared_ptr<Window> List::GetFocus() const
 	return GetCurSel() != -1 ? _itemTemplate : nullptr;
 }
 
-void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	if (!_itemTemplate)
 		return;
@@ -220,7 +220,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 
 	bool isVertical = _flowDirection == FlowDirection::Vertical;
 
-	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScale(), DefaultLayoutConstraints(lc));
+	vec2d pxItemMinSize = GetItemSize(texman, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 
 	vec2d pxItemSize = isVertical ?
 		vec2d{ lc.GetPixelSize().x, pxItemMinSize.y } : vec2d{ pxItemMinSize.x, lc.GetPixelSize().y };
@@ -236,7 +236,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 	int i_min = std::max(0, regionBegin / advance);
 	int i_max = std::max(0, (regionEnd + advance - 1) / advance);
 
-	int hotItem = ic.GetHovered() ? HitTest(ic.GetPointerPos(0), lc, texman) : -1;
+	int hotItem = hovered ? HitTest(ic.GetPointerPos(0, lc), lc, texman) : -1;
 
 	for( int i = std::min(_data->GetItemCount(), i_max)-1; i >= i_min; --i )
 	{
@@ -248,7 +248,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 		{
 			if (_curSel == i)
 			{
-				if (ic.GetFocused())
+				if (lc.GetFocusedCombined())
 					itemState = FOCUSED;
 				else
 					itemState = UNFOCUSED;
@@ -260,9 +260,6 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 		}
 		else
 			itemState = DISABLED;
-
-		InputContext childIC(ic);
-		UI::RenderSettings rs{ childIC, rc, texman, time };
 
 		StateContext itemSC;
 		{
@@ -276,13 +273,13 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 			itemDC.SetItemIndex(i);
 		}
 
-		rs.ic.PushInputTransform(pxItemOffset, true /*focused*/, true /*hovered*/);
 		rc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
-		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), pxItemSize, lc.GetEnabledCombined());
+		InputContext childIC(ic);
+		UI::RenderSettings rs{ childIC, rc, texman, time };
+		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScaleCombined(), pxItemOffset, pxItemSize, lc.GetEnabledCombined(), true /* focused */);
 		RenderUIRoot(*_itemTemplate, rs, itemLC, itemDC, itemSC);
 
 		rc.PopTransform();
-		rs.ic.PopInputTransform();
 	}
 }

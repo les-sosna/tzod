@@ -76,22 +76,22 @@ private:
 	void EnsureVisible(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, FRECT pxFocusRect) override {}
 
 	// UI::PointerSink
-	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
-	void OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
-	void OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
-	void OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
+	bool OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
+	void OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
+	void OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
+	void OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
 	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;
 	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc) override;
 
 	// UI::Window
-	void OnTimeStep(const UI::InputContext &ic, float dt) override;
+	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
-	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 	bool HasNavigationSink() const override { return true; }
 	UI::NavigationSink* GetNavigationSink() override { return this; }
 	bool HasScrollSink() const override { return true; }

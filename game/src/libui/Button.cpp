@@ -12,31 +12,31 @@
 
 using namespace UI;
 
-ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic) const
+ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic, bool hovered) const
 {
 	if (!lc.GetEnabledCombined())
 		return stateDisabled;
 
-	bool pointerInside = ic.GetPointerType(0) != Plat::PointerType::Unknown && PtInFRect(MakeRectWH(lc.GetPixelSize()), ic.GetPointerPos(0));
+	bool pointerInside = ic.GetPointerType(0) != Plat::PointerType::Unknown && PtInFRect(MakeRectWH(lc.GetPixelSize()), ic.GetPointerPos(0, lc));
 	bool pointerPressed = ic.GetInput().GetPointerState(0).pressed;
 	if ((pointerInside && pointerPressed && ic.HasCapturedPointers(this)) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;
 
-	bool focusActive = (ic.GetLastKeyTime() >= ic.GetLastPointerTime()) && ic.GetFocused();
-	bool pointerActive = (ic.GetLastPointerTime() > ic.GetLastKeyTime()) && (ic.HasCapturedPointers(this) || (ic.GetHovered() && !pointerPressed));
+	bool focusActive = (ic.GetLastKeyTime() >= ic.GetLastPointerTime()) && lc.GetFocusedCombined();
+	bool pointerActive = (ic.GetLastPointerTime() > ic.GetLastKeyTime()) && (ic.HasCapturedPointers(this) || (hovered && !pointerPressed));
 	if (focusActive || pointerActive)
 		return stateHottrack;
 
 	return stateNormal;
 }
 
-bool ButtonBase::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+bool ButtonBase::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	// touch or primary button only
 	return !ic.HasCapturedPointers(this) && (Plat::PointerType::Touch == pi.type || 1 == button);
 }
 
-void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+void ButtonBase::OnPointerUp(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	if( PtInFRect(MakeRectWH(lc.GetPixelSize()), pi.position) )
 	{
@@ -44,7 +44,7 @@ void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager
 	}
 }
 
-void ButtonBase::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void ButtonBase::OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	if( !ic.HasCapturedPointers(this))
 	{
@@ -52,9 +52,9 @@ void ButtonBase::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texm
 	}
 }
 
-void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const
+void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const
 {
-	switch (GetState(lc, ic))
+	switch (GetState(lc, ic, hovered))
 	{
 	case statePushed:
 		sc.SetState("Pushed");
@@ -177,7 +177,7 @@ std::shared_ptr<const Window> Button::GetChild(unsigned int index) const
 
 FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_background.get() == &child)
@@ -271,15 +271,15 @@ FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, co
 	if (_text.get() == &child)
 	{
 		float pxBoxWidth = _boxPosition == BoxPosition::Left ? ToPx(_boxTexture.GetTextureSize(texman), lc).x : 0;
-		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
+		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 		return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
 	}
 	return ButtonBase::GetChildRect(texman, lc, dc, child);
 }
 
-void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	State state = GetState(lc, ic);
+	State state = GetState(lc, ic, hovered);
 	unsigned int frame = _isChecked ? state + 4 : state;
 
 	vec2d pxBoxSize = ToPx(_boxTexture.GetTextureSize(texman), lc);

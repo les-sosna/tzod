@@ -30,20 +30,20 @@ Edit::Edit()
 	Resize(100, 16);
 }
 
-bool Edit::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+bool Edit::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	return true;
 }
 
-void Edit::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
+void Edit::OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
 {
 }
 
-void Edit::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void Edit::OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 }
 
-void Edit::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const
+void Edit::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const
 {
 	sc.SetState(lc.GetEnabledCombined() ? "" : "Disabled");
 }

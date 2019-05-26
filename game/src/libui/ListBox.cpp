@@ -27,7 +27,7 @@ ListBox::ListBox(ListDataSource* dataSource)
 
 FRECT ListBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_background.get() == &child)

@@ -89,7 +89,7 @@ void Console::SetEcho(bool echo)
 	_echo = echo;
 }
 
-bool Console::OnKeyPressed(InputContext &ic, Plat::Key key)
+bool Console::OnKeyPressed(const InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -204,7 +204,7 @@ void Console::OnScroll(TextureManager &texman, const InputContext &ic, const Lay
 	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
 
-void Console::OnTimeStep(const InputContext &ic, float dt)
+void Console::OnTimeStep(Plat::Input &input, bool focused, float dt)
 {
 	// FIXME: workaround
 	_scroll->SetLineSize(1);
@@ -214,9 +214,9 @@ void Console::OnTimeStep(const InputContext &ic, float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
+	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
 
 	if( _buf )
 	{
@@ -225,7 +225,7 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 		FRECT inputRect = GetChildRect(texman, lc, dc, *_input);
 		float textAreaHeight = inputRect.top;
 
-		float h = std::floor(texman.GetFrameHeight(_font, 0) * lc.GetScale());
+		float h = std::floor(texman.GetFrameHeight(_font, 0) * lc.GetScaleCombined());
 		size_t visibleLineCount = size_t(textAreaHeight / h);
 		size_t scroll  = std::min(size_t(_scroll->GetDocumentSize() - _scroll->GetPos() - _scroll->GetPageSize()), _buf->GetLineCount());
 		size_t lineMax = _buf->GetLineCount() - scroll;
@@ -237,7 +237,7 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 		{
 			unsigned int sev = _buf->GetSeverity(line);
 			SpriteColor color = sev < _colors.size() ? _colors[sev] : 0xffffffff;
-			rc.DrawBitmapText(vec2d{ 4, y }, lc.GetScale(), _font, color, _buf->GetLine(line));
+			rc.DrawBitmapText(vec2d{ 4, y }, lc.GetScaleCombined(), _font, color, _buf->GetLine(line));
 			y += h;
 		}
 
@@ -247,14 +247,14 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 
 FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float inputHeight = _input->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y;
+	float inputHeight = _input->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y;
 	if (_input.get() == &child)
 	{
 		return MakeRectRB(vec2d{ 0, lc.GetPixelSize().y - inputHeight }, lc.GetPixelSize());
 	}
 	if (_scroll.get() == &child)
 	{
-		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScale());
+		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScaleCombined());
 		return MakeRectWH(vec2d{ lc.GetPixelSize().x - scrollWidth }, vec2d{ scrollWidth, lc.GetPixelSize().y - inputHeight });
 	}
 	return Rectangle::GetChildRect(texman, lc, dc, child);

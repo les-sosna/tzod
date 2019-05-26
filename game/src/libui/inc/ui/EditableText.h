@@ -40,7 +40,7 @@ namespace UI
 		// Window
 		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		std::shared_ptr<Window> GetFocus() const override;
-		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 		bool HasPointerSink() const override { return true; }
 		PointerSink* GetPointerSink() override { return this; }
 		bool HasKeyboardSink() const override { return true; }
@@ -69,12 +69,12 @@ namespace UI
 		std::string OnCut() override;
 
 		// KeyboardSink
-		bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
+		bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
 
 		// PointerSink
-		bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
-		void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
-		void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
+		bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
+		void OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
+		void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 	};
 
 } // namespace UI

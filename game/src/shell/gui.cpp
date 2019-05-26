@@ -410,7 +410,7 @@ void NewGameDlg::OnOK()
 	Close(_resultOK);
 }
 
-bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool NewGameDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -632,7 +632,7 @@ FRECT EditPlayerDlg::GetChildRect(TextureManager &texman, const UI::LayoutContex
 	if (_skinPreview.get() == &child)
 	{
 		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
-		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScale());
+		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScaleCombined());
 	}
 	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }
@@ -849,7 +849,7 @@ FRECT EditBotDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &
 	if (_skinPreview.get() == &child)
 	{
 		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
-		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScale());
+		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScaleCombined());
 	}
 	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }

@@ -150,7 +150,7 @@ void ScrollBarBase::OnLimitsChanged()
 
 float ScrollBarBase::GetScrollPaneLength(const LayoutContext &lc) const
 {
-	float result = Select(lc.GetPixelSize().x / lc.GetScale(), lc.GetPixelSize().y / lc.GetScale());
+	float result = Select(lc.GetPixelSize().x / lc.GetScaleCombined(), lc.GetPixelSize().y / lc.GetScaleCombined());
 	if( _showButtons )
 	{
 		result -= Select( _btnDownRight->GetWidth() + _btnUpLeft->GetWidth(),
@@ -161,7 +161,7 @@ float ScrollBarBase::GetScrollPaneLength(const LayoutContext &lc) const
 
 FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_btnDownRight.get() == &child)
@@ -190,13 +190,13 @@ FRECT ScrollBarVertical::GetChildRect(TextureManager &texman, const LayoutContex
 {
 	if (_btnBox.get() == &child)
 	{
-		float height = lc.GetPixelSize().y / lc.GetScale();
+		float height = lc.GetPixelSize().y / lc.GetScaleCombined();
 		float mult = GetShowButtons() ? 1.0f : 0.0f;
 		vec2d thumbSize = { _btnBox->GetWidth(), std::max(GetScrollPaneLength(lc) * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE) };
 		vec2d thumbOffset = { 0, _btnUpLeft->GetHeight() * mult + (height - thumbSize.y
 			- (_btnDownRight->GetHeight() + _btnUpLeft->GetHeight()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()) };
 
-		return CanvasLayout(thumbOffset, thumbSize, lc.GetScale());
+		return CanvasLayout(thumbOffset, thumbSize, lc.GetScaleCombined());
 	}
 
 	return ScrollBarBase::GetChildRect(texman, lc, dc, child);
@@ -220,13 +220,13 @@ FRECT ScrollBarHorizontal::GetChildRect(TextureManager &texman, const LayoutCont
 {
 	if (_btnBox.get() == &child)
 	{
-		float width = lc.GetPixelSize().x / lc.GetScale();
+		float width = lc.GetPixelSize().x / lc.GetScaleCombined();
 		float mult = GetShowButtons() ? 1.0f : 0.0f;
 		vec2d thumbSize = { std::max(GetScrollPaneLength(lc) * GetPageSize() / GetDocumentSize(), MIN_THUMB_SIZE), _btnBox->GetHeight() };
 		vec2d thumbOffset = { _btnUpLeft->GetWidth() * mult + (width - thumbSize.x
 			- (_btnUpLeft->GetWidth() + _btnDownRight->GetWidth()) * mult) * GetPos() / (GetDocumentSize() - GetPageSize()), 0 };
 
-		return CanvasLayout(thumbOffset, thumbSize, lc.GetScale());
+		return CanvasLayout(thumbOffset, thumbSize, lc.GetScaleCombined());
 	}
 
 	return ScrollBarBase::GetChildRect(texman, lc, dc, child);

@@ -69,7 +69,7 @@ public:
 	~ControlProfileDlg();
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
 
 private:
 	void AddAction(ConfVarString &var, std::string_view actionDisplayName);

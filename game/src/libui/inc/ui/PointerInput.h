@@ -22,9 +22,9 @@ namespace UI
 
 	struct PointerSink
 	{
-		virtual bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) { return true; }
-		virtual void OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) {}
-		virtual void OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) {}
-		virtual void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) {}
+		virtual bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) { return true; }
+		virtual void OnPointerUp(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) {}
+		virtual void OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) {}
+		virtual void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) {}
 	};
 }

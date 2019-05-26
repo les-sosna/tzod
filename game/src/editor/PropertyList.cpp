@@ -229,17 +229,17 @@ FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext
 {
 	if (_deleteButton.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y);
+		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y);
 	}
 	if (_scrollView.get() == &child)
 	{
-		vec2d pxMargins = { std::floor(4 * lc.GetScale()), 1 };
-		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins);
+		vec2d pxMargins = { std::floor(4 * lc.GetScaleCombined()), 1 };
+		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins);
 	}
 	return UI::Dialog::GetChildRect(texman, lc, dc, child);
 }
 
-bool PropertyList::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool PropertyList::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{

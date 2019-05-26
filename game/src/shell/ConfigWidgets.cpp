@@ -4,6 +4,7 @@
 #include <plat/Keys.h>
 #include <ui/Button.h>
 #include <ui/Edit.h>
+#include <ui/InputContext.h>
 #include <ui/Text.h>
 #include <ui/EditableText.h>
 #include <ui/LayoutContext.h>
@@ -164,9 +165,9 @@ FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutConte
 	return MakeRectWH(lc.GetPixelSize());
 }
 
-float KeyBindSetting::GetChildOpacity(const UI::Window& child) const
+float KeyBindSetting::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window& child) const
 {
-	return _waitingForKey ? 0.5f : 1;
+	return (lc.GetFocusedCombined() && _waitingForKey) ? 0.5f : 1;
 }
 
 vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
@@ -179,7 +180,7 @@ std::shared_ptr<UI::Window> KeyBindSetting::GetFocus() const
 	return _button;
 }
 
-bool KeyBindSetting::OnKeyPressed(UI::InputContext& ic, Plat::Key key)
+bool KeyBindSetting::OnKeyPressed(const UI::InputContext& ic, Plat::Key key)
 {
 	if (_waitingForKey)
 	{

@@ -33,7 +33,7 @@ void Dialog::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutCo
 	}
 }
 
-bool Dialog::OnKeyPressed(InputContext &ic, Plat::Key key)
+bool Dialog::OnKeyPressed(const InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{

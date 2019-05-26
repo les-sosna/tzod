@@ -52,7 +52,7 @@ vec2d MultiColumnListItem::GetContentSize(TextureManager &texman, const DataCont
 
 FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_selection.get() == &child)

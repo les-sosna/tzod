@@ -58,7 +58,7 @@ public:
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
-	float GetChildOpacity(const UI::Window& child) const override;
+	float GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	std::shared_ptr<UI::Window> GetFocus() const override;
 	bool HasKeyboardSink() const override { return true; }
@@ -66,7 +66,7 @@ public:
 
 private:
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext& ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext& ic, Plat::Key key) override;
 
 	class KeyBindSettingContent : public UI::Window
 	{

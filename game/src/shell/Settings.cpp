@@ -404,7 +404,7 @@ void ControlProfileDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-bool ControlProfileDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool ControlProfileDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	if (-1 != _activeIndex)
 	{
