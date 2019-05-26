@@ -85,22 +85,22 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 		vec2d{ pxMaxSize, pxTotalSize };
 }
 
-std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Navigate navigate)
+std::shared_ptr<Window> StackLayout::GetNavigateTarget(Navigate navigate)
 {
 	switch (navigate)
 	{
 	case Navigate::Prev:
-		return GetPrevFocusChild(*this, dc);
+		return GetPrevFocusChild(*this);
 	case Navigate::Next:
-		return GetNextFocusChild(*this, dc);
+		return GetNextFocusChild(*this);
 	case Navigate::Up:
-		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(*this, dc) : nullptr;
+		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(*this) : nullptr;
 	case Navigate::Down:
-		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(*this, dc) : nullptr;
+		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(*this) : nullptr;
 	case Navigate::Left:
-		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(*this, dc) : nullptr;
+		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(*this) : nullptr;
 	case Navigate::Right:
-		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(*this, dc) : nullptr;
+		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(*this) : nullptr;
 	default:
 		return nullptr;
 	}
@@ -108,14 +108,14 @@ std::shared_ptr<Window> StackLayout::GetNavigateTarget(const DataContext &dc, Na
 
 bool StackLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
-	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(dc, navigate);
+	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(navigate);
 }
 
 void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(dc, navigate))
+		if (auto newFocus = GetNavigateTarget(navigate))
 		{
 			SetFocus(std::move(newFocus));
 		}

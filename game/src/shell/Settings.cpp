@@ -87,14 +87,14 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	_editProfile->SetText(ConfBind(_lang.settings_profile_edit));
 	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
-	_editProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
+//	_editProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_editProfile);
 
 	_deleteProfile = std::make_shared<UI::Button>();
 	_deleteProfile->SetText(ConfBind(_lang.settings_profile_delete));
 	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
-	_deleteProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
+//	_deleteProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_deleteProfile);
 
 

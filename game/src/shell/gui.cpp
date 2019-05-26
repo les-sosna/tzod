@@ -175,14 +175,14 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 		_removePlayer->SetText(ConfBind(_lang.human_player_remove));
 		_removePlayer->Move(x3, 286);
 		_removePlayer->eventClick = std::bind(&NewGameDlg::OnRemovePlayer, this);
-		_removePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
+//		_removePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_removePlayer);
 
 		_changePlayer = std::make_shared<UI::Button>();
 		_changePlayer->SetText(ConfBind(_lang.human_player_modify));
 		_changePlayer->Move(x3, 316);
 		_changePlayer->eventClick = std::bind(&NewGameDlg::OnEditPlayer, this);
-		_changePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
+//		_changePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_changePlayer);
 
 		btn = std::make_shared<UI::Button>();
@@ -195,14 +195,14 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 		_removeBot->SetText(ConfBind(_lang.AI_player_remove));
 		_removeBot->Move(x3, 414);
 		_removeBot->eventClick = std::bind(&NewGameDlg::OnRemoveBot, this);
-		_removeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
+//		_removeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_removeBot);
 
 		_changeBot = std::make_shared<UI::Button>();
 		_changeBot->SetText(ConfBind(_lang.AI_player_modify));
 		_changeBot->Move(x3, 444);
 		_changeBot->eventClick = std::bind(&NewGameDlg::OnEditBot, this);
-		_changeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
+//		_changeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_changeBot);
 
 

@@ -298,10 +298,9 @@ void SinglePlayer::UpdateTier()
 		auto mpButton = std::make_shared<UI::ButtonBase>();
 		mpButton->AddFront(mapPreview);
 		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
-		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
-		if (locked)
+		if (!locked)
 		{
-			mpButton->SetEnabled(UI::StaticValue<bool>::False());
+			mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
 		}
 
 		_mapTiles->AddFront(mpButton);

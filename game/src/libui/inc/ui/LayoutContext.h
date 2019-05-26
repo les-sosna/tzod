@@ -16,7 +16,7 @@ namespace UI
 
 		// Initialize layout context for child window
 		LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC,
-			const Window &childWindow, const DataContext& childDC, vec2d pxChildOffset, vec2d pxChildSize);
+			const Window &childWindow, vec2d pxChildOffset, vec2d pxChildSize);
 
 		vec2d GetPixelSize() const { return _pxSize; }
 		vec2d GetPixelOffsetCombined() const { return _pxOffsetCombined; }

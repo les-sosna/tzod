@@ -95,16 +95,6 @@ std::shared_ptr<Window> Window::GetFocus() const
 	return _focusChild;
 }
 
-void Window::SetEnabled(std::shared_ptr<LayoutData<bool>> enabled)
-{
-	_enabled = std::move(enabled);
-}
-
-bool Window::GetEnabled(const DataContext &dc) const
-{
-	return _enabled ? _enabled->GetLayoutValue(dc) : true;
-}
-
 void Window::SetVisible(bool visible)
 {
 	_isVisible = visible;

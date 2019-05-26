@@ -3,13 +3,13 @@
 #include "inc/ui/WindowIterator.h"
 using namespace UI;
 
-std::shared_ptr<Window> UI::GetPrevFocusChild(Window &wnd, const DataContext &dc)
+std::shared_ptr<Window> UI::GetPrevFocusChild(Window &wnd)
 {
 	auto focusChild = wnd.GetFocus();
 	if (!focusChild && wnd.GetChildrenCount() > 0)
 	{
 		focusChild = wnd.GetChild(wnd.GetChildrenCount() - 1);
-		if (NeedsFocus(focusChild.get(), dc))
+		if (NeedsFocus(focusChild.get()))
 			return focusChild;
 	}
 	if (focusChild)
@@ -18,7 +18,7 @@ std::shared_ptr<Window> UI::GetPrevFocusChild(Window &wnd, const DataContext &dc
 		while (focusIt != begin(wnd))
 		{
 			--focusIt;
-			if (NeedsFocus((*focusIt).get(), dc))
+			if (NeedsFocus((*focusIt).get()))
 			{
 				return *focusIt;
 			}
@@ -27,13 +27,13 @@ std::shared_ptr<Window> UI::GetPrevFocusChild(Window &wnd, const DataContext &dc
 	return nullptr;
 }
 
-std::shared_ptr<Window> UI::GetNextFocusChild(Window &wnd, const DataContext &dc)
+std::shared_ptr<Window> UI::GetNextFocusChild(Window &wnd)
 {
 	auto focusChild = wnd.GetFocus();
 	if (!focusChild && wnd.GetChildrenCount() > 0)
 	{
 		focusChild = wnd.GetChild(0);
-		if (NeedsFocus(focusChild.get(), dc))
+		if (NeedsFocus(focusChild.get()))
 			return focusChild;
 	}
 	if (focusChild)
@@ -42,7 +42,7 @@ std::shared_ptr<Window> UI::GetNextFocusChild(Window &wnd, const DataContext &dc
 		while (focusIt != rbegin(wnd))
 		{
 			--focusIt;
-			if (NeedsFocus((*focusIt).get(), dc))
+			if (NeedsFocus((*focusIt).get()))
 			{
 				return *focusIt;
 			}

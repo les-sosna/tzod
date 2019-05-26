@@ -44,8 +44,6 @@ void NavStack::PopNavStack(UI::Window *wnd)
 
 	if (wnd == navFront.get())
 	{
-		wnd->SetEnabled(UI::StaticValue<bool>::False());
-
 		switch (_state)
 		{
 		case State::GoingForward:
@@ -69,7 +67,6 @@ void NavStack::PopNavStack(UI::Window *wnd)
 
 	if (auto newNavFront = GetNavFront())
 	{
-		newNavFront->SetEnabled(nullptr);
 		SetFocus(newNavFront);
 	}
 }
@@ -85,10 +82,7 @@ void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
 	_state = State::GoingForward;
 	_navTransitionStartTime = GetTimeStepManager().GetTime() - GetTransitionTimeLeft();
 
-	if (!GetChildren().empty())
-		GetChildren().back()->SetEnabled(UI::StaticValue<bool>::False());
 	AddFront(wnd);
-
 	SetFocus(GetChildren().back());
 }
 
@@ -174,6 +168,11 @@ float NavStack::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputCont
 		return 1 - transition;
 	}
 	return 0;
+}
+
+bool NavStack::GetChildEnabled(const Window& child) const
+{
+	return GetNavFront().get() == &child;
 }
 
 void NavStack::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)

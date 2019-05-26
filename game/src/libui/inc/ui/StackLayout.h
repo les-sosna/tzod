@@ -36,7 +36,7 @@ namespace UI
 		FlowDirection _flowDirection = FlowDirection::Vertical;
 		Align _align = Align::LT;
 
-		std::shared_ptr<Window> GetNavigateTarget(const DataContext &dc, Navigate navigate);
+		std::shared_ptr<Window> GetNavigateTarget(Navigate navigate);
 
 		// NavigationSink
 		bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;

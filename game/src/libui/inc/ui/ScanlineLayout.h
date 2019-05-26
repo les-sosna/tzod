@@ -21,7 +21,7 @@ namespace UI
 	private:
 		vec2d _elementSize;
 
-		std::shared_ptr<Window> GetNavigateTarget(const LayoutContext &lc, const DataContext &dc, Navigate navigate);
+		std::shared_ptr<Window> GetNavigateTarget(const LayoutContext &lc, Navigate navigate);
 
 		// NavigationSink
 		bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;

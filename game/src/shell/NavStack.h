@@ -48,6 +48,7 @@ public:
 	UI::PointerSink* GetPointerSink() override { return GetNavFront() ? this : nullptr; }
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	float GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const Window &child) const override;
+	bool GetChildEnabled(const Window& child) const override;
 
 private:
 	enum class State

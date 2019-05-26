@@ -30,7 +30,7 @@ vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &
 	return pxElementSize * vec2d{ (float)numColumns, (float)numRows };
 }
 
-std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &lc, const DataContext &dc, Navigate navigate)
+std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &lc, Navigate navigate)
 {
 	auto focusChild = GetFocus();
 	auto childIt = std::find(begin(*this), end(*this), focusChild);
@@ -41,9 +41,9 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 	switch (navigate)
 	{
 	case Navigate::Prev:
-		return GetPrevFocusChild(*this, dc);
+		return GetPrevFocusChild(*this);
 	case Navigate::Next:
-		return GetNextFocusChild(*this, dc);
+		return GetNextFocusChild(*this);
 	case Navigate::Up:
 		childIndex -= numColumns;
 		if (childIndex >= 0)
@@ -55,9 +55,9 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 			return *childIt;
 		break;
 	case Navigate::Left:
-		return GetPrevFocusChild(*this, dc);
+		return GetPrevFocusChild(*this);
 	case Navigate::Right:
-		return GetNextFocusChild(*this, dc);
+		return GetNextFocusChild(*this);
 	case Navigate::Begin:
 		return *begin(*this);
 	case Navigate::End:
@@ -70,14 +70,14 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 
 bool ScanlineLayout::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
-	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(lc, dc, navigate);
+	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(lc, navigate);
 }
 
 void ScanlineLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(lc, dc, navigate))
+		if (auto newFocus = GetNavigateTarget(lc, navigate))
 		{
 			SetFocus(std::move(newFocus));
 		}

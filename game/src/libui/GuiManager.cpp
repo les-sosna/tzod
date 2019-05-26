@@ -124,7 +124,7 @@ static void DrawWindowRecursive(
 				if (canDrawOutside || RectIntersect(visibleRegion, childRect))
 				{
 					vec2d childOffset = Offset(childRect);
-					LayoutContext childLC(renderSettings.ic, wnd, lc, *child, dc, childOffset, Size(childRect));
+					LayoutContext childLC(renderSettings.ic, wnd, lc, *child, childOffset, Size(childRect));
 					if (childLC.GetOpacityCombined() != 0)
 					{
 						renderSettings.rc.PushTransform(childOffset, childLC.GetOpacityCombined());

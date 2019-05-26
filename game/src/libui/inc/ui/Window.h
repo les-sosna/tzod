@@ -92,6 +92,7 @@ public:
 
 	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
 	virtual float GetChildOpacity(const LayoutContext& lc, const InputContext& ic, const Window &child) const { return 1; }
+	virtual bool GetChildEnabled(const Window& child) const { return true; }
 
 	//
 	// Input
@@ -145,9 +146,6 @@ public:
 	// Behavior
 	//
 
-	void SetEnabled(std::shared_ptr<LayoutData<bool>> enabled);
-	bool GetEnabled(const DataContext &dc) const;
-
 	void SetFocus(std::shared_ptr<Window> child);
 	virtual std::shared_ptr<Window> GetFocus() const;
 
@@ -157,8 +155,6 @@ public:
 private:
 	std::shared_ptr<Window> _focusChild;
 	std::deque<std::shared_ptr<Window>> _children;
-
-	std::shared_ptr<LayoutData<bool>> _enabled;
 
 	//
 	// size and position
@@ -182,10 +178,19 @@ private:
 	};
 };
 
-inline bool NeedsFocus(const Window *wnd, const DataContext &dc)
+inline bool NeedsFocus(const Window *wnd)
 {
-	return (wnd && wnd->GetVisible() && wnd->GetEnabled(dc)) ?
-		wnd->HasNavigationSink() || wnd->HasKeyboardSink() || wnd->HasTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
+	if (!wnd || !wnd->GetVisible())
+		return false;
+
+	if (wnd->HasNavigationSink() || wnd->HasKeyboardSink() || wnd->HasTextSink())
+		return true;
+
+	if (auto focus = wnd->GetFocus().get())
+		if (wnd->GetChildEnabled(*focus) && NeedsFocus(focus))
+			return true;
+
+	return false;
 }
 
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);

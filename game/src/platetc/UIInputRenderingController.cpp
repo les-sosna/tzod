@@ -19,7 +19,7 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 		if (auto focusedChild = wnd->GetFocus())
 		{
 			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-			UI::LayoutContext childLC(ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
+			UI::LayoutContext childLC(ic, *wnd, lc, *focusedChild, Offset(childRect), Size(childRect));
 			return CanNavigateBack(texman, ic, focusedChild.get(), childLC, dc);
 		}
 	}
@@ -58,7 +58,7 @@ bool UIInputRenderingController::OnKey(Plat::AppWindow& appWindow, Plat::Key key
 		return true;
 
 	UI::DataContext dataContext;
-	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive());
+	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive());
 	return _inputContext.ProcessKeys(
 		_textureManager,
 		_desktop,
@@ -75,7 +75,7 @@ bool UIInputRenderingController::OnPointer(Plat::AppWindow& appWindow, Plat::Poi
 	return _inputContext.ProcessPointer(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive()),
+		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive()),
 		dataContext,
 		pxPointerPos,
 		pxPointerOffset,
@@ -92,7 +92,7 @@ bool UIInputRenderingController::OnSystemNavigationBack(Plat::AppWindow& appWind
 	return _inputContext.ProcessSystemNavigationBack(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive()),
+		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive()),
 		dataContext);
 }
 
@@ -120,7 +120,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 	RenderContext rc(_textureManager, render, displayWidth, displayHeight);
 
 	UI::DataContext dataContext;
-	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, _desktop->GetEnabled(dataContext), _inputContext.GetMainWindowActive());
+	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, true /* enabled */, _inputContext.GetMainWindowActive());
 	UI::RenderSettings rs{ _inputContext, rc, _textureManager, _timeStepManager.GetTime() };
 
 	UI::RenderUIRoot(*_desktop, rs, layoutContext, dataContext, UI::StateContext());

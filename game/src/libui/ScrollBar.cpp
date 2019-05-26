@@ -140,8 +140,6 @@ void ScrollBarBase::OnLimitsChanged()
 {
 	bool needScroll = _documentSize > _pageSize;
 	_btnBox->SetVisible(needScroll);
-	_btnUpLeft->SetEnabled(std::make_shared<StaticValue<bool>>(needScroll));
-	_btnDownRight->SetEnabled(std::make_shared<StaticValue<bool>>(needScroll));
 	if( !needScroll )
 	{
 		SetPos(0);
@@ -170,6 +168,15 @@ FRECT ScrollBarBase::GetChildRect(TextureManager &texman, const LayoutContext &l
 	}
 
 	return Rectangle::GetChildRect(texman, lc, dc, child);
+}
+
+bool ScrollBarBase::GetChildEnabled(const Window& child) const
+{
+	if (_btnUpLeft.get() == &child || _btnDownRight.get() == &child)
+	{
+		return _documentSize > _pageSize;
+	}
+	return Rectangle::GetChildEnabled(child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

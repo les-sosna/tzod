@@ -14,7 +14,7 @@ using namespace UI;
 
 ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic, bool hovered) const
 {
-	if (!lc.GetEnabledCombined())
+	if (!lc.GetEnabledCombined() || !eventClick)
 		return stateDisabled;
 
 	bool pointerInside = ic.GetPointerType(0) != Plat::PointerType::Unknown && PtInFRect(MakeRectWH(lc.GetPixelSize()), ic.GetPointerPos(0, lc));
@@ -82,7 +82,7 @@ void ButtonBase::DoClick()
 
 bool ButtonBase::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
 {
-	return Navigate::Enter == navigate;
+	return Navigate::Enter == navigate && eventClick;
 }
 
 void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)

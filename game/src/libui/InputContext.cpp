@@ -25,7 +25,7 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 		if (auto focusedChild = wnd->GetFocus())
 		{
 			auto childRect = wnd->GetChildRect(settings.texman, lc, dc, *focusedChild);
-			LayoutContext childLC(settings.ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
+			LayoutContext childLC(settings.ic, *wnd, lc, *focusedChild, Offset(childRect), Size(childRect));
 
 			if (TraverseFocusPath(std::move(focusedChild), childLC, dc, settings))
 			{
@@ -151,14 +151,14 @@ SinkType* UI::FindAreaSink(
 	{
 		for (auto child : reverse(*wnd))
 		{
-			if (child->GetEnabled(search.dc) && child->GetVisible())
+			if (wnd->GetChildEnabled(*child) && child->GetVisible())
 			{
 				// early skip topmost subtree
 				bool childInsideTopMost = insideTopMost || child->GetTopMost();
 				if (!childInsideTopMost || search.topMostPass)
 				{
 					auto childRect = wnd->GetChildRect(search.texman, lc, search.dc, *child);
-					LayoutContext childLC(search.ic, *wnd, lc, *child, search.dc, Offset(childRect), Size(childRect));
+					LayoutContext childLC(search.ic, *wnd, lc, *child, Offset(childRect), Size(childRect));
 					sink = FindAreaSink<SinkType>(search, child, childLC, pxPointerPosition - Offset(childRect), childInsideTopMost);
 
 					if (sink)
@@ -192,7 +192,7 @@ static LayoutContext RestoreLayoutContext(TextureManager& texman, const InputCon
 		auto &child = path[i - 1];
 		auto &parent = path[i];
 		auto childRect = parent->GetChildRect(texman, lc, dc, *child);
-		lc = LayoutContext(ic, *parent, lc, *child, dc, Offset(childRect), Size(childRect));
+		lc = LayoutContext(ic, *parent, lc, *child, Offset(childRect), Size(childRect));
 	}
 	return lc;
 }
@@ -251,7 +251,7 @@ bool InputContext::ProcessPointer(
 	{
 		auto &target = sinkPath.front();
 
-		if ((Plat::Msg::PointerDown == msg || Plat::Msg::TAP == msg) && NeedsFocus(target.get(), dc))
+		if ((Plat::Msg::PointerDown == msg || Plat::Msg::TAP == msg) && NeedsFocus(target.get()))
 			PropagateFocus(sinkPath);
 
 		auto childLC = RestoreLayoutContext(texman, *this, lc, dc, sinkPath);
@@ -324,14 +324,17 @@ bool InputContext::ProcessScroll(TextureManager &texman, std::shared_ptr<Window>
 
 static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texman, const InputContext& ic, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Navigate navigate, NavigationPhase phase)
 {
-	if (wnd->GetVisible() && wnd->GetEnabled(dc))
+	if (wnd->GetVisible())
 	{
 		std::shared_ptr<Window> handledBy;
 		if (auto focusedChild = wnd->GetFocus())
 		{
-			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-			LayoutContext childLC(ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
-			handledBy = NavigateMostDescendantFocus(texman, ic, std::move(focusedChild), childLC, dc, navigate, phase);
+			if (wnd->GetChildEnabled(*focusedChild))
+			{
+				auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
+				LayoutContext childLC(ic, *wnd, lc, *focusedChild, Offset(childRect), Size(childRect));
+				handledBy = NavigateMostDescendantFocus(texman, ic, std::move(focusedChild), childLC, dc, navigate, phase);
+			}
 		}
 
 		if (handledBy)
@@ -352,7 +355,7 @@ static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, const Inpu
 	if (auto focusedChild = wnd->GetFocus())
 	{
 		auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-		LayoutContext childLC(ic, *wnd, lc, *focusedChild, dc, Offset(childRect), Size(childRect));
+		LayoutContext childLC(ic, *wnd, lc, *focusedChild, Offset(childRect), Size(childRect));
 
 		FRECT pxFocusRect = EnsureVisibleMostDescendantFocus(texman, ic, focusedChild, childLC, dc);
 
@@ -521,7 +524,7 @@ bool InputContext::ProcessText(
 	int codepoint)
 {
 	DataContext dataContext;
-	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), wnd->GetEnabled(dataContext), true /* focused */);
+	LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, true /* focused */);
 
 	bool modified = false;
 	bool handled = TraverseFocusPath(wnd, layoutContext, dataContext,
