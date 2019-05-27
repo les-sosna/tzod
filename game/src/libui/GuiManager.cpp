@@ -149,7 +149,7 @@ static void DrawWindowRecursive(
 		renderSettings.rc.PopClippingRect();
 }
 
-void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc)
+void UI::RenderUIRoot(const std::shared_ptr<Window> &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc)
 {
 	// Find pointer sink path for hover
 	// TODO: all pointers
@@ -162,7 +162,7 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 		for (bool topMostPass : {true, false})
 		{
 			AreaSinkSearch search{ rs.texman, rs.ic, dc, topMostPass };
-			if (FindAreaSink<PointerSink>(search, desktop.shared_from_this(), lc, rs.ic.GetPointerPos(0, lc), desktop.GetTopMost()))
+			if (FindAreaSink<PointerSink>(search, desktop, lc, rs.ic.GetPointerPos(0, lc), desktop->GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);
 				break;
@@ -176,11 +176,11 @@ void UI::RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &
 		rs.topMostPass = topMostPass;
 		DrawWindowRecursive(
 			rs,
-			desktop,
+			*desktop,
 			lc,
 			sc,
 			dc,
-			desktop.GetTopMost()
+			desktop->GetTopMost()
 		);
 	}
 }

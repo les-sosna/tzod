@@ -280,23 +280,22 @@ void NewGameDlg::OnAddPlayer()
 
 	_newPlayer = true;
 	auto dlg = std::make_shared<EditPlayerDlg>(_texman, p, _conf, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditPlayerDlg>(dlg)](int result)
+	{
+		if (_resultOK == result)
+		{
+			RefreshPlayersList();
+		}
+		else if (_newPlayer)
+		{
+			_conf.dm_players.PopBack();
+		}
+		_newPlayer = false;
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
 	AddFront(dlg);
 	SetFocus(dlg);
-}
-
-void NewGameDlg::OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
-	{
-		RefreshPlayersList();
-	}
-	else if( _newPlayer )
-	{
-		_conf.dm_players.PopBack();
-	}
-	_newPlayer = false;
-	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnRemovePlayer()
@@ -312,18 +311,15 @@ void NewGameDlg::OnEditPlayer()
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditPlayerDlg>(_texman, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditPlayerDlg>(dlg)](int result)
+	{
+		if (_resultOK == result)
+			RefreshPlayersList();
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
 	AddFront(dlg);
 	SetFocus(dlg);
-}
-
-void NewGameDlg::OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
-	{
-		RefreshPlayersList();
-	}
-	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnAddBot()
@@ -336,23 +332,18 @@ void NewGameDlg::OnAddBot()
 
 	_newPlayer = true;
 	auto dlg = std::make_shared<EditBotDlg>(_texman, p, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditBotDlg>(dlg)](int result)
+	{
+		if (_resultOK == result)
+			RefreshBotsList();
+		else if (_newPlayer)
+			_conf.dm_bots.PopBack();
+		_newPlayer = false;
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
 	AddFront(dlg);
 	SetFocus(dlg);
-}
-
-void NewGameDlg::OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
-	{
-		RefreshBotsList();
-	}
-	else if( _newPlayer )
-	{
-		_conf.dm_bots.PopBack();
-	}
-	_newPlayer = false;
-	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnRemoveBot()
@@ -368,18 +359,15 @@ void NewGameDlg::OnEditBot()
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditBotDlg>(_texman, _conf.dm_bots.GetAt(index).AsTable(), _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditBotDlg>(dlg)](int result)
+	{
+		if (_resultOK == result)
+			RefreshBotsList();
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
 	AddFront(dlg);
 	SetFocus(dlg);
-}
-
-void NewGameDlg::OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
-	{
-		RefreshBotsList();
-	}
-	UnlinkChild(*sender);
 }
 
 void NewGameDlg::OnOK()

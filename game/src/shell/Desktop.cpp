@@ -201,20 +201,23 @@ static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 void Desktop::OnNewCampaign()
 {
 	auto dlg = std::make_shared<NewCampaignDlg>(_fs, _lang);
-	dlg->eventCampaignSelected = [this](auto sender, std::string_view name)
+	dlg->eventCampaignSelected = [this, weakSender = std::weak_ptr(dlg)](std::string_view name)
 	{
-		OnCloseChild(sender);
-		if( !name.empty() )
+		if (auto sender = weakSender.lock())
 		{
-			try
+			OnCloseChild(sender);
+			if (!name.empty())
 			{
-//				script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
-				throw std::logic_error("not implemented");
-			}
-			catch( const std::exception &e )
-			{
-				_logger.WriteLine(1, e.what());
-				ShowConsole(true);
+				try
+				{
+//					script_exec_file(_globL.get(), _fs, ("campaign/" + name + ".lua").c_str());
+					throw std::logic_error("not implemented");
+				}
+				catch (const std::exception & e)
+				{
+					_logger.WriteLine(1, e.what());
+					ShowConsole(true);
+				}
 			}
 		}
 	};
@@ -230,20 +233,23 @@ void Desktop::OnSinglePlayer()
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
 		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache());
-		dlg->eventSelectMap = [this](auto sender, int index)
+		dlg->eventSelectMap = [this, weakSender = std::weak_ptr(dlg)](int index)
 		{
-			_conf.sp_map.SetInt(index);
-			OnCloseChild(sender);
-			try
+			if (auto sender = weakSender.lock())
 			{
-				int currentTier = GetCurrentTier(_conf, _dmCampaign);
-				int currentMap = GetCurrentMap(_conf, _dmCampaign);
-				_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
-				NavigateHome();
-			}
-			catch (const std::exception &e)
-			{
-				_logger.Printf(1, "Could not start new game - %s", e.what());
+				_conf.sp_map.SetInt(index);
+				OnCloseChild(sender);
+				try
+				{
+					int currentTier = GetCurrentTier(_conf, _dmCampaign);
+					int currentMap = GetCurrentMap(_conf, _dmCampaign);
+					_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
+					NavigateHome();
+				}
+				catch (const std::exception & e)
+				{
+					_logger.Printf(1, "Could not start new game - %s", e.what());
+				}
 			}
 		};
 		_navStack->PushNavStack(dlg);
@@ -257,19 +263,22 @@ void Desktop::OnSplitScreen()
 		return;
 
 	auto dlg = std::make_shared<NewGameDlg>(_texman, _fs, _conf, _logger, _lang);
-	dlg->eventClose = [this](auto sender, int result)
+	dlg->eventClose = [this, weakSender = std::weak_ptr(dlg)](int result)
 	{
-		OnCloseChild(sender);
-		if (UI::Dialog::_resultOK == result)
+		if (auto sender = weakSender.lock())
 		{
-			try
+			OnCloseChild(sender);
+			if (UI::Dialog::_resultOK == result)
 			{
-//				_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-				NavigateHome();
-			}
-			catch (const std::exception &e)
-			{
-				_logger.Printf(1, "Could not start new game - %s", e.what());
+				try
+				{
+//					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
+					NavigateHome();
+				}
+				catch (const std::exception & e)
+				{
+					_logger.Printf(1, "Could not start new game - %s", e.what());
+				}
 			}
 		}
 	};
@@ -288,20 +297,23 @@ void Desktop::OnOpenMap()
 	}
 
 	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetWorldCache(), _mapCollection);
-	selectMapDlg->eventMapSelected = [this](std::shared_ptr<SelectMapDlg> sender, unsigned int mapIndex)
+	selectMapDlg->eventMapSelected = [this, weakSender = std::weak_ptr<SelectMapDlg>(selectMapDlg)](unsigned int mapIndex)
 	{
-		OnCloseChild(sender);
-		std::shared_ptr<FS::Stream> stream;
-		if (mapIndex != -1)
+		if (auto sender = weakSender.lock())
 		{
-			auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".map";
-			stream = _fs.Open(fileName)->QueryStream();
+			OnCloseChild(sender);
+			std::shared_ptr<FS::Stream> stream;
+			if (mapIndex != -1)
+			{
+				auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".map";
+				stream = _fs.Open(fileName)->QueryStream();
+			}
+			// clear the existing context first to prevent memory usage spike
+			GetAppState().SetGameContext(nullptr);
+			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
+			GetAppState().SetGameContext(std::move(gc));
+			NavigateHome();
 		}
-		// clear the existing context first to prevent memory usage spike
-		GetAppState().SetGameContext(nullptr);
-		std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
-		GetAppState().SetGameContext(std::move(gc));
-		NavigateHome();
 	};
 
 	_navStack->PushNavStack(selectMapDlg);
@@ -325,15 +337,18 @@ void Desktop::OnExportMap()
 		}
 
 		auto fileDlg = std::make_shared<GetFileNameDlg>(param, _lang);
-		fileDlg->eventClose = [this](auto sender, int result)
+		fileDlg->eventClose = [this, weakSender=std::weak_ptr<GetFileNameDlg>(fileDlg)](int result)
 		{
-			OnCloseChild(sender);
-			auto gameContext = GetAppState().GetGameContext();
-			if (UI::Dialog::_resultOK == result && gameContext)
+			if (auto sender = weakSender.lock())
 			{
-				auto fileName = std::string(DIR_MAPS) + "/" + static_cast<GetFileNameDlg&>(*sender).GetFileName();
-				gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
-				_logger.Printf(0, "map exported: '%s'", fileName.c_str());
+				OnCloseChild(sender);
+				auto gameContext = GetAppState().GetGameContext();
+				if (UI::Dialog::_resultOK == result && gameContext)
+				{
+					auto fileName = std::string(DIR_MAPS) + "/" + sender->GetFileName();
+					gameContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
+					_logger.Printf(0, "map exported: '%s'", fileName.c_str());
+				}
 			}
 		};
 		_navStack->PushNavStack(fileDlg);
@@ -385,9 +400,11 @@ void Desktop::OnMapSettings()
 {
 	if (auto gameContext = GetAppState().GetGameContext())
 	{
-		//ThemeManager themeManager(GetAppState(), _fs, _texman);
-		auto dlg = std::make_shared<MapSettingsDlg>(gameContext->GetWorld()/*, themeManager*/, _lang);
-		dlg->eventClose = [this](auto sender, int result) {OnCloseChild(sender);};
+		auto dlg = std::make_shared<MapSettingsDlg>(gameContext->GetWorld(), _lang);
+		dlg->eventClose = [this, weakSender = std::weak_ptr<MapSettingsDlg>(dlg)](int result)
+		{
+			OnCloseChild(weakSender.lock());
+		};
 		_navStack->PushNavStack(dlg);
 		UpdateFocus();
 	}

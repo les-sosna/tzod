@@ -328,9 +328,9 @@ int SinglePlayer::GetNextTier(UI::Navigate navigate) const
 
 void SinglePlayer::OnOK(int index)
 {
-	if (-1 != index && eventSelectMap)
+	if (eventSelectMap)
 	{
-		eventSelectMap(std::static_pointer_cast<SinglePlayer>(shared_from_this()), index);
+		eventSelectMap(index);
 	}
 }
 

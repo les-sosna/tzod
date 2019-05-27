@@ -278,7 +278,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 		InputContext childIC(ic);
 		UI::RenderSettings rs{ childIC, rc, texman, time };
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScaleCombined(), pxItemOffset, pxItemSize, lc.GetEnabledCombined(), true /* focused */);
-		RenderUIRoot(*_itemTemplate, rs, itemLC, itemDC, itemSC);
+		RenderUIRoot(_itemTemplate, rs, itemLC, itemDC, itemSC);
 
 		rc.PopTransform();
 	}

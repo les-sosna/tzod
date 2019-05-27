@@ -171,7 +171,7 @@ void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 
 		vec2d pxItemSize = { lc.GetPixelSize().x - ToPx(_btn->GetWidth(), lc), lc.GetPixelSize().y };
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScaleCombined(), lc.GetPixelOffsetCombined(), pxItemSize, lc.GetEnabledCombined(), lc.GetFocusedCombined());
-		RenderUIRoot(*_list->GetList()->GetItemTemplate(), rs, itemLC, itemDC, sc);
+		RenderUIRoot(_list->GetList()->GetItemTemplate(), rs, itemLC, itemDC, sc);
 	}
 }
 

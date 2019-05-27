@@ -50,6 +50,6 @@ void NewCampaignDlg::OnOK()
 	if( -1 != _files->GetCurSel() )
 	{
 		if( eventCampaignSelected )
-			eventCampaignSelected(std::static_pointer_cast<NewCampaignDlg>(shared_from_this()), _files->GetData()->GetItemText(_files->GetCurSel(), 0));
+			eventCampaignSelected(_files->GetData()->GetItemText(_files->GetCurSel(), 0));
 	}
 }

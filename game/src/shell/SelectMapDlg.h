@@ -23,7 +23,7 @@ class SelectMapDlg final
 public:
 	SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection);
 
-	std::function<void(std::shared_ptr<SelectMapDlg>, unsigned int)> eventMapSelected;
+	std::function<void(unsigned int)> eventMapSelected;
 
 private:
 	WorldView &_worldView;

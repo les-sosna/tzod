@@ -184,7 +184,10 @@ void SettingsDlg::OnVolumeMusic(float pos)
 void SettingsDlg::OnAddProfile()
 {
 	auto dlg = std::make_shared<ControlProfileDlg>(std::string_view(), _conf, _lang);
-	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<ControlProfileDlg>(dlg)](int result)
+	{
+		OnProfileEditorClosed(weakSender.lock(), result);
+	};
 	AddFront(dlg);
 	SetFocus(dlg);
 }
@@ -194,7 +197,10 @@ void SettingsDlg::OnEditProfile()
 	int i = _profiles->GetList()->GetCurSel();
 	assert(i >= 0);
 	auto dlg = std::make_shared<ControlProfileDlg>(_profilesDataSource.GetItemText(i, 0), _conf, _lang);
-	dlg->eventClose = std::bind(&SettingsDlg::OnProfileEditorClosed, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<ControlProfileDlg>(dlg)](int result)
+	{
+		OnProfileEditorClosed(weakSender.lock(), result);
+	};
 	AddFront(dlg);
 	SetFocus(dlg);
 }

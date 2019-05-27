@@ -16,7 +16,7 @@ void Dialog::Close(int result)
 	if (OnClose(result))
 	{
 		if (eventClose)
-			eventClose(std::static_pointer_cast<Dialog>(shared_from_this()), result);
+			eventClose(result);
 	}
 }
 

@@ -123,7 +123,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, true /* enabled */, _inputContext.GetMainWindowActive());
 	UI::RenderSettings rs{ _inputContext, rc, _textureManager, _timeStepManager.GetTime() };
 
-	UI::RenderUIRoot(*_desktop, rs, layoutContext, dataContext, UI::StateContext());
+	UI::RenderUIRoot(_desktop, rs, layoutContext, dataContext, UI::StateContext());
 
 	bool hoverTextSink = false;
 	for (auto &wnd : rs.hoverPath)

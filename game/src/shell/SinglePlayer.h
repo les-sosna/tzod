@@ -32,7 +32,7 @@ class SinglePlayer final
 public:
 	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache);
 
-	std::function<void(std::shared_ptr<SinglePlayer>, int)> eventSelectMap;
+	std::function<void(int)> eventSelectMap;
 
 	// UI::Window
 	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;

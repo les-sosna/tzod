@@ -209,53 +209,47 @@ namespace UI
 			return nullptr;
 		}
 	}; 
-}
 
-namespace std
-{
-	inline UI::WindowIterator begin(UI::Window &wnd)
+	inline WindowIterator begin(Window &wnd)
 	{
-		return UI::WindowIterator(wnd, 0);
+		return WindowIterator(wnd, 0);
 	}
 
-	inline UI::WindowIterator end(UI::Window &wnd)
+	inline WindowIterator end(Window &wnd)
 	{
-		return UI::WindowIterator(wnd, wnd.GetChildrenCount());
+		return WindowIterator(wnd, wnd.GetChildrenCount());
 	}
 
-	inline UI::WindowConstIterator begin(const UI::Window &wnd)
+	inline WindowConstIterator begin(const Window &wnd)
 	{
-		return UI::WindowConstIterator(wnd, 0);
+		return WindowConstIterator(wnd, 0);
 	}
 
-	inline UI::WindowConstIterator end(const UI::Window &wnd)
+	inline WindowConstIterator end(const Window &wnd)
 	{
-		return UI::WindowConstIterator(wnd, wnd.GetChildrenCount());
+		return WindowConstIterator(wnd, wnd.GetChildrenCount());
 	}
 
-	inline auto rbegin(UI::Window &wnd)
+	inline auto rbegin(Window &wnd)
 	{
 		return std::make_reverse_iterator(end(wnd));
 	}
 
-	inline auto rend(UI::Window &wnd)
+	inline auto rend(Window &wnd)
 	{
 		return std::make_reverse_iterator(begin(wnd));
 	}
 
-	inline auto rbegin(const UI::Window &wnd)
+	inline auto rbegin(const Window &wnd)
 	{
 		return std::make_reverse_iterator(end(wnd));
 	}
 
-	inline auto rend(const UI::Window &wnd)
+	inline auto rend(const Window &wnd)
 	{
 		return std::make_reverse_iterator(begin(wnd));
 	}
-}
 
-namespace UI
-{
 	namespace detail
 	{
 		template <typename T>
@@ -271,7 +265,7 @@ namespace UI
 	template <typename T>
 	detail::reversion_wrapper<T> reverse(T&& iterable) { return { iterable }; }
 
-	inline WindowConstIterator FindWindowChild(const UI::Window &wnd, const UI::Window &child)
+	inline WindowConstIterator FindWindowChild(const Window &wnd, const Window &child)
 	{
 		for (auto it = begin(wnd); it != end(wnd); ++it)
 		{

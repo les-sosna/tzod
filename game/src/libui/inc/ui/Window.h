@@ -67,7 +67,7 @@ struct StateGen
 	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const = 0;
 };
 
-class Window : public std::enable_shared_from_this<Window>
+class Window
 {
 public:
 	Window();

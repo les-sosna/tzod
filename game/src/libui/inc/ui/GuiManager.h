@@ -28,7 +28,7 @@ struct RenderSettings
 	bool topMostPass;
 };
 
-void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc);
+void RenderUIRoot(const std::shared_ptr<Window> &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc);
 
 class TimeStepManager
 {
