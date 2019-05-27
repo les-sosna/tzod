@@ -183,21 +183,7 @@ private:
 	};
 };
 
-inline bool NeedsFocus(TextureManager &texman, const LayoutContext& lc, const DataContext& dc, const Window *wnd)
-{
-	if (!wnd || !wnd->GetVisible())
-		return false;
-
-	if (wnd->HasNavigationSink() || wnd->HasKeyboardSink() || wnd->HasTextSink())
-		return true;
-
-	if (auto focus = wnd->GetFocus().get())
-		if (wnd->GetChildLayout(texman, lc, dc, *focus).enabled && NeedsFocus(texman, lc, dc, focus))
-			return true;
-
-	return false;
-}
-
+bool NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc);
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
 
 //////////////////////// to remove ////////////////////

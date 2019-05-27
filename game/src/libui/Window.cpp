@@ -101,6 +101,24 @@ void Window::SetVisible(bool visible)
 }
 
 
+bool UI::NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc)
+{
+	if (!wnd.GetVisible())
+		return false;
+
+	if (wnd.HasNavigationSink() || wnd.HasKeyboardSink() || wnd.HasTextSink())
+		return true;
+
+	if (auto focus = wnd.GetFocus().get())
+	{
+		auto childLayout = wnd.GetChildLayout(texman, lc, dc, *focus);
+		if (childLayout.enabled && NeedsFocus(texman, ic, *focus, LayoutContext(ic, wnd, lc, *focus, childLayout), dc))
+			return true;
+	}
+
+	return false;
+}
+
 FRECT UI::CanvasLayout(vec2d offset, vec2d size, float scale)
 {
 	return MakeRectWH(ToPx(offset, scale), ToPx(size, scale));

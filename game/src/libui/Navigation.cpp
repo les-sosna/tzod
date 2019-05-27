@@ -11,7 +11,7 @@ std::shared_ptr<Window> UI::GetPrevFocusChild(TextureManager& texman, const Inpu
 	{
 		auto child = wnd.GetChild(wnd.GetChildrenCount() - 1);
 		LayoutContext childLC(ic, wnd, lc, *child, wnd.GetChildLayout(texman, lc, dc, *child));
-		if (NeedsFocus(texman, childLC, dc, child.get()))
+		if (NeedsFocus(texman, ic, *child, childLC, dc))
 			return child;
 	}
 	if (focus)
@@ -21,7 +21,7 @@ std::shared_ptr<Window> UI::GetPrevFocusChild(TextureManager& texman, const Inpu
 		{
 			auto child = *(--focusIt);
 			LayoutContext childLC(ic, wnd, lc, *child, wnd.GetChildLayout(texman, lc, dc, *child));
-			if (NeedsFocus(texman, childLC, dc, child.get()))
+			if (NeedsFocus(texman, ic, *child, childLC, dc))
 				return child;
 		}
 	}
@@ -35,7 +35,7 @@ std::shared_ptr<Window> UI::GetNextFocusChild(TextureManager& texman, const Inpu
 	{
 		auto child = wnd.GetChild(0);
 		LayoutContext childLC(ic, wnd, lc, *child, wnd.GetChildLayout(texman, lc, dc, *child));
-		if (NeedsFocus(texman, childLC, dc, child.get()))
+		if (NeedsFocus(texman, ic, *child, childLC, dc))
 			return child;
 	}
 	if (focus)
@@ -45,7 +45,7 @@ std::shared_ptr<Window> UI::GetNextFocusChild(TextureManager& texman, const Inpu
 		{
 			auto child = *(--focusIt);
 			LayoutContext childLC(ic, wnd, lc, *child, wnd.GetChildLayout(texman, lc, dc, *child));
-			if (NeedsFocus(texman, childLC, dc, child.get()))
+			if (NeedsFocus(texman, ic, *child, childLC, dc))
 				return child;
 		}
 	}

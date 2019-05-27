@@ -251,7 +251,7 @@ bool InputContext::ProcessPointer(
 		auto &target = sinkPath.front();
 		auto targetLC = RestoreLayoutContext(texman, *this, lc, dc, sinkPath);
 
-		if ((Plat::Msg::PointerDown == msg || Plat::Msg::TAP == msg) && NeedsFocus(texman, targetLC, dc, target.get()))
+		if ((Plat::Msg::PointerDown == msg || Plat::Msg::TAP == msg) && NeedsFocus(texman, *this, *target, targetLC, dc))
 		{
 			PropagateFocus(sinkPath);
 			targetLC = RestoreLayoutContext(texman, *this, lc, dc, sinkPath); // layout may have changed due to focus change
