@@ -188,7 +188,7 @@ bool EditorMain::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 	return true;
 }
 
-bool EditorMain::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const
+bool EditorMain::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -200,7 +200,7 @@ bool EditorMain::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc)
 	}
 }
 
-void EditorMain::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc)
+void EditorMain::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{
@@ -220,27 +220,27 @@ void EditorMain::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, co
 	}
 }
 
-FRECT EditorMain::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout EditorMain::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_editorWorldView.get() == &child)
 	{
-		return MakeRectWH(size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, size.y);
+		return UI::WindowLayout{ MakeRectWH(size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, size.y), 1, true };
 	}
 	if (_layerDisp.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale);
+		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ size.x / scale - 5, 6 }, _layerDisp->GetSize(), scale), 1, true };
 	}
 	if (_toolbar.get() == &child)
 	{
-		return FRECT{ size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, 0, size.x, size.y };
+		return UI::WindowLayout{ FRECT{ size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, 0, size.x, size.y }, 1, true };
 	}
 	if (_helpBox.get() == &child)
 	{
 		vec2d pxHelpBoxSize = _helpBox->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
-		return MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxHelpBoxSize) / 2), pxHelpBoxSize);
+		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxHelpBoxSize) / 2), pxHelpBoxSize), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }

@@ -82,12 +82,12 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	}
 }
 
-FRECT MapPreview::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout MapPreview::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_rating.get() == &child)
 	{
 		vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
-		return MakeRectWH(pxPadding, lc.GetPixelSize() / 2);
+		return UI::WindowLayout{ MakeRectWH(pxPadding, lc.GetPixelSize() / 2), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }

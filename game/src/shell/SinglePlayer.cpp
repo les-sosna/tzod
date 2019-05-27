@@ -102,9 +102,9 @@ namespace
 			AddFront(center);
 		}
 
-		FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override
+		UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override
 		{
-			return MakeRectWH(lc.GetPixelSize() / 4, lc.GetPixelSize() / 2);
+			return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize() / 4, lc.GetPixelSize() / 2), 1, true };
 		}
 	};
 
@@ -133,9 +133,9 @@ namespace
 		}
 
 		// Window
-		FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override
+		UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override
 		{
-			return MakeRectWH(lc.GetPixelSize());
+			return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 		}
 
 	private:
@@ -177,7 +177,7 @@ namespace
 
 		private:
 			// UI::NavigationSink
-			bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext& lc) const override
+			bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override
 			{
 				switch (navigate)
 				{
@@ -188,7 +188,7 @@ namespace
 					return false;
 				}
 			}
-			void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext& lc) override
+			void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override
 			{
 				if (phase == UI::NavigationPhase::Started)
 				{
@@ -334,15 +334,15 @@ void SinglePlayer::OnOK(int index)
 	}
 }
 
-FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout SinglePlayer::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_content.get() == &child)
 	{
 		vec2d pxMargins = UI::ToPx(vec2d{ _conf.ui_tile_spacing.GetFloat(), _conf.ui_tile_spacing.GetFloat() }, lc);
-		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
+		return UI::WindowLayout{ MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins), 1, true };
 	}
 
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const
@@ -351,12 +351,12 @@ vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints) + pxMargins * 2;
 }
 
-bool SinglePlayer::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const
+bool SinglePlayer::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	return GetNextTier(navigate) != GetCurrentTier(_conf, _dmCampaign);
 }
 
-void SinglePlayer::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc)
+void SinglePlayer::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Started == phase)
 	{

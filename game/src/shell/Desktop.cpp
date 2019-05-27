@@ -549,12 +549,12 @@ void Desktop::OnKeyReleased(const UI::InputContext &ic, Plat::Key key)
 	}
 }
 
-bool Desktop::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const
+bool Desktop::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	return UI::Navigate::Back == navigate && CanNavigateBack();
 }
 
-void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc)
+void Desktop::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{
@@ -562,43 +562,34 @@ void Desktop::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const
 	}
 }
 
-FRECT Desktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_background.get() == &child)
 	{
 		float navDepth = _navStack->GetNavigationDepth();
 		float transition = 1 - (1 - std::cos(PI * std::min(1.f, navDepth))) / 2;
-		return MakeRectWH(vec2d{0, -lc.GetPixelSize().y * transition}, lc.GetPixelSize());
+		return UI::WindowLayout{ MakeRectWH(vec2d{0, -lc.GetPixelSize().y * transition}, lc.GetPixelSize()), 1, true };
 	}
 	if (_editor.get() == &child || _game.get() == &child || _navStack.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize());
+		return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 	}
 	if (_con.get() == &child)
 	{
-		return MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } *lc.GetScaleCombined()), Vec2dFloor(lc.GetPixelSize().x - 10 * lc.GetScaleCombined(), lc.GetPixelSize().y / 2));
+		return UI::WindowLayout{ MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } *lc.GetScaleCombined()), Vec2dFloor(lc.GetPixelSize().x - 10 * lc.GetScaleCombined(), lc.GetPixelSize().y / 2)), 1, true };
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScaleCombined() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)) / lc.GetScaleCombined(), lc.GetScaleCombined());
+		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScaleCombined() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)) / lc.GetScaleCombined(), lc.GetScaleCombined()), 1, true };
 	}
 	if (_tierTitle.get() == &child)
 	{
-		return MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{});
-	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
-}
-
-float Desktop::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window &child) const
-{
-	if (_tierTitle.get() == &child)
-	{
+		float opacity = 0;
 		if (auto gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext().get()))
-			return std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
-		else
-			return 0;
+			opacity = std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
+		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{}), opacity, true };
 	}
-	return UI::Window::GetChildOpacity(lc, ic, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 void Desktop::OnChangeShowFps()

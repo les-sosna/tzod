@@ -222,7 +222,7 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 	{
 		_buf->Lock();
 
-		FRECT inputRect = GetChildRect(texman, lc, dc, *_input);
+		FRECT inputRect = GetChildLayout(texman, lc, dc, *_input).rect;
 		float textAreaHeight = inputRect.top;
 
 		float h = std::floor(texman.GetFrameHeight(_font, 0) * lc.GetScaleCombined());
@@ -245,19 +245,19 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 	}
 }
 
-FRECT Console::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout Console::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float inputHeight = _input->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y;
 	if (_input.get() == &child)
 	{
-		return MakeRectRB(vec2d{ 0, lc.GetPixelSize().y - inputHeight }, lc.GetPixelSize());
+		return WindowLayout{ MakeRectRB(vec2d{ 0, lc.GetPixelSize().y - inputHeight }, lc.GetPixelSize()), 1, true };
 	}
 	if (_scroll.get() == &child)
 	{
 		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScaleCombined());
-		return MakeRectWH(vec2d{ lc.GetPixelSize().x - scrollWidth }, vec2d{ scrollWidth, lc.GetPixelSize().y - inputHeight });
+		return WindowLayout{ MakeRectWH(vec2d{ lc.GetPixelSize().x - scrollWidth }, vec2d{ scrollWidth, lc.GetPixelSize().y - inputHeight }), 1, true };
 	}
-	return Rectangle::GetChildRect(texman, lc, dc, child);
+	return Rectangle::GetChildLayout(texman, lc, dc, child);
 }
 
 std::shared_ptr<Window> Console::GetFocus() const

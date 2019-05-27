@@ -165,12 +165,12 @@ int List::GetNextIndex(Navigate navigate) const
 	}
 }
 
-bool List::CanNavigate(Navigate navigate, const LayoutContext &lc) const
+bool List::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
 	return GetNextIndex(navigate) != GetCurSel();
 }
 
-void List::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
+void List::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Started == phase)
 	{
@@ -178,7 +178,7 @@ void List::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutCont
 	}
 }
 
-FRECT List::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout List::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	// This is not a real child but a hack for scroll to selection to work
 	assert(_itemTemplate.get() == &child);
@@ -195,7 +195,7 @@ FRECT List::GetChildRect(TextureManager &texman, const LayoutContext &lc, const 
 	vec2d pxItemOffset = isVertical ?
 		vec2d{ 0, (float)sel * pxItemSize.y } : vec2d{ (float)sel * pxItemSize.x, 0 };
 
-	return MakeRectWH(pxItemOffset, pxItemSize);
+	return WindowLayout{ MakeRectWH(pxItemOffset, pxItemSize), 1, true };
 }
 
 vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

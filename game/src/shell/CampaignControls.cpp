@@ -31,13 +31,13 @@ CampaignControls::CampaignControls(const Deathmatch &deathmatch, CampaignControl
 	_content->SetFocus(next);
 }
 
-FRECT CampaignControls::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout CampaignControls::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_content.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize());
+		return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const

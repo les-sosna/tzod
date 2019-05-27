@@ -4,7 +4,7 @@
 
 using namespace UI;
 
-FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ScanlineLayout::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	auto childIt = FindWindowChild(*this, child);
 	assert(childIt != end(*this));
@@ -19,7 +19,7 @@ FRECT ScanlineLayout::GetChildRect(TextureManager &texman, const LayoutContext &
 	float pxContentWidth = (float)numColumns * pxElementSize.x;
 	float pxAlignCenterOffset = std::floor((lc.GetPixelSize().x - pxContentWidth) / 2);
 	auto offset = vec2d{ pxAlignCenterOffset + (float)column * pxElementSize.x, (float)row * pxElementSize.y };
-	return MakeRectWH(offset, pxElementSize);
+	return WindowLayout{ MakeRectWH(offset, pxElementSize), 1, true };
 }
 
 vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
@@ -30,7 +30,7 @@ vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &
 	return pxElementSize * vec2d{ (float)numColumns, (float)numRows };
 }
 
-std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &lc, Navigate navigate)
+std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputContext &ic, const LayoutContext &lc, const DataContext& dc, Navigate navigate)
 {
 	auto focusChild = GetFocus();
 	auto childIt = std::find(begin(*this), end(*this), focusChild);
@@ -41,9 +41,9 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 	switch (navigate)
 	{
 	case Navigate::Prev:
-		return GetPrevFocusChild(*this);
+		return GetPrevFocusChild(texman, ic, lc, dc, *this);
 	case Navigate::Next:
-		return GetNextFocusChild(*this);
+		return GetNextFocusChild(texman, ic, lc, dc, *this);
 	case Navigate::Up:
 		childIndex -= numColumns;
 		if (childIndex >= 0)
@@ -55,9 +55,9 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 			return *childIt;
 		break;
 	case Navigate::Left:
-		return GetPrevFocusChild(*this);
+		return GetPrevFocusChild(texman, ic, lc, dc, *this);
 	case Navigate::Right:
-		return GetNextFocusChild(*this);
+		return GetNextFocusChild(texman, ic, lc, dc, *this);
 	case Navigate::Begin:
 		return *begin(*this);
 	case Navigate::End:
@@ -68,16 +68,16 @@ std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(const LayoutContext &l
 	return nullptr;
 }
 
-bool ScanlineLayout::CanNavigate(Navigate navigate, const LayoutContext &lc) const
+bool ScanlineLayout::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
-	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(lc, navigate);
+	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(texman, ic, lc, dc, navigate);
 }
 
-void ScanlineLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
+void ScanlineLayout::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(lc, navigate))
+		if (auto newFocus = GetNavigateTarget(texman, ic, lc, dc, navigate))
 		{
 			SetFocus(std::move(newFocus));
 		}

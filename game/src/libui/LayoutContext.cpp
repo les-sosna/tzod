@@ -13,12 +13,12 @@ LayoutContext::LayoutContext(float opacity, float scale, vec2d pxOffset, vec2d p
 {
 }
 
-LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, vec2d pxChildOffset, vec2d pxChildSize)
-	: _pxOffsetCombined(parentLC.GetPixelOffsetCombined() + pxChildOffset)
-	, _pxSize(pxChildSize)
+LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const WindowLayout &childLayout)
+	: _pxOffsetCombined(parentLC.GetPixelOffsetCombined() + Offset(childLayout.rect))
+	, _pxSize(Size(childLayout.rect))
 	, _scaleCombined(parentLC.GetScaleCombined())
-	, _opacityCombined(parentLC.GetOpacityCombined() * parentWindow.GetChildOpacity(parentLC, ic, childWindow))
-	, _enabledCombined(parentLC.GetEnabledCombined() && parentWindow.GetChildEnabled(childWindow))
+	, _opacityCombined(parentLC.GetOpacityCombined() * childLayout.opacity)
+	, _enabledCombined(parentLC.GetEnabledCombined() && childLayout.enabled)
 	, _focusedCombined(parentLC.GetFocusedCombined() && (parentWindow.GetFocus().get() == &childWindow))
 {
 }

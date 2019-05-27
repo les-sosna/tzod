@@ -326,43 +326,36 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	}
 }
 
-FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_background.get() == &child)
 	{
+		float gameplayTime = _gameContext->GetGameplayTime();
+		float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
+		float opacity = _score->GetVisible() ? 1 : std::clamp((gameplayTime - gameOverTime) / showScoreDelay, 0.f, 1.f);
+
 		if (_gameContext->GetGameplay() && _gameContext->GetGameplay()->GetGameOverTime() <= _gameContext->GetGameplayTime())
-			return MakeRectWH(size);
+			return UI::WindowLayout{ MakeRectWH(size), opacity, true };
 		else
-			return GetChildRect(texman, lc, dc, *_scoreAndControls);
+			return GetChildLayout(texman, lc, dc, *_scoreAndControls);
 	}
 	if (_scoreAndControls.get() == &child)
 	{
 		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
-		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
+		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize), 1, true };
 	}
 	if (_timerDisplay.get() == &child)
 	{
-		return MakeRectWH(size - vec2d{1, 1}, {});
+		return UI::WindowLayout{ MakeRectWH(size - vec2d{1, 1}, {}), 1, true };
 	}
 	if (_msg.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
+		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
-}
-
-float GameLayout::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window& child) const
-{
-	if (_background.get() == &child)
-	{
-		float gameplayTime = _gameContext->GetGameplayTime();
-		float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
-		return _score->GetVisible() ? 1 : std::clamp((gameplayTime - gameOverTime) / showScoreDelay, 0.f, 1.f);
-	}
-	return 1;
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 std::shared_ptr<UI::Window> GameLayout::GetFocus() const

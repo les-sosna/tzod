@@ -14,12 +14,11 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 {
 	if (wnd)
 	{
-		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(UI::Navigate::Back, lc))
+		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(texman, ic, lc, dc, UI::Navigate::Back))
 			return true;
 		if (auto focusedChild = wnd->GetFocus())
 		{
-			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-			UI::LayoutContext childLC(ic, *wnd, lc, *focusedChild, Offset(childRect), Size(childRect));
+			UI::LayoutContext childLC(ic, *wnd, lc, *focusedChild, wnd->GetChildLayout(texman, lc, dc, *focusedChild));
 			return CanNavigateBack(texman, ic, focusedChild.get(), childLC, dc);
 		}
 	}

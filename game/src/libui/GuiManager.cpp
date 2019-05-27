@@ -118,16 +118,15 @@ static void DrawWindowRecursive(
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || renderSettings.topMostPass)
 			{
-				auto childRect = wnd.GetChildRect(renderSettings.texman, lc, dc, *child);
+				auto childLayout = wnd.GetChildLayout(renderSettings.texman, lc, dc, *child);
 				bool canDrawOutside = child->GetChildrenCount() > 0 && !child->GetClipChildren();
 
-				if (canDrawOutside || RectIntersect(visibleRegion, childRect))
+				if (canDrawOutside || RectIntersect(visibleRegion, childLayout.rect))
 				{
-					vec2d childOffset = Offset(childRect);
-					LayoutContext childLC(renderSettings.ic, wnd, lc, *child, childOffset, Size(childRect));
+					LayoutContext childLC(renderSettings.ic, wnd, lc, *child, childLayout);
 					if (childLC.GetOpacityCombined() != 0)
 					{
-						renderSettings.rc.PushTransform(childOffset, childLC.GetOpacityCombined());
+						renderSettings.rc.PushTransform(Offset(childLayout.rect), childLC.GetOpacityCombined());
 
 						DrawWindowRecursive(
 							renderSettings,

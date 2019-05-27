@@ -80,12 +80,12 @@ void ButtonBase::DoClick()
 		eventClick();
 }
 
-bool ButtonBase::CanNavigate(Navigate navigate, const LayoutContext &lc) const
+bool ButtonBase::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
 	return Navigate::Enter == navigate && eventClick;
 }
 
-void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
+void ButtonBase::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Completed == phase && Navigate::Enter == navigate)
 	{
@@ -175,14 +175,14 @@ std::shared_ptr<const Window> Button::GetChild(unsigned int index) const
 	}
 }
 
-FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout Button::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_background.get() == &child)
 	{
-		return MakeRectRB(vec2d{}, size);
+		return WindowLayout{ MakeRectRB(vec2d{}, size), 1, true };
 	}
 
 	if (_icon)
@@ -191,7 +191,7 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 		{
 			vec2d pxChildPos = Vec2dFloor(size / 2);
 			pxChildPos.y += std::floor(_icon->GetHeight() * scale / 2);
-			return MakeRectWH(pxChildPos, vec2d{});
+			return WindowLayout{ MakeRectWH(pxChildPos, vec2d{}), 1, true };
 		}
 
 		if (_icon.get() == &child)
@@ -199,18 +199,18 @@ FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, cons
 			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
 			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
 			pxChildPos.y -= std::floor(_text->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y / 2);
-			return MakeRectWH(pxChildPos, pxChildSize);
+			return WindowLayout{ MakeRectWH(pxChildPos, pxChildSize), 1, true };
 		}
 	}
 	else
 	{
 		if (_text.get() == &child)
 		{
-			return MakeRectWH(Vec2dFloor(size / 2), vec2d{});
+			return WindowLayout{ MakeRectWH(Vec2dFloor(size / 2), vec2d{}), 1, true };
 		}
 	}
 
-	return Window::GetChildRect(texman, lc, dc, child);
+	return Window::GetChildLayout(texman, lc, dc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,9 +232,9 @@ vec2d ContentButton::GetContentSize(TextureManager &texman, const DataContext &d
 	return _content ? _content->GetContentSize(texman, dc, scale, layoutConstraints) : vec2d{};
 }
 
-FRECT ContentButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ContentButton::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	return MakeRectWH(lc.GetPixelSize());
+	return WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -266,15 +266,15 @@ void CheckBox::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 	_text->SetText(std::move(text));
 }
 
-FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout CheckBox::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	if (_text.get() == &child)
 	{
 		float pxBoxWidth = _boxPosition == BoxPosition::Left ? ToPx(_boxTexture.GetTextureSize(texman), lc).x : 0;
 		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
-		return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
+		return WindowLayout{ MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize), 1, true };
 	}
-	return ButtonBase::GetChildRect(texman, lc, dc, child);
+	return ButtonBase::GetChildLayout(texman, lc, dc, child);
 }
 
 void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const

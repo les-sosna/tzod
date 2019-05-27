@@ -67,6 +67,13 @@ struct StateGen
 	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const = 0;
 };
 
+struct WindowLayout
+{
+	FRECT rect;
+	float opacity;
+	bool enabled;
+};
+
 class Window
 {
 public:
@@ -90,9 +97,7 @@ public:
 		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(index));
 	}
 
-	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
-	virtual float GetChildOpacity(const LayoutContext& lc, const InputContext& ic, const Window &child) const { return 1; }
-	virtual bool GetChildEnabled(const Window& child) const { return true; }
+	virtual WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
 
 	//
 	// Input
@@ -178,7 +183,7 @@ private:
 	};
 };
 
-inline bool NeedsFocus(const Window *wnd)
+inline bool NeedsFocus(TextureManager &texman, const LayoutContext& lc, const DataContext& dc, const Window *wnd)
 {
 	if (!wnd || !wnd->GetVisible())
 		return false;
@@ -187,7 +192,7 @@ inline bool NeedsFocus(const Window *wnd)
 		return true;
 
 	if (auto focus = wnd->GetFocus().get())
-		if (wnd->GetChildEnabled(*focus) && NeedsFocus(focus))
+		if (wnd->GetChildLayout(texman, lc, dc, *focus).enabled && NeedsFocus(texman, lc, dc, focus))
 			return true;
 
 	return false;

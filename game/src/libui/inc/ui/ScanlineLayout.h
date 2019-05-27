@@ -15,16 +15,16 @@ namespace UI
 		// Window
 		bool HasNavigationSink() const override { return true; }
 		NavigationSink* GetNavigationSink() override { return this; }
-		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
 	private:
 		vec2d _elementSize;
 
-		std::shared_ptr<Window> GetNavigateTarget(const LayoutContext &lc, Navigate navigate);
+		std::shared_ptr<Window> GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext &lc, const DataContext& dc, Navigate navigate);
 
 		// NavigationSink
-		bool CanNavigate(Navigate navigate, const LayoutContext &lc) const override;
-		void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc) override;
+		bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
+		void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
 	};
 }

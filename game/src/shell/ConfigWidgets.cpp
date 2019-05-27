@@ -35,17 +35,17 @@ void StringSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> t
 	_title->SetText(std::move(title));
 }
 
-FRECT StringSetting::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+UI::WindowLayout StringSetting::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
 	if (_title.get() == &child)
 	{
-		return MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y);
+		return UI::WindowLayout{ MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y), 1, true };
 	}
 	else if (_valueEditBox.get() == &child)
 	{
-		return MakeRectRB(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetPixelSize());
+		return UI::WindowLayout{ MakeRectRB(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetPixelSize()), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d StringSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
@@ -79,9 +79,9 @@ void BooleanSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> 
 	_valueCheckBox->SetText(title);
 }
 
-FRECT BooleanSetting::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+UI::WindowLayout BooleanSetting::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
-	return MakeRectWH(lc.GetPixelSize());
+	return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 }
 
 vec2d BooleanSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
@@ -122,17 +122,17 @@ void KeyBindSetting::KeyBindSettingContent::SetTitle(std::shared_ptr<UI::LayoutD
 }
 
 // UI::Window
-FRECT KeyBindSetting::KeyBindSettingContent::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+UI::WindowLayout KeyBindSetting::KeyBindSettingContent::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
 	if (_title.get() == &child)
 	{
-		return MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y);
+		return UI::WindowLayout{ MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y), 1, true };
 	}
 	else if (_keyName.get() == &child)
 	{
-		return MakeRectRB(vec2d{ lc.GetPixelSize().x, 0 }, lc.GetPixelSize());
+		return UI::WindowLayout{ MakeRectRB(vec2d{ lc.GetPixelSize().x, 0 }, lc.GetPixelSize()), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d KeyBindSetting::KeyBindSettingContent::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
@@ -160,14 +160,9 @@ void KeyBindSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> 
 	_content->SetTitle(std::move(title));
 }
 
-FRECT KeyBindSetting::GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+UI::WindowLayout KeyBindSetting::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
-	return MakeRectWH(lc.GetPixelSize());
-}
-
-float KeyBindSetting::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window& child) const
-{
-	return (lc.GetFocusedCombined() && _waitingForKey) ? 0.5f : 1;
+	return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), (lc.GetFocusedCombined() && _waitingForKey) ? 0.5f : 1, true };
 }
 
 vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const

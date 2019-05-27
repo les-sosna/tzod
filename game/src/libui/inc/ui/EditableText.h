@@ -38,7 +38,7 @@ namespace UI
 		std::function<void()> eventChange;
 
 		// Window
-		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		std::shared_ptr<Window> GetFocus() const override;
 		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 		bool HasPointerSink() const override { return true; }

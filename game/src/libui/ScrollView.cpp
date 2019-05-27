@@ -22,7 +22,7 @@ void ScrollView::SetContent(std::shared_ptr<Window> content)
 	}
 }
 
-FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ScrollView::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
@@ -36,10 +36,10 @@ FRECT ScrollView::GetChildRect(TextureManager &texman, const LayoutContext &lc, 
 		vec2d pxContentSize = vec2d{
 			_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,
 			_verticalScrollEnabled ? pxContentMeasuredSize.y : size.y };
-		return MakeRectWH(-pxContentOffset, pxContentSize);
+		return WindowLayout{ MakeRectWH(-pxContentOffset, pxContentSize), 1, true };
 	}
 
-	return Window::GetChildRect(texman, lc, dc, child);
+	return Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d ScrollView::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

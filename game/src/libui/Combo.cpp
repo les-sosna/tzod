@@ -124,23 +124,23 @@ bool ComboBox::OnKeyPressed(const InputContext &ic, Plat::Key key)
 	return false;
 }
 
-FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ComboBox::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_list.get() == &child)
 	{
-		return FRECT{ 0, size.y, size.x, size.y + ToPx(_list->GetList()->GetHeight(), scale) };
+		return WindowLayout{ FRECT{ 0, size.y, size.x, size.y + ToPx(_list->GetList()->GetHeight(), scale) }, 1, true };
 	}
 	else if (_btn.get() == &child)
 	{
 		vec2d btnSize = _btn->GetBackground().GetTextureSize(texman);
 		float top = std::floor((size.y - btnSize.y * scale) / 2);
-		return MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) });
+		return WindowLayout{ MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) }), 1, true };
 	}
 
-	return Window::GetChildRect(texman, lc, dc, child);
+	return Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

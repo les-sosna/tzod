@@ -114,10 +114,10 @@ FRECT EditableText::GetCursorRect(TextureManager &texman, const LayoutContext &l
 	return MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ GetCursorWidth(texman, lc.GetScaleCombined()), lc.GetPixelSize().y });
 }
 
-FRECT EditableText::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout EditableText::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	assert(_fakeCursorPlaceholder.get() == &child);
-	return GetCursorRect(texman, lc);
+	return WindowLayout{ GetCursorRect(texman, lc), 1, true };
 }
 
 std::shared_ptr<Window> EditableText::GetFocus() const

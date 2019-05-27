@@ -1,10 +1,14 @@
 #pragma once
 #include <memory>
 
+class TextureManager;
+
 namespace UI
 {
-	class Window;
+	class DataContext;
+	class InputContext;
 	class LayoutContext;
+	class Window;
 
 	enum class Navigate
 	{
@@ -31,10 +35,10 @@ namespace UI
 
 	struct NavigationSink
 	{
-		virtual bool CanNavigate(Navigate navigate, const LayoutContext &lc) const = 0;
-		virtual void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc) = 0;
+		virtual bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const = 0;
+		virtual void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) = 0;
 	};
 
-	std::shared_ptr<Window> GetPrevFocusChild(Window &wnd);
-	std::shared_ptr<Window> GetNextFocusChild(Window &wnd);
+	std::shared_ptr<Window> GetPrevFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window &wnd);
+	std::shared_ptr<Window> GetNextFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window &wnd);
 }

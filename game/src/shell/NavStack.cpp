@@ -106,7 +106,7 @@ float NavStack::GetTransitionTimeLeft() const
 	return std::max(0.f, _navTransitionStartTime + _foldTime - GetTimeStepManager().GetTime());
 }
 
-FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout NavStack::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	float transition = (1 - std::cos(PI * GetTransitionTimeLeft() / _foldTime)) / 2;
 
@@ -140,17 +140,17 @@ FRECT NavStack::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc
 			vec2d pxWndOffset = Vec2dFloor(((lc.GetPixelSize() - pxWndSize) / 2)[1 - dim], pxBegin);
 			if (_flowDirection == UI::FlowDirection::Horizontal)
 				pxWndOffset = Vec2dTranspose(pxWndOffset);
-			return MakeRectWH(pxWndOffset,  pxWndSize);
+			return UI::WindowLayout{ MakeRectWH(pxWndOffset,  pxWndSize), GetChildOpacity(child), GetChildEnabled(child) };
 		}
 		pxBegin += pxWndSize[dim] + pxSpacing;
 	}
 
 	assert(false);
 
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
-float NavStack::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const Window &child) const
+float NavStack::GetChildOpacity(const UI::Window &child) const
 {
 	float transition = GetTransitionTimeLeft() / _foldTime;
 	if (_state == State::GoingForward)
@@ -170,7 +170,7 @@ float NavStack::GetChildOpacity(const UI::LayoutContext& lc, const UI::InputCont
 	return 0;
 }
 
-bool NavStack::GetChildEnabled(const Window& child) const
+bool NavStack::GetChildEnabled(const UI::Window& child) const
 {
 	return GetNavFront().get() == &child;
 }

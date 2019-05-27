@@ -21,7 +21,7 @@ public:
 	std::string_view GetDefaultValue() const { return _defaultValue; }
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	std::shared_ptr<UI::Window> GetFocus() const override;
 
@@ -39,7 +39,7 @@ public:
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	std::shared_ptr<UI::Window> GetFocus() const override;
 
@@ -57,8 +57,7 @@ public:
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
-	float GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const UI::Window& child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	std::shared_ptr<UI::Window> GetFocus() const override;
 	bool HasKeyboardSink() const override { return true; }
@@ -75,7 +74,7 @@ private:
 		void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
 
 		// UI::Window
-		FRECT GetChildRect(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
+		UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 		vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 
 	private:

@@ -46,9 +46,7 @@ public:
 	// UI::Window
 	bool HasPointerSink() const override { return true; }
 	UI::PointerSink* GetPointerSink() override { return GetNavFront() ? this : nullptr; }
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
-	float GetChildOpacity(const UI::LayoutContext& lc, const UI::InputContext& ic, const Window &child) const override;
-	bool GetChildEnabled(const Window& child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 
 private:
 	enum class State
@@ -65,6 +63,8 @@ private:
 
 	vec2d GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const;
 	float GetTransitionTimeLeft() const;
+	float GetChildOpacity(const UI::Window& child) const;
+	bool GetChildEnabled(const UI::Window& child) const;
 
 	// PointerSink
 	void OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;

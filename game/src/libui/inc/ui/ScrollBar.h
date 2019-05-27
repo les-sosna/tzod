@@ -31,8 +31,7 @@ public:
 	std::function<void(float)> eventScroll;
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
-	bool GetChildEnabled(const Window& child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 protected:
 	virtual float Select(float x, float y) const = 0;
@@ -67,7 +66,7 @@ public:
 	explicit ScrollBarVertical(TextureManager &texman);
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 protected:
 	float Select(float x, float y) const override { return y; }
@@ -79,7 +78,7 @@ public:
 	explicit ScrollBarHorizontal(TextureManager &texman);
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 private:
 	float Select(float x, float y) const override { return x; }

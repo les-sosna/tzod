@@ -50,7 +50,7 @@ vec2d MultiColumnListItem::GetContentSize(TextureManager &texman, const DataCont
 	return _columns[0]->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout MultiColumnListItem::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
@@ -58,7 +58,7 @@ FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutCont
 	if (_selection.get() == &child)
 	{
 		vec2d pxMargins = Vec2dFloor(vec2d{ 1, 2 } * scale);
-		return MakeRectWH(-pxMargins, size + pxMargins * 2);
+		return WindowLayout{ MakeRectWH(-pxMargins, size + pxMargins * 2), 1, true };
 	}
 
 	for (size_t i = 0; i != _columns.size(); ++i)
@@ -66,10 +66,10 @@ FRECT MultiColumnListItem::GetChildRect(TextureManager &texman, const LayoutCont
 		if (_columns[i].get() == &child)
 		{
 			float nextColumnOffset = (i + 1 != _columns.size()) ? ToPx(_columns[i + 1]->GetOffset().x, lc) : lc.GetPixelSize().x;
-			return MakeRectRB(ToPx(_columns[i]->GetOffset(), lc), vec2d{ nextColumnOffset, lc.GetPixelSize().y });
+			return WindowLayout{ MakeRectRB(ToPx(_columns[i]->GetOffset(), lc), vec2d{ nextColumnOffset, lc.GetPixelSize().y }), 1, true };
 		}
 	}
 
-	return Window::GetChildRect(texman, lc, dc, child);
+	return Window::GetChildLayout(texman, lc, dc, child);
 }
 

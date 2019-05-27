@@ -6,7 +6,7 @@ using namespace UI;
 
 #include "inc/ui/Button.h"
 
-FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout StackLayout::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
@@ -31,13 +31,13 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 		vec2d pxChildSize = Vec2dMin(child.GetContentSize(texman, dc, scale, constraints), constraints.maxPixelSize);
 		if (_align == Align::LT)
 		{
-			return FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y };
+			return WindowLayout{ FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y }, 1, true };
 		}
 		else
 		{
 			assert(_align == Align::CT); // TODO: support others
 			float pxMargin = std::floor(size.x - pxChildSize.x) / 2;
-			return FRECT{ pxMargin, pxOffset, size.x - pxMargin, pxOffset + pxChildSize.y };
+			return WindowLayout{ FRECT{ pxMargin, pxOffset, size.x - pxMargin, pxOffset + pxChildSize.y }, 1, true };
 		}
 	}
 	else
@@ -54,7 +54,7 @@ FRECT StackLayout::GetChildRect(TextureManager &texman, const LayoutContext &lc,
 			pxOffset += pxSpaceTaken;
 		}
 		vec2d pxChildSize = Vec2dMin(child.GetContentSize(texman, dc, scale, constraints), constraints.maxPixelSize);
-		return FRECT{ pxOffset, 0.f, pxOffset + pxChildSize.x, size.y };
+		return WindowLayout{ FRECT{ pxOffset, 0.f, pxOffset + pxChildSize.x, size.y }, 1, true };
 	}
 }
 
@@ -85,37 +85,37 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 		vec2d{ pxMaxSize, pxTotalSize };
 }
 
-std::shared_ptr<Window> StackLayout::GetNavigateTarget(Navigate navigate)
+std::shared_ptr<Window> StackLayout::GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate)
 {
 	switch (navigate)
 	{
 	case Navigate::Prev:
-		return GetPrevFocusChild(*this);
+		return GetPrevFocusChild(texman, ic, lc, dc, *this);
 	case Navigate::Next:
-		return GetNextFocusChild(*this);
+		return GetNextFocusChild(texman, ic, lc, dc, *this);
 	case Navigate::Up:
-		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(*this) : nullptr;
+		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(texman, ic, lc, dc, *this) : nullptr;
 	case Navigate::Down:
-		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(*this) : nullptr;
+		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(texman, ic, lc, dc, *this) : nullptr;
 	case Navigate::Left:
-		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(*this) : nullptr;
+		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(texman, ic, lc, dc, *this) : nullptr;
 	case Navigate::Right:
-		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(*this) : nullptr;
+		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(texman, ic, lc, dc, *this) : nullptr;
 	default:
 		return nullptr;
 	}
 }
 
-bool StackLayout::CanNavigate(Navigate navigate, const LayoutContext &lc) const
+bool StackLayout::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
-	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(navigate);
+	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(texman, ic, lc, dc, navigate);
 }
 
-void StackLayout::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc)
+void StackLayout::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(navigate))
+		if (auto newFocus = GetNavigateTarget(texman, ic, lc, dc, navigate))
 		{
 			SetFocus(std::move(newFocus));
 		}

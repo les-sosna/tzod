@@ -615,14 +615,14 @@ bool EditPlayerDlg::OnClose(int result)
 	return true;
 }
 
-FRECT EditPlayerDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+UI::WindowLayout EditPlayerDlg::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
 {
 	if (_skinPreview.get() == &child)
 	{
 		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
-		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScaleCombined());
+		return UI::WindowLayout{ UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScaleCombined()), 1, true };
 	}
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -832,12 +832,12 @@ void EditBotDlg::OnChangeSkin(int index)
 	}
 }
 
-FRECT EditBotDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+UI::WindowLayout EditBotDlg::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
 {
 	if (_skinPreview.get() == &child)
 	{
 		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
-		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScaleCombined());
+		return UI::WindowLayout{ UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScaleCombined()), 1, true };
 	}
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }

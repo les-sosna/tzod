@@ -474,7 +474,7 @@ bool EditorWorldView::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 	return true;
 }
 
-bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc) const
+bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -492,7 +492,7 @@ bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext
 	}
 }
 
-void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc)
+void EditorWorldView::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{
@@ -545,15 +545,15 @@ void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phas
 	EnsureVisible(lc, RectExpand(GetCursor().bounds, WORLD_BLOCK_SIZE));
 }
 
-FRECT EditorWorldView::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout EditorWorldView::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_propList.get() == &child)
 	{
 		float pxWidth = std::floor(100 * lc.GetScaleCombined());
 		float pxRight = lc.GetPixelSize().x;
-		return FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y };
+		return UI::WindowLayout{ FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y }, 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
 void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const

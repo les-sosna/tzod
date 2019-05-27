@@ -225,18 +225,18 @@ void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps)
 	}
 }
 
-FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout PropertyList::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_deleteButton.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y);
+		return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y), 1, true };
 	}
 	if (_scrollView.get() == &child)
 	{
 		vec2d pxMargins = { std::floor(4 * lc.GetScaleCombined()), 1 };
-		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins);
+		return UI::WindowLayout{ MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins), 1, true };
 	}
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }
 
 bool PropertyList::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)

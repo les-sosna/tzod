@@ -25,22 +25,22 @@ ListBox::ListBox(ListDataSource* dataSource)
 	_background->SetDrawBorder(true);
 }
 
-FRECT ListBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ListBox::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_background.get() == &child)
 	{
-		return MakeRectWH(size);
+		return WindowLayout{ MakeRectWH(size), 1, true };
 	}
 	else if (_scrollView.get() == &child)
 	{
 		vec2d pxBorderSize = Vec2dFloor(c_borderSize * scale);
-		return MakeRectRB(pxBorderSize, size - pxBorderSize);
+		return WindowLayout{ MakeRectRB(pxBorderSize, size - pxBorderSize), 1, true };
 	}
 
-	return Window::GetChildRect(texman, lc, dc, child);
+	return Window::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d ListBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
