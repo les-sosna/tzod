@@ -23,8 +23,8 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-	std::shared_ptr<UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	UI::Window* GetFocus() const override;
+	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const UI::Window* GetFocus() const override;
 
 private:
 	ConfVarString& _stringVar;
@@ -42,8 +42,8 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-	std::shared_ptr<UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	UI::Window* GetFocus() const override;
+	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const UI::Window* GetFocus() const override;
 
 private:
 	ConfVarBool& _boolVar;
@@ -61,8 +61,8 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-	std::shared_ptr<UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	UI::Window* GetFocus() const override;
+	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const UI::Window* GetFocus() const override;
 	bool HasKeyboardSink() const override { return true; }
 	UI::KeyboardSink* GetKeyboardSink() override { return this; }
 

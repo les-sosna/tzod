@@ -70,7 +70,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			case ObjectProperty::TYPE_INTEGER:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
 				int n;
-				n = static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetInt();
+				n = static_cast<UI::Edit*>(ctrl.get())->GetEditable().GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%d, %d]",
@@ -82,7 +82,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			case ObjectProperty::TYPE_FLOAT:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
 				float f;
-				f = static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetFloat();
+				f = static_cast<UI::Edit*>(ctrl.get())->GetEditable().GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%g, %g]",
@@ -93,7 +93,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				break;
 			case ObjectProperty::TYPE_STRING:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
-					prop->SetStringValue(std::string(static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetText()));
+					prop->SetStringValue(std::string(static_cast<UI::Edit*>(ctrl.get())->GetEditable().GetText()));
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 				assert( dynamic_cast<UI::ComboBox*>(ctrl.get()) );
@@ -143,17 +143,17 @@ void PropertyList::DoExchange(bool applyToObject)
 			{
 			case ObjectProperty::TYPE_INTEGER:
 				ctrl = std::make_shared<UI::Edit>();
-				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetInt(prop->GetIntValue());
+				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable().SetInt(prop->GetIntValue());
 				labelTextBuffer << "(" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
 				ctrl = std::make_shared<UI::Edit>();
-				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetFloat(prop->GetFloatValue());
+				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable().SetFloat(prop->GetFloatValue());
 				labelTextBuffer << "(" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = std::make_shared<UI::Edit>();
-					std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(std::string(prop->GetStringValue()));
+					std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable().SetText(std::string(prop->GetStringValue()));
 				labelTextBuffer << "(string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
@@ -205,7 +205,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			{
 				if(auto edit = std::dynamic_pointer_cast<UI::Edit>(ctrl) )
 				{
-					edit->GetEditable()->SetSel(0, -1);
+					edit->GetEditable().SetSel(0, -1);
 				}
 				_psheet->SetFocus(group.get());
 			}

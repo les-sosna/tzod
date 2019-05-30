@@ -16,15 +16,15 @@ StringSetting::StringSetting(ConfVarString& stringVar)
 {
 	_title->SetFont("font_default");
 
-	_valueEditBox->GetEditable()->SetText(std::string(stringVar.Get()));
-	_valueEditBox->GetEditable()->SetFont("font_default");
-	_valueEditBox->GetEditable()->eventChange = [=]
+	_valueEditBox->GetEditable().SetText(std::string(stringVar.Get()));
+	_valueEditBox->GetEditable().SetFont("font_default");
+	_valueEditBox->GetEditable().eventChange = [=]
 	{
-		auto text = _valueEditBox->GetEditable()->GetText();
+		auto text = _valueEditBox->GetEditable().GetText();
 		if (text.empty())
 			_stringVar.Set(_defaultValue);
 		else
-			_stringVar.Set(_valueEditBox->GetEditable()->GetText());
+			_stringVar.Set(_valueEditBox->GetEditable().GetText());
 	};
 	AddFront(_title);
 	AddFront(_valueEditBox);
@@ -53,12 +53,12 @@ vec2d StringSetting::GetContentSize(TextureManager& texman, const UI::DataContex
 	return vec2d{ 0, _valueEditBox->GetContentSize(texman, dc, scale, layoutConstraints).y };
 }
 
-std::shared_ptr<UI::Window> StringSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const UI::Window> StringSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _valueEditBox;
 }
 
-UI::Window* StringSetting::GetFocus() const
+const UI::Window* StringSetting::GetFocus() const
 {
 	return _valueEditBox.get();
 }
@@ -94,12 +94,12 @@ vec2d BooleanSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 	return _valueCheckBox->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<UI::Window> BooleanSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const UI::Window> BooleanSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _valueCheckBox;
 }
 
-UI::Window* BooleanSetting::GetFocus() const
+const UI::Window* BooleanSetting::GetFocus() const
 {
 	return _valueCheckBox.get();
 }
@@ -180,12 +180,12 @@ vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 	return _button->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<UI::Window> KeyBindSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const UI::Window> KeyBindSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _button;
 }
 
-UI::Window* KeyBindSetting::GetFocus() const
+const UI::Window* KeyBindSetting::GetFocus() const
 {
 	return _button.get();
 }

@@ -157,8 +157,16 @@ public:
 	//
 
 	void SetFocus(Window *child);
-	virtual std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const;
-	virtual Window* GetFocus() const;
+	virtual std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const;
+	virtual const Window* GetFocus() const;
+	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner)
+	{
+		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetFocus(owner));
+	}
+	Window* GetFocus()
+	{
+		return const_cast<Window*>(static_cast<const Window*>(this)->GetFocus());
+	}
 
 	// rendering
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}

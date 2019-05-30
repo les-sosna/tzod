@@ -120,12 +120,12 @@ WindowLayout EditableText::GetChildLayout(TextureManager &texman, const LayoutCo
 	return WindowLayout{ GetCursorRect(texman, lc), 1, true };
 }
 
-std::shared_ptr<Window> EditableText::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const Window> EditableText::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _fakeCursorPlaceholder;
 }
 
-Window* EditableText::GetFocus() const
+const Window* EditableText::GetFocus() const
 {
 	return _fakeCursorPlaceholder.get();
 }

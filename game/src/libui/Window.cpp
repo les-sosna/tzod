@@ -90,12 +90,12 @@ void Window::SetFocus(Window *child)
 	_focusChild = child;
 }
 
-std::shared_ptr<Window> Window::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const Window> Window::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _focusChild ? *std::find_if(begin(_children), end(_children), [=](auto & c) { return c.get() == _focusChild; }) : nullptr;
 }
 
-Window* Window::GetFocus() const
+const Window* Window::GetFocus() const
 {
 	return _focusChild;
 }

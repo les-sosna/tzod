@@ -45,12 +45,12 @@ vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataCon
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<UI::Window> CampaignControls::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const UI::Window> CampaignControls::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _content;
 }
 
-UI::Window* CampaignControls::GetFocus() const
+const UI::Window* CampaignControls::GetFocus() const
 {
 	return _content.get();
 }

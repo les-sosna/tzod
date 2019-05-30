@@ -49,7 +49,7 @@ MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*
 	_author = std::make_shared<UI::Edit>();
 	_author->Move(x2, y += 15);
 	_author->SetWidth(256);
-	_author->GetEditable()->SetText(world._infoAuthor);
+	_author->GetEditable().SetText(world._infoAuthor);
 	AddFront(_author);
 
 	text = std::make_shared<UI::Text>();
@@ -60,7 +60,7 @@ MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*
 	_email = std::make_shared<UI::Edit>();
 	_email->Move(x2, y += 15);
 	_email->SetWidth(256);
-	_email->GetEditable()->SetText(world._infoEmail);
+	_email->GetEditable().SetText(world._infoEmail);
 	AddFront(_email);
 
 	text = std::make_shared<UI::Text>();
@@ -71,7 +71,7 @@ MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*
 	_url = std::make_shared<UI::Edit>();
 	_url->Move(x2, y += 15);
 	_url->SetWidth(256);
-	_url->GetEditable()->SetText(world._infoUrl);
+	_url->GetEditable().SetText(world._infoUrl);
 	AddFront(_url);
 
 	text = std::make_shared<UI::Text>();
@@ -82,7 +82,7 @@ MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*
 	_desc = std::make_shared<UI::Edit>();
 	_desc->Move(x2, y += 15);
 	_desc->SetWidth(256);
-	_desc->GetEditable()->SetText(world._infoDesc);
+	_desc->GetEditable().SetText(world._infoDesc);
 	AddFront(_url);
 
 	text = std::make_shared<UI::Text>();
@@ -93,7 +93,7 @@ MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*
 	_onInit = std::make_shared<UI::Edit>();
 	_onInit->Move(x2, y += 15);
 	_onInit->SetWidth(256);
-	_onInit->GetEditable()->SetText(world._infoOnInit);
+	_onInit->GetEditable().SetText(world._infoOnInit);
 	AddFront(_onInit);
 
 	text = std::make_shared<UI::Text>();
@@ -134,11 +134,11 @@ MapSettingsDlg::~MapSettingsDlg()
 
 void MapSettingsDlg::OnOK()
 {
-	_world._infoAuthor = _author->GetEditable()->GetText();
-	_world._infoEmail = _email->GetEditable()->GetText();
-	_world._infoUrl = _url->GetEditable()->GetText();
-	_world._infoDesc = _desc->GetEditable()->GetText();
-	_world._infoOnInit = _onInit->GetEditable()->GetText();
+	_world._infoAuthor = _author->GetEditable().GetText();
+	_world._infoEmail = _email->GetEditable().GetText();
+	_world._infoUrl = _url->GetEditable().GetText();
+	_world._infoDesc = _desc->GetEditable().GetText();
+	_world._infoOnInit = _onInit->GetEditable().GetText();
 
 	int i = _theme->GetCurSel();
 	if (0 != i)

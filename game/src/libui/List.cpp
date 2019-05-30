@@ -206,12 +206,12 @@ vec2d List::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 		vec2d{ pxItemSize.x * _data->GetItemCount(), pxItemSize.y };
 }
 
-std::shared_ptr<Window> List::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const Window> List::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return GetCurSel() != -1 ? _itemTemplate : nullptr;
 }
 
-Window* List::GetFocus() const
+const Window* List::GetFocus() const
 {
 	return GetCurSel() != -1 ? _itemTemplate.get() : nullptr;
 }

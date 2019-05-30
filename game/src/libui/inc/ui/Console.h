@@ -70,8 +70,8 @@ public:
 
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
-	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	Window* GetFocus() const override;
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
 
 	// TimeStepping
 	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;

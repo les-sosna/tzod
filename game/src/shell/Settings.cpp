@@ -274,7 +274,7 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 	_nameEdit = std::make_shared<UI::Edit>();
 	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
-	_nameEdit->GetEditable()->SetText(_nameOrig);
+	_nameEdit->GetEditable().SetText(_nameOrig);
 	AddFront(_nameEdit);
 
 	text = std::make_shared<UI::Text>();
@@ -384,7 +384,7 @@ void ControlProfileDlg::AddAction(ConfVarString &keyName, std::string_view actio
 
 void ControlProfileDlg::OnOK()
 {
-	if( _nameEdit->GetEditable()->GetText().empty() || !_conf.dm_profiles.Rename(_profile, std::string(_nameEdit->GetEditable()->GetText())) )
+	if( _nameEdit->GetEditable().GetText().empty() || !_conf.dm_profiles.Rename(_profile, std::string(_nameEdit->GetEditable().GetText())) )
 	{
 		return;
 	}

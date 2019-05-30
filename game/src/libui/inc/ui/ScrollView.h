@@ -23,8 +23,8 @@ namespace UI
 		ScrollSink* GetScrollSink() override { return this; }
 		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
-		std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const override { return _content; }
-		Window* GetFocus() const override { return _content.get(); }
+		std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override { return _content; }
+		const Window* GetFocus() const override { return _content.get(); }
 
 	private:
 		std::shared_ptr<Window> _content;

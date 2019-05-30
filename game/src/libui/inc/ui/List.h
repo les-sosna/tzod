@@ -47,8 +47,8 @@ public:
 	PointerSink* GetPointerSink() override { return this; }
 	bool HasNavigationSink() const override { return _enableNavigation; }
 	NavigationSink *GetNavigationSink() override { return this; }
-	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	Window* GetFocus() const override;
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 
 protected:

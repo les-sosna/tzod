@@ -56,8 +56,8 @@ public:
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
-	std::shared_ptr<UI::Window> GetFocus(const std::shared_ptr<const UI::Window>& owner) const override;
-	UI::Window* GetFocus() const override;
+	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const UI::Window>& owner) const override;
+	const UI::Window* GetFocus() const override;
 
 private:
 	vec2d GetDragDirection() const;

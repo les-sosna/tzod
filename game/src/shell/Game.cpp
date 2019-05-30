@@ -359,12 +359,12 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
-std::shared_ptr<UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
+std::shared_ptr<const UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
 {
 	return _scoreAndControls;
 }
 
-UI::Window* GameLayout::GetFocus() const
+const UI::Window* GameLayout::GetFocus() const
 {
 	return _scoreAndControls.get();
 }

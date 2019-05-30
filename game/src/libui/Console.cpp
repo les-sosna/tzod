@@ -106,7 +106,7 @@ bool Console::OnKeyPressed(const InputContext &ic, Plat::Key key)
 			if( _cmdIndex > 0 )
 			{
 				--_cmdIndex;
-				_input->GetEditable()->SetText(std::string(_history->GetItem(_cmdIndex)));
+				_input->GetEditable().SetText(std::string(_history->GetItem(_cmdIndex)));
 			}
 		}
 		break;
@@ -122,18 +122,18 @@ bool Console::OnKeyPressed(const InputContext &ic, Plat::Key key)
 			++_cmdIndex;
 			if( _cmdIndex < _history->GetItemCount() )
 			{
-				_input->GetEditable()->SetText(std::string(_history->GetItem(_cmdIndex)));
+				_input->GetEditable().SetText(std::string(_history->GetItem(_cmdIndex)));
 			}
 			else
 			{
-				_input->GetEditable()->SetText(std::string());
+				_input->GetEditable().SetText(std::string());
 				_cmdIndex = _history->GetItemCount();
 			}
 		}
 		break;
 	case Plat::Key::Enter:
 	{
-		auto cmd = _input->GetEditable()->GetText();
+		auto cmd = _input->GetEditable().GetText();
 		if( cmd.empty() )
 		{
 			_buf->WriteLine(0, std::string(">"));
@@ -155,7 +155,7 @@ bool Console::OnKeyPressed(const InputContext &ic, Plat::Key key)
 			}
 			if( eventOnSendCommand )
 				eventOnSendCommand(cmd);
-			_input->GetEditable()->SetText(std::string());
+			_input->GetEditable().SetText(std::string());
 		}
 		_scroll->SetPos(_scroll->GetDocumentSize());
 		_autoScroll = true;
@@ -174,19 +174,19 @@ bool Console::OnKeyPressed(const InputContext &ic, Plat::Key key)
 //	case Plat::Key::End:
 //		break;
 	case Plat::Key::Escape:
-		if( _input->GetEditable()->GetText().empty() )
+		if( _input->GetEditable().GetText().empty() )
 			return false;
-		_input->GetEditable()->SetText(std::string());
+		_input->GetEditable().SetText(std::string());
 		break;
 	case Plat::Key::Tab:
 		if( eventOnRequestCompleteCommand )
 		{
 			std::string result;
-			int pos = _input->GetEditable()->GetSelEnd();
-			if( eventOnRequestCompleteCommand(_input->GetEditable()->GetText(), pos, result) )
+			int pos = _input->GetEditable().GetSelEnd();
+			if( eventOnRequestCompleteCommand(_input->GetEditable().GetText(), pos, result) )
 			{
-				_input->GetEditable()->SetText(result);
-				_input->GetEditable()->SetSel(pos, pos);
+				_input->GetEditable().SetText(result);
+				_input->GetEditable().SetSel(pos, pos);
 			}
 			_scroll->SetPos(_scroll->GetDocumentSize());
 			_autoScroll = true;
@@ -260,12 +260,12 @@ WindowLayout Console::GetChildLayout(TextureManager &texman, const LayoutContext
 	return Rectangle::GetChildLayout(texman, lc, dc, child);
 }
 
-std::shared_ptr<Window> Console::GetFocus(const std::shared_ptr<const Window>& owner) const
+std::shared_ptr<const Window> Console::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _input;
 }
 
-Window* Console::GetFocus() const
+const Window* Console::GetFocus() const
 {
 	return _input.get();
 }

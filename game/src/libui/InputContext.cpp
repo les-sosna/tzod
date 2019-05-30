@@ -181,7 +181,8 @@ SinkType* UI::FindAreaSink(
 static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
 {
 	for (size_t i = path.size() - 1; i > 0; i--)
-		path[i]->SetFocus(path[i - 1].get());
+		if (path[i]->GetFocus() != path[i - 1].get())
+			path[i]->SetFocus(path[i - 1].get());
 }
 
 static LayoutContext RestoreLayoutContext(TextureManager& texman, const InputContext& ic, LayoutContext lc, const DataContext &dc, const std::vector<std::shared_ptr<Window>> &path)

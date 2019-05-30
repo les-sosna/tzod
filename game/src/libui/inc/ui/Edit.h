@@ -1,12 +1,12 @@
 #pragma once
 #include "PointerInput.h"
 #include "Window.h"
+#include "Rectangle.h"
+#include "ScrollView.h"
 
 namespace UI
 {
-class EditableText;
-class Rectangle;
-class ScrollView;
+	class EditableText;
 
 class Edit
 	: public Window
@@ -16,20 +16,23 @@ class Edit
 public:
 	Edit();
 
-	const std::shared_ptr<EditableText>& GetEditable() const { return _editable; }
+	EditableText& GetEditable() { return *_editable; }
 
 	// Window
 	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
+	unsigned int GetChildrenCount() const override;
+	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override;
+	const Window& GetChild(unsigned int index) const override;
 	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 	const StateGen* GetStateGen() const override { return this; }
-	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	Window* GetFocus() const override;
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
 
 private:
-	std::shared_ptr<Rectangle> _background;
-	std::shared_ptr<ScrollView> _scrollView;
+	using EditBoxChildren = std::tuple<Rectangle, ScrollView>;
+	EditBoxChildren _children;
 	std::shared_ptr<EditableText> _editable;
 
 	// PointerSink

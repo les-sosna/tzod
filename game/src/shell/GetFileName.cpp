@@ -59,7 +59,7 @@ GetFileNameDlg::GetFileNameDlg(const Params &param, LangCache &lang)
 	_fileName = std::make_shared<UI::Edit>();
 	_fileName->Move(20, 385);
 	_fileName->SetWidth(472);
-	_fileName->GetEditable()->eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
+	_fileName->GetEditable().eventChange = std::bind(&GetFileNameDlg::OnChangeName, this);
 	AddFront(_fileName);
 
 	auto btn = std::make_shared<UI::Button>();
@@ -82,25 +82,25 @@ bool GetFileNameDlg::IsBlank() const
 
 std::string GetFileNameDlg::GetFileName() const
 {
-	return std::string(_fileName->GetEditable()->GetText()).append(".").append(_ext);
+	return std::string(_fileName->GetEditable().GetText()).append(".").append(_ext);
 }
 
 std::string_view GetFileNameDlg::GetFileTitle() const
 {
-	return _fileName->GetEditable()->GetText();
+	return _fileName->GetEditable().GetText();
 }
 
 void GetFileNameDlg::OnSelect(int index)
 {
 	if( _changing || -1 == index ) return;
-	_fileName->GetEditable()->SetText(std::string(_files->GetData()->GetItemText(index, 0)));
+	_fileName->GetEditable().SetText(std::string(_files->GetData()->GetItemText(index, 0)));
 }
 
 void GetFileNameDlg::OnChangeName()
 {
 	_changing = true;
 	size_t match = 0;
-	auto txt = _fileName->GetEditable()->GetText();
+	auto txt = _fileName->GetEditable().GetText();
 	for( int i = 0; i < _files->GetData()->GetItemCount(); ++i )
 	{
 		auto filename = _files->GetData()->GetItemText(i, 0);
