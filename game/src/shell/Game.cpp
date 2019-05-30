@@ -333,14 +333,15 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 
 	if (_background.get() == &child)
 	{
+		UI::WindowLayout result;
+		if (_gameContext->GetGameplay() && _gameContext->GetGameplay()->GetGameOverTime() <= _gameContext->GetGameplayTime())
+			result = UI::WindowLayout{ MakeRectWH(size), 1, true };
+		else
+			result = GetChildLayout(texman, lc, dc, *_scoreAndControls);
 		float gameplayTime = _gameContext->GetGameplayTime();
 		float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
-		float opacity = _score->GetVisible() ? 1 : std::clamp((gameplayTime - gameOverTime) / showScoreDelay, 0.f, 1.f);
-
-		if (_gameContext->GetGameplay() && _gameContext->GetGameplay()->GetGameOverTime() <= _gameContext->GetGameplayTime())
-			return UI::WindowLayout{ MakeRectWH(size), opacity, true };
-		else
-			return GetChildLayout(texman, lc, dc, *_scoreAndControls);
+		result.opacity = _score->GetVisible() ? 1 : std::clamp((gameplayTime - gameOverTime) / showScoreDelay, 0.f, 1.f);
+		return result;
 	}
 	if (_scoreAndControls.get() == &child)
 	{
