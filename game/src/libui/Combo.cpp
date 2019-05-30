@@ -68,7 +68,7 @@ void ComboBox::DropList()
 		_btn->SetBackground("ui/scroll_up");
 		_list->SetVisible(true);
 //		_list->SetScrollPos((float) GetCurSel());
-		SetFocus(_list);
+		SetFocus(_list.get());
 	}
 }
 

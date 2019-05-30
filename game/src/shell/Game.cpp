@@ -142,7 +142,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 		_campaignControls = std::make_shared<CampaignControls>(*deathmatch, std::move(campaignControlCommands));
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
-		_scoreAndControls->SetFocus(_campaignControls);
+		_scoreAndControls->SetFocus(_campaignControls.get());
 	}
 
 	_timerDisplay = std::make_shared<UI::Text>();
@@ -358,9 +358,14 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	return UI::Window::GetChildLayout(texman, lc, dc, child);
 }
 
-std::shared_ptr<UI::Window> GameLayout::GetFocus() const
+std::shared_ptr<UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
 {
 	return _scoreAndControls;
+}
+
+UI::Window* GameLayout::GetFocus() const
+{
+	return _scoreAndControls.get();
 }
 
 bool GameLayout::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)

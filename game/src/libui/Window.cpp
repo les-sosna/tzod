@@ -38,13 +38,13 @@ Window::~Window()
 
 void Window::UnlinkAllChildren()
 {
-	_focusChild.reset();
+	_focusChild = nullptr;
 	_children.clear();
 }
 
 void Window::UnlinkChild(Window &child)
 {
-	if (_focusChild.get() == &child)
+	if (_focusChild == &child)
 		_focusChild = nullptr;
 	_children.erase(
 		std::remove_if(std::begin(_children), std::end(_children), [&](auto &which) { return which.get() == &child;} ),
@@ -84,13 +84,18 @@ void Window::SetTopMost(bool topmost)
 	_isTopMost = topmost;
 }
 
-void Window::SetFocus(std::shared_ptr<Window> child)
+void Window::SetFocus(Window *child)
 {
-	assert(!child || _children.end() != std::find(_children.begin(), _children.end(), child));
+	assert(!child || end(_children) != std::find_if(begin(_children), end(_children), [=](auto & c) { return c.get() == child; }));
 	_focusChild = child;
 }
 
-std::shared_ptr<Window> Window::GetFocus() const
+std::shared_ptr<Window> Window::GetFocus(const std::shared_ptr<const Window>& owner) const
+{
+	return _focusChild ? *std::find_if(begin(_children), end(_children), [=](auto & c) { return c.get() == _focusChild; }) : nullptr;
+}
+
+Window* Window::GetFocus() const
 {
 	return _focusChild;
 }
@@ -109,7 +114,7 @@ bool UI::NeedsFocus(TextureManager& texman, const InputContext& ic, const Window
 	if (wnd.HasNavigationSink() || wnd.HasKeyboardSink() || wnd.HasTextSink())
 		return true;
 
-	if (auto focus = wnd.GetFocus().get())
+	if (auto focus = wnd.GetFocus())
 	{
 		auto childLayout = wnd.GetChildLayout(texman, lc, dc, *focus);
 		if (childLayout.enabled && NeedsFocus(texman, ic, *focus, LayoutContext(ic, wnd, lc, *focus, childLayout), dc))

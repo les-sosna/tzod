@@ -36,7 +36,7 @@ namespace UI
 		FlowDirection _flowDirection = FlowDirection::Vertical;
 		Align _align = Align::LT;
 
-		std::shared_ptr<Window> GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate);
+		Window* GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate);
 
 		// NavigationSink
 		bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;

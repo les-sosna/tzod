@@ -19,6 +19,6 @@ LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow,
 	, _scaleCombined(parentLC.GetScaleCombined())
 	, _opacityCombined(parentLC.GetOpacityCombined() * childLayout.opacity)
 	, _enabledCombined(parentLC.GetEnabledCombined() && childLayout.enabled)
-	, _focusedCombined(parentLC.GetFocusedCombined() && (parentWindow.GetFocus().get() == &childWindow))
+	, _focusedCombined(parentLC.GetFocusedCombined() && (parentWindow.GetFocus() == &childWindow))
 {
 }

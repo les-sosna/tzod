@@ -18,13 +18,13 @@ public:
 	void PopNavStack(UI::Window *wnd = nullptr);
 	void PushNavStack(std::shared_ptr<UI::Window> wnd);
 
-	std::shared_ptr<UI::Window> GetNavFront() const;
+	UI::Window* GetNavFront() const;
 	float GetNavigationDepth() const;
 
 	template <class T>
 	bool IsOnTop() const
 	{
-		return !!dynamic_cast<T*>(GetNavFront().get());
+		return !!dynamic_cast<T*>(GetNavFront());
 	}
 
 	template <class T>
@@ -34,7 +34,7 @@ public:
 		{
 			for (auto wnd : *this)
 			{
-				if (dynamic_cast<const T*>(wnd.get()))
+				if (dynamic_cast<const T*>(wnd))
 					return true;
 				if (wnd == navFront)
 					break;

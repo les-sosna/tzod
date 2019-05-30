@@ -136,7 +136,7 @@ void EditorWorldView::Select(GC_Object *object, bool bSelect)
 			_selectedObject = object;
 			_propList->ConnectTo(_selectedObject->GetProperties(_world));
 			_propList->SetVisible(true);
-			SetFocus(_propList);
+			SetFocus(_propList.get());
 		}
 	}
 	else

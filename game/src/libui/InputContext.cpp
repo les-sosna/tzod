@@ -22,7 +22,7 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 {
 	if (lc.GetEnabledCombined() && wnd->GetVisible())
 	{
-		if (auto focusedChild = wnd->GetFocus())
+		if (auto focusedChild = wnd->GetFocus(wnd))
 		{
 			auto childLayout = wnd->GetChildLayout(settings.texman, lc, dc, *focusedChild);
 			LayoutContext childLC(settings.ic, *wnd, lc, *focusedChild, childLayout);
@@ -149,7 +149,7 @@ SinkType* UI::FindAreaSink(
 
 	if (pointerInside || !wnd->GetClipChildren())
 	{
-		for (auto child : reverse(*wnd))
+		for (auto child : reverse(wnd))
 		{
 			// early skip topmost subtree
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
@@ -181,7 +181,7 @@ SinkType* UI::FindAreaSink(
 static void PropagateFocus(const std::vector<std::shared_ptr<Window>> &path)
 {
 	for (size_t i = path.size() - 1; i > 0; i--)
-		path[i]->SetFocus(path[i - 1]);
+		path[i]->SetFocus(path[i - 1].get());
 }
 
 static LayoutContext RestoreLayoutContext(TextureManager& texman, const InputContext& ic, LayoutContext lc, const DataContext &dc, const std::vector<std::shared_ptr<Window>> &path)
@@ -328,7 +328,7 @@ static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texma
 	if (wnd->GetVisible())
 	{
 		std::shared_ptr<Window> handledBy;
-		if (auto focusedChild = wnd->GetFocus())
+		if (auto focusedChild = wnd->GetFocus(wnd))
 		{
 			auto childLayout = wnd->GetChildLayout(texman, lc, dc, *focusedChild);
 			if (childLayout.enabled)
@@ -351,21 +351,21 @@ static std::shared_ptr<Window> NavigateMostDescendantFocus(TextureManager &texma
 	return nullptr;
 }
 
-static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, const InputContext& ic, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
+static FRECT EnsureVisibleMostDescendantFocus(TextureManager &texman, const InputContext& ic, Window &wnd, const LayoutContext &lc, const DataContext &dc)
 {
-	if (auto focusedChild = wnd->GetFocus())
+	if (auto focusedChild = wnd.GetFocus())
 	{
-		auto childLayout = wnd->GetChildLayout(texman, lc, dc, *focusedChild);
-		LayoutContext childLC(ic, *wnd, lc, *focusedChild, childLayout);
+		auto childLayout = wnd.GetChildLayout(texman, lc, dc, *focusedChild);
+		LayoutContext childLC(ic, wnd, lc, *focusedChild, childLayout);
 
-		FRECT pxFocusRect = EnsureVisibleMostDescendantFocus(texman, ic, focusedChild, childLC, dc);
+		FRECT pxFocusRect = EnsureVisibleMostDescendantFocus(texman, ic, *focusedChild, childLC, dc);
 
-		if (auto scrollSink = wnd->GetScrollSink())
+		if (auto scrollSink = wnd.GetScrollSink())
 		{
 			scrollSink->EnsureVisible(texman, lc, dc, pxFocusRect);
 
 			// Get updated layout as it may have changed due to scroll offset change
-			childLayout = wnd->GetChildLayout(texman, lc, dc, *focusedChild);
+			childLayout = wnd.GetChildLayout(texman, lc, dc, *focusedChild);
 		}
 
 		return RectOffset(pxFocusRect, Offset(childLayout.rect));
@@ -509,7 +509,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 
 			if (handled)
 			{
-				EnsureVisibleMostDescendantFocus(texman, *this, wnd, lc, dc);
+				EnsureVisibleMostDescendantFocus(texman, *this, *wnd, lc, dc);
 			}
 		}
 	}
@@ -575,7 +575,7 @@ bool InputContext::ProcessText(
 
 	if (modified)
 	{
-		EnsureVisibleMostDescendantFocus(texman, *this, wnd, layoutContext, dataContext);
+		EnsureVisibleMostDescendantFocus(texman, *this, *wnd, layoutContext, dataContext);
 	}
 
 	return handled;

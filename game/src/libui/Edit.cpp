@@ -58,7 +58,12 @@ vec2d Edit::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	return _editable->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<Window> Edit::GetFocus() const
+std::shared_ptr<Window> Edit::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _scrollView;
+}
+
+Window* Edit::GetFocus() const
+{
+	return _scrollView.get();
 }

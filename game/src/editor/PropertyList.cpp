@@ -43,7 +43,7 @@ PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &c
 
 	_scrollView->SetContent(_psheet);
 	AddFront(_scrollView);
-	SetFocus(_scrollView);
+	SetFocus(_scrollView.get());
 
 	_psheet->SetSpacing(10);
 }
@@ -57,7 +57,7 @@ void PropertyList::DoExchange(bool applyToObject)
 		assert(_ps);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
-			if (_psheet->GetFocus() == _psheet->GetChild(i))
+			if (_psheet->GetFocus() == &_psheet->GetChild(i))
 			{
 				focus = i;
 			}
@@ -199,7 +199,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			}
 
 			group->AddFront(ctrl);
-			group->SetFocus(ctrl);
+			group->SetFocus(ctrl.get());
 
 			if( focus == i )
 			{
@@ -207,7 +207,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				{
 					edit->GetEditable()->SetSel(0, -1);
 				}
-				_psheet->SetFocus(group);
+				_psheet->SetFocus(group.get());
 			}
 
 			assert(nullptr != ctrl);

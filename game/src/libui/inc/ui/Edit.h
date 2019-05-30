@@ -24,7 +24,8 @@ public:
 	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 	const StateGen* GetStateGen() const override { return this; }
-	std::shared_ptr<Window> GetFocus() const override;
+	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	Window* GetFocus() const override;
 
 private:
 	std::shared_ptr<Rectangle> _background;

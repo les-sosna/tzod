@@ -1,6 +1,8 @@
 #pragma once
 #include "Navigation.h"
 #include "PointerInput.h"
+#include "Rectangle.h"
+#include "Text.h"
 #include "Texture.h"
 #include "Window.h"
 #include <functional>
@@ -53,8 +55,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Rectangle;
-class Text;
 template<class T> struct LayoutData;
 
 class Button final
@@ -66,21 +66,20 @@ public:
 	void SetBackground(Texture background);
 	const Texture& GetBackground() const;
 
-	void SetIcon(TextureManager &texman, const char *spriteName);
 	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 	void SetFont(Texture fontTexture);
 
 	void AlignToBackground(TextureManager &texman);
 
 	// Window
-	unsigned int GetChildrenCount() const override;
-	std::shared_ptr<const Window> GetChild(unsigned int index) const override;
-	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
+	unsigned int GetChildrenCount() const override { return 2; }
+	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override;
+	const Window& GetChild(unsigned int index) const override;
 
 private:
-	std::shared_ptr<Rectangle> _background;
-	std::shared_ptr<Rectangle> _icon;
-	std::shared_ptr<Text> _text;
+	Rectangle _background;
+	Text _text;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,7 +93,8 @@ public:
 
 	// Window
 	unsigned int GetChildrenCount() const override;
-	std::shared_ptr<const Window> GetChild(unsigned int index) const override;
+	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override;
+	const Window& GetChild(unsigned int index) const override;
 	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
@@ -129,13 +129,16 @@ public:
 	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time, bool hovered) const override;
 	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const DataContext& dc, float scale, const LayoutConstraints& layoutConstraints) const override;
+	unsigned int GetChildrenCount() const override { return 1; }
+	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override { return { owner, &_text }; }
+	const Window& GetChild(unsigned int index) const override { return _text; }
 
 protected:
 	// ButtonBase
 	void OnClick() override;
 
 private:
-	std::shared_ptr<Text> _text;
+	Text _text;
 	Texture _boxTexture = "ui/checkbox";
 	BoxPosition _boxPosition = BoxPosition::Left;
 	bool _isChecked = false;

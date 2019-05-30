@@ -22,7 +22,7 @@ MainMenuDlg::MainMenuDlg(LangCache &lang,
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = _commands.singlePlayer;
 	AddFront(button);
-	SetFocus(button);
+	SetFocus(button.get());
 
 	button = std::make_shared<UI::Button>();
 	button->SetFont("font_default");

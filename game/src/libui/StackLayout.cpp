@@ -19,7 +19,7 @@ WindowLayout StackLayout::GetChildLayout(TextureManager &texman, const LayoutCon
 	{
 		for (auto item : *this)
 		{
-			if (item.get() == &child)
+			if (item == &child)
 			{
 				break;
 			}
@@ -45,7 +45,7 @@ WindowLayout StackLayout::GetChildLayout(TextureManager &texman, const LayoutCon
 		assert(FlowDirection::Horizontal == _flowDirection);
 		for (auto item : *this)
 		{
-			if (item.get() == &child)
+			if (item == &child)
 			{
 				break;
 			}
@@ -85,7 +85,7 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 		vec2d{ pxMaxSize, pxTotalSize };
 }
 
-std::shared_ptr<Window> StackLayout::GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate)
+Window* StackLayout::GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate)
 {
 	switch (navigate)
 	{
@@ -117,7 +117,7 @@ void StackLayout::OnNavigate(TextureManager& texman, const InputContext &ic, con
 	{
 		if (auto newFocus = GetNavigateTarget(texman, ic, lc, dc, navigate))
 		{
-			SetFocus(std::move(newFocus));
+			SetFocus(newFocus);
 		}
 	}
 }

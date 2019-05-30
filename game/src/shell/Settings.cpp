@@ -49,7 +49,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	_content->Move(x, y);
 	_content->Resize(128, 128);
 	AddFront(_content);
-	SetFocus(_content);
+	SetFocus(_content.get());
 
 	auto text = std::make_shared<UI::Text>();
 	text->SetText(ConfBind(_lang.settings_player1));
@@ -74,7 +74,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	_profiles = std::make_shared<UI::ListBox>(&_profilesDataSource);
 	_profiles->Resize(128, 52);
 	_content->AddFront(_profiles);
-	_content->SetFocus(_profiles);
+	_content->SetFocus(_profiles.get());
 	UpdateProfilesList(); // fill the list before binding OnChangeSel
 
 	auto btn = std::make_shared<UI::Button>();
@@ -110,7 +110,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	_content2->Move(x, y);
 	_content2->Resize(128, 128);
 	AddFront(_content2);
-	SetFocus(_content2);
+	SetFocus(_content2.get());
 
 	_showFps = std::make_shared<UI::CheckBox>();
 	_showFps->SetText(ConfBind(_lang.settings_show_fps));
@@ -189,7 +189,7 @@ void SettingsDlg::OnAddProfile()
 		OnProfileEditorClosed(weakSender.lock(), result);
 	};
 	AddFront(dlg);
-	SetFocus(dlg);
+	SetFocus(dlg.get());
 }
 
 void SettingsDlg::OnEditProfile()
@@ -202,7 +202,7 @@ void SettingsDlg::OnEditProfile()
 		OnProfileEditorClosed(weakSender.lock(), result);
 	};
 	AddFront(dlg);
-	SetFocus(dlg);
+	SetFocus(dlg.get());
 }
 
 void SettingsDlg::OnDeleteProfile()
@@ -235,7 +235,7 @@ void SettingsDlg::OnProfileEditorClosed(std::shared_ptr<UI::Dialog> sender, int 
 	if( _resultOK == result )
 	{
 		UpdateProfilesList();
-		SetFocus(_content);
+		SetFocus(_content.get());
 	}
 	UnlinkChild(*sender);
 }
@@ -343,7 +343,7 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 	btn->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 	AddFront(btn);
 
-	SetFocus(_actions);
+	SetFocus(_actions.get());
 }
 
 ControlProfileDlg::~ControlProfileDlg()
@@ -419,14 +419,14 @@ bool ControlProfileDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 			_keyBindings[_activeIndex] = key;
 		}
 		SetActiveIndex(-1);
-		SetFocus(_actions);
+		SetFocus(_actions.get());
 	}
 	else
 	{
 		switch( key )
 		{
 		case Plat::Key::Enter:
-			if( GetFocus() == _actions && -1 != _actions->GetList()->GetCurSel() )
+			if( GetFocus() == _actions.get() && -1 != _actions->GetList()->GetCurSel() )
 			{
 				OnSelectAction(_actions->GetList()->GetCurSel());
 			}
@@ -464,7 +464,7 @@ MainSettingsDlg::MainSettingsDlg(LangCache& lang, MainSettingsCommands commands)
 	button->Resize(c_buttonWidth, c_buttonHeight);
 	button->eventClick = commands.player;
 	AddFront(button);
-	SetFocus(button);
+	SetFocus(button.get());
 
 	button = std::make_shared<UI::Button>();
 	button->SetFont("font_default");
@@ -502,7 +502,7 @@ void SettingsListBase::AddSetting(const ConfVarString& title, ConfVarType& confV
 	widget->SetTitle(ConfBind(title));
 	AddFront(widget);
 	if (!GetFocus())
-		SetFocus(widget);
+		SetFocus(widget.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

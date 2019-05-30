@@ -67,7 +67,7 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 	_maps->Resize(x2 - x1, 192);
 
 	AddFront(_maps);
-	SetFocus(_maps);
+	SetFocus(_maps.get());
 
 
 	//
@@ -295,7 +295,7 @@ void NewGameDlg::OnAddPlayer()
 			UnlinkChild(*sender);
 	};
 	AddFront(dlg);
-	SetFocus(dlg);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnRemovePlayer()
@@ -319,7 +319,7 @@ void NewGameDlg::OnEditPlayer()
 			UnlinkChild(*sender);
 	};
 	AddFront(dlg);
-	SetFocus(dlg);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnAddBot()
@@ -343,7 +343,7 @@ void NewGameDlg::OnAddBot()
 			UnlinkChild(*sender);
 	};
 	AddFront(dlg);
-	SetFocus(dlg);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnRemoveBot()
@@ -367,7 +367,7 @@ void NewGameDlg::OnEditBot()
 			UnlinkChild(*sender);
 	};
 	AddFront(dlg);
-	SetFocus(dlg);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnOK()
@@ -404,7 +404,7 @@ bool NewGameDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 	{
 	case Plat::Key::Enter:
 	case Plat::Key::NumEnter:
-		if( GetFocus() == _players && -1 != _players->GetList()->GetCurSel() )
+		if( GetFocus() == _players.get() && -1 != _players->GetList()->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
@@ -456,7 +456,7 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	_name->SetWidth(200);
 	_name->GetEditable()->SetText(std::string(_info.nick.Get()));
 	AddFront(_name);
-	SetFocus(_name);
+	SetFocus(_name.get());
 
 
 	//
@@ -672,7 +672,7 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	_name->SetWidth(200);
 	_name->GetEditable()->SetText(std::string(_info.nick.Get().empty() ? "player" : _info.nick.Get()));
 	AddFront(_name);
-	SetFocus(_name);
+	SetFocus(_name.get());
 
 
 	//

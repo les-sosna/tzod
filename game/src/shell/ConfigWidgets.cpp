@@ -53,9 +53,14 @@ vec2d StringSetting::GetContentSize(TextureManager& texman, const UI::DataContex
 	return vec2d{ 0, _valueEditBox->GetContentSize(texman, dc, scale, layoutConstraints).y };
 }
 
-std::shared_ptr<UI::Window> StringSetting::GetFocus() const
+std::shared_ptr<UI::Window> StringSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _valueEditBox;
+}
+
+UI::Window* StringSetting::GetFocus() const
+{
+	return _valueEditBox.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,9 +94,14 @@ vec2d BooleanSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 	return _valueCheckBox->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<UI::Window> BooleanSetting::GetFocus() const
+std::shared_ptr<UI::Window> BooleanSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _valueCheckBox;
+}
+
+UI::Window* BooleanSetting::GetFocus() const
+{
+	return _valueCheckBox.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -170,9 +180,14 @@ vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 	return _button->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<UI::Window> KeyBindSetting::GetFocus() const
+std::shared_ptr<UI::Window> KeyBindSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _button;
+}
+
+UI::Window* KeyBindSetting::GetFocus() const
+{
+	return _button.get();
 }
 
 bool KeyBindSetting::OnKeyPressed(const UI::InputContext& ic, Plat::Key key)

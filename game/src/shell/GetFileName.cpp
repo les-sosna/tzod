@@ -68,7 +68,7 @@ GetFileNameDlg::GetFileNameDlg(const Params &param, LangCache &lang)
 	btn->eventClick = std::bind(&GetFileNameDlg::OnOK, this);
 	AddFront(btn);
 
-	SetFocus(_fileName);
+	SetFocus(_fileName.get());
 }
 
 GetFileNameDlg::~GetFileNameDlg()

@@ -19,7 +19,7 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 		if (auto focusedChild = wnd->GetFocus())
 		{
 			UI::LayoutContext childLC(ic, *wnd, lc, *focusedChild, wnd->GetChildLayout(texman, lc, dc, *focusedChild));
-			return CanNavigateBack(texman, ic, focusedChild.get(), childLC, dc);
+			return CanNavigateBack(texman, ic, focusedChild, childLC, dc);
 		}
 	}
 	return false;

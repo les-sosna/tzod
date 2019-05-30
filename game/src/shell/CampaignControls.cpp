@@ -28,7 +28,7 @@ CampaignControls::CampaignControls(const Deathmatch &deathmatch, CampaignControl
 	next->SetText("Next"_txt);
 	next->eventClick = std::move(commands.playNext);
 	_content->AddFront(next);
-	_content->SetFocus(next);
+	_content->SetFocus(next.get());
 }
 
 UI::WindowLayout CampaignControls::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
@@ -45,7 +45,12 @@ vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataCon
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-std::shared_ptr<UI::Window> CampaignControls::GetFocus() const
+std::shared_ptr<UI::Window> CampaignControls::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _content;
+}
+
+UI::Window* CampaignControls::GetFocus() const
+{
+	return _content.get();
 }

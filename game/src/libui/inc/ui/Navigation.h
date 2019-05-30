@@ -39,6 +39,6 @@ namespace UI
 		virtual void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) = 0;
 	};
 
-	std::shared_ptr<Window> GetPrevFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window &wnd);
-	std::shared_ptr<Window> GetNextFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window &wnd);
+	Window* GetPrevFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window& wnd);
+	Window* GetNextFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window& wnd);
 }

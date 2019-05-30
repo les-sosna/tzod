@@ -441,19 +441,19 @@ void Desktop::UpdateFocus()
 {
 	if (_con->GetVisible())
 	{
-		SetFocus(_con);
+		SetFocus(_con.get());
 	}
 	else if(_navStack->GetNavFront())
 	{
-		SetFocus(_navStack);
+		SetFocus(_navStack.get());
 	}
 	else if (_editor)
 	{
-		SetFocus(_editor);
+		SetFocus(_editor.get());
 	}
 	else
 	{
-		SetFocus(_game); // may be null
+		SetFocus(_game.get()); // may be null
 	}
 
 	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
@@ -465,14 +465,14 @@ void Desktop::NavigateHome()
 {
 	while (auto wnd = _navStack->GetNavFront())
 	{
-		_navStack->PopNavStack(wnd.get());
+		_navStack->PopNavStack(wnd);
 	}
 	UpdateFocus();
 }
 
 void Desktop::NavigateBack()
 {
-	if (GetFocus() == _con)
+	if (GetFocus() == _con.get())
 		_con->SetVisible(false);
 	else
 		_navStack->PopNavStack();
@@ -481,7 +481,7 @@ void Desktop::NavigateBack()
 
 bool Desktop::CanNavigateBack() const
 {
-	if (GetFocus() == _con)
+	if (GetFocus() == _con.get())
 		return true;
 
 	// Can navigate all the way back if there is game running, otherwise have to stop at main menu

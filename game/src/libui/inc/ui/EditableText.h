@@ -39,7 +39,8 @@ namespace UI
 
 		// Window
 		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
-		std::shared_ptr<Window> GetFocus() const override;
+		std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+		Window* GetFocus() const override;
 		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 		bool HasPointerSink() const override { return true; }
 		PointerSink* GetPointerSink() override { return this; }

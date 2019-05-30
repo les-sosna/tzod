@@ -48,7 +48,12 @@ vec2d ListBox::GetContentSize(TextureManager &texman, const DataContext &dc, flo
 	return _scrollView->GetContentSize(texman, dc, scale, layoutConstraints) + Vec2dFloor(c_borderSize * scale) * 2;
 }
 
-std::shared_ptr<Window> ListBox::GetFocus() const
+std::shared_ptr<Window> ListBox::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _scrollView;
+}
+
+Window* ListBox::GetFocus() const
+{
+	return _scrollView.get();
 }

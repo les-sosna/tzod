@@ -8,18 +8,18 @@ NavStack::NavStack(UI::TimeStepManager &manager)
 {
 }
 
-std::shared_ptr<UI::Window> NavStack::GetNavFront() const
+UI::Window* NavStack::GetNavFront() const
 {
 	auto &children = GetChildren();
 	switch (_state)
 	{
 	case State::GoingForward:
 		// return the staging which is being shown
-		return children.empty() ? nullptr : children.back();
+		return children.empty() ? nullptr : children.back().get();
 
 	case State::GoingBack:
 		// skip the staging one
-		return children.size() < 2 ? nullptr : children[children.size() - 2];
+		return children.size() < 2 ? nullptr : children[children.size() - 2].get();
 	}
 
 	assert(false);
@@ -39,10 +39,10 @@ void NavStack::PopNavStack(UI::Window *wnd)
 {
 	auto navFront = GetNavFront();
 	if (!wnd)
-		wnd = navFront.get();
+		wnd = navFront;
 	assert(wnd);
 
-	if (wnd == navFront.get())
+	if (wnd == navFront)
 	{
 		switch (_state)
 		{
@@ -83,7 +83,7 @@ void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
 	_navTransitionStartTime = GetTimeStepManager().GetTime() - GetTransitionTimeLeft();
 
 	AddFront(wnd);
-	SetFocus(GetChildren().back());
+	SetFocus(*rbegin(*this));
 }
 
 vec2d NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const
@@ -135,7 +135,7 @@ UI::WindowLayout NavStack::GetChildLayout(TextureManager &texman, const UI::Layo
 		auto layoutConstraints = DefaultLayoutConstraints(lc);
 		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScaleCombined(), layoutConstraints);
 		pxWndSize = Vec2dMin(pxWndSize, layoutConstraints.maxPixelSize);
-		if (wnd.get() == &child)
+		if (wnd == &child)
 		{
 			vec2d pxWndOffset = Vec2dFloor(((lc.GetPixelSize() - pxWndSize) / 2)[1 - dim], pxBegin);
 			if (_flowDirection == UI::FlowDirection::Horizontal)
@@ -172,7 +172,7 @@ float NavStack::GetChildOpacity(const UI::Window &child) const
 
 bool NavStack::GetChildEnabled(const UI::Window& child) const
 {
-	return GetNavFront().get() == &child;
+	return GetNavFront() == &child;
 }
 
 void NavStack::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)

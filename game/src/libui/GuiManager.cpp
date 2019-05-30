@@ -45,9 +45,9 @@ void TimeStepManager::TimeStep(std::shared_ptr<Window> desktop, const InputConte
 	for( _tsCurrent = _timestep.begin(); _tsCurrent != _timestep.end(); )
 	{
 		bool focused = false;
-		for (auto wnd = desktop; wnd; wnd = wnd->GetFocus())
+		for (auto wnd = desktop.get(); wnd; wnd = wnd->GetFocus())
 		{
-			if (*_tsCurrent == dynamic_cast<TimeStepping*>(wnd.get()))
+			if (*_tsCurrent == dynamic_cast<TimeStepping*>(wnd))
 			{
 				focused = true;
 				break;

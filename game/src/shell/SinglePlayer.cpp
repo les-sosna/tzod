@@ -129,7 +129,7 @@ namespace
 
 			auto proxy = std::make_shared<NavigationProxy>(confValue);
 			AddFront(proxy);
-			SetFocus(proxy);
+			SetFocus(proxy.get());
 		}
 
 		// Window
@@ -229,7 +229,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_mapTiles);
-	_content->SetFocus(_mapTiles);
+	_content->SetFocus(_mapTiles.get());
 
 	for (size_t i = 0; i < _dmCampaign.tiers.GetSize(); i++)
 	{
@@ -258,7 +258,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	_content->SetSpacing(48);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
-	SetFocus(_content);
+	SetFocus(_content.get());
 
 	UpdateTier();
 }
@@ -307,7 +307,7 @@ void SinglePlayer::UpdateTier()
 
 		if (mapIndex == currentMap)
 		{
-			_mapTiles->SetFocus(mpButton);
+			_mapTiles->SetFocus(mpButton.get());
 		}
 	}
 }

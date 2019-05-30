@@ -6,7 +6,7 @@ using namespace UI;
 
 WindowLayout ScanlineLayout::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	auto childIt = FindWindowChild(*this, child);
+	auto childIt = std::find(begin(*this), end(*this), &child);
 	assert(childIt != end(*this));
 
 	vec2d pxElementSize = ToPx(_elementSize, lc);
@@ -30,12 +30,12 @@ vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &
 	return pxElementSize * vec2d{ (float)numColumns, (float)numRows };
 }
 
-std::shared_ptr<Window> ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputContext &ic, const LayoutContext &lc, const DataContext& dc, Navigate navigate)
+Window* ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputContext &ic, const LayoutContext &lc, const DataContext& dc, Navigate navigate)
 {
 	auto focusChild = GetFocus();
 	auto childIt = std::find(begin(*this), end(*this), focusChild);
 	assert(childIt != end(*this));
-	auto childIndex = std::distance<WindowConstIterator>(begin(*this), childIt);
+	auto childIndex = std::distance(begin(*this), childIt);
 	auto numColumns = std::max(1, int(lc.GetPixelSize().x / ToPx(_elementSize, lc).x));
 
 	switch (navigate)

@@ -91,10 +91,15 @@ public:
 	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
 
 	virtual unsigned int GetChildrenCount() const { return static_cast<unsigned int>(_children.size()); }
-	virtual std::shared_ptr<const Window> GetChild(unsigned int index) const { return _children[index]; }
-	std::shared_ptr<Window> GetChild(unsigned int index)
+	virtual std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window> &owner, unsigned int index) const { return _children[index]; }
+	virtual const Window& GetChild(unsigned int index) const { return *_children[index]; }
+	std::shared_ptr<Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index)
 	{
-		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(index));
+		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(owner, index));
+	}
+	Window& GetChild(unsigned int index)
+	{
+		return const_cast<Window&>(static_cast<const Window*>(this)->GetChild(index));
 	}
 
 	virtual WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
@@ -151,14 +156,15 @@ public:
 	// Behavior
 	//
 
-	void SetFocus(std::shared_ptr<Window> child);
-	virtual std::shared_ptr<Window> GetFocus() const;
+	void SetFocus(Window *child);
+	virtual std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner) const;
+	virtual Window* GetFocus() const;
 
 	// rendering
 	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}
 
 private:
-	std::shared_ptr<Window> _focusChild;
+	Window* _focusChild = nullptr;
 	std::deque<std::shared_ptr<Window>> _children;
 
 	//

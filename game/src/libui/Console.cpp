@@ -260,9 +260,14 @@ WindowLayout Console::GetChildLayout(TextureManager &texman, const LayoutContext
 	return Rectangle::GetChildLayout(texman, lc, dc, child);
 }
 
-std::shared_ptr<Window> Console::GetFocus() const
+std::shared_ptr<Window> Console::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _input;
+}
+
+Window* Console::GetFocus() const
+{
+	return _input.get();
 }
 
 void Console::OnScrollBar(float pos)

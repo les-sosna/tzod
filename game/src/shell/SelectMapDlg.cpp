@@ -50,5 +50,5 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	};
 	_mapTiles->AddFront(newMapButton);
 
-	_mapTiles->SetFocus(_mapTiles->GetChild(0));
+	_mapTiles->SetFocus(&_mapTiles->GetChild(0));
 }
