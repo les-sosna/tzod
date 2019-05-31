@@ -92,13 +92,9 @@ private:
 	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
-	bool HasNavigationSink() const override { return true; }
 	UI::NavigationSink* GetNavigationSink() override { return this; }
-	bool HasScrollSink() const override { return true; }
 	ScrollSink* GetScrollSink() override { return this; }
-	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
-	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
 	EditorConfig &_conf;

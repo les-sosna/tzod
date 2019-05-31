@@ -19,7 +19,6 @@ public:
 	EditableText& GetEditable() { return *_editable; }
 
 	// Window
-	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 	unsigned int GetChildrenCount() const override;
 	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override;

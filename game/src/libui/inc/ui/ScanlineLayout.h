@@ -13,7 +13,6 @@ namespace UI
 		vec2d GetElementSize() const { return _elementSize; }
 
 		// Window
-		bool HasNavigationSink() const override { return true; }
 		NavigationSink* GetNavigationSink() override { return this; }
 		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;

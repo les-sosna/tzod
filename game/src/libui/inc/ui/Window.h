@@ -107,16 +107,17 @@ public:
 	//
 	// Input
 	//
-	virtual bool HasNavigationSink() const { return false; }
 	virtual NavigationSink* GetNavigationSink() { return nullptr; }
-	virtual bool HasScrollSink() const { return false; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
-	virtual bool HasPointerSink() const { return false; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }
-	virtual bool HasKeyboardSink() const { return false; }
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
-	virtual bool HasTextSink() const { return false; }
 	virtual TextSink* GetTextSink() { return nullptr; }
+
+	bool HasNavigationSink() const { return !!const_cast<Window*>(this)->GetNavigationSink(); }
+	bool HasScrollSink() const { return !!const_cast<Window*>(this)->GetScrollSink(); }
+	bool HasPointerSink() const { return !!const_cast<Window*>(this)->GetPointerSink(); }
+	bool HasKeyboardSink() const { return !!const_cast<Window*>(this)->GetKeyboardSink(); }
+	bool HasTextSink() const { return !!const_cast<Window*>(this)->GetTextSink(); }
 
 	// State
 	virtual const StateGen* GetStateGen() const { return nullptr; }

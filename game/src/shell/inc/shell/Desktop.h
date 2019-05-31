@@ -65,9 +65,7 @@ public:
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 
 protected:
-	bool HasNavigationSink() const override { return true; }
 	UI::NavigationSink* GetNavigationSink() override { return this; }
-	bool HasKeyboardSink() const override { return true; }
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
 
 private:

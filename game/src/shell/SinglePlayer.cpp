@@ -172,8 +172,7 @@ namespace
 				: _confValue(confValue)
 			{}
 			// UI::Window
-			bool HasNavigationSink() const override { return true; }
-			NavigationSink* GetNavigationSink() override { return this; }
+			UI::NavigationSink* GetNavigationSink() override { return this; }
 
 		private:
 			// UI::NavigationSink

@@ -43,10 +43,8 @@ public:
 	// Window
 	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
-	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
-	bool HasNavigationSink() const override { return _enableNavigation; }
-	NavigationSink *GetNavigationSink() override { return this; }
+	NavigationSink *GetNavigationSink() override { return _enableNavigation ? this : nullptr; }
 	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
 	const Window* GetFocus() const override;
 	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;

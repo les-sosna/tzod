@@ -44,7 +44,6 @@ public:
 	}
 
 	// UI::Window
-	bool HasPointerSink() const override { return true; }
 	UI::PointerSink* GetPointerSink() override { return GetNavFront() ? this : nullptr; }
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 

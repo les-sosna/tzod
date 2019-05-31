@@ -30,9 +30,7 @@ public:
 	State GetState(const LayoutContext &lc, const InputContext &ic, bool hovered) const;
 
 	// Window
-	bool HasNavigationSink() const override { return !!eventClick; }
-	NavigationSink* GetNavigationSink() override { return this; }
-	bool HasPointerSink() const override { return true; }
+	NavigationSink* GetNavigationSink() override { return eventClick ? this : nullptr; }
 	PointerSink* GetPointerSink() override { return this; }
 	const StateGen* GetStateGen() const override { return this; }
 

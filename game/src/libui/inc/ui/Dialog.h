@@ -27,9 +27,7 @@ public:
 	void Close(int result);
 
 	// Window
-	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
-	bool HasPointerSink() const override { return true; }
 	PointerSink *GetPointerSink() override { return this; }
 
 protected:

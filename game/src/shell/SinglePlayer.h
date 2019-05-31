@@ -37,7 +37,6 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const override;
-	bool HasNavigationSink() const override { return true; }
 	NavigationSink* GetNavigationSink() override { return this; }
 
 private:
