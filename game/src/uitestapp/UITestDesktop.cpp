@@ -37,5 +37,5 @@ UI::WindowLayout UITestDesktop::GetChildLayout(TextureManager &texman, const UI:
 		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((size - child.GetSize() * scale) / 2), Vec2dFloor(child.GetSize() * scale)), 1, true };
 	}
 
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }

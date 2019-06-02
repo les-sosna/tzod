@@ -242,5 +242,5 @@ UI::WindowLayout EditorMain::GetChildLayout(TextureManager &texman, const UI::La
 		vec2d pxHelpBoxSize = _helpBox->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
 		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((lc.GetPixelSize() - pxHelpBoxSize) / 2), pxHelpBoxSize), 1, true };
 	}
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }

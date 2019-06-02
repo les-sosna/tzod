@@ -6,7 +6,7 @@ namespace UI
 
 class Button;
 
-class ScrollBarBase : public Rectangle
+class ScrollBarBase : public WindowContainer
 {
 public:
 	ScrollBarBase();
@@ -38,6 +38,7 @@ protected:
 	float GetScrollPaneLength(const LayoutContext &lc) const;
 
 	float _tmpBoxPos;
+	std::shared_ptr<Rectangle> _background;
 	std::shared_ptr<Button> _btnBox;
 	std::shared_ptr<Button> _btnUpLeft;
 	std::shared_ptr<Button> _btnDownRight;

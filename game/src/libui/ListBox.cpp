@@ -40,7 +40,7 @@ WindowLayout ListBox::GetChildLayout(TextureManager &texman, const LayoutContext
 		return WindowLayout{ MakeRectRB(pxBorderSize, size - pxBorderSize), 1, true };
 	}
 
-	return Window::GetChildLayout(texman, lc, dc, child);
+	return WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d ListBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

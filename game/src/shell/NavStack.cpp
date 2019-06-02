@@ -147,7 +147,7 @@ UI::WindowLayout NavStack::GetChildLayout(TextureManager &texman, const UI::Layo
 
 	assert(false);
 
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 float NavStack::GetChildOpacity(const UI::Window &child) const

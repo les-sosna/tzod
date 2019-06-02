@@ -437,7 +437,7 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = std::make_shared<Rectangle>();
+	_skinPreview = std::make_shared<UI::Rectangle>();
 	_skinPreview->Move(300, y);
 	AddFront(_skinPreview);
 
@@ -653,7 +653,7 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = std::make_shared<Rectangle>();
+	_skinPreview = std::make_shared<UI::Rectangle>();
 	_skinPreview->Move(300, y);
 	AddFront(_skinPreview);
 

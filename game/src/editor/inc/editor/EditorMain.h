@@ -33,7 +33,7 @@ struct EditorCommands
 };
 
 class EditorMain
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::KeyboardSink
 	, private UI::NavigationSink
 {

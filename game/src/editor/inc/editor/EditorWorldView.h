@@ -21,7 +21,7 @@ class GameClassVis;
 class GC_MovingObject;
 
 class EditorWorldView
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::TimeStepping
 	, private UI::ScrollSink
 	, private UI::PointerSink

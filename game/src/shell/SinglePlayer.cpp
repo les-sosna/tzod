@@ -108,15 +108,12 @@ namespace
 		}
 	};
 
-	class DifficultySelector final
-		: public UI::ButtonBase
+	class DifficultySelectorContent final : public UI::WindowContainer
 	{
 	public:
-		DifficultySelector(ConfVarNumber& confValue)
+		DifficultySelectorContent(ConfVarNumber& confValue)
 			: _confValue(confValue)
 		{
-			Resize(144, 48);
-
 			auto background = std::make_shared<UI::Rectangle>();
 			background->SetTexture("ui/button");
 			background->SetFrame(std::make_shared<UI::StateBinding<unsigned int>>(0, // default
@@ -139,12 +136,6 @@ namespace
 		}
 
 	private:
-		// ButtonBase
-		void OnClick() override
-		{
-			_confValue.SetInt((_confValue.GetInt() + 1) % 3);
-		}
-
 		class DifficultyConfigBinding final
 			: public UI::RenderData<unsigned int>
 		{
@@ -223,8 +214,16 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
-	auto difficultySelector = std::make_shared<DifficultySelector>(appConfig.sp_difficulty);
-	_content->AddFront(difficultySelector);
+	auto difficultySelectorContent = std::make_shared<DifficultySelectorContent>(appConfig.sp_difficulty);
+	difficultySelectorContent->Resize(144, 48);
+	auto difficultySelectorButton = std::make_shared<UI::ContentButton>();;
+	difficultySelectorButton->SetContent(difficultySelectorContent);
+	difficultySelectorButton->eventClick = [&appConfig]
+	{
+		appConfig.sp_difficulty.SetInt((appConfig.sp_difficulty.GetInt() + 1) % 3);
+	};
+
+	_content->AddFront(difficultySelectorButton);
 
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_mapTiles);
@@ -294,9 +293,8 @@ void SinglePlayer::UpdateTier()
 		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
 		mapPreview->SetLocked(locked);
 
-		auto mpButton = std::make_shared<UI::ButtonBase>();
-		mpButton->AddFront(mapPreview);
-		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
+		auto mpButton = std::make_shared<UI::ContentButton>();
+		mpButton->SetContent(mapPreview);
 		if (!locked)
 		{
 			mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
@@ -341,7 +339,7 @@ UI::WindowLayout SinglePlayer::GetChildLayout(TextureManager &texman, const UI::
 		return UI::WindowLayout{ MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins), 1, true };
 	}
 
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const

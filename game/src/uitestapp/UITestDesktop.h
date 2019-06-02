@@ -8,7 +8,7 @@ namespace UI
 	class Text;
 }
 
-class UITestDesktop : public UI::Window
+class UITestDesktop : public UI::WindowContainer
 {
 public:
 	UITestDesktop();

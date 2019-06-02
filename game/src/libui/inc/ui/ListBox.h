@@ -8,7 +8,7 @@ namespace UI
 	class ScrollView;
 	struct ListDataSource;
 
-	class ListBox : public Window
+	class ListBox : public WindowContainer
 	{
 	public:
 		explicit ListBox(ListDataSource* dataSource);

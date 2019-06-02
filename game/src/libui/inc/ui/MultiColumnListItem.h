@@ -7,7 +7,7 @@ namespace UI
 	class Rectangle;
 	class Text;
 
-	class MultiColumnListItem : public Window
+	class MultiColumnListItem : public WindowContainer
 	{
 	public:
 		MultiColumnListItem();

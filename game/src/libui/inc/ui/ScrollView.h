@@ -19,6 +19,9 @@ namespace UI
 		bool GetStretchContent() const { return _stretchContent; }
 
 		// Window
+		unsigned int GetChildrenCount() const override { return !!_content; }
+		std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override { return _content; }
+		const Window& GetChild(unsigned int index) const override { return *_content; }
 		ScrollSink* GetScrollSink() override { return this; }
 		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;

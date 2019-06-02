@@ -45,7 +45,7 @@ UI::WindowLayout StringSetting::GetChildLayout(TextureManager& texman, const UI:
 	{
 		return UI::WindowLayout{ MakeRectRB(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetPixelSize()), 1, true };
 	}
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d StringSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
@@ -142,7 +142,7 @@ UI::WindowLayout KeyBindSetting::KeyBindSettingContent::GetChildLayout(TextureMa
 	{
 		return UI::WindowLayout{ MakeRectRB(vec2d{ lc.GetPixelSize().x, 0 }, lc.GetPixelSize()), 1, true };
 	}
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d KeyBindSetting::KeyBindSettingContent::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const

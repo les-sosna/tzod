@@ -14,32 +14,25 @@ void ScrollView::SetContent(std::shared_ptr<Window> content)
 	{
 		if (_content)
 		{
-			UnlinkChild(*_content);
 			_offset = vec2d{};
 		}
 		_content = content;
-		AddBack(_content);
 	}
 }
 
 WindowLayout ScrollView::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
+	assert(_content.get() == &child);
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
-
-	if (_content.get() == &child)
-	{
-		vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc));
-		if (_stretchContent)
-			pxContentMeasuredSize = Vec2dMax(pxContentMeasuredSize, size);
-		vec2d pxContentOffset = Vec2dClamp(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
-		vec2d pxContentSize = vec2d{
-			_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,
-			_verticalScrollEnabled ? pxContentMeasuredSize.y : size.y };
-		return WindowLayout{ MakeRectWH(-pxContentOffset, pxContentSize), 1, true };
-	}
-
-	return Window::GetChildLayout(texman, lc, dc, child);
+	vec2d pxContentMeasuredSize = _content->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc));
+	if (_stretchContent)
+		pxContentMeasuredSize = Vec2dMax(pxContentMeasuredSize, size);
+	vec2d pxContentOffset = Vec2dClamp(Vec2dFloor(_offset * scale), MakeRectWH(pxContentMeasuredSize - size));
+	vec2d pxContentSize = vec2d{
+		_horizontalScrollEnabled ? pxContentMeasuredSize.x : size.x,
+		_verticalScrollEnabled ? pxContentMeasuredSize.y : size.y };
+	return WindowLayout{ MakeRectWH(-pxContentOffset, pxContentSize), 1, true };
 }
 
 vec2d ScrollView::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

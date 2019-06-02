@@ -17,7 +17,7 @@ namespace UI
 }
 
 class MapPreview final
-	: public UI::Window
+	: public UI::WindowContainer
 {
 public:
 	MapPreview(FS::FileSystem &fs, WorldView &worldView, WorldCache &mapCache);

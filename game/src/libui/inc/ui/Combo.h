@@ -1,5 +1,5 @@
 #pragma once
-#include "Rectangle.h"
+#include "Window.h"
 #include <functional>
 
 namespace UI
@@ -9,9 +9,10 @@ struct ListDataSource;
 class List;
 class ListBox;
 class Button;
+class Rectangle;
 
 class ComboBox
-	: public Rectangle
+	: public WindowContainer
 	, private KeyboardSink
 {
 public:
@@ -39,6 +40,7 @@ protected:
 	void OnListLostFocus();
 
 private:
+	std::shared_ptr<Rectangle> _background;
 	std::shared_ptr<Button> _btn;
 	std::shared_ptr<ListBox> _list;
 	int _curSel;

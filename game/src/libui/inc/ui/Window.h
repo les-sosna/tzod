@@ -78,46 +78,26 @@ class Window
 {
 public:
 	Window();
-	virtual ~Window();
+	virtual ~Window() = default;
 
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 
-	void UnlinkAllChildren();
-	void UnlinkChild(Window &child);
-	void AddFront(std::shared_ptr<Window> child);
-	void AddBack(std::shared_ptr<Window> child);
+	// Subtree
+	virtual unsigned int GetChildrenCount() const { return 0; }
+	virtual std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const { assert(false); return nullptr; }
+	virtual const Window& GetChild(unsigned int index) const { assert(false); return *this; }
+	virtual WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const { assert(false); return {}; }
+	virtual void SetFocus(Window* child) { assert(false); }
+	virtual std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const { return nullptr; }
+	virtual const Window* GetFocus() const { return nullptr; }
 
-	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
-
-	virtual unsigned int GetChildrenCount() const { return static_cast<unsigned int>(_children.size()); }
-	virtual std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window> &owner, unsigned int index) const { return _children[index]; }
-	virtual const Window& GetChild(unsigned int index) const { return *_children[index]; }
-	std::shared_ptr<Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index)
-	{
-		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(owner, index));
-	}
-	Window& GetChild(unsigned int index)
-	{
-		return const_cast<Window&>(static_cast<const Window*>(this)->GetChild(index));
-	}
-
-	virtual WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
-
-	//
 	// Input
-	//
 	virtual NavigationSink* GetNavigationSink() { return nullptr; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
 	virtual TextSink* GetTextSink() { return nullptr; }
-
-	bool HasNavigationSink() const { return !!const_cast<Window*>(this)->GetNavigationSink(); }
-	bool HasScrollSink() const { return !!const_cast<Window*>(this)->GetScrollSink(); }
-	bool HasPointerSink() const { return !!const_cast<Window*>(this)->GetPointerSink(); }
-	bool HasKeyboardSink() const { return !!const_cast<Window*>(this)->GetKeyboardSink(); }
-	bool HasTextSink() const { return !!const_cast<Window*>(this)->GetTextSink(); }
 
 	// State
 	virtual const StateGen* GetStateGen() const { return nullptr; }
@@ -152,14 +132,23 @@ public:
 	float GetHeight() const { return _height; }
 	vec2d GetSize() const { return vec2d{GetWidth(), GetHeight()}; }
 
+	// rendering
+	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}
 
-	//
-	// Behavior
-	//
-
-	void SetFocus(Window *child);
-	virtual std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const;
-	virtual const Window* GetFocus() const;
+	// const utils
+	bool HasNavigationSink() const { return !!const_cast<Window*>(this)->GetNavigationSink(); }
+	bool HasScrollSink() const { return !!const_cast<Window*>(this)->GetScrollSink(); }
+	bool HasPointerSink() const { return !!const_cast<Window*>(this)->GetPointerSink(); }
+	bool HasKeyboardSink() const { return !!const_cast<Window*>(this)->GetKeyboardSink(); }
+	bool HasTextSink() const { return !!const_cast<Window*>(this)->GetTextSink(); }
+	std::shared_ptr<Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index)
+	{
+		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(owner, index));
+	}
+	Window& GetChild(unsigned int index)
+	{
+		return const_cast<Window&>(static_cast<const Window*>(this)->GetChild(index));
+	}
 	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner)
 	{
 		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetFocus(owner));
@@ -169,33 +158,49 @@ public:
 		return const_cast<Window*>(static_cast<const Window*>(this)->GetFocus());
 	}
 
-	// rendering
-	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}
-
 private:
-	Window* _focusChild = nullptr;
-	std::deque<std::shared_ptr<Window>> _children;
-
-	//
 	// size and position
-	//
-
 	float _x = 0;
 	float _y = 0;
 	float _width = 0;
 	float _height = 0;
 
-
-	//
 	// attributes
-	//
-
 	struct
 	{
 		bool _isVisible : 1;
 		bool _isTopMost : 1;
 		bool _clipChildren : 1;
 	};
+};
+
+class WindowContainer : public Window
+{
+public:
+	~WindowContainer() override;
+
+	void UnlinkAllChildren();
+	void UnlinkChild(Window& child);
+	void AddFront(std::shared_ptr<Window> child);
+	void AddBack(std::shared_ptr<Window> child);
+
+	using Window::GetChild;
+
+	// Window
+	unsigned int GetChildrenCount() const override final;
+	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override final;
+	const Window& GetChild(unsigned int index) const override final;
+	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
+	void SetFocus(Window* child) override final;
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
+
+protected:
+	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
+
+private:
+	Window* _focusChild = nullptr;
+	std::deque<std::shared_ptr<Window>> _children;
 };
 
 bool NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc);

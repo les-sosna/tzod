@@ -70,6 +70,6 @@ WindowLayout MultiColumnListItem::GetChildLayout(TextureManager &texman, const L
 		}
 	}
 
-	return Window::GetChildLayout(texman, lc, dc, child);
+	return WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 

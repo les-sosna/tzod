@@ -166,7 +166,8 @@ WindowLayout Button::GetChildLayout(TextureManager &texman, const LayoutContext 
 		return WindowLayout{ MakeRectWH(Vec2dFloor(size / 2), vec2d{}), 1, true };
 	}
 
-	return Window::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 ///////////////////////////////////////////////////////////////////////////////

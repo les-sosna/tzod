@@ -11,7 +11,7 @@ namespace UI
 	template<class T> struct LayoutData;
 }
 
-class StringSetting : public UI::Window
+class StringSetting : public UI::WindowContainer
 {
 public:
 	StringSetting(ConfVarString& stringVar);
@@ -33,7 +33,7 @@ private:
 	std::shared_ptr<UI::Edit> _valueEditBox;
 };
 
-class BooleanSetting : public UI::Window
+class BooleanSetting : public UI::WindowContainer
 {
 public:
 	BooleanSetting(ConfVarBool& stringVar);
@@ -51,7 +51,7 @@ private:
 };
 
 class KeyBindSetting final
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::KeyboardSink
 {
 public:
@@ -69,7 +69,7 @@ private:
 	// UI::KeyboardSink
 	bool OnKeyPressed(const UI::InputContext& ic, Plat::Key key) override;
 
-	class KeyBindSettingContent : public UI::Window
+	class KeyBindSettingContent : public UI::WindowContainer
 	{
 	public:
 		KeyBindSettingContent(const ConfVarString& stringKeyVar);

@@ -31,7 +31,7 @@ PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &c
 	, _conf(conf)
 	, _logger(logger)
 {
-	SetTexture("ui/list");
+	_background->SetTexture("ui/list");
 
 	_deleteButton->SetText(ConfBind(lang.ed_delete));
 	_deleteButton->eventClick = [this]

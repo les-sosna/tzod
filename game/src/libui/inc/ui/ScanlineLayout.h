@@ -5,7 +5,7 @@
 namespace UI
 {
 	class ScanlineLayout
-		: public Window
+		: public WindowContainer
 		, private NavigationSink
 	{
 	public:

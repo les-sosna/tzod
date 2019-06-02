@@ -29,8 +29,8 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 		mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(_mapCollection.GetMapName(mapIndex)));
 
-		auto mpButton = std::make_shared<UI::ButtonBase>();
-		mpButton->AddFront(mapPreview);
+		auto mpButton = std::make_shared<UI::ContentButton>();
+		mpButton->SetContent(mapPreview);
 		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
 		mpButton->eventClick = [this, mapIndex]()
 		{

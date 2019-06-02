@@ -17,6 +17,10 @@ ScrollBarBase::ScrollBarBase()
 	, _documentSize(1.0f)
 	, _showButtons(true)
 {
+	_background = std::make_shared<Rectangle>();
+	_background->SetDrawBorder(true);
+	AddFront(_background);
+
 	_btnBox = std::make_shared<Button>();
 	AddFront(_btnBox);
 	_btnUpLeft = std::make_shared<Button>();
@@ -27,7 +31,6 @@ ScrollBarBase::ScrollBarBase()
 	_btnUpLeft->eventClick = std::bind(&ScrollBarBase::OnUpLeft, this);
 	_btnDownRight->eventClick = std::bind(&ScrollBarBase::OnDownRight, this);
 
-	SetDrawBorder(true);
 	SetShowButtons(true);
 }
 
@@ -162,12 +165,16 @@ WindowLayout ScrollBarBase::GetChildLayout(TextureManager &texman, const LayoutC
 	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
+	if (_background.get() == &child)
+	{
+		return WindowLayout{ MakeRectWH(size), 1, true };
+	}
 	if (_btnDownRight.get() == &child)
 	{
 		return WindowLayout{ CanvasLayout(size / scale - child.GetSize(), child.GetSize(), scale), 1, _documentSize > _pageSize };
 	}
 
-	auto result = Rectangle::GetChildLayout(texman, lc, dc, child);
+	auto result = WindowContainer::GetChildLayout(texman, lc, dc, child);
 	if (_btnUpLeft.get() == &child)
 	{
 		result.enabled = _documentSize > _pageSize;
@@ -186,8 +193,8 @@ ScrollBarVertical::ScrollBarVertical(TextureManager &texman)
 	_btnUpLeft->AlignToBackground(texman);
 	_btnDownRight->SetBackground("ui/scroll_down");
 	_btnDownRight->AlignToBackground(texman);
-	SetTexture("ui/scroll_back_vert");
-	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
+	_background->SetTexture("ui/scroll_back_vert");
+	Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
 }
 
 WindowLayout ScrollBarVertical::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
@@ -216,8 +223,8 @@ ScrollBarHorizontal::ScrollBarHorizontal(TextureManager &texman)
 	_btnUpLeft->AlignToBackground(texman);
 	_btnDownRight->SetBackground("ui/scroll_right");
 	_btnDownRight->AlignToBackground(texman);
-	SetTexture("ui/scroll_back_hor");
-	Resize(GetTextureWidth(texman), GetTextureHeight(texman));
+	_background->SetTexture("ui/scroll_back_hor");
+	Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
 }
 
 WindowLayout ScrollBarHorizontal::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const

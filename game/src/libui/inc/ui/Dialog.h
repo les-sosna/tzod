@@ -1,14 +1,16 @@
 #pragma once
 #include "Navigation.h"
 #include "PointerInput.h"
-#include "Rectangle.h"
+#include "Window.h"
 #include <functional>
 
 namespace UI
 {
 
+class Rectangle;
+
 class Dialog
-	: public Rectangle
+	: public WindowContainer
 	, private KeyboardSink
 	, private NavigationSink
 	, private PointerSink
@@ -29,6 +31,8 @@ public:
 	// Window
 	KeyboardSink *GetKeyboardSink() override { return this; }
 	PointerSink *GetPointerSink() override { return this; }
+	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
+
 
 protected:
 	// KeyboardSink
@@ -37,6 +41,8 @@ protected:
 	// NavigationSink
 	bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
 	void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
+
+	std::shared_ptr<Rectangle> _background;
 
 private:
 	virtual bool OnClose(int result) { return true; }

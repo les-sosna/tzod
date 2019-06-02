@@ -12,7 +12,7 @@ namespace UI
 	};
 
 	class StackLayout
-		: public Window
+		: public WindowContainer
 		, private NavigationSink
 	{
 	public:

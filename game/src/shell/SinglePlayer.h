@@ -26,7 +26,7 @@ namespace UI
 }
 
 class SinglePlayer final
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::NavigationSink
 {
 public:

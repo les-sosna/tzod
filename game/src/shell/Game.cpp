@@ -356,7 +356,7 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	{
 		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale), 1, true };
 	}
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 std::shared_ptr<const UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const

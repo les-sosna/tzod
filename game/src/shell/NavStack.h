@@ -5,7 +5,7 @@
 #include <vector>
 
 class NavStack final
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::Managerful
 	, private UI::PointerSink
 {

@@ -2,6 +2,7 @@
 #include "inc/ui/Edit.h"
 #include "inc/ui/EditableText.h"
 #include "inc/ui/ScrollBar.h"
+#include "inc/ui/Rectangle.h"
 #include "inc/ui/GuiManager.h"
 #include "inc/ui/LayoutContext.h"
 #include <plat/ConsoleBuffer.h>
@@ -38,16 +39,6 @@ std::string_view ConsoleHistoryDefault::GetItem(size_t index) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Console> Console::Create(Window *parent, TimeStepManager &manager, TextureManager &texman, float x, float y, float w, float h, Plat::ConsoleBuffer *buf)
-{
-	auto res = std::make_shared<Console>(manager, texman);
-	res->Move(x, y);
-	res->Resize(w, h);
-	res->SetBuffer(buf);
-	parent->AddFront(res);
-	return res;
-}
-
 Console::Console(TimeStepManager &manager, TextureManager &texman)
   : TimeStepping(manager)
   , _cmdIndex(0)
@@ -57,13 +48,16 @@ Console::Console(TimeStepManager &manager, TextureManager &texman)
   , _echo(true)
   , _autoScroll(true)
 {
+	_background = std::make_shared<Rectangle>();
+	_background->SetTexture("ui/console");
+	_background->SetDrawBorder(true);
+
 	_input = std::make_shared<Edit>();
 	AddFront(_input);
+
 	_scroll = std::make_shared<ScrollBarVertical>(texman);
 	_scroll->eventScroll = std::bind(&Console::OnScrollBar, this, std::placeholders::_1);
 	AddFront(_scroll);
-	SetTexture("ui/console");
-	SetDrawBorder(true);
 	SetTimeStep(true); // FIXME: workaround
 }
 
@@ -216,7 +210,7 @@ void Console::OnTimeStep(Plat::Input &input, bool focused, float dt)
 
 void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
+	_background->Draw(dc, sc, lc, ic, rc, texman, time, hovered);
 
 	if( _buf )
 	{
@@ -247,6 +241,11 @@ void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutCo
 
 WindowLayout Console::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
+	if (_background.get() == &child)
+	{
+		return WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
+	}
+
 	float inputHeight = _input->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y;
 	if (_input.get() == &child)
 	{
@@ -257,7 +256,8 @@ WindowLayout Console::GetChildLayout(TextureManager &texman, const LayoutContext
 		float scrollWidth = std::floor(_scroll->GetWidth() * lc.GetScaleCombined());
 		return WindowLayout{ MakeRectWH(vec2d{ lc.GetPixelSize().x - scrollWidth }, vec2d{ scrollWidth, lc.GetPixelSize().y - inputHeight }), 1, true };
 	}
-	return Rectangle::GetChildLayout(texman, lc, dc, child);
+
+	return WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 std::shared_ptr<const Window> Console::GetFocus(const std::shared_ptr<const Window>& owner) const

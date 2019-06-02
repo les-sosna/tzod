@@ -6,7 +6,7 @@ namespace UI
 {
 	template<class T> struct RenderData;
 
-	class Rectangle : public Window
+	class Rectangle : public WindowContainer
 	{
 	public:
 		Rectangle();

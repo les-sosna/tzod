@@ -1,6 +1,7 @@
 #include "inc/ui/Combo.h"
 #include "inc/ui/DataContext.h"
 #include "inc/ui/DataSource.h"
+#include "inc/ui/Rectangle.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/List.h"
 #include "inc/ui/ListBox.h"
@@ -16,6 +17,11 @@ using namespace UI;
 ComboBox::ComboBox(ListDataSource *dataSource)
   : _curSel(-1)
 {
+	_background = std::make_shared<Rectangle>();
+	_background->SetDrawBorder(true);
+	_background->SetTexture("ui/combo");
+	AddFront(_background);
+
 	_list = std::make_shared<ListBox>(dataSource);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
@@ -26,9 +32,6 @@ ComboBox::ComboBox(ListDataSource *dataSource)
 	_btn->SetBackground("ui/scroll_down");
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_btn);
-
-	SetDrawBorder(true);
-	SetTexture("ui/combo");
 }
 
 ListDataSource* ComboBox::GetData() const
@@ -140,7 +143,7 @@ WindowLayout ComboBox::GetChildLayout(TextureManager &texman, const LayoutContex
 		return WindowLayout{ MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) }), 1, true };
 	}
 
-	return Window::GetChildLayout(texman, lc, dc, child);
+	return WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
@@ -157,8 +160,6 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 
 void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
-
 	if (_list->GetList()->GetCurSel() != -1)
 	{
 		UI::RenderSettings rs{ ic, rc, texman, time };

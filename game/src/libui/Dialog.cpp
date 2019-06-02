@@ -1,14 +1,18 @@
 #include "inc/ui/Dialog.h"
 #include "inc/ui/InputContext.h"
+#include "inc/ui/LayoutContext.h"
+#include "inc/ui/Rectangle.h"
 #include <plat/Keys.h>
 
 using namespace UI;
 
 Dialog::Dialog()
+	: _background(std::make_shared<Rectangle>())
 {
-	SetTexture("ui/window");
-	SetDrawBorder(true);
-	SetDrawBackground(true);
+	_background->SetTexture("ui/window");
+	_background->SetDrawBorder(true);
+	_background->SetDrawBackground(true);
+	AddFront(_background);
 }
 
 void Dialog::Close(int result)
@@ -18,6 +22,15 @@ void Dialog::Close(int result)
 		if (eventClose)
 			eventClose(result);
 	}
+}
+
+WindowLayout Dialog::GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const
+{
+	if (_background.get() == &child)
+	{
+		return WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
+	}
+	return WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 bool Dialog::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const

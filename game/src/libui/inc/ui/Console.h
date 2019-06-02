@@ -1,5 +1,5 @@
 #pragma once
-#include "Rectangle.h"
+#include "Window.h"
 #include "PointerInput.h"
 #include <deque>
 #include <functional>
@@ -16,8 +16,9 @@ namespace Plat
 namespace UI
 {
 
-class ScrollBarVertical;
 class Edit;
+class Rectangle;
+class ScrollBarVertical;
 
 struct IConsoleHistory
 {
@@ -43,7 +44,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 class Console
-	: public Rectangle
+	: public WindowContainer
 	, private TimeStepping
 	, private ScrollSink
 	, private KeyboardSink
@@ -74,6 +75,7 @@ public:
 	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
 
 private:
+	std::shared_ptr<Rectangle> _background;
 	std::shared_ptr<ScrollBarVertical> _scroll;
 	std::shared_ptr<Edit> _input;
 	size_t _cmdIndex;

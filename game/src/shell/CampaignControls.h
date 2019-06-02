@@ -9,7 +9,7 @@ namespace UI
 
 class Deathmatch;
 
-class CampaignControls : public UI::Window
+class CampaignControls : public UI::WindowContainer
 {
 public:
 	CampaignControls(const Deathmatch &deathmatch, CampaignControlCommands commands);

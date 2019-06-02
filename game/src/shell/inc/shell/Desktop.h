@@ -39,7 +39,7 @@ class LuaConsole;
 class NavStack;
 
 class Desktop final
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::Managerful
 	, private UI::KeyboardSink
 	, private UI::NavigationSink

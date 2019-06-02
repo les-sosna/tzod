@@ -88,7 +88,10 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_background->SetBackColor(0xff505050_rgba);
 	AddFront(_background);
 
-	_con = UI::Console::Create(this, manager, texman, 10, 0, 100, 100, &_logger);
+	_con = std::make_shared<UI::Console>(manager, texman);
+	_con->Move(10, 0);
+	_con->Resize(100, 100);
+	_con->SetBuffer(&_logger);
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
 	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
 	_con->SetVisible(false);
@@ -96,6 +99,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	SpriteColor colors[] = {0xffffffff, 0xffff7fff};
 	_con->SetColors(colors, sizeof(colors) / sizeof(colors[0]));
 	_con->SetHistory(&_history);
+	AddFront(_con);
 
 	_fps = std::make_shared<FpsCounter>(manager, alignTextLB, GetAppState());
 	AddFront(_fps);
@@ -589,7 +593,7 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 			opacity = std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
 		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{}), opacity, true };
 	}
-	return UI::Window::GetChildLayout(texman, lc, dc, child);
+	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
 }
 
 void Desktop::OnChangeShowFps()

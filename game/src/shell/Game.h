@@ -34,7 +34,7 @@ namespace UI
 }
 
 class GameLayout final
-	: public UI::Window
+	: public UI::WindowContainer
 	, public UI::TimeStepping
 	, private UI::PointerSink
 	, private GameListener
