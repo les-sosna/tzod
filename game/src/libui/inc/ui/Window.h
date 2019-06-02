@@ -190,10 +190,10 @@ inline constexpr auto GetElementOffsets(const std::tuple<TupleArgs...>& tuple)
 	return GetElementOffsetsImpl(tuple, std::index_sequence_for<TupleArgs...>{});
 }
 
-#define TUPLE_CHILDREN(TupleTypeName, ...) \
+#define TUPLE_CHILDREN(...) \
 public: \
     unsigned int GetChildrenCount() const override final { \
-        return std::tuple_size_v<TupleTypeName>; \
+        return std::tuple_size_v<ChildrenTuple>; \
     } \
     std::shared_ptr<const UI::Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override final { \
         return { owner, &GetChild(index) }; \
@@ -202,8 +202,8 @@ public: \
         return *GetElementOffsets(_children)[index]; \
     } \
 private: \
-    using TupleTypeName = std::tuple<__VA_ARGS__>; \
-    TupleTypeName _children;
+    using ChildrenTuple = std::tuple<__VA_ARGS__>; \
+    ChildrenTuple _children;
 
 ///////////////////////////////////////////////////////////////////////////////
 

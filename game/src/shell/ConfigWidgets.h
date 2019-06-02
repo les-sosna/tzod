@@ -13,7 +13,7 @@ namespace UI
 class StringSetting final
 	: public UI::Window
 {
-	TUPLE_CHILDREN(StringSettingChildren, UI::Text, UI::Edit);
+	TUPLE_CHILDREN(UI::Text, UI::Edit);
 
 public:
 	StringSetting(ConfVarString& stringVar);
@@ -33,8 +33,10 @@ private:
 	std::string _defaultValue;
 };
 
-class BooleanSetting : public UI::WindowContainer
+class BooleanSetting : public UI::Window
 {
+	TUPLE_CHILDREN(UI::CheckBox);
+
 public:
 	BooleanSetting(ConfVarBool& stringVar);
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
@@ -47,13 +49,14 @@ public:
 
 private:
 	ConfVarBool& _boolVar;
-	std::shared_ptr<UI::CheckBox> _valueCheckBox;
 };
 
 class KeyBindSetting final
-	: public UI::WindowContainer
+	: public UI::Window
 	, private UI::KeyboardSink
 {
+	TUPLE_CHILDREN(UI::ContentButton);
+
 public:
 	KeyBindSetting(ConfVarString& stringKeyVar);
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
@@ -69,8 +72,11 @@ private:
 	// UI::KeyboardSink
 	bool OnKeyPressed(const UI::InputContext& ic, Plat::Key key) override;
 
-	class KeyBindSettingContent : public UI::WindowContainer
+	class KeyBindSettingContent : public UI::Window
 	{
+		//             title     value
+		TUPLE_CHILDREN(UI::Text, UI::Text);
+
 	public:
 		KeyBindSettingContent(const ConfVarString& stringKeyVar);
 		void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
@@ -78,14 +84,9 @@ private:
 		// UI::Window
 		UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 		vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-
-	private:
-		std::shared_ptr<UI::Text> _title;
-		std::shared_ptr<UI::Text> _keyName;
 	};
 
 	ConfVarString& _stringKeyVar;
 	std::shared_ptr<KeyBindSettingContent> _content;
-	std::shared_ptr<UI::ContentButton> _button;
 	bool _waitingForKey = false;
 };

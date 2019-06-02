@@ -64,21 +64,19 @@ const UI::Window* StringSetting::GetFocus() const
 
 BooleanSetting::BooleanSetting(ConfVarBool& boolVar)
 	: _boolVar(boolVar)
-	, _valueCheckBox(std::make_shared<UI::CheckBox>())
 {
-	_valueCheckBox->SetFont("font_default");
-	_valueCheckBox->SetBoxPosition(UI::CheckBox::BoxPosition::Right);
-	_valueCheckBox->SetCheck(_boolVar.Get());
-	_valueCheckBox->eventClick = [=]
+	std::get<0>(_children).SetFont("font_default");
+	std::get<0>(_children).SetBoxPosition(UI::CheckBox::BoxPosition::Right);
+	std::get<0>(_children).SetCheck(_boolVar.Get());
+	std::get<0>(_children).eventClick = [=]
 	{
-		_boolVar.Set(_valueCheckBox->GetCheck());
+		_boolVar.Set(std::get<0>(_children).GetCheck());
 	};
-	AddFront(_valueCheckBox);
 }
 
 void BooleanSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
 {
-	_valueCheckBox->SetText(title);
+	std::get<0>(_children).SetText(title);
 }
 
 UI::WindowLayout BooleanSetting::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
@@ -88,17 +86,17 @@ UI::WindowLayout BooleanSetting::GetChildLayout(TextureManager& texman, const UI
 
 vec2d BooleanSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
-	return _valueCheckBox->GetContentSize(texman, dc, scale, layoutConstraints);
+	return std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 std::shared_ptr<const UI::Window> BooleanSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
-	return _valueCheckBox;
+	return { owner, GetFocus() };
 }
 
 const UI::Window* BooleanSetting::GetFocus() const
 {
-	return _valueCheckBox.get();
+	return &std::get<0>(_children);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,57 +107,55 @@ static const auto c_textColor = std::make_shared<UI::StateBinding<SpriteColor>>(
 	UI::StateBinding<SpriteColor>::MapType{ { "Disabled", 0xaaaaaaaa }, { "Hover", 0xffffffff }, { "Pushed", 0xffffffff } });
 
 KeyBindSetting::KeyBindSettingContent::KeyBindSettingContent(const ConfVarString& stringKeyVar)
-	: _title(std::make_shared<UI::Text>())
-	, _keyName(std::make_shared<UI::Text>())
 {
-	_title->SetFont("font_default");
-	_title->SetFontColor(c_textColor);
-	AddFront(_title);
+	// title
+	std::get<0>(_children).SetFont("font_default");
+	std::get<0>(_children).SetFontColor(c_textColor);
 
-	_keyName->SetFont("font_default");
-	_keyName->SetText(ConfBind(stringKeyVar));
-	_keyName->SetAlign(alignTextRT);
-	_keyName->SetFontColor(c_textColor);
-	AddFront(_keyName);
+	// value
+	std::get<1>(_children).SetFont("font_default");
+	std::get<1>(_children).SetText(ConfBind(stringKeyVar));
+	std::get<1>(_children).SetAlign(alignTextRT);
+	std::get<1>(_children).SetFontColor(c_textColor);
 }
 
 void KeyBindSetting::KeyBindSettingContent::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
 {
-	_title->SetText(std::move(title));
+	// title
+	std::get<0>(_children).SetText(std::move(title));
 }
 
 // UI::Window
 UI::WindowLayout KeyBindSetting::KeyBindSettingContent::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
-	if (_title.get() == &child)
+	if (&std::get<0>(_children) == &child)
 	{
 		return UI::WindowLayout{ MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y), 1, true };
 	}
-	else if (_keyName.get() == &child)
+	else if (&std::get<1>(_children) == &child)
 	{
 		return UI::WindowLayout{ MakeRectRB(vec2d{ lc.GetPixelSize().x, 0 }, lc.GetPixelSize()), 1, true };
 	}
-	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return{};
 }
 
 vec2d KeyBindSetting::KeyBindSettingContent::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
-	vec2d pxTitleSize = _title->GetContentSize(texman, dc, scale, layoutConstraints);
-	vec2d pxValueSize = _keyName->GetContentSize(texman, dc, scale, layoutConstraints);
+	vec2d pxTitleSize = std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
+	vec2d pxValueSize = std::get<1>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
 	return vec2d{ pxTitleSize.x + pxValueSize.x, std::max(pxTitleSize.y, pxValueSize.y) };
 }
 
 KeyBindSetting::KeyBindSetting(ConfVarString& stringKeyVar)
 	: _stringKeyVar(stringKeyVar)
 	, _content(std::make_shared<KeyBindSettingContent>(stringKeyVar))
-	, _button(std::make_shared<UI::ContentButton>())
 {
-	_button->SetContent(_content);
-	_button->eventClick = [=]
+	std::get<0>(_children).SetContent(_content);
+	std::get<0>(_children).eventClick = [=]
 	{
 		_waitingForKey = true;
 	};
-	AddFront(_button);
 }
 
 void KeyBindSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
@@ -174,17 +170,17 @@ UI::WindowLayout KeyBindSetting::GetChildLayout(TextureManager& texman, const UI
 
 vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
-	return _button->GetContentSize(texman, dc, scale, layoutConstraints);
+	return std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 std::shared_ptr<const UI::Window> KeyBindSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
-	return _button;
+	return { owner, GetFocus() };
 }
 
 const UI::Window* KeyBindSetting::GetFocus() const
 {
-	return _button.get();
+	return &std::get<0>(_children);
 }
 
 bool KeyBindSetting::OnKeyPressed(const UI::InputContext& ic, Plat::Key key)
