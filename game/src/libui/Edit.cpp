@@ -45,7 +45,7 @@ void Edit::PushState(StateContext &sc, const LayoutContext &lc, const InputConte
 
 unsigned int Edit::GetChildrenCount() const
 {
-	return std::tuple_size<EditBoxChildren>::value;
+	return std::tuple_size_v<EditBoxChildren>;
 }
 
 std::shared_ptr<const Window> Edit::GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const

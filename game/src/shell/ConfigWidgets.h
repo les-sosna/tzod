@@ -1,18 +1,20 @@
 #pragma once
 #include <config/ConfigBase.h>
+#include <ui/Button.h>
+#include <ui/Edit.h>
+#include <ui/Text.h>
 #include <ui/Window.h>
 
 namespace UI
 {
-	class CheckBox;
-	class ContentButton;
-	class Edit;
-	class Text;
 	template<class T> struct LayoutData;
 }
 
-class StringSetting : public UI::WindowContainer
+class StringSetting final
+	: public UI::Window
 {
+	TUPLE_CHILDREN(StringSettingChildren, UI::Text, UI::Edit);
+
 public:
 	StringSetting(ConfVarString& stringVar);
 	void SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title);
@@ -29,8 +31,6 @@ public:
 private:
 	ConfVarString& _stringVar;
 	std::string _defaultValue;
-	std::shared_ptr<UI::Text> _title;
-	std::shared_ptr<UI::Edit> _valueEditBox;
 };
 
 class BooleanSetting : public UI::WindowContainer

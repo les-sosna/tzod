@@ -11,56 +11,53 @@
 
 StringSetting::StringSetting(ConfVarString& stringVar)
 	: _stringVar(stringVar)
-	, _title(std::make_shared<UI::Text>())
-	, _valueEditBox(std::make_shared<UI::Edit>())
 {
-	_title->SetFont("font_default");
+	std::get<UI::Text>(_children).SetFont("font_default");
 
-	_valueEditBox->GetEditable().SetText(std::string(stringVar.Get()));
-	_valueEditBox->GetEditable().SetFont("font_default");
-	_valueEditBox->GetEditable().eventChange = [=]
+	std::get<UI::Edit>(_children).GetEditable().SetText(std::string(stringVar.Get()));
+	std::get<UI::Edit>(_children).GetEditable().SetFont("font_default");
+	std::get<UI::Edit>(_children).GetEditable().eventChange = [=]
 	{
-		auto text = _valueEditBox->GetEditable().GetText();
+		auto text = std::get<UI::Edit>(_children).GetEditable().GetText();
 		if (text.empty())
 			_stringVar.Set(_defaultValue);
 		else
-			_stringVar.Set(_valueEditBox->GetEditable().GetText());
+			_stringVar.Set(std::get<UI::Edit>(_children).GetEditable().GetText());
 	};
-	AddFront(_title);
-	AddFront(_valueEditBox);
 }
 
 void StringSetting::SetTitle(std::shared_ptr<UI::LayoutData<std::string_view>> title)
 {
-	_title->SetText(std::move(title));
+	std::get<UI::Text>(_children).SetText(std::move(title));
 }
 
 UI::WindowLayout StringSetting::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
 {
-	if (_title.get() == &child)
+	if (&std::get<UI::Text>(_children) == &child)
 	{
 		return UI::WindowLayout{ MakeRectWH(std::floor(lc.GetPixelSize().x / 2), lc.GetPixelSize().y), 1, true };
 	}
-	else if (_valueEditBox.get() == &child)
+	else if (&std::get<UI::Edit>(_children) == &child)
 	{
 		return UI::WindowLayout{ MakeRectRB(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetPixelSize()), 1, true };
 	}
-	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 vec2d StringSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
-	return vec2d{ 0, _valueEditBox->GetContentSize(texman, dc, scale, layoutConstraints).y };
+	return vec2d{ 0, std::get<UI::Edit>(_children).GetContentSize(texman, dc, scale, layoutConstraints).y };
 }
 
 std::shared_ptr<const UI::Window> StringSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
-	return _valueEditBox;
+	return { owner, StringSetting::GetFocus() };
 }
 
 const UI::Window* StringSetting::GetFocus() const
 {
-	return _valueEditBox.get();
+	return &std::get<UI::Edit>(_children);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

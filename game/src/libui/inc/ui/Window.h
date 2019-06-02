@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 #include <deque>
+#include <array>
+#include <tuple>
 
 class RenderContext;
 class TextureManager;
@@ -173,6 +175,37 @@ private:
 		bool _clipChildren : 1;
 	};
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <class TupleType, std::size_t ... Is>
+inline constexpr auto GetElementOffsetsImpl(const TupleType& tuple, std::index_sequence<Is...>)
+{
+	return std::array<const UI::Window*, std::tuple_size_v<TupleType>>{ &std::get<Is>(tuple)... };
+}
+
+template<class ... TupleArgs>
+inline constexpr auto GetElementOffsets(const std::tuple<TupleArgs...>& tuple)
+{
+	return GetElementOffsetsImpl(tuple, std::index_sequence_for<TupleArgs...>{});
+}
+
+#define TUPLE_CHILDREN(TupleTypeName, ...) \
+public: \
+    unsigned int GetChildrenCount() const override final { \
+        return std::tuple_size_v<TupleTypeName>; \
+    } \
+    std::shared_ptr<const UI::Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override final { \
+        return { owner, &GetChild(index) }; \
+    } \
+    const Window& GetChild(unsigned int index) const override final { \
+        return *GetElementOffsets(_children)[index]; \
+    } \
+private: \
+    using TupleTypeName = std::tuple<__VA_ARGS__>; \
+    TupleTypeName _children;
+
+///////////////////////////////////////////////////////////////////////////////
 
 class WindowContainer : public Window
 {
