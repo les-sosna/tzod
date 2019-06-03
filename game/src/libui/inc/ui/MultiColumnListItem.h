@@ -21,6 +21,6 @@ namespace UI
 
 	private:
 		std::shared_ptr<Rectangle> _selection;
-		std::vector<std::shared_ptr<Text>> _columns;
+		std::vector<std::pair<std::shared_ptr<Text>, float>> _columns;
 	};
 }

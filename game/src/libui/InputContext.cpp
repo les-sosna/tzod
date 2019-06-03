@@ -151,12 +151,15 @@ SinkType* UI::FindAreaSink(
 	{
 		for (auto child : reverse(wnd))
 		{
+			if (!child->GetVisible())
+				continue;
+
 			// early skip topmost subtree
 			bool childInsideTopMost = insideTopMost || child->GetTopMost();
 			if (!childInsideTopMost || search.topMostPass)
 			{
 				auto childLayout = wnd->GetChildLayout(search.texman, lc, search.dc, *child);
-				if (childLayout.enabled && child->GetVisible())
+				if (childLayout.enabled)
 				{
 					LayoutContext childLC(search.ic, *wnd, lc, *child, childLayout);
 					sink = FindAreaSink<SinkType>(search, child, childLC, pxPointerPosition - Offset(childLayout.rect), childInsideTopMost);

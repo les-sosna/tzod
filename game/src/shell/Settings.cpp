@@ -30,7 +30,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	Resize(512, 296);
 
 	auto title = std::make_shared<UI::Text>();
-	title->Move(GetWidth() / 2, 16);
+//	title->Move(GetWidth() / 2, 16);
 	title->SetText(ConfBind(_lang.settings_title));
 	title->SetAlign(alignTextCT);
 	title->SetFont("font_default");
@@ -46,7 +46,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 
 	_content = std::make_shared<UI::StackLayout>();
 	_content->SetSpacing(2);
-	_content->Move(x, y);
+//	_content->Move(x, y);
 	_content->Resize(128, 128);
 	AddFront(_content);
 	SetFocus(_content.get());
@@ -79,20 +79,20 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 
 	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(_lang.settings_profile_new));
-	btn->Move(40, 184);
+//	btn->Move(40, 184);
 	btn->eventClick = std::bind(&SettingsDlg::OnAddProfile, this);
 	AddFront(btn);
 
 	_editProfile = std::make_shared<UI::Button>();
 	_editProfile->SetText(ConfBind(_lang.settings_profile_edit));
-	_editProfile->Move(40, 216);
+//	_editProfile->Move(40, 216);
 	_editProfile->eventClick = std::bind(&SettingsDlg::OnEditProfile, this);
 //	_editProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_editProfile);
 
 	_deleteProfile = std::make_shared<UI::Button>();
 	_deleteProfile->SetText(ConfBind(_lang.settings_profile_delete));
-	_deleteProfile->Move(40, 248);
+//	_deleteProfile->Move(40, 248);
 	_deleteProfile->eventClick = std::bind(&SettingsDlg::OnDeleteProfile, this);
 //	_deleteProfile->SetEnabled(std::make_shared<UI::HasSelection>(_profiles->GetList()));
 	AddFront(_deleteProfile);
@@ -107,7 +107,7 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 
 	_content2 = std::make_shared<UI::StackLayout>();
 	_content2->SetSpacing(2);
-	_content2->Move(x, y);
+//	_content2->Move(x, y);
 	_content2->Resize(128, 128);
 	AddFront(_content2);
 	SetFocus(_content2.get());
@@ -133,13 +133,13 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	y += 100;
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x + 50, y += 20);
+//	text->Move(x + 50, y += 20);
 	text->SetText(ConfBind(_lang.settings_sfx_volume));
 	text->SetAlign(alignTextRT);
 	AddFront(text);
 
 	_volumeSfx = std::make_shared<UI::ScrollBarHorizontal>(texman);
-	_volumeSfx->Move(x + 60, y);
+//	_volumeSfx->Move(x + 60, y);
 	_volumeSfx->SetWidth(150);
 	_volumeSfx->SetDocumentSize(1);
 	_volumeSfx->SetLineSize(0.1f);
@@ -149,13 +149,13 @@ SettingsDlg::SettingsDlg(TextureManager &texman, ShellConfig &conf, LangCache &l
 	_initialVolumeSfx = _conf.s_volume.GetInt();
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x + 50, y += 20);
+//	text->Move(x + 50, y += 20);
 	text->SetText(ConfBind(_lang.settings_music_volume));
 	text->SetAlign(alignTextRT);
 	AddFront(text);
 
 	_volumeMusic = std::make_shared<UI::ScrollBarHorizontal>(texman);
-	_volumeMusic->Move(x + 60, y);
+//	_volumeMusic->Move(x + 60, y);
 	_volumeMusic->SetWidth(150);
 	_volumeMusic->SetDocumentSize(1);
 	_volumeMusic->SetLineSize(0.1f);
@@ -267,23 +267,23 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 	Resize(448, 416);
 
 	auto text = std::make_shared<UI::Text>();
-	text->Move(20, 15);
+//	text->Move(20, 15);
 	text->SetText(ConfBind(_lang.profile_name));
 	AddFront(text);
 
 	_nameEdit = std::make_shared<UI::Edit>();
-	_nameEdit->Move(20, 30);
+//	_nameEdit->Move(20, 30);
 	_nameEdit->SetWidth(250);
 	_nameEdit->GetEditable().SetText(_nameOrig);
 	AddFront(_nameEdit);
 
 	text = std::make_shared<UI::Text>();
-	text->Move(20, 65);
+//	text->Move(20, 65);
 	text->SetText(ConfBind(_lang.profile_action));
 	AddFront(text);
 
 	text = std::make_shared<UI::Text>();
-	text->Move(220, 65);
+//	text->Move(220, 65);
 	text->SetText(ConfBind(_lang.profile_key));
 	AddFront(text);
 
@@ -292,7 +292,7 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 	itemTemplate->EnsureColumn(1, 200);
 
 	_actions = std::make_shared<DefaultListBox>();
-	_actions->Move(20, 80);
+//	_actions->Move(20, 80);
 	_actions->Resize(400, 250);
 	_actions->GetList()->SetItemTemplate(itemTemplate);
 	_actions->GetList()->eventClickItem = std::bind(&ControlProfileDlg::OnSelectAction, this, std::placeholders::_1);
@@ -312,34 +312,34 @@ ControlProfileDlg::ControlProfileDlg(std::string_view profileName, ShellConfig &
 
 	_aimToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_aimToMouseChkBox->SetCheck(_profile.aim_to_mouse.Get());
-	_aimToMouseChkBox->Move(16, 345);
+//	_aimToMouseChkBox->Move(16, 345);
 	_aimToMouseChkBox->Resize(100, 20);
 	_aimToMouseChkBox->SetText(ConfBind(_lang.profile_mouse_aim));
 	AddFront(_aimToMouseChkBox);
 
 	_moveToMouseChkBox = std::make_shared<UI::CheckBox>();
 	_moveToMouseChkBox->SetCheck(_profile.move_to_mouse.Get());
-	_moveToMouseChkBox->Move(146, 345);
+//	_moveToMouseChkBox->Move(146, 345);
 	_moveToMouseChkBox->Resize(100, 20);
 	_moveToMouseChkBox->SetText(ConfBind(_lang.profile_mouse_move));
 	AddFront(_moveToMouseChkBox);
 
 	_arcadeStyleChkBox = std::make_shared<UI::CheckBox>();
 	_arcadeStyleChkBox->SetCheck(_profile.arcade_style.Get());
-	_arcadeStyleChkBox->Move(276, 345);
+//	_arcadeStyleChkBox->Move(276, 345);
 	_arcadeStyleChkBox->Resize(100, 20);
 	_arcadeStyleChkBox->SetText(ConfBind(_lang.profile_arcade_style));
 	AddFront(_arcadeStyleChkBox);
 
 	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(_lang.common_ok));
-	btn->Move(240, 380);
+//	btn->Move(240, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(_lang.common_cancel));
-	btn->Move(344, 380);
+//	btn->Move(344, 380);
 	btn->eventClick = std::bind(&ControlProfileDlg::OnCancel, this);
 	AddFront(btn);
 

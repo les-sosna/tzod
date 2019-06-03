@@ -143,7 +143,8 @@ WindowLayout ComboBox::GetChildLayout(TextureManager &texman, const LayoutContex
 		return WindowLayout{ MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) }), 1, true };
 	}
 
-	return WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const

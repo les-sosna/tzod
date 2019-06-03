@@ -173,14 +173,12 @@ WindowLayout ScrollBarBase::GetChildLayout(TextureManager &texman, const LayoutC
 	{
 		return WindowLayout{ CanvasLayout(size / scale - child.GetSize(), child.GetSize(), scale), 1, _documentSize > _pageSize };
 	}
-
-	auto result = WindowContainer::GetChildLayout(texman, lc, dc, child);
 	if (_btnUpLeft.get() == &child)
 	{
-		result.enabled = _documentSize > _pageSize;
+		return WindowLayout{ CanvasLayout(vec2d{}, child.GetSize(), lc.GetScaleCombined()), 1, _documentSize > _pageSize };
 	}
-
-	return result;
+	assert(false);
+	return {};
 }
 
 ///////////////////////////////////////////////////////////////////////////////

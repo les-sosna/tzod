@@ -30,7 +30,8 @@ WindowLayout Dialog::GetChildLayout(TextureManager& texman, const LayoutContext&
 	{
 		return WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 	}
-	return WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 bool Dialog::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const

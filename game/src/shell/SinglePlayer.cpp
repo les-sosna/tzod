@@ -339,7 +339,8 @@ UI::WindowLayout SinglePlayer::GetChildLayout(TextureManager &texman, const UI::
 		return UI::WindowLayout{ MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins), 1, true };
 	}
 
-	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const

@@ -89,8 +89,6 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	AddFront(_background);
 
 	_con = std::make_shared<UI::Console>(manager, texman);
-	_con->Move(10, 0);
-	_con->Resize(100, 100);
 	_con->SetBuffer(&_logger);
 	_con->eventOnSendCommand = std::bind(&Desktop::OnCommand, this, _1);
 	_con->eventOnRequestCompleteCommand = std::bind(&Desktop::OnCompleteCommand, this, _1, _2, _3);
@@ -114,7 +112,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
 			auto os = std::make_shared<Oscilloscope>();
-			os->Move(xx, yy);
+//			os->Move(xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
@@ -584,7 +582,8 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScaleCombined() - 1 }, _fps->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)) / lc.GetScaleCombined(), lc.GetScaleCombined()), 1, true };
+		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScaleCombined() - 1 },
+			_fps->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)) / lc.GetScaleCombined(), lc.GetScaleCombined()), 1, true };
 	}
 	if (_tierTitle.get() == &child)
 	{
@@ -593,7 +592,12 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 			opacity = std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
 		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{}), opacity, true };
 	}
-	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
+	if (_pauseButton.get() == &child)
+	{
+		return UI::WindowLayout{ MakeRectWH(UI::ToPx(child.GetSize(), lc)), 1, true };
+	}
+	assert(false);
+	return {};
 }
 
 void Desktop::OnChangeShowFps()

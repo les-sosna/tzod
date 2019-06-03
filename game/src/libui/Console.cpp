@@ -257,7 +257,8 @@ WindowLayout Console::GetChildLayout(TextureManager &texman, const LayoutContext
 		return WindowLayout{ MakeRectWH(vec2d{ lc.GetPixelSize().x - scrollWidth }, vec2d{ scrollWidth, lc.GetPixelSize().y - inputHeight }), 1, true };
 	}
 
-	return WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 std::shared_ptr<const Window> Console::GetFocus(const std::shared_ptr<const Window>& owner) const

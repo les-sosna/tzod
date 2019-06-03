@@ -31,12 +31,6 @@ Window::Window()
 {
 }
 
-void Window::Move(float x, float y)
-{
-	_x = x;
-	_y = y;
-}
-
 void Window::Resize(float width, float height)
 {
 	_width  = width;
@@ -83,12 +77,8 @@ void WindowContainer::AddFront(std::shared_ptr<Window> child)
 
 void WindowContainer::AddBack(std::shared_ptr<Window> child)
 {
+	assert(child);
 	_children.push_front(std::move(child));
-}
-
-WindowLayout WindowContainer::GetChildLayout(TextureManager & texman, const LayoutContext & lc, const DataContext & dc, const Window & child) const
-{
-	return WindowLayout{ CanvasLayout(child.GetOffset(), child.GetSize(), lc.GetScaleCombined()), 1, true };
 }
 
 unsigned int WindowContainer::GetChildrenCount() const

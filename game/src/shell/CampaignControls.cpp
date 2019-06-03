@@ -37,7 +37,8 @@ UI::WindowLayout CampaignControls::GetChildLayout(TextureManager &texman, const 
 	{
 		return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 	}
-	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 vec2d CampaignControls::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const

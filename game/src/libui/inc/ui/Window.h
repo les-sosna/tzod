@@ -124,9 +124,6 @@ public:
 
 	virtual vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const { return Vec2dFloor(GetSize() *scale); }
 
-	void Move(float x, float y);
-	vec2d GetOffset() const { return vec2d{_x, _y}; }
-
 	void Resize(float width, float height);
 	void SetHeight(float height) { Resize(GetWidth(), height); }
 	void SetWidth(float width) { Resize(width, GetHeight()); }
@@ -161,9 +158,6 @@ public:
 	}
 
 private:
-	// size and position
-	float _x = 0;
-	float _y = 0;
 	float _width = 0;
 	float _height = 0;
 
@@ -223,7 +217,6 @@ public:
 	unsigned int GetChildrenCount() const override final;
 	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override final;
 	const Window& GetChild(unsigned int index) const override final;
-	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
 	void SetFocus(Window* child) override final;
 	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
 	const Window* GetFocus() const override;

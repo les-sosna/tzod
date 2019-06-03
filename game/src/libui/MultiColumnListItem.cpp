@@ -30,24 +30,24 @@ void MultiColumnListItem::EnsureColumn(unsigned int columnIndex, float offset)
 		UI::StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb },{ "Hover", 0xffccccff },{ "Focused", 0xff000000 } });
 
 	if (columnIndex >= _columns.size())
-		_columns.insert(_columns.end(), 1 + columnIndex - _columns.size(), nullptr);
+		_columns.insert(_columns.end(), 1 + columnIndex - _columns.size(), {});
 
-	if (!_columns[columnIndex])
+	if (!_columns[columnIndex].first)
 	{
 		// TODO: reuse the text object
-		_columns[columnIndex] = std::make_shared<UI::Text>();
-		AddFront(_columns[columnIndex]);
+		_columns[columnIndex].first = std::make_shared<UI::Text>();
+		AddFront(_columns[columnIndex].first);
 	}
 
-	_columns[columnIndex]->Move(offset, 0);
-	_columns[columnIndex]->SetText(std::make_shared<ListDataSourceBinding>(columnIndex));
-	_columns[columnIndex]->SetFont("font_small");
-	_columns[columnIndex]->SetFontColor(textColorMap);
+	_columns[columnIndex].first->SetText(std::make_shared<ListDataSourceBinding>(columnIndex));
+	_columns[columnIndex].first->SetFont("font_small");
+	_columns[columnIndex].first->SetFontColor(textColorMap);
+	_columns[columnIndex].second = offset;
 }
 
 vec2d MultiColumnListItem::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	return _columns[0]->GetContentSize(texman, dc, scale, layoutConstraints);
+	return _columns[0].first->GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
 WindowLayout MultiColumnListItem::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
@@ -63,13 +63,14 @@ WindowLayout MultiColumnListItem::GetChildLayout(TextureManager &texman, const L
 
 	for (size_t i = 0; i != _columns.size(); ++i)
 	{
-		if (_columns[i].get() == &child)
+		if (_columns[i].first.get() == &child)
 		{
-			float nextColumnOffset = (i + 1 != _columns.size()) ? ToPx(_columns[i + 1]->GetOffset().x, lc) : lc.GetPixelSize().x;
-			return WindowLayout{ MakeRectRB(ToPx(_columns[i]->GetOffset(), lc), vec2d{ nextColumnOffset, lc.GetPixelSize().y }), 1, true };
+			float nextColumnOffset = (i + 1 != _columns.size()) ? ToPx(_columns[i + 1].second, lc) : lc.GetPixelSize().x;
+			return WindowLayout{ MakeRectRB(vec2d{ToPx(_columns[i].second, lc), 0}, vec2d{ nextColumnOffset, lc.GetPixelSize().y }), 1, true };
 		}
 	}
 
-	return WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 

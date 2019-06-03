@@ -553,7 +553,8 @@ UI::WindowLayout EditorWorldView::GetChildLayout(TextureManager &texman, const U
 		float pxRight = lc.GetPixelSize().x;
 		return UI::WindowLayout{ FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y }, 1, true };
 	}
-	return UI::WindowContainer::GetChildLayout(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
