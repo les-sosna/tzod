@@ -22,21 +22,6 @@ void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 	{
 		SpriteColor color = _fontColor ? _fontColor->GetRenderValue(dc, sc) : 0xffffffff;
 		rc.DrawBitmapText(vec2d{}, lc.GetScaleCombined(), _fontTexture.GetTextureId(texman), color, _text->GetLayoutValue(dc), _align);
-
-		if (_underline && _underline->GetRenderValue(dc, sc))
-		{
-			// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
-			static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-			static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
-
-			vec2d contentSize = GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
-			FRECT rect;
-			rect.left = -std::floor(contentSize.x * dx[_align] / 2);
-			rect.top = contentSize.y - std::floor(contentSize.y * dy[_align] / 2);
-			rect.right = rect.left + contentSize.x;
-			rect.bottom = rect.top + std::ceil(lc.GetScaleCombined());
-			rc.DrawSprite(rect, _underlineTexture.GetTextureId(texman), color, 0);
-		}
 	}
 }
 
@@ -67,4 +52,26 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	float w = std::floor(texman.GetFrameWidth(_fontTexture.GetTextureId(texman), 0) * scale);
 	float h = std::floor(texman.GetFrameHeight(_fontTexture.GetTextureId(texman), 0) * scale);
 	return vec2d{ (w - 1) * (float)maxline, h * (float)lineCount };
+}
+
+void TextWithUnderline::Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time, bool hovered) const
+{
+	if (_text && !_fontTexture.Empty() &&
+		_underline && _underline->GetRenderValue(dc, sc))
+	{
+		SpriteColor color = _fontColor ? _fontColor->GetRenderValue(dc, sc) : 0xffffffff;
+
+		// grep enum enumAlignText LT CT RT LC CC RC LB CB RB
+		static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+		static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
+
+		vec2d contentSize = GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
+		FRECT rect;
+		rect.left = -std::floor(contentSize.x * dx[_align] / 2);
+		rect.top = contentSize.y - std::floor(contentSize.y * dy[_align] / 2);
+		rect.right = rect.left + contentSize.x;
+		rect.bottom = rect.top + std::ceil(lc.GetScaleCombined());
+		rc.DrawSprite(rect, _underlineTexture.GetTextureId(texman), color, 0);
+	}
+	Text::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
 }
