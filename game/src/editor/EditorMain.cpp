@@ -18,14 +18,6 @@
 #include <ui/Text.h>
 #include <sstream>
 
-static std::shared_ptr<UI::Text> MakeHelpText(LangCache &lang)
-{
-	auto helpText = std::make_shared<UI::Text>();
-	helpText->SetText(ConfBind(lang.f1_help_editor));
-	helpText->SetAlign(alignTextLT);
-	return helpText;
-}
-
 namespace
 {
 	class LayerDisplay final
@@ -59,6 +51,25 @@ namespace
 		mutable int _cachedIndex = -1;
 		mutable std::string _cachedString;
 	};
+
+	class HelpBox final
+		: public UI::Window
+	{
+		TUPLE_CHILDREN(UI::Rectangle, UI::Text);
+	public:
+		explicit HelpBox(const LangCache& lang)
+		{
+			Resize(384, 256);
+			std::get<0>(_children).SetTexture("ui/list");
+			std::get<1>(_children).SetText(ConfBind(lang.f1_help_editor));
+			std::get<1>(_children).SetAlign(alignTextLT);
+		}
+
+		UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override
+		{
+			return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
+		}
+	};
 }
 
 EditorMain::EditorMain(UI::TimeStepManager &manager,
@@ -75,12 +86,10 @@ EditorMain::EditorMain(UI::TimeStepManager &manager,
 {
 	_editorWorldView = std::make_shared<EditorWorldView>(manager, texman, editorContext, worldView, conf, lang, logger);
 	AddFront(_editorWorldView);
+	SetFocus(_editorWorldView.get());
 
-	_helpBox = std::make_shared<UI::Rectangle>();
-	_helpBox->SetTexture("ui/list");
-	_helpBox->Resize(384, 256);
+	_helpBox = std::make_shared<HelpBox>(lang);
 	_helpBox->SetVisible(false);
-	_helpBox->AddFront(MakeHelpText(_lang));
 	AddFront(_helpBox);
 
 	auto gameClassVis = std::make_shared<GameClassVis>(worldView);

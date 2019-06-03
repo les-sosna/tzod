@@ -50,6 +50,8 @@ public:
 
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	NavigationSink* GetNavigationSink() override { return this; }
+	KeyboardSink* GetKeyboardSink() override { return this; }
 
 private:
 	void OnSelectType(int selectionIndex);
@@ -70,7 +72,7 @@ private:
 	EditorCommands _commands;
 	std::shared_ptr<EditorWorldView> _editorWorldView;
 	std::shared_ptr<UI::Text> _layerDisp;
-	std::shared_ptr<UI::Rectangle> _helpBox;
+	std::shared_ptr<UI::Window> _helpBox;
 	std::shared_ptr<UI::CheckBox> _modeSelect;
 	std::shared_ptr<UI::CheckBox> _modeErase;
 	std::shared_ptr<DefaultListBox> _typeSelector;

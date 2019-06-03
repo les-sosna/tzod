@@ -89,7 +89,7 @@ namespace
 		UI::StateBinding<unsigned int>::MapType{ { "Normal", 0 } });
 
 	class TierBox final
-		: public UI::Rectangle
+		: public UI::WindowContainer
 	{
 	public:
 		TierBox()
