@@ -57,33 +57,36 @@ void TextureManager::UnloadAllTextures(IRender& render) noexcept
 	for (auto &t: _devTextures)
 		render.TexFree(t.id);
 	_devTextures.clear();
-	_mapImage_to_TexDescIter.clear();
+	_mapPath_to_TexDescIter.clear();
 	_mapName_to_Index.clear();
 	_logicalTextures.clear();
 }
 
-std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(IRender& render, const std::shared_ptr<Image> &image, bool magFilter)
+std::list<TextureManager::TexDesc>::iterator TextureManager::LoadTexture(IRender& render, FS::FileSystem& fs, std::string_view fileName, bool magFilter)
 {
-	auto it = _mapImage_to_TexDescIter.find(image);
-	if( _mapImage_to_TexDescIter.end() != it )
+	auto it = _mapPath_to_TexDescIter.find(fileName);
+	if( _mapPath_to_TexDescIter.end() != it )
 	{
 		return it->second;
 	}
 	else
 	{
+		auto file = fs.Open(fileName)->QueryMap();
+		TgaImage image(file->GetData(), file->GetSize());
+
 		TexDesc td;
-		if( !render.TexCreate(td.id, *image, magFilter) )
+		if( !render.TexCreate(td.id, image, magFilter) )
 		{
 			throw std::runtime_error("error in render device");
 		}
 
-		td.width = image->GetWidth();
-		td.height = image->GetHeight();
+		td.width = image.GetWidth();
+		td.height = image.GetHeight();
 		td.refCount = 0;
 
 		_devTextures.push_front(td);
 		auto it2 = _devTextures.begin();
-		_mapImage_to_TexDescIter.emplace(image, it2);
+		_mapPath_to_TexDescIter.emplace(fileName, it2);
 		return it2;
 	}
 }
@@ -112,11 +115,10 @@ void TextureManager::CreateChecker(IRender& render)
 	texDescIter->refCount++;
 
 	LogicalTexture tex;
-	tex.uvPivot = vec2d{ .5f, .5f };
+	tex.pxPivot = vec2d{ (float)td.width, (float)td.height } * 4;
 	tex.pxFrameWidth = (float) td.width * 8;
 	tex.pxFrameHeight = (float) td.height * 8;
 	tex.pxBorderSize = 0;
-	tex.magFilter = false;
 	tex.uvFrames = { { 0,0,2,2 } };
 
 	_logicalTextures.emplace_back(tex, texDescIter);
@@ -131,13 +133,22 @@ static int getint(lua_State *L, int tblidx, const char *field, int def)
 	return def;
 }
 
-static float getfloat(lua_State *L, int tblidx, const char *field, float def)
+static bool trygetfloat(lua_State* L, int tblidx, const char* field, float def, float *outValue)
 {
+	bool result;
 	lua_getfield(L, tblidx, field);
-	if( lua_isnumber(L, -1) )
-		def = (float) lua_tonumber(L, -1);
+	if (lua_isnumber(L, -1))
+	{
+		*outValue = (float)lua_tonumber(L, -1);
+		result = true;
+	}
+	else
+	{
+		*outValue = def;
+		result = false;
+	}
 	lua_pop(L, 1); // pop result of getfield
-	return def;
+	return result;
 }
 
 static bool getbool(lua_State *L, int tblidx, const char *field, bool def)
@@ -149,66 +160,75 @@ static bool getbool(lua_State *L, int tblidx, const char *field, bool def)
 	return def;
 }
 
-static LogicalTexture getlt(lua_State *L, int idx, float pxWidth, float pxHeight)
+static void getspritedef(lua_State *L, int idx, SpriteDefinition *outSpriteDef)
 {
-	LogicalTexture tex;
-
 	// texture bounds
-	float uvLeft = floorf(getfloat(L, idx, "left", 0)) / pxWidth;
-	float uvRight = floorf(getfloat(L, idx, "right", pxWidth)) / pxWidth;
-	float uvTop = floorf(getfloat(L, idx, "top", 0)) / pxHeight;
-	float uvBottom = floorf(getfloat(L, idx, "bottom", pxHeight)) / pxHeight;
+	trygetfloat(L, idx, "left", 0, &outSpriteDef->atlasOffset.x);
+	trygetfloat(L, idx, "top", 0, &outSpriteDef->atlasOffset.y);
+	outSpriteDef->hasSizeX = trygetfloat(L, idx, "right", 0, &outSpriteDef->atlasSize.x);
+	outSpriteDef->hasSizeY = trygetfloat(L, idx, "bottom", 0, &outSpriteDef->atlasSize.y);
+	outSpriteDef->atlasSize -= outSpriteDef->atlasOffset;
 
 	// border
-	tex.pxBorderSize = floorf(getfloat(L, idx, "border", 0));
-	float uvBorderWidth = tex.pxBorderSize / pxWidth;
-	float uvBorderHeight = tex.pxBorderSize / pxHeight;
+	trygetfloat(L, idx, "border", 0, &outSpriteDef->border);
+
+	// scale
+	trygetfloat(L, idx, "xscale", 1, &outSpriteDef->scale.x);
+	trygetfloat(L, idx, "yscale", 1, &outSpriteDef->scale.y);
 
 	// frames count
-	int xframes = getint(L, idx, "xframes", 1);
-	int yframes = getint(L, idx, "yframes", 1);
-
-	// frame size with border
-	float uvFrameWidth = (uvRight - uvLeft) / (float)xframes;
-	float uvFrameHeight = (uvBottom - uvTop) / (float)yframes;
-
-	// original size
-	float scale_x = getfloat(L, idx, "xscale", 1);
-	float scale_y = getfloat(L, idx, "yscale", 1);
-	tex.pxFrameWidth = pxWidth * scale_x * uvFrameWidth;
-	tex.pxFrameHeight = pxHeight * scale_y * uvFrameHeight;
+	outSpriteDef->xframes = getint(L, idx, "xframes", 1);
+	outSpriteDef->yframes = getint(L, idx, "yframes", 1);
 
 	// pivot position
-	tex.uvPivot.x = getfloat(L, idx, "xpivot", pxWidth * uvFrameWidth / 2) / (pxWidth * uvFrameWidth);
-	tex.uvPivot.y = getfloat(L, idx, "ypivot", pxHeight * uvFrameHeight / 2) / (pxHeight * uvFrameHeight);
+	outSpriteDef->hasPivotX = trygetfloat(L, idx, "xpivot", 0, &outSpriteDef->pivot.x);
+	outSpriteDef->hasPivotY = trygetfloat(L, idx, "ypivot", 0, &outSpriteDef->pivot.y);
 
 	// filter
-	tex.magFilter = getbool(L, idx, "magfilter", false);
+	outSpriteDef->magFilter = getbool(L, idx, "magfilter", false);
+}
+
+static LogicalTexture LogicalTextureFromSpriteDefinition(const SpriteDefinition& sd, vec2d pxTextureSize)
+{
+	LogicalTexture lt;
+
+	// sprite size with border
+	vec2d pxAtlasSize = { sd.hasSizeX ? sd.atlasSize.x : pxTextureSize.x - sd.atlasOffset.x, sd.hasSizeY ? sd.atlasSize.y : pxTextureSize.y - sd.atlasOffset.y };
+	vec2d pxFrameSize = pxAtlasSize / vec2d{ (float)sd.xframes, (float)sd.yframes };
+	vec2d uvFrameSize = pxFrameSize / pxTextureSize;
+
+	lt.pxPivot = vec2d{ sd.hasPivotX ? sd.pivot.x : pxFrameSize.x / 2, sd.hasPivotY ? sd.pivot.y : pxFrameSize.y / 2 } * sd.scale;
+
+	// original size
+	lt.pxFrameWidth = pxTextureSize.x * sd.scale.x * uvFrameSize.x;
+	lt.pxFrameHeight = pxTextureSize.y * sd.scale.y * uvFrameSize.y;
+	lt.pxBorderSize = sd.border;
 
 	// frames
-	tex.uvFrames.reserve(xframes * yframes);
-	for (int y = 0; y < yframes; ++y)
+	vec2d uvBorderSize = { sd.border / pxTextureSize.x, sd.border / pxTextureSize.y };
+	vec2d uvOffset = sd.atlasOffset / pxTextureSize;
+	lt.uvFrames.reserve(sd.xframes * sd.yframes);
+	for (int y = 0; y < sd.yframes; ++y)
 	{
-		for (int x = 0; x < xframes; ++x)
+		for (int x = 0; x < sd.xframes; ++x)
 		{
 			FRECT rt;
-			rt.left = uvLeft + uvFrameWidth * (float)x + uvBorderWidth;
-			rt.right = uvLeft + uvFrameWidth * (float)(x + 1) - uvBorderWidth;
-			rt.top = uvTop + uvFrameHeight * (float)y + uvBorderHeight;
-			rt.bottom = uvTop + uvFrameHeight * (float)(y + 1) - uvBorderHeight;
-			tex.uvFrames.push_back(rt);
+			rt.left = uvOffset.x + uvFrameSize.x * (float)x + uvBorderSize.x;
+			rt.top = uvOffset.y + uvFrameSize.y * (float)y + uvBorderSize.y;
+			rt.right = uvOffset.x + uvFrameSize.x * (float)(x + 1) - uvBorderSize.x;
+			rt.bottom = uvOffset.y + uvFrameSize.y * (float)(y + 1) - uvBorderSize.y;
+			lt.uvFrames.push_back(rt);
 		}
 	}
 
-	return tex;
+	return lt;
 }
 
 #include <luaetc/LuaDeleter.h>
 
-std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
-ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs)
+std::vector<SpriteDefinition> ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem &fs)
 {
-	std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> result;
+	std::vector<SpriteDefinition> result;
 
 	std::unique_ptr<lua_State, LuaStateDeleter> luaState(lua_open());
 	if (!luaState)
@@ -224,8 +244,6 @@ ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, F
 		throw e;
 	}
 
-	std::map<std::string, std::shared_ptr<Image>> imageCache;
-
 	if (lua_istable(L, -1))
 	{
 		// loop over files
@@ -238,21 +256,6 @@ ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, F
 			lua_getfield(L, -1, "file");
 			std::string fileName = lua_tostring(L, -1);
 			lua_pop(L, 1); // pop result of lua_getfield
-
-			auto &cachedImage = imageCache[fileName];
-			if (!cachedImage)
-			{
-				try
-				{
-					auto file = fs.Open(fileName)->QueryMap();
-					cachedImage = std::make_shared<TgaImage>(file->GetData(), file->GetSize());
-				}
-				catch (const std::exception &e)
-				{
-					TRACE("WARNING: could not load texture '%s' - %s", f.c_str(), e.what());
-					continue;
-				}
-			}
 
 			lua_getfield(L, -1, "content");
 			if (lua_istable(L, -1))
@@ -268,7 +271,12 @@ ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, F
 					if (const char *texname = lua_tostring(L, -1))
 					{
 						// now 'value' at index -2
-						result.emplace_back(cachedImage, texname, getlt(L, -2, (float)cachedImage->GetWidth(), (float)cachedImage->GetHeight()));
+						SpriteDefinition sd = {};
+						getspritedef(L, -2, &sd);
+						sd.textureFilePath = fileName;
+						sd.spriteName = texname;
+
+						result.push_back(std::move(sd));
 					}
 					lua_pop(L, 1); // pop key copy
 				}
@@ -280,45 +288,40 @@ ParsePackage(const std::string &packageName, std::shared_ptr<FS::MemMap> file, F
 	return result;
 }
 
-int TextureManager::LoadPackage(IRender& render, std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> definitions)
+int TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std::vector<SpriteDefinition> &definitions)
 {
 	for (auto &item: definitions)
 	{
-		LogicalTexture &tex = std::get<2>(item);
-		if( !tex.uvFrames.empty() )
-		{
-			std::list<TexDesc>::iterator texDescIter = LoadTexture(render, std::get<0>(item), std::get<2>(item).magFilter);
-			texDescIter->refCount++;
+		std::list<TexDesc>::iterator texDescIt = LoadTexture(render, fs, item.textureFilePath, item.magFilter);
+		texDescIt->refCount++;
 
-			auto emplaced = _mapName_to_Index.emplace(std::get<1>(item), _logicalTextures.size());
-			if( emplaced.second )
-			{
-				// define new texture
-				_logicalTextures.emplace_back(std::move(tex), texDescIter);
-			}
-			else
-			{
-				// replace existing logical texture
-				auto &existing = _logicalTextures[emplaced.first->second];
-				assert(existing.second->refCount > 0);
-				existing.first = std::move(tex);
-				existing.second->refCount--;
-				existing.second = texDescIter;
-			}
+		LogicalTexture lt = LogicalTextureFromSpriteDefinition(item, vec2d{ (float)texDescIt->width, (float)texDescIt->height });
+
+		auto emplaced = _mapName_to_Index.emplace(item.spriteName, _logicalTextures.size());
+		if( emplaced.second )
+		{
+			// define new texture
+			_logicalTextures.emplace_back(lt, texDescIt);
+		}
+		else
+		{
+			// replace existing logical texture
+			auto &existing = _logicalTextures[emplaced.first->second];
+			assert(existing.second->refCount > 0);
+			existing.first = lt;
+			existing.second->refCount--;
+			existing.second = texDescIt;
 		}
 	}
 
-
-	//
 	// unload unused textures
-	//
-
-	for (auto it = _mapImage_to_TexDescIter.begin(); _mapImage_to_TexDescIter.end() != it; )
+	for (auto it = _mapPath_to_TexDescIter.begin(); _mapPath_to_TexDescIter.end() != it; )
 	{
 		if (0 == it->second->refCount)
 		{
+			render.TexFree(it->second->id);
 			_devTextures.erase(it->second);
-			it = _mapImage_to_TexDescIter.erase(it);
+			it = _mapPath_to_TexDescIter.erase(it);
 		}
 		else
 		{
@@ -330,10 +333,9 @@ int TextureManager::LoadPackage(IRender& render, std::vector<std::tuple<std::sha
 	return _logicalTextures.size();
 }
 
-std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>>
-ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs)
+std::vector<SpriteDefinition> ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::FileSystem &fs)
 {
-	std::vector<std::tuple<std::shared_ptr<Image>, std::string, LogicalTexture>> result;
+	std::vector<SpriteDefinition> result;
 
 	std::shared_ptr<FS::FileSystem> dir = fs.GetFileSystem(dirName);
 	auto files = dir->EnumAllFiles("*.tga");
@@ -342,29 +344,15 @@ ParseDirectory(const std::string &dirName, const std::string &texPrefix, FS::Fil
 		std::string texName = texPrefix + *it;
 		texName.erase(texName.length() - 4); // cut out the file extension
 
-		std::shared_ptr<Image> image;
+		SpriteDefinition sd = {};
+		sd.textureFilePath = dirName + '/' + *it;
+		sd.spriteName = std::move(texName);
+		sd.scale = vec2d{ 1, 1 };
+		sd.xframes = 1;
+		sd.yframes = 1;
+		sd.magFilter = true;
 
-		std::string fileName = dirName + '/' + *it;
-		try
-		{
-			auto file = fs.Open(fileName)->QueryMap();
-			image = std::make_shared<TgaImage>(file->GetData(), file->GetSize());
-		}
-		catch( const std::exception &e )
-		{
-			TRACE("WARNING: could not load texture '%s' - %s", fileName.c_str(), e.what());
-			continue;
-		}
-
-		LogicalTexture tex;
-		tex.uvPivot = { 0.5f, 0.5f };
-		tex.pxFrameWidth = (float) image->GetWidth();
-		tex.pxFrameHeight = (float) image->GetHeight();
-		tex.pxBorderSize = 0;
-		tex.magFilter = true;
-		tex.uvFrames = { { 0, 0, 1, 1 } };
-
-		result.emplace_back(image, texName, tex);
+		result.push_back(std::move(sd));
 	}
 
 	return result;

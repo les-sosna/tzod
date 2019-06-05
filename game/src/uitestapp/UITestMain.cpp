@@ -42,7 +42,7 @@ try
 	);
 
 	TextureManager textureManager(appWindow.GetRender());
-	if (textureManager.LoadPackage(appWindow.GetRender(), ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs)) <= 0)
+	if (textureManager.LoadPackage(appWindow.GetRender(), *fs, ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs)) <= 0)
 		std::cerr << "WARNING: no textures loaded" << std::endl;
 
 	auto desktop = std::make_shared<UITestDesktop>();

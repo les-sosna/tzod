@@ -14,9 +14,9 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer
 	TextureManager textureManager(render);
 	try
 	{
-		if (textureManager.LoadPackage(render, ParsePackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs)) <= 0)
+		if (textureManager.LoadPackage(render, fs, ParsePackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs)) <= 0)
 			logger.Printf(1, "WARNING: no textures loaded");
-		if (textureManager.LoadPackage(render, ParseDirectory(DIR_SKINS, "skin/", fs)) <= 0)
+		if (textureManager.LoadPackage(render, fs, ParseDirectory(DIR_SKINS, "skin/", fs)) <= 0)
 			logger.Printf(1, "WARNING: no skins found");
 	}
 	catch(...)
