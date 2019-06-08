@@ -115,6 +115,9 @@ static LogicalTexture LogicalTextureFromSpriteDefinition(const SpriteDefinition&
 	lt.pxFrameHeight = pxTextureSize.y * sd.scale.y * uvFrameSizeWithBorder.y;
 	lt.pxBorderSize = sd.border;
 
+	// font
+	lt.leadChar = sd.leadChar;
+
 	// frames
 	vec2d uvBorderSize = vec2d{ sd.border, sd.border } / pxTextureSize;
 	vec2d uvInnerFrameOffset = sd.atlasOffset / pxTextureSize + uvBorderSize;

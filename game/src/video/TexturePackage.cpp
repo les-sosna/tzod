@@ -10,6 +10,15 @@ extern "C"
 #include <lauxlib.h>
 }
 
+static int getchar(lua_State* L, int tblidx, const char* field, int def)
+{
+	lua_getfield(L, tblidx, field);
+	if (lua_isstring(L, -1) && lua_objlen(L, -1) > 0)
+		def = static_cast<int>((unsigned char)lua_tostring(L, -1)[0]);
+	lua_pop(L, 1); // pop result of getfield
+	return def;
+}
+
 static int getint(lua_State* L, int tblidx, const char* field, int def)
 {
 	lua_getfield(L, tblidx, field);
@@ -70,8 +79,12 @@ static void getspritedef(lua_State * L, int idx, SpriteDefinition * outSpriteDef
 	outSpriteDef->hasPivotX = trygetfloat(L, idx, "xpivot", 0, &outSpriteDef->pivot.x);
 	outSpriteDef->hasPivotY = trygetfloat(L, idx, "ypivot", 0, &outSpriteDef->pivot.y);
 
-	// filter
+	// font
+	outSpriteDef->leadChar = getchar(L, idx, "leadchar", ' ');
+
+	// flags
 	outSpriteDef->magFilter = getbool(L, idx, "magfilter", false);
+	outSpriteDef->wrappable = getbool(L, idx, "wrappable", false);
 }
 
 

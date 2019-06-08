@@ -19,6 +19,7 @@ struct LogicalTexture
 	float pxFrameWidth;
 	float pxFrameHeight;
 	float pxBorderSize;
+	int leadChar;
 	struct Frame
 	{
 		FRECT uvInnerFrame;

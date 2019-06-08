@@ -18,6 +18,7 @@ struct SpriteDefinition
 	// mandatory
 	int xframes;
 	int yframes;
+	int leadChar;
 	float border;
 	vec2d scale;
 	vec2d atlasOffset;
@@ -28,6 +29,7 @@ struct SpriteDefinition
 
 	// flags
 	bool magFilter : 1;
+	bool wrappable : 1;
 	bool hasPivotX : 1;
 	bool hasPivotY : 1;
 	bool hasSizeX : 1;
