@@ -203,7 +203,7 @@ static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
 void Desktop::OnNewCampaign()
 {
 	auto dlg = std::make_shared<NewCampaignDlg>(_fs, _lang);
-	dlg->eventCampaignSelected = [this, weakSender = std::weak_ptr(dlg)](std::string_view name)
+	dlg->eventCampaignSelected = [this, weakSender = std::weak_ptr<NewCampaignDlg>(dlg)](std::string_view name)
 	{
 		if (auto sender = weakSender.lock())
 		{
@@ -235,7 +235,7 @@ void Desktop::OnSinglePlayer()
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
 		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache());
-		dlg->eventSelectMap = [this, weakSender = std::weak_ptr(dlg)](int index)
+		dlg->eventSelectMap = [this, weakSender = std::weak_ptr<SinglePlayer>(dlg)](int index)
 		{
 			if (auto sender = weakSender.lock())
 			{
@@ -265,7 +265,7 @@ void Desktop::OnSplitScreen()
 		return;
 
 	auto dlg = std::make_shared<NewGameDlg>(_texman, _fs, _conf, _logger, _lang);
-	dlg->eventClose = [this, weakSender = std::weak_ptr(dlg)](int result)
+	dlg->eventClose = [this, weakSender = std::weak_ptr<NewGameDlg>(dlg)](int result)
 	{
 		if (auto sender = weakSender.lock())
 		{
