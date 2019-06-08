@@ -1,31 +1,30 @@
--- Textures for standard theme --
----- Copyright ® 2007 Insert ----
-
---  default values are:
+--  default values:
 --   left     = 0
 --   top      = 0
 --   right    = [width of image]
 --   bottom   = [height of image]
---   xpivot   = [width of image]/2
---   ypivot   = [height of image]/2
---   xframes  = 1,
---   yframes  = 1,
---   xscale   = 1,
---   yscale   = 1,
-
+--   xpivot   = [center]
+--   ypivot   = [center]
+--   xframes  = 1
+--   yframes  = 1
+--   xscale   = 1
+--   yscale   = 1
+--   magfilter = false
+--   wrappable = false
+--   leadchar = " "
 
 return {
 --------------------------------------
 {
    file="textures/background/back01.tga",
    content={
-     background={xpivot=0, ypivot=0},
+     background={xpivot=0, ypivot=0, wrappable=true},
    }
 },
 {
    file="textures/editor/grid.tga",
    content={
-     grid={xpivot=0, ypivot=0},
+     grid={xpivot=0, ypivot=0, wrappable=true},
    }
 },
 {
@@ -200,7 +199,7 @@ return {
 {
    file="textures/effects/lightning.tga",
    content={
-     lightning={},
+     lightning={wrappable=true},
    }
 },
 {
@@ -237,8 +236,8 @@ return {
    content={
      font_small={left=100, right=212, top=0, bottom=140, xframes=16, yframes=14, xpivot=0, ypivot=0},
      font_default={left=212, top=0, right=512, bottom=240, xframes=20, yframes=12, xpivot=0, ypivot=0},
-     font_digits_red={left=0, top=-64, right=95, bottom=128, xframes=5, yframes=6, xpivot=0, ypivot=0},
-     font_digits_green={left=0, top=64, right=95, bottom=256, xframes=5, yframes=6, xpivot=0, ypivot=0},
+     font_digits_red={left=0, top=0, right=95, bottom=128, xframes=5, yframes=4, xpivot=0, ypivot=0, leadchar="*"},
+     font_digits_green={left=0, top=128, right=95, bottom=256, xframes=5, yframes=4, xpivot=0, ypivot=0, leadchar="*"},
    }
 },
 {
@@ -299,4 +298,3 @@ return {
 --------------------------------------
 
 }
--- end of file --

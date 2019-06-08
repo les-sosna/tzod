@@ -1,14 +1,20 @@
 cmake_minimum_required (VERSION 3.3)
 
 set(video_SOURCES
+	inc/video/EditableImage.h
 	inc/video/ImageLoader.h
 	inc/video/RenderBase.h
 	inc/video/RenderContext.h
 	inc/video/TextureManager.h
+	inc/video/TexturePackage.h
 
+	AtlasPacker.cpp
+	AtlasPacker.h
+	EditableImage.cpp
 	ImageLoader.cpp
 	RenderContext.cpp
 	TextureManager.cpp
+	TexturePackage.cpp
 )
 
 if(IOS OR ANDROID)

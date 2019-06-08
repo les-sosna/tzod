@@ -120,10 +120,6 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 	}
 }
 
-TgaImage::~TgaImage()
-{
-}
-
 const void* TgaImage::GetData() const
 {
 	return &_data[0];

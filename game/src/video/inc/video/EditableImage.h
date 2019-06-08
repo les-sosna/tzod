@@ -2,11 +2,13 @@
 #include "RenderBase.h"
 #include <vector>
 
-class TgaImage final
+class EditableImage final
 	: public Image
 {
 public:
-	TgaImage(const void *data, unsigned long size);
+	EditableImage(unsigned int width, unsigned int height);
+
+	void Blit(RectRB dstRect, int sourceX, int sourceY, const Image& source);
 
 	// Image
 	const void* GetData() const override;
@@ -15,8 +17,8 @@ public:
 	unsigned int GetHeight() const override;
 
 private:
-	unsigned int _height;
-	unsigned int _width;
-	unsigned int _bpp;
+	int _height;
+	int _width;
 	std::vector<char> _data;
 };
+
