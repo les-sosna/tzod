@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderBase.h"
 #include <vector>
+#include <cstdint>
 
 class EditableImage final
 	: public Image
@@ -8,7 +9,7 @@ class EditableImage final
 public:
 	EditableImage(unsigned int width, unsigned int height);
 
-	void Blit(RectRB dstRect, int sourceX, int sourceY, const Image& source);
+	void Blit(RectRB dstRect, int dstGutters, int sourceX, int sourceY, const Image& source);
 
 	// Image
 	const void* GetData() const override;
@@ -19,6 +20,6 @@ public:
 private:
 	int _height;
 	int _width;
-	std::vector<char> _data;
+	std::vector<uint32_t> _pixels;
 };
 

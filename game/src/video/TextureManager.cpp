@@ -89,15 +89,15 @@ void TextureManager::CreateChecker(IRender& render)
 	_logicalTextures.emplace_back(tex, texDescIter);
 }
 
-static FRECT MakeInnerFrameUV(FRECT texOuterFrame, vec2d texFrameBorder, vec2d texSize)
+static FRECT MakeInnerFrameUV(RectRB texOuterFrame, vec2d texFrameBorder, vec2d texSize)
 {
 	vec2d uvBorderSize = texFrameBorder / texSize;
 	return FRECT
 	{
-		texOuterFrame.left / texSize.x + uvBorderSize.x,
-		texOuterFrame.top / texSize.y + uvBorderSize.y,
-		texOuterFrame.right / texSize.x - uvBorderSize.x,
-		texOuterFrame.bottom / texSize.y - uvBorderSize.y
+		(float)texOuterFrame.left / texSize.x + uvBorderSize.x,
+		(float)texOuterFrame.top / texSize.y + uvBorderSize.y,
+		(float)texOuterFrame.right / texSize.x - uvBorderSize.x,
+		(float)texOuterFrame.bottom / texSize.y - uvBorderSize.y
 	};
 }
 
@@ -119,17 +119,14 @@ static LogicalTexture LogicalTextureFromSpriteDefinition(const SpriteDefinition&
 	lt.leadChar = sd.leadChar;
 
 	// frames
-	vec2d uvBorderSize = vec2d{ sd.border, sd.border } / pxTextureSize;
-	vec2d uvInnerFrameOffset = sd.atlasOffset / pxTextureSize + uvBorderSize;
-	vec2d uvInnerFrameSize = uvFrameSizeWithBorder - uvBorderSize * 2;
+	vec2d texBorderSize = vec2d{ sd.border, sd.border };
 	lt.frames.reserve(sd.xframes * sd.yframes);
 	for (int y = 0; y < sd.yframes; ++y)
 	{
 		for (int x = 0; x < sd.xframes; ++x)
 		{
-			lt.frames.push_back({
-				MakeRectWH(uvInnerFrameOffset + uvFrameSizeWithBorder * vec2d{ (float)x, (float)y }, uvInnerFrameSize),
-				MakeRectWH(sd.atlasOffset + pxFrameSizeWithBorder * vec2d{ (float)x, (float)y }, pxFrameSizeWithBorder) });
+			auto texOuterFrame = FRectToRect(MakeRectWH(sd.atlasOffset + pxFrameSizeWithBorder * vec2d{ (float)x, (float)y }, pxFrameSizeWithBorder));
+			lt.frames.push_back({ MakeInnerFrameUV(texOuterFrame, texBorderSize, pxTextureSize), texOuterFrame });
 		}
 	}
 
@@ -142,16 +139,19 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 
 	std::vector<LogicalTexture> spriteDescs;
 	ImageMapType loadedImages;
-	struct Frame
+	struct AtlasFrame
 	{
-		RectRB texBounds;
+		ImageMapType::iterator sourceImageIt;
 		size_t frameIndex;
 		size_t spriteIndex;
-		ImageMapType::iterator sourceImageIt;
+		RectRB texPackedWithGutters;
 	};
-	std::vector<Frame> frames;
+	std::vector<AtlasFrame> atlasFrames;
 
-	// load all images and collect atlas data
+	constexpr int gutters = 1;
+	int totalTexels = 0;
+
+	// load all images and collect remaining atlas data
 	for (auto& item : definitions)
 	{
 		auto imageIt = loadedImages.find(item.textureFilePath);
@@ -167,45 +167,57 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 
 		for (size_t frameIndex = 0; frameIndex != lt.frames.size(); ++frameIndex)
 		{
-			frames.push_back({ FRectToRect(lt.frames[frameIndex].texOuterFrame), frameIndex, spriteIndex, imageIt });
+			atlasFrames.push_back({ imageIt, frameIndex, spriteIndex });
+			auto outerFrame = lt.frames[frameIndex].texOuterFrameSource;
+			totalTexels += (WIDTH(outerFrame) + gutters * 2) * (HEIGHT(outerFrame) + gutters * 2);
 		}
 	}
 
-	std::stable_sort(frames.begin(), frames.end(), [](const Frame & left, const Frame & right)
-	{
-		// for same height take narrow first, otherwise tall first
-		return (HEIGHT(left.texBounds) == HEIGHT(right.texBounds))
-			? (WIDTH(left.texBounds) < WIDTH(right.texBounds))
-			: (HEIGHT(left.texBounds) > HEIGHT(right.texBounds));
-	});
+	std::stable_sort(atlasFrames.begin(), atlasFrames.end(), [&](const AtlasFrame& left, const AtlasFrame& right)
+		{
+			int leftWidth = WIDTH(spriteDescs[left.spriteIndex].frames[left.frameIndex].texOuterFrameSource);
+			int leftHeight = HEIGHT(spriteDescs[left.spriteIndex].frames[left.frameIndex].texOuterFrameSource);
+			int rightWidth = WIDTH(spriteDescs[right.spriteIndex].frames[right.frameIndex].texOuterFrameSource);
+			int rightHeight = HEIGHT(spriteDescs[right.spriteIndex].frames[right.frameIndex].texOuterFrameSource);
 
-	EditableImage atlasImage(1536, 1536);
+			// for same height take narrow first, otherwise tall first
+			return (leftHeight == rightHeight) ? (leftWidth < rightWidth) : (leftHeight > rightHeight);
+		});
+
+	double idealSquareSide = std::sqrt(totalTexels);
+	double nextMultiple64 = std::ceil(idealSquareSide / 64) * 64;
+
+	int atlasSize = (int)nextMultiple64;
 
 	AtlasPacker packer;
-	packer.ExtendCanvas(atlasImage.GetWidth(), atlasImage.GetHeight());
+	packer.ExtendCanvas(atlasSize, atlasSize * 100); // unlimited height
 
-	auto texSize = vec2d{ (float)atlasImage.GetWidth(), (float)atlasImage.GetHeight() };
-
-	for (auto& frame : frames)
+	for (auto& atlasFrame : atlasFrames)
 	{
-		// place frame in the atlas
-		RectRB dstRect;
-		bool success = packer.PlaceRect(WIDTH(frame.texBounds), HEIGHT(frame.texBounds), dstRect);
-		assert(success);
-
-		// blit pixels from the source image
-		atlasImage.Blit(dstRect, frame.texBounds.left, frame.texBounds.top, frame.sourceImageIt->second);
-
-		// adjust frame
-		auto texOuterFrame = RectToFRect(dstRect);
-		float border = definitions[frame.spriteIndex].border;
-		spriteDescs[frame.spriteIndex].frames[frame.frameIndex] =
-		{
-			MakeInnerFrameUV(RectToFRect(dstRect), vec2d{border, border}, texSize),
-			texOuterFrame
-		};
+		// place frame with gutters in the atlas
+		auto texOuterFrame = spriteDescs[atlasFrame.spriteIndex].frames[atlasFrame.frameIndex].texOuterFrameSource;
+		int widthWithGutters = WIDTH(texOuterFrame) + gutters * 2;
+		int heightWithGutters = HEIGHT(texOuterFrame) + gutters * 2;
+		bool success = packer.PlaceRect(widthWithGutters, heightWithGutters, atlasFrame.texPackedWithGutters);
 	}
 
+	// blit pixels from the source images and adjust uv frames
+	EditableImage atlasImage(atlasSize, packer.GetContentHeight()); // actual height
+	auto texSize = vec2d{ (float)atlasImage.GetWidth(), (float)atlasImage.GetHeight() };
+	for (auto& atlasFrame : atlasFrames)
+	{
+		auto& spriteFrame = spriteDescs[atlasFrame.spriteIndex].frames[atlasFrame.frameIndex];
+		auto texOuterFramePacked = atlasFrame.texPackedWithGutters;
+		texOuterFramePacked.left += gutters;
+		texOuterFramePacked.top += gutters;
+		texOuterFramePacked.right -= gutters;
+		texOuterFramePacked.bottom -= gutters;
+		atlasImage.Blit(texOuterFramePacked, gutters, spriteFrame.texOuterFrameSource.left, spriteFrame.texOuterFrameSource.top, atlasFrame.sourceImageIt->second);
+		float border = definitions[atlasFrame.spriteIndex].border;
+		spriteFrame.uvInnerFrame = MakeInnerFrameUV(texOuterFramePacked, vec2d{ border, border }, texSize);
+	}
+
+	// allocate hardware texture for atlas
 	TexDesc td;
 	if (!render.TexCreate(td.id, atlasImage, false/*FIXME: magFilter*/))
 		throw std::runtime_error("error in render device");
@@ -263,8 +275,7 @@ size_t TextureManager::FindSprite(std::string_view name) const
 	return 0; // index of checker texture
 }
 
-void TextureManager::GetTextureNames(std::vector<std::string> &names,
-                                     const char *prefix) const
+void TextureManager::GetTextureNames(std::vector<std::string> &names, const char *prefix) const
 {
 	size_t trimLength = prefix ? std::strlen(prefix) : 0;
 

@@ -111,3 +111,11 @@ bool AtlasPacker::PlaceRect(int width, int height, RectRB& result)
 	return false;
 }
 
+int AtlasPacker::GetContentHeight() const
+{
+	int maxY = 0;
+	for (auto &s: _segments)
+		maxY = std::max(maxY, s.y);
+	return maxY;
+}
+

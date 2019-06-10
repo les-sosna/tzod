@@ -22,8 +22,8 @@ struct LogicalTexture
 	int leadChar;
 	struct Frame
 	{
-		FRECT uvInnerFrame;
-		FRECT texOuterFrame;
+		FRECT uvInnerFrame; // packed in atlas
+		RectRB texOuterFrameSource;
 	};
 	std::vector<Frame> frames;
 };

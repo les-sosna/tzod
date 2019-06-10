@@ -11,6 +11,7 @@ class AtlasPacker
 public:
 	void ExtendCanvas(int dx, int dy);
 	bool PlaceRect(int width, int height, math::RectRB& result);
+	int GetContentHeight() const;
 
 private:
 	struct Segment
