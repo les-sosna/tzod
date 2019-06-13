@@ -11,7 +11,7 @@ void AtlasPacker::ExtendCanvas(int dx, int dy)
 	_canvasHeight += dy;
 }
 
-bool AtlasPacker::PlaceRect(int width, int height, RectRB& result)
+bool AtlasPacker::PlaceRect(int width, int height, int& outX, int& outY)
 {
 	// search for first available range that is closest to the top
 	auto overlapFirst = _segments.end();
@@ -61,15 +61,15 @@ bool AtlasPacker::PlaceRect(int width, int height, RectRB& result)
 	if (overlapFirst != _segments.end())
 	{
 		assert(bestTop + height <= _canvasHeight);
-		result.left = overlapFirst->x;
-		result.top = bestTop;
-		result.right = result.left + width;
-		result.bottom = result.top + height;
+		outX = overlapFirst->x;
+		outY = bestTop;
+		int resultRight = outX + width;
+		int resultBottom = outY + height;
 
-		if (overlapLast->x + overlapLast->length == result.right)
+		if (overlapLast->x + overlapLast->length == resultRight)
 		{
 			// replace the entire range with reused first segment
-			overlapFirst->y = result.bottom;
+			overlapFirst->y = resultBottom;
 			if (overlapFirst != overlapLast) // erase the rest if there is more than one
 			{
 				overlapFirst->length = width;
@@ -81,19 +81,19 @@ bool AtlasPacker::PlaceRect(int width, int height, RectRB& result)
 		else // the range is slightly longer
 		{
 			Segment s;
-			s.x = result.right;
+			s.x = resultRight;
 			s.y = overlapFirst->y;
 			s.length = overlapFirst->length - width;
 
 			// always keep and reuse first segment in range
-			overlapFirst->y = result.bottom;
+			overlapFirst->y = resultBottom;
 			overlapFirst->length = width;
 
 			if (overlapFirst != overlapLast)
 			{
 				// keep first, reuse last, erase what's in the middle
-				overlapLast->length -= result.right - overlapLast->x;
-				overlapLast->x = result.right;
+				overlapLast->length -= resultRight - overlapLast->x;
+				overlapLast->x = resultRight;
 				++overlapFirst;
 				_segments.erase(overlapFirst, overlapLast);
 			}

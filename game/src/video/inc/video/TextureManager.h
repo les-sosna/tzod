@@ -20,12 +20,7 @@ struct LogicalTexture
 	float pxFrameHeight;
 	float pxBorderSize;
 	int leadChar;
-	struct Frame
-	{
-		FRECT uvInnerFrame; // packed in atlas
-		RectRB texOuterFrameSource;
-	};
-	std::vector<Frame> frames;
+	std::vector<FRECT> uvFrames;
 };
 
 class TextureManager final
@@ -35,7 +30,7 @@ public:
 	explicit TextureManager(IRender &render);
 	~TextureManager();
 
-	void LoadPackage(IRender& render, FS::FileSystem& fs, const std::vector<SpriteDefinition> &definitions);
+	void LoadPackage(IRender& render, FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs);
 	void UnloadAllTextures(IRender& render) noexcept;
 
 	size_t FindSprite(std::string_view name) const;
@@ -45,7 +40,7 @@ public:
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].first.pxFrameHeight; }
 	vec2d GetFrameSize(size_t texIndex) const { return vec2d{GetFrameWidth(texIndex, 0), GetFrameHeight(texIndex, 0)}; }
 	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].first.pxBorderSize; }
-	unsigned int GetFrameCount(size_t texIndex) const { return static_cast<unsigned int>(_logicalTextures[texIndex].first.frames.size()); }
+	unsigned int GetFrameCount(size_t texIndex) const { return static_cast<unsigned int>(_logicalTextures[texIndex].first.uvFrames.size()); }
 
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix) const;
 
@@ -66,4 +61,7 @@ private:
 	std::vector<std::pair<LogicalTexture, std::list<TexDesc>::iterator>> _logicalTextures;
 
 	void CreateChecker(IRender& render); // Create checker texture without name and with index=0
+
+	using LoadedImages = std::map<std::string, class TgaImage, std::less<>>;
+	void CreateAtlas(IRender& render, const LoadedImages &loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter);
 };

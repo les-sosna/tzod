@@ -1,16 +1,11 @@
 #pragma once
 #include <vector>
 
-namespace math
-{
-	struct RectRB;
-}
-
 class AtlasPacker
 {
 public:
 	void ExtendCanvas(int dx, int dy);
-	bool PlaceRect(int width, int height, math::RectRB& result);
+	bool PlaceRect(int width, int height, int &outX, int &outY);
 	int GetContentHeight() const;
 
 private:

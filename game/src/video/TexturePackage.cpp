@@ -55,7 +55,7 @@ static bool getbool(lua_State * L, int tblidx, const char* field, bool def)
 	return def;
 }
 
-static void getspritedef(lua_State * L, int idx, SpriteDefinition * outSpriteDef)
+static void getspritedef(lua_State * L, int idx, PackageSpriteDesc* outSpriteDef)
 {
 	// texture bounds
 	trygetfloat(L, idx, "left", 0, &outSpriteDef->atlasOffset.x);
@@ -88,9 +88,9 @@ static void getspritedef(lua_State * L, int idx, SpriteDefinition * outSpriteDef
 }
 
 
-std::vector<SpriteDefinition> ParsePackage(const std::string& packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem& fs)
+std::vector<PackageSpriteDesc> ParsePackage(const std::string& packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem& fs)
 {
-	std::vector<SpriteDefinition> result;
+	std::vector<PackageSpriteDesc> result;
 
 	std::unique_ptr<lua_State, LuaStateDeleter> luaState(lua_open());
 	if (!luaState)
@@ -133,7 +133,7 @@ std::vector<SpriteDefinition> ParsePackage(const std::string& packageName, std::
 					if (const char* texname = lua_tostring(L, -1))
 					{
 						// now 'value' at index -2
-						SpriteDefinition sd = {};
+						PackageSpriteDesc sd = {};
 						getspritedef(L, -2, &sd);
 						sd.textureFilePath = fileName;
 						sd.spriteName = texname;
@@ -150,9 +150,9 @@ std::vector<SpriteDefinition> ParsePackage(const std::string& packageName, std::
 	return result;
 }
 
-std::vector<SpriteDefinition> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs)
+std::vector<PackageSpriteDesc> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs, bool magFilter)
 {
-	std::vector<SpriteDefinition> result;
+	std::vector<PackageSpriteDesc> result;
 
 	std::shared_ptr<FS::FileSystem> dir = fs.GetFileSystem(dirName);
 	auto files = dir->EnumAllFiles("*.tga");
@@ -161,13 +161,13 @@ std::vector<SpriteDefinition> ParseDirectory(const std::string& dirName, const s
 		std::string texName = texPrefix + *it;
 		texName.erase(texName.length() - 4); // cut out the file extension
 
-		SpriteDefinition sd = {};
+		PackageSpriteDesc sd = {};
 		sd.textureFilePath = dirName + '/' + *it;
 		sd.spriteName = std::move(texName);
 		sd.scale = vec2d{ 1, 1 };
 		sd.xframes = 1;
 		sd.yframes = 1;
-		sd.magFilter = true;
+		sd.magFilter = magFilter;
 
 		result.push_back(std::move(sd));
 	}

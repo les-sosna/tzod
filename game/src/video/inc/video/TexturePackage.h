@@ -10,7 +10,7 @@ namespace FS
 	class FileSystem;
 }
 
-struct SpriteDefinition
+struct PackageSpriteDesc
 {
 	std::string textureFilePath;
 	std::string spriteName;
@@ -36,5 +36,5 @@ struct SpriteDefinition
 	bool hasSizeY : 1;
 };
 
-std::vector<SpriteDefinition> ParsePackage(const std::string& packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem& fs);
-std::vector<SpriteDefinition> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs);
+std::vector<PackageSpriteDesc> ParsePackage(const std::string& packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem& fs);
+std::vector<PackageSpriteDesc> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs, bool magFilter);
