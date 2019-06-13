@@ -56,13 +56,18 @@ void TextureManager::UnloadAllTextures(IRender& render) noexcept
 	_logicalTextures.clear();
 }
 
+static vec2d GetImageSize(const Image& image)
+{
+	return vec2d{ (float)image.GetWidth(), (float)image.GetHeight() };
+}
+
 void TextureManager::CreateChecker(IRender& render)
 {
 	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
 	assert(_mapName_to_Index.empty());
 	TRACE("Creating checker texture...");
 
-	TexDesc td;
+	TexDesc td = {};
 	CheckerImage c;
 	if( !render.TexCreate(td.id, c, false) )
 	{
@@ -70,19 +75,15 @@ void TextureManager::CreateChecker(IRender& render)
 		assert(false);
 		return;
 	}
-	td.width = c.GetWidth();
-	td.height = c.GetHeight();
-	td.refCount = 0;
 
 	_devTextures.push_front(td);
-
 	auto texDescIter = _devTextures.begin();
 	texDescIter->refCount++;
 
 	LogicalTexture tex;
-	tex.pxPivot = vec2d{ (float)td.width, (float)td.height } * 4;
-	tex.pxFrameWidth = (float) td.width * 8;
-	tex.pxFrameHeight = (float) td.height * 8;
+	tex.pxPivot = GetImageSize(c) * 4;
+	tex.pxFrameWidth = GetImageSize(c).x * 8;
+	tex.pxFrameHeight = GetImageSize(c).y * 8;
 	tex.pxBorderSize = 0;
 	tex.uvFrames = { { 0,0,2,2 } };
 
@@ -99,11 +100,6 @@ static FRECT MakeInnerFrameUV(RectRB texOuterFrame, vec2d texFrameBorder, vec2d 
 		(float)texOuterFrame.right / texSize.x - uvBorderSize.x,
 		(float)texOuterFrame.bottom / texSize.y - uvBorderSize.y
 	};
-}
-
-static vec2d GetImageSize(const Image& image)
-{
-	return vec2d{ (float)image.GetWidth(), (float)image.GetHeight() };
 }
 
 static LogicalTexture LogicalTextureFromSpriteDefinition(const PackageSpriteDesc& sd, vec2d pxTextureSize)
@@ -323,8 +319,6 @@ void TextureManager::CreateAtlas(IRender& render, const LoadedImages& loadedImag
 	if (!render.TexCreate(td.id, atlasImage, magFilter))
 		throw std::runtime_error("error in render device");
 
-	td.width = atlasImage.GetWidth();
-	td.height = atlasImage.GetHeight();
 	td.refCount = static_cast<int>(packageSpriteDescs.size());
 }
 

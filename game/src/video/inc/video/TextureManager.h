@@ -51,8 +51,6 @@ private:
 	struct TexDesc
 	{
 		DEV_TEXTURE id;
-		int width;          // The Width Of The Entire Image.
-		int height;         // The Height Of The Entire Image.
 		int refCount;       // number of logical textures
 	};
 
