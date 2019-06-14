@@ -9,26 +9,23 @@
 # include <audio/SoundView.h>
 #endif
 
-static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, IRender &render)
+static auto GetTzodTextures(FS::FileSystem& fs)
 {
-	TextureManager textureManager(render);
-	try
-	{
-		auto skins = ParseDirectory(DIR_SKINS, "skin/", fs, false /*magFilter*/);
-		auto textures = ParsePackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs);
-		textures.insert(textures.end(), std::make_move_iterator(skins.begin()), std::make_move_iterator(skins.end()));
-		textureManager.LoadPackage(render, fs, textures);
-	}
-	catch(...)
-	{
-		textureManager.UnloadAllTextures(render);
-		throw;
-	}
+	auto skins = ParseDirectory(DIR_SKINS, "skin/", fs, false /*magFilter*/);
+	auto textures = ParsePackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs);
+	textures.insert(textures.end(), std::make_move_iterator(skins.begin()), std::make_move_iterator(skins.end()));
+	return textures;
+}
+
+static auto InitTextureManager(FS::FileSystem &fs)
+{
+	TextureManager textureManager;
+	textureManager.LoadPackage(fs, GetTzodTextures(fs));
 	return textureManager;
 }
 
 TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose* cmdClose, Plat::ConsoleBuffer &logger, Plat::Input &input, IRender& render, TzodApp &app)
-	: textureManager(InitTextureManager(fs, logger, render))
+	: textureManager(InitTextureManager(fs))
 	, timeStepManager()
 	, desktop(std::make_shared<Desktop>(
 		timeStepManager,

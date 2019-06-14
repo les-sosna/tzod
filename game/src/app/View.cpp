@@ -18,9 +18,6 @@ TzodView::TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app
 
 TzodView::~TzodView()
 {
-	// We are is not allowed to retain render reference.
-	// Must do explicit cleanup as RAII is not possible here.
-	_impl->textureManager.UnloadAllTextures(_appWindow.GetRender());
 }
 
 void TzodView::Step(TzodApp& app, float dt)

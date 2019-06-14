@@ -3,6 +3,7 @@
 #include <stack>
 #include <string>
 
+class RenderBinding;
 class TextureManager;
 
 enum enumAlignText {
@@ -14,7 +15,7 @@ enum enumAlignText {
 class RenderContext final
 {
 public:
-	RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height);
+	RenderContext(const TextureManager &tm, const RenderBinding &rb, IRender &render, unsigned int width, unsigned int height);
 
 	void PushClippingRect(RectRB rect);
 	void PopClippingRect();
@@ -50,6 +51,7 @@ private:
 		bool hardware;
 	};
 	const TextureManager &_tm;
+	const RenderBinding &_rb;
 	IRender &_render;
 	std::stack<RectRB> _clipStack;
 	std::stack<Transform> _transformStack;

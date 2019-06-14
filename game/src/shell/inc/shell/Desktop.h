@@ -56,7 +56,7 @@ public:
 	        LangCache &lang,
 	        DMCampaign &dmCampaign,
 	        Plat::ConsoleBuffer &logger,
-			Plat::AppWindowCommandClose* cmdClose = nullptr);
+	        Plat::AppWindowCommandClose* cmdClose = nullptr);
 	virtual ~Desktop();
 
 	void ShowConsole(bool show);

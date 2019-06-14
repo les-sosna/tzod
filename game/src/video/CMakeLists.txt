@@ -4,6 +4,7 @@ set(video_SOURCES
 	inc/video/EditableImage.h
 	inc/video/ImageLoader.h
 	inc/video/RenderBase.h
+	inc/video/RenderBinding.h
 	inc/video/RenderContext.h
 	inc/video/TextureManager.h
 	inc/video/TexturePackage.h
@@ -12,6 +13,7 @@ set(video_SOURCES
 	AtlasPacker.h
 	EditableImage.cpp
 	ImageLoader.cpp
+	RenderBinding.cpp
 	RenderContext.cpp
 	TextureManager.cpp
 	TexturePackage.cpp

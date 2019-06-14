@@ -1,9 +1,11 @@
 #include "inc/video/RenderContext.h"
+#include "inc/video/RenderBinding.h"
 #include "inc/video/TextureManager.h"
 #include <algorithm>
 
-RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
+RenderContext::RenderContext(const TextureManager &tm, const RenderBinding& rb, IRender &render, unsigned int width, unsigned int height)
 	: _tm(tm)
+	, _rb(rb)
 	, _render(render)
 	, _currentTransform{ vec2d{}, 0xff }
 	, _mode(RM_UNDEFINED)
@@ -83,7 +85,7 @@ void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsi
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(sprite));
+	MyVertex *v = _render.DrawQuad(_rb.GetDeviceTexture(sprite));
 
 	if (!_currentTransform.hardware)
 	{
@@ -123,7 +125,7 @@ void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsi
 		return;
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
-	const DEV_TEXTURE &devtex = _tm.GetDeviceTexture(sprite);
+	const DEV_TEXTURE &devtex = _rb.GetDeviceTexture(sprite);
 
 	FRECT uvFrame = lt.uvFrames[frame];
 	float uvFrameWidth = WIDTH(uvFrame);
@@ -389,7 +391,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 		float x = x0 + (float) ((count++) * pxAdvance);
 		float y = y0 + (float) (line * pxCharSize.y);
 
-		MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
+		MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 		v[0].color = color;
 		v[0].u = rt.left;
@@ -429,7 +431,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 	const FRECT &rt = lt.uvFrames[frame];
 	IRender &render = _render;
 
-	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
+	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	if (!_currentTransform.hardware)
 	{
@@ -477,7 +479,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	const FRECT &rt = lt.uvFrames[frame];
 
-	MyVertex *v = _render.DrawQuad(_tm.GetDeviceTexture(tex));
+	MyVertex *v = _render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	if (!_currentTransform.hardware)
 	{
@@ -523,7 +525,7 @@ void RenderContext::DrawIndicator(size_t tex, vec2d pos, float value)
 	float px = lt.pxPivot.x;
 	float py = lt.pxPivot.y;
 
-	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
+	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	v[0].color = color;
 	v[0].u = rt.left;
@@ -560,7 +562,7 @@ void RenderContext::DrawLine(size_t tex, SpriteColor color, vec2d begin, vec2d e
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _render;
 
-	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
+	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	float len = (begin - end).len();
 	float phase1 = phase + len / lt.pxFrameWidth;
@@ -599,7 +601,7 @@ void RenderContext::DrawBackground(size_t tex, FRECT bounds) const
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _render;
-	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
+	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
 	v[0].color = color;
 	v[0].u = bounds.left / lt.pxFrameWidth;
 	v[0].v = bounds.top / lt.pxFrameHeight;

@@ -1,6 +1,7 @@
 #pragma once
 #include <plat/AppWindow.h>
 #include <ui/InputContext.h>
+#include <video/RenderBinding.h>
 
 namespace UI
 {

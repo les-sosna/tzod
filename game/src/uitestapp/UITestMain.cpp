@@ -41,8 +41,8 @@ try
 		768 // height
 	);
 
-	TextureManager textureManager(appWindow.GetRender());
-	textureManager.LoadPackage(appWindow.GetRender(), *fs, ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs));
+	TextureManager textureManager;
+	textureManager.LoadPackage(*fs, ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs));
 
 	auto desktop = std::make_shared<UITestDesktop>();
 
@@ -59,8 +59,6 @@ try
 		GlfwAppWindow::PollEvents(controller);
 		controller.TimeStep(timer.GetDt());
 	}
-
-	textureManager.UnloadAllTextures(appWindow.GetRender());
 
 	return 0;
 }

@@ -115,7 +115,10 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 	auto displayHeight = static_cast<unsigned int>(pxWindowSize.y);
 	render.Begin(displayWidth, displayHeight, DOFromDegrees(appWindow.GetDisplayRotation()));
 	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
-	RenderContext rc(_textureManager, render, displayWidth, displayHeight);
+
+	RenderBinding rb(render);  // FIXME: need to cache one per render/window
+	rb.Update(_textureManager);
+	RenderContext rc(_textureManager, rb, render, displayWidth, displayHeight);
 
 	UI::DataContext dataContext;
 	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, true /* enabled */, _inputContext.GetMainWindowActive());

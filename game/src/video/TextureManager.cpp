@@ -37,21 +37,17 @@ const unsigned char CheckerImage::_bytes[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TextureManager::TextureManager(IRender &render)
+TextureManager::TextureManager()
 {
-	CreateChecker(render);
+//	CreateChecker(render);
 }
 
 TextureManager::~TextureManager()
 {
-	assert(_devTextures.empty());
 }
 
-void TextureManager::UnloadAllTextures(IRender& render) noexcept
+void TextureManager::UnloadAllTextures() noexcept
 {
-	for (auto &t: _devTextures)
-		render.TexFree(t.id);
-	_devTextures.clear();
 	_mapName_to_Index.clear();
 	_logicalTextures.clear();
 }
@@ -61,7 +57,7 @@ static vec2d GetImageSize(const Image& image)
 	return vec2d{ (float)image.GetWidth(), (float)image.GetHeight() };
 }
 
-void TextureManager::CreateChecker(IRender& render)
+void TextureManager::CreateChecker()
 {
 	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
 	assert(_mapName_to_Index.empty());
@@ -134,7 +130,7 @@ static LogicalTexture LogicalTextureFromSpriteDefinition(const PackageSpriteDesc
 	return lt;
 }
 
-void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs)
+void TextureManager::LoadPackage(FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs)
 {
 	LoadedImages loadedImages;
 
@@ -153,7 +149,7 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 
 		if (item.wrappable)
 		{
-			CreateAtlas(render, loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter);
+			CreateAtlas(loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter);
 		}
 		else
 		{
@@ -164,8 +160,8 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 		}
 	}
 
-	CreateAtlas(render, loadedImages, std::move(magFilterOn), true);
-	CreateAtlas(render, loadedImages, std::move(magFilterOff), false);
+	CreateAtlas(loadedImages, std::move(magFilterOn), true);
+	CreateAtlas(loadedImages, std::move(magFilterOff), false);
 
 	// unload unused textures
 	for (auto it = _devTextures.begin(); _devTextures.end() != it; )
@@ -182,7 +178,7 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 	}
 }
 
-void TextureManager::CreateAtlas(IRender& render, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter)
+void TextureManager::CreateAtlas(const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter)
 {
 	if (packageSpriteDescs.empty())
 		return;
@@ -279,17 +275,17 @@ void TextureManager::CreateAtlas(IRender& render, const LoadedImages& loadedImag
 			if (emplaced.second)
 			{
 				// define new texture
-				currentLT = &_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second)), devTexIt).first;
+				currentLT = &_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second)), devTexIt);
 			}
 			else
 			{
 				// replace existing logical texture
 				auto& existing = _logicalTextures[emplaced.first->second];
 				assert(existing.second->refCount > 0);
-				existing.first = LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second));
+				existing = LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second));
 				existing.second->refCount--;
 				existing.second = devTexIt;
-				currentLT = &existing.first;
+				currentLT = &existing;
 			}
 		}
 		assert(loadedImages.end() != spriteSourceImageIt);
