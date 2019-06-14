@@ -65,7 +65,7 @@ try
 		768 //app.GetShellConfig().r_height.GetInt()
 	);
 
-	TzodView view(*fs, s_logger, app, appWindow);
+	TzodView view(*fs, s_logger, app, appWindow.CmdClose());
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();

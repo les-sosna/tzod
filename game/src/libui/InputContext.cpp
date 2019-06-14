@@ -39,18 +39,9 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
-InputContext::InputContext(Plat::Input &input)
-	: _input(input)
-	, _isAppActive(true)
-#ifndef NDEBUG
-	, _lastPointerLocation()
-#endif
+void InputContext::ReadInput(Plat::Input& input)
 {
-}
-
-void InputContext::ReadInput()
-{
-	_pointerState = _input.GetPointerState(0);
+	_pointerState = input.GetPointerState(0);
 }
 
 TextSink* InputContext::GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)

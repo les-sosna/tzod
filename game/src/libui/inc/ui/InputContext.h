@@ -35,9 +35,7 @@ enum class TextOperation
 class InputContext
 {
 public:
-	explicit InputContext(Plat::Input &input);
-
-	void ReadInput();
+	void ReadInput(Plat::Input& input);
 
 	bool ProcessPointer(
 		TextureManager &texman,
@@ -74,7 +72,6 @@ public:
 		const LayoutContext &lc,
 		const DataContext &dc);
 
-	Plat::Input& GetInput() const { return _input; }
 	TextSink* GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
 	Plat::PointerType GetPointerType(unsigned int index) const;
@@ -95,8 +92,6 @@ public:
 private:
 	bool ProcessScroll(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, vec2d pxPointerPosition, vec2d offset, bool precise);
 
-	Plat::Input &_input;
-
 	Plat::PointerState _pointerState = {};
 
 	float _lastKeyTime = 0;
@@ -110,7 +105,7 @@ private:
 	std::unordered_map<unsigned int, PointerCapture> _pointerCaptures;
 	std::unordered_map<Navigate, std::weak_ptr<Window>> _navigationSubjects;
 
-	bool _isAppActive;
+	bool _isAppActive = true;
 #ifndef NDEBUG
 	std::unordered_map<unsigned int, vec2d> _lastPointerLocation;
 #endif

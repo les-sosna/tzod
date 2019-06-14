@@ -24,12 +24,10 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 	return false;
 }
 
-UIInputRenderingController::UIInputRenderingController(Plat::Input& input,
-                                                       TextureManager &textureManager,
+UIInputRenderingController::UIInputRenderingController(TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)
-	: _inputContext(input)
-	, _textureManager(textureManager)
+	: _textureManager(textureManager)
 	, _timeStepManager(timeStepManager)
 	, _desktop(desktop)
 {
@@ -39,9 +37,9 @@ UIInputRenderingController::~UIInputRenderingController()
 {
 }
 
-void UIInputRenderingController::TimeStep(float dt)
+void UIInputRenderingController::TimeStep(Plat::AppWindow& appWindow, float dt)
 {
-	_inputContext.ReadInput();
+	_inputContext.ReadInput(appWindow.GetInput());
 	_timeStepManager.TimeStep(_desktop, _inputContext, dt);
 }
 
@@ -161,10 +159,9 @@ bool UIInputRenderingController::HandleClipboardShortcuts(Plat::AppWindow& appWi
 {
 	if (action == Plat::Msg::KeyPressed)
 	{
-		bool shift = _inputContext.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
-			_inputContext.GetInput().IsKeyPressed(Plat::Key::RightShift);
-		bool control = _inputContext.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) ||
-			_inputContext.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
+		auto& input = appWindow.GetInput();
+		bool shift = input.IsKeyPressed(Plat::Key::LeftShift) || input.IsKeyPressed(Plat::Key::RightShift);
+		bool control = input.IsKeyPressed(Plat::Key::LeftCtrl) || input.IsKeyPressed(Plat::Key::RightCtrl);
 
 		switch (key)
 		{
