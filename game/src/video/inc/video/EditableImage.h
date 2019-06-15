@@ -1,12 +1,15 @@
 #pragma once
 #include "RenderBase.h"
 #include <vector>
+#include <cstdint>
 
-class TgaImage final
+class EditableImage final
 	: public Image
 {
 public:
-	TgaImage(const void *data, unsigned long size);
+	EditableImage(unsigned int width, unsigned int height);
+
+	void Blit(RectRB dstRect, int dstGutters, int sourceX, int sourceY, const Image& source);
 
 	// Image
 	const void* GetData() const override;
@@ -15,8 +18,8 @@ public:
 	unsigned int GetHeight() const override;
 
 private:
-	unsigned int _height;
-	unsigned int _width;
-	unsigned int _bpp;
-	std::vector<char> _data;
+	int _height;
+	int _width;
+	std::vector<uint32_t> _pixels;
 };
+

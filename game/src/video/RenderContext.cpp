@@ -380,12 +380,12 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 			count = 0;
 		}
 
-		if( (unsigned char) *tmp < 32 )
+		if( (unsigned char) *tmp < lt.leadChar )
 		{
 			continue;
 		}
 
-		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - 32];
+		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - lt.leadChar];
 		float x = x0 + (float) ((count++) * pxAdvance);
 		float y = y0 + (float) (line * pxCharSize.y);
 
