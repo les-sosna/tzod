@@ -30,6 +30,8 @@ public:
 	explicit TextureManager(IRender &render);
 	~TextureManager();
 
+	IRender& _RenderHack;
+
 	void LoadPackage(IRender& render, FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs);
 	void UnloadAllTextures(IRender& render) noexcept;
 
