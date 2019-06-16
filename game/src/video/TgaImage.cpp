@@ -1,21 +1,28 @@
-#include "inc/video/ImageLoader.h"
+#include "inc/video/TgaImage.h"
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <stdexcept>
 
-TgaImage::TgaImage(const void *data, unsigned long size)
-{
-	static const unsigned char signatureU[12] = {0,0,2, 0,0,0,0,0,0,0,0,0}; // Uncompressed
-	static const unsigned char signatureC[12] = {0,0,10,0,0,0,0,0,0,0,0,0}; // Compressed
+static const uint8_t signatureU[12] = { 0,0,2, 0,0,0,0,0,0,0,0,0 }; // Uncompressed
+static const uint8_t signatureC[12] = { 0,0,10,0,0,0,0,0,0,0,0,0 }; // Compressed
 
+namespace
+{
 	struct Header
 	{
-		unsigned char signature[12];
-		unsigned char header[6]; // First 6 useful bytes from the header
-		unsigned char data[1];
+		uint8_t signature[12];
+		uint16_t width;
+		uint16_t height;
+		uint8_t bpp;
+		uint8_t descriptor;
+		uint8_t data[1];
 	};
+}
 
+TgaImage::TgaImage(const void *data, unsigned long size)
+{
 	if( size < sizeof(Header) )
 	{
 		throw std::runtime_error("corrupted TGA image");
@@ -24,9 +31,9 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 	const Header &h = *(const Header *) data;
 	unsigned long dataSize = size - offsetof(Header, data);
 
-	_width  = h.header[1] * 256 + h.header[0];
-	_height = h.header[3] * 256 + h.header[2];
-	_bpp    = h.header[4];
+	_width  = h.width;
+	_height = h.height;
+	_bpp    = h.bpp;
 
 	if( _width <= 0 || _height <= 0 || (_bpp != 24 && _bpp != 32) )
 	{
@@ -56,7 +63,7 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 			{
 				throw std::runtime_error("corrupted TGA image");
 			}
-			const unsigned char chunkHeader = h.data[currentByte++];
+			const uint8_t chunkHeader = h.data[currentByte++];
 
 			if( chunkHeader < 128 )    // If the header is < 128, it means the that is the number
 			{                          // of RAW color packets minus 1 that follow the header
@@ -78,7 +85,7 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 				{
 					throw std::runtime_error("corrupted TGA image");
 				}
-				const unsigned char *colorBuffer = h.data + currentByte;
+				const uint8_t*colorBuffer = h.data + currentByte;
 				currentByte += bytesPerPixel;
 				for( int counter = 0; counter < pcount; ++counter )
 				{
@@ -139,3 +146,43 @@ unsigned int TgaImage::GetHeight() const
 {
 	return _height;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+unsigned int GetTgaByteSize(const Image& image)
+{
+	assert(image.GetBpp() == 32);
+	return offsetof(Header, data) + image.GetWidth() * image.GetHeight() * 4;
+}
+
+void WriteTga(const Image& image, void* dst, size_t bufferSize)
+{
+	if (bufferSize < GetTgaByteSize(image))
+	{
+		throw std::runtime_error("Insufficient buffer size");
+	}
+
+	auto &header = *reinterpret_cast<Header*>(dst);
+	memcpy(header.signature, signatureU, sizeof(signatureU));
+	header.width = image.GetWidth();
+	header.height = image.GetHeight();
+	header.bpp = image.GetBpp();
+	header.descriptor = 0;
+
+	// flip row order and swap red & blue channels
+	auto dstPixels = reinterpret_cast<uint32_t*>(header.data);
+	auto srcPixels = reinterpret_cast<const uint32_t*>(image.GetData());
+	auto width = image.GetWidth();
+	auto height = image.GetHeight();
+	for (unsigned int i = 0; i < height; ++i)
+	{
+		auto dstRow = dstPixels + i * width;
+		auto srcRow = srcPixels + (height - i - 1) * width;
+		for (unsigned int j = 0; j < width; ++j)
+		{
+			auto c = srcRow[j];
+			dstRow[j] = ((c & 0xff) << 16) | (c & 0xff00ff00) | ((c & 0xff0000) >> 16);
+		}
+	}
+}
+

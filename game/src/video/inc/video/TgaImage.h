@@ -20,3 +20,7 @@ private:
 	unsigned int _bpp;
 	std::vector<char> _data;
 };
+
+unsigned int GetTgaByteSize(const Image& image);
+void WriteTga(const Image& image, void *dst, size_t bufferSize);
+

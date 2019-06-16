@@ -1,6 +1,6 @@
 #include "inc/video/TextureManager.h"
 #include "inc/video/RenderBase.h"
-#include "inc/video/ImageLoader.h"
+#include "inc/video/TgaImage.h"
 #include "inc/video/EditableImage.h"
 #include "AtlasPacker.h"
 
@@ -154,7 +154,7 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 
 		if (item.wrappable)
 		{
-			CreateAtlas(render, loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter);
+			CreateAtlas(render, fs, loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter);
 		}
 		else
 		{
@@ -165,8 +165,8 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 		}
 	}
 
-	CreateAtlas(render, loadedImages, std::move(magFilterOn), true);
-	CreateAtlas(render, loadedImages, std::move(magFilterOff), false);
+	CreateAtlas(render, fs, loadedImages, std::move(magFilterOn), true);
+	CreateAtlas(render, fs, loadedImages, std::move(magFilterOff), false);
 
 	// unload unused textures
 	for (auto it = _devTextures.begin(); _devTextures.end() != it; )
@@ -183,7 +183,7 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 	}
 }
 
-void TextureManager::CreateAtlas(IRender& render, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter)
+void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter)
 {
 	if (packageSpriteDescs.empty())
 		return;
@@ -271,7 +271,16 @@ void TextureManager::CreateAtlas(IRender& render, const LoadedImages& loadedImag
 
 	for (auto& atlasFrame : atlasFrames)
 	{
+		auto texOuterFrameNoGutters = RectRB
+		{
+			atlasFrame.dstX + gutters,
+			atlasFrame.dstY + gutters,
+			atlasFrame.dstX + atlasFrame.width - gutters,
+			atlasFrame.dstY + atlasFrame.height - gutters
+		};
+
 		auto& psd = packageSpriteDescs[spriteIndex];
+		auto numFrames = psd.xframes * psd.yframes;
 		if (frameIndex == 0)
 		{
 			spriteSourceImageIt = loadedImages.find(psd.textureFilePath);
@@ -292,24 +301,34 @@ void TextureManager::CreateAtlas(IRender& render, const LoadedImages& loadedImag
 				existing.second = devTexIt;
 				currentLT = &existing.first;
 			}
+#if 0
+			// export sprites
+			EditableImage exportedImage(WIDTH(texOuterFrameNoGutters) * psd.xframes, HEIGHT(texOuterFrameNoGutters) * psd.yframes);
+			for (int y = 0; y < psd.yframes; y++)
+			{
+				for (int x = 0; x < psd.xframes; x++)
+				{
+					RectRB dstRect = { WIDTH(texOuterFrameNoGutters) * x, HEIGHT(texOuterFrameNoGutters) * y,
+						WIDTH(texOuterFrameNoGutters) * (x + 1), HEIGHT(texOuterFrameNoGutters) * (y + 1) };
+					exportedImage.Blit(dstRect, 0, (x + y * psd.xframes)[&atlasFrame].srcX, (x + y * psd.xframes)[&atlasFrame].srcY, spriteSourceImageIt->second);
+				}
+			}
+			std::vector<uint8_t> buffer(GetTgaByteSize(exportedImage));
+			WriteTga(exportedImage, buffer.data(), buffer.size());
+			std::string exportedFilename = psd.spriteName + ".tga";
+			std::replace(exportedFilename.begin(), exportedFilename.end(), '/', '_');
+			fs.GetFileSystem("export", true)->Open(exportedFilename, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
+#endif
 		}
 		assert(loadedImages.end() != spriteSourceImageIt);
 
-		auto texOuterFrameNoGutters = RectRB
-		{
-			atlasFrame.dstX + gutters,
-			atlasFrame.dstY + gutters,
-			atlasFrame.dstX + atlasFrame.width - gutters,
-			atlasFrame.dstY + atlasFrame.height - gutters
-		};
 		atlasImage.Blit(texOuterFrameNoGutters, gutters, atlasFrame.srcX, atlasFrame.srcY, spriteSourceImageIt->second);
 
 		// replace uv frame
-		float border = packageSpriteDescs[spriteIndex].border;
-		currentLT->uvFrames[frameIndex] = MakeInnerFrameUV(texOuterFrameNoGutters, vec2d{ border, border }, atlasSize);
+		currentLT->uvFrames[frameIndex] = MakeInnerFrameUV(texOuterFrameNoGutters, vec2d{ psd.border, psd.border }, atlasSize);
 
 		++frameIndex;
-		if (frameIndex == psd.xframes * psd.yframes)
+		if (frameIndex == numFrames)
 		{
 			frameIndex = 0;
 			++spriteIndex;
