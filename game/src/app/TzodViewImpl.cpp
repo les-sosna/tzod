@@ -14,10 +14,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer
 	TextureManager textureManager(render);
 	try
 	{
-		auto skins = ParseDirectory(fs, DIR_SKINS, "skin/");
-		auto textures = ParsePackage(FILE_TEXTURES, fs.Open(FILE_TEXTURES)->QueryMap(), fs);
-		textures.insert(textures.end(), std::make_move_iterator(skins.begin()), std::make_move_iterator(skins.end()));
-		textureManager.LoadPackage(render, fs, textures);
+		textureManager.LoadPackage(render, fs, ParseDirectory(fs, DIR_SPRITES));
 	}
 	catch(...)
 	{

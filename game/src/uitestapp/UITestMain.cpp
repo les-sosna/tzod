@@ -15,8 +15,6 @@ using FileSystem = FS::FileSystemPosix;
 #include <string>
 #include <iostream>
 
-#define FILE_TEXTURES "scripts/textures.lua"
-
 static void print_what(const std::exception &e, std::string prefix);
 
 #ifdef _WIN32
@@ -42,7 +40,7 @@ try
 	);
 
 	TextureManager textureManager(appWindow.GetRender());
-	textureManager.LoadPackage(appWindow.GetRender(), *fs, ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs));
+	textureManager.LoadPackage(appWindow.GetRender(), *fs, ParseDirectory(*fs, "sprites"));
 
 	auto desktop = std::make_shared<UITestDesktop>();
 
