@@ -9,6 +9,7 @@
 #include <fs/FileSystem.h>
 
 #include <cstring>
+#include <sstream>
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -318,6 +319,35 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 			std::string exportedFilename = psd.spriteName + ".tga";
 			std::replace(exportedFilename.begin(), exportedFilename.end(), '/', '_');
 			fs.GetFileSystem("export", true)->Open(exportedFilename, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
+
+			std::ostringstream metadata;
+			if (psd.border != 0)
+				metadata << "border = " << psd.border << std::endl;
+			if (psd.hasPivotX) // todo: check not center
+				metadata << "xpivot = " << psd.pivot.x << std::endl;
+			if (psd.hasPivotY)
+				metadata << "ypivot = " << psd.pivot.y << std::endl;
+			if (psd.xframes != 1)
+				metadata << "xframes = " << psd.xframes << std::endl;
+			if (psd.yframes != 1)
+				metadata << "yframes = " << psd.yframes << std::endl;
+			if (psd.scale.x != 1)
+				metadata << "xscale = " << psd.scale.x << std::endl;
+			if (psd.scale.y != 1)
+				metadata << "yscale = " << psd.scale.y << std::endl;
+			if (psd.magFilter)
+				metadata << "magfilter = true" << std::endl;
+			if (psd.wrappable)
+				metadata << "wrappable = true" << std::endl;
+			if (psd.leadChar != ' ')
+				metadata << "leadchar = '" << (char)psd.leadChar << "'" << std::endl;
+			auto strbuf = metadata.str();
+			if (!strbuf.empty())
+			{
+				std::string exportedFilename = psd.spriteName + ".lua";
+				std::replace(exportedFilename.begin(), exportedFilename.end(), '/', '_');
+				fs.GetFileSystem("export", true)->Open(exportedFilename, FS::FileMode::ModeWrite)->QueryStream()->Write(strbuf.data(), strbuf.size());
+			}
 #endif
 		}
 		assert(loadedImages.end() != spriteSourceImageIt);

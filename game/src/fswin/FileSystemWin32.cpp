@@ -44,34 +44,31 @@ static std::string StrFromErr(DWORD dwMessageId)
 	}
 }
 
-FileWin32::FileWin32(std::wstring fileName, FileMode mode)
-	: _mode(mode)
-	, _mapped(false)
-	, _streamed(false)
+static AutoHandle OpenFileWin32(std::wstring fileName, FileMode mode)
 {
-	assert(_mode);
+	AutoHandle file;
 
 	std::replace(fileName.begin(), fileName.end(), L'/', L'\\');
 
 	DWORD dwDesiredAccess = 0;
 	DWORD dwShareMode = FILE_SHARE_READ;
-	DWORD dwCreationDisposition;
+	DWORD dwCreationDisposition = 0;
 
-	if( _mode & ModeWrite )
+	assert(mode);
+	if (mode & ModeWrite)
 	{
 		dwDesiredAccess |= FILE_WRITE_DATA;
 		dwShareMode = 0;
 		dwCreationDisposition = CREATE_ALWAYS;
 	}
-
-	if( _mode & ModeRead )
+	if (mode & ModeRead)
 	{
 		dwDesiredAccess |= FILE_READ_DATA;
-		dwCreationDisposition = (_mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
+		dwCreationDisposition = (mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
 	}
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-	_file.h = ::CreateFileW(fileName.c_str(),
+	file.h = ::CreateFileW(fileName.c_str(),
 		dwDesiredAccess,
 		dwShareMode,
 		nullptr,                        // lpSecurityAttributes
@@ -86,10 +83,17 @@ FileWin32::FileWin32(std::wstring fileName, FileMode mode)
 		nullptr);
 #endif
 
-	if (INVALID_HANDLE_VALUE == _file.h)
-	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
-	}
+	return file;
+}
+
+FileWin32::FileWin32(AutoHandle file, FileMode mode)
+	: _mode(mode)
+	, _file(std::move(file))
+	, _mapped(false)
+	, _streamed(false)
+{
+	assert(_mode);
+	assert(INVALID_HANDLE_VALUE != _file.h);
 }
 
 FileWin32::~FileWin32()
@@ -385,10 +389,18 @@ std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 	return files;
 }
 
-std::shared_ptr<File> FileSystemWin32::RawOpen(std::string_view fileName, FileMode mode)
+std::shared_ptr<File> FileSystemWin32::RawOpen(std::string_view fileName, FileMode mode, bool nothrow)
 {
 	// combine with the root path
-	return std::make_shared<FileWin32>(WinPathCombine(_rootDirectory, fileName), mode);
+	auto file = OpenFileWin32(WinPathCombine(_rootDirectory, fileName), mode);
+	if (INVALID_HANDLE_VALUE == file.h)
+	{
+		if (nothrow)
+			return nullptr;
+		else
+			throw std::runtime_error(StrFromErr(GetLastError()));
+	}
+	return std::make_shared<FileWin32>(std::move(file), mode);
 }
 
 std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(std::string_view path, bool create, bool nothrow)

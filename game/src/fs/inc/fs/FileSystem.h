@@ -40,13 +40,13 @@ class FileSystem
 public:
 	virtual std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false);
 	virtual std::vector<std::string> EnumAllFiles(std::string_view mask);
-	std::shared_ptr<File> Open(std::string_view path, FileMode mode = ModeRead);
+	std::shared_ptr<File> Open(std::string_view path, FileMode mode = ModeRead, bool nothrow = false);
 	void Mount(std::string_view nodeName, std::shared_ptr<FileSystem> fs);
 
 private:
 	std::map<std::string, std::shared_ptr<FileSystem>, std::less<>> _children;
 	// open a file that strictly belongs to this file system
-	virtual std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) = 0;
+	virtual std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode, bool nothrow) = 0;
 };
 
 } // namespace FS

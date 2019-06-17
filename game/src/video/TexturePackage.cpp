@@ -150,25 +150,53 @@ std::vector<PackageSpriteDesc> ParsePackage(const std::string& packageName, std:
 	return result;
 }
 
+static bool TryReadMetadata(std::shared_ptr<FS::FileSystem> dir, std::string fileName, PackageSpriteDesc &result)
+{
+	auto file = dir->Open(fileName, FS::ModeRead, true /*nothrow*/);
+	if (!file)
+		return false;
+	auto mappedFile = file->QueryMap();
+
+	std::unique_ptr<lua_State, LuaStateDeleter> luaState(lua_open());
+	if (!luaState)
+		throw std::bad_alloc();
+	lua_State* L = luaState.get();
+
+	if (0 != (luaL_loadbuffer(L, static_cast<const char*>(mappedFile->GetData()), mappedFile->GetSize(), fileName.c_str()) ||
+		lua_pcall(L, 0, 1, 0)))
+	{
+		std::runtime_error e(lua_tostring(L, -1));
+		lua_close(L);
+		throw e;
+	}
+
+	getspritedef(L, LUA_GLOBALSINDEX, &result);
+
+	return true;
+}
+
 std::vector<PackageSpriteDesc> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs, bool magFilter)
 {
 	std::vector<PackageSpriteDesc> result;
 
 	std::shared_ptr<FS::FileSystem> dir = fs.GetFileSystem(dirName);
 	auto files = dir->EnumAllFiles("*.tga");
-	for (auto it = files.begin(); it != files.end(); ++it)
+	for (auto fileName: files)
 	{
-		std::string texName = texPrefix + *it;
-		texName.erase(texName.length() - 4); // cut out the file extension
+		auto fileNameNoExt = fileName;
+		fileNameNoExt.erase(fileNameNoExt.length() - 4); // remove .tga extension
 
 		PackageSpriteDesc sd = {};
-		sd.textureFilePath = dirName + '/' + *it;
-		sd.spriteName = std::move(texName);
-		sd.scale = vec2d{ 1, 1 };
-		sd.xframes = 1;
-		sd.yframes = 1;
-		sd.magFilter = magFilter;
-
+		if (!TryReadMetadata(dir, fileNameNoExt + ".lua", sd))
+		{
+			sd.scale = vec2d{ 1, 1 };
+			sd.xframes = 1;
+			sd.yframes = 1;
+			sd.magFilter = magFilter;
+			sd.leadChar = ' ';
+		}
+		sd.textureFilePath = dirName + '/' + fileName;
+		sd.spriteName = texPrefix + fileNameNoExt;
 		result.push_back(std::move(sd));
 	}
 

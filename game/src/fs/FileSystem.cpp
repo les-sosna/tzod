@@ -10,14 +10,15 @@ void FileSystem::Mount(std::string_view nodeName, std::shared_ptr<FileSystem> fs
 	_children.emplace(nodeName, fs);
 }
 
-std::shared_ptr<FS::File> FileSystem::Open(std::string_view path, FileMode mode)
+std::shared_ptr<FS::File> FileSystem::Open(std::string_view path, FileMode mode, bool nothrow)
 {
 	auto pd = path.rfind('/');
 	if( pd && std::string::npos != pd ) // was a path delimiter found?
 	{
-		return GetFileSystem(path.substr(0, pd))->RawOpen(path.substr(pd + 1), mode);
+		auto fs = GetFileSystem(path.substr(0, pd), false, nothrow);
+		return fs ? fs->RawOpen(path.substr(pd + 1), mode, nothrow) : nullptr;
 	}
-	return RawOpen(path, mode);
+	return RawOpen(path, mode, nothrow);
 }
 
 std::vector<std::string> FileSystem::EnumAllFiles(std::string_view mask)
