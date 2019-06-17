@@ -292,7 +292,7 @@ return {
 {
    file="textures/gui/line.tga",
    content={
-     dotted_line={},
+     dotted_line={wrappable=true},
    }
 },
 --------------------------------------
