@@ -142,14 +142,6 @@ std::vector<std::string> FileSystemJni::EnumAllFiles(std::string_view mask)
 	return files;
 }
 
-static std::string PathCombine(std::string_view first, std::string_view second)
-{
-	std::string result;
-	result.reserve(first.size() + second.size() + 1);
-	result.append(first).append(1, '/').append(second);
-	return result;
-}
-
 std::shared_ptr<File> FileSystemJni::RawOpen(std::string_view fileName, FileMode mode)
 {
     assert(FileMode::ModeRead == mode);

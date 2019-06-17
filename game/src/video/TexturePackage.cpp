@@ -175,11 +175,32 @@ static bool TryReadMetadata(std::shared_ptr<FS::FileSystem> dir, std::string fil
 	return true;
 }
 
-std::vector<PackageSpriteDesc> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs, bool magFilter)
+std::vector<PackageSpriteDesc> ParseDirectory(FS::FileSystem& fs, std::string_view dirName, std::string_view texPrefix)
 {
 	std::vector<PackageSpriteDesc> result;
 
 	std::shared_ptr<FS::FileSystem> dir = fs.GetFileSystem(dirName);
+
+	if (auto dirsFile = dir->Open("!dirs", FS::ModeRead, true /*nothrow*/))
+	{
+		auto mappedFile = dirsFile->QueryMap();
+		auto stringView = std::string_view(reinterpret_cast<const char*>(mappedFile->GetData()), mappedFile->GetSize());
+		auto constexpr delimiters = "\n\r";
+		auto lineBegin = stringView.find_first_not_of(delimiters);
+		while (lineBegin != std::string_view::npos)
+		{
+			auto lineEnd = stringView.find_first_of(delimiters, lineBegin);
+			if (lineEnd == std::string_view::npos)
+				lineEnd = stringView.length();
+
+			auto subdirName = stringView.substr(lineBegin, lineEnd - lineBegin);
+			auto subdirContents = ParseDirectory(fs, FS::PathCombine(dirName, subdirName), std::string(texPrefix).append(subdirName).append("/"));
+			result.insert(result.end(), subdirContents.begin(), subdirContents.end());
+
+			lineBegin = stringView.find_first_not_of(delimiters, lineEnd);
+		}
+	}
+
 	auto files = dir->EnumAllFiles("*.tga");
 	for (auto fileName: files)
 	{
@@ -192,11 +213,10 @@ std::vector<PackageSpriteDesc> ParseDirectory(const std::string& dirName, const 
 			sd.scale = vec2d{ 1, 1 };
 			sd.xframes = 1;
 			sd.yframes = 1;
-			sd.magFilter = magFilter;
 			sd.leadChar = ' ';
 		}
-		sd.textureFilePath = dirName + '/' + fileName;
-		sd.spriteName = texPrefix + fileNameNoExt;
+		sd.textureFilePath = FS::PathCombine(dirName, fileName);
+		sd.spriteName = std::string(texPrefix).append(fileNameNoExt);
 		result.push_back(std::move(sd));
 	}
 

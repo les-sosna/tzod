@@ -52,3 +52,11 @@ std::shared_ptr<FS::FileSystem> FileSystem::GetFileSystem(std::string_view path,
 
 	return it->second;
 }
+
+std::string FS::PathCombine(std::string_view first, std::string_view second)
+{
+	std::string result;
+	result.reserve(first.size() + second.size() + 1);
+	result.append(first).append(1, '/').append(second);
+	return result;
+}

@@ -37,4 +37,4 @@ struct PackageSpriteDesc
 };
 
 std::vector<PackageSpriteDesc> ParsePackage(const std::string& packageName, std::shared_ptr<FS::MemMap> file, FS::FileSystem& fs);
-std::vector<PackageSpriteDesc> ParseDirectory(const std::string& dirName, const std::string& texPrefix, FS::FileSystem& fs, bool magFilter);
+std::vector<PackageSpriteDesc> ParseDirectory(FS::FileSystem& fs, std::string_view dirName, std::string_view texPrefix = {});

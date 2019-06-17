@@ -49,4 +49,6 @@ private:
 	virtual std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode, bool nothrow) = 0;
 };
 
+std::string PathCombine(std::string_view first, std::string_view second);
+
 } // namespace FS
