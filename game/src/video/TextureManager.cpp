@@ -316,9 +316,13 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 			}
 			std::vector<uint8_t> buffer(GetTgaByteSize(exportedImage));
 			WriteTga(exportedImage, buffer.data(), buffer.size());
-			std::string exportedFilename = psd.spriteName + ".tga";
-			std::replace(exportedFilename.begin(), exportedFilename.end(), '/', '_');
-			fs.GetFileSystem("export", true)->Open(exportedFilename, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
+			std::string exportedPath = std::string("export/") + psd.spriteName + ".tga";
+
+			auto pd = exportedPath.rfind('/');
+			auto exportedDirName = exportedPath.substr(0, pd);
+			auto exportedFileName = exportedPath.substr(pd + 1);
+			auto dir = fs.GetFileSystem(exportedDirName, true /*create*/);
+			dir->Open(exportedFileName, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
 
 			std::ostringstream metadata;
 			if (psd.border != 0)
@@ -344,9 +348,9 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 			auto strbuf = metadata.str();
 			if (!strbuf.empty())
 			{
-				std::string exportedFilename = psd.spriteName + ".lua";
-				std::replace(exportedFilename.begin(), exportedFilename.end(), '/', '_');
-				fs.GetFileSystem("export", true)->Open(exportedFilename, FS::FileMode::ModeWrite)->QueryStream()->Write(strbuf.data(), strbuf.size());
+				auto exportedFileNameNoExt = exportedFileName;
+				exportedFileNameNoExt.erase(exportedFileNameNoExt.size() - 4);
+				dir->Open(exportedFileNameNoExt + ".lua", FS::FileMode::ModeWrite)->QueryStream()->Write(strbuf.data(), strbuf.size());
 			}
 #endif
 		}
