@@ -13,6 +13,9 @@
 
 bool IsTierComplete(AppConfig &appConfig, const DMCampaign &dmCampaign, int tierIndex)
 {
+	if (tierIndex >= appConfig.sp_tiersprogress.GetSize())
+		return false;
+
 	bool result = true;
 	ConfVarArray &tierProgress = appConfig.sp_tiersprogress.GetArray(tierIndex);
 
