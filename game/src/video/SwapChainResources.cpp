@@ -30,7 +30,7 @@ HRESULT SwapChainResources::SetPixelSize(ID3D11Device *device, ID3D11DeviceConte
 		m_pixelSize = pixelSize;
 		if (m_rotationAngle != -1)
 		{
-			ReturnIfFailed(ResizeSwapChain(device, deviceContext, m_pixelSize, m_rotationAngle));
+			ReturnIfFailed(ResizeSwapChainInternal(device, deviceContext, m_pixelSize, m_rotationAngle));
 		}
 	}
 	return S_OK;
@@ -44,7 +44,7 @@ HRESULT SwapChainResources::SetCurrentOrientation(ID3D11Device *device, ID3D11De
 		m_rotationAngle = rotationAngle;
 		if (!m_pixelSize.IsZero())
 		{
-			ReturnIfFailed(ResizeSwapChain(device, deviceContext, m_pixelSize, m_rotationAngle));
+			ReturnIfFailed(ResizeSwapChainInternal(device, deviceContext, m_pixelSize, m_rotationAngle));
 		}
 	}
 	return S_OK;
@@ -62,7 +62,7 @@ static DXGI_MODE_ROTATION AsDXGIModeRotation(int rotationAngle)
 	}
 }
 
-HRESULT SwapChainResources::ResizeSwapChain(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, vec2d pixelSize, int rotationAngle)
+HRESULT SwapChainResources::ResizeSwapChainInternal(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, vec2d pixelSize, int rotationAngle)
 {
 	assert(m_swapChain != nullptr);
 

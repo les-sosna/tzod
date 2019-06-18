@@ -19,7 +19,6 @@ class GC_Wall : public GC_RigidBodyStatic
 {
 	DECLARE_GRID_MEMBER();
 	DECLARE_SELF_REGISTRATION(GC_Wall);
-    typedef GC_RigidBodyStatic base;
 
 public:
 	explicit GC_Wall(vec2d pos);
@@ -36,7 +35,7 @@ public:
 	bool IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection, vec2d &outEnterNormal, float &outEnter, float &outExit) const override;
 	bool IntersectWithRect(const vec2d &rectHalfSize, const vec2d &rectCenter, const vec2d &rectDirection, vec2d &outWhere, vec2d &outNormal, float &outDepth) const override;
 	float GetDefaultHealth() const override { return 50; }
-	unsigned char GetPassability() const override { return 1; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 
 	// GC_Object
 	void Init(World &world) override;
@@ -72,7 +71,7 @@ public:
 	GC_Wall_Concrete(vec2d pos);
 	GC_Wall_Concrete(FromFile) : GC_Wall(FromFile()) {}
 
-	unsigned char GetPassability() const override { return 0xFF; } // impassable
+	uint8_t GetObstacleFlags() const override { return 0x80; }
 
 protected:
 	void OnDamage(World &world, DamageDesc &dd) override;

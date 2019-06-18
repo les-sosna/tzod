@@ -21,15 +21,20 @@ class ScoreTable;
 class CampaignControls;
 
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
+}
+
+namespace UI
+{
 	class Rating;
+	class Rectangle;
 	class StackLayout;
 }
 
-class GameLayout
-	: public UI::Window
+class GameLayout final
+	: public UI::WindowContainer
 	, public UI::TimeStepping
 	, private UI::PointerSink
 	, private GameListener
@@ -41,24 +46,26 @@ public:
 	           WorldController &worldController,
 	           ShellConfig &conf,
 	           LangCache &lang,
-	           UI::ConsoleBuffer &logger,
+	           Plat::ConsoleBuffer &logger,
 	           CampaignControlCommands campaignControlCommands);
 	virtual ~GameLayout();
 
 	// Window
-	void OnTimeStep(const UI::InputContext &ic, float dt) override;
-	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
-	bool HasPointerSink() const override { return true; }
+	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	PointerSink* GetPointerSink() override { return this; }
-	std::shared_ptr<Window> GetFocus() const override;
+	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const UI::Window>& owner) const override;
+	const UI::Window* GetFocus() const override;
 
 private:
-	void OnChangeShowTime();
 	vec2d GetDragDirection() const;
 	unsigned int GetEffectiveDragCount() const;
+	float GetLastPlayerDieTime() const;
+	bool GetAllPlayerDead() const;
 
 	std::shared_ptr<MessageArea> _msg;
+	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::StackLayout> _scoreAndControls;
 	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<ScoreTable> _score;
@@ -78,10 +85,10 @@ private:
 	std::unordered_map<unsigned int, std::pair<vec2d, vec2d>> _activeDrags;
 
 	// UI::PointerSink
-	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
-	void OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
-	void OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
-	void OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
+	bool OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
+	void OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
+	void OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
+	void OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// GameListener
 	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;

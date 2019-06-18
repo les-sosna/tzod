@@ -3,18 +3,22 @@
 
 using namespace UI;
 
-LayoutContext::LayoutContext(float opacity, float scale, vec2d size, bool enabled)
-	: _size(size)
-	, _scale(scale)
+LayoutContext::LayoutContext(float opacity, float scale, vec2d pxOffset, vec2d pxSize, bool enabled, bool focused)
+	: _pxOffsetCombined(pxOffset)
+	, _pxSize(pxSize)
+	, _scaleCombined(scale)
 	, _opacityCombined(opacity)
-	, _enabled(enabled)
+	, _enabledCombined(enabled)
+	, _focusedCombined(focused)
 {
 }
 
-LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, vec2d size, const DataContext &childDC)
-	: _size(size)
-	, _scale(parentLC.GetScale())
-	, _opacityCombined(parentLC.GetOpacityCombined() * parentWindow.GetChildOpacity(childWindow))
-	, _enabled(parentLC.GetEnabledCombined() && childWindow.GetEnabled(childDC))
+LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const WindowLayout &childLayout)
+	: _pxOffsetCombined(parentLC.GetPixelOffsetCombined() + Offset(childLayout.rect))
+	, _pxSize(Size(childLayout.rect))
+	, _scaleCombined(parentLC.GetScaleCombined())
+	, _opacityCombined(parentLC.GetOpacityCombined() * childLayout.opacity)
+	, _enabledCombined(parentLC.GetEnabledCombined() && childLayout.enabled)
+	, _focusedCombined(parentLC.GetFocusedCombined() && (parentWindow.GetFocus() == &childWindow))
 {
 }

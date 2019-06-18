@@ -47,11 +47,20 @@ namespace Plat
 		bool DPadLeft : 1;
 	};
 
+	struct PointerState
+	{
+		PointerType type;
+		vec2d position;
+		bool pressed : 1;
+		bool button1 : 1;
+		bool button2 : 1;
+		bool button3 : 1;
+	};
+
 	struct Input
 	{
 		virtual bool IsKeyPressed(Key key) const = 0;
-		virtual bool IsMousePressed(int button) const = 0; // TODO: remove
-		virtual vec2d GetMousePos() const = 0; // TODO: remove
+		virtual PointerState GetPointerState(unsigned int index) const = 0;
 		virtual GamepadState GetGamepadState(unsigned int index) const = 0;
 		virtual bool GetSystemNavigationBackAvailable() const = 0;
 	};

@@ -17,7 +17,7 @@ static void InitProfiles(ConfVarTable &profiles)
 	arrows.key_tower_left.Set("8");
 	arrows.key_tower_center.Set("9");
 	arrows.key_tower_right.Set("0");
-	arrows.key_no_pickup.Set("Right Shift");
+	arrows.key_pickup.Set("Left Shift");
 	arrows.lights.Set(true);
 	arrows.aim_to_mouse.Set(false);
 	arrows.move_to_mouse.Set(false);
@@ -37,7 +37,7 @@ static void InitLobbyList(ConfVarArray &lobby_servers)
 /////////////////////////////////////////////
 // Utility access functions
 
-#include <as/AppConfig.h>
+#include <ctx/AppConfig.h>
 #include <algorithm>
 
 int GetCurrentTier(const ShellConfig &conf, const DMCampaign &dmCampaign)

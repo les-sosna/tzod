@@ -6,7 +6,7 @@
 #include <fs/FileSystem.h>
 #include <fs/StreamWrapper.h>
 #include <loc/Language.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
 #define FILE_CONFIG      "user/config.cfg"
 #define FILE_DMCAMPAIGN  "dmcampaign.cfg"
@@ -29,7 +29,7 @@ struct TzodAppImpl
 };
 
 template <class T>
-static void LoadConfigNoThrow(FS::FileSystem &fs, T &confRoot, UI::ConsoleBuffer &logger, const std::string &filename)
+static void LoadConfigNoThrow(FS::FileSystem &fs, T &confRoot, Plat::ConsoleBuffer &logger, const std::string &filename)
 try
 {
 	if (confRoot->Load(*fs.Open(filename)->QueryMap(), filename.c_str()))
@@ -46,7 +46,7 @@ catch (const std::exception &e)
 	logger.Printf(1, "Could not load config: %s", e.what());
 }
 
-TzodApp::TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *language)
+TzodApp::TzodApp(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, const char *language)
 	: _fs(fs)
 	, _logger(logger)
 	, _impl(new TzodAppImpl(fs))
@@ -100,20 +100,24 @@ DMCampaign& TzodApp::GetDMCampaign()
 
 void TzodApp::Step(float dt)
 {
-	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt);
+	bool configChanged = false;
+	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt, &configChanged);
+
+	if (configChanged)
+	{
+		SaveConfig();
+	}
 }
 
-void TzodApp::Exit()
+void TzodApp::SaveConfig()
+try
 {
-	try
-	{
-		auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
-		FS::OutStreamWrapper wrapper(*s);
-		_impl->combinedConfig->Save(wrapper);
-		_logger.Printf(0, "Config saved: " FILE_CONFIG);
-	}
-	catch(const std::exception &e)
-	{
-		_logger.Printf(0, "Failed to save config: %s", e.what());
-	}
+	auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
+	FS::OutStreamWrapper wrapper(*s);
+	_impl->combinedConfig->Save(wrapper);
+	_logger.Printf(0, "Config saved: " FILE_CONFIG);
+}
+catch (const std::exception& e)
+{
+	_logger.Printf(0, "Failed to save config: %s", e.what());
 }

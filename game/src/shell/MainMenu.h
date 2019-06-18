@@ -7,7 +7,7 @@ namespace FS
 	class FileSystem;
 }
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -22,14 +22,15 @@ struct MainMenuCommands
 	std::function<void()> exportMap;
 	std::function<void()> gameSettings;
 	std::function<void()> close;
+	std::function<void()> quitGame;
 };
 
-class MainMenuDlg : public UI::StackLayout
+class MainMenuDlg final
+	: public UI::StackLayout
 {
 public:
 	MainMenuDlg(LangCache &lang, MainMenuCommands commands);
 
 private:
-	LangCache &_lang;
 	MainMenuCommands _commands;
 };

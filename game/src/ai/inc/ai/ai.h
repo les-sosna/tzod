@@ -6,7 +6,7 @@
 
 struct VehicleState;
 struct AIWEAPSETTINGS;
-class GC_Actor;
+class GC_MovingObject;
 class GC_RigidBodyStatic;
 class GC_Pickup;
 class GC_Player;
@@ -23,11 +23,19 @@ typedef float AIPRIORITY;
 
 struct AIITEMINFO
 {
-	ObjPtr<GC_Actor> object;
+	ObjPtr<GC_MovingObject> object;
 	AIPRIORITY priority;
+	operator bool() const { return !!object; }
 };
 
-class AIController
+enum class AIDiffuculty
+{
+	Easy,
+	Medium,
+	Hard
+};
+
+class AIController final
 {
 public:
 	AIController();
@@ -39,8 +47,8 @@ public:
 	void OnRespawn(World &world, const GC_Vehicle &vehicle);
 	void OnDie();
 
-	void SetLevel(int level);
-	int  GetLevel() const { return _difficulty; }
+	void SetDifficulty(AIDiffuculty diffuculty);
+	AIDiffuculty GetDiffuculty() const { return _difficulty; }
 
 	bool March(World &world, const GC_Vehicle &vehicle, float x, float y);
 	bool Attack(World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target);
@@ -77,9 +85,9 @@ private:
 	bool GetActive() const { return _isActive; }
 
 	bool IsTargetVisible(const World &world, const GC_Vehicle &vehicle, GC_RigidBodyStatic *target, GC_RigidBodyStatic** ppObstacle = nullptr);
-	AIPRIORITY GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target);
+	AIPRIORITY GetTargetRank(const GC_Vehicle &vehicle, GC_Vehicle &target);
 
-	bool FindTarget(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);   // return true if a target was found
+	AIITEMINFO FindTarget(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws);
 	bool FindItem(World &world, const GC_Vehicle &vehicle, AIITEMINFO &info, const AIWEAPSETTINGS *ws);     // return true if something was found
 
 	void SelectFavoriteWeapon(World &world);
@@ -97,6 +105,6 @@ private:
 	ObjPtr<GC_RigidBodyStatic> _target;  // current target
 
 	ObjectType _favoriteWeaponType;
-	int _difficulty;
+	AIDiffuculty _difficulty;
 	bool _isActive;
 };

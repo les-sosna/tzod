@@ -202,7 +202,7 @@ void script_exec(lua_State *L, std::string_view string, const char *name)
 void script_exec_file(lua_State *L, FS::FileSystem &fs, const char *filename)
 {
 	std::shared_ptr<FS::MemMap> f = fs.Open(filename)->QueryMap();
-	if( luaL_loadbuffer(L, f->GetData(), f->GetSize(), filename) )
+	if( luaL_loadbuffer(L, static_cast<const char *>(f->GetData()), f->GetSize(), filename) )
 	{
 		std::string msg(lua_tostring(L, -1));
 		lua_pop(L, 1); // pop error message

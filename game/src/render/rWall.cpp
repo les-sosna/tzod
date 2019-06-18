@@ -15,10 +15,10 @@ R_Wall::R_Wall(TextureManager &tm, const char *tex)
 	_texId[LB] = tm.FindSprite(std::string(tex) + "_lb");
 }
 
-void R_Wall::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Wall::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Wall*>(&actor));
-	auto &wall = static_cast<const GC_Wall&>(actor);
+	assert(dynamic_cast<const GC_Wall*>(&mo));
+	auto &wall = static_cast<const GC_Wall&>(mo);
 	vec2d pos = wall.GetPos();
 	vec2d dir = wall.GetDirection();
 	unsigned int corner = wall.GetCorner();

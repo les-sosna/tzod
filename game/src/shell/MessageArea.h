@@ -4,24 +4,24 @@
 #include <string>
 #include <deque>
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
 
-class MessageArea
+class MessageArea final
 	: public UI::Window
 	, private UI::TimeStepping
 {
 public:
-	MessageArea(UI::TimeStepManager &manager, UI::ConsoleBuffer &logger);
+	MessageArea(UI::TimeStepManager &manager, Plat::ConsoleBuffer &logger);
 
 	void WriteLine(std::string text);
 	void Clear();
 
 	// UI::Window
-	void OnTimeStep(const UI::InputContext &ic, float dt) override;
-	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 
 private:
 	struct Line
@@ -32,5 +32,5 @@ private:
 	typedef std::deque<Line> LineList;
 	LineList _lines;
 	UI::Texture _font = "font_small";
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 };

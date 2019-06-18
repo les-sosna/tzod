@@ -22,7 +22,7 @@ FpsCounter::FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppSta
 	SetAlign(align);
 }
 
-void FpsCounter::OnTimeStep(const UI::InputContext &ic, float dt)
+void FpsCounter::OnTimeStep(Plat::Input &input, bool focused, float dt)
 {
 	_totalTime += dt;
 	_minDt = std::min(_minDt, dt);
@@ -39,8 +39,9 @@ void FpsCounter::OnTimeStep(const UI::InputContext &ic, float dt)
 		if (GameContextBase *gc = _appState.GetGameContext().get())
 		{
 			s << std::setfill(' ');
-			s << "; obj:" << gc->GetWorld().GetList(LIST_objects).size() << '\n';
-			s << std::setw(4) << gc->GetWorld().GetList(LIST_timestep).size() << "timestep";
+			s << " objects:" << gc->GetWorld().GetList(LIST_objects).size();
+			s << "\ntimestep:" << std::setw(6) << std::left << gc->GetWorld().GetList(LIST_timestep).size();
+			s << " timeout:" << gc->GetWorld().GetResumableCount();
 
 #ifndef NDEBUG
 			s << " " << std::setw(4) << gc->GetWorld()._garbage.size() << "garbage";
@@ -201,9 +202,9 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
+	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
 
 	float pxLabelOffset = UI::ToPx(texman.GetCharHeight(_titleFont.GetTextureId(texman)) / 2, lc);
 	float pxAvailableSpace = lc.GetPixelSize().y - pxLabelOffset * 2;
@@ -245,7 +246,7 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 			float pxTextWidth = pxCharWidth * (float) text.size();
 
 			rc.DrawSprite(texBar, 0, 0x44444444, vec2d{ pxTextWidth, pxLabelOffset - (_rangeMax - y) * dataScale }, lc.GetPixelSize().x - pxTextWidth, -1, vec2d{ 1, 0 });
-			rc.DrawBitmapText(vec2d{ 0, std::floor((y - _rangeMax) * dataScale) }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, text);
+			rc.DrawBitmapText(vec2d{ 0, std::floor((y - _rangeMax) * dataScale) }, lc.GetScaleCombined(), _titleFont.GetTextureId(texman), 0x77777777, text);
 		}
 	}
 	else
@@ -254,5 +255,5 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	}
 
 	// title
-	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetScale(), _titleFont.GetTextureId(texman), 0x77777777, _title, alignTextCT);
+	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2), 0 }, lc.GetScaleCombined(), _titleFont.GetTextureId(texman), 0x77777777, _title, alignTextCT);
 }

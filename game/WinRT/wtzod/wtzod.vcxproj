@@ -34,46 +34,46 @@
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
     <ApplicationType>Windows Store</ApplicationType>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.14393.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -116,11 +116,11 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -131,11 +131,11 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -146,11 +146,11 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -161,11 +161,11 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -176,11 +176,11 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -191,11 +191,11 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -269,8 +269,8 @@
     <ProjectReference Include="..\_build\src\external\pluto\pluto.vcxproj">
       <Project>{400ee59e-ce16-3933-98da-017a02cff25c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\fs\filesystem.vcxproj">
-      <Project>{1e51ca76-9f97-4dd9-b79d-12f353b15fba}</Project>
+    <ProjectReference Include="..\_build\src\fswin\fswin.vcxproj">
+      <Project>{5e5771d3-deb8-360b-ac95-41e1a225ccbc}</Project>
     </ProjectReference>
     <ProjectReference Include="..\_build\src\gclua\gclua.vcxproj">
       <Project>{c800042c-c09c-4503-8117-d0909f565e82}</Project>

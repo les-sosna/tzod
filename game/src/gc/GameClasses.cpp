@@ -15,12 +15,12 @@ IMPLEMENT_SELF_REGISTRATION(GC_Wood)
 }
 
 GC_Wood::GC_Wood(vec2d pos)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
 {
 }
 
 GC_Wood::GC_Wood(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -30,7 +30,7 @@ GC_Wood::~GC_Wood()
 
 void GC_Wood::Init(World &world)
 {
-	GC_Actor::Init(world);
+	GC_MovingObject::Init(world);
 	int tileIndex = world.GetTileIndex(GetPos());
 	if (-1 != tileIndex)
 	{
@@ -45,7 +45,7 @@ void GC_Wood::Kill(World &world)
 	{
 		world._woodTiles[tileIndex] = false;
 	}
-	GC_Actor::Kill(world);
+	GC_MovingObject::Kill(world);
 }
 
 
@@ -84,7 +84,7 @@ void GC_Wood::MoveTo(World &world, const vec2d &pos)
 		if (-1 != newTile)
 			world._woodTiles[newTile] = true;
 	}
-	GC_Actor::MoveTo(world, pos);
+	GC_MovingObject::MoveTo(world, pos);
 }
 
 /////////////////////////////////////////////////////////////
@@ -94,10 +94,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_HealthDaemon)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_HealthDaemon, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_MovingObject, GC_HealthDaemon, LIST_timestep);
 
 GC_HealthDaemon::GC_HealthDaemon(vec2d pos, GC_Player *owner, float damage, float time)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _time(time)
   , _damage(damage)
   , _victim(nullptr)
@@ -106,7 +106,7 @@ GC_HealthDaemon::GC_HealthDaemon(vec2d pos, GC_Player *owner, float damage, floa
 }
 
 GC_HealthDaemon::GC_HealthDaemon(FromFile)
-  : GC_Actor(FromFile())
+  : GC_MovingObject(FromFile())
 {
 }
 
@@ -123,7 +123,7 @@ void GC_HealthDaemon::SetVictim(World &world, GC_RigidBodyStatic *victim)
 
 void GC_HealthDaemon::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 
 	f.Serialize(_time);
 	f.Serialize(_damage);
@@ -163,7 +163,7 @@ void GC_HealthDaemon::TimeStep(World &world, float dt)
 /////////////////////////////////////////////////////////////
 
 GC_Text::GC_Text(vec2d pos, std::string text)
-  : GC_Actor(pos)
+  : GC_MovingObject(pos)
   , _style(DEFAULT)
   , _text(std::move(text))
 {
@@ -175,7 +175,7 @@ GC_Text::~GC_Text()
 
 void GC_Text::Serialize(World &world, SaveFile &f)
 {
-	GC_Actor::Serialize(world, f);
+	GC_MovingObject::Serialize(world, f);
 	f.Serialize(_text);
 	f.Serialize(_style);
 }
@@ -187,7 +187,7 @@ IMPLEMENT_SELF_REGISTRATION(GC_Text_ToolTip)
 	return true;
 }
 
-IMPLEMENT_1LIST_MEMBER(GC_Text_ToolTip, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Text, GC_Text_ToolTip, LIST_timestep);
 
 GC_Text_ToolTip::GC_Text_ToolTip(vec2d pos, std::string text, Style style)
   : GC_Text(pos, std::move(text))

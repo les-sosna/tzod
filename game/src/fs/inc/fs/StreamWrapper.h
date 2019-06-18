@@ -21,7 +21,7 @@ namespace FS
 		Stream &m_stream;
 	};
 
-	class OutStreamWrapper
+	class OutStreamWrapper final
 		: private StreamBuf
 		, public std::ostream
 	{

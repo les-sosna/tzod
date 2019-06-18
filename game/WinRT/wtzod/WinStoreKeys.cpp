@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "WinStoreKeys.h"
-#include <ui/Keys.h>
+#include <plat/Keys.h>
 
-UI::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExtended)
+Plat::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExtended)
 {
 	if (platformKey == Windows::System::VirtualKey::Enter && isExtended)
 	{
-		return UI::Key::NumEnter;
+		return Plat::Key::NumEnter;
 	}
 
 	switch (platformKey)
@@ -18,10 +18,10 @@ UI::Key MapWinStoreKeyCode(Windows::System::VirtualKey platformKey, bool isExten
 		break;
 	}
 
-	return UI::Key::Unknown;
+	return Plat::Key::Unknown;
 }
 
-Windows::System::VirtualKey UnmapWinStoreKeyCode(UI::Key key)
+Windows::System::VirtualKey UnmapWinStoreKeyCode(Plat::Key key)
 {
 	switch (key)
 	{

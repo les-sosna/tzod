@@ -12,54 +12,39 @@
 
 using namespace UI;
 
-ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic) const
+ButtonBase::State ButtonBase::GetState(const LayoutContext &lc, const InputContext &ic, bool hovered) const
 {
-	if (!lc.GetEnabledCombined())
+	if (!lc.GetEnabledCombined() || !eventClick)
 		return stateDisabled;
 
-	vec2d pointerPosition = ic.GetMousePos();
-	bool pointerInside = PtInFRect(MakeRectWH(lc.GetPixelSize()), pointerPosition);
-	bool pointerPressed = ic.GetInput().IsMousePressed(1);
-
+	bool pointerInside = ic.GetPointerType(0) != Plat::PointerType::Unknown && PtInFRect(MakeRectWH(lc.GetPixelSize()), ic.GetPointerPos(0, lc));
+	bool pointerPressed = ic.GetInput().GetPointerState(0).pressed;
 	if ((pointerInside && pointerPressed && ic.HasCapturedPointers(this)) || ic.GetNavigationSubject(Navigate::Enter).get() == this)
 		return statePushed;
 
-	if (ic.GetHovered())
+	bool focusActive = (ic.GetLastKeyTime() >= ic.GetLastPointerTime()) && lc.GetFocusedCombined();
+	bool pointerActive = (ic.GetLastPointerTime() > ic.GetLastKeyTime()) && (ic.HasCapturedPointers(this) || (hovered && !pointerPressed));
+	if (focusActive || pointerActive)
 		return stateHottrack;
 
 	return stateNormal;
 }
 
-void ButtonBase::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
+bool ButtonBase::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if( eventMouseMove )
-		eventMouseMove(pi.position.x, pi.position.y);
+	// touch or primary button only
+	return !ic.HasCapturedPointers(this) && (Plat::PointerType::Touch == pi.type || 1 == button);
 }
 
-bool ButtonBase::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+void ButtonBase::OnPointerUp(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
-	if( !ic.HasCapturedPointers(this) && 1 == button ) // primary button only
-	{
-		if( eventMouseDown )
-			eventMouseDown(pi.position.x, pi.position.y);
-		return true;
-	}
-	return false;
-}
-
-void ButtonBase::OnPointerUp(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
-{
-	auto size = lc.GetPixelSize();
-	bool pointerInside = pi.position.x < size.x && pi.position.y < size.y && pi.position.x >= 0 && pi.position.y >= 0;
-	if( eventMouseUp )
-		eventMouseUp(pi.position.x, pi.position.y);
-	if( pointerInside )
+	if( PtInFRect(MakeRectWH(lc.GetPixelSize()), pi.position) )
 	{
 		DoClick();
 	}
 }
 
-void ButtonBase::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void ButtonBase::OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	if( !ic.HasCapturedPointers(this))
 	{
@@ -67,9 +52,9 @@ void ButtonBase::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texm
 	}
 }
 
-void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const
+void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const
 {
-	switch (GetState(lc, ic))
+	switch (GetState(lc, ic, hovered))
 	{
 	case statePushed:
 		sc.SetState("Pushed");
@@ -78,7 +63,7 @@ void ButtonBase::PushState(StateContext &sc, const LayoutContext &lc, const Inpu
 		sc.SetState("Hover");
 		break;
 	case stateNormal:
-		sc.SetState(ic.GetFocused() ? "Focused" : "Idle");
+		sc.SetState("Idle");
 		break;
 	case stateDisabled:
 		sc.SetState("Disabled");
@@ -95,12 +80,12 @@ void ButtonBase::DoClick()
 		eventClick();
 }
 
-bool ButtonBase::CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const
+bool ButtonBase::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
-	return Navigate::Enter == navigate;
+	return Navigate::Enter == navigate && eventClick;
 }
 
-void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc)
+void ButtonBase::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Completed == phase && Navigate::Enter == navigate)
 	{
@@ -110,36 +95,18 @@ void ButtonBase::OnNavigate(Navigate navigate, NavigationPhase phase, const Layo
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace
-{
-	class FocusBinding : public RenderData<bool>
-	{
-	public:
-		// RenderData<bool>
-		bool GetRenderValue(const DataContext &dc, const StateContext &sc) const override
-		{
-			return sc.GetState() == "Focused";
-		}
-	};
-}
-
-static const auto c_textUnderline = std::make_shared<FocusBinding>();
-
-static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xffffffff, // default
-	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xbbbbbbbb }, { "Hover", 0xffffffff } });
+static const auto c_textColor = std::make_shared<StateBinding<SpriteColor>>(0xffeeeeee, // default
+	StateBinding<SpriteColor>::MapType{ { "Disabled", 0xaaaaaaaa }, { "Hover", 0xffffffff }, { "Pushed", 0xffffffff } });
 
 static const auto c_backgroundFrame = std::make_shared<StateBinding<unsigned int>>(0, // default
 	StateBinding<unsigned int>::MapType{ { "Disabled", 3 }, { "Hover", 1 }, { "Pushed", 2 } });
 
 Button::Button()
-	: _background(std::make_shared<Rectangle>())
-	, _text(std::make_shared<Text>())
 {
-	_background->SetFrame(c_backgroundFrame);
+	_background.SetFrame(c_backgroundFrame);
 
-	_text->SetAlign(alignTextCC);
-	_text->SetFontColor(c_textColor);
-	_text->SetUnderline(c_textUnderline);
+	_text.SetAlign(alignTextCC);
+	_text.SetFontColor(c_textColor);
 
 	SetBackground("ui/button");
 	Resize(96, 24);
@@ -147,54 +114,35 @@ Button::Button()
 
 void Button::SetFont(Texture fontTexture)
 {
-	_text->SetFont(std::move(fontTexture));
-}
-
-void Button::SetIcon(TextureManager &texman, const char *spriteName)
-{
-	if (spriteName)
-	{
-		if (!_icon)
-		{
-			_icon = std::make_shared<Rectangle>();
-			_icon->SetBackColor(c_textColor);
-			_icon->SetBorderColor(c_textColor);
-		}
-		_icon->SetTexture(spriteName);
-		_icon->Resize(_icon->GetTextureWidth(texman), _icon->GetTextureHeight(texman));
-	}
-	else
-	{
-		_icon.reset();
-	}
+	_text.SetFont(std::move(fontTexture));
 }
 
 void Button::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
-	_text->SetText(std::move(text));
+	_text.SetText(std::move(text));
 }
 
 void Button::SetBackground(Texture background)
 {
-	_background->SetTexture(std::move(background));
+	_background.SetTexture(std::move(background));
 }
 
 const Texture& Button::GetBackground() const
 {
-	return _background->GetTexture();
+	return _background.GetTexture();
 }
 
 void Button::AlignToBackground(TextureManager &texman)
 {
-	Resize(_background->GetTextureWidth(texman), _background->GetTextureHeight(texman));
+	Resize(_background.GetTextureWidth(texman), _background.GetTextureHeight(texman));
 }
 
-unsigned int Button::GetChildrenCount() const
+std::shared_ptr<const Window> Button::GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const
 {
-	return 2 + !!_icon;
+	return { owner, &Button::GetChild(index) };
 }
 
-std::shared_ptr<const Window> Button::GetChild(unsigned int index) const
+const Window& Button::GetChild(unsigned int index) const
 {
 	switch (index)
 	{
@@ -202,90 +150,61 @@ std::shared_ptr<const Window> Button::GetChild(unsigned int index) const
 		assert(false);
 	case 0: return _background;
 	case 1: return _text;
-	case 2: assert(_icon); return _icon;
 	}
 }
 
-FRECT Button::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout Button::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
 	vec2d size = lc.GetPixelSize();
 
-	if (_background.get() == &child)
+	if (&_background == &child)
 	{
-		return MakeRectRB(vec2d{}, size);
+		return WindowLayout{ MakeRectRB(vec2d{}, size), 1, true };
+	}
+	if (&_text == &child)
+	{
+		return WindowLayout{ MakeRectWH(Vec2dFloor(size / 2), vec2d{}), 1, true };
 	}
 
-	if (_icon)
-	{
-		if (_text.get() == &child)
-		{
-			vec2d pxChildPos = Vec2dFloor(size / 2);
-			pxChildPos.y += std::floor(_icon->GetHeight() * scale / 2);
-			return MakeRectWH(pxChildPos, vec2d{});
-		}
-
-		if (_icon.get() == &child)
-		{
-			vec2d pxChildSize = Vec2dFloor(_icon->GetSize() * scale);
-			vec2d pxChildPos = Vec2dFloor((size - pxChildSize) / 2);
-			pxChildPos.y -= std::floor(_text->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).y / 2);
-			return MakeRectWH(pxChildPos, pxChildSize);
-		}
-	}
-	else
-	{
-		if (_text.get() == &child)
-		{
-			return MakeRectWH(Vec2dFloor(size / 2), vec2d{});
-		}
-	}
-
-	return Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TextButton
+// ContentButton
 
-TextButton::TextButton()
-	: _text(std::make_shared<Text>())
+unsigned int ContentButton::GetChildrenCount() const
 {
-	AddFront(_text);
-	_text->SetFontColor(c_textColor);
+	return !!_content;
 }
 
-vec2d TextButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
+std::shared_ptr<const Window> ContentButton::GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const
 {
-	return _text->GetContentSize(texman, dc, scale, layoutConstraints);
+	assert(_content && index == 0);
+	return _content;
 }
 
-void TextButton::SetFont(Texture fontTexture)
+const Window& ContentButton::GetChild(unsigned int index) const
 {
-	_text->SetFont(std::move(fontTexture));
+	assert(_content && index == 0);
+	return *_content;
 }
 
-void TextButton::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
+vec2d ContentButton::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	_text->SetText(std::move(text));
+	return _content ? _content->GetContentSize(texman, dc, scale, layoutConstraints) : vec2d{};
 }
 
-FRECT TextButton::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ContentButton::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	if (_text.get() == &child)
-	{
-		return MakeRectWH(lc.GetPixelSize());
-	}
-
-	return ButtonBase::GetChildRect(texman, lc, dc, child);
+	return WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 CheckBox::CheckBox()
-	: _text(std::make_shared<Text>())
 {
-	AddFront(_text);
-	_text->SetFontColor(c_textColor);
+	_text.SetFontColor(c_textColor);
 }
 
 void CheckBox::SetCheck(bool checked)
@@ -298,36 +217,41 @@ void CheckBox::OnClick()
 	SetCheck(!GetCheck());
 }
 
+void CheckBox::SetFont(Texture fontTexture)
+{
+	_text.SetFont(std::move(fontTexture));
+}
+
 void CheckBox::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 {
-	_text->SetText(std::move(text));
+	_text.SetText(std::move(text));
 }
 
-FRECT CheckBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout CheckBox::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	if (_text.get() == &child)
+	if (&_text == &child)
 	{
-		float pxBoxWidth = ToPx(_boxTexture.GetTextureSize(texman), lc).x;
-		vec2d pxTextSize = _text->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
-		return MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize);
+		float pxBoxWidth = _boxPosition == BoxPosition::Left ? ToPx(_boxTexture.GetTextureSize(texman), lc).x : 0;
+		vec2d pxTextSize = _text.GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
+		return WindowLayout{ MakeRectWH(vec2d{ pxBoxWidth, std::floor((lc.GetPixelSize().y - pxTextSize.y) / 2) }, pxTextSize), 1, true };
 	}
-	return ButtonBase::GetChildRect(texman, lc, dc, child);
+	return ButtonBase::GetChildLayout(texman, lc, dc, child);
 }
 
-void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void CheckBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	State state = GetState(lc, ic);
+	State state = GetState(lc, ic, hovered);
 	unsigned int frame = _isChecked ? state + 4 : state;
 
 	vec2d pxBoxSize = ToPx(_boxTexture.GetTextureSize(texman), lc);
-
-	auto box = MakeRectWH(vec2d{0, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
+	float boxLeft = _boxPosition == BoxPosition::Right ? lc.GetPixelSize().x - pxBoxSize.x : 0;
+	auto box = MakeRectWH(vec2d{ boxLeft, std::floor((lc.GetPixelSize().y - pxBoxSize.y) / 2)}, pxBoxSize);
 	rc.DrawSprite(box, _boxTexture.GetTextureId(texman), 0xffffffff, frame);
 }
 
 vec2d CheckBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	vec2d pxTextSize = _text->GetContentSize(texman, dc, scale, layoutConstraints);
+	vec2d pxTextSize = _text.GetContentSize(texman, dc, scale, layoutConstraints);
 	vec2d pxBoxSize = ToPx(texman.GetFrameSize(_boxTexture.GetTextureId(texman)), scale);
 	return vec2d{ pxTextSize.x + pxBoxSize.x, std::max(pxTextSize.y, pxBoxSize.y) };
 }

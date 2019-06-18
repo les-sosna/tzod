@@ -1,5 +1,5 @@
 #include "inc/audio/SoundRenderXA2.h"
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #include <algorithm>
 #include <Xaudio2.h>
 
@@ -67,7 +67,7 @@ void VoiceDeleter::operator()(IXAudio2Voice *voice)
 	voice->DestroyVoice();
 }
 
-SoundRenderXA2::SoundRenderXA2(UI::ConsoleBuffer &logger)
+SoundRenderXA2::SoundRenderXA2(Plat::ConsoleBuffer &logger)
 	: _logger(logger)
 	, _masteringVoice(nullptr)
 {
@@ -107,7 +107,7 @@ void SoundRenderXA2::SetListenerPos(vec2d pos)
 	// TODO: implement
 }
 
-static std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> CreateVoice(UI::ConsoleBuffer &logger, IXAudio2 *xa2, const WAVEFORMATEX &fmt)
+static std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> CreateVoice(Plat::ConsoleBuffer &logger, IXAudio2 *xa2, const WAVEFORMATEX &fmt)
 {
 	std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> result;
 	IXAudio2SourceVoice *rawSourceVoice = nullptr;
@@ -118,7 +118,7 @@ static std::unique_ptr<IXAudio2SourceVoice, VoiceDeleter> CreateVoice(UI::Consol
 	return result;
 }
 
-std::unique_ptr<Sound> SoundRenderXA2::CreateLopped(SoundTemplate st)
+std::unique_ptr<Sound> SoundRenderXA2::CreateLooped(SoundTemplate st)
 {
 	auto sound = static_cast<size_t>(st);
 	if (sound < _buffers.size() && !_buffers[sound].data.empty())

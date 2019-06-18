@@ -12,5 +12,5 @@ void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, RenderContext
 class Z_Weapon : public ObjectZFunc
 {
 public:
-	enumZOrder GetZ(const World &world, const GC_Actor &actor) const override;
+	enumZOrder GetZ(const World &world, const GC_MovingObject &mo) const override;
 };

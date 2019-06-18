@@ -14,13 +14,13 @@ public:
 	{
 	}
 
-	enumZOrder GetZ(const World &world, const GC_Actor &actor) const override
+	enumZOrder GetZ(const World &world, const GC_MovingObject &mo) const override
 	{
-		return _condition(world, actor) ? _zfunc.GetZ(world, actor) : Z_NONE;
+		return _condition(world, mo) ? _zfunc.GetZ(world, mo) : Z_NONE;
 	}
 
 private:
-	std::function<bool(const World &, const GC_Actor &)> _condition;
+	std::function<bool(const World &, const GC_MovingObject &)> _condition;
 	ZFuncType _zfunc;
 };
 

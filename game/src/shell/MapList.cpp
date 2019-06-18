@@ -4,12 +4,12 @@
 #include <as/AppConstants.h>
 #include <fs/FileSystem.h>
 #include <MapFile.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
 #include <sstream>
 #include <iomanip>
 
-ListDataSourceMaps::ListDataSourceMaps(FS::FileSystem &fs, UI::ConsoleBuffer &logger)
+ListDataSourceMaps::ListDataSourceMaps(FS::FileSystem &fs, Plat::ConsoleBuffer &logger)
 {
 	auto files = fs.GetFileSystem(DIR_MAPS)->EnumAllFiles("*.map");
 	for( auto it = files.begin(); it != files.end(); ++it )

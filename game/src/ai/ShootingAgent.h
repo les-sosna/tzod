@@ -8,7 +8,7 @@ class World;
 struct VehicleState;
 struct AIWEAPSETTINGS;
 
-class ShootingAgent
+class ShootingAgent final
 {
 public:
 	void Serialize(SaveFile &f);

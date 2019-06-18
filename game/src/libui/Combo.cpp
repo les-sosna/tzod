@@ -1,6 +1,7 @@
 #include "inc/ui/Combo.h"
 #include "inc/ui/DataContext.h"
 #include "inc/ui/DataSource.h"
+#include "inc/ui/Rectangle.h"
 #include "inc/ui/Text.h"
 #include "inc/ui/List.h"
 #include "inc/ui/ListBox.h"
@@ -16,6 +17,11 @@ using namespace UI;
 ComboBox::ComboBox(ListDataSource *dataSource)
   : _curSel(-1)
 {
+	_background = std::make_shared<Rectangle>();
+	_background->SetDrawBorder(true);
+	_background->SetTexture("ui/combo");
+	AddFront(_background);
+
 	_list = std::make_shared<ListBox>(dataSource);
 	_list->SetVisible(false);
 	_list->SetTopMost(true);
@@ -26,9 +32,6 @@ ComboBox::ComboBox(ListDataSource *dataSource)
 	_btn->SetBackground("ui/scroll_down");
 	_btn->eventClick = std::bind(&ComboBox::DropList, this);
 	AddFront(_btn);
-
-	SetDrawBorder(true);
-	SetTexture("ui/combo");
 }
 
 ListDataSource* ComboBox::GetData() const
@@ -68,7 +71,7 @@ void ComboBox::DropList()
 		_btn->SetBackground("ui/scroll_up");
 		_list->SetVisible(true);
 //		_list->SetScrollPos((float) GetCurSel());
-		SetFocus(_list);
+		SetFocus(_list.get());
 	}
 }
 
@@ -93,7 +96,7 @@ void ComboBox::OnListLostFocus()
 	_btn->SetBackground("ui/scroll_down");
 }
 
-bool ComboBox::OnKeyPressed(InputContext &ic, Plat::Key key)
+bool ComboBox::OnKeyPressed(const InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
@@ -124,23 +127,24 @@ bool ComboBox::OnKeyPressed(InputContext &ic, Plat::Key key)
 	return false;
 }
 
-FRECT ComboBox::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout ComboBox::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_list.get() == &child)
 	{
-		return FRECT{ 0, size.y, size.x, size.y + ToPx(_list->GetList()->GetHeight(), scale) };
+		return WindowLayout{ FRECT{ 0, size.y, size.x, size.y + ToPx(_list->GetList()->GetHeight(), scale) }, 1, true };
 	}
 	else if (_btn.get() == &child)
 	{
 		vec2d btnSize = _btn->GetBackground().GetTextureSize(texman);
 		float top = std::floor((size.y - btnSize.y * scale) / 2);
-		return MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) });
+		return WindowLayout{ MakeRectRB(vec2d{ size.x - ToPx(btnSize.x, scale), top }, vec2d{ size.x, top + ToPx(btnSize.y, scale) }), 1, true };
 	}
 
-	return Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
@@ -155,14 +159,11 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 	return vec2d{ itemSize.x + pxBtnSize.x, std::max(itemSize.y, pxBtnSize.y) };
 }
 
-void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	Rectangle::Draw(dc, sc, lc, ic, rc, texman, time);
-
 	if (_list->GetList()->GetCurSel() != -1)
 	{
-		// TODO: something smarter than const_cast (fork?)
-		UI::RenderSettings rs{ const_cast<InputContext&>(ic), rc, texman, time };
+		UI::RenderSettings rs{ ic, rc, texman, time };
 
 		DataContext itemDC;
 		{
@@ -171,8 +172,8 @@ void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutC
 		}
 
 		vec2d pxItemSize = { lc.GetPixelSize().x - ToPx(_btn->GetWidth(), lc), lc.GetPixelSize().y };
-		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScale(), pxItemSize, lc.GetEnabledCombined());
-		RenderUIRoot(*_list->GetList()->GetItemTemplate(), rs, itemLC, itemDC, sc);
+		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScaleCombined(), lc.GetPixelOffsetCombined(), pxItemSize, lc.GetEnabledCombined(), lc.GetFocusedCombined());
+		RenderUIRoot(_list->GetList()->GetItemTemplate(), rs, itemLC, itemDC, sc);
 	}
 }
 

@@ -8,7 +8,7 @@
 class Field;
 class GC_RigidBodyStatic;
 
-class FieldCell
+class FieldCell final
 {
 public:
 	static unsigned int _sessionId;
@@ -23,12 +23,11 @@ public:
 	//-----------------------------
 	void UpdateProperties();
 
-	float _before; // actual path cost to this node
-	float _total; // total path cost estimate
+	int _before; // actual path cost to this node
 
-	uint8_t _prop = 0; // 0 - free, 1 - could be broken, 0xFF - impassable
-	int8_t _stepX = 0;
-	int8_t _stepY = 0;
+	// each bit describes a separate obstacle group: 0 - passable, 1 - occupied
+	uint8_t _obstacleFlags = 0;
+	int8_t _prev = -1;
 
 public:
 	FieldCell() = default;
@@ -47,10 +46,9 @@ public:
 	void AddObject(GC_RigidBodyStatic *object);
 	void RemoveObject(GC_RigidBodyStatic *object);
 
-	unsigned char Properties() const { return _prop; }
+	uint8_t ObstacleFlags() const { return _obstacleFlags; }
 
-	float Total() const { return _total; }
-	float Before() const { return _before; }
+	int Before() const { return _before; }
 };
 
 struct RefFieldCell
@@ -58,35 +56,28 @@ struct RefFieldCell
 	int x : 16;
 	int y : 16;
 
-	bool operator==(const RefFieldCell &other) const
+	bool operator==(RefFieldCell other) const
 	{
 		return x == other.x && y == other.y;
 	}
+	bool operator!=(RefFieldCell other) const
+	{
+		return x != other.x || y != other.y;
+	}
 };
 
-class Field
+class Field final
 {
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
 
-	Field();
-
-	void Resize(RectRB bounds);
-	void ProcessObject(GC_RigidBodyStatic *object, bool add);
-
-	RectRB GetBounds() const { return _bounds; }
+	void Resize(int width, int height);
+	void ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object, bool add);
 
 	const FieldCell& operator() (int x, int y) const
 	{
-		if (PtInRect(_bounds, x, y))
-		{
-			size_t offset = (x - _bounds.left) + (y - _bounds.top) * WIDTH(_bounds);
-			return _cells.get()[offset];
-		}
-		else
-		{
-			return _edgeCell;
-		}
+		assert(x >= 0 && x < _width && y >= 0 && y < _height);
+		return _cells.get()[x + y * _width];
 	}
 
 	FieldCell& operator() (int x, int y)
@@ -95,22 +86,7 @@ public:
 	}
 
 private:
-	FieldCell _edgeCell;
 	std::unique_ptr<FieldCell[]> _cells;
-	RectRB _bounds = {};
+	int _width = 0;
+	int _height = 0;
 };
-
-class FieldCellCompare
-{
-public:
-	FieldCellCompare(const Field &field);
-
-	bool operator()(const RefFieldCell &a, const RefFieldCell &b) const
-	{
-		return _field(a.x, a.y).Total() > _field(b.x, b.y).Total();
-	}
-
-private:
-	const Field &_field;
-};
-

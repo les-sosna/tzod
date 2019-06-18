@@ -7,28 +7,20 @@ set(ANDROID 1)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_BINARY_DIR}/game/src)
 
 add_library(tzodjni SHARED
-            src/main/cpp/gl_code.cpp
-            src/main/cpp/JniAppWindow.cpp
-            src/main/cpp/JniAppWindow.h
-            src/main/cpp/JniClipboard.cpp
-            src/main/cpp/JniClipboard.h
-            src/main/cpp/JniConsoleLog.cpp
-            src/main/cpp/JniConsoleLog.h
-            src/main/cpp/JniInput.cpp
-            src/main/cpp/JniInput.h
-            )
+  src/main/cpp/gl_code.cpp
+)
 
 # add lib dependencies
 target_link_libraries(tzodjni
+  app
+  fsjni
+  platjni
+  ui
+  video
 
-                      app
-                      fsposix
-                      plat
-                      ui
-                      video
-
-                      android
-                      log 
-                      EGL
-                      GLESv2)
+  android
+  log 
+  EGL
+  GLESv2
+)
 

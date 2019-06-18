@@ -78,7 +78,7 @@ void GC_Weap_RocketLauncher::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 600.0f;
 	pSettings->fAttackRadius_min  = 100.0f;
 	pSettings->fAttackRadius_crit =  40.0f;
-	pSettings->fDistanceMultipler = GetBooster() ? 1.2f : 3.5f;
+	pSettings->distanceMultipler = GetBooster() ? 2 : 4;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ void GC_Weap_AutoCannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 500;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =   0;
-	pSettings->fDistanceMultipler = GetBooster() ? 3.3f : 13.0f;
+	pSettings->distanceMultipler = GetBooster() ? 3 : 13;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +219,7 @@ void GC_Weap_Cannon::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 500;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit = GetBooster() ? 64.0f : 0;
-	pSettings->fDistanceMultipler = GetBooster() ? 2.0f : 8.0f;
+	pSettings->distanceMultipler = GetBooster() ? 2 : 8;
 }
 
 void GC_Weap_Cannon::TimeStep(World &world, float dt)
@@ -276,7 +276,7 @@ void GC_Weap_Plazma::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = GetBooster() ? 2.0f : 8.0f;  // fixme
+	pSettings->distanceMultipler = GetBooster() ? 2 : 8;  // fixme
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ void GC_Weap_Gauss::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 800;
 	pSettings->fAttackRadius_min  = 400;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = GetBooster() ? 4.5f : 9.0f;
+	pSettings->distanceMultipler = GetBooster() ? 5 : 9;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -430,7 +430,7 @@ void GC_Weap_Ram::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 100;
 	pSettings->fAttackRadius_min  = 0;
 	pSettings->fAttackRadius_crit = 0;
-	pSettings->fDistanceMultipler = GetBooster() ? 2.5f : 6.0f;
+	pSettings->distanceMultipler = GetBooster() ? 3 : 6;
 }
 
 void GC_Weap_Ram::TimeStep(World &world, float dt)
@@ -560,7 +560,7 @@ void GC_Weap_BFG::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 600;
 	pSettings->fAttackRadius_min  = 200;
 	pSettings->fAttackRadius_crit =   0;
-	pSettings->fDistanceMultipler = GetBooster() ? 13.0f : 20.0f;
+	pSettings->distanceMultipler = GetBooster() ? 13 : 20;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -603,7 +603,7 @@ void GC_Weap_Ripper::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 700;
 	pSettings->fAttackRadius_min  = 500;
 	pSettings->fAttackRadius_crit =  60;
-	pSettings->fDistanceMultipler = GetBooster() ? 2.2f : 40.0f;
+	pSettings->distanceMultipler = GetBooster() ? 3 : 40;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -683,7 +683,7 @@ void GC_Weap_Minigun::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 200;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =   0;
-	pSettings->fDistanceMultipler = GetBooster() ? 5.0f : 10.0f;
+	pSettings->distanceMultipler = GetBooster() ? 5 : 10;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -752,7 +752,7 @@ void GC_Weap_Zippo::SetupAI(AIWEAPSETTINGS *pSettings)
 	pSettings->fAttackRadius_max  = 300;
 	pSettings->fAttackRadius_min  = 100;
 	pSettings->fAttackRadius_crit =  10;
-	pSettings->fDistanceMultipler = GetBooster() ? 5.0f : 10.0f;
+	pSettings->distanceMultipler = GetBooster() ? 5 : 10;
 }
 
 void GC_Weap_Zippo::TimeStep(World &world, float dt)

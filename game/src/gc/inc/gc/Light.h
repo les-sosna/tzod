@@ -1,16 +1,15 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 
-#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_LIGHT_FADE          (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_LIGHT_              (GC_FLAG_ACTOR_ << 2)
+#define GC_FLAG_LIGHT_ACTIVE        (GC_FLAG_MO_ << 0)
+#define GC_FLAG_LIGHT_FADE          (GC_FLAG_MO_ << 1)
+#define GC_FLAG_LIGHT_              (GC_FLAG_MO_ << 2)
 
-class GC_Light : public GC_Actor
+class GC_Light : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_Light);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Actor base;
 
 public:
 	enum enumLightType
@@ -103,10 +102,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define GC_FLAG_SPOTLIGHT_ACTIVE    (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_SPOTLIGHT_          (GC_FLAG_ACTOR_ << 1)
+#define GC_FLAG_SPOTLIGHT_ACTIVE    (GC_FLAG_MO_ << 0)
+#define GC_FLAG_SPOTLIGHT_          (GC_FLAG_MO_ << 1)
 
-class GC_Spotlight : public GC_Actor
+class GC_Spotlight : public GC_MovingObject
 {
 	DECLARE_SELF_REGISTRATION(GC_Spotlight);
 
@@ -115,7 +114,7 @@ public:
 	explicit GC_Spotlight(FromFile);
 	virtual ~GC_Spotlight();
 
-	// GC_Actor
+	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;
 
 	// GC_Object
@@ -125,9 +124,9 @@ public:
 	void Serialize(World &world, SaveFile &f) override;
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propActive;
 		ObjectProperty _propDir;
 	public:

@@ -1,38 +1,36 @@
--- Textures for standard theme --
----- Copyright ® 2007 Insert ----
-
---  default values are:
+--  default values:
 --   left     = 0
 --   top      = 0
 --   right    = [width of image]
 --   bottom   = [height of image]
---   xpivot   = [width of image]/2
---   ypivot   = [height of image]/2
---   xframes  = 1,
---   yframes  = 1,
---   xscale   = 1,
---   yscale   = 1,
-
+--   xpivot   = [center]
+--   ypivot   = [center]
+--   xframes  = 1
+--   yframes  = 1
+--   xscale   = 1
+--   yscale   = 1
+--   magfilter = false
+--   wrappable = false
+--   leadchar = " "
 
 return {
 --------------------------------------
 {
    file="textures/background/back01.tga",
    content={
-     background={xpivot=0, ypivot=0},
+     background={xpivot=0, ypivot=0, wrappable=true},
    }
 },
 {
    file="textures/editor/grid.tga",
    content={
-     grid={xpivot=0, ypivot=0},
+     grid={xpivot=0, ypivot=0, wrappable=true},
    }
 },
 {
    file="textures/editor/labels.tga",
    content={
      editor_respawn={left=0, top=0, right=64, bottom=64},
-     editor_item={left=64, top=0, right=128, bottom=64},
    }
 },
 {
@@ -201,7 +199,7 @@ return {
 {
    file="textures/effects/lightning.tga",
    content={
-     lightning={},
+     lightning={wrappable=true},
    }
 },
 {
@@ -238,8 +236,8 @@ return {
    content={
      font_small={left=100, right=212, top=0, bottom=140, xframes=16, yframes=14, xpivot=0, ypivot=0},
      font_default={left=212, top=0, right=512, bottom=240, xframes=20, yframes=12, xpivot=0, ypivot=0},
-     font_digits_red={left=0, top=-64, right=95, bottom=128, xframes=5, yframes=6, xpivot=0, ypivot=0},
-     font_digits_green={left=0, top=64, right=95, bottom=256, xframes=5, yframes=6, xpivot=0, ypivot=0},
+     font_digits_red={left=0, top=0, right=95, bottom=128, xframes=5, yframes=4, xpivot=0, ypivot=0, leadchar="*"},
+     font_digits_green={left=0, top=128, right=95, bottom=256, xframes=5, yframes=4, xpivot=0, ypivot=0, leadchar="*"},
    }
 },
 {
@@ -261,7 +259,7 @@ return {
      ["ui/listsel"]={left=0, right=32, top=192, bottom=208, xpivot=0, ypivot=0, border=2},
      ["ui/edit"]={left=64, right=72, top=200, bottom=208, xframes=2, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/editsel"]={left=40, right=48, top=200, bottom=208, xpivot=0, ypivot=0, border=2},
-     ["ui/editcursor"]={left=34, right=40, top=193, bottom=207, xpivot=0, ypivot=0},
+     ["ui/editcursor"]={left=34, right=35, top=193, bottom=207, xpivot=0, ypivot=0},
      ["ui/console"]={left=64, right=72, top=200, bottom=208, xframes=1, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/combo"]={left=64, right=96, top=192, bottom=200, xframes=4, yframes=1, xpivot=0, ypivot=0, border=2},
      ["ui/combo_list"]={left=64, right=72, top=192, bottom=200, xframes=1, yframes=1, xpivot=0, ypivot=0, border=2},
@@ -294,10 +292,9 @@ return {
 {
    file="textures/gui/line.tga",
    content={
-     dotted_line={},
+     dotted_line={wrappable=true},
    }
 },
 --------------------------------------
 
 }
--- end of file --

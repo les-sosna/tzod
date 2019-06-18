@@ -6,7 +6,7 @@ namespace FS
 	class FileSystem;
 }
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -21,10 +21,10 @@ class ShellConfig;
 class LangCache;
 class DMCampaign;
 
-class TzodApp
+class TzodApp final
 {
 public:
-	TzodApp(FS::FileSystem &fs, UI::ConsoleBuffer &logger, const char *language = nullptr);
+	TzodApp(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, const char *language = nullptr);
 	~TzodApp();
 
 	AppState& GetAppState();
@@ -35,10 +35,10 @@ public:
 	DMCampaign &GetDMCampaign();
 
 	void Step(float dt);
-	void Exit();
+	void SaveConfig();
 
 private:
 	FS::FileSystem &_fs;
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 	std::unique_ptr<struct TzodAppImpl> _impl;
 };

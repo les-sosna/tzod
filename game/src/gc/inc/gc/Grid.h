@@ -10,7 +10,7 @@
 #include <vector>
 
 template <class T>
-class Grid
+class Grid final
 {
 public:
 	Grid()

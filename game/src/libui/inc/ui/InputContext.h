@@ -2,6 +2,7 @@
 #include "Navigation.h"
 #include "PointerInput.h"
 #include <math/MyMath.h>
+#include <plat/Input.h>
 #include <memory>
 #include <stack>
 #include <unordered_map>
@@ -11,10 +12,7 @@ class TextureManager;
 
 namespace Plat
 {
-	enum class Key;
-	enum class Msg;
-	struct Clipboard;
-	struct Input;
+	struct AppWindow;
 }
 
 namespace UI
@@ -26,10 +24,18 @@ class Window;
 struct PointerSink;
 struct TextSink;
 
+enum class TextOperation
+{
+	ClipboardCut,
+	ClipboardCopy,
+	ClipboardPaste,
+	CharacterInput
+};
+
 class InputContext
 {
 public:
-	InputContext(Plat::Input &input);
+	explicit InputContext(Plat::Input &input);
 
 	void ReadInput();
 
@@ -43,21 +49,39 @@ public:
 		Plat::Msg msg,
 		int button,
 		Plat::PointerType pointerType,
-		unsigned int pointerID);
-	bool ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time);
-	bool ProcessSystemNavigationBack(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
+		unsigned int pointerID,
+		float time);
+
+	bool ProcessKeys(
+		TextureManager &texman,
+		std::shared_ptr<Window> wnd,
+		const LayoutContext &lc,
+		const DataContext &dc,
+		Plat::Msg msg,
+		Plat::Key key,
+		float time);
+
+	bool ProcessText(
+		TextureManager &texman,
+		std::shared_ptr<Window> wnd,
+		Plat::AppWindow &appWindow,
+		TextOperation textOperation,
+		int codepoint = 0);
+
+	bool ProcessSystemNavigationBack(
+		TextureManager &texman,
+		std::shared_ptr<Window> wnd,
+		const LayoutContext &lc,
+		const DataContext &dc);
 
 	Plat::Input& GetInput() const { return _input; }
 	TextSink* GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
-	void PushInputTransform(vec2d offset, bool focused, bool hovered);
-	void PopInputTransform();
-
-	vec2d GetMousePos() const;
-	bool GetFocused() const;
-	bool GetHovered() const;
+	Plat::PointerType GetPointerType(unsigned int index) const;
+	vec2d GetPointerPos(unsigned int index, const LayoutContext& lc) const;
 	std::shared_ptr<Window> GetNavigationSubject(Navigate navigate) const;
 	float GetLastKeyTime() const { return _lastKeyTime; }
+	float GetLastPointerTime() const { return _lastPointerTime; }
 
 	const std::vector<std::shared_ptr<Window>>* GetCapturePath(unsigned int pointerID) const;
 	bool HasCapturedPointers(const Window* wnd) const;
@@ -73,17 +97,10 @@ private:
 
 	Plat::Input &_input;
 
-	vec2d _mousePos;
-
-	struct InputStackFrame
-	{
-		vec2d offset;
-		bool focused;
-		bool hovered;
-	};
-	std::stack<InputStackFrame> _transformStack;
+	Plat::PointerState _pointerState = {};
 
 	float _lastKeyTime = 0;
+	float _lastPointerTime = 0;
 
 	struct PointerCapture
 	{
@@ -104,6 +121,7 @@ class LayoutContext;
 struct AreaSinkSearch
 {
 	TextureManager &texman;
+	const InputContext& ic;
 	const DataContext &dc;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;

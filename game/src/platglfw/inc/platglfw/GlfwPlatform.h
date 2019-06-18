@@ -4,23 +4,26 @@
 
 struct GLFWwindow;
 
-class GlfwInput : public Plat::Input
+class GlfwInput final
+	: public Plat::Input
 {
 public:
 	GlfwInput(GLFWwindow &window);
+	void SetMousePresent(bool mousePresent) { _mousePresent = mousePresent; }
 
 	// Plat::Input
 	bool IsKeyPressed(Plat::Key key) const override;
-	bool IsMousePressed(int button) const override;
-	vec2d GetMousePos() const override;
+	Plat::PointerState GetPointerState(unsigned int index) const override;
 	Plat::GamepadState GetGamepadState(unsigned int index) const override;
 	bool GetSystemNavigationBackAvailable() const override;
 
 private:
 	GLFWwindow &_window;
+	bool _mousePresent = false;
 };
 
-class GlfwClipboard : public Plat::Clipboard
+class GlfwClipboard final
+	: public Plat::Clipboard
 {
 public:
 	GlfwClipboard(GLFWwindow &window);

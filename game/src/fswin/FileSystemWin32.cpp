@@ -7,24 +7,6 @@
 
 using namespace FS;
 
-std::wstring PathCombine(std::string_view first, std::string_view second)
-{
-	// result = first + '\\' + second
-	std::wstring result;
-	result.reserve(first.size() + second.size() + 1);
-	utf8::utf8to16(first.begin(), first.end(), std::back_inserter(result));
-	result.append(L"\\");
-	utf8::utf8to16(second.begin(), second.end(), std::back_inserter(result));
-	return result;
-}
-
-static std::string w2s(std::wstring_view w)
-{
-	std::string s;
-	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
-	return s;
-}
-
 static std::string StrFromErr(DWORD dwMessageId)
 {
 	WCHAR msgBuf[1024];
@@ -62,34 +44,31 @@ static std::string StrFromErr(DWORD dwMessageId)
 	}
 }
 
-FileWin32::FileWin32(std::wstring fileName, FileMode mode)
-	: _mode(mode)
-	, _mapped(false)
-	, _streamed(false)
+static AutoHandle OpenFileWin32(std::wstring fileName, FileMode mode)
 {
-	assert(_mode);
+	AutoHandle file;
 
 	std::replace(fileName.begin(), fileName.end(), L'/', L'\\');
 
 	DWORD dwDesiredAccess = 0;
 	DWORD dwShareMode = FILE_SHARE_READ;
-	DWORD dwCreationDisposition;
+	DWORD dwCreationDisposition = 0;
 
-	if( _mode & ModeWrite )
+	assert(mode);
+	if (mode & ModeWrite)
 	{
 		dwDesiredAccess |= FILE_WRITE_DATA;
 		dwShareMode = 0;
 		dwCreationDisposition = CREATE_ALWAYS;
 	}
-
-	if( _mode & ModeRead )
+	if (mode & ModeRead)
 	{
 		dwDesiredAccess |= FILE_READ_DATA;
-		dwCreationDisposition = (_mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
+		dwCreationDisposition = (mode & ModeWrite) ? OPEN_ALWAYS : OPEN_EXISTING;
 	}
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-	_file.h = ::CreateFileW(fileName.c_str(),
+	file.h = ::CreateFileW(fileName.c_str(),
 		dwDesiredAccess,
 		dwShareMode,
 		nullptr,                        // lpSecurityAttributes
@@ -104,10 +83,17 @@ FileWin32::FileWin32(std::wstring fileName, FileMode mode)
 		nullptr);
 #endif
 
-	if (INVALID_HANDLE_VALUE == _file.h)
-	{
-		throw std::runtime_error(StrFromErr(GetLastError()));
-	}
+	return file;
+}
+
+FileWin32::FileWin32(AutoHandle file, FileMode mode)
+	: _mode(mode)
+	, _file(std::move(file))
+	, _mapped(false)
+	, _streamed(false)
+{
+	assert(_mode);
+	assert(INVALID_HANDLE_VALUE != _file.h);
 }
 
 FileWin32::~FileWin32()
@@ -218,7 +204,7 @@ long long StreamWin32::Tell() const
 ///////////////////////////////////////////////////////////////////////////////
 
 MemMapWin32::MemMapWin32(std::shared_ptr<FileWin32> parent, HANDLE hFile)
-	: _file(parent)
+	: _file(std::move(parent))
 	, _hFile(hFile)
 	, _data(nullptr)
 	, _size(0)
@@ -257,15 +243,15 @@ void MemMapWin32::SetupMapping()
 	}
 
 	_data = MapViewOfFile(_map.h, FILE_MAP_READ, 0, 0, 0);
-	if( nullptr == _data )
+	if( !_data )
 	{
 		throw std::runtime_error(StrFromErr(GetLastError()));
 	}
 }
 
-char* MemMapWin32::GetData()
+const void* MemMapWin32::GetData() const
 {
-	return (char *) _data;
+	return _data;
 }
 
 unsigned long MemMapWin32::GetSize() const
@@ -339,14 +325,39 @@ void MemMapWin32::Seek(long long amount, unsigned int origin)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FileSystemWin32::FileSystemWin32(std::string_view rootDirectory)
-	: _rootDirectory(rootDirectory)
+static std::wstring WinPathCombine(std::wstring_view first, std::string_view second)
 {
+	// result = first + '\\' + second
+	std::wstring result;
+	result.reserve(first.size() + second.size() + 1);
+	result.append(first);
+	result.append(1, L'\\');
+	utf8::utf8to16(second.begin(), second.end(), std::back_inserter(result));
+	return result;
+}
+
+static std::string w2s(std::wstring_view w)
+{
+	std::string s;
+	s.reserve(w.size());
+	utf8::utf16to8(w.begin(), w.end(), std::back_inserter(s));
+	return s;
+}
+
+FileSystemWin32::FileSystemWin32(std::wstring rootDirectory)
+	: _rootDirectory(std::move(rootDirectory))
+{
+}
+
+FileSystemWin32::FileSystemWin32(std::string_view rootDirectory)
+{
+	_rootDirectory.reserve(rootDirectory.size());
+	utf8::utf8to16(rootDirectory.begin(), rootDirectory.end(), std::back_inserter(_rootDirectory));
 }
 
 std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 {
-	std::wstring query = PathCombine(_rootDirectory, mask);
+	std::wstring query = WinPathCombine(_rootDirectory, mask);
 
 	WIN32_FIND_DATAW fd;
 	HANDLE hSearch = FindFirstFileExW(
@@ -378,18 +389,26 @@ std::vector<std::string> FileSystemWin32::EnumAllFiles(std::string_view mask)
 	return files;
 }
 
-std::shared_ptr<File> FileSystemWin32::RawOpen(const std::string &fileName, FileMode mode)
+std::shared_ptr<File> FileSystemWin32::RawOpen(std::string_view fileName, FileMode mode, bool nothrow)
 {
 	// combine with the root path
-	return std::make_shared<FileWin32>(PathCombine(_rootDirectory, fileName), mode);
+	auto file = OpenFileWin32(WinPathCombine(_rootDirectory, fileName), mode);
+	if (INVALID_HANDLE_VALUE == file.h)
+	{
+		if (nothrow)
+			return nullptr;
+		else
+			throw std::runtime_error(StrFromErr(GetLastError()));
+	}
+	return std::make_shared<FileWin32>(std::move(file), mode);
 }
 
-std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FileSystem> FileSystemWin32::GetFileSystem(std::string_view path, bool create, bool nothrow)
 try
 {
-	if (std::shared_ptr<FileSystem> tmp = FileSystem::GetFileSystem(path, create, true))
+	if (auto fs = FileSystem::GetFileSystem(path, create, true))
 	{
-		return tmp;
+		return fs;
 	}
 
 	assert(!path.empty());
@@ -398,9 +417,9 @@ try
 	std::string::size_type offset = path.find_first_not_of('/');
 	assert(std::string::npos != offset);
 
-	std::string::size_type p = path.find('/', offset);
-	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
-	std::wstring tmpDir = PathCombine(_rootDirectory, dirName);
+	auto p = path.find('/', offset);
+	auto dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
+	auto tmpDir = WinPathCombine(_rootDirectory, dirName);
 
 	// try to find directory
 	WIN32_FIND_DATAW fd = {0};
@@ -461,7 +480,7 @@ try
 	if( 0 == (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		throw std::runtime_error("object is not a directory");
 
-	std::shared_ptr<FileSystem> child = std::make_shared<FileSystemWin32>(_rootDirectory + '\\' + dirName);
+	auto child = std::make_shared<FileSystemWin32>(tmpDir);
 	Mount(dirName, child);
 
 	if( std::string::npos != p )

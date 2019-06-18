@@ -14,6 +14,7 @@
 #include <ui/DataSource.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
+#include <ui/Rating.h>
 #include <ui/Rectangle.h>
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
@@ -60,7 +61,8 @@ namespace
 		DMCampaign &_dmCampaign;
 	};
 
-	class TierProgressIndexBinding : public UI::RenderData<unsigned int>
+	class TierProgressIndexBinding final
+		: public UI::RenderData<unsigned int>
 	{
 	public:
 		TierProgressIndexBinding(AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, size_t mapIndex)
@@ -86,7 +88,8 @@ namespace
 	const auto c_tierBoxFrame = std::make_shared<UI::StateBinding<unsigned int>>(1, // default
 		UI::StateBinding<unsigned int>::MapType{ { "Normal", 0 } });
 
-	class TierBox : public UI::Rectangle
+	class TierBox final
+		: public UI::WindowContainer
 	{
 	public:
 		TierBox()
@@ -99,10 +102,104 @@ namespace
 			AddFront(center);
 		}
 
-		FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override
+		UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override
 		{
-			return MakeRectWH(lc.GetPixelSize() / 4, lc.GetPixelSize() / 2);
+			return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize() / 4, lc.GetPixelSize() / 2), 1, true };
 		}
+	};
+
+	class DifficultySelectorContent final : public UI::WindowContainer
+	{
+	public:
+		DifficultySelectorContent(ConfVarNumber& confValue)
+			: _confValue(confValue)
+		{
+			auto background = std::make_shared<UI::Rectangle>();
+			background->SetTexture("ui/button");
+			background->SetFrame(std::make_shared<UI::StateBinding<unsigned int>>(0, // default
+				UI::StateBinding<unsigned int>::MapType{ { "Hover", 1 }, { "Pushed", 1 } }));
+			AddFront(background);
+
+			auto rating = std::make_shared<UI::Rating>();
+			rating->SetRating(std::make_shared<DifficultyConfigBinding>(confValue));
+			AddFront(rating);
+
+			auto proxy = std::make_shared<NavigationProxy>(confValue);
+			AddFront(proxy);
+			SetFocus(proxy.get());
+		}
+
+		// Window
+		UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override
+		{
+			return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
+		}
+
+	private:
+		class DifficultyConfigBinding final
+			: public UI::RenderData<unsigned int>
+		{
+		public:
+			DifficultyConfigBinding(const ConfVarNumber& confValue)
+				: _confValue(confValue)
+			{}
+
+			// UI::RenderData<unsigned int>
+			unsigned int GetRenderValue(const UI::DataContext& dc, const UI::StateContext& sc) const override
+			{
+				return _confValue.GetInt() + 1;
+			}
+
+		private:
+			const ConfVarNumber& _confValue;
+		};
+
+		class NavigationProxy final
+			: public UI::Window
+			, private UI::NavigationSink
+		{
+		public:
+			explicit NavigationProxy(ConfVarNumber& confValue)
+				: _confValue(confValue)
+			{}
+			// UI::Window
+			UI::NavigationSink* GetNavigationSink() override { return this; }
+
+		private:
+			// UI::NavigationSink
+			bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override
+			{
+				switch (navigate)
+				{
+				case UI::Navigate::Left:
+				case UI::Navigate::Right:
+					return true;
+				default:
+					return false;
+				}
+			}
+			void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override
+			{
+				if (phase == UI::NavigationPhase::Started)
+				{
+					switch (navigate)
+					{
+						case UI::Navigate::Left:
+							_confValue.SetInt(std::max(0, _confValue.GetInt() - 1));
+							break;
+						case UI::Navigate::Right:
+							_confValue.SetInt(std::min(2, _confValue.GetInt() + 1));
+							break;
+						default:
+							break;
+					}
+				}
+			}
+
+			ConfVarNumber& _confValue;
+		};
+
+		ConfVarNumber& _confValue;
 	};
 }
 
@@ -117,13 +214,20 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
-	auto placeholder = std::make_shared<UI::Window>();
-	placeholder->Resize(48, 48);
-	_content->AddFront(placeholder); // FIXME: hack placeholder
+	auto difficultySelectorContent = std::make_shared<DifficultySelectorContent>(appConfig.sp_difficulty);
+	difficultySelectorContent->Resize(144, 48);
+	auto difficultySelectorButton = std::make_shared<UI::ContentButton>();;
+	difficultySelectorButton->SetContent(difficultySelectorContent);
+	difficultySelectorButton->eventClick = [&appConfig]
+	{
+		appConfig.sp_difficulty.SetInt((appConfig.sp_difficulty.GetInt() + 1) % 3);
+	};
+
+	_content->AddFront(difficultySelectorButton);
 
 	_mapTiles->SetFlowDirection(UI::FlowDirection::Horizontal);
 	_content->AddFront(_mapTiles);
-	_content->SetFocus(_mapTiles);
+	_content->SetFocus(_mapTiles.get());
 
 	for (size_t i = 0; i < _dmCampaign.tiers.GetSize(); i++)
 	{
@@ -132,6 +236,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 
 	_tierSelector->SetItemTemplate(std::make_shared<TierBox>());
 	_tierSelector->SetFlowDirection(UI::FlowDirection::Horizontal);
+	_tierSelector->SetEnableNavigation(false);
 	_tierSelector->SetCurSel(GetCurrentTier(_conf, _dmCampaign));
 	_tierSelector->eventChangeCurSel = [=](int index)
 	{
@@ -151,7 +256,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	_content->SetSpacing(48);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
-	SetFocus(_content);
+	SetFocus(_content.get());
 
 	UpdateTier();
 }
@@ -188,20 +293,18 @@ void SinglePlayer::UpdateTier()
 		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
 		mapPreview->SetLocked(locked);
 
-		auto mpButton = std::make_shared<UI::ButtonBase>();
-		mpButton->AddFront(mapPreview);
-		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
-		mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
-		if (locked)
+		auto mpButton = std::make_shared<UI::ContentButton>();
+		mpButton->SetContent(mapPreview);
+		if (!locked)
 		{
-			mpButton->SetEnabled(UI::StaticValue<bool>::False());
+			mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
 		}
 
 		_mapTiles->AddFront(mpButton);
 
 		if (mapIndex == currentMap)
 		{
-			_mapTiles->SetFocus(mpButton);
+			_mapTiles->SetFocus(mpButton.get());
 		}
 	}
 }
@@ -222,21 +325,22 @@ int SinglePlayer::GetNextTier(UI::Navigate navigate) const
 
 void SinglePlayer::OnOK(int index)
 {
-	if (-1 != index && eventSelectMap)
+	if (eventSelectMap)
 	{
-		eventSelectMap(std::static_pointer_cast<SinglePlayer>(shared_from_this()), index);
+		eventSelectMap(index);
 	}
 }
 
-FRECT SinglePlayer::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout SinglePlayer::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_content.get() == &child)
 	{
 		vec2d pxMargins = UI::ToPx(vec2d{ _conf.ui_tile_spacing.GetFloat(), _conf.ui_tile_spacing.GetFloat() }, lc);
-		return MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins);
+		return UI::WindowLayout{ MakeRectRB(pxMargins, lc.GetPixelSize() - pxMargins), 1, true };
 	}
 
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
 vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext &dc, float scale, const UI::LayoutConstraints &layoutConstraints) const
@@ -245,12 +349,12 @@ vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints) + pxMargins * 2;
 }
 
-bool SinglePlayer::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+bool SinglePlayer::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	return GetNextTier(navigate) != GetCurrentTier(_conf, _dmCampaign);
 }
 
-void SinglePlayer::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
+void SinglePlayer::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Started == phase)
 	{

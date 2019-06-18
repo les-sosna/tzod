@@ -16,7 +16,7 @@ template
 	size_t extra_bytes = 0,
 	size_t block_size = 128
 >
-class MemoryPool
+class MemoryPool final
 {
 	struct Block;
 

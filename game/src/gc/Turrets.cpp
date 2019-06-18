@@ -1,7 +1,6 @@
 #include "TypeReg.h"
 #include "inc/gc/Turrets.h"
 #include "inc/gc/Explosion.h"
-#include "inc/gc/Indicators.h"
 #include "inc/gc/Vehicle.h"
 #include "inc/gc/Player.h"
 #include "inc/gc/Projectiles.h"
@@ -22,7 +21,7 @@
 #define TURET_CANON_RELOAD   0.4f
 
 
-IMPLEMENT_1LIST_MEMBER(GC_Turret, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_RigidBodyStatic, GC_Turret, LIST_timestep);
 
 GC_Turret::GC_Turret(vec2d pos, TurretState state)
   : GC_RigidBodyStatic(pos)

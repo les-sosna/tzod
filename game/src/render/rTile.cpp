@@ -1,5 +1,5 @@
 #include "rTile.h"
-#include <gc/Actor.h>
+#include <gc/MovingObject.h>
 #include <gc/NeighborAware.h>
 #include <gc/World.h>
 #include <video/TextureManager.h>
@@ -20,16 +20,16 @@ R_Tile::R_Tile(TextureManager &tm, const char *tex, SpriteColor color, vec2d off
 	assert(9 == tm.GetFrameCount(_texId) || _animated);
 }
 
-void R_Tile::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Tile::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GI_NeighborAware*>(&actor));
+	assert(dynamic_cast<const GI_NeighborAware*>(&mo));
 
-	vec2d pos = actor.GetPos() + _offset;
-	vec2d dir = actor.GetDirection();
+	vec2d pos = mo.GetPos() + _offset;
+	vec2d dir = mo.GetDirection();
 
 	if (rc.GetScale() > 0.25 )
 	{
-		auto &na = dynamic_cast<const GI_NeighborAware&>(actor);
+		auto &na = dynamic_cast<const GI_NeighborAware&>(mo);
 		int tile = na.GetNeighbors(world);
 		for (int i = 0; i < 8; ++i)
 		{

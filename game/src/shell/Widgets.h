@@ -9,7 +9,7 @@
 class AppState;
 class TextureManager;
 
-class FpsCounter
+class FpsCounter final
 	: public UI::Text
 	, private UI::TimeStepping
 {
@@ -17,7 +17,7 @@ public:
 	FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppState &appState);
 
 protected:
-	void OnTimeStep(const UI::InputContext &ic, float dt);
+	void OnTimeStep(Plat::Input &input, bool focused, float dt);
 
 private:
 	float _minDt = FLT_MAX;
@@ -31,7 +31,8 @@ private:
 	AppState &_appState;
 };
 
-class Oscilloscope : public UI::Rectangle
+class Oscilloscope final
+	: public UI::Rectangle
 {
 public:
 	Oscilloscope();
@@ -44,7 +45,7 @@ public:
 	void AutoRange();
 
 protected:
-	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 
 private:
 	UI::Texture _barTexture = "ui/bar";

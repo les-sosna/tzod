@@ -2,7 +2,7 @@
 #include <list>
 
 template <class T>
-class JobManager
+class JobManager final
 {
 public:
 	~JobManager()

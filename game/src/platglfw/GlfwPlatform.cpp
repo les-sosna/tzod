@@ -34,14 +34,19 @@ bool GlfwInput::IsKeyPressed(Plat::Key key) const
 	return GLFW_PRESS == glfwGetKey(&_window, platformKey);
 }
 
-bool GlfwInput::IsMousePressed(int button) const
+Plat::PointerState GlfwInput::GetPointerState(unsigned int index) const
 {
-	return GLFW_PRESS == glfwGetMouseButton(&_window, button-1);
-}
-
-vec2d GlfwInput::GetMousePos() const
-{
-	return GetCursorPosInPixels(&_window);
+	Plat::PointerState result = { Plat::PointerType::Unknown };
+	if (index == 0 && _mousePresent)
+	{
+		result.type = Plat::PointerType::Mouse;
+		result.button1 = GLFW_PRESS == glfwGetMouseButton(&_window, 0);
+		result.button2 = GLFW_PRESS == glfwGetMouseButton(&_window, 1);
+		result.button3 = GLFW_PRESS == glfwGetMouseButton(&_window, 2);
+		result.pressed = result.button1 || result.button2 || result.button3;
+		result.position = GetCursorPosInPixels(&_window);
+	}
+	return result;
 }
 
 Plat::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
@@ -88,7 +93,7 @@ Plat::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
 
 bool GlfwInput::GetSystemNavigationBackAvailable() const
 {
-	return true;
+	return true; // keyboard Esc should be available
 }
 
 

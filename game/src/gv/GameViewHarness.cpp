@@ -54,8 +54,6 @@ RectRB GetCameraViewport(int screenW, int screenH, unsigned int camCount, unsign
 
 GameViewHarness::GameViewHarness(World &world, WorldController &worldController)
   : _world(world)
-  , _scale(1)
-  , _maxShakeCamera(nullptr)
 {
 	_world.eGC_RigidBodyStatic.AddListener(*this);
 	_world.eGC_Explosion.AddListener(*this);

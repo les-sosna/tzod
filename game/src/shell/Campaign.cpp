@@ -15,14 +15,14 @@ NewCampaignDlg::NewCampaignDlg(FS::FileSystem &fs, LangCache &lang)
 	Resize(512, 400);
 
 	auto t = std::make_shared<UI::Text>();
-	t->Move(GetWidth() / 2, 16);
+//	t->Move(GetWidth() / 2, 16);
 	t->SetText(ConfBind(lang.campaign_title));
 	t->SetAlign(alignTextCT);
 	t->SetFont("font_default");
 	AddFront(t);
 
 	_files = std::make_shared<DefaultListBox>();
-	_files->Move(20, 56);
+//	_files->Move(20, 56);
 	_files->Resize(472, 280);
 	AddFront(_files);
 
@@ -36,7 +36,7 @@ NewCampaignDlg::NewCampaignDlg(FS::FileSystem &fs, LangCache &lang)
 
 	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.campaign_ok));
-	btn->Move(290, 360);
+//	btn->Move(290, 360);
 	btn->eventClick = std::bind(&NewCampaignDlg::OnOK, this);
 	AddFront(btn);
 }
@@ -50,6 +50,6 @@ void NewCampaignDlg::OnOK()
 	if( -1 != _files->GetCurSel() )
 	{
 		if( eventCampaignSelected )
-			eventCampaignSelected(std::static_pointer_cast<NewCampaignDlg>(shared_from_this()), _files->GetData()->GetItemText(_files->GetCurSel(), 0));
+			eventCampaignSelected(_files->GetData()->GetItemText(_files->GetCurSel(), 0));
 	}
 }

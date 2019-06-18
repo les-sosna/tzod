@@ -1,7 +1,7 @@
 #include "inc/as/AppController.h"
-#include "inc/as/AppConfig.h"
 #include "inc/as/AppConstants.h"
 #include "inc/as/AppState.h"
+#include <ctx/AppConfig.h>
 #include <ctx/EditorContext.h>
 #include <ctx/Gameplay.h>
 #include <ctx/GameContext.h>
@@ -35,12 +35,12 @@ static DMSettings GetCampaignDMSettings(AppConfig &appConfig, DMCampaign &dmCamp
 		settings.bots.push_back(GetPlayerDescFromConf(p));
 	}
 
+	settings.difficulty = static_cast<AIDiffuculty>(std::clamp(appConfig.sp_difficulty.GetInt(), 0, 3));
 	settings.timeLimit = mapDesc.timelimit.GetFloat() * 60;
 	settings.fragLimit = mapDesc.fraglimit.GetInt();
 
 	return settings;
 }
-
 
 AppController::AppController(FS::FileSystem &fs)
 	: _fs(fs)
@@ -52,29 +52,11 @@ AppController::~AppController()
 {
 }
 
-void AppController::Step(AppState &appState, AppConfig &appConfig, float dt)
+void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, bool *outConfigChanged)
 {
 	if (GameContextBase *gc = appState.GetGameContext().get())
 	{
-		gc->Step(dt);
-
-		if (auto gameplay = gc->GetGameplay())
-		{
-			if (gameplay->IsGameOver())
-			{
-				if (auto campaignGC = dynamic_cast<GameContextCampaignDM*>(gc))
-				{
-					if (campaignGC->GetCampaignTier() >= 0 && campaignGC->GetCampaignMap() >= 0)
-					{
-						appConfig.sp_tiersprogress.EnsureIndex(campaignGC->GetCampaignTier());
-						ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(campaignGC->GetCampaignTier());
-						tierprogress.EnsureIndex(campaignGC->GetCampaignMap());
-						int currentRating = tierprogress.GetNum(campaignGC->GetCampaignMap()).GetInt();
-						tierprogress.SetNum(campaignGC->GetCampaignMap(), std::max(currentRating, gameplay->GetRating()));
-					}
-				}
-			}
-		}
+		gc->Step(dt, appConfig, outConfigChanged);
 	}
 }
 

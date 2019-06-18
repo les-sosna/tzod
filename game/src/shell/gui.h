@@ -9,12 +9,16 @@ namespace FS
 	class FileSystem;
 }
 
+namespace Plat
+{
+	class ConsoleBuffer;
+}
+
 namespace UI
 {
 	class Button;
 	class CheckBox;
 	class ComboBox;
-	class ConsoleBuffer;
 	class Edit;
 	class ListBox;
 	class ListDataSourceDefault;
@@ -27,10 +31,10 @@ class NewGameDlg
 	: public UI::Dialog
 {
 public:
-	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, UI::ConsoleBuffer &logger, LangCache &lang);
+	NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &conf, Plat::ConsoleBuffer &logger, LangCache &lang);
 	~NewGameDlg() override;
 
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
 
 protected:
 	void RefreshPlayersList();
@@ -38,15 +42,11 @@ protected:
 
 protected:
 	void OnAddPlayer();
-	void OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnEditPlayer();
-	void OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnRemovePlayer();
 
 	void OnAddBot();
-	void OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnEditBot();
-	void OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result);
 	void OnRemoveBot();
 
 	void OnOK();
@@ -82,7 +82,7 @@ public:
 	EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellConfig &conf, LangCache &lang);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
 
 protected:
 	void OnChangeSkin(int index);
@@ -113,7 +113,7 @@ public:
 	EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &lang);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const override;
 
 protected:
 	void OnOK();

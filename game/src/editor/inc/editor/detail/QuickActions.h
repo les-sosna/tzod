@@ -4,7 +4,7 @@
 
 class GC_Object;
 class World;
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -12,11 +12,11 @@ namespace UI
 class QuickActions
 {
 public:
-	QuickActions(UI::ConsoleBuffer &logger, World &world);
+	QuickActions(Plat::ConsoleBuffer &logger, World &world);
 
 	void DoAction(GC_Object &object);
 
 private:
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 	std::unique_ptr<lua_State, LuaStateDeleter> _L;
 };

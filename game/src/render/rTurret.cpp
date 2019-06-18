@@ -10,10 +10,10 @@ R_Turret::R_Turret(TextureManager &tm, const char *texPlatform, const char *texW
 {
 }
 
-void R_Turret::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Turret::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Turret*>(&actor));
-	auto &turret = static_cast<const GC_Turret&>(actor);
+	assert(dynamic_cast<const GC_Turret*>(&mo));
+	auto &turret = static_cast<const GC_Turret&>(mo);
 
 	vec2d pos = turret.GetPos();
 	vec2d dir = turret.GetDirection();

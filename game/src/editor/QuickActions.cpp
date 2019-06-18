@@ -1,10 +1,10 @@
 #include "inc/editor/detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/TypeSystem.h>
-#include "gclua/lObject.h"
+#include <gclua/lObject.h>
 #include <gclua/lObjUtil.h>
-#include "gclua/lWorld.h"
-#include <ui/ConsoleBuffer.h>
+#include <gclua/lWorld.h>
+#include <plat/ConsoleBuffer.h>
 #include <stdexcept>
 
 extern "C"
@@ -79,7 +79,7 @@ static int doaction(lua_State *L)
 	return 0;
 }
 
-QuickActions::QuickActions(UI::ConsoleBuffer &logger, World &world)
+QuickActions::QuickActions(Plat::ConsoleBuffer &logger, World &world)
 	: _logger(logger)
 	, _L(luaL_newstate())
 {

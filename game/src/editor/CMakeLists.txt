@@ -2,7 +2,8 @@ cmake_minimum_required (VERSION 3.3)
 
 add_library(editor
 	inc/editor/Config.h
-	inc/editor/Editor.h
+	inc/editor/EditorMain.h
+	inc/editor/EditorWorldView.h
 	inc/editor/MapSettings.h
 	inc/editor/detail/DefaultCamera.h
 	inc/editor/detail/QuickActions.h
@@ -14,7 +15,8 @@ add_library(editor
 
 	Config.cpp
 	DefaultCamera.cpp
-	Editor.cpp
+	EditorMain.cpp
+	EditorWorldView.cpp
 	GameClassVis.cpp
 	MapList.cpp
 	MapSettings.cpp

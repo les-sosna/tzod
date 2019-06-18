@@ -20,16 +20,19 @@
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
 #include <ui/Rating.h>
+#include <ui/Rectangle.h>
 #include <ui/StackLayout.h>
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-#include <sstream>
+#include <cfloat>
 #include <iomanip>
+#include <sstream>
 
 namespace
 {
-	class TimerDisplay : public UI::LayoutData<std::string_view>
+	class TimerDisplay final
+		: public UI::LayoutData<std::string_view>
 	{
 	public:
 		TimerDisplay(World &world, const Deathmatch *deathmatch)
@@ -66,25 +69,29 @@ namespace
 		mutable std::string _cachedString;
 	};
 
-	class DeathmatchRatingBinding : public UI::RenderData<unsigned int>
+	class DeathmatchCampaignRatingBinding final
+		: public UI::RenderData<unsigned int>
 	{
 	public:
-		DeathmatchRatingBinding(const Deathmatch &deathmatch)
-			: _deathmatch(deathmatch)
+		DeathmatchCampaignRatingBinding(const GameContextCampaignDM &campaignContext)
+			: _campaignContext(campaignContext)
 		{}
 
 		// UI::RenderData<unsigned int>
 		unsigned int GetRenderValue(const UI::DataContext &dc, const UI::StateContext &sc) const override
 		{
-			return _deathmatch.GetRating();
+			return _campaignContext.GetRating();
 		}
 
 	private:
-		const Deathmatch &_deathmatch;
+		const GameContextCampaignDM &_campaignContext;
 	};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+constexpr float showScoreDelay = 0.3f;
+
 
 GameLayout::GameLayout(UI::TimeStepManager &manager,
                        std::shared_ptr<GameContext> gameContext,
@@ -92,7 +99,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
                        WorldController &worldController,
                        ShellConfig &conf,
                        LangCache &lang,
-                       UI::ConsoleBuffer &logger,
+                       Plat::ConsoleBuffer &logger,
                        CampaignControlCommands campaignControlCommands)
   : UI::TimeStepping(manager)
   , _scoreAndControls(std::make_shared<UI::StackLayout>())
@@ -106,6 +113,10 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 {
 	assert(_gameContext);
 
+	_background = std::make_shared<UI::Rectangle>();
+	_background->SetTexture("ui/list");
+	AddFront(_background);
+
 	_scoreAndControls->SetSpacing(20);
 	_scoreAndControls->SetAlign(UI::Align::CT);
 	AddFront(_scoreAndControls);
@@ -113,16 +124,15 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 	_msg = std::make_shared<MessageArea>(manager, logger);
 	AddFront(_msg);
 
-	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
-
-	if (deathmatch)
+	if ( auto campaignContext = dynamic_cast<GameContextCampaignDM*>(_gameContext.get()))
 	{
 		_rating = std::make_shared<UI::Rating>();
-		_rating->SetRating(std::make_shared<DeathmatchRatingBinding>(*deathmatch));
+		_rating->SetRating(std::make_shared<DeathmatchCampaignRatingBinding>(*campaignContext));
 		_rating->SetVisible(false);
 		_scoreAndControls->AddFront(_rating);
 	}
 
+	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
 	_score = std::make_shared<ScoreTable>(_gameContext->GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
@@ -132,16 +142,13 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 		_campaignControls = std::make_shared<CampaignControls>(*deathmatch, std::move(campaignControlCommands));
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
-		_scoreAndControls->SetFocus(_campaignControls);
+		_scoreAndControls->SetFocus(_campaignControls.get());
 	}
 
 	_timerDisplay = std::make_shared<UI::Text>();
 	_timerDisplay->SetAlign(alignTextRB);
 	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
 	AddFront(_timerDisplay);
-
-	_conf.g_showtime.eventChange = std::bind(&GameLayout::OnChangeShowTime, this);
-	OnChangeShowTime();
 
 	SetTimeStep(true);
 	_gameContext->GetGameEventSource().AddListener(*this);
@@ -150,7 +157,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 GameLayout::~GameLayout()
 {
 	_gameContext->GetGameEventSource().RemoveListener(*this);
-	_conf.g_showtime.eventChange = nullptr;
 }
 
 vec2d GameLayout::GetDragDirection() const
@@ -206,26 +212,55 @@ unsigned int GameLayout::GetEffectiveDragCount() const
 	return count;
 }
 
-void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
+bool GameLayout::GetAllPlayerDead() const
 {
-	bool tab = ic.GetInput().IsKeyPressed(Plat::Key::Tab);
-	bool gameOver = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->IsGameOver() : false;
 	bool allDead = !_gameContext->GetWorldController().GetLocalPlayers().empty();
 	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
-		allDead &= !player->GetVehicle();
-	_score->SetVisible(tab || gameOver || (allDead && _gameContext->GetWorld().GetTime() > PLAYER_RESPAWN_DELAY));
+		allDead &= (player->GetNumDeaths() > 0 && !player->GetVehicle());
+	return allDead;
+}
+
+float GameLayout::GetLastPlayerDieTime() const
+{
+	float lastDieTime = FLT_MAX;
+	for (auto player : _gameContext->GetWorldController().GetLocalPlayers())
+	{
+		if (player->GetNumDeaths() > 0)
+		{
+			if (lastDieTime == FLT_MAX)
+				lastDieTime = 0;
+			lastDieTime = std::max(lastDieTime, player->GetDieTime());
+		}
+	}
+	return lastDieTime;
+}
+
+void GameLayout::OnTimeStep(Plat::Input &input, bool focused, float dt)
+{
+	float gameplayTime = _gameContext->GetGameplayTime();
+	float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
+	float lastDieTime = GetLastPlayerDieTime();
+
+	constexpr float showRatingDelay = 1.0f;
+	constexpr float showControlsDelay = 2.0f;
+
+	bool showScoreWhenDead = lastDieTime <= gameplayTime - showScoreDelay && GetAllPlayerDead();
+	bool showScoreWhenGameOver = gameOverTime <= gameplayTime - showScoreDelay;
+	bool showScoreWhenTabPressed = input.IsKeyPressed(Plat::Key::Tab);
+
+	_score->SetVisible(showScoreWhenTabPressed || showScoreWhenDead || showScoreWhenGameOver);
 	if (_campaignControls)
-		_campaignControls->SetVisible(gameOver);
+		_campaignControls->SetVisible(gameOverTime <= gameplayTime - showControlsDelay);
 	if (_rating)
-		_rating->SetVisible(gameOver);
+		_rating->SetVisible(gameOverTime <= gameplayTime - showRatingDelay);
 
 	_gameViewHarness.Step(dt);
 
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (auto player : players)
-		player->SetIsActive(ic.GetFocused());
+		player->SetIsActive(focused);
 
-	if (ic.GetFocused())
+	if (focused)
 	{
 		WorldController::ControllerStateMap controlStates;
 
@@ -240,8 +275,7 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 				if( GC_Vehicle *vehicle = players[playerIndex]->GetVehicle() )
 				{
 					VehicleState vs;
-					vehicleStateReader->ReadVehicleState(_gameViewHarness, *vehicle, playerIndex,
-						ic.GetInput(), dragDirection, reversing, vs);
+					vehicleStateReader->ReadVehicleState(_gameViewHarness, *vehicle, playerIndex, input, dragDirection, reversing, vs);
 					controlStates.insert(std::make_pair(vehicle->GetId(), vs));
 				}
 			}
@@ -251,17 +285,22 @@ void GameLayout::OnTimeStep(const UI::InputContext &ic, float dt)
 	}
 }
 
-void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
-	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize((int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y, lc.GetScale());
+	int pxWidth = (int)lc.GetPixelSize().x;
+	int pxHeight = (int)lc.GetPixelSize().y;
+	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f); // lc.GetScaleCombined()
+	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize(pxWidth, pxHeight, scale);
 
 	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
 
+	// On-screen controls
 	vec2d dir = GetDragDirection();
 	bool reversing = GetEffectiveDragCount() > 1;
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
 	{
+		// Draw touch drag indicator
 		if (!dir.IsZero())
 		{
 			if (const GC_Vehicle *vehicle = players[playerIndex]->GetVehicle())
@@ -274,6 +313,7 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 			}
 		}
 		
+		// Draw tap target
 		if (const VehicleStateReader *vehicleStateReader = _inputMgr.GetVehicleStateReader(playerIndex))
 		{
 			float time = vehicleStateReader->GetRemainingFireTime();
@@ -286,33 +326,51 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	}
 }
 
-FRECT GameLayout::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
+	if (_background.get() == &child)
+	{
+		UI::WindowLayout result;
+		if (_gameContext->GetGameplay() && _gameContext->GetGameplay()->GetGameOverTime() <= _gameContext->GetGameplayTime())
+			result = UI::WindowLayout{ MakeRectWH(size), 1, true };
+		else
+			result = GetChildLayout(texman, lc, dc, *_scoreAndControls);
+		float gameplayTime = _gameContext->GetGameplayTime();
+		float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
+		result.opacity = _score->GetVisible() ? 1 : std::clamp((gameplayTime - gameOverTime) / showScoreDelay, 0.f, 1.f);
+		return result;
+	}
 	if (_scoreAndControls.get() == &child)
 	{
-		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc));
-		return MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize);
+		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
+		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize), 1, true };
 	}
 	if (_timerDisplay.get() == &child)
 	{
-		return UI::CanvasLayout(size / scale, _timerDisplay->GetSize(), scale);
+		return UI::WindowLayout{ MakeRectWH(size - vec2d{1, 1}, {}), 1, true };
 	}
 	if (_msg.get() == &child)
 	{
-		return UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale);
+		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 50, size.y / scale - 50 }, _msg->GetSize(), scale), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
-std::shared_ptr<UI::Window> GameLayout::GetFocus() const
+std::shared_ptr<const UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
 {
 	return _scoreAndControls;
 }
 
-bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+const UI::Window* GameLayout::GetFocus() const
+{
+	return _scoreAndControls.get();
+}
+
+bool GameLayout::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (Plat::PointerType::Touch == pi.type)
 	{
@@ -323,12 +381,12 @@ bool GameLayout::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, Text
 	return false;
 }
 
-void GameLayout::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+void GameLayout::OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	_activeDrags.erase(pi.id);
 }
 
-void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void GameLayout::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	if( captured )
 	{
@@ -343,7 +401,7 @@ void GameLayout::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, Text
 	}
 }
 
-void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void GameLayout::OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (unsigned int playerIndex = 0; playerIndex != players.size(); ++playerIndex)
@@ -357,11 +415,6 @@ void GameLayout::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManag
 			}
 		}
 	}
-}
-
-void GameLayout::OnChangeShowTime()
-{
-	_timerDisplay->SetVisible(_conf.g_showtime.Get());
 }
 
 void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)

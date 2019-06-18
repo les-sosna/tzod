@@ -21,7 +21,6 @@ enum TurretState
 class GC_Turret : public GC_RigidBodyStatic
 {
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_RigidBodyStatic base;
 
 public:
 	GC_Turret(vec2d pos, TurretState state);
@@ -106,7 +105,7 @@ public:
 
 	// GC_RigidBodyStatic
 	float GetDefaultHealth() const override { return 500; }
-	unsigned char GetPassability() const override { return 1; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 
 	// GC_Object
 	void Serialize(World &world, SaveFile &f) override;
@@ -135,7 +134,7 @@ public:
 
 	// GC_RigidBodyStatic
 	float GetDefaultHealth() const override { return 600; }
-	unsigned char GetPassability() const override { return 1; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 
 	// GC_Object
 	void Serialize(World &world, SaveFile &f) override;
@@ -201,8 +200,8 @@ public:
 	virtual ~GC_TurretMinigun();
 
 	// GC_Turret
-    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
-    unsigned char GetPassability() const override { return 1; }
+	void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
+	uint8_t GetObstacleFlags() const override { return 1; }
 
 	// GC_RigidBodyStatic
     float GetDefaultHealth() const override { return 250; }
@@ -230,19 +229,19 @@ public:
 	virtual ~GC_TurretGauss();
 
 	// GC_Turret
-    void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
-    void TargetLost(World &world) override;
+	void CalcOutstrip(World &world, const GC_Vehicle *target, vec2d &fake) override;
+	void TargetLost(World &world) override;
 
 	// GC_RigidBodyStatic
-    float GetDefaultHealth() const override { return 250; }
-    unsigned char GetPassability() const override { return 1; }
+	float GetDefaultHealth() const override { return 250; }
+	uint8_t GetObstacleFlags() const override { return 1; }
 
 	// GC_Object
-    void Serialize(World &world, SaveFile &f) override;
-    void TimeStep(World &world, float dt) override;
+	void Serialize(World &world, SaveFile &f) override;
+	void TimeStep(World &world, float dt) override;
 
 protected:
-    void OnShoot(World &world) override;
+	void OnShoot(World &world) override;
 
 private:
 	float   _time;

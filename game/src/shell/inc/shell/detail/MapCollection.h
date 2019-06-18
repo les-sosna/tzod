@@ -8,7 +8,7 @@ namespace FS
 	class FileSystem;
 }
 
-class MapCollection
+class MapCollection final
 {
 public:
 	MapCollection(FS::FileSystem &fs);

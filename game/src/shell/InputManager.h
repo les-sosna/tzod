@@ -5,7 +5,7 @@
 
 class ShellConfig;
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -13,7 +13,7 @@ namespace UI
 class InputManager
 {
 public:
-	InputManager(ShellConfig &conf, UI::ConsoleBuffer &logger);
+	InputManager(ShellConfig &conf, Plat::ConsoleBuffer &logger);
 	~InputManager();
 	VehicleStateReader* GetVehicleStateReader(unsigned int playerIndex);
 	const VehicleStateReader* GetVehicleStateReader(unsigned int playerIndex) const;
@@ -22,7 +22,7 @@ public:
 
 private:
 	ShellConfig &_conf;
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
 	std::vector<VehicleStateReader> _controllers;
 	void OnProfilesChange();
 

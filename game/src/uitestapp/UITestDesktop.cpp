@@ -23,19 +23,20 @@ UITestDesktop::UITestDesktop()
 	AddFront(_testButton);
 }
 
-FRECT UITestDesktop::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout UITestDesktop::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
-	float scale = lc.GetScale();
+	float scale = lc.GetScaleCombined();
 	vec2d size = lc.GetPixelSize();
 
 	if (_testRect.get() == &child)
 	{
-		return UI::CanvasLayout({ 0, 42 }, { size.x, 384 }, scale);
+		return UI::WindowLayout{ UI::CanvasLayout({ 0, 42 }, { size.x, 384 }, scale), 1, true };
 	}
 	else if (_testButton.get() == &child)
 	{
-		return MakeRectWH(Vec2dFloor((size - child.GetSize() * scale) / 2), Vec2dFloor(child.GetSize() * scale));
+		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((size - child.GetSize() * scale) / 2), Vec2dFloor(child.GetSize() * scale)), 1, true };
 	}
 
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }

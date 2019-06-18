@@ -13,12 +13,12 @@ namespace FS
 	class FileSystem;
 }
 
-class AppController
+class AppController final
 {
 public:
 	AppController(FS::FileSystem &fs);
 	~AppController();
-	void Step(AppState &appState, AppConfig &appConfig, float dt);
+	void Step(AppState &appState, AppConfig &appConfig, float dt, bool *outConfigChanged);
 //	void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
 	void StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
 	void SetEditorMode(AppState &appState, bool editorMode);

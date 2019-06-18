@@ -16,6 +16,7 @@ add_library(render
 	rLight.h
 	rMinigun.h
 	rParticle.h
+	rPredicate.h
 	rShock.h
 	rSprite.h
 	rText.h

@@ -1,7 +1,7 @@
 #include "MapList.h"
 #include <as/AppConstants.h>
 #include <fs/FileSystem.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 
 #include <sstream>
 #include <iomanip>

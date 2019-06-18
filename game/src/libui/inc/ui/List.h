@@ -28,6 +28,10 @@ public:
 	void SetCurSel(int sel);
 
 	void SetFlowDirection(FlowDirection flowDirection) { _flowDirection = flowDirection; }
+	FlowDirection GetFlowDirection() const { return _flowDirection; }
+
+	void SetEnableNavigation(bool enableNavigation) { _enableNavigation = enableNavigation; }
+	bool GetEnableNavigation() const { return _enableNavigation; }
 
 	std::shared_ptr<Window> GetItemTemplate() const { return _itemTemplate; }
 	void SetItemTemplate(std::shared_ptr<Window> itemTemplate);
@@ -37,14 +41,13 @@ public:
 	std::function<void(int)> eventClickItem;
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
-	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
-	bool HasNavigationSink() const override { return true; }
-	NavigationSink *GetNavigationSink() override { return this; }
-	std::shared_ptr<Window> GetFocus() const override;
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
+	NavigationSink *GetNavigationSink() override { return _enableNavigation ? this : nullptr; }
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 
 protected:
 	// callback interface
@@ -71,16 +74,17 @@ private:
 	ListDataSource *_data;
 
 	int _curSel;
+	bool _enableNavigation = true;
 
 	int GetNextIndex(Navigate navigate) const;
 
 	// PointerSink
-	bool OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
-	void OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
+	bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
+	void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// NavigationSink
-	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
+	bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
 };
 
 } // namespace UI

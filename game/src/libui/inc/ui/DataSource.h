@@ -29,7 +29,7 @@ namespace UI
 	}
 
 	template <class T>
-	class StaticValue
+	class StaticValue final
 		: public LayoutData<T>
 		, public RenderData<T>
 		, public detail::StaticConstants<T>
@@ -67,7 +67,8 @@ namespace UI
 	}
 
 	template <class T>
-	class StateBinding : public RenderData<T>
+	class StateBinding final
+		: public RenderData<T>
 	{
 	public:
 		typedef std::map<std::string, T, std::less<>> MapType;
@@ -90,7 +91,7 @@ namespace UI
 		MapType _valueMap;
 	};
 
-	class StaticText
+	class StaticText final
 		: public LayoutData<std::string_view>
 		, public RenderData<std::string_view>
 	{
@@ -107,7 +108,7 @@ namespace UI
 		std::string _text;
 	};
 
-	class ListDataSourceBinding
+	class ListDataSourceBinding final
 		: public LayoutData<std::string_view>
 		, public RenderData<std::string_view>
 	{

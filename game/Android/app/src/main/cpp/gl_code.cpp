@@ -4,8 +4,8 @@
 #include <GLES2/gl2.h>
 #include <app/tzod.h>
 #include <app/View.h>
-#include <fsposix/FileSystemPosix.h>
-#include <ui/ConsoleBuffer.h>
+#include <fsjni/FileSystemJni.h>
+#include <plat/ConsoleBuffer.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,158 +13,28 @@
 
 #define  LOG_TAG    "libtzodjni"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
     LOGI("GL %s = %s\n", name, v);
 }
 
-static void checkGlError(const char* op) {
-    for (GLint error = glGetError(); error; error
-            = glGetError()) {
-        LOGI("after %s() glError (0x%x)\n", op, error);
-    }
-}
-
-auto gVertexShader =
-    "attribute vec4 vPosition;\n"
-    "void main() {\n"
-    "  gl_Position = vPosition;\n"
-    "}\n";
-
-auto gFragmentShader =
-    "precision mediump float;\n"
-    "void main() {\n"
-    "  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
-    "}\n";
-
-GLuint loadShader(GLenum shaderType, const char* pSource) {
-    GLuint shader = glCreateShader(shaderType);
-    if (shader) {
-        glShaderSource(shader, 1, &pSource, NULL);
-        glCompileShader(shader);
-        GLint compiled = 0;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-        if (!compiled) {
-            GLint infoLen = 0;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-            if (infoLen) {
-                char* buf = (char*) malloc(infoLen);
-                if (buf) {
-                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                    LOGE("Could not compile shader %d:\n%s\n",
-                            shaderType, buf);
-                    free(buf);
-                }
-                glDeleteShader(shader);
-                shader = 0;
-            }
-        }
-    }
-    return shader;
-}
-
-GLuint createProgram(const char* pVertexSource, const char* pFragmentSource) {
-    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, pVertexSource);
-    if (!vertexShader) {
-        return 0;
-    }
-
-    GLuint pixelShader = loadShader(GL_FRAGMENT_SHADER, pFragmentSource);
-    if (!pixelShader) {
-        return 0;
-    }
-
-    GLuint program = glCreateProgram();
-    if (program) {
-        glAttachShader(program, vertexShader);
-        checkGlError("glAttachShader");
-        glAttachShader(program, pixelShader);
-        checkGlError("glAttachShader");
-        glLinkProgram(program);
-        GLint linkStatus = GL_FALSE;
-        glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-        if (linkStatus != GL_TRUE) {
-            GLint bufLength = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
-            if (bufLength) {
-                char* buf = (char*) malloc(bufLength);
-                if (buf) {
-                    glGetProgramInfoLog(program, bufLength, NULL, buf);
-                    LOGE("Could not link program:\n%s\n", buf);
-                    free(buf);
-                }
-            }
-            glDeleteProgram(program);
-            program = 0;
-        }
-    }
-    return program;
-}
-
-GLuint gProgram;
-GLuint gvPositionHandle;
-
-bool setupGraphics(int w, int h) {
-    printGLString("Version", GL_VERSION);
-    printGLString("Vendor", GL_VENDOR);
-    printGLString("Renderer", GL_RENDERER);
-    printGLString("Extensions", GL_EXTENSIONS);
-
-    LOGI("setupGraphics(%d, %d)", w, h);
-    gProgram = createProgram(gVertexShader, gFragmentShader);
-    if (!gProgram) {
-        LOGE("Could not create program.");
-        return false;
-    }
-    gvPositionHandle = glGetAttribLocation(gProgram, "vPosition");
-    checkGlError("glGetAttribLocation");
-    LOGI("glGetAttribLocation(\"vPosition\") = %d\n", gvPositionHandle);
-
-    glViewport(0, 0, w, h);
-    checkGlError("glViewport");
-    return true;
-}
-
-const GLfloat gTriangleVertices[] = { 0.0f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f };
-
-void renderFrame() {
-    static float grey;
-    grey += 0.01f;
-    if (grey > 1.0f) {
-        grey = 0.0f;
-    }
-    glClearColor(grey, grey, grey, 1.0f);
-    checkGlError("glClearColor");
-    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    checkGlError("glClear");
-
-    glUseProgram(gProgram);
-    checkGlError("glUseProgram");
-
-    glVertexAttribPointer(gvPositionHandle, 2, GL_FLOAT, GL_FALSE, 0, gTriangleVertices);
-    checkGlError("glVertexAttribPointer");
-    glEnableVertexAttribArray(gvPositionHandle);
-    checkGlError("glEnableVertexAttribArray");
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    checkGlError("glDrawArrays");
-}
-
-#include "JniAppWindow.h"
-#include "JniConsoleLog.h"
+#include <platjni/JniAppWindow.h>
+#include <platjni/JniConsoleLog.h>
+#include <android/asset_manager_jni.h>
+#include <android/input.h>
 
 struct State
 {
-    UI::ConsoleBuffer logger;
+    Plat::ConsoleBuffer logger;
     std::shared_ptr<FS::FileSystem> fs;
     TzodApp app;
     JniAppWindow appWindow;
     TzodView view;
 
-    State()
+    State(AAssetManager *assetManager)
         : logger(80, 100)
-        , fs(std::make_shared<FS::FileSystemPosix>("data"))
+        , fs(std::make_shared<FS::FileSystemJni>(assetManager, "data"))
         , app(*fs, logger)
         , view(*fs, logger, app, appWindow)
     {
@@ -174,14 +44,52 @@ struct State
 
 std::unique_ptr<State> g_state;
 
-extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv * env, jobject obj,  jint width, jint height)
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv *env, jobject obj, jobject assetManager)
 {
-    g_state = std::make_unique<State>();
-    setupGraphics(width, height);
+    g_state = std::make_unique<State>(AAssetManager_fromJava(env, assetManager));
+
+    printGLString("Version", GL_VERSION);
+    printGLString("Vendor", GL_VENDOR);
+    printGLString("Renderer", GL_RENDERER);
+    printGLString("Extensions", GL_EXTENSIONS);
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv * env, jobject obj)
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_resize(JNIEnv *env, jobject obj, jint width, jint height)
 {
-    renderFrame();
-    g_state->view.Step(0.16);
+    g_state->appWindow.SetPixelSize(vec2d{static_cast<float>(width), static_cast<float>(height)});
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *env, jobject obj)
+{
+    g_state->view.Step(0.016f);
+}
+
+#include <plat/Input.h>
+
+extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_pointer(
+        JNIEnv *env, jobject obj, jint actionMasked, jint pointerId, jfloat x, jfloat y)
+{
+    Plat::Msg action;
+    switch (actionMasked)
+    {
+    case AMOTION_EVENT_ACTION_DOWN:
+    case AMOTION_EVENT_ACTION_POINTER_DOWN:
+        action = Plat::Msg::PointerDown;
+        break;
+    case AMOTION_EVENT_ACTION_UP:
+    case AMOTION_EVENT_ACTION_POINTER_UP:
+        action = Plat::Msg::PointerUp;
+        break;
+    case AMOTION_EVENT_ACTION_MOVE:
+        action = Plat::Msg::PointerMove;
+        break;
+    default:
+        return;
+    }
+
+    Plat::PointerType pointerType = Plat::PointerType::Touch;
+    vec2d pxPointerPos = {x, y};
+    vec2d pxPointerOffset = {};
+    int buttons = 0;
+    g_state->appWindow.GetInputSink()->OnPointer(pointerType, action, pxPointerPos, pxPointerOffset, buttons, (unsigned) pointerId);
 }

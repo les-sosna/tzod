@@ -380,12 +380,12 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 			count = 0;
 		}
 
-		if( (unsigned char) *tmp < 32 )
+		if( (unsigned char) *tmp < lt.leadChar )
 		{
 			continue;
 		}
 
-		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - 32];
+		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - lt.leadChar];
 		float x = x0 + (float) ((count++) * pxAdvance);
 		float y = y0 + (float) (line * pxCharSize.y);
 
@@ -439,8 +439,8 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 	float width = lt.pxFrameWidth;
 	float height = lt.pxFrameHeight;
 
-	float px = lt.uvPivot.x * width;
-	float py = lt.uvPivot.y * height;
+	float px = lt.pxPivot.x;
+	float py = lt.pxPivot.y;
 
 	v[0].color = color;
 	v[0].u = rt.left;
@@ -484,8 +484,8 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 		pos += _currentTransform.offset;
 	}
 
-	float px = lt.uvPivot.x * width;
-	float py = lt.uvPivot.y * height;
+	float px = lt.pxPivot.x * width / lt.pxFrameWidth;
+	float py = lt.pxPivot.y * height / lt.pxFrameHeight;
 
 	v[0].color = color;
 	v[0].u = rt.left;
@@ -520,8 +520,8 @@ void RenderContext::DrawIndicator(size_t tex, vec2d pos, float value)
 	const FRECT &rt = lt.uvFrames[0];
 	IRender &render = _render;
 
-	float px = lt.uvPivot.x * lt.pxFrameWidth;
-	float py = lt.uvPivot.y * lt.pxFrameHeight;
+	float px = lt.pxPivot.x;
+	float py = lt.pxPivot.y;
 
 	MyVertex *v = render.DrawQuad(_tm.GetDeviceTexture(tex));
 

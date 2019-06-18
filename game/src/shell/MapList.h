@@ -6,7 +6,7 @@ namespace FS
 	class FileSystem;
 }
 
-namespace UI
+namespace Plat
 {
 	class ConsoleBuffer;
 }
@@ -14,6 +14,6 @@ namespace UI
 class ListDataSourceMaps : public UI::ListDataSourceDefault
 {
 public:
-	ListDataSourceMaps(FS::FileSystem &fs, UI::ConsoleBuffer &logger);
+	ListDataSourceMaps(FS::FileSystem &fs, Plat::ConsoleBuffer &logger);
 };
 

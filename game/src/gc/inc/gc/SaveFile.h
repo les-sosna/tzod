@@ -60,22 +60,23 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdexcept>
+
 template<class T>
 void SaveFile::Serialize(T &obj)
 {
 	assert(typeid(obj) != typeid(std::string));
-	assert(typeid(obj) != typeid(std::string));
-    assert(!std::strstr(typeid(obj).name(), "shared_ptr"));
+	assert(!std::strstr(typeid(obj).name(), "shared_ptr"));
 	assert(!std::strstr(typeid(obj).name(), "ObjPtr"));
 	if( loading() )
-    {
+	{
 		if( 1 != _stream.Read(&obj, sizeof(T), 1) )
-            throw std::runtime_error("unexpected end of file");
-    }
+			throw std::runtime_error("unexpected end of file");
+	}
 	else
-    {
+	{
 		_stream.Write(&obj, sizeof(T));
-    }
+	}
 }
 
 template<class T>

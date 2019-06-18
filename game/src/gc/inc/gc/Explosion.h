@@ -1,12 +1,12 @@
 #pragma once
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 #include "WorldCfg.h"
 #include <map>
 
 class GC_Player;
 
-class GC_Explosion : public GC_Actor
+class GC_Explosion : public GC_MovingObject
 {
 public:
 	GC_Explosion(vec2d pos);
@@ -51,7 +51,6 @@ private:
 	struct coord
 	{
 		short x, y;
-		coord() {}
 		coord(short x_, short y_) { x = x_; y = y_; }
 		operator size_t () const { return x + WORLD_MAXBLOCKS * y; }
 	};

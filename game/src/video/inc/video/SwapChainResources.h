@@ -20,7 +20,7 @@ public:
 	ID3D11RenderTargetView* GetBackBufferRenderTargetView() const { return m_d3dRenderTargetView.Get(); }
 
 private:
-	HRESULT ResizeSwapChain(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, vec2d pixelSize, int rotationAngle);
+	HRESULT ResizeSwapChainInternal(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, vec2d pixelSize, int rotationAngle);
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> m_swapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_d3dRenderTargetView;

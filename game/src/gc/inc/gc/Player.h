@@ -16,7 +16,6 @@ class GC_Player : public GC_Service
 {
 	DECLARE_SELF_REGISTRATION(GC_Player);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Service base;
 
 public:
 	GC_Player();
@@ -26,6 +25,7 @@ public:
 	GC_Vehicle* GetVehicle() const { return _vehicle; }
 	std::string_view GetOnDie() const { return _scriptOnDie; }
 	std::string_view GetOnRespawn() const { return _scriptOnRespawn; }
+	float GetDieTime() const { return _timeVehicleDestroyed; }
 
 	void SetSkin(std::string skin);
 	std::string_view GetSkin() const { return _skin; }
@@ -55,7 +55,8 @@ public:
 	void Kill(World &world) override;
 	void Serialize(World &world, SaveFile &f) override;
 	void MapExchange(MapFile &f) override;
-	void TimeStep(World &world, float dt) override;
+	void Init(World &world) override;
+	void Resume(World &world) override;
 
 protected:
 	class MyPropertySet : public GC_Service::MyPropertySet
@@ -80,17 +81,17 @@ protected:
 	PropertySet* NewPropertySet() override;
 
 private:
-	float     _timeRespawn;
-	int       _team;
-	int       _score;
-	int       _numDeaths = 0;
-	std::string  _nick;
-	std::string  _class;
-	std::string  _skin;
-	std::string  _vehname;
-	std::string  _scriptOnDie;
-	std::string  _scriptOnRespawn;
+	int _team = 0;
+	int _score = 0;
+	int _numDeaths = 0;
+	std::string _nick;
+	std::string _class;
+	std::string _skin;
+	std::string _vehname;
+	std::string _scriptOnDie;
+	std::string _scriptOnRespawn;
 	ObjPtr<GC_Vehicle> _vehicle;
+	float _timeVehicleDestroyed = 0;
 
 	friend class GC_Vehicle;
 	void OnVehicleDestroy(World &world);

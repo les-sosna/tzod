@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor.h"
+#include "MovingObject.h"
 #include "ObjPtr.h"
 #include "detail/Rotator.h"
 
@@ -27,91 +27,83 @@ typedef float AIPRIORITY;
 #define AIP_SHOCK           (AIP_NORMAL)        // the priority of a shock item
 #define AIP_SHIELD          (AIP_NORMAL)        // the priority of a shield item
 
-// TODO: move to ai
-#define AI_MAX_SIGHT   40.0f
-#define AI_MAX_DEPTH   256.0f
-
-
-///////////////////////////////////////////////////////////////////////////////
-// forward declarations
-
-class GC_HideLabel;
 class GC_Vehicle;
 class GC_Light;
 class GC_Crosshair;
 class GC_Weapon;
 class GC_RigidBodyStatic;
 
-///////////////////////////////////////////////////////////////////////////////
 
-#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_ACTOR_ << 0)
-#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_ACTOR_ << 1)
-#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_ACTOR_ << 2)
-#define GC_FLAG_PICKUP_VISIBLE           (GC_FLAG_ACTOR_ << 3)
-#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_ACTOR_ << 4)
-#define GC_FLAG_PICKUP_                  (GC_FLAG_ACTOR_ << 5)
+#define GC_FLAG_PICKUP_BLINK             (GC_FLAG_MO_ << 0)
+#define GC_FLAG_PICKUP_AUTO              (GC_FLAG_MO_ << 1)
+#define GC_FLAG_PICKUP_RESPAWN           (GC_FLAG_MO_ << 2)
+#define GC_FLAG_PICKUP_HIDDEN            (GC_FLAG_MO_ << 3)
+#define GC_FLAG_PICKUP_ATTACHED          (GC_FLAG_MO_ << 4)
+#define GC_FLAG_PICKUP_IS_DEFAULT_ITEM   (GC_FLAG_MO_ << 5)
+#define GC_FLAG_PICKUP_                  (GC_FLAG_MO_ << 6)
 
-class GC_Pickup : public GC_Actor
+class GC_Pickup : public GC_MovingObject
 {
 	DECLARE_LIST_MEMBER(override);
 	DECLARE_GRID_MEMBER();
-    typedef GC_Actor base;
 
 public:
-	explicit GC_Pickup(vec2d pos);
-	explicit GC_Pickup(FromFile);
+	using GC_MovingObject::GC_MovingObject;
 	virtual ~GC_Pickup();
 
-	bool IsInitial() const { return !_label; } // initials do not have the label to respawn at
-
-	void Attach(World &world, GC_Vehicle &vehicle, bool asInitial);
+	void Attach(World &world, GC_Vehicle &vehicle);
 
 	const std::string& GetOnPickup() const { return _scriptOnPickup; }
 
 	bool GetAttached() const { return CheckFlags(GC_FLAG_PICKUP_ATTACHED); }
 	float GetRadius() const { return 8.0f; }
 
-	float GetRespawnTime() const;
+	float GetRespawnTime() const { return _timeRespawn; }
 	void  SetRespawnTime(float respawnTime);
 
-	bool GetRespawn() const       { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
+	bool GetIsDefaultItem() const { return CheckFlags(GC_FLAG_PICKUP_IS_DEFAULT_ITEM); }
+	void SetIsDefaultItem(bool value) { SetFlags(GC_FLAG_PICKUP_IS_DEFAULT_ITEM, value); }
+
+	bool GetRespawn() const { return CheckFlags(GC_FLAG_PICKUP_RESPAWN); }
 	void SetRespawn(bool respawn) { SetFlags(GC_FLAG_PICKUP_RESPAWN, respawn); }
 
-	void SetVisible(bool bShow) { SetFlags(GC_FLAG_PICKUP_VISIBLE, bShow); }
-	bool GetVisible() const { return CheckFlags(GC_FLAG_PICKUP_VISIBLE); }
+	void SetVisible(bool visible) { SetFlags(GC_FLAG_PICKUP_HIDDEN, !visible); }
+	bool GetVisible() const { return !CheckFlags(GC_FLAG_PICKUP_HIDDEN); }
 
-	float GetTimeAttached() const { assert(GetAttached()); return _timeAttached; }
+	float GetTimeAttached() const { assert(GetAttached()); return _timeLastStateChange; }
+	float GetTimeDisappeared() const { assert(!GetVisible()); return _timeLastStateChange; }
 
 	void SetBlinking(bool blink);
 	bool GetBlinking() const { return CheckFlags(GC_FLAG_PICKUP_BLINK); }
 
 	// if 0 then item considered useless and will not be taken
 	virtual AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const { return AIP_NORMAL; }
+	virtual bool ShouldPickup(const GC_Vehicle& veh) const { return true; }
 
 	virtual void Detach(World &world);
 	virtual void Disappear(World &world);
 	virtual float GetDefaultRespawnTime() const = 0;
 
 	// GC_Object
-    void Init(World &world) override;
-    void Kill(World &world) override;
+	void Init(World &world) override;
+	void Kill(World &world) override;
 	void MapExchange(MapFile &f) override;
 	void Serialize(World &world, SaveFile &f) override;
-	void TimeStep(World &world, float dt) override;
+	void Resume(World &world) override;
 #ifdef NETWORK_DEBUG
 	virtual DWORD checksum(void) const
 	{
 		DWORD cs = reinterpret_cast<const DWORD&>(GetPos().x)
 		^ reinterpret_cast<const DWORD&>(GetPos().y)
-		^ reinterpret_cast<const DWORD&>(_timeAttached);
-		return GC_Actor::checksum() ^ cs;
+		^ reinterpret_cast<const DWORD&>(_timeLastStateChange);
+		return GC_MovingObject::checksum() ^ cs;
 	}
 #endif
 
 protected:
-	class MyPropertySet : public GC_Actor::MyPropertySet
+	class MyPropertySet : public GC_MovingObject::MyPropertySet
 	{
-		typedef GC_Actor::MyPropertySet BASE;
+		typedef GC_MovingObject::MyPropertySet BASE;
 		ObjectProperty _propTimeRespawn;
 		ObjectProperty _propOnPickup;
 
@@ -125,11 +117,10 @@ protected:
 	PropertySet* NewPropertySet() override;
 
 private:
-	ObjPtr<GC_HideLabel>  _label;
-
-	std::string  _scriptOnPickup;   // on_pickup(who)
-	float  _timeAttached;
-	float  _timeRespawn;
+	std::string _scriptOnPickup;   // on_pickup(who)
+	float _timeLastStateChange = 0;
+	float _timeRespawn = 0;
+	vec2d _respawnPos = {};
 
 	virtual void OnAttached(World &world, GC_Vehicle &vehicle) = 0;
 };
@@ -171,7 +162,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PROTECT_TIME        20.0f
+#define SHIELD_TIMEOUT  20.0f
 
 struct DamageDesc;
 
@@ -202,6 +193,8 @@ private:
 
 	friend class GC_Vehicle;
 	void OnOwnerDamage(World &world, DamageDesc &dd);
+
+	DECLARE_LIST_MEMBER(override);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,7 +205,6 @@ class GC_pu_Shock : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Shock);
 	DECLARE_LIST_MEMBER(override);
-	typedef GC_Pickup base;
 
 public:
 	GC_pu_Shock(vec2d pos);
@@ -244,11 +236,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define BOOSTER_TIME        20.0f
+#define BOOSTER_TIMEOUT        20.0f
 
 class GC_pu_Booster : public GC_Pickup
 {
 	DECLARE_SELF_REGISTRATION(GC_pu_Booster);
+	DECLARE_LIST_MEMBER(override);
 
 public:
 	GC_pu_Booster(vec2d pos);

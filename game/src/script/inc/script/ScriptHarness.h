@@ -15,7 +15,7 @@ namespace FS {
 	struct Stream;
 }
 
-class ScriptHarness
+class ScriptHarness final
 	: ObjectListener<World>
 {
 public:

@@ -1,22 +1,24 @@
 #include "inc/fs/FileSystem.h"
 #include <cassert>
+#include <stdexcept>
 
 using namespace FS;
 
-void FileSystem::Mount(const std::string &nodeName, std::shared_ptr<FileSystem> fs)
+void FileSystem::Mount(std::string_view nodeName, std::shared_ptr<FileSystem> fs)
 {
 	assert(!nodeName.empty() && std::string::npos == nodeName.find('/'));
-	_children[nodeName] = fs;
+	_children.emplace(nodeName, fs);
 }
 
-std::shared_ptr<FS::File> FileSystem::Open(const std::string &fileName, FileMode mode)
+std::shared_ptr<FS::File> FileSystem::Open(std::string_view path, FileMode mode, bool nothrow)
 {
-	std::string::size_type pd = fileName.rfind('/');
+	auto pd = path.rfind('/');
 	if( pd && std::string::npos != pd ) // was a path delimiter found?
 	{
-		return GetFileSystem(fileName.substr(0, pd))->RawOpen(fileName.substr(pd + 1), mode);
+		auto fs = GetFileSystem(path.substr(0, pd), false, nothrow);
+		return fs ? fs->RawOpen(path.substr(pd + 1), mode, nothrow) : nullptr;
 	}
-	return RawOpen(fileName, mode);
+	return RawOpen(path, mode, nothrow);
 }
 
 std::vector<std::string> FileSystem::EnumAllFiles(std::string_view mask)
@@ -25,16 +27,16 @@ std::vector<std::string> FileSystem::EnumAllFiles(std::string_view mask)
 	return std::vector<std::string>();
 }
 
-std::shared_ptr<FS::FileSystem> FileSystem::GetFileSystem(const std::string &path, bool create, bool nothrow)
+std::shared_ptr<FS::FileSystem> FileSystem::GetFileSystem(std::string_view path, bool create, bool nothrow)
 {
 	assert(!path.empty());
 
 	// skip delimiters at the beginning
-	std::string::size_type offset = path.find_first_not_of('/');
+	auto offset = path.find_first_not_of('/');
 	assert(std::string::npos != offset);
 
-	std::string::size_type p = path.find('/', offset);
-	std::string dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
+	auto p = path.find('/', offset);
+	auto dirName = path.substr(offset, std::string::npos != p ? p - offset : p);
 
 	auto it = _children.find(dirName);
 	if( _children.end() == it )
@@ -49,4 +51,12 @@ std::shared_ptr<FS::FileSystem> FileSystem::GetFileSystem(const std::string &pat
 		return it->second->GetFileSystem(path.substr(p), create, nothrow);
 
 	return it->second;
+}
+
+std::string FS::PathCombine(std::string_view first, std::string_view second)
+{
+	std::string result;
+	result.reserve(first.size() + second.size() + 1);
+	result.append(first).append(1, '/').append(second);
+	return result;
 }

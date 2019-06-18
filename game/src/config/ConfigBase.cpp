@@ -1012,7 +1012,8 @@ bool ConfVarTable::Load(FS::MemMap &data, const char *name)
 	std::unique_ptr<lua_State, LuaStateDeleter> L(luaL_newstate());
 
 	// try to read and execute the file
-	if( luaL_loadbuffer(L.get(), data.GetData(), data.GetSize(), name) || lua_pcall(L.get(), 0, 0, 0) )
+	if( luaL_loadbuffer(L.get(), static_cast<const char *>(data.GetData()), data.GetSize(), name) ||
+		lua_pcall(L.get(), 0, 0, 0) )
 	{
 		throw std::runtime_error(lua_tostring(L.get(), -1));
 	}

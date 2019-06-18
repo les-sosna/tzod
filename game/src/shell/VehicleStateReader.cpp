@@ -8,24 +8,10 @@
 #include <gc/Weapons.h>
 #include <gc/World.h>
 #include <gv/GameViewHarness.h>
-#include <float.h>
+#include <cfloat>
 
 VehicleStateReader::VehicleStateReader()
   : _tapFireTime(-FLT_MAX)
-  , _keyForward(Plat::Key::Unknown)
-  , _keyBack(Plat::Key::Unknown)
-  , _keyLeft(Plat::Key::Unknown)
-  , _keyRight(Plat::Key::Unknown)
-  , _keyFire(Plat::Key::Unknown)
-  , _keyLight(Plat::Key::Unknown)
-  , _keyTowerLeft(Plat::Key::Unknown)
-  , _keyTowerRight(Plat::Key::Unknown)
-  , _keyTowerCenter(Plat::Key::Unknown)
-  , _keyNoPickup(Plat::Key::Unknown)
-  , _gamepad(-1)
-  , _aimToMouse(false)
-  , _moveToMouse(false)
-  , _arcadeStyle(false)
   , _lastLightKeyState(false)
   , _lastLightsState(true)
 {
@@ -42,7 +28,7 @@ void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 	_keyTowerLeft   = GetKeyCode(profile.key_tower_left.Get());
 	_keyTowerRight  = GetKeyCode(profile.key_tower_right.Get());
 	_keyTowerCenter = GetKeyCode(profile.key_tower_center.Get());
-	_keyNoPickup    = GetKeyCode(profile.key_no_pickup.Get());
+	_keyPickup      = GetKeyCode(profile.key_pickup.Get());
 
 	_gamepad = profile.gamepad.GetInt();
 	_lastLightsState = profile.lights.Get();
@@ -55,10 +41,7 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 {
 	memset(&vs, 0, sizeof(VehicleState));
 
-	vec2d mouse = input.GetMousePos();
 	Plat::GamepadState gamepadState = _gamepad != -1 ? input.GetGamepadState(_gamepad) : Plat::GamepadState{};
-
-	auto c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)mouse.x, (int)mouse.y);
 
 	World &world = gameViewHarness.GetWorld();
 
@@ -77,9 +60,9 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	//
 	// pickup
 	//
-	vs.pickup = !input.IsKeyPressed(_keyNoPickup)
-		&& !( input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack)  )
-		&& !( input.IsKeyPressed(_keyLeft)    && input.IsKeyPressed(_keyRight) );
+	vs.pickup = input.IsKeyPressed(_keyPickup)
+		|| (input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack))
+		|| (input.IsKeyPressed(_keyLeft) && input.IsKeyPressed(_keyRight));
 
 	//
 	// fire
@@ -132,13 +115,20 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 		}
 	}
 
+	GameViewHarness::CanvasToWorldResult c2w = {};
+	Plat::PointerState pointerState = input.GetPointerState(0);
+	if (pointerState.type == Plat::PointerType::Mouse)
+	{
+		c2w = gameViewHarness.CanvasToWorld(playerIndex, (int)pointerState.position.x, (int)pointerState.position.y);
+	}
+
 	// move with mouse
 	if( _moveToMouse )
 	{
-		vs.attack = vs.attack || input.IsMousePressed(1);
-		vs.pickup = vs.pickup || input.IsMousePressed(3);
+		vs.attack = vs.attack || pointerState.button1;
+		vs.pickup = vs.pickup || pointerState.button3;
 
-		if( input.IsMousePressed(2) && c2w.visible )
+		if( c2w.visible && pointerState.button2 )
 		{
 			vec2d bodyDirection = c2w.worldPos - vehicle.GetPos() - vehicle.GetBrakingLength();
 			if( bodyDirection.sqr() > 10 )
@@ -197,10 +187,10 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	//
 	if( _aimToMouse )
 	{
-		vs.attack = vs.attack || input.IsMousePressed(1);
+		vs.attack = vs.attack || pointerState.button1;
 		if( !_moveToMouse )
 		{
-			vs.pickup = vs.pickup || input.IsMousePressed(2);
+			vs.pickup = vs.pickup || pointerState.button2;
 		}
 
 		if( vehicle.GetWeapon() && c2w.visible )

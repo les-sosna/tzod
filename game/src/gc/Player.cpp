@@ -1,10 +1,10 @@
 #include "TypeReg.h"
 #include "inc/gc/Player.h"
 #include "inc/gc/GameClasses.h"
-#include "inc/gc/Indicators.h"
 #include "inc/gc/Macros.h"
 #include "inc/gc/Particles.h"
 #include "inc/gc/Pickup.h"
+#include "inc/gc/SpawnPoint.h"
 #include "inc/gc/TypeSystem.h"
 #include "inc/gc/Vehicle.h"
 #include "inc/gc/VehicleClasses.h"
@@ -21,12 +21,9 @@ IMPLEMENT_SELF_REGISTRATION(GC_Player)
 	return true;
 }
 
-IMPLEMENT_2LIST_MEMBER(GC_Player, LIST_players, LIST_timestep);
+IMPLEMENT_1LIST_MEMBER(GC_Service, GC_Player, LIST_players);
 
 GC_Player::GC_Player()
-  : _timeRespawn(PLAYER_RESPAWN_DELAY)
-  , _team(0)
-  , _score(0)
 {
 	SetSkin("red");
 }
@@ -51,8 +48,8 @@ void GC_Player::Serialize(World &world, SaveFile &f)
 	f.Serialize(_class);
 	f.Serialize(_score);
 	f.Serialize(_team);
-	f.Serialize(_timeRespawn);
 	f.Serialize(_vehicle);
+	f.Serialize(_timeVehicleDestroyed);
 }
 
 void GC_Player::MapExchange(MapFile &f)
@@ -106,19 +103,19 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 {
 	std::vector<GC_SpawnPoint*> points;
 
-	GC_SpawnPoint *pBestPoint = nullptr;
+	GC_SpawnPoint *bestPoint = nullptr;
 	float max_dist = -1;
 
 	FOREACH( world.GetList(LIST_respawns), GC_SpawnPoint, object )
 	{
-		GC_SpawnPoint *pSpawnPoint = (GC_SpawnPoint*) object;
-		if( pSpawnPoint->_team && (pSpawnPoint->_team != team) )
+		GC_SpawnPoint *spawnPoint = (GC_SpawnPoint*) object;
+		if( spawnPoint->_team && (spawnPoint->_team != team) )
 			continue;
 
 		float dist = -1;
 		FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, pVeh )
 		{
-			float d = (pVeh->GetPos() - pSpawnPoint->GetPos()).sqr();
+			float d = (pVeh->GetPos() - spawnPoint->GetPos()).sqr();
 			if( d < dist || dist < 0 ) dist = d;
 		}
 
@@ -126,74 +123,73 @@ static GC_SpawnPoint* SelectRespawnPoint(World &world, int team)
 			continue;
 
 		if( dist < 0 || dist > 400*WORLD_BLOCK_SIZE*WORLD_BLOCK_SIZE )
-			points.push_back(pSpawnPoint);
+			points.push_back(spawnPoint);
 
 		if( dist > max_dist )
 		{
 			max_dist = dist;
-			pBestPoint = pSpawnPoint;
+			bestPoint = spawnPoint;
 		}
 	}
 
 	if( !points.empty() )
 	{
-		pBestPoint = points[world.net_rand() % points.size()];
+		bestPoint = points[world.net_rand() % points.size()];
 	}
 
-	return pBestPoint;
+	return bestPoint;
 }
 
-void GC_Player::TimeStep(World &world, float dt)
+void GC_Player::Init(World &world)
 {
-	GC_Service::TimeStep(world, dt);
+	world.Timeout(*this, PLAYER_RESPAWN_DELAY);
+}
 
-	if( !GetVehicle() )
+void GC_Player::Resume(World &world)
+{
+	assert(!GetVehicle());
+
+	if (GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team))
 	{
-		_timeRespawn -= dt;
-		if( _timeRespawn <= 0 )
+		world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
+
+		_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
+
+		auto &initialShield = world.New<GC_pu_Shield>(pBestPoint->GetPos());
+		initialShield.SetIsDefaultItem(true);
+		initialShield.Attach(world, *_vehicle);
+
+		GC_Object* found = world.FindObject(_vehname);
+		if (found && _vehicle != found)
 		{
-			assert(!GetVehicle());
-			_timeRespawn = PLAYER_RESPAWN_DELAY;
-
-			if (GC_SpawnPoint *pBestPoint = SelectRespawnPoint(world, _team))
-			{
-				world.New<GC_Text_ToolTip>(pBestPoint->GetPos(), _nick, GC_Text::DEFAULT);
-
-				_vehicle = &world.New<GC_Tank_Light>(pBestPoint->GetPos());
-
-				world.New<GC_pu_Shield>(pBestPoint->GetPos()).Attach(world, *_vehicle, true);
-
-				GC_Object* found = world.FindObject(_vehname);
-				if( found && _vehicle != found )
-				{
-//					_logger.Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
-				}
-				else
-				{
-					_vehicle->SetName(world, _vehname.c_str());
-				}
-				_vehicle->SetDirection(pBestPoint->GetDirection());
-				_vehicle->SetPlayer(world, this);
-
-				for( auto ls: world.eGC_Player._listeners )
-					ls->OnRespawn(*this, *_vehicle);
-			}
-			else
-			{
-//				char buf[64];
-//				sprintf(buf, _lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
-//				_logger.WriteLine(1, buf);
-			}
+//			_logger.Printf(1, "object with name \"%s\" already exists", _vehname.c_str());
 		}
+		else
+		{
+			_vehicle->SetName(world, _vehname.c_str());
+		}
+		_vehicle->SetDirection(pBestPoint->GetDirection());
+		_vehicle->SetPlayer(world, this);
+
+		for (auto ls : world.eGC_Player._listeners)
+			ls->OnRespawn(*this, *_vehicle);
+	}
+	else
+	{
+//		char buf[64];
+//		sprintf(buf, _lang.msg_no_respawns_for_team_x.Get().c_str(), _team);
+//		_logger.WriteLine(1, buf);
 	}
 }
 
 void GC_Player::OnVehicleDestroy(World &world)
 {
+	_timeVehicleDestroyed = world.GetTime();
 	_numDeaths++;
 	_vehicle = nullptr;
 	for( auto ls: world.eGC_Player._listeners )
 		ls->OnDie(*this);
+	world.Timeout(*this, PLAYER_RESPAWN_DELAY);
 }
 
 PropertySet* GC_Player::NewPropertySet()
@@ -249,50 +245,50 @@ void GC_Player::MyPropertySet::MyExchange(World &world, bool applyToObject)
 {
 	BASE::MyExchange(world, applyToObject);
 
-	GC_Player *tmp = static_cast<GC_Player *>(GetObject());
+	GC_Player *player = static_cast<GC_Player *>(GetObject());
 
 	if( applyToObject )
 	{
-		tmp->SetTeam(_propTeam.GetIntValue());
-		tmp->SetScore(_propScore.GetIntValue());
-		tmp->SetNick(std::string(_propNick.GetStringValue()));
-		tmp->SetClass(std::string(_propClass.GetListValue(_propClass.GetCurrentIndex())));
-		tmp->SetSkin(std::string(_propSkin.GetStringValue()));
-		tmp->_scriptOnDie = _propOnDie.GetStringValue();
-		tmp->_scriptOnRespawn = _propOnRespawn.GetStringValue();
+		player->SetTeam(_propTeam.GetIntValue());
+		player->SetScore(_propScore.GetIntValue());
+		player->SetNick(std::string(_propNick.GetStringValue()));
+		player->SetClass(std::string(_propClass.GetListValue(_propClass.GetCurrentIndex())));
+		player->SetSkin(std::string(_propSkin.GetStringValue()));
+		player->_scriptOnDie = _propOnDie.GetStringValue();
+		player->_scriptOnRespawn = _propOnRespawn.GetStringValue();
 
 		auto vehName = _propVehName.GetStringValue();
-		if( tmp->GetVehicle() )
+		if(player->GetVehicle() )
 		{
 			GC_Object* found = world.FindObject(vehName);
-			if( found && tmp->GetVehicle() != found )
+			if( found && player->GetVehicle() != found )
 			{
 //				_logger.Printf(1, "WARNING: object with name \"%s\" already exists", name);
 			}
 			else
 			{
-				tmp->GetVehicle()->SetName(world, vehName);
-				tmp->_vehname = vehName;
+				player->GetVehicle()->SetName(world, std::string(vehName));
+				player->_vehname = vehName;
 			}
 		}
 		else
 		{
-			tmp->_vehname = vehName;
+			player->_vehname = vehName;
 		}
 	}
 	else
 	{
-		_propOnRespawn.SetStringValue(tmp->_scriptOnRespawn);
-		_propOnDie.SetStringValue(tmp->_scriptOnDie);
-		_propTeam.SetIntValue(tmp->GetTeam());
-		_propScore.SetIntValue(tmp->GetScore());
-		_propNick.SetStringValue(std::string(tmp->GetNick()));
-		_propVehName.SetStringValue(tmp->_vehname);
-		_propSkin.SetStringValue(std::string(tmp->GetSkin()));
+		_propOnRespawn.SetStringValue(player->_scriptOnRespawn);
+		_propOnDie.SetStringValue(player->_scriptOnDie);
+		_propTeam.SetIntValue(player->GetTeam());
+		_propScore.SetIntValue(player->GetScore());
+		_propNick.SetStringValue(std::string(player->GetNick()));
+		_propVehName.SetStringValue(player->_vehname);
+		_propSkin.SetStringValue(std::string(player->GetSkin()));
 
 		for( size_t i = 0; i < _propClass.GetListSize(); ++i )
 		{
-			if( tmp->GetClass() == _propClass.GetListValue(i) )
+			if( player->GetClass() == _propClass.GetListValue(i) )
 			{
 				_propClass.SetCurrentIndex(i);
 				break;

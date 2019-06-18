@@ -30,8 +30,8 @@ class RenderGLES2 : public IRender
 	RenderMode _mode;
 
     GlesProgram _program;
-    GLuint _viewProj;
-    GLuint _sampler;
+    GLint _viewProj;
+    GLint _sampler;
 
 public:
 	RenderGLES2();

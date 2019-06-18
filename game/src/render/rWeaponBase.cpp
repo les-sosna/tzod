@@ -19,10 +19,10 @@ void DrawWeaponShadow(const World &world, const GC_Weapon &weapon, RenderContext
 }
 
 
-enumZOrder Z_Weapon::GetZ(const World &world, const GC_Actor &actor) const
+enumZOrder Z_Weapon::GetZ(const World &world, const GC_MovingObject &mo) const
 {
-	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	assert(dynamic_cast<const GC_Weapon*>(&mo));
+	auto &weapon = static_cast<const GC_Weapon&>(mo);
 	if( weapon.GetAttached() )
 	{
 		return Z_ATTACHED_ITEM;

@@ -17,7 +17,8 @@ namespace UI
 	template<class, class> class ListAdapter;
 }
 
-class GetFileNameDlg : public UI::Dialog
+class GetFileNameDlg final
+	: public UI::Dialog
 {
 public:
 	struct Params
@@ -38,7 +39,7 @@ public:
 protected:
 	void OnSelect(int index);
 	void OnChangeName();
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key);
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key);
 
 	void OnOK();
 

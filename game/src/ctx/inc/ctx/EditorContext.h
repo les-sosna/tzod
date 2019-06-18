@@ -20,9 +20,9 @@ public:
 
 	// GameContextBase
 	World& GetWorld() override { return *_world; }
-	Gameplay* GetGameplay() override { return nullptr; }
-	void Step(float dt) override;
-	bool IsActive() const override { return false; }
+	Gameplay* GetGameplay() const override { return nullptr; }
+	void Step(float dt, AppConfig &appConfig, bool *outConfigChanged) override;
+	bool IsWorldActive() const override { return false; }
 
 private:
 	std::unique_ptr<World> _world;

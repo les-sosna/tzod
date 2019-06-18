@@ -8,10 +8,10 @@ R_UserObject::R_UserObject(TextureManager &tm)
 {
 }
 
-void R_UserObject::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_UserObject::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_UserObject*>(&actor));
-	auto &userObject = static_cast<const GC_UserObject&>(actor);
+	assert(dynamic_cast<const GC_UserObject*>(&mo));
+	auto &userObject = static_cast<const GC_UserObject&>(mo);
 
 	vec2d pos = userObject.GetPos();
 	vec2d dir = userObject.GetDirection();
@@ -19,10 +19,10 @@ void R_UserObject::Draw(const World &world, const GC_Actor &actor, RenderContext
 	rc.DrawSprite(texId, 0, 0xffffffff, pos, dir);
 }
 
-enumZOrder Z_UserObject::GetZ(const World &world, const GC_Actor &actor) const
+enumZOrder Z_UserObject::GetZ(const World &world, const GC_MovingObject &mo) const
 {
-	assert(dynamic_cast<const GC_UserObject*>(&actor));
-	auto &userObject = static_cast<const GC_UserObject&>(actor);
+	assert(dynamic_cast<const GC_UserObject*>(&mo));
+	auto &userObject = static_cast<const GC_UserObject&>(mo);
 	return userObject.GetZ();
 }
 

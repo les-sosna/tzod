@@ -16,7 +16,7 @@ enum FileMode
 
 struct MemMap
 {
-	virtual char* GetData() = 0;
+	virtual const void* GetData() const = 0;
 	virtual unsigned long GetSize() const = 0;
 	virtual void SetSize(unsigned long size) = 0; // may invalidate pointer returned by GetData()
 };
@@ -38,15 +38,17 @@ struct File
 class FileSystem
 {
 public:
-	virtual std::shared_ptr<FileSystem> GetFileSystem(const std::string &path, bool create = false, bool nothrow = false);
+	virtual std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false);
 	virtual std::vector<std::string> EnumAllFiles(std::string_view mask);
-	std::shared_ptr<File> Open(const std::string &path, FileMode mode = ModeRead);
-	void Mount(const std::string &nodeName, std::shared_ptr<FileSystem> fs);
+	std::shared_ptr<File> Open(std::string_view path, FileMode mode = ModeRead, bool nothrow = false);
+	void Mount(std::string_view nodeName, std::shared_ptr<FileSystem> fs);
 
 private:
-	std::map<std::string, std::shared_ptr<FileSystem>> _children;
+	std::map<std::string, std::shared_ptr<FileSystem>, std::less<>> _children;
 	// open a file that strictly belongs to this file system
-	virtual std::shared_ptr<File> RawOpen(const std::string &fileName, FileMode mode) = 0;
+	virtual std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode, bool nothrow) = 0;
 };
+
+std::string PathCombine(std::string_view first, std::string_view second);
 
 } // namespace FS

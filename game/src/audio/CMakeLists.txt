@@ -1,8 +1,14 @@
 cmake_minimum_required (VERSION 3.3)
 
 set(Audio_SOURCES
-	OggVorbis.cpp
+	inc/audio/SoundRender.h
+	inc/audio/SoundView.h
+
+#	OggVorbis.cpp
+#	OggVorbis.h
 	SoundHarness.cpp
+	SoundHarness.h
+	SoundTemplates.h
 	SoundView.cpp
 )
 
@@ -11,10 +17,11 @@ set(Audio_LIBS
 	ctx
 	fs
 	gc
-	ui #fixme: logger
+	plat
+	wavfile
 
 	# external
-	oggvorbis
+#	oggvorbis
 )
 
 set(Audio_INCLUDE_DIRS)
@@ -25,7 +32,7 @@ if(WIN32)
 else()
 	find_package(OpenAL)
 	list(APPEND Audio_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-	list(APPEND Audio_SOURCES SoundRenderOAL.cpp AudioContextOAL.cpp MusicPlayer.cpp)
+	list(APPEND Audio_SOURCES SoundRenderOAL.cpp AudioContextOAL.cpp)# MusicPlayer.cpp)
 	list(APPEND Audio_LIBS ${OPENAL_LIBRARY})
 endif()
 

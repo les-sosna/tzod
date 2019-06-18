@@ -99,7 +99,7 @@ size_t MusicPlayer::read_func(void *ptr, size_t size, size_t nmemb, void *dataso
 	State *s = (State *) datasource;
 	assert(s->ptr <= s->file->GetSize());
 	size_t rd = std::min(s->file->GetSize() - s->ptr, size*nmemb);
-    std::memcpy(ptr, s->file->GetData() + s->ptr, rd);
+    std::memcpy(ptr, (const char*)s->file->GetData() + s->ptr, rd);
 	s->ptr += rd;
 	return rd;
 }

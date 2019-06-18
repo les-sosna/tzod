@@ -4,11 +4,10 @@
 
 class GC_Object;
 
-
 enum GlobalListID
 {
 	LIST_objects,
-    LIST_timestep,
+	LIST_timestep,
 	LIST_services,
 	LIST_respawns,
 	LIST_players,
@@ -16,7 +15,7 @@ enum GlobalListID
 	LIST_vehicles,
 	LIST_pickups,
 	LIST_lights,
-    LIST_gsprites,
+	LIST_gsprites,
 	//------------------
 	GLOBAL_LIST_COUNT
 };
@@ -30,7 +29,7 @@ private:                                                                \
     friend class World;                                                 \
     friend class RTTypes
 
-#define IMPLEMENT_1LIST_MEMBER(cls, list)                               \
+#define IMPLEMENT_1LIST_MEMBER(base, cls, list)                         \
     PtrList<GC_Object>::id_type cls::Register(World &world)             \
     {                                                                   \
         auto pos = base::Register(world);                               \
@@ -43,7 +42,7 @@ private:                                                                \
         base::Unregister(world, pos);                                   \
     }
 
-#define IMPLEMENT_2LIST_MEMBER(cls, list1, list2)                       \
+#define IMPLEMENT_2LIST_MEMBER(base, cls, list1, list2)                 \
     PtrList<GC_Object>::id_type cls::Register(World &world)             \
     {                                                                   \
         auto pos = base::Register(world);                               \
@@ -57,4 +56,3 @@ private:                                                                \
         world.GetList(list1).erase(pos);                                \
         base::Unregister(world, pos);                                   \
     }
-

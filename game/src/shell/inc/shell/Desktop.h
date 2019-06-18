@@ -14,6 +14,11 @@ namespace FS
 	class FileSystem;
 }
 
+namespace Plat
+{
+	struct AppWindowCommandClose;
+}
+
 namespace UI
 {
 	class Console;
@@ -25,7 +30,7 @@ namespace UI
 class AppConfig;
 class AppController;
 class MainMenuDlg;
-class EditorLayout;
+class EditorMain;
 class GameLayout;
 class FpsCounter;
 class ShellConfig;
@@ -33,8 +38,8 @@ class LangCache;
 class LuaConsole;
 class NavStack;
 
-class Desktop
-	: public UI::Window
+class Desktop final
+	: public UI::WindowContainer
 	, private UI::Managerful
 	, private UI::KeyboardSink
 	, private UI::NavigationSink
@@ -50,19 +55,17 @@ public:
 	        ShellConfig &conf,
 	        LangCache &lang,
 	        DMCampaign &dmCampaign,
-	        UI::ConsoleBuffer &logger);
+	        Plat::ConsoleBuffer &logger,
+			Plat::AppWindowCommandClose* cmdClose = nullptr);
 	virtual ~Desktop();
 
 	void ShowConsole(bool show);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
-	float GetChildOpacity(const UI::Window &child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 
 protected:
-	bool HasNavigationSink() const override { return true; }
 	UI::NavigationSink* GetNavigationSink() override { return this; }
-	bool HasKeyboardSink() const override { return true; }
 	UI::KeyboardSink *GetKeyboardSink() override { return this; }
 
 private:
@@ -74,10 +77,11 @@ private:
 	ShellConfig &_conf;
 	LangCache &_lang;
 	DMCampaign &_dmCampaign;
-	UI::ConsoleBuffer &_logger;
+	Plat::ConsoleBuffer &_logger;
+	Plat::AppWindowCommandClose* _cmdCloseAppWindow;
 	std::unique_ptr<LuaConsole> _luaConsole;
 
-	std::shared_ptr<EditorLayout> _editor;
+	std::shared_ptr<EditorMain> _editor;
 	std::shared_ptr<GameLayout> _game;
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::Rectangle> _background;
@@ -95,7 +99,10 @@ private:
 	void OnSplitScreen();
 	void OnOpenMap();
 	void OnExportMap();
-	void OnGameSettings();
+	void OnSettingsMain();
+	void OnPlayerSettings();
+	void OnControlsSettings();
+	void OnAdvancedSettings();
 	void OnMapSettings();
 	bool GetEditorMode() const;
 	void SetEditorMode(bool editorMode);
@@ -111,16 +118,18 @@ private:
 	void UpdateFocus();
 
 	void NavigateHome();
+	void NavigateBack();
+	bool CanNavigateBack() const;
 
 	// AppStateListener
 	void OnGameContextChanging() override;
 	void OnGameContextChanged() override;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
-	void OnKeyReleased(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
+	void OnKeyReleased(const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
-	bool CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const override;
-	void OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc) override;
+	bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
 };

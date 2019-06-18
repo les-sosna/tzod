@@ -7,7 +7,8 @@
 namespace
 {
 
-class SoundDummy : public Sound
+class SoundDummy final
+	: public Sound
 {
 public:
 	virtual void SetPos(vec2d) {}
@@ -16,7 +17,8 @@ public:
 	virtual void SetPitch(float) {}
 };
 
-class SoundImpl : public Sound
+class SoundImpl final
+	: public Sound
 {
 public:
 	SoundImpl(ALuint source)
@@ -105,7 +107,7 @@ void SoundRenderOAL::SetListenerPos(vec2d pos)
     alListener3f(AL_POSITION, pos.x, pos.y, 500.0f);
 }
 
-std::unique_ptr<Sound> SoundRenderOAL::CreateLopped(SoundTemplate sound)
+std::unique_ptr<Sound> SoundRenderOAL::CreateLooped(SoundTemplate sound)
 {
 	ALuint source = 0;
 	alGenSources(1, &source);

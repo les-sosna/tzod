@@ -1,7 +1,7 @@
 #include "LuaConsole.h"
 #include <config/ConfigBase.h>
 #include <fs/FileSystem.h>
-#include <ui/ConsoleBuffer.h>
+#include <plat/ConsoleBuffer.h>
 #include <stdexcept>
 
 extern "C"
@@ -33,7 +33,7 @@ static int print(lua_State *L)
 		buf << s;
 		lua_pop(L, 1);         // pop call result
 	}
-	auto logger = reinterpret_cast<UI::ConsoleBuffer*>(lua_touserdata(L, lua_upvalueindex(1)));
+	auto logger = reinterpret_cast<Plat::ConsoleBuffer*>(lua_touserdata(L, lua_upvalueindex(1)));
 	logger->Format(0) << buf.str();
 	return 0;
 }
@@ -42,7 +42,7 @@ namespace
 {
 	struct InitArgs
 	{
-		UI::ConsoleBuffer &logger;
+		Plat::ConsoleBuffer &logger;
 		std::shared_ptr<FS::MemMap> autocompleteScript;
 	};
 }
@@ -78,7 +78,8 @@ static int pinit(lua_State *L)
 
 	if (args->autocompleteScript)
 	{
-		if (luaL_loadbuffer(L, args->autocompleteScript->GetData(), args->autocompleteScript->GetSize(), FILE_AUTOCOMPLETE))
+		if (luaL_loadbuffer(L, static_cast<const char *>(args->autocompleteScript->GetData()),
+                            args->autocompleteScript->GetSize(), FILE_AUTOCOMPLETE))
 		{
 			lua_error(L);
 		}
@@ -95,7 +96,7 @@ static std::string_view tostringview(lua_State *L)
 	return std::string_view(buf, size);
 }
 
-LuaConsole::LuaConsole(UI::ConsoleBuffer &logger, ConfVarTable &configRoot, FS::FileSystem &fs)
+LuaConsole::LuaConsole(Plat::ConsoleBuffer &logger, ConfVarTable &configRoot, FS::FileSystem &fs)
 	: _logger(logger)
 	, _L(luaL_newstate())
 {

@@ -64,12 +64,12 @@ World::World(RectRB blockBounds, bool initField)
 	grid_rigid_s.resize(_locationBounds);
 	grid_walls.resize(_locationBounds);
 	grid_pickup.resize(_locationBounds);
-	grid_actors.resize(_locationBounds);
+	grid_moving.resize(_locationBounds);
 
 	if (initField)
 	{
 		_field = std::make_unique<Field>();
-		_field->Resize(RectRB{ _blockBounds.left, _blockBounds.top, _blockBounds.right + 1, _blockBounds.bottom + 1 });
+		_field->Resize(WIDTH(_blockBounds) + 1, HEIGHT(_blockBounds) + 1);
 	}
 	_waterTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
 	_woodTiles.resize(WIDTH(_blockBounds) * HEIGHT(_blockBounds));
@@ -127,7 +127,7 @@ void World::Clear()
 		_dump = nullptr;
 	}
 #endif
-    assert(GetList(LIST_objects).empty());
+	assert(GetList(LIST_objects).empty());
 }
 
 World::~World()
@@ -137,59 +137,47 @@ World::~World()
 	assert(GetList(LIST_objects).empty() && _garbage.empty());
 }
 
-void World::Deserialize(SaveFile &f)
+void World::Serialize(SaveFile &f)
 {
 	assert(IsSafeMode());
-	assert(GetList(LIST_objects).empty());
+	assert(GetList(LIST_objects).empty() || !f.loading());
 
 	f.Serialize(_gameStarted);
 	f.Serialize(_time);
 	f.Serialize(_nightMode);
 
-	// fill pointers cache
-	for(;;)
+	ObjectList &objects = GetList(LIST_objects);
+	if (f.loading())
 	{
-		ObjectType type;
-		f.Serialize(type);
-		if( INVALID_OBJECT_TYPE == type ) // end of list signal
-			break;
-		if( GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type) )
-			f.RegPointer(obj);
-		else
-			throw std::runtime_error("Load error: unknown object type");
+		// fill pointers cache
+		for (;;)
+		{
+			ObjectType type;
+			f.Serialize(type);
+			if (INVALID_OBJECT_TYPE == type) // end of list signal
+				break;
+			if (GC_Object *obj = RTTypes::Inst().CreateFromFile(*this, type))
+				f.RegPointer(obj);
+			else
+				throw std::runtime_error("Load error: unknown object type");
+		}
+	}
+	else
+	{
+		// pointers to game objects
+		for (auto it = objects.begin(); it != objects.end(); it = objects.next(it))
+		{
+			GC_Object *object = objects.at(it);
+			ObjectType type = object->GetType();
+			f.Serialize(type);
+			f.RegPointer(object);
+		}
+		ObjectType terminator(INVALID_OBJECT_TYPE);
+		f.Serialize(terminator);
 	}
 
-	// read objects contents in the same order as pointers
-	for( ObjectList::id_type it = GetList(LIST_objects).begin(); it != GetList(LIST_objects).end(); it = GetList(LIST_objects).next(it) )
-	{
-		GetList(LIST_objects).at(it)->Serialize(*this, f);
-	}
-}
-
-void World::Serialize(SaveFile &f)
-{
-	assert(IsSafeMode());
-
-	//
-	// pointers to game objects
-	//
-    ObjectList &objects = GetList(LIST_objects);
-	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
-	{
-		GC_Object *object = objects.at(it);
-		ObjectType type = object->GetType();
-		f.Serialize(type);
-		f.RegPointer(object);
-	}
-	ObjectType terminator(INVALID_OBJECT_TYPE);
-	f.Serialize(terminator);
-
-
-	//
-	// write objects contents in the same order as pointers
-	//
-
-	for( auto it = objects.begin(); it != objects.end(); it = objects.next(it) )
+	// serialize objects contents in the same order as pointers
+	for (ObjectList::id_type it = objects.begin(); it != objects.end(); it = objects.next(it))
 	{
 		objects.at(it)->Serialize(*this, f);
 	}
@@ -224,7 +212,7 @@ void World::Import(MapFile &file)
 				float y = 0;
 				file.getObjectAttribute("x", x);
 				file.getObjectAttribute("y", y);
-				obj = &ei.CreateDetachedActor({ x, y });
+				obj = &ei.CreateDetachedObject({ x, y });
 			}
 			obj->MapExchange(file);
 			std::string name;
@@ -248,7 +236,7 @@ FRECT World::GetOccupiedBounds() const
 			auto &typeInfo = RTTypes::Inst().GetTypeInfo(object->GetType());
 			if (!typeInfo.service)
 			{
-				vec2d pos = static_cast<GC_Actor*>(object)->GetPos();
+				vec2d pos = static_cast<GC_MovingObject*>(object)->GetPos();
 				vec2d halfSize = typeInfo.size / 2;
 				bounds.left = std::min(bounds.left, pos.x - halfSize.x);
 				bounds.top = std::min(bounds.top, pos.y - halfSize.y);
@@ -304,8 +292,8 @@ void World::Export(FS::Stream &s)
 		if( RTTypes::Inst().IsRegistered(object->GetType()) )
 		{
 			file.BeginObject(RTTypes::Inst().GetTypeInfo(object->GetType()).name);
-			if (const char *optName = object->GetName(*this))
-				file.setObjectAttribute("name", std::string(optName));
+			if (auto optName = object->GetName(*this); !optName.empty())
+				file.setObjectAttribute("name", optName);
 			object->MapExchange(file);
 			file.WriteCurrentObject();
 		}

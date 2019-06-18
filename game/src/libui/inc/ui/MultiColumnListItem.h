@@ -7,7 +7,7 @@ namespace UI
 	class Rectangle;
 	class Text;
 
-	class MultiColumnListItem : public Window
+	class MultiColumnListItem : public WindowContainer
 	{
 	public:
 		MultiColumnListItem();
@@ -16,11 +16,11 @@ namespace UI
 
 		// Window
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
-		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 
 	private:
 		std::shared_ptr<Rectangle> _selection;
-		std::vector<std::shared_ptr<Text>> _columns;
+		std::vector<std::pair<std::shared_ptr<Text>, float>> _columns;
 	};
 }

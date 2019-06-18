@@ -1,16 +1,16 @@
 cmake_minimum_required (VERSION 3.3)
 
 add_library(gc
-	inc/gc/Actor.h
 	inc/gc/Crate.h
+	inc/gc/Decal.h
 	inc/gc/Explosion.h
 	inc/gc/Field.h
 	inc/gc/GameClasses.h
 	inc/gc/Grid.h
-	inc/gc/Indicators.h
 	inc/gc/Light.h
 	inc/gc/Macros.h
 	inc/gc/MessageBox.h
+	inc/gc/MovingObject.h
 	inc/gc/NeighborAware.h
 	inc/gc/Object.h
 	inc/gc/ObjectProperty.h
@@ -24,6 +24,7 @@ add_library(gc
 	inc/gc/SaveFile.h
 	inc/gc/Serialization.h
 	inc/gc/Service.h
+	inc/gc/SpawnPoint.h
 	inc/gc/Trigger.h
 	inc/gc/Turrets.h
 	inc/gc/TypeSystem.h
@@ -49,14 +50,14 @@ add_library(gc
 	inc/gc/detail/PtrList.h
 	inc/gc/detail/Rotator.h
 
-	Actor.cpp
 	Crate.cpp
+	Decal.cpp
 	Explosion.cpp
 	Field.cpp
 	GameClasses.cpp
-	Indicators.cpp
 	Light.cpp
 #	MessageBox.cpp
+	MovingObject.cpp
 	Object.cpp
 	ObjectProperty.cpp
 	Particles.cpp
@@ -68,6 +69,7 @@ add_library(gc
 	Rotator.cpp
 	SaveFile.cpp
 	Service.cpp
+	SpawnPoint.cpp
 	Trigger.cpp
 	Turrets.cpp
 	TypeReg.h
@@ -84,9 +86,8 @@ add_library(gc
 )
 
 target_link_libraries(gc
-	PRIVATE fs
 	PRIVATE mapfile
-	PUBLIC math
+	PUBLIC fs math
 )
 
 target_include_directories(gc INTERFACE inc)

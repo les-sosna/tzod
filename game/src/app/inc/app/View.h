@@ -1,8 +1,9 @@
 #pragma once
+#include <deque>
 #include <memory>
 
+struct IRender;
 class TzodApp;
-class TzodViewImpl;
 
 namespace FS
 {
@@ -12,22 +13,22 @@ namespace FS
 namespace Plat
 {
 	struct AppWindow;
-}
-
-namespace UI
-{
+	struct AppWindowInputSink;
 	class ConsoleBuffer;
 }
 
-class TzodView
+class TzodView final
 {
 public:
-	TzodView(FS::FileSystem &fs, UI::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
+	TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
 	~TzodView();
 
-	void Step(float dt);
+	void Step(TzodApp& app, float dt);
+	Plat::AppWindowInputSink& GetAppWindowInputSink();
 
 private:
 	Plat::AppWindow &_appWindow;
-	std::unique_ptr<TzodViewImpl> _impl;
+	std::unique_ptr<struct TzodViewImpl> _impl;
+	std::deque<float> _movingAverageWindow;
+	std::deque<float> _movingMedianWindow;
 };

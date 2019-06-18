@@ -50,7 +50,6 @@ private:
 	std::shared_ptr<UI::Button> _deleteProfile;
 
 	std::shared_ptr<UI::CheckBox> _showFps;
-	std::shared_ptr<UI::CheckBox> _showTime;
 	std::shared_ptr<UI::CheckBox> _showNames;
 
 	std::shared_ptr<UI::ScrollBarHorizontal> _volumeSfx;
@@ -69,8 +68,8 @@ public:
 	ControlProfileDlg(std::string_view profileName, ShellConfig &conf, LangCache &lang);
 	~ControlProfileDlg();
 
-	// UI::Window
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
+	// UI::KeyboardSink
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
 
 private:
 	void AddAction(ConfVarString &var, std::string_view actionDisplayName);
@@ -95,4 +94,51 @@ private:
 
 	int   _activeIndex;
 	bool  _createNewProfile;
+};
+
+
+#include <ui/StackLayout.h>
+
+struct MainSettingsCommands
+{
+	std::function<void()> player;
+	std::function<void()> controls;
+	std::function<void()> advanced;
+};
+
+class MainSettingsDlg : public UI::StackLayout
+{
+public:
+	MainSettingsDlg(LangCache& lang, MainSettingsCommands commands);
+};
+
+class SettingsListBase : public UI::StackLayout
+{
+public:
+	SettingsListBase();
+
+	// UI::Window
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+
+protected:
+	template <class WidgetType, class ConfVarType>
+	void AddSetting(const ConfVarString& title, ConfVarType& confVar);
+};
+
+class PlayerSettings : public SettingsListBase
+{
+public:
+	PlayerSettings(ShellConfig &conf, LangCache& lang);
+};
+
+class ControlsSettings : public SettingsListBase
+{
+public:
+	ControlsSettings(ShellConfig& conf, LangCache& lang);
+};
+
+class AdvancedSettings : public SettingsListBase
+{
+public:
+	AdvancedSettings(ShellConfig& conf, LangCache& lang);
 };

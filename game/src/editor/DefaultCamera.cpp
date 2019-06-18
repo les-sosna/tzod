@@ -8,8 +8,8 @@
 //                              0        1       2      3     4     5     6
 static float s_zoomLevels[] = { 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f };
 
-DefaultCamera::DefaultCamera(vec2d pos)
-	: _pos(pos)
+DefaultCamera::DefaultCamera(vec2d worldPos)
+	: _worldPos(worldPos)
 {
 }
 
@@ -20,9 +20,9 @@ void DefaultCamera::MoveTo(vec2d newEyeWorldPos)
 	_movingToTarget = true;
 }
 
-void DefaultCamera::Move(vec2d offset, const FRECT &worldBounds)
+void DefaultCamera::Move(vec2d worldOffset, const FRECT &worldBounds)
 {
-	_pos = Vec2dClamp(_pos - offset, worldBounds);
+	_worldPos = Vec2dClamp(_worldPos - worldOffset, worldBounds);
 }
 
 void DefaultCamera::ZoomIn()
@@ -63,10 +63,10 @@ void DefaultCamera::HandleMovement(Plat::Input &input, const FRECT &worldBounds,
 
 	float expFactor = 5;
 	float targetPosPreemption = 10; // distance units
-	vec2d posDifference = _targetPos - _pos;
+	vec2d posDifference = _targetPos - _worldPos;
 	vec2d targetDirection = posDifference.Norm();
 	vec2d adjustedTragetPos = _targetPos + targetDirection * targetPosPreemption;
-	vec2d adjustedDifference = adjustedTragetPos - _pos;
+	vec2d adjustedDifference = adjustedTragetPos - _worldPos;
 
 	// keep the speed for smooth transition
 	if (_movingToTarget && !direction.IsZero())
@@ -92,11 +92,11 @@ void DefaultCamera::HandleMovement(Plat::Input &input, const FRECT &worldBounds,
 		vec2d reminder = adjustedDifference * exp;
 		if (reminder.sqr() > targetPosPreemption * targetPosPreemption)
 		{
-			_pos = adjustedTragetPos - reminder;
+			_worldPos = adjustedTragetPos - reminder;
 		}
 		else
 		{
-			_pos = _targetPos;
+			_worldPos = _targetPos;
 			_movingToTarget = false;
 		}
 	}
@@ -105,8 +105,8 @@ void DefaultCamera::HandleMovement(Plat::Input &input, const FRECT &worldBounds,
 		_speed += direction * dt * (6000 + _speed.len() * 8);
 		_speed *= expf(-dt * 10);
 
-		_pos += _speed * dt / _zoom;
-		_pos = Vec2dClamp(_pos, worldBounds);
+		_worldPos += _speed * dt / _zoom;
+		_worldPos = Vec2dClamp(_worldPos, worldBounds);
 	}
 
 

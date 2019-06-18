@@ -12,11 +12,15 @@
 #include <gc/Macros.h>
 #include <gc/SaveFile.h>
 
+#define AI_MAX_DEPTH   256.0f
+#define AI_MAX_SIGHT_BLOCKS   40.0f
+#define AI_MAX_SIGHT   (AI_MAX_SIGHT_BLOCKS * WORLD_BLOCK_SIZE)
+
 AIController::AIController()
   : _drivingAgent(new DrivingAgent())
   , _shootingAgent(new ShootingAgent())
   , _favoriteWeaponType(INVALID_OBJECT_TYPE)
-  , _difficulty(2)
+  , _difficulty(AIDiffuculty::Medium)
   , _isActive(true)
 {
 	SetL2(L2_PATH_SELECT);
@@ -62,7 +66,7 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 		}
 	}
 
-	AIWEAPSETTINGS weapSettings;
+	AIWEAPSETTINGS weapSettings{};
 	if( vehicle.GetWeapon() )
 		vehicle.GetWeapon()->SetupAI(&weapSettings);
 
@@ -76,21 +80,12 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	{
 		_drivingAgent->ComputeState(world, vehicle, dt, outVehicleState);
 
-
-		// check if the primary target is still alive
-		//	if( !_target && IsAttacking() )
-		//	{
-		//		FreeTarget(); // free killed target
-		//		ClearPath();
-		//	}
-
 		if (!vehicle.GetWeapon())
 		{
 			// no targets if no weapon
 			_target = nullptr;
 			_drivingAgent->_attackList.clear();
 		}
-
 
 		if (_target && IsTargetVisible(world, vehicle, _target))
 		{
@@ -115,16 +110,15 @@ void AIController::ReadControllerState(World &world, float dt, const GC_Vehicle 
 	// headlight control
 	switch( _difficulty )
 	{
-	case 0:
-	case 1:
+	case AIDiffuculty::Easy:
 		outVehicleState.light = true;
 		break;
-	case 2:
-	case 3:
+	case AIDiffuculty::Medium:
 		outVehicleState.light = (nullptr != _target);
 		break;
-	default:
+	case AIDiffuculty::Hard:
 		outVehicleState.light = false;
+		break;
 	}
 }
 
@@ -134,7 +128,7 @@ const std::vector<vec2d>& AIController::GetPath() const
 }
 
 // evaluate the rate of attacking of the given target
-AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &target)
+AIPRIORITY AIController::GetTargetRank(const GC_Vehicle &vehicle, GC_Vehicle &target)
 {
 	assert(vehicle.GetWeapon());
 
@@ -152,20 +146,12 @@ AIPRIORITY AIController::GetTargetRate(const GC_Vehicle &vehicle, GC_Vehicle &ta
 	return p;
 }
 
-// return true if a target was found
-bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
+AIITEMINFO AIController::FindTarget(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
-	if( !vehicle.GetWeapon() )
-		return false;
-
-	AIPRIORITY optimal = AIP_NOTREQUIRED;
-	GC_Vehicle *pOptTarget = nullptr;
+	if (!vehicle.GetWeapon())
+		return { };
 
 	std::vector<TargetDesc> targets;
-
-	//
-	// check targets
-	//
 
 	FOREACH( world.GetList(LIST_vehicles), GC_Vehicle, object )
 	{
@@ -177,8 +163,7 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 
 		if( object != &vehicle )
 		{
-			if( (vehicle.GetPos() - object->GetPos()).sqr() <
-				(AI_MAX_SIGHT * WORLD_BLOCK_SIZE) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE) )
+			if( (vehicle.GetPos() - object->GetPos()).sqr() < AI_MAX_SIGHT * AI_MAX_SIGHT)
 			{
 				GC_RigidBodyStatic *pObstacle = static_cast<GC_RigidBodyStatic*>(
 					world.TraceNearest(world.grid_rigid_s, &vehicle,
@@ -193,31 +178,30 @@ bool AIController::FindTarget(World &world, const GC_Vehicle &vehicle, /*out*/ A
 		}
 	}
 
-	for( size_t i = 0; i < targets.size(); ++i )
+	AIITEMINFO bestTarget{};
+
+	for( const auto& targetDesc: targets )
 	{
 		float l;
-		if( targets[i].bIsVisible )
-			l = (targets[i].target->GetPos() - vehicle.GetPos()).len() / WORLD_BLOCK_SIZE;
+		if( targetDesc.bIsVisible )
+			l = (targetDesc.target->GetPos() - vehicle.GetPos()).len() / WORLD_BLOCK_SIZE;
 		else
-			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), targets[i].target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
+			l = _drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), targetDesc.target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 
         if( l >= 0 )
 		{
-            assert(targets[i].target);
-			AIPRIORITY p = GetTargetRate(vehicle, *targets[i].target) - AIP_NORMAL * l / AI_MAX_DEPTH;
+            assert(targetDesc.target);
+			AIPRIORITY p = GetTargetRank(vehicle, *targetDesc.target) - AIP_NORMAL * l / AI_MAX_DEPTH;
 
-			if( p > optimal )
+			if( p > bestTarget.priority)
 			{
-				optimal = p;
-				pOptTarget = targets[i].target;
+				bestTarget.priority = p;
+				bestTarget.object = targetDesc.target;
 			}
 		}
 	}
 
-	info.object   = pOptTarget;
-	info.priority = optimal;
-
-	return optimal > AIP_NOTREQUIRED;
+	return bestTarget;
 }
 
 bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AIITEMINFO &info, const AIWEAPSETTINGS *ws)
@@ -226,10 +210,10 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 
     std::vector<ObjectList*> receive;
 	FRECT rt = {
-		(vehicle.GetPos().x - AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE,
-		(vehicle.GetPos().y - AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE,
-		(vehicle.GetPos().x + AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE,
-		(vehicle.GetPos().y + AI_MAX_SIGHT * WORLD_BLOCK_SIZE) / WORLD_LOCATION_SIZE};
+		(vehicle.GetPos().x - AI_MAX_SIGHT) / WORLD_LOCATION_SIZE,
+		(vehicle.GetPos().y - AI_MAX_SIGHT) / WORLD_LOCATION_SIZE,
+		(vehicle.GetPos().x + AI_MAX_SIGHT) / WORLD_LOCATION_SIZE,
+		(vehicle.GetPos().y + AI_MAX_SIGHT) / WORLD_LOCATION_SIZE};
 
 	world.grid_pickup.OverlapRect(receive, rt);
 	for( auto i = receive.begin(); i != receive.end(); ++i )
@@ -243,8 +227,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 				continue;
 			}
 
-			if( (vehicle.GetPos() - pItem->GetPos()).sqr() <
-				(AI_MAX_SIGHT * WORLD_BLOCK_SIZE) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE) )
+			if( (vehicle.GetPos() - pItem->GetPos()).sqr() < AI_MAX_SIGHT * AI_MAX_SIGHT)
 			{
 				applicants.push_back(pItem);
 			}
@@ -266,7 +249,7 @@ bool AIController::FindItem(World &world, const GC_Vehicle &vehicle, /*out*/ AII
 			if( nullptr == items[i] ) continue;
 			assert(items[i]->GetVisible());
 			if( items[i]->GetAttached() ) continue;
-			float l = _drivingAgent->CreatePath(world, vehicle.GetPos(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
+			float l = _drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), items[i]->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, true, ws);
 			// TODO: path cost should be non linear function of the length
 			if( l >= 0 )
 			{
@@ -364,18 +347,18 @@ void AIController::SetL2(aiState_l2 new_state)
 
 void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const AIWEAPSETTINGS *ws)
 {
-	AIITEMINFO ii_item;
-	FindItem(world, vehicle, ii_item, ws);
+	AIITEMINFO ii_item{};
+	if (_difficulty != AIDiffuculty::Easy || !vehicle.GetWeapon()) // easy only look for weapons
+		FindItem(world, vehicle, ii_item, ws);
 
-	AIITEMINFO ii_target;
-	if( FindTarget(world, vehicle, ii_target, ws) )
+	if( AIITEMINFO ii_target = FindTarget(world, vehicle, ws) )
 	{
 		assert(vehicle.GetWeapon());
 		_target = PtrCast<GC_RigidBodyStatic>(ii_target.object);
 
 		if( ii_target.priority > ii_item.priority )
 		{
-			if(_drivingAgent->CreatePath(world, vehicle.GetPos(), _target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
+			if(_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), _target->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 			{
 				_drivingAgent->SmoothPath();
 			}
@@ -397,7 +380,7 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 			assert(ii_item.object);
 			if( _pickupCurrent != ii_item.object )
 			{
-				if(_drivingAgent->CreatePath(world, vehicle.GetPos(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
+				if(_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), ii_item.object->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0 )
 				{
 					_drivingAgent->SmoothPath();
 				}
@@ -414,10 +397,11 @@ void AIController::ProcessAction(World &world, const GC_Vehicle &vehicle, const 
 	}
 }
 
-void AIController::SetLevel(int level)
+void AIController::SetDifficulty(AIDiffuculty diffuculty)
 {
-	_difficulty = level;
-	_drivingAgent->SetAttackFriendlyTurrets(level == 0); // be totally stupid
+	_difficulty = diffuculty;
+	_drivingAgent->SetAttackFriendlyTurrets(diffuculty == AIDiffuculty::Easy); // be totally stupid
+	_shootingAgent->SetAccuracy((int)diffuculty);
 }
 
 bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float y)
@@ -425,7 +409,7 @@ bool AIController::March(World &world, const GC_Vehicle &vehicle, float x, float
     AIWEAPSETTINGS ws;
     if( vehicle.GetWeapon() )
         vehicle.GetWeapon()->SetupAI(&ws);
-	if (_drivingAgent->CreatePath(world, vehicle.GetPos(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0)
+	if (_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), { x, y }, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0)
     {
 		_drivingAgent->SmoothPath();
         SetL1(L1_NONE);
@@ -454,7 +438,7 @@ bool AIController::Pickup(World &world, const GC_Vehicle &vehicle, GC_Pickup *p)
         if( vehicle.GetWeapon() )
             vehicle.GetWeapon()->SetupAI(&ws);
 
-        if(_drivingAgent->CreatePath(world, vehicle.GetPos(), p->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
+        if(_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), p->GetPos(), vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, &ws) > 0 )
         {
 			_drivingAgent->SmoothPath();
             _pickupCurrent = p;
@@ -496,10 +480,10 @@ void AIController::SelectState(World &world, const GC_Vehicle &vehicle, const AI
 		assert(nullptr == _target);
 		if( !_drivingAgent->HasPath() )
 		{
-			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * (AI_MAX_SIGHT * WORLD_BLOCK_SIZE);
+			vec2d t = vehicle.GetPos() + world.net_vrand(sqrtf(world.net_frand(1.0f))) * AI_MAX_SIGHT;
 			t = Vec2dClamp(t, world.GetBounds());
 
-			if (_drivingAgent->CreatePath(world, vehicle.GetPos(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
+			if (_drivingAgent->CreatePath(world, vehicle.GetPos(), vehicle.GetDirection(), t, vehicle.GetOwner()->GetTeam(), AI_MAX_DEPTH, false, ws) > 0)
 			{
 				_drivingAgent->SmoothPath();
 				SetL1(L1_NONE);
@@ -522,7 +506,7 @@ bool AIController::IsTargetVisible(const World &world, const GC_Vehicle &vehicle
 {
 	assert(vehicle.GetWeapon());
 
-	if( GC_Weap_Gauss::GetTypeStatic() == vehicle.GetWeapon()->GetType() )  // FIXME!
+	if( GC_Weap_Gauss::GetTypeStatic() == vehicle.GetWeapon()->GetType() && _difficulty == AIDiffuculty::Hard )
 		return true;
 
 	GC_RigidBodyStatic *object = (GC_RigidBodyStatic *) world.TraceNearest(

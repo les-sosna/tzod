@@ -10,7 +10,7 @@ namespace math
 	struct FRECT;
 }
 
-class Terrain
+class Terrain final
 {
 public:
 	Terrain(TextureManager &tm);

@@ -8,7 +8,7 @@ class R_Weapon : public ObjectRFunc
 {
 public:
 	R_Weapon(TextureManager &tm, const char *tex);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	size_t _texId;
@@ -18,7 +18,7 @@ class R_WeapFireEffect : public ObjectRFunc
 {
 public:
 	R_WeapFireEffect(TextureManager &tm, const char *tex, float duration, float offsetX, bool oriented);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	TextureManager &_tm;
@@ -32,7 +32,7 @@ class Z_WeapFireEffect : public ObjectZFunc
 {
 public:
 	Z_WeapFireEffect(float duration) : _duration(duration) {}
-	enumZOrder GetZ(const World &world, const GC_Actor &actor) const override;
+	enumZOrder GetZ(const World &world, const GC_MovingObject &mo) const override;
 
 private:
 	float _duration;
@@ -42,7 +42,7 @@ class R_RipperDisk : public ObjectRFunc
 {
 public:
 	R_RipperDisk(TextureManager &tm);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	size_t _texId;
@@ -52,7 +52,7 @@ class R_Crosshair : public ObjectRFunc
 {
 public:
 	R_Crosshair(TextureManager &tm);
-	void Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const override;
+	void Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const override;
 
 private:
 	size_t _texId;

@@ -12,10 +12,10 @@ R_Weapon::R_Weapon(TextureManager &tm, const char *tex)
 {
 }
 
-void R_Weapon::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Weapon::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	assert(dynamic_cast<const GC_Weapon*>(&mo));
+	auto &weapon = static_cast<const GC_Weapon&>(mo);
 
 	DrawWeaponShadow(world, weapon, rc, _texId);
 	vec2d pos = weapon.GetPos();
@@ -33,10 +33,10 @@ R_WeapFireEffect::R_WeapFireEffect(TextureManager &tm, const char *tex, float du
 {
 }
 
-void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_WeapFireEffect::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
-	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
+	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&mo));
+	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(mo);
 
 	float lastShot = weapon.GetLastShotTime();
 	float advance = (world.GetTime() - lastShot) / _duration;
@@ -62,10 +62,10 @@ void R_WeapFireEffect::Draw(const World &world, const GC_Actor &actor, RenderCon
 	}
 }
 
-enumZOrder Z_WeapFireEffect::GetZ(const World &world, const GC_Actor &actor) const
+enumZOrder Z_WeapFireEffect::GetZ(const World &world, const GC_MovingObject &mo) const
 {
-	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&actor));
-	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(actor);
+	assert(dynamic_cast<const GC_ProjectileBasedWeapon*>(&mo));
+	auto &weapon = static_cast<const GC_ProjectileBasedWeapon&>(mo);
 	return (weapon.GetAttached() && (world.GetTime() - weapon.GetLastShotTime() < _duration)) ? Z_EXPLODE : Z_NONE;
 }
 
@@ -75,10 +75,10 @@ R_RipperDisk::R_RipperDisk(TextureManager &tm)
 {
 }
 
-void R_RipperDisk::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_RipperDisk::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Weap_Ripper*>(&actor));
-	auto &ripper = static_cast<const GC_Weap_Ripper&>(actor);
+	assert(dynamic_cast<const GC_Weap_Ripper*>(&mo));
+	auto &ripper = static_cast<const GC_Weap_Ripper&>(mo);
 	if (ripper.GetAttached() && ripper.GetNumShots() == 0)
 	{
 		vec2d pos = ripper.GetPos() - ripper.GetDirection() * 8;
@@ -93,10 +93,10 @@ R_Crosshair::R_Crosshair(TextureManager &tm)
 {
 }
 
-void R_Crosshair::Draw(const World &world, const GC_Actor &actor, RenderContext &rc) const
+void R_Crosshair::Draw(const World &world, const GC_MovingObject &mo, RenderContext &rc) const
 {
-	assert(dynamic_cast<const GC_Weapon*>(&actor));
-	auto &weapon = static_cast<const GC_Weapon&>(actor);
+	assert(dynamic_cast<const GC_Weapon*>(&mo));
+	auto &weapon = static_cast<const GC_Weapon&>(mo);
 	if (weapon.GetVehicle() && weapon.GetVehicle()->GetOwner() && weapon.GetVehicle()->GetOwner()->GetIsHuman())
 	{
 		vec2d pos = weapon.GetPos() + weapon.GetDirection() * 200.0f;

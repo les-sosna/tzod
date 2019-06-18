@@ -1,6 +1,6 @@
 package com.neaoo.tzod;
 
-// Wrapper for native library
+import android.content.res.AssetManager;
 
 public class TZODJNILib {
 
@@ -8,10 +8,9 @@ public class TZODJNILib {
         System.loadLibrary("tzodjni");
     }
 
-    /**
-     * @param width the current view width
-     * @param height the current view height
-     */
-    public static native void init(int width, int height);
+    public static native void init(AssetManager assetManager);
+    public static native void resize(int width, int height);
     public static native void step();
+
+    public static native void pointer(int actionMasked, int pointerId, float x, float y);
 }

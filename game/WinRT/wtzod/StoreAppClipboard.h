@@ -1,10 +1,11 @@
 #pragma once
-#include <ui/Clipboard.h>
+#include <plat/Clipboard.h>
 
-class StoreAppClipboard : public UI::IClipboard
+class StoreAppClipboard final
+	: public Plat::Clipboard
 {
 public:
-	// UI::IClipboard
+	// Plat::Clipboard
 	std::string_view GetClipboardText() const override;
 	void SetClipboardText(std::string text) override;
 };
