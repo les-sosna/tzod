@@ -532,8 +532,7 @@ bool Desktop::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 	case Plat::Key::F10:
 		if (_conf.d_artistmode.Get())
 		{
-			_texman.LoadPackage(_texman._RenderHack, _fs, ParsePackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs));
-			_texman.LoadPackage(_texman._RenderHack, _fs, ParseDirectory(_fs, DIR_SKINS, "skin/"));
+			_texman.LoadPackage(_texman._RenderHack, _fs, ParseDirectory(_fs, DIR_SPRITES));
 		}
 		break;
 
