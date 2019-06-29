@@ -11,7 +11,7 @@
 
 static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, IRender &render)
 {
-	TextureManager textureManager(render);
+	TextureManager textureManager(&render);
 	try
 	{
 		textureManager.LoadPackage(render, fs, ParseDirectory(fs, DIR_SPRITES));

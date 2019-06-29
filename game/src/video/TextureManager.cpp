@@ -38,10 +38,11 @@ const unsigned char CheckerImage::_bytes[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TextureManager::TextureManager(IRender &render)
+TextureManager::TextureManager(IRender *render)
 	: _RenderHack(render)
 {
-	CreateChecker(render);
+    if (render)
+        CreateChecker(*render);
 }
 
 TextureManager::~TextureManager()

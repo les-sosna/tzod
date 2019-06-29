@@ -37,7 +37,12 @@ WindowLayout ScrollView::GetChildLayout(TextureManager &texman, const LayoutCont
 
 vec2d ScrollView::GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const
 {
-	return _content ? _content->GetContentSize(texman, dc, scale, layoutConstraints) : vec2d{};
+    auto pxContentSize = _content ? _content->GetContentSize(texman, dc, scale, layoutConstraints) : vec2d{};
+    if (_horizontalScrollEnabled)
+        pxContentSize.x = std::min(pxContentSize.x, layoutConstraints.maxPixelSize.x);
+    if (_verticalScrollEnabled)
+        pxContentSize.y = std::min(pxContentSize.y, layoutConstraints.maxPixelSize.y);
+	return pxContentSize;
 }
 
 void ScrollView::OnScroll(TextureManager &texman, const UI::InputContext &ic, const UI::LayoutContext &lc, const UI::DataContext &dc, vec2d scrollOffset, bool precise)

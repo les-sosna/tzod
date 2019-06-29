@@ -57,6 +57,7 @@ if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
 	add_subdirectory(tzodmain)
 	add_subdirectory(fsmem)
 	add_subdirectory(gc_tests)
+	add_subdirectory(ui_tests)
 	add_subdirectory(uitestapp)
 endif()
 

@@ -23,12 +23,11 @@ WindowLayout StackLayout::GetChildLayout(TextureManager &texman, const LayoutCon
 			{
 				break;
 			}
-
 			float pxSpaceTaken = item->GetContentSize(texman, dc, scale, constraints).y + pxSpacing;
 			pxOffset += pxSpaceTaken;
 			constraints.maxPixelSize.y = std::max(constraints.maxPixelSize.y - pxSpaceTaken, 0.f);
 		}
-		vec2d pxChildSize = Vec2dMin(child.GetContentSize(texman, dc, scale, constraints), constraints.maxPixelSize);
+		vec2d pxChildSize = child.GetContentSize(texman, dc, scale, constraints);
 		if (_align == Align::LT)
 		{
 			return WindowLayout{ FRECT{ 0.f, pxOffset, size.x, pxOffset + pxChildSize.y }, 1, true };
@@ -53,7 +52,7 @@ WindowLayout StackLayout::GetChildLayout(TextureManager &texman, const LayoutCon
 			constraints.maxPixelSize.x = std::max(constraints.maxPixelSize.x - pxSpaceTaken, 0.f);
 			pxOffset += pxSpaceTaken;
 		}
-		vec2d pxChildSize = Vec2dMin(child.GetContentSize(texman, dc, scale, constraints), constraints.maxPixelSize);
+		vec2d pxChildSize = child.GetContentSize(texman, dc, scale, constraints);
 		return WindowLayout{ FRECT{ pxOffset, 0.f, pxOffset + pxChildSize.x, size.y }, 1, true };
 	}
 }

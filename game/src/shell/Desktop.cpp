@@ -530,9 +530,9 @@ bool Desktop::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 		break;
 
 	case Plat::Key::F10:
-		if (_conf.d_artistmode.Get())
+		if (_conf.d_artistmode.Get() && _texman._RenderHack)
 		{
-			_texman.LoadPackage(_texman._RenderHack, _fs, ParseDirectory(_fs, DIR_SPRITES));
+			_texman.LoadPackage(*_texman._RenderHack, _fs, ParseDirectory(_fs, DIR_SPRITES));
 		}
 		break;
 

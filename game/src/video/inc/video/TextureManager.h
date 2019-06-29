@@ -27,10 +27,10 @@ class TextureManager final
 {
 public:
 	TextureManager(TextureManager&&) = default;
-	explicit TextureManager(IRender &render);
+	explicit TextureManager(IRender *render);
 	~TextureManager();
 
-	IRender& _RenderHack;
+	IRender* _RenderHack;
 
 	void LoadPackage(IRender& render, FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs);
 	void UnloadAllTextures(IRender& render) noexcept;
