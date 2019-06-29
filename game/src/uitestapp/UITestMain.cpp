@@ -15,8 +15,6 @@ using FileSystem = FS::FileSystemPosix;
 #include <string>
 #include <iostream>
 
-#define FILE_TEXTURES "scripts/textures.lua"
-
 static void print_what(const std::exception &e, std::string prefix);
 
 #ifdef _WIN32
@@ -42,25 +40,25 @@ try
 	);
 
 	TextureManager textureManager(appWindow.GetRender());
-	if (textureManager.LoadPackage(ParsePackage(FILE_TEXTURES, fs->Open(FILE_TEXTURES)->QueryMap(), *fs)) <= 0)
-		std::cerr << "WARNING: no textures loaded" << std::endl;
+	textureManager.LoadPackage(appWindow.GetRender(), *fs, ParseDirectory(*fs, "sprites"));
 
-	UI::TimeStepManager timeStepManager;
 	auto desktop = std::make_shared<UITestDesktop>();
 
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
 
-	UIInputRenderingController controller(appWindow, textureManager, timeStepManager, desktop);
+	UI::TimeStepManager timeStepManager;
+	UIInputRenderingController controller(appWindow.GetInput(), textureManager, timeStepManager, desktop);
 
 	while (!appWindow.ShouldClose())
 	{
-		GlfwAppWindow::PollEvents();
-
+		controller.OnRefresh(appWindow);
+		GlfwAppWindow::PollEvents(controller);
 		controller.TimeStep(timer.GetDt());
-		controller.OnRefresh();
 	}
+
+	textureManager.UnloadAllTextures(appWindow.GetRender());
 
 	return 0;
 }

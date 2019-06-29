@@ -29,12 +29,12 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 		mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
 		mapPreview->SetMapName(std::make_shared<UI::StaticText>(_mapCollection.GetMapName(mapIndex)));
 
-		auto mpButton = std::make_shared<UI::ButtonBase>();
-		mpButton->AddFront(mapPreview);
+		auto mpButton = std::make_shared<UI::ContentButton>();
+		mpButton->SetContent(mapPreview);
 		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
 		mpButton->eventClick = [this, mapIndex]()
 		{
-			eventMapSelected(std::static_pointer_cast<SelectMapDlg>(shared_from_this()), mapIndex);
+			eventMapSelected(mapIndex);
 		};
 
 		_mapTiles->AddFront(mpButton);
@@ -46,9 +46,9 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	newMapButton->SetFont("font_default");
 	newMapButton->eventClick = [this]()
 	{
-		eventMapSelected(std::static_pointer_cast<SelectMapDlg>(shared_from_this()), -1);
+		eventMapSelected(-1);
 	};
 	_mapTiles->AddFront(newMapButton);
 
-	_mapTiles->SetFocus(_mapTiles->GetChild(0));
+	_mapTiles->SetFocus(&_mapTiles->GetChild(0));
 }

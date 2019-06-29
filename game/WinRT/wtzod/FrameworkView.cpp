@@ -21,16 +21,8 @@ using namespace Windows::UI::Input;
 using namespace Windows::System;
 using namespace Windows::Graphics::Display;
 
-
-static bool IsDeviceLost(HRESULT hr)
-{
-	return (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET);
-}
-
 FrameworkView::FrameworkView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app)
-	: m_windowClosed(false)
-	, m_windowVisible(true)
-	, _fs(fs)
+	: _fs(fs)
 	, _logger(logger)
 	, _app(app)
 {
@@ -56,25 +48,8 @@ void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 {
 	m_window = coreWindow;
 
-	coreWindow->SizeChanged +=
-		ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &FrameworkView::OnWindowSizeChanged);
-
-	coreWindow->VisibilityChanged +=
-		ref new Windows::Foundation::TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &FrameworkView::OnVisibilityChanged);
-
-	coreWindow->Closed +=
-		ref new Windows::Foundation::TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &FrameworkView::OnWindowClosed);
-
-	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
-
-	currentDisplayInformation->DpiChanged +=
-		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDpiChanged);
-
-	currentDisplayInformation->OrientationChanged +=
-		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnOrientationChanged);
-
-	DisplayInformation::DisplayContentsInvalidated +=
-		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
+//	DisplayInformation::DisplayContentsInvalidated +=
+//		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
 
 	HandleDeviceLost();
 }
@@ -87,23 +62,25 @@ void FrameworkView::Load(Platform::String^ entryPoint)
 // This method is called after the window becomes active.
 void FrameworkView::Run()
 {
-	while (!m_windowClosed)
+	while (!_appWindow->ShouldClose())
 	{
-		if (m_windowVisible && _view != nullptr)
+		if ((!_appWindow || _appWindow->IsVisible()) && _view != nullptr)
 		{
-			if (m_deviceResources->IsDeviceRemoved())
+			if (!_appWindow || _appWindow->IsDeviceRemoved())
 			{
 				HandleDeviceLost();
 			}
 
-			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+			_view->GetAppWindowInputSink().OnRefresh(*_appWindow);
+
+			_appWindow->PollEvents(_view->GetAppWindowInputSink());
 
 			m_timer.Tick([&]()
 			{
 				float dt = (float)m_timer.GetElapsedSeconds();
 				if (_view)
 				{
-					_view->Step(dt);
+					_view->Step(_app, dt);
 				}
 			});
 		}
@@ -140,9 +117,9 @@ void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArg
 
 	create_task([this, deferral]()
 	{
-		m_deviceResources->Trim();
+//		m_deviceResources->Trim();
 
-		_app.Exit();
+		_app.SaveConfig();
 
 		deferral->Complete();
 	});
@@ -157,63 +134,7 @@ void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ ar
 	// Insert your code here.
 }
 
-
-// Window event handlers.
-
-void FrameworkView::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
-{
-	HRESULT hr = m_swapChainResources->SetPixelSize(
-		m_deviceResources->GetD3DDevice(),
-		m_deviceResources->GetD3DDeviceContext(),
-		_appWindow->GetPixelSize());
-
-	if (!IsDeviceLost(hr))
-	{
-		DX::ThrowIfFailed(hr);
-	}
-}
-
-void FrameworkView::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
-{
-	m_windowVisible = args->Visible;
-}
-
-void FrameworkView::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
-{
-	m_windowClosed = true;
-}
-
-// DisplayInformation event handlers.
-
-void FrameworkView::OnDpiChanged(DisplayInformation^ sender, Object^ args)
-{
-	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
-
-	HRESULT hr = m_swapChainResources->SetPixelSize(
-		m_deviceResources->GetD3DDevice(),
-		m_deviceResources->GetD3DDeviceContext(),
-		_appWindow->GetPixelSize());
-
-	if (!IsDeviceLost(hr))
-	{
-		DX::ThrowIfFailed(hr);
-	}
-}
-
-void FrameworkView::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
-{
-	int rotationAngle = ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation);
-
-	HRESULT hr = m_swapChainResources->SetCurrentOrientation(
-		m_deviceResources->GetD3DDevice(),
-		m_deviceResources->GetD3DDeviceContext(), rotationAngle);
-
-	if (!IsDeviceLost(hr))
-	{
-		DX::ThrowIfFailed(hr);
-	}
-}
-
+/*
 void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
 	if (!m_deviceResources->ValidateDevice())
@@ -221,64 +142,11 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 		HandleDeviceLost();
 	}
 }
-
-static ComPtr<IDXGISwapChain1> CreateSwapchainForCoreWindow(ID3D11Device *d3dDevice, CoreWindow ^coreWindow)
-{
-	// This sequence obtains the DXGI factory that was used to create the Direct3D device.
-	ComPtr<IDXGIDevice3> dxgiDevice;
-	DX::ThrowIfFailed(d3dDevice->QueryInterface(IID_PPV_ARGS(&dxgiDevice)));
-
-	// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and
-	// ensures that the application will only render after each VSync, minimizing power consumption.
-	DX::ThrowIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
-
-	ComPtr<IDXGIAdapter> dxgiAdapter;
-	DX::ThrowIfFailed(dxgiDevice->GetAdapter(&dxgiAdapter));
-
-	ComPtr<IDXGIFactory2> dxgiFactory;
-	DX::ThrowIfFailed(dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)));
-
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
-	swapChainDesc.Width = 0; // todo: Match the size of the window.
-	swapChainDesc.Height = 0;
-	swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
-	swapChainDesc.Stereo = false;
-	swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
-	swapChainDesc.SampleDesc.Quality = 0;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferCount = 2; // Use double-buffering to minimize latency.
-	swapChainDesc.Scaling = DXGI_SCALING_NONE;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
-	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-	swapChainDesc.Flags = 0;
-
-	ComPtr<IDXGISwapChain1> swapChain;
-	DX::ThrowIfFailed(dxgiFactory->CreateSwapChainForCoreWindow(
-		d3dDevice,
-		reinterpret_cast<IUnknown*>(coreWindow),
-		&swapChainDesc,
-		nullptr,
-		swapChain.ReleaseAndGetAddressOf()));
-
-	return swapChain;
-}
-
+*/
 void FrameworkView::HandleDeviceLost()
 {
 	_view.reset();
 	_appWindow.reset();
-
-	m_swapChainResources.reset();
-	m_deviceResources.reset(new DX::DeviceResources());
-
-	ComPtr<IDXGISwapChain1> swapChain = CreateSwapchainForCoreWindow(m_deviceResources->GetD3DDevice(), m_window.Get());
-	m_swapChainResources = std::make_unique<SwapChainResources>(swapChain.Get());
-
-	_appWindow.reset(new StoreAppWindow(m_window.Get(), *m_deviceResources, *m_swapChainResources));
+	_appWindow.reset(new StoreAppWindow(m_window.Get()));
 	_view.reset(new TzodView(_fs, _logger, _app, *_appWindow));
-
-	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
-	int rotationAngle = ComputeDisplayRotation(currentDisplayInformation->NativeOrientation, currentDisplayInformation->CurrentOrientation);
-	m_swapChainResources->SetCurrentOrientation(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext(), rotationAngle);
-	m_swapChainResources->SetPixelSize(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext(), _appWindow->GetPixelSize());
 }

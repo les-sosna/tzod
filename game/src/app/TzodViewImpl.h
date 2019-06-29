@@ -2,34 +2,27 @@
 #include <platetc/UIInputRenderingController.h>
 #include <ui/GuiManager.h>
 #include <video/TextureManager.h>
-#include <deque>
 #include <memory>
 
 class TzodApp;
 class SoundView;
 namespace Plat
 {
+	struct AppWindowCommandClose;
 	class ConsoleBuffer;
 }
 
-class TzodViewImpl
+struct TzodViewImpl
 {
-public:
-	TzodViewImpl(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow &appWindow);
+	TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose *cmdClose, Plat::ConsoleBuffer &logger, Plat::Input& input, IRender& render, TzodApp& app);
 	~TzodViewImpl();
 
-	void Step(float dt);
-
-private:
-	TzodApp &_app;
-	TextureManager _textureManager;
-	UI::TimeStepManager _timeStepManager;
-	std::shared_ptr<UI::Window> _desktop;
-	UIInputRenderingController _uiInputRenderingController;
-	std::deque<float> _movingAverageWindow;
-	std::deque<float> _movingMedianWindow;
+	TextureManager textureManager;
+	UI::TimeStepManager timeStepManager;
+	std::shared_ptr<UI::Window> desktop;
+	UIInputRenderingController uiInputRenderingController;
 #ifndef NOSOUND
-	std::unique_ptr<SoundView> _soundView;
+	std::unique_ptr<SoundView> soundView;
 #endif
 };
 

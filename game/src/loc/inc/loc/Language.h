@@ -33,6 +33,16 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( editor_map_settings, "Map settings" )
 
 	VAR_STR( settings_btn, "SETTINGS" )
+	VAR_STR( settings_title, "SETTINGS" )
+	VAR_STR( settings_player, "PLAYER" )
+	VAR_STR( settings_player_nick, "NICKNAME" )
+	VAR_STR( settings_controls, "CONTROLS" )
+	VAR_STR( settings_advanced, "ADVANCED" )
+	VAR_STR( settings_advanced_fullscreen, "FULL SCREEN" )
+	VAR_STR( settings_advanced_vsync, "V-SYNC" )
+	VAR_STR( settings_advanced_framestats, "FRAME STATS" )
+
+	VAR_STR( quit_btn, "QUIT")
 
 	VAR_STR( get_file_name_title, "File name" )
 	VAR_STR( get_file_name_save_game, "Save Game" )
@@ -194,7 +204,6 @@ REFLECTION_BEGIN(LangCache)
 	// Settings
 	//
 
-	VAR_STR( settings_title, "Settings" )
 	VAR_STR( settings_player1, "Player 1" )
 	VAR_STR( settings_player2, "Player 2" )
 	VAR_STR( settings_profiles, "Profiles" )
@@ -212,9 +221,9 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( profile_autoname, "Profile " )
 	VAR_STR( profile_action, "Action" )
 	VAR_STR( profile_key, "Bound key" )
-	VAR_STR( profile_mouse_aim, "Mouse aim" )
-	VAR_STR( profile_mouse_move, "Mouse move" )
-	VAR_STR( profile_arcade_style, "Arcade style" )
+	VAR_STR( profile_mouse_aim, "Aim with mouse" )
+	VAR_STR( profile_mouse_move, "Move with mouse" )
+	VAR_STR( profile_arcade_style, "Arcade style move" )
 
 	VAR_STR( action_move_forward, "Forward" )
 	VAR_STR( action_move_backward, "Backward" )
@@ -225,7 +234,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( action_tower_left, "Turn weapon left" )
 	VAR_STR( action_tower_right, "Turn weapon right" )
 	VAR_STR( action_tower_center, "Center weapon" )
-	VAR_STR( action_no_pickup, "Do not pickup" )
+	VAR_STR( action_pickup, "Pickup item" )
 
 
 	//

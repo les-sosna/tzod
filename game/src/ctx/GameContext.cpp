@@ -1,4 +1,5 @@
 #include "inc/ctx/AIManager.h"
+#include "inc/ctx/AppConfig.h"
 #include "inc/ctx/Deathmatch.h"
 #include "inc/ctx/GameContext.h"
 #include "inc/ctx/WorldController.h"
@@ -8,11 +9,10 @@
 #include <gc/WorldCfg.h>
 #include <script/ScriptHarness.h>
 
-#define AI_MAX_LEVEL   4U
-
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings)
 	: _world(std::move(world))
 	, _aiManager(std::make_unique<AIManager>(*_world))
+	, _difficulty(settings.difficulty)
 {
 	_world->Seed(rand());
 
@@ -37,8 +37,7 @@ GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &setting
 		player.SetSkin(pd.skin);
 		player.SetTeam(pd.team);
 
-		_aiManager->AssignAI(&player, "123");
-//        ai->SetAILevel(std::max(0U, std::min(AI_MAX_LEVEL, p.level.GetInt())));
+		_aiManager->AssignAI(&player, settings.difficulty);
 	}
 
 	_worldController.reset(new WorldController(*_world));
@@ -55,14 +54,17 @@ GameContext::~GameContext()
 {
 }
 
-Gameplay* GameContext::GetGameplay()
+Gameplay* GameContext::GetGameplay() const
 {
 	return _gameplay.get();
 }
 
-void GameContext::Step(float dt)
+void GameContext::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
 {
-	if (IsActive())
+	if (IsGameplayActive())
+		_gameplayTime += dt;
+
+	if (IsWorldActive())
 	{
 		_worldController->SendControllerStates(_aiManager->ComputeAIState(*_world, dt));
 		_world->Step(dt);
@@ -70,23 +72,17 @@ void GameContext::Step(float dt)
 	}
 }
 
-bool GameContext::IsActive() const
+bool GameContext::IsGameplayActive() const
 {
-	bool isActive = !_gameplay->IsGameOver();
+	for (auto player : _worldController->GetLocalPlayers())
+		if (!player->GetIsActive())
+			return false;
+	return true;
+}
 
-	if (isActive)
-	{
-		for (auto player : _worldController->GetLocalPlayers())
-		{
-			if (!player->GetIsActive())
-			{
-				isActive = false;
-				break;
-			}
-		}
-	}
-
-	return isActive;
+bool GameContext::IsWorldActive() const
+{
+	return (_world->GetTime() < _gameplay->GetGameOverTime()) && IsGameplayActive();
 }
 
 void GameContext::Serialize(FS::Stream &stream)
@@ -133,9 +129,51 @@ void GameContext::Deserialize(FS::Stream &stream)
 	_scriptHarness->Deserialize(f);
 }
 
+///////////////////////////////////////////////////////
+
 GameContextCampaignDM::GameContextCampaignDM(std::unique_ptr<World> world, const DMSettings &settings, int campaignTier, int campaignMap)
 	: GameContext(std::move(world), settings)
 	, _campaignTier(campaignTier)
 	, _campaignMap(campaignMap)
 {
+}
+
+int GameContextCampaignDM::GetRating() const
+{
+	return IsVictory() ? ((int)GetDifficulty() + 1) : 0;
+}
+
+bool GameContextCampaignDM::IsVictory() const
+{
+	int maxBotScore = INT_MIN;
+	for (auto botPlayer : GetWorldController().GetAIPlayers())
+		maxBotScore = std::max(maxBotScore, botPlayer->GetScore());
+
+	for (auto player : GetWorldController().GetLocalPlayers())
+	{
+		if (player->GetScore() > maxBotScore)
+			return true;
+	}
+	return false;
+}
+
+void GameContextCampaignDM::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
+{
+	GameContext::Step(dt, appConfig, outConfigChanged);
+	auto gameplay = GetGameplay();
+	assert(gameplay);
+	if (gameplay->GetGameOverTime() <= GetWorld().GetTime() &&
+		_campaignTier >= 0 && _campaignMap >= 0 && IsVictory())
+	{
+		appConfig.sp_tiersprogress.EnsureIndex(_campaignTier);
+		ConfVarArray &tierprogress = appConfig.sp_tiersprogress.GetArray(_campaignTier);
+		tierprogress.EnsureIndex(_campaignMap);
+		int currentRating = tierprogress.GetNum(_campaignMap).GetInt();
+		int rating = GetRating();
+		if (rating > currentRating)
+		{
+			tierprogress.SetNum(_campaignMap, rating);
+			*outConfigChanged = true;
+		}
+	}
 }

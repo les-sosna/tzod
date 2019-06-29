@@ -101,7 +101,7 @@ DMCampaign& TzodApp::GetDMCampaign()
 void TzodApp::Step(float dt)
 {
 	bool configChanged = false;
-	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt, configChanged);
+	_impl->appController.Step(_impl->appState, _impl->combinedConfig.game, dt, &configChanged);
 
 	if (configChanged)
 	{
@@ -110,16 +110,14 @@ void TzodApp::Step(float dt)
 }
 
 void TzodApp::SaveConfig()
+try
 {
-	try
-	{
-		auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
-		FS::OutStreamWrapper wrapper(*s);
-		_impl->combinedConfig->Save(wrapper);
-		_logger.Printf(0, "Config saved: " FILE_CONFIG);
-	}
-	catch(const std::exception &e)
-	{
-		_logger.Printf(0, "Failed to save config: %s", e.what());
-	}
+	auto s = _fs.Open(FILE_CONFIG, FS::ModeWrite)->QueryStream();
+	FS::OutStreamWrapper wrapper(*s);
+	_impl->combinedConfig->Save(wrapper);
+	_logger.Printf(0, "Config saved: " FILE_CONFIG);
+}
+catch (const std::exception& e)
+{
+	_logger.Printf(0, "Failed to save config: %s", e.what());
 }

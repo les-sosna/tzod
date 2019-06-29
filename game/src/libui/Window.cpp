@@ -31,48 +31,6 @@ Window::Window()
 {
 }
 
-Window::~Window()
-{
-	UnlinkAllChildren();
-}
-
-void Window::UnlinkAllChildren()
-{
-	_focusChild.reset();
-	_children.clear();
-}
-
-void Window::UnlinkChild(Window &child)
-{
-	if (_focusChild.get() == &child)
-		_focusChild = nullptr;
-	_children.erase(
-		std::remove_if(std::begin(_children), std::end(_children), [&](auto &which) { return which.get() == &child;} ),
-		_children.end());
-}
-
-void Window::AddFront(std::shared_ptr<Window> child)
-{
-	assert(child);
-	_children.push_back(std::move(child));
-}
-
-void Window::AddBack(std::shared_ptr<Window> child)
-{
-	_children.push_front(std::move(child));
-}
-
-FRECT Window::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
-{
-	return CanvasLayout(child.GetOffset(), child.GetSize(), lc.GetScale());
-}
-
-void Window::Move(float x, float y)
-{
-	_x = x;
-	_y = y;
-}
-
 void Window::Resize(float width, float height)
 {
 	_width  = width;
@@ -84,32 +42,96 @@ void Window::SetTopMost(bool topmost)
 	_isTopMost = topmost;
 }
 
-void Window::SetFocus(std::shared_ptr<Window> child)
-{
-	assert(!child || _children.end() != std::find(_children.begin(), _children.end(), child));
-	_focusChild = child;
-}
-
-std::shared_ptr<Window> Window::GetFocus() const
-{
-	return _focusChild;
-}
-
-void Window::SetEnabled(std::shared_ptr<LayoutData<bool>> enabled)
-{
-	_enabled = std::move(enabled);
-}
-
-bool Window::GetEnabled(const DataContext &dc) const
-{
-	return _enabled ? _enabled->GetLayoutValue(dc) : true;
-}
-
 void Window::SetVisible(bool visible)
 {
 	_isVisible = visible;
 }
 
+///////////////////
+
+WindowContainer::~WindowContainer()
+{
+	UnlinkAllChildren();
+}
+
+void WindowContainer::UnlinkAllChildren()
+{
+	_focusChild = nullptr;
+	_children.clear();
+}
+
+void WindowContainer::UnlinkChild(Window& child)
+{
+	if (_focusChild == &child)
+		_focusChild = nullptr;
+	_children.erase(
+		std::remove_if(std::begin(_children), std::end(_children), [&](auto & which) { return which.get() == &child; }),
+		_children.end());
+}
+
+void WindowContainer::AddFront(std::shared_ptr<Window> child)
+{
+	assert(child);
+	_children.push_back(std::move(child));
+}
+
+void WindowContainer::AddBack(std::shared_ptr<Window> child)
+{
+	assert(child);
+	_children.push_front(std::move(child));
+}
+
+unsigned int WindowContainer::GetChildrenCount() const
+{
+	return static_cast<unsigned int>(_children.size());
+}
+
+std::shared_ptr<const Window> WindowContainer::GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const
+{
+	return _children[index];
+}
+
+const Window& WindowContainer::GetChild(unsigned int index) const
+{
+	return *_children[index];
+}
+
+void WindowContainer::SetFocus(Window* child)
+{
+	assert(!child || end(_children) != std::find_if(begin(_children), end(_children), [=](auto & c) { return c.get() == child; }));
+	_focusChild = child;
+}
+
+std::shared_ptr<const Window> WindowContainer::GetFocus(const std::shared_ptr<const Window> & owner) const
+{
+	return _focusChild ? *std::find_if(begin(_children), end(_children), [=](auto & c) { return c.get() == _focusChild; }) : nullptr;
+}
+
+const Window* WindowContainer::GetFocus() const
+{
+	return _focusChild;
+}
+
+
+// Utils
+
+bool UI::NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc)
+{
+	if (!wnd.GetVisible())
+		return false;
+
+	if (wnd.HasNavigationSink() || wnd.HasKeyboardSink() || wnd.HasTextSink())
+		return true;
+
+	if (auto focus = wnd.GetFocus())
+	{
+		auto childLayout = wnd.GetChildLayout(texman, lc, dc, *focus);
+		if (childLayout.enabled && NeedsFocus(texman, ic, *focus, LayoutContext(ic, wnd, lc, *focus, childLayout), dc))
+			return true;
+	}
+
+	return false;
+}
 
 FRECT UI::CanvasLayout(vec2d offset, vec2d size, float scale)
 {

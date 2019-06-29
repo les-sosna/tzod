@@ -17,11 +17,11 @@ AIManager::~AIManager()
 	_world.eGC_Player.RemoveListener(*this);
 }
 
-void AIManager::AssignAI(GC_Player *player, std::string profile)
+void AIManager::AssignAI(GC_Player *player, AIDiffuculty diffuculty)
 {
     std::unique_ptr<AIController> ctrl(new AIController());
-//    ctrl->SetProfile(profile.c_str());
-    _aiControllers[player] = std::make_pair(std::move(profile), std::move(ctrl));
+	ctrl->SetDifficulty(diffuculty);
+	_aiControllers.emplace(player, std::move(ctrl));
 }
 
 AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
@@ -42,7 +42,7 @@ AIManager::ControllerStateMap AIManager::ComputeAIState(World &world, float dt)
 			if (auto vehicle = ai.first->GetVehicle())
 			{
 				VehicleState vs;
-				ai.second.second->ReadControllerState(world, dt, *vehicle, vs, index == favorite);
+				ai.second->ReadControllerState(world, dt, *vehicle, vs, index == favorite);
 				result.insert(std::make_pair(vehicle->GetId(), vs));
 				index++;
 			}
@@ -57,7 +57,7 @@ void AIManager::GetControllers(std::vector<const AIController*> &controllers) co
 	controllers.reserve(_aiControllers.size());
 	for (auto &ai : _aiControllers)
 	{
-		controllers.push_back(ai.second.second.get());
+		controllers.push_back(ai.second.get());
 	}
 }
 
@@ -65,7 +65,7 @@ void AIManager::OnRespawn(GC_Player &obj, GC_Vehicle &vehicle)
 {
 	auto it = _aiControllers.find(&obj);
 	if (_aiControllers.end() != it)
-		it->second.second->OnRespawn(_world, vehicle);
+		it->second->OnRespawn(_world, vehicle);
 }
 
 void AIManager::OnDie(GC_Player &obj)

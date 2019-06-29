@@ -32,7 +32,7 @@ if(WIN32)
 else()
 	find_package(OpenAL)
 	list(APPEND Audio_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
-	list(APPEND Audio_SOURCES SoundRenderOAL.cpp AudioContextOAL.cpp MusicPlayer.cpp)
+	list(APPEND Audio_SOURCES SoundRenderOAL.cpp AudioContextOAL.cpp)# MusicPlayer.cpp)
 	list(APPEND Audio_LIBS ${OPENAL_LIBRARY})
 endif()
 

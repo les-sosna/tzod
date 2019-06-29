@@ -51,7 +51,7 @@ try
 	s_logger.SetLog(new ConsoleLog("log.txt"));
 	s_logger.Printf(0, "%s", TZOD_VERSION);
 
-	auto fs = std::make_shared<FileSystem>("data");
+	auto fs = std::make_shared<FileSystem>(Plat::GetBundleResourcesFolder())->GetFileSystem("data");
 	auto user = std::make_shared<FileSystem>(Plat::GetAppDataFolder())->GetFileSystem("Tank Zone of Death", true);
 	fs->Mount("user", user);
 
@@ -66,15 +66,14 @@ try
 	);
 
 	TzodView view(*fs, s_logger, app, appWindow);
-
 	Timer timer;
 	timer.SetMaxDt(0.05f);
 	timer.Start();
-	while (!appWindow.ShouldClose())
-	{
-		GlfwAppWindow::PollEvents();
-		view.Step(timer.GetDt());
-	}
+	do {
+		view.GetAppWindowInputSink().OnRefresh(appWindow);
+		GlfwAppWindow::PollEvents(view.GetAppWindowInputSink());
+		view.Step(app, timer.GetDt());
+	} while (!appWindow.ShouldClose());
 
 	app.SaveConfig();
 

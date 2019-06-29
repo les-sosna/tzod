@@ -12,7 +12,7 @@
 #include <config/ConfigCache.h>
 
 #ifndef CONFIG_CACHE_PASS2
-# include <as/AppConfig.h>
+# include <ctx/AppConfig.h>
 # include <editor/Config.h>
 #endif
 
@@ -26,7 +26,7 @@ REFLECTION_BEGIN(ConfControllerProfile)
 	VAR_STR(key_tower_left,   "1")
 	VAR_STR(key_tower_center, "2")
 	VAR_STR(key_tower_right,  "3")
-	VAR_STR(key_no_pickup,    "E")
+	VAR_STR(key_pickup,       "E")
 	VAR_INT_RANGE(gamepad,      0, 0, 4)
 	VAR_BOOL(lights,         true)
 	VAR_BOOL(aim_to_mouse,   true)
@@ -43,6 +43,7 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_INT(  r_height,         768 )
 	VAR_INT(  r_freq,             0 )
 	VAR_BOOL( r_fullscreen,   false )
+	VAR_BOOL( r_vsync,         true )
 
 	// server settings
 	VAR_STR(    sv_name,   "ZOD server" )

@@ -22,7 +22,7 @@ public:
 	GlfwInitHelper();
 	~GlfwInitHelper();
 
-	GlfwInitHelper(GlfwInitHelper &&other);
+	GlfwInitHelper(GlfwInitHelper &&other) noexcept;
 
 private:
 	bool _isActive;
@@ -31,12 +31,13 @@ private:
 
 class GlfwAppWindow final
 	: public Plat::AppWindow
+	, private Plat::AppWindowCommandClose
 {
 public:
 	GlfwAppWindow(const char *title, bool fullscreen, int width, int height);
 	~GlfwAppWindow();
 
-	static void PollEvents();
+	static void PollEvents(Plat::AppWindowInputSink& inputSink);
 
 	bool ShouldClose() const;
 	int _windowedTop = 0;
@@ -45,8 +46,6 @@ public:
 	int _windowedHeight = 0;
 
 	// AppWindow
-	Plat::AppWindowInputSink* GetInputSink() const override { return _inputSink; }
-	void SetInputSink(Plat::AppWindowInputSink *inputSink) override { _inputSink = inputSink; }
 	int GetDisplayRotation() const override { return 0; }
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
@@ -56,11 +55,13 @@ public:
 	void SetCanNavigateBack(bool canNavigateBack) override;
 	void SetMouseCursor(Plat::MouseCursor mouseCursor) override;
 	void Present() override;
-	void MakeCurrent() override;
+	Plat::AppWindowCommandClose* CmdClose() override { return this; }
+
+	// AppWindowCommandClose
+	void RequestClose() override;
 
 private:
 	GlfwInitHelper _initHelper;
-	Plat::AppWindowInputSink *_inputSink = nullptr;
 	std::unique_ptr<GLFWwindow, GlfwWindowDeleter> _window;
 	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorArrow;
 	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorIBeam;

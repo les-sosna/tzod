@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 #include <deque>
+#include <array>
+#include <tuple>
 
 class RenderContext;
 class TextureManager;
@@ -13,6 +15,7 @@ class TextureManager;
 namespace Plat
 {
 	enum class Key;
+	struct Input;
 }
 
 namespace UI
@@ -47,8 +50,8 @@ struct ScrollSink
 
 struct KeyboardSink
 {
-	virtual bool OnKeyPressed(InputContext &ic, Plat::Key key) { return false; }
-	virtual void OnKeyReleased(InputContext &ic, Plat::Key key) {}
+	virtual bool OnKeyPressed(const InputContext &ic, Plat::Key key) { return false; }
+	virtual void OnKeyReleased(const InputContext &ic, Plat::Key key) {}
 };
 
 struct TextSink
@@ -63,47 +66,39 @@ class StateContext;
 
 struct StateGen
 {
-	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic) const = 0;
+	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const = 0;
 };
 
-class Window : public std::enable_shared_from_this<Window>
+struct WindowLayout
+{
+	FRECT rect;
+	float opacity;
+	bool enabled;
+};
+
+class Window
 {
 public:
 	Window();
-	virtual ~Window();
+	virtual ~Window() = default;
 
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 
-	void UnlinkAllChildren();
-	void UnlinkChild(Window &child);
-	void AddFront(std::shared_ptr<Window> child);
-	void AddBack(std::shared_ptr<Window> child);
+	// Subtree
+	virtual unsigned int GetChildrenCount() const { return 0; }
+	virtual std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const { assert(false); return nullptr; }
+	virtual const Window& GetChild(unsigned int index) const { assert(false); return *this; }
+	virtual WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const { assert(false); return {}; }
+	virtual void SetFocus(Window* child) { assert(false); }
+	virtual std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const { return nullptr; }
+	virtual const Window* GetFocus() const { return nullptr; }
 
-	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
-
-	virtual unsigned int GetChildrenCount() const { return static_cast<unsigned int>(_children.size()); }
-	virtual std::shared_ptr<const Window> GetChild(unsigned int index) const { return _children[index]; }
-	std::shared_ptr<Window> GetChild(unsigned int index)
-	{
-		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(index));
-	}
-
-	virtual FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const;
-	virtual float GetChildOpacity(const Window &child) const { return 1; }
-
-	//
 	// Input
-	//
-	virtual bool HasNavigationSink() const { return false; }
 	virtual NavigationSink* GetNavigationSink() { return nullptr; }
-	virtual bool HasScrollSink() const { return false; }
 	virtual ScrollSink* GetScrollSink() { return nullptr; }
-	virtual bool HasPointerSink() const { return false; }
 	virtual PointerSink* GetPointerSink() { return nullptr; }
-	virtual bool HasKeyboardSink() const { return false; }
 	virtual KeyboardSink* GetKeyboardSink() { return nullptr; }
-	virtual bool HasTextSink() const { return false; }
 	virtual TextSink* GetTextSink() { return nullptr; }
 
 	// State
@@ -129,9 +124,6 @@ public:
 
 	virtual vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const { return Vec2dFloor(GetSize() *scale); }
 
-	void Move(float x, float y);
-	vec2d GetOffset() const { return vec2d{_x, _y}; }
-
 	void Resize(float width, float height);
 	void SetHeight(float height) { Resize(GetWidth(), height); }
 	void SetWidth(float width) { Resize(width, GetHeight()); }
@@ -139,40 +131,37 @@ public:
 	float GetHeight() const { return _height; }
 	vec2d GetSize() const { return vec2d{GetWidth(), GetHeight()}; }
 
-
-	//
-	// Behavior
-	//
-
-	void SetEnabled(std::shared_ptr<LayoutData<bool>> enabled);
-	bool GetEnabled(const DataContext &dc) const;
-
-	void SetFocus(std::shared_ptr<Window> child);
-	virtual std::shared_ptr<Window> GetFocus() const;
-
 	// rendering
-	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const {}
+	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}
+
+	// const utils
+	bool HasNavigationSink() const { return !!const_cast<Window*>(this)->GetNavigationSink(); }
+	bool HasScrollSink() const { return !!const_cast<Window*>(this)->GetScrollSink(); }
+	bool HasPointerSink() const { return !!const_cast<Window*>(this)->GetPointerSink(); }
+	bool HasKeyboardSink() const { return !!const_cast<Window*>(this)->GetKeyboardSink(); }
+	bool HasTextSink() const { return !!const_cast<Window*>(this)->GetTextSink(); }
+	std::shared_ptr<Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index)
+	{
+		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetChild(owner, index));
+	}
+	Window& GetChild(unsigned int index)
+	{
+		return const_cast<Window&>(static_cast<const Window*>(this)->GetChild(index));
+	}
+	std::shared_ptr<Window> GetFocus(const std::shared_ptr<const Window>& owner)
+	{
+		return std::const_pointer_cast<Window>(static_cast<const Window*>(this)->GetFocus(owner));
+	}
+	Window* GetFocus()
+	{
+		return const_cast<Window*>(static_cast<const Window*>(this)->GetFocus());
+	}
 
 private:
-	std::shared_ptr<Window> _focusChild;
-	std::deque<std::shared_ptr<Window>> _children;
-
-	std::shared_ptr<LayoutData<bool>> _enabled;
-
-	//
-	// size and position
-	//
-
-	float _x = 0;
-	float _y = 0;
 	float _width = 0;
 	float _height = 0;
 
-
-	//
 	// attributes
-	//
-
 	struct
 	{
 		bool _isVisible : 1;
@@ -181,12 +170,66 @@ private:
 	};
 };
 
-inline bool NeedsFocus(const Window *wnd, const DataContext &dc)
+///////////////////////////////////////////////////////////////////////////////
+
+template <class TupleType, std::size_t ... Is>
+inline constexpr auto GetElementOffsetsImpl(const TupleType& tuple, std::index_sequence<Is...>)
 {
-	return (wnd && wnd->GetVisible() && wnd->GetEnabled(dc)) ?
-		wnd->HasNavigationSink() || wnd->HasKeyboardSink() || wnd->HasTextSink() || NeedsFocus(wnd->GetFocus().get(), dc) : false;
+	return std::array<const UI::Window*, std::tuple_size_v<TupleType>>{ &std::get<Is>(tuple)... };
 }
 
+template<class ... TupleArgs>
+inline constexpr auto GetElementOffsets(const std::tuple<TupleArgs...>& tuple)
+{
+	return GetElementOffsetsImpl(tuple, std::index_sequence_for<TupleArgs...>{});
+}
+
+#define TUPLE_CHILDREN(...) \
+public: \
+    unsigned int GetChildrenCount() const override final { \
+        return std::tuple_size_v<ChildrenTuple>; \
+    } \
+    std::shared_ptr<const UI::Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override final { \
+        return { owner, &GetChild(index) }; \
+    } \
+    const Window& GetChild(unsigned int index) const override final { \
+        return *GetElementOffsets(_children)[index]; \
+    } \
+private: \
+    using ChildrenTuple = std::tuple<__VA_ARGS__>; \
+    ChildrenTuple _children;
+
+///////////////////////////////////////////////////////////////////////////////
+
+class WindowContainer : public Window
+{
+public:
+	~WindowContainer() override;
+
+	void UnlinkAllChildren();
+	void UnlinkChild(Window& child);
+	void AddFront(std::shared_ptr<Window> child);
+	void AddBack(std::shared_ptr<Window> child);
+
+	using Window::GetChild;
+
+	// Window
+	unsigned int GetChildrenCount() const override final;
+	std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override final;
+	const Window& GetChild(unsigned int index) const override final;
+	void SetFocus(Window* child) override final;
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
+
+protected:
+	const std::deque<std::shared_ptr<Window>>& GetChildren() const { return _children; }
+
+private:
+	Window* _focusChild = nullptr;
+	std::deque<std::shared_ptr<Window>> _children;
+};
+
+bool NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc);
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
 
 //////////////////////// to remove ////////////////////
@@ -210,7 +253,7 @@ public:
 
 	void SetTimeStep(bool enable);
 
-	virtual void OnTimeStep(const InputContext &ic, float dt) {}
+	virtual void OnTimeStep(Plat::Input &input, bool focused, float dt) {}
 
 private:
 	std::list<TimeStepping*>::iterator _timeStepReg;

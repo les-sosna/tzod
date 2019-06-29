@@ -17,6 +17,11 @@ struct AutoHandle
 			CloseHandle(h);
 		}
 	}
+	AutoHandle(AutoHandle&& source)
+		: h(source.h)
+	{
+		source.h = nullptr;
+	}
 private:
 	AutoHandle(const AutoHandle&) = delete;
 	AutoHandle& operator = (const AutoHandle&) = delete;
@@ -27,7 +32,7 @@ class FileWin32 final
 	, public std::enable_shared_from_this<FileWin32>
 {
 public:
-	FileWin32(std::wstring fileName, FileMode mode);
+	FileWin32(AutoHandle file, FileMode mode);
 	~FileWin32();
 	void Unmap();
 	void Unstream();
@@ -103,7 +108,7 @@ public:
 
 private:
 	std::wstring _rootDirectory;
-	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
+	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode, bool nothrow) override;
 };
 
 } // namespace FS

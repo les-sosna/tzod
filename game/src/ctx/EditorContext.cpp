@@ -48,7 +48,7 @@ EditorContext::~EditorContext()
 {
 }
 
-void EditorContext::Step(float dt)
+void EditorContext::Step(float dt, AppConfig &appConfig, bool *outConfigChanged)
 {
 //	_world->Step(dt);
 }

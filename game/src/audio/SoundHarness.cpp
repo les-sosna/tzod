@@ -74,18 +74,18 @@ void SoundHarness::Step()
 		_secondsLeftLastStep = secondsLeft;
 	}
 
-	bool isActive = _gameContext.IsActive();
+	bool isWorldActive = _gameContext.IsWorldActive();
 
 	for (auto &p : _attached)
 	{
 		p.second->SetPos(p.first->GetPos());
-		p.second->SetPlaying(isActive);
+		p.second->SetPlaying(isWorldActive);
 	}
 	
 	for (auto &p : _vehicleMove)
 	{
 		SetupVehicleMoveSound(*p.first, *p.second);
-		p.second->SetPlaying(isActive);
+		p.second->SetPlaying(isWorldActive);
 	}
 	
 	for (auto &weapSound : _weaponRotate)
@@ -98,7 +98,7 @@ void SoundHarness::Step()
 			sound.SetVolume(absRate);
 			sound.SetPitch(0.5f + 0.5f * absRate);
 			sound.SetPos(weapon.GetPos());
-			sound.SetPlaying(isActive);
+			sound.SetPlaying(isWorldActive);
 		}
 		else
 		{
@@ -113,7 +113,7 @@ void SoundHarness::Step()
 		if (weapon.GetFire())
 		{
 			sound.SetPos(weapon.GetPos());
-			sound.SetPlaying(isActive);
+			sound.SetPlaying(isWorldActive);
 		}
 		else
 		{
@@ -129,7 +129,7 @@ void SoundHarness::Step()
 		if (turret.GetFire())
 		{
 			sound.SetPos(turret.GetPos());
-			sound.SetPlaying(isActive);
+			sound.SetPlaying(isWorldActive);
 		}
 		else
 		{
@@ -146,7 +146,7 @@ void SoundHarness::Step()
 		sound.SetVolume(absRate);
 		sound.SetPitch(0.5f + 0.5f * absRate);
 		sound.SetPos(turret.GetPos());
-		sound.SetPlaying(isActive);
+		sound.SetPlaying(isWorldActive);
 	}
 }
 

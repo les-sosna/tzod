@@ -18,7 +18,7 @@ void GameClassVis::SetGameClass(std::shared_ptr<UI::RenderData<std::string_view>
 	_className = std::move(className);
 }
 
-void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	if (!_className)
 		return;
@@ -28,7 +28,7 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };
 	vec2d eye{ 0, 0 };
-	float zoom = lc.GetScale();
+	float zoom = lc.GetScaleCombined();
 
 	rc.PushClippingRect(viewport);
 	rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);

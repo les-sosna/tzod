@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.3)
 
 add_library(ctx
 	inc/ctx/AIManager.h
+	inc/ctx/AppConfig.h
 	inc/ctx/Deathmatch.h
 	inc/ctx/EditorContext.h
 	inc/ctx/GameContext.h
@@ -13,6 +14,7 @@ add_library(ctx
 	inc/ctx/WorldController.h
 
 	AIManager.cpp
+	AppConfig.cpp
 	Deathmatch.cpp
 	EditorContext.cpp
 	GameContext.cpp
@@ -26,7 +28,7 @@ target_link_libraries(ctx PRIVATE
 	fs
 	gc
 	mapfile
-	PUBLIC script
+	PUBLIC config script
 )
 
 target_include_directories(ctx INTERFACE inc)

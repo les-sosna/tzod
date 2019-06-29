@@ -8,24 +8,10 @@
 #include <gc/Weapons.h>
 #include <gc/World.h>
 #include <gv/GameViewHarness.h>
-#include <float.h>
+#include <cfloat>
 
 VehicleStateReader::VehicleStateReader()
   : _tapFireTime(-FLT_MAX)
-  , _keyForward(Plat::Key::Unknown)
-  , _keyBack(Plat::Key::Unknown)
-  , _keyLeft(Plat::Key::Unknown)
-  , _keyRight(Plat::Key::Unknown)
-  , _keyFire(Plat::Key::Unknown)
-  , _keyLight(Plat::Key::Unknown)
-  , _keyTowerLeft(Plat::Key::Unknown)
-  , _keyTowerRight(Plat::Key::Unknown)
-  , _keyTowerCenter(Plat::Key::Unknown)
-  , _keyNoPickup(Plat::Key::Unknown)
-  , _gamepad(-1)
-  , _aimToMouse(false)
-  , _moveToMouse(false)
-  , _arcadeStyle(false)
   , _lastLightKeyState(false)
   , _lastLightsState(true)
 {
@@ -42,7 +28,7 @@ void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 	_keyTowerLeft   = GetKeyCode(profile.key_tower_left.Get());
 	_keyTowerRight  = GetKeyCode(profile.key_tower_right.Get());
 	_keyTowerCenter = GetKeyCode(profile.key_tower_center.Get());
-	_keyNoPickup    = GetKeyCode(profile.key_no_pickup.Get());
+	_keyPickup      = GetKeyCode(profile.key_pickup.Get());
 
 	_gamepad = profile.gamepad.GetInt();
 	_lastLightsState = profile.lights.Get();
@@ -74,9 +60,9 @@ void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness
 	//
 	// pickup
 	//
-	vs.pickup = !input.IsKeyPressed(_keyNoPickup)
-		&& !( input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack)  )
-		&& !( input.IsKeyPressed(_keyLeft)    && input.IsKeyPressed(_keyRight) );
+	vs.pickup = input.IsKeyPressed(_keyPickup)
+		|| (input.IsKeyPressed(_keyForward) && input.IsKeyPressed(_keyBack))
+		|| (input.IsKeyPressed(_keyLeft) && input.IsKeyPressed(_keyRight));
 
 	//
 	// fire

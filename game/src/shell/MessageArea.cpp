@@ -12,7 +12,7 @@ MessageArea::MessageArea(UI::TimeStepManager &manager, Plat::ConsoleBuffer &logg
 {
 }
 
-void MessageArea::OnTimeStep(const UI::InputContext &ic, float dt)
+void MessageArea::OnTimeStep(Plat::Input &input, bool focused, float dt)
 {
 	for( size_t i = 0; i < _lines.size(); ++i )
 		_lines[i].time -= dt;
@@ -25,7 +25,7 @@ void MessageArea::OnTimeStep(const UI::InputContext &ic, float dt)
 	}
 }
 
-void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	if( _lines.empty() )
 	{
@@ -43,7 +43,7 @@ void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, co
 		c.b = cc;
 		c.a = cc;
 
-		rc.DrawBitmapText(vec2d{ 0, y }, lc.GetScale(), _font.GetTextureId(texman), c, it->str);
+		rc.DrawBitmapText(vec2d{ 0, y }, lc.GetScaleCombined(), _font.GetTextureId(texman), c, it->str);
 		y -= h;
 	}
 }

@@ -31,7 +31,7 @@ PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &c
 	, _conf(conf)
 	, _logger(logger)
 {
-	SetTexture("ui/list");
+	_background->SetTexture("ui/list");
 
 	_deleteButton->SetText(ConfBind(lang.ed_delete));
 	_deleteButton->eventClick = [this]
@@ -43,7 +43,7 @@ PropertyList::PropertyList(TextureManager &texman, World &world, EditorConfig &c
 
 	_scrollView->SetContent(_psheet);
 	AddFront(_scrollView);
-	SetFocus(_scrollView);
+	SetFocus(_scrollView.get());
 
 	_psheet->SetSpacing(10);
 }
@@ -57,7 +57,7 @@ void PropertyList::DoExchange(bool applyToObject)
 		assert(_ps);
 		for( int i = 0; i < _ps->GetCount(); ++i )
 		{
-			if (_psheet->GetFocus() == _psheet->GetChild(i))
+			if (_psheet->GetFocus() == &_psheet->GetChild(i))
 			{
 				focus = i;
 			}
@@ -70,7 +70,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			case ObjectProperty::TYPE_INTEGER:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
 				int n;
-				n = static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetInt();
+				n = static_cast<UI::Edit*>(ctrl.get())->GetEditable().GetInt();
 				if( n < prop->GetIntMin() || n > prop->GetIntMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%d, %d]",
@@ -82,7 +82,7 @@ void PropertyList::DoExchange(bool applyToObject)
 			case ObjectProperty::TYPE_FLOAT:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
 				float f;
-				f = static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetFloat();
+				f = static_cast<UI::Edit*>(ctrl.get())->GetEditable().GetFloat();
 				if( f < prop->GetFloatMin() || f > prop->GetFloatMax() )
 				{
 					_logger.Printf(1, "WARNING: value %s out of range [%g, %g]",
@@ -93,7 +93,7 @@ void PropertyList::DoExchange(bool applyToObject)
 				break;
 			case ObjectProperty::TYPE_STRING:
 				assert( dynamic_cast<UI::Edit*>(ctrl.get()) );
-					prop->SetStringValue(std::string(static_cast<UI::Edit*>(ctrl.get())->GetEditable()->GetText()));
+					prop->SetStringValue(std::string(static_cast<UI::Edit*>(ctrl.get())->GetEditable().GetText()));
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
 				assert( dynamic_cast<UI::ComboBox*>(ctrl.get()) );
@@ -143,17 +143,17 @@ void PropertyList::DoExchange(bool applyToObject)
 			{
 			case ObjectProperty::TYPE_INTEGER:
 				ctrl = std::make_shared<UI::Edit>();
-				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetInt(prop->GetIntValue());
+				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable().SetInt(prop->GetIntValue());
 				labelTextBuffer << "(" << prop->GetIntMin() << " - " << prop->GetIntMax() << ")";
 				break;
 			case ObjectProperty::TYPE_FLOAT:
 				ctrl = std::make_shared<UI::Edit>();
-				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetFloat(prop->GetFloatValue());
+				std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable().SetFloat(prop->GetFloatValue());
 				labelTextBuffer << "(" << prop->GetFloatMin() << " - " << prop->GetFloatMax() << ")";
 				break;
 			case ObjectProperty::TYPE_STRING:
 				ctrl = std::make_shared<UI::Edit>();
-					std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable()->SetText(std::string(prop->GetStringValue()));
+					std::static_pointer_cast<UI::Edit>(ctrl)->GetEditable().SetText(std::string(prop->GetStringValue()));
 				labelTextBuffer << "(string)";
 				break;
 			case ObjectProperty::TYPE_MULTISTRING:
@@ -199,15 +199,15 @@ void PropertyList::DoExchange(bool applyToObject)
 			}
 
 			group->AddFront(ctrl);
-			group->SetFocus(ctrl);
+			group->SetFocus(ctrl.get());
 
 			if( focus == i )
 			{
 				if(auto edit = std::dynamic_pointer_cast<UI::Edit>(ctrl) )
 				{
-					edit->GetEditable()->SetSel(0, -1);
+					edit->GetEditable().SetSel(0, -1);
 				}
-				_psheet->SetFocus(group);
+				_psheet->SetFocus(group.get());
 			}
 
 			assert(nullptr != ctrl);
@@ -225,21 +225,21 @@ void PropertyList::ConnectTo(std::shared_ptr<PropertySet> ps)
 	}
 }
 
-FRECT PropertyList::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout PropertyList::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_deleteButton.get() == &child)
 	{
-		return MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y);
+		return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize().x, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y), 1, true };
 	}
 	if (_scrollView.get() == &child)
 	{
-		vec2d pxMargins = { std::floor(4 * lc.GetScale()), 1 };
-		return MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScale(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins);
+		vec2d pxMargins = { std::floor(4 * lc.GetScaleCombined()), 1 };
+		return UI::WindowLayout{ MakeRectRB(pxMargins + vec2d{0, _deleteButton->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)).y}, lc.GetPixelSize() - pxMargins), 1, true };
 	}
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }
 
-bool PropertyList::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool PropertyList::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{

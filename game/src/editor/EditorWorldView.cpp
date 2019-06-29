@@ -136,7 +136,7 @@ void EditorWorldView::Select(GC_Object *object, bool bSelect)
 			_selectedObject = object;
 			_propList->ConnectTo(_selectedObject->GetProperties(_world));
 			_propList->SetVisible(true);
-			SetFocus(_propList);
+			SetFocus(_propList.get());
 		}
 	}
 	else
@@ -292,7 +292,7 @@ void EditorWorldView::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect
 
 	auto canvasViewport = MakeRectWH(lc.GetPixelSize());
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	float zoom = _defaultCamera.GetZoom() * lc.GetScaleCombined();
 	vec2d worldTransformOffset = ComputeWorldTransformOffset(canvasViewport, eye, zoom);
 	FRECT worldViewport = CanvasToWorld(worldTransformOffset, zoom, canvasViewport);
 
@@ -310,9 +310,9 @@ void EditorWorldView::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect
 		_defaultCamera.MoveTo(_defaultCamera.GetEye() + cameraOffset);
 }
 
-void EditorWorldView::OnTimeStep(const UI::InputContext &ic, float dt)
+void EditorWorldView::OnTimeStep(Plat::Input &input, bool focused, float dt)
 {
-	_defaultCamera.HandleMovement(ic.GetInput(), _world.GetBounds(), dt);
+	_defaultCamera.HandleMovement(input, _world.GetBounds(), dt);
 
 	// Workaround: we do not get notifications when the object is killed
 	if (!_selectedObject)
@@ -341,7 +341,7 @@ void EditorWorldView::OnScroll(TextureManager &texman, const UI::InputContext &i
 	}
 }
 
-void EditorWorldView::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void EditorWorldView::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	_virtualPointer = CanvasToWorld(lc, pi.position);
 
@@ -360,14 +360,14 @@ void EditorWorldView::OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc,
 			break;
 
 		case 4:
-			_defaultCamera.Move((pi.position - _prevPointerPosition) / _defaultCamera.GetZoom() / lc.GetScale(), _world.GetBounds());
+			_defaultCamera.Move((pi.position - _prevPointerPosition) / _defaultCamera.GetZoom() / lc.GetScaleCombined(), _world.GetBounds());
 			_prevPointerPosition = pi.position;
 			break;
 		}
 	}
 }
 
-void EditorWorldView::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+void EditorWorldView::OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (_capturedButton == button)
 	{
@@ -375,7 +375,7 @@ void EditorWorldView::OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, T
 	}
 }
 
-bool EditorWorldView::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool EditorWorldView::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (pi.type == Plat::PointerType::Touch)
 		return false; // ignore touch here to not conflict with scroll. handle tap instead
@@ -421,7 +421,7 @@ bool EditorWorldView::OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc,
 	return capture;
 }
 
-void EditorWorldView::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void EditorWorldView::OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	if (_selectOnly)
 	{
@@ -433,7 +433,7 @@ void EditorWorldView::OnTap(UI::InputContext &ic, UI::LayoutContext &lc, Texture
 	}
 }
 
-bool EditorWorldView::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool EditorWorldView::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -474,7 +474,7 @@ bool EditorWorldView::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
 	return true;
 }
 
-bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext &lc, const UI::DataContext &dc) const
+bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -492,7 +492,7 @@ bool EditorWorldView::CanNavigate(UI::Navigate navigate, const UI::LayoutContext
 	}
 }
 
-void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phase, const UI::LayoutContext &lc, const UI::DataContext &dc)
+void EditorWorldView::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{
@@ -545,23 +545,24 @@ void EditorWorldView::OnNavigate(UI::Navigate navigate, UI::NavigationPhase phas
 	EnsureVisible(lc, RectExpand(GetCursor().bounds, WORLD_BLOCK_SIZE));
 }
 
-FRECT EditorWorldView::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout EditorWorldView::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_propList.get() == &child)
 	{
-		float pxWidth = std::floor(100 * lc.GetScale());
+		float pxWidth = std::floor(100 * lc.GetScaleCombined());
 		float pxRight = lc.GetPixelSize().x;
-		return FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y };
+		return UI::WindowLayout{ FRECT{ pxRight - pxWidth, 0, pxRight, lc.GetPixelSize().y }, 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }
 
-void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	float zoom = _defaultCamera.GetZoom() * lc.GetScaleCombined();
 	vec2d worldTransformOffset = ComputeWorldTransformOffset(MakeRectWH(lc.GetPixelSize()), eye, zoom);
 
 	rc.PushClippingRect(viewport);
@@ -584,8 +585,8 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 
 	// World cursor
 	bool pointerIsMoreRecent = ic.GetLastPointerTime() > ic.GetLastKeyTime();
-	bool activePointerInput = ic.GetHovered() && pointerIsMoreRecent;
-	bool activeKeyInput = ic.GetFocused() && !pointerIsMoreRecent;
+	bool activePointerInput = hovered && pointerIsMoreRecent;
+	bool activeKeyInput = lc.GetFocusedCombined() && !pointerIsMoreRecent;
 	bool insideMiddleMouseDrag = _capturedButton == 4;
 	if (!insideMiddleMouseDrag && (activeKeyInput || activePointerInput))
 	{
@@ -624,13 +625,13 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 	std::stringstream buf;
 	buf << "x=" << floor(worldPos.x + 0.5f) << "; y=" << floor(worldPos.y + 0.5f);
 	rc.DrawBitmapText(vec2d{ std::floor(lc.GetPixelSize().x / 2 + 0.5f), 1 },
-		lc.GetScale(), _fontSmall.GetTextureId(texman), 0xffffffff, buf.str(), alignTextCT);
+		lc.GetScaleCombined(), _fontSmall.GetTextureId(texman), 0xffffffff, buf.str(), alignTextCT);
 }
 
 vec2d EditorWorldView::CanvasToWorld(const UI::LayoutContext &lc, vec2d canvasPos) const
 {
 	vec2d eye = _defaultCamera.GetEye();
-	float zoom = _defaultCamera.GetZoom() * lc.GetScale();
+	float zoom = _defaultCamera.GetZoom() * lc.GetScaleCombined();
 	vec2d worldTransformOffset = ComputeWorldTransformOffset(MakeRectWH(lc.GetPixelSize()), eye, zoom);
 
 	return (canvasPos - worldTransformOffset) / zoom;

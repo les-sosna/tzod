@@ -12,7 +12,7 @@ namespace UI
 	};
 
 	class StackLayout
-		: public Window
+		: public WindowContainer
 		, private NavigationSink
 	{
 	public:
@@ -26,9 +26,8 @@ namespace UI
 		Align GetAlign() const { return _align; }
 
 		// Window
-		bool HasNavigationSink() const override { return true; }
 		NavigationSink* GetNavigationSink() override { return this; }
-		FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
 	private:
@@ -36,10 +35,10 @@ namespace UI
 		FlowDirection _flowDirection = FlowDirection::Vertical;
 		Align _align = Align::LT;
 
-		std::shared_ptr<Window> GetNavigateTarget(const DataContext &dc, Navigate navigate);
+		Window* GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate);
 
 		// NavigationSink
-		bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
-		void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
+		bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
+		void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
 	};
 }

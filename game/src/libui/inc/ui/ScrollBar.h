@@ -6,7 +6,7 @@ namespace UI
 
 class Button;
 
-class ScrollBarBase : public Rectangle
+class ScrollBarBase : public WindowContainer
 {
 public:
 	ScrollBarBase();
@@ -31,13 +31,14 @@ public:
 	std::function<void(float)> eventScroll;
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 protected:
 	virtual float Select(float x, float y) const = 0;
 	float GetScrollPaneLength(const LayoutContext &lc) const;
 
 	float _tmpBoxPos;
+	std::shared_ptr<Rectangle> _background;
 	std::shared_ptr<Button> _btnBox;
 	std::shared_ptr<Button> _btnUpLeft;
 	std::shared_ptr<Button> _btnDownRight;
@@ -66,7 +67,7 @@ public:
 	explicit ScrollBarVertical(TextureManager &texman);
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 protected:
 	float Select(float x, float y) const override { return y; }
@@ -78,7 +79,7 @@ public:
 	explicit ScrollBarHorizontal(TextureManager &texman);
 
 	// Window
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 
 private:
 	float Select(float x, float y) const override { return x; }

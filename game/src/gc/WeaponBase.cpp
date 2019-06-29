@@ -91,6 +91,11 @@ AIPRIORITY GC_Weapon::GetPriority(World &world, const GC_Vehicle &veh) const
 	return AIP_WEAPON_NORMAL + (GetBooster() ? AIP_WEAPON_ADVANCED : AIP_NOTREQUIRED);
 }
 
+bool GC_Weapon::ShouldPickup(const GC_Vehicle& veh) const
+{
+	return !veh.GetWeapon();
+}
+
 void GC_Weapon::OnAttached(World &world, GC_Vehicle &vehicle)
 {
 	if (GC_Weapon *weapon = vehicle.GetWeapon())

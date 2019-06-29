@@ -20,7 +20,7 @@ class Window;
 
 struct RenderSettings
 {
-	InputContext &ic;
+	const InputContext &ic;
 	RenderContext &rc;
 	TextureManager &texman;
 	float time;
@@ -28,14 +28,14 @@ struct RenderSettings
 	bool topMostPass;
 };
 
-void RenderUIRoot(Window &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc);
+void RenderUIRoot(const std::shared_ptr<Window> &desktop, RenderSettings &rs, const LayoutContext &lc, const DataContext &dc, const StateContext &sc);
 
 class TimeStepManager
 {
 public:
 	TimeStepManager();
 
-	void TimeStep(std::shared_ptr<Window> desktop, InputContext &ic, float dt);
+	void TimeStep(std::shared_ptr<Window> desktop, const InputContext &ic, float dt);
 	float GetTime() const { return _time; }
 
 private:

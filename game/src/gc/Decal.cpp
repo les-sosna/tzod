@@ -10,10 +10,10 @@ IMPLEMENT_SELF_REGISTRATION(GC_Decal)
 
 GC_Decal::GC_Decal(vec2d pos, DecalType dtype, float lifeTime, float age)
 	: GC_MovingObject(pos)
+	, _dtype(dtype)
 	, _timeCreated(-age)
 	, _timeLife(lifeTime)
 	, _rotationSpeed(0)
-	, _dtype(dtype)
 {
 	assert(_timeLife > age);
 }

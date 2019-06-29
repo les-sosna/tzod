@@ -35,7 +35,7 @@ enum class TextOperation
 class InputContext
 {
 public:
-	InputContext(Plat::Input &input);
+	explicit InputContext(Plat::Input &input);
 
 	void ReadInput();
 
@@ -77,13 +77,8 @@ public:
 	Plat::Input& GetInput() const { return _input; }
 	TextSink* GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc);
 
-	void PushInputTransform(vec2d offset, bool focused, bool hovered);
-	void PopInputTransform();
-
 	Plat::PointerType GetPointerType(unsigned int index) const;
-	vec2d GetPointerPos(unsigned int index) const;
-	bool GetFocused() const;
-	bool GetHovered() const;
+	vec2d GetPointerPos(unsigned int index, const LayoutContext& lc) const;
 	std::shared_ptr<Window> GetNavigationSubject(Navigate navigate) const;
 	float GetLastKeyTime() const { return _lastKeyTime; }
 	float GetLastPointerTime() const { return _lastPointerTime; }
@@ -103,14 +98,6 @@ private:
 	Plat::Input &_input;
 
 	Plat::PointerState _pointerState = {};
-
-	struct InputStackFrame
-	{
-		vec2d offset;
-		bool focused;
-		bool hovered;
-	};
-	std::stack<InputStackFrame> _transformStack;
 
 	float _lastKeyTime = 0;
 	float _lastPointerTime = 0;
@@ -134,6 +121,7 @@ class LayoutContext;
 struct AreaSinkSearch
 {
 	TextureManager &texman;
+	const InputContext& ic;
 	const DataContext &dc;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;

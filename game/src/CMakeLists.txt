@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.4)
+cmake_minimum_required (VERSION 3.6)
 project(tzod VERSION 1.52)
 
 if(APPLE OR UNIX)
@@ -6,6 +6,7 @@ if(APPLE OR UNIX)
 endif()
 
 if(WIN32)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT tzodmain)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std:c++latest")
 	set(WITH_SOUND 1)
 	add_subdirectory(fswin)

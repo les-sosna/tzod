@@ -111,27 +111,32 @@ FRECT EditableText::GetCursorRect(TextureManager &texman, const LayoutContext &l
 {
 	size_t font = _font.GetTextureId(texman);
 	float pxCharWidth = ToPx(texman.GetCharWidth(font), lc);
-	return MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ GetCursorWidth(texman, lc.GetScale()), lc.GetPixelSize().y });
+	return MakeRectWH(vec2d{ GetSelEnd() * pxCharWidth, 0 }, vec2d{ GetCursorWidth(texman, lc.GetScaleCombined()), lc.GetPixelSize().y });
 }
 
-FRECT EditableText::GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
+WindowLayout EditableText::GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const
 {
 	assert(_fakeCursorPlaceholder.get() == &child);
-	return GetCursorRect(texman, lc);
+	return WindowLayout{ GetCursorRect(texman, lc), 1, true };
 }
 
-std::shared_ptr<Window> EditableText::GetFocus() const
+std::shared_ptr<const Window> EditableText::GetFocus(const std::shared_ptr<const Window>& owner) const
 {
 	return _fakeCursorPlaceholder;
 }
 
-void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+const Window* EditableText::GetFocus() const
+{
+	return _fakeCursorPlaceholder.get();
+}
+
+void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	size_t font = _font.GetTextureId(texman);
 	float pxCharWidth = ToPx(texman.GetCharWidth(font), lc);
 
 	// selection
-	if (GetSelLength() && ic.GetFocused())
+	if (GetSelLength() && lc.GetFocusedCombined())
 	{
 		FRECT rt;
 		rt.left = 1 + GetSelMin() * pxCharWidth;
@@ -143,12 +148,12 @@ void EditableText::Draw(const DataContext &dc, const StateContext &sc, const Lay
 
 	// text
 	SpriteColor c = lc.GetEnabledCombined() ? 0xffffffff : 0xaaaaaaaa;
-	rc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScale(), font, c, GetText().substr(0, GetSelMin()));
-	rc.DrawBitmapText(vec2d{ GetSelMin() * pxCharWidth, 1 }, lc.GetScale(), font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
-	rc.DrawBitmapText(vec2d{ GetSelMax() * pxCharWidth, 1 }, lc.GetScale(), font, c, GetText().substr(GetSelMax()));
+	rc.DrawBitmapText(vec2d{ 0, 1 }, lc.GetScaleCombined(), font, c, GetText().substr(0, GetSelMin()));
+	rc.DrawBitmapText(vec2d{ GetSelMin() * pxCharWidth, 1 }, lc.GetScaleCombined(), font, 0xffff0000, GetText().substr(GetSelMin(), GetSelLength()));
+	rc.DrawBitmapText(vec2d{ GetSelMax() * pxCharWidth, 1 }, lc.GetScaleCombined(), font, c, GetText().substr(GetSelMax()));
 
 	// cursor
-	if (ic.GetFocused() && fmodf(time - ic.GetLastKeyTime(), 1.0f) < 0.5f)
+	if (lc.GetFocusedCombined() && fmodf(time - ic.GetLastKeyTime(), 1.0f) < 0.5f)
 	{
 		rc.DrawSprite(GetCursorRect(texman, lc), _cursor.GetTextureId(texman), 0xffffffff, 0);
 	}
@@ -168,7 +173,7 @@ bool EditableText::OnChar(int c)
 	return false;
 }
 
-bool EditableText::OnKeyPressed(InputContext &ic, Plat::Key key)
+bool EditableText::OnKeyPressed(const InputContext &ic, Plat::Key key)
 {
 	bool shift = ic.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
 		ic.GetInput().IsKeyPressed(Plat::Key::RightShift);
@@ -252,31 +257,31 @@ bool EditableText::OnKeyPressed(InputContext &ic, Plat::Key key)
 	return false;
 }
 
-bool EditableText::OnPointerDown(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+bool EditableText::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	if (pi.type == Plat::PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this))
 	{
-		int sel = HitTest(texman, pi.position, lc.GetScale());
+		int sel = HitTest(texman, pi.position, lc.GetScaleCombined());
 		SetSel(sel, sel);
 		return true;
 	}
 	return false;
 }
 
-void EditableText::OnPointerMove(InputContext &ic, LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
+void EditableText::OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
 {
 	if (captured)
 	{
-		int sel = HitTest(texman, pi.position, lc.GetScale());
+		int sel = HitTest(texman, pi.position, lc.GetScaleCombined());
 		SetSel(GetSelStart(), sel);
 	}
 }
 
-void EditableText::OnTap(InputContext &ic, LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
+void EditableText::OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition)
 {
 	if (!ic.HasCapturedPointers(this))
 	{
-		int sel = HitTest(texman, pointerPosition, lc.GetScale());
+		int sel = HitTest(texman, pointerPosition, lc.GetScaleCombined());
 		SetSel(sel, sel);
 	}
 }

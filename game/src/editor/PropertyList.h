@@ -29,7 +29,7 @@ public:
 	void DoExchange(bool applyToObject);
 
 	// UI::Window
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 
 private:
 	std::shared_ptr<UI::Button> _deleteButton;
@@ -44,7 +44,7 @@ private:
 	Plat::ConsoleBuffer &_logger;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
 };
 
 void SaveToConfig(EditorConfig &conf, const PropertySet &ps);

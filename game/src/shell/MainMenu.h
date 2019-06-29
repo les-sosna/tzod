@@ -22,6 +22,7 @@ struct MainMenuCommands
 	std::function<void()> exportMap;
 	std::function<void()> gameSettings;
 	std::function<void()> close;
+	std::function<void()> quitGame;
 };
 
 class MainMenuDlg final
@@ -31,6 +32,5 @@ public:
 	MainMenuDlg(LangCache &lang, MainMenuCommands commands);
 
 private:
-	LangCache &_lang;
 	MainMenuCommands _commands;
 };

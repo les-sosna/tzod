@@ -5,14 +5,14 @@
 
 struct VehicleClass;
 
-struct AIWEAPSETTINGS
+struct AIWEAPSETTINGS 
 {
 	float fMaxAttackAngleCos;
 	float fProjectileSpeed;
 	float fAttackRadius_min;
 	float fAttackRadius_max;
 	float fAttackRadius_crit;  // if you closer than critical distance you may damage your self
-	int distanceMultipler;  // applies when traveling through brick walls
+	int distanceMultipler;     // applies when traveling through brick walls
 	bool  bNeedOutstrip;       // false if the projectile speed is unlimited
 };
 
@@ -47,6 +47,7 @@ public:
 	void Disappear(World &world) override;
 	float GetDefaultRespawnTime() const override { return 6.0f; }
 	AIPRIORITY GetPriority(World &world, const GC_Vehicle &veh) const override;
+	bool ShouldPickup(const GC_Vehicle& veh) const override;
 
 	// GC_MovingObject
 	void MoveTo(World &world, const vec2d &pos) override;

@@ -1,5 +1,6 @@
 #include "inc/wavfile/WavFile.h"
 #include <fs/FileSystem.h>
+#include <stdexcept>
 
 #pragma pack (push)
 #pragma pack (1)

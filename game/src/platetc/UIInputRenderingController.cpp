@@ -10,38 +10,33 @@
 #include <plat/Keys.h>
 #include <video/RenderContext.h>
 
-static bool CanNavigateBack(TextureManager &texman, UI::Window *wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
+static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, const UI::Window &wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
-	if (wnd)
+	// OK to cast since we CanNavigate is const
+	const UI::NavigationSink *navigationSink = const_cast<UI::Window&>(wnd).GetNavigationSink();
+	if (navigationSink && navigationSink->CanNavigate(texman, ic, lc, dc, UI::Navigate::Back))
+		return true;
+	if (auto focusedChild = wnd.GetFocus())
 	{
-		if (auto navigationSink = wnd->GetNavigationSink(); navigationSink && navigationSink->CanNavigate(UI::Navigate::Back, lc, dc))
-			return true;
-		if (auto focusedChild = wnd->GetFocus())
-		{
-			auto childRect = wnd->GetChildRect(texman, lc, dc, *focusedChild);
-			UI::LayoutContext childLC(*wnd, lc, *focusedChild, Size(childRect), dc);
-			return CanNavigateBack(texman, focusedChild.get(), childLC, dc);
-		}
+		UI::LayoutContext childLC(ic, wnd, lc, *focusedChild, wnd.GetChildLayout(texman, lc, dc, *focusedChild));
+		return CanNavigateBack(texman, ic, *focusedChild, childLC, dc);
 	}
 	return false;
 }
 
-UIInputRenderingController::UIInputRenderingController(Plat::AppWindow &appWindow,
+UIInputRenderingController::UIInputRenderingController(Plat::Input& input,
                                                        TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)
-	: _appWindow(appWindow)
-	, _inputContext(appWindow.GetInput())
+	: _inputContext(input)
 	, _textureManager(textureManager)
 	, _timeStepManager(timeStepManager)
 	, _desktop(desktop)
 {
-	_appWindow.SetInputSink(this);
 }
 
 UIInputRenderingController::~UIInputRenderingController()
 {
-	_appWindow.SetInputSink(nullptr);
 }
 
 void UIInputRenderingController::TimeStep(float dt)
@@ -50,18 +45,18 @@ void UIInputRenderingController::TimeStep(float dt)
 	_timeStepManager.TimeStep(_desktop, _inputContext, dt);
 }
 
-bool UIInputRenderingController::OnChar(unsigned int codepoint)
+bool UIInputRenderingController::OnChar(Plat::AppWindow& appWindow, unsigned int codepoint)
 {
-	return _inputContext.ProcessText(_textureManager, _desktop, _appWindow, UI::TextOperation::CharacterInput, codepoint);
+	return _inputContext.ProcessText(_textureManager, _desktop, appWindow, UI::TextOperation::CharacterInput, codepoint);
 }
 
-bool UIInputRenderingController::OnKey(Plat::Key key, Plat::Msg action)
+bool UIInputRenderingController::OnKey(Plat::AppWindow& appWindow, Plat::Key key, Plat::Msg action)
 {
-	if (HandleClipboardShortcuts(key, action))
+	if (HandleClipboardShortcuts(appWindow, key, action))
 		return true;
 
 	UI::DataContext dataContext;
-	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext));
+	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive());
 	return _inputContext.ProcessKeys(
 		_textureManager,
 		_desktop,
@@ -72,13 +67,13 @@ bool UIInputRenderingController::OnKey(Plat::Key key, Plat::Msg action)
 		_timeStepManager.GetTime());
 }
 
-bool UIInputRenderingController::OnPointer(Plat::PointerType pointerType, Plat::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID)
+bool UIInputRenderingController::OnPointer(Plat::AppWindow& appWindow, Plat::PointerType pointerType, Plat::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID)
 {
 	UI::DataContext dataContext;
 	return _inputContext.ProcessPointer(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext)),
+		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive()),
 		dataContext,
 		pxPointerPos,
 		pxPointerOffset,
@@ -89,13 +84,13 @@ bool UIInputRenderingController::OnPointer(Plat::PointerType pointerType, Plat::
 		_timeStepManager.GetTime());
 }
 
-bool UIInputRenderingController::OnSystemNavigationBack()
+bool UIInputRenderingController::OnSystemNavigationBack(Plat::AppWindow& appWindow)
 {
 	UI::DataContext dataContext;
 	return _inputContext.ProcessSystemNavigationBack(
 		_textureManager,
 		_desktop,
-		UI::LayoutContext(1.f, _appWindow.GetLayoutScale(), _appWindow.GetPixelSize(), _desktop->GetEnabled(dataContext)),
+		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive()),
 		dataContext);
 }
 
@@ -111,25 +106,22 @@ static ::DisplayOrientation DOFromDegrees(int degrees)
 	}
 }
 
-void UIInputRenderingController::OnRefresh()
+void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 {
-	// not needed for single view
-	_appWindow.MakeCurrent();
-
-	vec2d pxWindowSize = _appWindow.GetPixelSize();
-	IRender &render = _appWindow.GetRender();
+	IRender& render = appWindow.GetRender();
+	vec2d pxWindowSize = appWindow.GetPixelSize();
 
 	auto displayWidth = static_cast<unsigned int>(pxWindowSize.x);
 	auto displayHeight = static_cast<unsigned int>(pxWindowSize.y);
-	render.Begin(displayWidth, displayHeight, DOFromDegrees(_appWindow.GetDisplayRotation()));
+	render.Begin(displayWidth, displayHeight, DOFromDegrees(appWindow.GetDisplayRotation()));
 	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
 	RenderContext rc(_textureManager, render, displayWidth, displayHeight);
 
 	UI::DataContext dataContext;
-	UI::LayoutContext layoutContext(1.f, _appWindow.GetLayoutScale(), pxWindowSize, _desktop->GetEnabled(dataContext));
+	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, true /* enabled */, _inputContext.GetMainWindowActive());
 	UI::RenderSettings rs{ _inputContext, rc, _textureManager, _timeStepManager.GetTime() };
 
-	UI::RenderUIRoot(*_desktop, rs, layoutContext, dataContext, UI::StateContext());
+	UI::RenderUIRoot(_desktop, rs, layoutContext, dataContext, UI::StateContext());
 
 	bool hoverTextSink = false;
 	for (auto &wnd : rs.hoverPath)
@@ -141,13 +133,13 @@ void UIInputRenderingController::OnRefresh()
 		}
 	}
 
-	_appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, _desktop.get(), layoutContext, dataContext));
+	appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, _inputContext, *_desktop, layoutContext, dataContext));
 
 	Plat::MouseCursor mouseCursor = hoverTextSink ? Plat::MouseCursor::IBeam : Plat::MouseCursor::Arrow;
 	if (_mouseCursor != mouseCursor)
 	{
 		_mouseCursor = mouseCursor;
-		_appWindow.SetMouseCursor(mouseCursor);
+		appWindow.SetMouseCursor(mouseCursor);
 	}
 
 #ifndef NDEBUG
@@ -160,10 +152,10 @@ void UIInputRenderingController::OnRefresh()
 #endif
 
 	render.End();
-	_appWindow.Present();
+	appWindow.Present();
 }
 
-bool UIInputRenderingController::HandleClipboardShortcuts(Plat::Key key, Plat::Msg action)
+bool UIInputRenderingController::HandleClipboardShortcuts(Plat::AppWindow& appWindow, Plat::Key key, Plat::Msg action)
 {
 	if (action == Plat::Msg::KeyPressed)
 	{
@@ -177,26 +169,26 @@ bool UIInputRenderingController::HandleClipboardShortcuts(Plat::Key key, Plat::M
 		case Plat::Key::Insert:
 			if (shift)
 			{
-				Paste();
+				Paste(appWindow);
 				return true;
 			}
 			else if (control)
 			{
-				Copy();
+				Copy(appWindow);
 				return true;
 			}
 			break;
 		case Plat::Key::V:
 			if (control)
 			{
-				Paste();
+				Paste(appWindow);
 				return true;
 			}
 			break;
 		case Plat::Key::C:
 			if (control)
 			{
-				Copy();
+				Copy(appWindow);
 				return true;
 			}
 			break;
@@ -204,14 +196,14 @@ bool UIInputRenderingController::HandleClipboardShortcuts(Plat::Key key, Plat::M
 			if (control)
 			{
 				//if (0 != GetSelLength())
-				Cut();
+				Cut(appWindow);
 				return true;
 			}
 			break;
 		case Plat::Key::Delete:
 			if (shift)
 			{
-				Cut();
+				Cut(appWindow);
 				return true;
 			}
 			break;
@@ -222,17 +214,17 @@ bool UIInputRenderingController::HandleClipboardShortcuts(Plat::Key key, Plat::M
 	return false;
 }
 
-void UIInputRenderingController::Cut()
+void UIInputRenderingController::Cut(Plat::AppWindow& appWindow)
 {
-	_inputContext.ProcessText(_textureManager, _desktop, _appWindow, UI::TextOperation::ClipboardCut);
+	_inputContext.ProcessText(_textureManager, _desktop, appWindow, UI::TextOperation::ClipboardCut);
 }
 
-void UIInputRenderingController::Copy()
+void UIInputRenderingController::Copy(Plat::AppWindow& appWindow)
 {
-	_inputContext.ProcessText(_textureManager, _desktop, _appWindow, UI::TextOperation::ClipboardCopy);
+	_inputContext.ProcessText(_textureManager, _desktop, appWindow, UI::TextOperation::ClipboardCopy);
 }
 
-void UIInputRenderingController::Paste()
+void UIInputRenderingController::Paste(Plat::AppWindow& appWindow)
 {
-	_inputContext.ProcessText(_textureManager, _desktop, _appWindow, UI::TextOperation::ClipboardPaste);
+	_inputContext.ProcessText(_textureManager, _desktop, appWindow, UI::TextOperation::ClipboardPaste);
 }

@@ -1,14 +1,16 @@
 #pragma once
 #include "Navigation.h"
 #include "PointerInput.h"
-#include "Rectangle.h"
+#include "Window.h"
 #include <functional>
 
 namespace UI
 {
 
+class Rectangle;
+
 class Dialog
-	: public Rectangle
+	: public WindowContainer
 	, private KeyboardSink
 	, private NavigationSink
 	, private PointerSink
@@ -22,23 +24,25 @@ public:
 		_resultCancel
 	};
 
-	std::function<void(std::shared_ptr<Dialog>, int)> eventClose;
+	std::function<void(int)> eventClose;
 
 	void Close(int result);
 
 	// Window
-	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
-	bool HasPointerSink() const override { return true; }
 	PointerSink *GetPointerSink() override { return this; }
+	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
+
 
 protected:
 	// KeyboardSink
-	bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
 
 	// NavigationSink
-	bool CanNavigate(Navigate navigate, const LayoutContext &lc, const DataContext &dc) const override;
-	void OnNavigate(Navigate navigate, NavigationPhase phase, const LayoutContext &lc, const DataContext &dc) override;
+	bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
+
+	std::shared_ptr<Rectangle> _background;
 
 private:
 	virtual bool OnClose(int result) { return true; }

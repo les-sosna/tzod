@@ -5,7 +5,7 @@
 #include <vector>
 
 class NavStack final
-	: public UI::Window
+	: public UI::WindowContainer
 	, private UI::Managerful
 	, private UI::PointerSink
 {
@@ -18,13 +18,13 @@ public:
 	void PopNavStack(UI::Window *wnd = nullptr);
 	void PushNavStack(std::shared_ptr<UI::Window> wnd);
 
-	std::shared_ptr<UI::Window> GetNavFront() const;
+	UI::Window* GetNavFront() const;
 	float GetNavigationDepth() const;
 
 	template <class T>
 	bool IsOnTop() const
 	{
-		return !!dynamic_cast<T*>(GetNavFront().get());
+		return !!dynamic_cast<T*>(GetNavFront());
 	}
 
 	template <class T>
@@ -34,7 +34,7 @@ public:
 		{
 			for (auto wnd : *this)
 			{
-				if (dynamic_cast<const T*>(wnd.get()))
+				if (dynamic_cast<const T*>(wnd))
 					return true;
 				if (wnd == navFront)
 					break;
@@ -44,10 +44,8 @@ public:
 	}
 
 	// UI::Window
-	bool HasPointerSink() const override { return true; }
 	UI::PointerSink* GetPointerSink() override { return GetNavFront() ? this : nullptr; }
-	FRECT GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
-	float GetChildOpacity(const Window &child) const override;
+	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 
 private:
 	enum class State
@@ -64,10 +62,12 @@ private:
 
 	vec2d GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const;
 	float GetTransitionTimeLeft() const;
+	float GetChildOpacity(const UI::Window& child) const;
+	bool GetChildEnabled(const UI::Window& child) const;
 
 	// PointerSink
-	void OnPointerMove(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
-	bool OnPointerDown(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
-	void OnPointerUp(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
-	void OnTap(UI::InputContext &ic, UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
+	void OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
+	bool OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
+	void OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button) override;
+	void OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 };

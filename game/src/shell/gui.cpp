@@ -50,7 +50,7 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 	//
 
 	auto text = std::make_shared<UI::Text>();
-	text->Move(16, 16);
+//	text->Move(16, 16);
 	text->SetText(ConfBind(_lang.choose_map));
 	AddFront(text);
 
@@ -63,11 +63,11 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 	_maps->GetList()->SetCurSel(_maps->GetData()->FindItem(conf.cl_map.Get()));
 	_maps->GetList()->SetItemTemplate(mapListItemTemplate);
 //	_maps->SetScrollPos(_maps->GetCurSel() - (_maps->GetNumLinesVisible() - 1) * 0.5f);
-	_maps->Move(x1, 32);
+//	_maps->Move(x1, 32);
 	_maps->Resize(x2 - x1, 192);
 
 	AddFront(_maps);
-	SetFocus(_maps);
+	SetFocus(_maps.get());
 
 
 	//
@@ -78,46 +78,46 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 		float y =  16;
 
 		_nightMode = std::make_shared<UI::CheckBox>();
-		_nightMode->Move(x3, y);
+//		_nightMode->Move(x3, y);
 		_nightMode->SetText(ConfBind(_lang.night_mode));
 		_nightMode->SetCheck(conf.cl_nightmode.Get());
 		AddFront(_nightMode);
 
 		text = std::make_shared<UI::Text>();
-		text->Move(x3, y += 30);
+//		text->Move(x3, y += 30);
 		text->SetText(ConfBind(_lang.game_speed));
 		AddFront(text);
 
 		_gameSpeed = std::make_shared<UI::Edit>();
-		_gameSpeed->Move(x3 + 20, y += 15);
+//		_gameSpeed->Move(x3 + 20, y += 15);
 		_gameSpeed->SetWidth(80);
-		_gameSpeed->GetEditable()->SetInt(conf.cl_speed.GetInt());
+		_gameSpeed->GetEditable().SetInt(conf.cl_speed.GetInt());
 		AddFront(_gameSpeed);
 
 		text = std::make_shared<UI::Text>();
-		text->Move(x3, y += 30);
+//		text->Move(x3, y += 30);
 		text->SetText(ConfBind(_lang.frag_limit));
 		AddFront(text);
 
 		_fragLimit = std::make_shared<UI::Edit>();
-		_fragLimit->Move(x3 + 20, y += 15);
+//		_fragLimit->Move(x3 + 20, y += 15);
 		_fragLimit->SetWidth(80);
-		_fragLimit->GetEditable()->SetInt(conf.cl_fraglimit.GetInt());
+		_fragLimit->GetEditable().SetInt(conf.cl_fraglimit.GetInt());
 		AddFront(_fragLimit);
 
 		text = std::make_shared<UI::Text>();
-		text->Move(x3, y += 30);
+//		text->Move(x3, y += 30);
 		text->SetText(ConfBind(_lang.time_limit));
 		AddFront(text);
 
 		_timeLimit = std::make_shared<UI::Edit>();
-		_timeLimit->Move(x3 + 20, y += 15);
+//		_timeLimit->Move(x3 + 20, y += 15);
 		_timeLimit->SetWidth(80);
-		_timeLimit->GetEditable()->SetInt(conf.cl_timelimit.GetInt());
+		_timeLimit->GetEditable().SetInt(conf.cl_timelimit.GetInt());
 		AddFront(_timeLimit);
 
 		text = std::make_shared<UI::Text>();
-		text->Move(x3 + 30, y += 30);
+//		text->Move(x3 + 30, y += 30);
 		text->SetText(ConfBind(_lang.zero_no_limits));
 		AddFront(text);
 	}
@@ -129,7 +129,7 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(16, 240);
+//	text->Move(16, 240);
 	text->SetText(ConfBind(_lang.human_player_list));
 	AddFront(text);
 
@@ -140,19 +140,19 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 	playerListItemTemplate->EnsureColumn(3, 320); // team
 
 	_players = std::make_shared<DefaultListBox>();
-	_players->Move(x1, 256);
+//	_players->Move(x1, 256);
 	_players->Resize(x2-x1, 96);
 	_players->GetList()->SetItemTemplate(playerListItemTemplate);
 	AddFront(_players);
 
 
 	text = std::make_shared<UI::Text>();
-	text->Move(16, 368);
+//	text->Move(16, 368);
 	text->SetText(ConfBind(_lang.AI_player_list));
 	AddFront(text);
 
 	_bots = std::make_shared<DefaultListBox>();
-	_bots->Move(x1, 384);
+//	_bots->Move(x1, 384);
 	_bots->Resize(x2-x1, 96);
 	_bots->GetList()->SetItemTemplate(playerListItemTemplate);
 	AddFront(_bots);
@@ -167,48 +167,48 @@ NewGameDlg::NewGameDlg(TextureManager &texman, FS::FileSystem &fs, ShellConfig &
 
 		btn = std::make_shared<UI::Button>();
 		btn->SetText(ConfBind(_lang.human_player_add));
-		btn->Move(x3, 256);
+//		btn->Move(x3, 256);
 		btn->eventClick = std::bind(&NewGameDlg::OnAddPlayer, this);
 		AddFront(btn);
 
 		_removePlayer = std::make_shared<UI::Button>();
 		_removePlayer->SetText(ConfBind(_lang.human_player_remove));
-		_removePlayer->Move(x3, 286);
+//		_removePlayer->Move(x3, 286);
 		_removePlayer->eventClick = std::bind(&NewGameDlg::OnRemovePlayer, this);
-		_removePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
+//		_removePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_removePlayer);
 
 		_changePlayer = std::make_shared<UI::Button>();
 		_changePlayer->SetText(ConfBind(_lang.human_player_modify));
-		_changePlayer->Move(x3, 316);
+//		_changePlayer->Move(x3, 316);
 		_changePlayer->eventClick = std::bind(&NewGameDlg::OnEditPlayer, this);
-		_changePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
+//		_changePlayer->SetEnabled(std::make_shared<UI::HasSelection>(_players->GetList()));
 		AddFront(_changePlayer);
 
 		btn = std::make_shared<UI::Button>();
 		btn->SetText(ConfBind(_lang.AI_player_add));
-		btn->Move(x3, 384);
+//		btn->Move(x3, 384);
 		btn->eventClick = std::bind(&NewGameDlg::OnAddBot, this);
 		AddFront(btn);
 
 		_removeBot = std::make_shared<UI::Button>();
 		_removeBot->SetText(ConfBind(_lang.AI_player_remove));
-		_removeBot->Move(x3, 414);
+//		_removeBot->Move(x3, 414);
 		_removeBot->eventClick = std::bind(&NewGameDlg::OnRemoveBot, this);
-		_removeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
+//		_removeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_removeBot);
 
 		_changeBot = std::make_shared<UI::Button>();
 		_changeBot->SetText(ConfBind(_lang.AI_player_modify));
-		_changeBot->Move(x3, 444);
+//		_changeBot->Move(x3, 444);
 		_changeBot->eventClick = std::bind(&NewGameDlg::OnEditBot, this);
-		_changeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
+//		_changeBot->SetEnabled(std::make_shared<UI::HasSelection>(_bots->GetList()));
 		AddFront(_changeBot);
 
 
 		btn = std::make_shared<UI::Button>();
 		btn->SetText(ConfBind(_lang.dm_ok));
-		btn->Move(544, 510);
+//		btn->Move(544, 510);
 		btn->eventClick = std::bind(&NewGameDlg::OnOK, this);
 		AddFront(btn);
 	}
@@ -280,23 +280,22 @@ void NewGameDlg::OnAddPlayer()
 
 	_newPlayer = true;
 	auto dlg = std::make_shared<EditPlayerDlg>(_texman, p, _conf, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnAddPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditPlayerDlg>(dlg)](int result)
+	{
+		if (_resultOK == result)
+		{
+			RefreshPlayersList();
+		}
+		else if (_newPlayer)
+		{
+			_conf.dm_players.PopBack();
+		}
+		_newPlayer = false;
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
 	AddFront(dlg);
-	SetFocus(dlg);
-}
-
-void NewGameDlg::OnAddPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
-	{
-		RefreshPlayersList();
-	}
-	else if( _newPlayer )
-	{
-		_conf.dm_players.PopBack();
-	}
-	_newPlayer = false;
-	UnlinkChild(*sender);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnRemovePlayer()
@@ -312,18 +311,15 @@ void NewGameDlg::OnEditPlayer()
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditPlayerDlg>(_texman, _conf.dm_players.GetAt(index).AsTable(), _conf, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnEditPlayerClose, this, std::placeholders::_1, std::placeholders::_2);
-	AddFront(dlg);
-	SetFocus(dlg);
-}
-
-void NewGameDlg::OnEditPlayerClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditPlayerDlg>(dlg)](int result)
 	{
-		RefreshPlayersList();
-	}
-	UnlinkChild(*sender);
+		if (_resultOK == result)
+			RefreshPlayersList();
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
+	AddFront(dlg);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnAddBot()
@@ -336,23 +332,18 @@ void NewGameDlg::OnAddBot()
 
 	_newPlayer = true;
 	auto dlg = std::make_shared<EditBotDlg>(_texman, p, _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnAddBotClose, this, std::placeholders::_1, std::placeholders::_2);
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditBotDlg>(dlg)](int result)
+	{
+		if (_resultOK == result)
+			RefreshBotsList();
+		else if (_newPlayer)
+			_conf.dm_bots.PopBack();
+		_newPlayer = false;
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
 	AddFront(dlg);
-	SetFocus(dlg);
-}
-
-void NewGameDlg::OnAddBotClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
-	{
-		RefreshBotsList();
-	}
-	else if( _newPlayer )
-	{
-		_conf.dm_bots.PopBack();
-	}
-	_newPlayer = false;
-	UnlinkChild(*sender);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnRemoveBot()
@@ -368,18 +359,15 @@ void NewGameDlg::OnEditBot()
 	assert(-1 != index);
 
 	auto dlg = std::make_shared<EditBotDlg>(_texman, _conf.dm_bots.GetAt(index).AsTable(), _lang);
-	dlg->eventClose = std::bind(&NewGameDlg::OnEditBotClose, this, std::placeholders::_1, std::placeholders::_2);
-	AddFront(dlg);
-	SetFocus(dlg);
-}
-
-void NewGameDlg::OnEditBotClose(std::shared_ptr<UI::Dialog> sender, int result)
-{
-	if( _resultOK == result )
+	dlg->eventClose = [this, weakSender = std::weak_ptr<EditBotDlg>(dlg)](int result)
 	{
-		RefreshBotsList();
-	}
-	UnlinkChild(*sender);
+		if (_resultOK == result)
+			RefreshBotsList();
+		if (auto sender = weakSender.lock())
+			UnlinkChild(*sender);
+	};
+	AddFront(dlg);
+	SetFocus(dlg.get());
 }
 
 void NewGameDlg::OnOK()
@@ -395,9 +383,9 @@ void NewGameDlg::OnOK()
 		return;
 	}
 
-	_conf.cl_speed.SetInt(std::max(MIN_GAMESPEED, std::min(MAX_GAMESPEED, _gameSpeed->GetEditable()->GetInt())));
-	_conf.cl_fraglimit.SetInt(std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetEditable()->GetInt())));
-	_conf.cl_timelimit.SetInt(std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetEditable()->GetInt())));
+	_conf.cl_speed.SetInt(std::max(MIN_GAMESPEED, std::min(MAX_GAMESPEED, _gameSpeed->GetEditable().GetInt())));
+	_conf.cl_fraglimit.SetInt(std::max(0, std::min(MAX_FRAGLIMIT, _fragLimit->GetEditable().GetInt())));
+	_conf.cl_timelimit.SetInt(std::max(0, std::min(MAX_TIMELIMIT, _timeLimit->GetEditable().GetInt())));
 	_conf.cl_nightmode.Set(_nightMode->GetCheck());
 
 	_conf.sv_speed.SetInt(_conf.cl_speed.GetInt());
@@ -410,13 +398,13 @@ void NewGameDlg::OnOK()
 	Close(_resultOK);
 }
 
-bool NewGameDlg::OnKeyPressed(UI::InputContext &ic, Plat::Key key)
+bool NewGameDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
 	case Plat::Key::Enter:
 	case Plat::Key::NumEnter:
-		if( GetFocus() == _players && -1 != _players->GetList()->GetCurSel() )
+		if( GetFocus() == _players.get() && -1 != _players->GetList()->GetCurSel() )
 			OnEditPlayer();
 		else
 			OnOK();
@@ -439,7 +427,7 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 
 	// Title
 	auto text = std::make_shared<UI::Text>();
-	text->Move(GetWidth() / 2, 16);
+//	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(lang.player_settings));
 	text->SetAlign(alignTextCT);
 	text->SetFont("font_default");
@@ -449,8 +437,8 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = std::make_shared<Rectangle>();
-	_skinPreview->Move(300, y);
+	_skinPreview = std::make_shared<UI::Rectangle>();
+//	_skinPreview->Move(300, y);
 	AddFront(_skinPreview);
 
 
@@ -459,28 +447,28 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y);
+//	text->Move(x1, y);
 	text->SetText(ConfBind(lang.player_nick));
 	AddFront(text);
 
 	_name = std::make_shared<UI::Edit>();
-	_name->Move(x2, y -= 1);
+//	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->GetEditable()->SetText(std::string(_info.nick.Get()));
+	_name->GetEditable().SetText(std::string(_info.nick.Get()));
 	AddFront(_name);
-	SetFocus(_name);
+	SetFocus(_name.get());
 
 
 	//
 	// skins combo
 	//
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_skin));
 	AddFront(text);
 
 	_skins = std::make_shared<DefaultComboBox>();
-	_skins->Move(x2, y -= 1);
+//	_skins->Move(x2, y -= 1);
 	_skins->SetWidth(200);
 	_skins->eventChangeCurSel = std::bind(&EditPlayerDlg::OnChangeSkin, this, std::placeholders::_1);
 	AddFront(_skins);
@@ -505,12 +493,12 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_class));
 	AddFront(text);
 
 	_classes = std::make_shared<DefaultComboBox>();
-	_classes->Move(x2, y -= 1);
+//	_classes->Move(x2, y -= 1);
 	_classes->SetWidth(200);
 	AddFront(_classes);
 
@@ -534,12 +522,12 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 		_classes->SetCurSel(0);
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_team));
 	AddFront(text);
 
 	_teams = std::make_shared<DefaultComboBox>();
-	_teams->Move(x2, y -= 1);
+//	_teams->Move(x2, y -= 1);
 	_teams->SetWidth(200);
 	AddFront(_teams);
 	for( int i = 0; i < MAX_TEAMS; ++i )
@@ -567,12 +555,12 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_profile));
 	AddFront(text);
 
 	_profiles = std::make_shared<DefaultComboBox>();
-	_profiles->Move(x2, y -= 1);
+//	_profiles->Move(x2, y -= 1);
 	_profiles->SetWidth(200);
 	AddFront(_profiles);
 	std::vector<std::string> profiles = conf.dm_profiles.GetKeys();
@@ -597,13 +585,13 @@ EditPlayerDlg::EditPlayerDlg(TextureManager &texman, ConfVarTable &info, ShellCo
 
 	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_ok));
-	btn->Move(176, 190);
+//	btn->Move(176, 190);
 	btn->eventClick = std::bind(&Dialog::Close, this, _resultOK);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_cancel));
-	btn->Move(280, 190);
+//	btn->Move(280, 190);
 	btn->eventClick = std::bind(&Dialog::Close, this, _resultCancel);
 	AddFront(btn);
 }
@@ -618,7 +606,7 @@ void EditPlayerDlg::OnChangeSkin(int index)
 
 bool EditPlayerDlg::OnClose(int result)
 {
-	_info.nick.Set(_name->GetEditable()->GetText());
+	_info.nick.Set(_name->GetEditable().GetText());
 	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0));
 	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0));
 	_info.team.SetInt(_teams->GetCurSel());
@@ -627,14 +615,14 @@ bool EditPlayerDlg::OnClose(int result)
 	return true;
 }
 
-FRECT EditPlayerDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+UI::WindowLayout EditPlayerDlg::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
 {
 	if (_skinPreview.get() == &child)
 	{
 		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
-		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScale());
+		return UI::WindowLayout{ UI::CanvasLayout({}/*_skinPreview->GetOffset()*/, size, lc.GetScaleCombined()), 1, true };
 	}
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -654,7 +642,7 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 
 	// Title
 	auto text = std::make_shared<UI::Text>();
-	text->Move(GetWidth() / 2, 16);
+//	text->Move(GetWidth() / 2, 16);
 	text->SetText(ConfBind(lang.bot_settings));
 	text->SetAlign(alignTextCT);
 	text->SetFont("font_default");
@@ -665,8 +653,8 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	float x2 = x1 + 56;
 	float y = 56;
 
-	_skinPreview = std::make_shared<Rectangle>();
-	_skinPreview->Move(300, y);
+	_skinPreview = std::make_shared<UI::Rectangle>();
+//	_skinPreview->Move(300, y);
 	AddFront(_skinPreview);
 
 
@@ -675,28 +663,28 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y);
+//	text->Move(x1, y);
 	text->SetText(ConfBind(lang.player_nick));
 	AddFront(text);
 
 	_name = std::make_shared<UI::Edit>();
-	_name->Move(x2, y -= 1);
+//	_name->Move(x2, y -= 1);
 	_name->SetWidth(200);
-	_name->GetEditable()->SetText(std::string(_info.nick.Get().empty() ? "player" : _info.nick.Get()));
+	_name->GetEditable().SetText(std::string(_info.nick.Get().empty() ? "player" : _info.nick.Get()));
 	AddFront(_name);
-	SetFocus(_name);
+	SetFocus(_name.get());
 
 
 	//
 	// skins combo
 	//
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_skin));
 	AddFront(text);
 
 	_skins = std::make_shared<DefaultComboBox>();
-	_skins->Move(x2, y -= 1);
+//	_skins->Move(x2, y -= 1);
 	_skins->SetWidth(200);
 	_skins->eventChangeCurSel = std::bind(&EditBotDlg::OnChangeSkin, this, std::placeholders::_1);
 	AddFront(_skins);
@@ -721,12 +709,12 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_class));
 	AddFront(text);
 
 	_classes = std::make_shared<DefaultComboBox>();
-	_classes->Move(x2, y -= 1);
+//	_classes->Move(x2, y -= 1);
 	_classes->SetWidth(200);
 	AddFront(_classes);
 
@@ -748,12 +736,12 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.player_team));
 	AddFront(text);
 
 	_teams = std::make_shared<DefaultComboBox>();
-	_teams->Move(x2, y -= 1);
+//	_teams->Move(x2, y -= 1);
 	_teams->SetWidth(200);
 	AddFront(_teams);
 	for( int i = 0; i < MAX_TEAMS; ++i )
@@ -780,12 +768,12 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 	//
 
 	text = std::make_shared<UI::Text>();
-	text->Move(x1, y += 24);
+//	text->Move(x1, y += 24);
 	text->SetText(ConfBind(lang.bot_difficulty));
 	AddFront(text);
 
 	_levels = std::make_shared<DefaultComboBox>();
-	_levels->Move(x2, y -= 1);
+//	_levels->Move(x2, y -= 1);
 	_levels->SetWidth(200);
 	AddFront(_levels);
 
@@ -809,20 +797,20 @@ EditBotDlg::EditBotDlg(TextureManager &texman, ConfVarTable &info, LangCache &la
 
 	auto btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_ok));
-	btn->Move(176, 190);
+//	btn->Move(176, 190);
 	btn->eventClick = std::bind(&EditBotDlg::OnOK, this);
 	AddFront(btn);
 
 	btn = std::make_shared<UI::Button>();
 	btn->SetText(ConfBind(lang.common_cancel));
-	btn->Move(280, 190);
+//	btn->Move(280, 190);
 	btn->eventClick = std::bind(&EditBotDlg::OnCancel, this);
 	AddFront(btn);
 }
 
 void EditBotDlg::OnOK()
 {
-	_info.nick.Set(_name->GetEditable()->GetText());
+	_info.nick.Set(_name->GetEditable().GetText());
 	_info.skin.Set(_skins->GetData()->GetItemText(_skins->GetCurSel(), 0) );
 	_info.platform_class.Set(_classes->GetData()->GetItemText(_classes->GetCurSel(), 0));
 	_info.team.SetInt(_teams->GetCurSel());
@@ -844,12 +832,12 @@ void EditBotDlg::OnChangeSkin(int index)
 	}
 }
 
-FRECT EditBotDlg::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
+UI::WindowLayout EditBotDlg::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const Window &child) const
 {
 	if (_skinPreview.get() == &child)
 	{
 		vec2d size = { _skinPreview->GetTextureWidth(texman), _skinPreview->GetTextureHeight(texman) };
-		return UI::CanvasLayout(_skinPreview->GetOffset(), size, lc.GetScale());
+		return UI::WindowLayout{ UI::CanvasLayout({}/*_skinPreview->GetOffset()*/, size, lc.GetScaleCombined()), 1, true };
 	}
-	return UI::Dialog::GetChildRect(texman, lc, dc, child);
+	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }

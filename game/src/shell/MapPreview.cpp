@@ -37,7 +37,7 @@ void MapPreview::SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating)
 	}
 }
 
-void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const
+void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
 {
 	vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
 	vec2d pxViewSize = lc.GetPixelSize() - pxPadding * 2;
@@ -82,12 +82,13 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 	}
 }
 
-FRECT MapPreview::GetChildRect(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
+UI::WindowLayout MapPreview::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
 	if (_rating.get() == &child)
 	{
 		vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
-		return MakeRectWH(pxPadding, lc.GetPixelSize() / 2);
+		return UI::WindowLayout{ MakeRectWH(pxPadding, lc.GetPixelSize() / 2), 1, true };
 	}
-	return UI::Window::GetChildRect(texman, lc, dc, child);
+	assert(false);
+	return {};
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "Rectangle.h"
+#include "Window.h"
 #include "PointerInput.h"
 #include <deque>
 #include <functional>
@@ -16,8 +16,9 @@ namespace Plat
 namespace UI
 {
 
-class ScrollBarVertical;
 class Edit;
+class Rectangle;
+class ScrollBarVertical;
 
 struct IConsoleHistory
 {
@@ -43,7 +44,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 class Console
-	: public Rectangle
+	: public WindowContainer
 	, private TimeStepping
 	, private ScrollSink
 	, private KeyboardSink
@@ -61,21 +62,20 @@ public:
 	std::function<bool(std::string_view, int &, std::string &)> eventOnRequestCompleteCommand;
 
 	// Window
-	bool HasScrollSink() const override { return true; }
 	ScrollSink* GetScrollSink() override { return this; }
-	bool HasKeyboardSink() const override { return true; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
-	bool HasPointerSink() const override { return true; }
 	PointerSink* GetPointerSink() override { return this; }
 
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time) const override;
-	FRECT GetChildRect(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
-	std::shared_ptr<Window> GetFocus() const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
+	WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
+	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
+	const Window* GetFocus() const override;
 
 	// TimeStepping
-	void OnTimeStep(const InputContext &ic, float dt) override;
+	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
 
 private:
+	std::shared_ptr<Rectangle> _background;
 	std::shared_ptr<ScrollBarVertical> _scroll;
 	std::shared_ptr<Edit> _input;
 	size_t _cmdIndex;
@@ -91,7 +91,7 @@ private:
 	void OnScrollBar(float pos);
 
 	// KeyboardSink
-	bool OnKeyPressed(InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
 
 	// ScrollSink
 	void OnScroll(TextureManager &texman, const InputContext &ic, const LayoutContext &lc, const DataContext &dc, vec2d scrollOffset, bool precise) override;
