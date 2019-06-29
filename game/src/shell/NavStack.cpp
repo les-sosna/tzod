@@ -108,6 +108,7 @@ float NavStack::GetTransitionTimeLeft() const
 
 UI::WindowLayout NavStack::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
+    auto layoutConstraints = DefaultLayoutConstraints(lc);
 	float transition = (1 - std::cos(PI * GetTransitionTimeLeft() / _foldTime)) / 2;
 
 	auto &children = GetChildren();
@@ -115,12 +116,12 @@ UI::WindowLayout NavStack::GetChildLayout(TextureManager &texman, const UI::Layo
 	unsigned int dim = (_flowDirection == UI::FlowDirection::Vertical);
 
 	float pxTotalStackSize = GetNavStackPixelSize(texman, lc, dc)[dim];
-	float pxStagingSize = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc))[dim];
+	float pxStagingSize = children.empty() ? 0 : children.back()->GetContentSize(texman, dc, lc.GetScaleCombined(), layoutConstraints)[dim];
 	float pxTransitionTarget = (lc.GetPixelSize()[dim] + pxStagingSize) / 2 - pxTotalStackSize;
 
 	const UI::Window *preStaging = children.size() > 1 ? children[children.size() - 2].get() : nullptr;
 	float pxSpacing = UI::ToPx(_spacing, lc);
-	float pxPreStagingSize = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc))[dim] : 0;
+	float pxPreStagingSize = preStaging ? preStaging->GetContentSize(texman, dc, lc.GetScaleCombined(), layoutConstraints)[dim] : 0;
 	float pxTransitionStart = (lc.GetPixelSize()[dim] + pxPreStagingSize) / 2 - (pxTotalStackSize - pxStagingSize - pxSpacing);
 
 	if (_state == State::GoingBack)
@@ -132,9 +133,7 @@ UI::WindowLayout NavStack::GetChildLayout(TextureManager &texman, const UI::Layo
 
 	for (auto wnd : *this)
 	{
-		auto layoutConstraints = DefaultLayoutConstraints(lc);
 		vec2d pxWndSize = wnd->GetContentSize(texman, dc, lc.GetScaleCombined(), layoutConstraints);
-		pxWndSize = Vec2dMin(pxWndSize, layoutConstraints.maxPixelSize);
 		if (wnd == &child)
 		{
 			vec2d pxWndOffset = Vec2dFloor(((lc.GetPixelSize() - pxWndSize) / 2)[1 - dim], pxBegin);

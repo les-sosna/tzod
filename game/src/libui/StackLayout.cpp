@@ -35,8 +35,8 @@ WindowLayout StackLayout::GetChildLayout(TextureManager &texman, const LayoutCon
 		else
 		{
 			assert(_align == Align::CT); // TODO: support others
-			float pxMargin = std::floor(size.x - pxChildSize.x) / 2;
-			return WindowLayout{ FRECT{ pxMargin, pxOffset, size.x - pxMargin, pxOffset + pxChildSize.y }, 1, true };
+			float pxMargin = std::floor((size.x - pxChildSize.x) / 2);
+			return WindowLayout{ MakeRectWH(vec2d{pxMargin, pxOffset}, pxChildSize), 1, true };
 		}
 	}
 	else

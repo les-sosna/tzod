@@ -286,20 +286,21 @@ void SinglePlayer::UpdateTier()
 	{
 		DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(mapIndex));
 
-		auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _worldCache);
-		mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
-		mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
-		mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
-		mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
-		mapPreview->SetLocked(locked);
+        auto mpButton = std::make_shared<UI::ContentButton>();
+        {
+            auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _worldCache);
+            mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
+            mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
+            mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
+            mapPreview->SetRating(std::make_shared<TierProgressIndexBinding>(_appConfig, _conf, _dmCampaign, mapIndex));
+            mapPreview->SetLocked(locked);
 
-		auto mpButton = std::make_shared<UI::ContentButton>();
-		mpButton->SetContent(mapPreview);
+            mpButton->SetContent(mapPreview);
+        }
 		if (!locked)
 		{
 			mpButton->eventClick = std::bind(&SinglePlayer::OnOK, this, (int)mapIndex);
 		}
-
 		_mapTiles->AddFront(mpButton);
 
 		if (mapIndex == currentMap)
