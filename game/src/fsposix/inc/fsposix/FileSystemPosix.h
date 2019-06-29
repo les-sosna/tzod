@@ -2,30 +2,24 @@
 #include <fs/FileSystem.h>
 
 namespace FS {
+    namespace detail
+    {
+        struct StdioFileDeleter
+        {
+            void operator()(FILE *file);
+        };
+        using StdioFile = std::unique_ptr<FILE, StdioFileDeleter>;
+    }
 
 class FileSystemPosix final
 	: public FileSystem
 {
-    struct AutoHandle
-    {
-        FILE *f = nullptr;
-        AutoHandle() {}
-        ~AutoHandle()
-        {
-            if( f )
-                fclose(f);
-        }
-    private:
-        AutoHandle(const AutoHandle&);
-        AutoHandle& operator = (const AutoHandle&);
-    };
-
     class OSFile final
         : public File
         , public std::enable_shared_from_this<OSFile>
     {
     public:
-        OSFile(const std::string &fileName, FileMode mode);
+        explicit OSFile(detail::StdioFile file);
         ~OSFile();
 
         void Unmap();
@@ -71,8 +65,7 @@ class FileSystemPosix final
         };
 
     private:
-        AutoHandle _file;
-        FileMode _mode;
+        detail::StdioFile _file;
         bool _mapped;
         bool _streamed;
     };
@@ -80,7 +73,7 @@ class FileSystemPosix final
     std::string _rootDirectory;
 
 protected:
-	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
+	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode, bool nothrow) override;
 
 public:
     FileSystemPosix(std::string rootDirectory);

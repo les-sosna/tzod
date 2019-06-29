@@ -7,25 +7,21 @@
 #include <sys/stat.h>
 #include <string.h>
 
-FS::FileSystemPosix::OSFile::OSFile(const std::string &fileName, FileMode mode)
-    : _mode(mode)
+using namespace FS;
+using namespace FS::detail;
+
+void StdioFileDeleter::operator()(FILE *file)
+{
+    if (file)
+        fclose(file);
+}
+
+FS::FileSystemPosix::OSFile::OSFile(StdioFile file)
+    : _file(std::move(file))
     , _mapped(false)
     , _streamed(false)
 {
-	struct stat sb;
-	bool hasStat = !stat(fileName.c_str(), &sb);
-	if( !hasStat && !(_mode & ModeWrite) )
-		throw std::runtime_error(fileName + ": " + strerror(errno));
-
-	if (hasStat && S_ISDIR(sb.st_mode))
-		throw std::runtime_error(fileName + ": Is a directory");
-
-    int nMode = ((_mode & ModeWrite) ? 1:0) + ((_mode & ModeRead) ? 2:0);
-    assert(nMode);
-    static const char *modes[] = {"", "wb", "rb", "rb+"};
-    _file.f = fopen(fileName.c_str(), modes[nMode]);
-    if( !_file.f )
-		throw std::runtime_error(fileName + ": " + strerror(errno));
+    assert(_file);
 }
 
 FS::FileSystemPosix::OSFile::~OSFile()
@@ -74,15 +70,15 @@ FS::FileSystemPosix::OSFile::OSStream::~OSStream()
 
 size_t FS::FileSystemPosix::OSFile::OSStream::Read(void *dst, size_t size, size_t count)
 {
-    size_t result = fread(dst, size, count, _file->_file.f);
-    if( count != result && ferror(_file->_file.f) )
+    size_t result = fread(dst, size, count, _file->_file.get());
+    if( count != result && ferror(_file->_file.get()) )
         throw std::runtime_error("read file");
     return result;
 }
 
 void FS::FileSystemPosix::OSFile::OSStream::Write(const void *src, size_t size)
 {
-    if( 1 != fwrite(src, size, 1, _file->_file.f) )
+    if( 1 != fwrite(src, size, 1, _file->_file.get()) )
     {
         throw std::runtime_error("file could not be written");
     }
@@ -90,12 +86,12 @@ void FS::FileSystemPosix::OSFile::OSStream::Write(const void *src, size_t size)
 
 void FS::FileSystemPosix::OSFile::OSStream::Seek(long long amount, unsigned int origin)
 {
-    fseek(_file->_file.f, amount, origin);
+    fseek(_file->_file.get(), amount, origin);
 }
 
 long long FS::FileSystemPosix::OSFile::OSStream::Tell() const
 {
-    return ftell(_file->_file.f);
+    return ftell(_file->_file.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,16 +99,16 @@ long long FS::FileSystemPosix::OSFile::OSStream::Tell() const
 FS::FileSystemPosix::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
     : _file(parent)
 {
-    if( fseek(_file->_file.f, 0, SEEK_END) )
+    if( fseek(_file->_file.get(), 0, SEEK_END) )
         throw std::runtime_error("get file size");
-    long int size = ftell(_file->_file.f);
-    rewind(_file->_file.f);
+    long int size = ftell(_file->_file.get());
+    rewind(_file->_file.get());
     if( size < 0 )
         throw std::runtime_error("get file size");
     if( size > 0 )
     {
         _data.resize(size);
-        if( 1 != fread(&_data[0], size, 1, _file->_file.f) )
+        if( 1 != fread(&_data[0], size, 1, _file->_file.get()) )
             throw std::runtime_error("read file");
     }
 }
@@ -121,8 +117,8 @@ FS::FileSystemPosix::OSFile::OSMemMap::~OSMemMap()
 {
     if (!_data.empty())
     {
-        fseek(_file->_file.f, 0, SEEK_SET);
-        fwrite(&_data[0], _data.size(), 1, _file->_file.f);
+        fseek(_file->_file.get(), 0, SEEK_SET);
+        fwrite(&_data[0], _data.size(), 1, _file->_file.get());
     }
     _file->Unmap();
 }
@@ -192,9 +188,42 @@ static std::string PathCombine(std::string_view first, std::string_view second)
 	return result;
 }
 
-std::shared_ptr<FS::File> FS::FileSystemPosix::RawOpen(std::string_view fileName, FileMode mode)
+std::shared_ptr<FS::File> FS::FileSystemPosix::RawOpen(std::string_view fileName, FileMode mode, bool nothrow)
 {
-    return std::make_shared<OSFile>(PathCombine(_rootDirectory, fileName), mode);
+    auto fullPath = PathCombine(_rootDirectory, fileName);
+
+    struct stat sb;
+    bool hasStat = !stat(fullPath.c_str(), &sb);
+    if( !hasStat && !(mode & ModeWrite) )
+    {
+        if (nothrow)
+            return nullptr;
+        else
+            throw std::runtime_error(fullPath + ": " + strerror(errno));
+    }
+
+    if (hasStat && S_ISDIR(sb.st_mode))
+    {
+        if (nothrow)
+            return nullptr;
+        else
+            throw std::runtime_error(fullPath + ": Is a directory");
+    }
+
+    int nMode = ((mode & ModeWrite) ? 1:0) + ((mode & ModeRead) ? 2:0);
+    assert(nMode);
+    constexpr const char *modes[] = {"", "wb", "rb", "rb+"};
+
+    StdioFile file(fopen(fullPath.c_str(), modes[nMode]));
+    if( !file )
+    {
+        if (nothrow)
+            return nullptr;
+        else
+            throw std::runtime_error(fullPath + ": " + strerror(errno));
+    }
+
+    return std::make_shared<OSFile>(std::move(file));
 }
 
 std::shared_ptr<FS::FileSystem> FS::FileSystemPosix::GetFileSystem(std::string_view path, bool create, bool nothrow)
