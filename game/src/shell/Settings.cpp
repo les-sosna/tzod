@@ -11,6 +11,7 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Edit.h>
 #include <ui/EditableText.h>
+#include <ui/LayoutContext.h>
 #include <ui/List.h>
 #include <ui/ListBox.h>
 #include <ui/ListSelectionBinding.h>
@@ -485,14 +486,15 @@ MainSettingsDlg::MainSettingsDlg(LangCache& lang, MainSettingsCommands commands)
 
 SettingsListBase::SettingsListBase()
 {
-	SetFlowDirection(UI::FlowDirection::Vertical);
-	SetSpacing(20);
+    auto content = std::make_shared<UI::StackLayout>();
+    content->SetFlowDirection(UI::FlowDirection::Vertical);
+    content->SetSpacing(20);
+    std::get<0>(_children).SetContent(content);
 }
 
 vec2d SettingsListBase::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
-	auto stackContentSize = UI::StackLayout::GetContentSize(texman, dc, scale, layoutConstraints);
-	return vec2d{ std::floor(400 * scale), stackContentSize.y };
+    return vec2d{ std::floor(400 * scale), std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints).y };
 }
 
 template <class WidgetType, class ConfVarType>
@@ -500,10 +502,18 @@ void SettingsListBase::AddSetting(const ConfVarString& title, ConfVarType& confV
 {
 	auto widget = std::make_shared<WidgetType>(confVar);
 	widget->SetTitle(ConfBind(title));
-	AddFront(widget);
-	if (!GetFocus())
-		SetFocus(widget.get());
+    auto &content = static_cast<UI::StackLayout&>(std::get<UI::ScrollView>(_children).GetChild(0));
+	content.AddFront(widget);
+	if (!content.GetFocus())
+		content.SetFocus(widget.get());
 }
+
+UI::WindowLayout SettingsListBase::GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const
+{
+    assert(&child == &GetChild(0));
+    return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

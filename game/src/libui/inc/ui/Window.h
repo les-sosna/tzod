@@ -199,6 +199,19 @@ private: \
     using ChildrenTuple = std::tuple<__VA_ARGS__>; \
     ChildrenTuple _children;
 
+#define STATIC_FOCUS(child) \
+public: \
+    using Window::GetChild; \
+    std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override \
+    { \
+        return { owner, &std::get<child>(_children) }; \
+    } \
+    const UI::Window* GetFocus() const override \
+    { \
+        return &std::get<child>(_children); \
+    } \
+private:
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class WindowContainer : public Window

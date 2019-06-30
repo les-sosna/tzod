@@ -50,16 +50,6 @@ vec2d StringSetting::GetContentSize(TextureManager& texman, const UI::DataContex
 	return vec2d{ 0, std::get<UI::Edit>(_children).GetContentSize(texman, dc, scale, layoutConstraints).y };
 }
 
-std::shared_ptr<const UI::Window> StringSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
-{
-	return { owner, StringSetting::GetFocus() };
-}
-
-const UI::Window* StringSetting::GetFocus() const
-{
-	return &std::get<UI::Edit>(_children);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 BooleanSetting::BooleanSetting(ConfVarBool& boolVar)
@@ -87,16 +77,6 @@ UI::WindowLayout BooleanSetting::GetChildLayout(TextureManager& texman, const UI
 vec2d BooleanSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
 	return std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
-}
-
-std::shared_ptr<const UI::Window> BooleanSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
-{
-	return { owner, GetFocus() };
-}
-
-const UI::Window* BooleanSetting::GetFocus() const
-{
-	return &std::get<0>(_children);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,16 +151,6 @@ UI::WindowLayout KeyBindSetting::GetChildLayout(TextureManager& texman, const UI
 vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
 {
 	return std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
-}
-
-std::shared_ptr<const UI::Window> KeyBindSetting::GetFocus(const std::shared_ptr<const Window>& owner) const
-{
-	return { owner, GetFocus() };
-}
-
-const UI::Window* KeyBindSetting::GetFocus() const
-{
-	return &std::get<0>(_children);
 }
 
 bool KeyBindSetting::OnKeyPressed(const UI::InputContext& ic, Plat::Key key)

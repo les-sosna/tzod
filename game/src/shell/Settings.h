@@ -2,6 +2,7 @@
 #include "inc/shell/Config.h"
 #include <ui/Dialog.h>
 #include <ui/ListBase.h>
+#include <ui/ScrollView.h>
 #include <string>
 #include <vector>
 
@@ -112,13 +113,17 @@ public:
 	MainSettingsDlg(LangCache& lang, MainSettingsCommands commands);
 };
 
-class SettingsListBase : public UI::StackLayout
+class SettingsListBase : public UI::Window
 {
+    TUPLE_CHILDREN(UI::ScrollView);
+    STATIC_FOCUS(0);
+
 public:
 	SettingsListBase();
 
 	// UI::Window
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
+    UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 
 protected:
 	template <class WidgetType, class ConfVarType>

@@ -14,6 +14,7 @@ class StringSetting final
 	: public UI::Window
 {
 	TUPLE_CHILDREN(UI::Text, UI::Edit);
+    STATIC_FOCUS(UI::Edit);
 
 public:
 	StringSetting(ConfVarString& stringVar);
@@ -25,8 +26,6 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	const UI::Window* GetFocus() const override;
 
 private:
 	ConfVarString& _stringVar;
@@ -36,6 +35,7 @@ private:
 class BooleanSetting : public UI::Window
 {
 	TUPLE_CHILDREN(UI::CheckBox);
+    STATIC_FOCUS(0);
 
 public:
 	BooleanSetting(ConfVarBool& stringVar);
@@ -44,8 +44,6 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	const UI::Window* GetFocus() const override;
 
 private:
 	ConfVarBool& _boolVar;
@@ -56,6 +54,7 @@ class KeyBindSetting final
 	, private UI::KeyboardSink
 {
 	TUPLE_CHILDREN(UI::ContentButton);
+    STATIC_FOCUS(0);
 
 public:
 	KeyBindSetting(ConfVarString& stringKeyVar);
@@ -64,8 +63,6 @@ public:
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, const UI::Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
-	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
-	const UI::Window* GetFocus() const override;
 	UI::KeyboardSink* GetKeyboardSink() override { return this; }
 
 private:

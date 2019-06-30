@@ -18,6 +18,8 @@ namespace UI
 		void SetStretchContent(bool stretchContent) { _stretchContent = stretchContent; }
 		bool GetStretchContent() const { return _stretchContent; }
 
+        using Window::GetChild;
+
 		// Window
 		unsigned int GetChildrenCount() const override { return !!_content; }
 		std::shared_ptr<const Window> GetChild(const std::shared_ptr<const Window>& owner, unsigned int index) const override { return _content; }
