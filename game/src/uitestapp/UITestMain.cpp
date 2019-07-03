@@ -39,7 +39,7 @@ try
 		768 // height
 	);
 
-	TextureManager textureManager(appWindow.GetRender());
+	TextureManager textureManager(&appWindow.GetRender());
 	textureManager.LoadPackage(appWindow.GetRender(), *fs, ParseDirectory(*fs, "sprites"));
 
 	auto desktop = std::make_shared<UITestDesktop>();
