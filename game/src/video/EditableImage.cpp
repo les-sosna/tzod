@@ -1,5 +1,6 @@
 #include "inc/video/EditableImage.h"
 #include <cassert>
+#include <cstring>
 
 EditableImage::EditableImage(unsigned int width, unsigned int height)
 	: _width(width)

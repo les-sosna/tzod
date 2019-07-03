@@ -8,6 +8,7 @@
 #include <gc/World.h>
 #include <gc/WorldCfg.h>
 #include <script/ScriptHarness.h>
+#include <climits>
 
 GameContext::GameContext(std::unique_ptr<World> world, const DMSettings &settings)
 	: _world(std::move(world))
