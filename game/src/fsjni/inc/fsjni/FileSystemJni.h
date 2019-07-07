@@ -28,7 +28,6 @@ class FileSystemJni final
     {
     public:
         OSFile(AAssetPtr asset);
-        ~OSFile();
 
         // File
         std::shared_ptr<MemMap> QueryMap() override;
@@ -81,11 +80,10 @@ class FileSystemJni final
     AAssetDirPtr _assetDir;
 
 protected:
-	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode) override;
+	std::shared_ptr<File> RawOpen(std::string_view fileName, FileMode mode, bool nothrow) override;
 
 public:
     FileSystemJni(AAssetManager *assetManager, std::string rootDirectory);
-    ~FileSystemJni();
 	std::shared_ptr<FileSystem> GetFileSystem(std::string_view path, bool create = false, bool nothrow = false) override;
 	std::vector<std::string> EnumAllFiles(std::string_view mask) override;
 };

@@ -61,7 +61,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_resize(JNIEnv *
 
 extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *env, jobject obj)
 {
-    g_state->view.Step(0.016f);
+    g_state->view.Step(g_state->app, 0.016F);
+    g_state->view.GetAppWindowInputSink().OnRefresh(g_state->appWindow);
 }
 
 #include <plat/Input.h>
@@ -91,5 +92,5 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_pointer(
     vec2d pxPointerPos = {x, y};
     vec2d pxPointerOffset = {};
     int buttons = 0;
-    g_state->appWindow.GetInputSink()->OnPointer(pointerType, action, pxPointerPos, pxPointerOffset, buttons, (unsigned) pointerId);
+    g_state->view.GetAppWindowInputSink().OnPointer(g_state->appWindow, pointerType, action, pxPointerPos, pxPointerOffset, buttons, (unsigned) pointerId);
 }

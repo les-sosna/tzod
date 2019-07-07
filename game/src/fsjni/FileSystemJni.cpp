@@ -20,10 +20,6 @@ FileSystemJni::OSFile::OSFile(AAssetPtr asset)
     assert(_asset);
 }
 
-FileSystemJni::OSFile::~OSFile()
-{
-}
-
 std::shared_ptr<MemMap> FileSystemJni::OSFile::QueryMap()
 {
     assert(!_mapped && !_streamed);
@@ -54,7 +50,7 @@ void FileSystemJni::OSFile::Unstream()
 ///////////////////////////////////////////////////////////////////////////////
 
 FileSystemJni::OSFile::OSStream::OSStream(std::shared_ptr<OSFile> parent)
-    : _file(parent)
+    : _file(std::move(parent))
 {
 }
 
@@ -91,7 +87,7 @@ long long FileSystemJni::OSFile::OSStream::Tell() const
 ///////////////////////////////////////////////////////////////////////////////
 
 FileSystemJni::OSFile::OSMemMap::OSMemMap(std::shared_ptr<OSFile> parent)
-    : _file(parent)
+    : _file(std::move(parent))
 {
 }
 
@@ -129,25 +125,53 @@ FileSystemJni::FileSystemJni(AAssetManager *assetManager, std::string rootDirect
         throw std::runtime_error(_rootDirectory + ": failed to open directory");
 }
 
-FileSystemJni::~FileSystemJni()
+static bool Match(std::string_view s, std::string_view p)
 {
+    std::unique_ptr<bool[]> pm(new bool[p.size() + 1]);
+    pm[0] = true;
+    for (size_t i = 0; i < p.size(); ++i)
+        pm[i+1] = pm[i] && p[i] == '*';
+    for (auto c: s)
+    {
+        bool prev = pm[0];
+        pm[0] = false;
+        for (size_t i = 0; i < p.size(); ++i)
+        {
+            bool tmp = pm[i + 1];
+            pm[i + 1] = prev;
+            prev = tmp;
+            switch(p[i])
+            {
+                case '*': pm[i+1] = pm[i+1] | prev | pm[i]; break;
+                case '?': break;
+                default: pm[i+1] = pm[i+1] & (p[i] == c);
+            }
+        }
+    }
+    return pm[p.size()];
 }
 
 std::vector<std::string> FileSystemJni::EnumAllFiles(std::string_view mask)
 {
 	std::vector<std::string> files;
     AAssetDir_rewind(_assetDir.get());
-    while (const char *file = AAssetDir_getNextFileName(_assetDir.get()))
-        files.emplace_back(file);
+    while( const char *file = AAssetDir_getNextFileName(_assetDir.get()) )
+        if (Match(file, mask))
+            files.emplace_back(file);
 	return files;
 }
 
-std::shared_ptr<File> FileSystemJni::RawOpen(std::string_view fileName, FileMode mode)
+std::shared_ptr<File> FileSystemJni::RawOpen(std::string_view fileName, FileMode mode, bool nothrow)
 {
     assert(FileMode::ModeRead == mode);
     AAssetPtr asset(AAssetManager_open(_assetManager, PathCombine(_rootDirectory, fileName).c_str(), AASSET_MODE_UNKNOWN));
-    if (!asset)
-        throw std::runtime_error(std::string(fileName) + ": Asset not found");
+    if( !asset )
+    {
+        if( nothrow )
+            return nullptr;
+        else
+            throw std::runtime_error(std::string(fileName) + ": Asset not found");
+    }
     return std::make_shared<OSFile>(std::move(asset));
 }
 

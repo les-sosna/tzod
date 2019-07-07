@@ -15,16 +15,6 @@ void JniAppWindow::SetPixelSize(vec2d pxSize)
     _pxSize = pxSize;
 }
 
-Plat::AppWindowInputSink* JniAppWindow::GetInputSink() const
-{
-    return _inputSink;
-}
-
-void JniAppWindow::SetInputSink(Plat::AppWindowInputSink *inputSink)
-{
-    _inputSink = inputSink;
-}
-
 int JniAppWindow::GetDisplayRotation() const
 {
     return 0;
@@ -59,9 +49,6 @@ void JniAppWindow::SetCanNavigateBack(bool canNavigateBack)
 {}
 
 void JniAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
-{}
-
-void JniAppWindow::MakeCurrent()
 {}
 
 void JniAppWindow::Present()
