@@ -31,6 +31,7 @@ struct State
     TzodApp app;
     JniAppWindow appWindow;
     TzodView view;
+    std::mutex mutex;
 
     State(AAssetManager *assetManager)
         : logger(80, 100)
@@ -56,11 +57,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_init(JNIEnv *en
 
 extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_resize(JNIEnv *env, jobject obj, jint width, jint height)
 {
+    std::lock_guard<std::mutex> lock(g_state->mutex);
     g_state->appWindow.SetPixelSize(vec2d{static_cast<float>(width), static_cast<float>(height)});
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *env, jobject obj)
 {
+    std::lock_guard<std::mutex> lock(g_state->mutex);
     g_state->view.Step(g_state->app, 0.016F);
     g_state->view.GetAppWindowInputSink().OnRefresh(g_state->appWindow);
 }
@@ -92,5 +95,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_pointer(
     vec2d pxPointerPos = {x, y};
     vec2d pxPointerOffset = {};
     int buttons = 0;
+
+    std::lock_guard<std::mutex> lock(g_state->mutex);
     g_state->view.GetAppWindowInputSink().OnPointer(g_state->appWindow, pointerType, action, pxPointerPos, pxPointerOffset, buttons, (unsigned) pointerId);
 }
