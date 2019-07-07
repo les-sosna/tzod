@@ -63,5 +63,5 @@ private:
 	void CreateChecker(IRender& render); // Create checker texture without name and with index=0
 
 	using LoadedImages = std::map<std::string, class TgaImage, std::less<>>;
-	void CreateAtlas(IRender& render, FS::FileSystem& fs, const LoadedImages &loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter);
+	void CreateAtlas(IRender& render, FS::FileSystem& fs, const LoadedImages &loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter, int gutters);
 };

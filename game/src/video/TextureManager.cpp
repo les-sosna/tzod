@@ -156,7 +156,7 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 
 		if (item.wrappable)
 		{
-			CreateAtlas(render, fs, loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter);
+			CreateAtlas(render, fs, loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter, 0 /*gutters*/);
 		}
 		else
 		{
@@ -167,8 +167,8 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 		}
 	}
 
-	CreateAtlas(render, fs, loadedImages, std::move(magFilterOn), true);
-	CreateAtlas(render, fs, loadedImages, std::move(magFilterOff), false);
+	CreateAtlas(render, fs, loadedImages, std::move(magFilterOn), true, 1);
+	CreateAtlas(render, fs, loadedImages, std::move(magFilterOff), false, 1);
 
 	// unload unused textures
 	for (auto it = _devTextures.begin(); _devTextures.end() != it; )
@@ -185,12 +185,10 @@ void TextureManager::LoadPackage(IRender& render, FS::FileSystem& fs, const std:
 	}
 }
 
-void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter)
+void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter, int gutters)
 {
 	if (packageSpriteDescs.empty())
 		return;
-
-	int gutters = magFilter ? 1 : 0;
 
 	int totalFrames = 0;
 	for (auto& psd : packageSpriteDescs)
