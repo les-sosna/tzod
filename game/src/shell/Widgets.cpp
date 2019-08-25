@@ -22,7 +22,7 @@ FpsCounter::FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppSta
 	SetAlign(align);
 }
 
-void FpsCounter::OnTimeStep(Plat::Input &input, bool focused, float dt)
+void FpsCounter::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 {
 	_totalTime += dt;
 	_minDt = std::min(_minDt, dt);

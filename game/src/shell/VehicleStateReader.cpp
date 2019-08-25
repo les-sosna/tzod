@@ -37,7 +37,7 @@ void VehicleStateReader::SetProfile(ConfControllerProfile &profile)
 	_arcadeStyle = profile.arcade_style.Get();
 }
 
-void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, Plat::Input &input, vec2d dragDirection, bool reverse, VehicleState &vs)
+void VehicleStateReader::ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, const Plat::Input &input, vec2d dragDirection, bool reverse, VehicleState &vs)
 {
 	memset(&vs, 0, sizeof(VehicleState));
 

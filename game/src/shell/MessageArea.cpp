@@ -12,7 +12,7 @@ MessageArea::MessageArea(UI::TimeStepManager &manager, Plat::ConsoleBuffer &logg
 {
 }
 
-void MessageArea::OnTimeStep(Plat::Input &input, bool focused, float dt)
+void MessageArea::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 {
 	for( size_t i = 0; i < _lines.size(); ++i )
 		_lines[i].time -= dt;

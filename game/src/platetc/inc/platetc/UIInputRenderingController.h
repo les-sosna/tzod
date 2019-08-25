@@ -18,7 +18,7 @@ public:
 		std::shared_ptr<UI::Window> desktop);
 	~UIInputRenderingController();
 
-	void TimeStep(float dt);
+	void TimeStep(float dt, const Plat::Input& input);
 
 	// AppWindowInputSink
 	bool OnChar(Plat::AppWindow& appWindow, unsigned int codepoint) override;

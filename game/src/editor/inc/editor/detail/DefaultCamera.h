@@ -16,7 +16,7 @@ public:
 	void Move(vec2d worldOffset, const FRECT &worldBounds);
 	void ZoomIn();
 	void ZoomOut();
-	void HandleMovement(Plat::Input &input, const FRECT &worldBounds, float dt);
+	void HandleMovement(const Plat::Input &input, const FRECT &worldBounds, float dt);
 	float GetZoom() const { return _zoom; }
 	vec2d GetEye() const { return _worldPos; }
 

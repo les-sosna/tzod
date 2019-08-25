@@ -20,7 +20,7 @@ public:
 	void Clear();
 
 	// UI::Window
-	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
+	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 
 private:

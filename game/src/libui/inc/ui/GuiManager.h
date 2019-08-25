@@ -8,6 +8,11 @@
 class RenderContext;
 class TextureManager;
 
+namespace Plat
+{
+	struct Input;
+}
+
 namespace UI
 {
 
@@ -35,7 +40,7 @@ class TimeStepManager
 public:
 	TimeStepManager();
 
-	void TimeStep(std::shared_ptr<Window> desktop, const InputContext &ic, float dt);
+	void TimeStep(std::shared_ptr<Window> desktop, float dt, const Plat::Input& input);
 	float GetTime() const { return _time; }
 
 private:

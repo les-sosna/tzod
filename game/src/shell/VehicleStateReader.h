@@ -17,7 +17,7 @@ class VehicleStateReader final
 public:
 	VehicleStateReader();
 	void SetProfile(ConfControllerProfile &profile);
-	void ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, Plat::Input &input, vec2d dragDirection, bool reverse, VehicleState &vs);
+	void ReadVehicleState(const GameViewHarness &gameViewHarness, const GC_Vehicle &vehicle, int playerIndex, const Plat::Input &input, vec2d dragDirection, bool reverse, VehicleState &vs);
 
 	void OnTap(vec2d worldPos);
 	void Step(float dt);

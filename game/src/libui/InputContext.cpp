@@ -48,9 +48,9 @@ InputContext::InputContext(Plat::Input &input)
 {
 }
 
-void InputContext::ReadInput()
+void InputContext::ReadInput(const Plat::Input &input)
 {
-	_pointerState = _input.GetPointerState(0);
+	_pointerState = input.GetPointerState(0);
 }
 
 TextSink* InputContext::GetTextSink(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc)
@@ -489,8 +489,8 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	// navigation
 	if (!handled)
 	{
-		bool alt = GetInput().IsKeyPressed(Plat::Key::LeftAlt) || GetInput().IsKeyPressed(Plat::Key::RightAlt);
-		bool shift = GetInput().IsKeyPressed(Plat::Key::LeftShift) || GetInput().IsKeyPressed(Plat::Key::RightShift);
+		bool alt = _input.IsKeyPressed(Plat::Key::LeftAlt) || _input.IsKeyPressed(Plat::Key::RightAlt);
+		bool shift = _input.IsKeyPressed(Plat::Key::LeftShift) || _input.IsKeyPressed(Plat::Key::RightShift);
 		Navigate navigate = GetNavigateAction(key, alt, shift);
 		if (Plat::Msg::KeyReleased == msg)
 		{

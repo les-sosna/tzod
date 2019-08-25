@@ -266,7 +266,7 @@ public:
 
 	void SetTimeStep(bool enable);
 
-	virtual void OnTimeStep(Plat::Input &input, bool focused, float dt) {}
+	virtual void OnTimeStep(const Plat::Input &input, bool focused, float dt) {}
 
 private:
 	std::list<TimeStepping*>::iterator _timeStepReg;

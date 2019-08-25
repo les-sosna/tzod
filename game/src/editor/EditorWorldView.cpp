@@ -310,7 +310,7 @@ void EditorWorldView::EnsureVisible(const UI::LayoutContext &lc, FRECT worldRect
 		_defaultCamera.MoveTo(_defaultCamera.GetEye() + cameraOffset);
 }
 
-void EditorWorldView::OnTimeStep(Plat::Input &input, bool focused, float dt)
+void EditorWorldView::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 {
 	_defaultCamera.HandleMovement(input, _world.GetBounds(), dt);
 

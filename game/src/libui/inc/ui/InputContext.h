@@ -37,7 +37,7 @@ class InputContext
 public:
 	explicit InputContext(Plat::Input &input);
 
-	void ReadInput();
+	void ReadInput(const Plat::Input &input);
 
 	bool ProcessPointer(
 		TextureManager &texman,

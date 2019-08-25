@@ -72,7 +72,7 @@ public:
 	const Window* GetFocus() const override;
 
 	// TimeStepping
-	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
+	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;
 
 private:
 	std::shared_ptr<Rectangle> _background;

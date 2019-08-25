@@ -89,7 +89,7 @@ private:
 	void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
 
 	// UI::Window
-	void OnTimeStep(Plat::Input &input, bool focused, float dt) override;
+	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
 	UI::NavigationSink* GetNavigationSink() override { return this; }

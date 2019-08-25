@@ -17,7 +17,7 @@ public:
 	FpsCounter(UI::TimeStepManager &manager, enumAlignText align, AppState &appState);
 
 protected:
-	void OnTimeStep(Plat::Input &input, bool focused, float dt);
+	void OnTimeStep(const Plat::Input &input, bool focused, float dt);
 
 private:
 	float _minDt = FLT_MAX;

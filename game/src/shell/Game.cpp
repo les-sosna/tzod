@@ -235,7 +235,7 @@ float GameLayout::GetLastPlayerDieTime() const
 	return lastDieTime;
 }
 
-void GameLayout::OnTimeStep(Plat::Input &input, bool focused, float dt)
+void GameLayout::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 {
 	float gameplayTime = _gameContext->GetGameplayTime();
 	float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;

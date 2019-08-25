@@ -46,7 +46,7 @@ void TzodView::Step(TzodApp& app, float dt)
 
 	// controller pass - handle input
 	// this also sends user controller state to WorldController
-	_impl->uiInputRenderingController.TimeStep(filteredDt);
+	_impl->uiInputRenderingController.TimeStep(filteredDt, _appWindow.GetInput());
 
 	// simulate world
 	app.Step(filteredDt);

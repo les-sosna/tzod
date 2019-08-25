@@ -35,7 +35,7 @@ void DefaultCamera::ZoomOut()
 	_zoomLevel = std::max(_zoomLevel - 1, 0);
 }
 
-void DefaultCamera::HandleMovement(Plat::Input &input, const FRECT &worldBounds, float dt)
+void DefaultCamera::HandleMovement(const Plat::Input &input, const FRECT &worldBounds, float dt)
 {
 	vec2d direction = {};
 

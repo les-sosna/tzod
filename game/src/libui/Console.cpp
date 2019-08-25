@@ -198,7 +198,7 @@ void Console::OnScroll(TextureManager &texman, const InputContext &ic, const Lay
 	_autoScroll = _scroll->GetPos() + _scroll->GetPageSize() >= _scroll->GetDocumentSize();
 }
 
-void Console::OnTimeStep(Plat::Input &input, bool focused, float dt)
+void Console::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 {
 	// FIXME: workaround
 	_scroll->SetLineSize(1);

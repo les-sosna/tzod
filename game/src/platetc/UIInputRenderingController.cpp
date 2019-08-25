@@ -39,10 +39,10 @@ UIInputRenderingController::~UIInputRenderingController()
 {
 }
 
-void UIInputRenderingController::TimeStep(float dt)
+void UIInputRenderingController::TimeStep(float dt, const Plat::Input& input)
 {
-	_inputContext.ReadInput();
-	_timeStepManager.TimeStep(_desktop, _inputContext, dt);
+	_inputContext.ReadInput(input);
+	_timeStepManager.TimeStep(_desktop, dt, input);
 }
 
 bool UIInputRenderingController::OnChar(Plat::AppWindow& appWindow, unsigned int codepoint)
@@ -159,10 +159,10 @@ bool UIInputRenderingController::HandleClipboardShortcuts(Plat::AppWindow& appWi
 {
 	if (action == Plat::Msg::KeyPressed)
 	{
-		bool shift = _inputContext.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
-			_inputContext.GetInput().IsKeyPressed(Plat::Key::RightShift);
-		bool control = _inputContext.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) ||
-			_inputContext.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
+		bool shift = appWindow.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
+			appWindow.GetInput().IsKeyPressed(Plat::Key::RightShift);
+		bool control = appWindow.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) ||
+			appWindow.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
 
 		switch (key)
 		{

@@ -35,7 +35,7 @@ void TimeStepManager::TimeStepUnregister(std::list<TimeStepping*>::iterator it)
 	}
 }
 
-void TimeStepManager::TimeStep(std::shared_ptr<Window> desktop, const InputContext &ic, float dt)
+void TimeStepManager::TimeStep(std::shared_ptr<Window> desktop, float dt, const Plat::Input &input)
 {
 	assert(_tsCurrent == _timestep.end());
 	assert(!_tsDeleteCurrent);
@@ -54,7 +54,7 @@ void TimeStepManager::TimeStep(std::shared_ptr<Window> desktop, const InputConte
 			}
 		}
 
-		(*_tsCurrent)->OnTimeStep(ic.GetInput(), focused, dt);
+		(*_tsCurrent)->OnTimeStep(input, focused, dt);
 
 		if (_tsDeleteCurrent)
 		{
