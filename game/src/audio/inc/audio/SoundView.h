@@ -22,7 +22,7 @@ class SoundView final
 public:
 	SoundView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, AppState &appState);
 	~SoundView();
-	void Step();
+	void Step(vec2d listenerPos);
 
 private:
 	std::unique_ptr<SoundRender> _soundRender;

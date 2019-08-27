@@ -53,11 +53,6 @@ static void SetupVehicleMoveSound(const GC_Vehicle &vehicle, Sound &sound)
 	sound.SetPos(vehicle.GetPos());
 }
 
-void SoundHarness::SetListenerPos(vec2d pos)
-{
-	_soundRender.SetListenerPos(pos);
-}
-
 void SoundHarness::Step()
 {
 	if (_gameplay && _gameplay->GetTimeLimit() > 0)

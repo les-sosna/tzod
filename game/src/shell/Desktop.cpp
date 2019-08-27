@@ -171,6 +171,11 @@ void Desktop::ShowConsole(bool show)
 	}
 }
 
+vec2d Desktop::GetListenerPos() const
+{
+	return _game ? _game->GetListenerPos() : vec2d{};
+}
+
 void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child)
 {
 	_navStack->PopNavStack(child.get());

@@ -72,6 +72,11 @@ GameViewHarness::~GameViewHarness()
 	_world.eGC_RigidBodyStatic.RemoveListener(*this);
 }
 
+vec2d GameViewHarness::GetListenerPos() const
+{
+	return _cameras.empty() ? Center(_world.GetBounds()) : _cameras[0].GetCameraPos();
+}
+
 GameViewHarness::CanvasToWorldResult GameViewHarness::CanvasToWorld(unsigned int viewIndex, int x, int y) const
 {
 	assert(viewIndex < _cameras.size());

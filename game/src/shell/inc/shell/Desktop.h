@@ -61,6 +61,8 @@ public:
 
 	void ShowConsole(bool show);
 
+	vec2d GetListenerPos() const;
+
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
 

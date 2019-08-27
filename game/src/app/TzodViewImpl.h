@@ -6,6 +6,7 @@
 
 class TzodApp;
 class SoundView;
+class Desktop;
 namespace Plat
 {
 	struct AppWindowCommandClose;
@@ -19,7 +20,7 @@ struct TzodViewImpl
 
 	TextureManager textureManager;
 	UI::TimeStepManager timeStepManager;
-	std::shared_ptr<UI::Window> desktop;
+	std::shared_ptr<Desktop> desktop;
 	UIInputRenderingController uiInputRenderingController;
 #ifndef NOSOUND
 	std::unique_ptr<SoundView> soundView;

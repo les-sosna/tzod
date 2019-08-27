@@ -1,6 +1,7 @@
 #include "TzodViewImpl.h"
 #include "inc/app/View.h"
 #include "inc/app/tzod.h"
+#include <shell/Desktop.h>
 #include <shell/Profiler.h>
 #ifndef NOSOUND
 # include <audio/SoundView.h>
@@ -46,6 +47,8 @@ void TzodView::Step(TzodApp& app, float dt)
 
 	// controller pass - handle input
 	// this also sends user controller state to WorldController
+	// note: the game view camera updates as part of the UI which is not ideal.
+	//       Consider updating cameras after the world step instead.
 	_impl->uiInputRenderingController.TimeStep(filteredDt, _appWindow.GetInput());
 
 	// simulate world
@@ -55,16 +58,8 @@ void TzodView::Step(TzodApp& app, float dt)
 #ifndef NOSOUND
 	if (_impl->soundView)
 	{
-//		vec2d pos(0, 0);
-//		if (!_world.GetList(LIST_cameras).empty())
-//		{
-//			_world.GetList(LIST_cameras).for_each([&pos](ObjectList::id_type, GC_Object *o)
-//			{
-//				pos += static_cast<GC_Camera*>(o)->GetCameraPos();
-//			});
-//		}
-//		_impl->soundView->SetListenerPos(pos);
-		_impl->soundView->Step();
+		auto listenerPos = _impl->desktop->GetListenerPos();
+		_impl->soundView->Step(listenerPos);
 	}
 #endif
 }

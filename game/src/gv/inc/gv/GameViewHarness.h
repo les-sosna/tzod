@@ -28,6 +28,7 @@ public:
 		bool visible;
 	};
 
+	vec2d GetListenerPos() const;
 	World& GetWorld() const { return _world; }
 	CanvasToWorldResult CanvasToWorld(unsigned int viewIndex, int x, int y) const;
 	vec2d WorldToCanvas(unsigned int viewIndex, vec2d worldPos) const;

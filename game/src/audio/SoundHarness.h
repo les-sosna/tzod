@@ -25,7 +25,6 @@ public:
 	SoundHarness(SoundRender &soundRender, GameContextBase &gameContext, const Gameplay *gameplay);
 	~SoundHarness();
 
-	void SetListenerPos(vec2d pos);
 	void Step();
 
 private:

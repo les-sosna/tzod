@@ -159,6 +159,11 @@ GameLayout::~GameLayout()
 	_gameContext->GetGameEventSource().RemoveListener(*this);
 }
 
+vec2d GameLayout::GetListenerPos() const
+{
+	return _gameViewHarness.GetListenerPos();
+}
+
 vec2d GameLayout::GetDragDirection() const
 {
 	vec2d dragDirection{ 0, 0 };
