@@ -1,0 +1,131 @@
+Ogg Vorbis -aoTuV- beta5.7 reference binary (win32 console)
+
+　This is the encoder of Ogg Vorbis I conformity. 
+  I performed original tuning for the reference source code of Ogg Vorbis of Xiph.Org to origin.
+
+　An input file is set only to 16bit PCM WAV file. 
+
+
+/*** BASIC USAGE ***/
+ a command prompt
+"venc InputFileName.wav"
+ or
+"venc -q2 InputFileName wav"
+ and/or
+"venc -q1 - OutputFileName"
+ '-' is pipe input(stdin).
+
+
+
+/*** HISTORY (libvorbis aoTuV) ***/
+***** Changed part from beta5.61 *****
+   # Improvement of the encoding speed of low bitrate mode. (Around 11% at the max)
+   # Fixed some bugs.
+
+
+***** Changed part from beta5.6 *****
+   # Fixed the error to occur by specific software.
+
+
+***** Changed part from beta5.5 *****
+   # （Important!） The security hole of old libvorbis origin was fixed like latest libvorbis.  The software using the decode function of the former library should be updated to the latest library.  This problem does not influence the encode function.
+   # Reduced distortion by clipping at low sampling frequency and/or low bitrate.
+   # Fixed noise control part of impulse block added in the beta5.5.
+   # Tuning of each part was redone according to above-mentioned changed part.
+
+
+***** Changed part from beta5 *****
+   # The noise control of the impulse block was expanded. This is effective with the outstanding sample of the pre-echo.
+   # The pre-echo reduction code came to work at a lower bit rate.
+   # Noise Normalization was reviewed. As a result, the bug is revised.
+   # The detailed tuning was done again.
+
+
+***** Changed part from beta4.51 *****
+   # The action of noise normalization has been improved.  This has an effect in the sound roughness and tremor problem etc. in the low bitrate.
+   # The threshold of a stereo mode change was calculated dynamically.  Some of problems which originate in channel coupling by this will improve.
+   # Noise control of an impulse block was changed (quality 0-10 / 32-48kHz). And pre-echo decreased slightly.
+   # Tuning of each part was redone according to above-mentioned changed part and additional part.
+
+
+***** Changed part from beta4.5 *****
+   # 　This is a bug fix release.  There is no encode quality-difference fundamentally. 
+
+
+***** Changed part from beta4 *****
+   # Reexamination of a low bit rate region, the addition of the code accompanying it, and tuning. Influence has this change below quality3.  Probably, in the especially low bit rate, it will be effective. 
+
+
+***** Changed part from beta3 *****
+   # An addition and change of the code of a channel coupling processing portion. Thereby, disorder of the sound energy on hearing becomes small.  And a part of additional code of beta3 which is not required has already been deleted now.
+   # Tuning of Masking relation and Noise Normalization. These mainly influence balance and the quantity of distortion which can be heard.
+   # The bit allocation by the low bit rate was devised. This is generally effective.
+   # Bug fix of beta3
+
+
+***** Changed part from beta2 *****
+　<<Since beta2 was adopted as official 1.1, beta3 uses 1.1 as a base. >>
+   # bitrate management mode operates normally now. It not only became new, it offers new rate control. (changed part of Vorbis 1.1 by Monty)  However, it can't be used in this encoder. 
+ 　# Pre-echo was decreased in the mode of q0-q10. 
+   # Since some codes of beta2 were not working normally, correction and re-tuning were carried out. 
+ 　# In the mode below q3, the problem to which a part of sound becomes unstable is improved. (e.g. piano/strings)
+ 　# Distortion resulting from channel coupling was reduced. (e.g. brass/drumus/guitar)
+ 　# The q-2 new mode. 
+
+
+***** Changed part from beta1_a *****
+   # The problem to which the sound of a specific range becomes large was reduced.
+   # Tuning was improved in all bit rate regions. 
+
+
+***** Changed part from beta1 *****
+   # The problem produced in q0 - q-1 is corrected. 
+   # Due to the above-mentioned problem, Slightly, q0 - q-2 is readjusted. 
+
+
+***** Changed part from alpha3 *****
+   # q1 - q5 are adjusted slightly. 
+   # q-2 - q0 is readjusted. 
+   # Arrangement of a source code. 
+
+
+***** Changed part from alpha2 *****
+   # q0-q5 are adjusted succeedingly.
+ 　# In q-1, since the numerical value was mistaken, it corrected.
+   # The problem which fails in stereo processing of white noise-like sound in the range not more than q5 is improved.
+   # Only a few also adjusted the range beyond q6.
+　
+
+***** Changed part from alpha1 *****
+   # Distortion produced in alphas1 is reduced.
+   # q3 - q5 region was tuned up preponderantly. 
+   # The masking relation was readjusted in all bit rate regions.
+   # Encoding of those other than 44.1kHz was enabled from the frontend.
+     (the q-2 mode is effective above 26kHz)
+
+
+***** Changed part from 1.0.1 *****
+   # The distortion of mid frequency sound decreased.
+ 　# A little balance on hearing is improved.
+ 　# The q-2 mode was added. (Tone quality disregard)
+
+
+/*** HISTORY (venc.exe) ***/
+***** Changed part from beta5.5 *****
+   # Fixed the case to fail in pipe input.
+   # Added many encoding options.
+   # Strengthened the exception handling.
+
+
+
+Manuke's patch is used for improvement in the speed of sort processing (thank you!). 
+
+
+libvorbis & libogg  (c)2002-2008 Xiph.Org Foundation
+Resampling code from libspeex  (c)2002-2008 Jean-Marc Valin, (c)2008 Thorvald Natvig
+aoTuV  (c)2003-2009 AOYUMI
+
+The libraries and this software are BSD-STYLE licenses -- detailed => "http://www.xiph.org/" <= please look at here.
+
+
+Aoyumi <aoyumi@gmail.com>
