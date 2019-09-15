@@ -20,6 +20,7 @@ UITestDesktop::UITestDesktop()
 	AddFront(_testText);
 
 	_testButton->SetText("Push me"_txt);
+	_testButton->eventClick = [] {};
 	AddFront(_testButton);
 }
 
@@ -31,6 +32,10 @@ UI::WindowLayout UITestDesktop::GetChildLayout(TextureManager &texman, const UI:
 	if (_testRect.get() == &child)
 	{
 		return UI::WindowLayout{ UI::CanvasLayout({ 0, 42 }, { size.x, 384 }, scale), 1, true };
+	}
+	else if (_testText.get() == &child)
+	{
+		return UI::WindowLayout{ MakeRectWH({1, 1}), 1, true };
 	}
 	else if (_testButton.get() == &child)
 	{

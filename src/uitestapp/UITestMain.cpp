@@ -55,7 +55,7 @@ try
 	{
 		controller.OnRefresh(appWindow);
 		GlfwAppWindow::PollEvents(controller);
-		controller.TimeStep(timer.GetDt());
+		controller.TimeStep(timer.GetDt(), appWindow.GetInput());
 	}
 
 	textureManager.UnloadAllTextures(appWindow.GetRender());
