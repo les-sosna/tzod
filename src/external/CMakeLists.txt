@@ -20,3 +20,12 @@ add_subdirectory(lua)
 add_subdirectory(pluto)
 add_subdirectory(utfcpp)
 add_subdirectory(zlib)
+
+set_target_properties(
+	glfw
+	gtest
+	gtest_main
+	lua
+	pluto
+	zlib
+PROPERTIES FOLDER external)

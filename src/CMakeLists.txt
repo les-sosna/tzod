@@ -1,67 +1,12 @@
 cmake_minimum_required (VERSION 3.6)
 project(tzod VERSION 1.52)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 if(APPLE OR UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 endif()
 
-if(WIN32)
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT tzodmain)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std:c++latest")
-	set(WITH_SOUND 1)
-	add_subdirectory(fswin)
-else()
-	find_package(OpenAL)
-	set(WITH_SOUND ${OPENAL_FOUND})
-	add_subdirectory(fsposix)
-endif()
-
-# external libs
 add_subdirectory(external)
-
-# libs
-add_subdirectory(luaetc)
-add_subdirectory(fs)
-add_subdirectory(config)
-add_subdirectory(loc)
-add_subdirectory(math)
-add_subdirectory(plat)
-add_subdirectory(platetc)
-add_subdirectory(mf)
-add_subdirectory(gc)
-add_subdirectory(ai)
-add_subdirectory(gclua)
-add_subdirectory(script)
-add_subdirectory(ctx)
-add_subdirectory(as)
-add_subdirectory(video)
-add_subdirectory(wavfile)
-add_subdirectory(render)
-add_subdirectory(gv)
-add_subdirectory(ui)
-add_subdirectory(cbind)
-add_subdirectory(editor)
-add_subdirectory(shell)
-if(WITH_SOUND)
-	add_subdirectory(audio)
-endif()
-
-# top level lib - the only one the application links with
-add_subdirectory(app)
-
-# desktop applications
-if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
-	message("Building for desktop with GLFW")
-
-	add_subdirectory(platglfw)
-	add_subdirectory(tzodmain)
-	add_subdirectory(fsmem)
-	add_subdirectory(gc_tests)
-	add_subdirectory(ui_tests)
-	add_subdirectory(uitestapp)
-endif()
-
-if(ANDROID)
-	add_subdirectory(fsjni)
-	add_subdirectory(platjni)
-endif()
+add_subdirectory(engine)
+add_subdirectory(tzod)
