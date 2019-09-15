@@ -9,4 +9,4 @@ endif()
 
 add_subdirectory(external)
 add_subdirectory(engine)
-add_subdirectory(tzod)
+add_subdirectory(game)
