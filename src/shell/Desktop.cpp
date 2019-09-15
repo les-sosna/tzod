@@ -312,7 +312,7 @@ void Desktop::OnOpenMap()
 			std::shared_ptr<FS::Stream> stream;
 			if (mapIndex != -1)
 			{
-				auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".map";
+				auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".tzod";
 				stream = _fs.Open(fileName)->QueryStream();
 			}
 			// clear the existing context first to prevent memory usage spike
@@ -334,7 +334,7 @@ void Desktop::OnExportMap()
 		GetFileNameDlg::Params param;
 		param.title = _lang.get_file_name_save_map.Get();
 		param.folder = _fs.GetFileSystem(DIR_MAPS, true);
-		param.extension = "map";
+		param.extension = "tzod";
 
 		if (!param.folder)
 		{

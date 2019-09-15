@@ -62,7 +62,7 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, boo
 
 //void AppController::NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings)
 //{
-//    std::string path = std::string(DIR_MAPS) + '/' + mapName + ".map";
+//    std::string path = std::string(DIR_MAPS) + '/' + mapName + ".tzod";
 //    std::shared_ptr<FS::Stream> stream = _fs.Open(path)->QueryStream();
 //    std::unique_ptr<GameContext> gc(new GameContext(*stream, settings));
 //    appState.SetGameContext(std::move(gc));
@@ -95,7 +95,7 @@ void AppController::SetEditorMode(AppState &appState, bool editorMode)
 		auto editorContext = std::dynamic_pointer_cast<EditorContext>(appState.GetGameContext());
 		assert(editorContext);
 
-		auto fileName = "user/current.map";
+		auto fileName = "user/current.tzod";
 		editorContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
 
 		std::unique_ptr<World> world = LoadMapUncached(*_fs.GetFileSystem("user"), "current");

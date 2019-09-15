@@ -5,7 +5,7 @@
 
 std::unique_ptr<World> LoadMapUncached(FS::FileSystem &fs, std::string_view mapName)
 {
-	auto stream = fs.Open(std::string(mapName) + ".map")->QueryStream();
+	auto stream = fs.Open(std::string(mapName) + ".tzod")->QueryStream();
 
 	MapFile file(*stream, false);
 
