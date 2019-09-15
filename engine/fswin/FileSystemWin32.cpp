@@ -76,7 +76,7 @@ static AutoHandle OpenFileWin32(std::wstring fileName, FileMode mode)
 		FILE_FLAG_SEQUENTIAL_SCAN,      // dwFlagsAndAttributes
 		nullptr);                       // hTemplateFile
 #elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PC_APP)
-	_file.h = ::CreateFile2(fileName.c_str(),
+	file.h = ::CreateFile2(fileName.c_str(),
 		dwDesiredAccess,
 		dwShareMode,
 		dwCreationDisposition,

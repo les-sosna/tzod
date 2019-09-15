@@ -11,6 +11,12 @@ if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
 	set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 	add_subdirectory(gtest)
 	target_compile_definitions(gtest PUBLIC -DGTEST_LANG_CXX11 -DGTEST_HAS_TR1_TUPLE=0)
+
+	set_target_properties(
+		glfw
+		gtest
+		gtest_main
+	PROPERTIES FOLDER external)
 endif()
 
 add_subdirectory(lua)
@@ -22,9 +28,6 @@ add_subdirectory(utfcpp)
 add_subdirectory(zlib)
 
 set_target_properties(
-	glfw
-	gtest
-	gtest_main
 	lua
 	pluto
 	zlib

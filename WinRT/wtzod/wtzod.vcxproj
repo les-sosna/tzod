@@ -116,7 +116,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\game\app\inc;$(SolutionDir)..\engine\fs\inc;$(SolutionDir)..\engine\fswin\inc;$(SolutionDir)..\engine\ui\inc;$(SolutionDir)..\engine\math\inc;$(SolutionDir)..\engine\plat\inc;$(SolutionDir)..\engine\video\inc;$(SolutionDir)..\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -131,7 +131,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\game\app\inc;$(SolutionDir)..\engine\fs\inc;$(SolutionDir)..\engine\fswin\inc;$(SolutionDir)..\engine\ui\inc;$(SolutionDir)..\engine\math\inc;$(SolutionDir)..\engine\plat\inc;$(SolutionDir)..\engine\video\inc;$(SolutionDir)..\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,7 +146,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\game\app\inc;$(SolutionDir)..\engine\fs\inc;$(SolutionDir)..\engine\fswin\inc;$(SolutionDir)..\engine\ui\inc;$(SolutionDir)..\engine\math\inc;$(SolutionDir)..\engine\plat\inc;$(SolutionDir)..\engine\video\inc;$(SolutionDir)..\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -161,7 +161,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\game\app\inc;$(SolutionDir)..\engine\fs\inc;$(SolutionDir)..\engine\fswin\inc;$(SolutionDir)..\engine\ui\inc;$(SolutionDir)..\engine\math\inc;$(SolutionDir)..\engine\plat\inc;$(SolutionDir)..\engine\video\inc;$(SolutionDir)..\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -176,7 +176,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\game\app\inc;$(SolutionDir)..\engine\fs\inc;$(SolutionDir)..\engine\fswin\inc;$(SolutionDir)..\engine\ui\inc;$(SolutionDir)..\engine\math\inc;$(SolutionDir)..\engine\plat\inc;$(SolutionDir)..\engine\video\inc;$(SolutionDir)..\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -191,7 +191,7 @@
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\src\app\inc;$(SolutionDir)..\src\fs\inc;$(SolutionDir)..\src\fswin\inc;$(SolutionDir)..\src\libui\inc;$(SolutionDir)..\src\math\inc;$(SolutionDir)..\src\plat\inc;$(SolutionDir)..\src\video\inc;$(SolutionDir)..\src\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\game\app\inc;$(SolutionDir)..\engine\fs\inc;$(SolutionDir)..\engine\fswin\inc;$(SolutionDir)..\engine\ui\inc;$(SolutionDir)..\engine\math\inc;$(SolutionDir)..\engine\plat\inc;$(SolutionDir)..\engine\video\inc;$(SolutionDir)..\external\utfcpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -248,58 +248,58 @@
       <Project>{3cb044a1-9611-3227-8f13-60b58c6d043a}</Project>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\ai\ai.vcxproj">
+    <ProjectReference Include="..\_build\game\ai\ai.vcxproj">
       <Project>{673f3969-d830-40ba-bd71-93a8c3561dbc}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\app\app.vcxproj">
+    <ProjectReference Include="..\_build\game\app\app.vcxproj">
       <Project>{ce8a94ee-b4fb-43a4-97c1-852b74327fba}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\as\as.vcxproj">
+    <ProjectReference Include="..\_build\game\as\as.vcxproj">
       <Project>{1fae1081-3bde-3bf6-8fd4-52a3a47ad016}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\config\config.vcxproj">
+    <ProjectReference Include="..\_build\engine\config\config.vcxproj">
       <Project>{d42358de-8530-3dc6-af7a-c9587690eae9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\ctx\ctx.vcxproj">
+    <ProjectReference Include="..\_build\game\ctx\ctx.vcxproj">
       <Project>{330b2d64-94ed-393f-867c-b4d49617bd47}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\external\lua\lua.vcxproj">
+    <ProjectReference Include="..\_build\external\lua\lua.vcxproj">
       <Project>{902c5e02-fbec-3dde-904f-42220b14491a}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\external\pluto\pluto.vcxproj">
+    <ProjectReference Include="..\_build\external\pluto\pluto.vcxproj">
       <Project>{400ee59e-ce16-3933-98da-017a02cff25c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\fswin\fswin.vcxproj">
+    <ProjectReference Include="..\_build\engine\fswin\fswin.vcxproj">
       <Project>{5e5771d3-deb8-360b-ac95-41e1a225ccbc}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\gclua\gclua.vcxproj">
+    <ProjectReference Include="..\_build\game\gclua\gclua.vcxproj">
       <Project>{c800042c-c09c-4503-8117-d0909f565e82}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\gc\gc.vcxproj">
+    <ProjectReference Include="..\_build\game\gc\gc.vcxproj">
       <Project>{291f1e5a-81be-4141-9f1b-7bd1de556d80}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\gv\gv.vcxproj">
+    <ProjectReference Include="..\_build\game\gv\gv.vcxproj">
       <Project>{135e9f93-6eef-3350-b65b-06489a738645}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\libui\ui.vcxproj">
+    <ProjectReference Include="..\_build\engine\ui\ui.vcxproj">
       <Project>{1ef23813-d8d6-37db-9c0c-d2dcb193a9d5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\loc\loc.vcxproj">
+    <ProjectReference Include="..\_build\game\loc\loc.vcxproj">
       <Project>{caf54be0-a367-4a15-937f-d03b77749712}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\mf\mapfile.vcxproj">
+    <ProjectReference Include="..\_build\game\mf\mapfile.vcxproj">
       <Project>{7677fb68-dda1-4d51-819d-cef8f3832d3d}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\render\render.vcxproj">
+    <ProjectReference Include="..\_build\game\render\render.vcxproj">
       <Project>{017f19d7-6fd3-4673-916a-6b28bd58de14}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\script\script.vcxproj">
+    <ProjectReference Include="..\_build\game\script\script.vcxproj">
       <Project>{f6623d13-ef2c-455b-adb1-192352c04bc6}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\shell\shell.vcxproj">
+    <ProjectReference Include="..\_build\game\shell\shell.vcxproj">
       <Project>{38ae85e6-6a3f-3b1b-837b-9cc192054995}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_build\src\video\video.vcxproj">
+    <ProjectReference Include="..\_build\engine\video\video.vcxproj">
       <Project>{f4fc238a-2101-48f5-bd30-fe8a63127431}</Project>
     </ProjectReference>
   </ItemGroup>
