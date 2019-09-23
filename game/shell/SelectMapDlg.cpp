@@ -22,6 +22,16 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	SetContent(_mapTiles);
 	_mapTiles->SetElementSize(vec2d{ _conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat() });
 
+	using namespace UI::DataSourceAliases;
+	auto newMapButton = std::make_shared<UI::Button>();
+	newMapButton->SetText("+"_txt);
+	newMapButton->SetFont("font_default");
+	newMapButton->eventClick = [this]()
+	{
+		eventMapSelected(-1);
+	};
+	_mapTiles->AddFront(newMapButton);
+
 	for (unsigned int mapIndex = 0; mapIndex < _mapCollection.GetMapCount(); mapIndex++)
 	{
 		auto mapPreview = std::make_shared<MapPreview>(fsRoot, _worldView, _worldCache);
@@ -39,16 +49,6 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 
 		_mapTiles->AddFront(mpButton);
 	}
-
-	using namespace UI::DataSourceAliases;
-	auto newMapButton = std::make_shared<UI::Button>();
-	newMapButton->SetText("+"_txt);
-	newMapButton->SetFont("font_default");
-	newMapButton->eventClick = [this]()
-	{
-		eventMapSelected(-1);
-	};
-	_mapTiles->AddFront(newMapButton);
 
 	_mapTiles->SetFocus(&_mapTiles->GetChild(0));
 }
