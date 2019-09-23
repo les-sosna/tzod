@@ -56,7 +56,7 @@ public:
 	        LangCache &lang,
 	        DMCampaign &dmCampaign,
 	        Plat::ConsoleBuffer &logger,
-			Plat::AppWindowCommandClose* cmdClose = nullptr);
+	        Plat::AppWindowCommandClose* cmdClose = nullptr);
 	virtual ~Desktop();
 
 	void ShowConsole(bool show);
@@ -90,6 +90,7 @@ private:
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
+	std::shared_ptr<UI::Button> _editorButton;
 	std::shared_ptr<NavStack> _navStack;
 
 	RenderScheme _renderScheme;

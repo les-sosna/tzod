@@ -186,6 +186,11 @@ inline vec2d Size(const FRECT &rect) { return { WIDTH(rect), HEIGHT(rect) }; }
 inline vec2d Offset(const FRECT &rect) { return{ rect.left, rect.top }; }
 inline vec2d Center(const FRECT &rect) { return vec2d{ rect.left + rect.right, rect.top + rect.bottom} / 2; }
 
+inline FRECT AlignRT(vec2d rectSize, float canvasWidth)
+{
+	return MakeRectWH(vec2d{ canvasWidth - rectSize.x, 0 }, rectSize);
+}
+
 struct RectRB
 {
 	int left;

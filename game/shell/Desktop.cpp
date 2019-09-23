@@ -81,6 +81,14 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_tierTitle->SetFont("font_default");
 	AddFront(_tierTitle);
 
+	_editorButton = std::make_shared<UI::Button>();
+	_editorButton->SetText(ConfBind(lang.editor_btn));
+	_editorButton->eventClick = [=]()
+	{
+		SetEditorMode(true);
+	};
+	AddFront(_editorButton);
+
 	_background = std::make_shared<UI::Rectangle>();
 	_background->SetTexture("gui_splash");
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
@@ -150,7 +158,7 @@ Desktop::~Desktop()
 
 bool Desktop::GetEditorMode() const
 {
-	return _editor && _editor->GetVisible();
+	return !!_editor;
 }
 
 void Desktop::SetEditorMode(bool editorMode)
@@ -466,6 +474,8 @@ void Desktop::UpdateFocus()
 	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
 	bool isGameRunning = !!GetAppState().GetGameContext();
 	_pauseButton->SetVisible(CanNavigateBack() || isGameRunning);
+
+	_editorButton->SetVisible(_appController.GetEditorModeAvailable());
 }
 
 void Desktop::NavigateHome()
@@ -571,35 +581,41 @@ void Desktop::OnNavigate(TextureManager& texman, const UI::InputContext& ic, con
 
 UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const
 {
+	auto size = lc.GetPixelSize();
+	auto scale = lc.GetScaleCombined();
 	if (_background.get() == &child)
 	{
 		float navDepth = _navStack->GetNavigationDepth();
 		float transition = 1 - (1 - std::cos(PI * std::min(1.f, navDepth))) / 2;
-		return UI::WindowLayout{ MakeRectWH(vec2d{0, -lc.GetPixelSize().y * transition}, lc.GetPixelSize()), 1, true };
+		return UI::WindowLayout{ MakeRectWH(vec2d{0, -size.y * transition}, size), 1, true };
 	}
 	if (_editor.get() == &child || _game.get() == &child || _navStack.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectWH(lc.GetPixelSize()), 1, true };
+		return UI::WindowLayout{ MakeRectWH(size), 1, true };
 	}
 	if (_con.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } *lc.GetScaleCombined()), Vec2dFloor(lc.GetPixelSize().x - 10 * lc.GetScaleCombined(), lc.GetPixelSize().y / 2)), 1, true };
+		return UI::WindowLayout{ MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } * scale), Vec2dFloor(size.x - 10 * scale, size.y / 2)), 1, true };
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, lc.GetPixelSize().y / lc.GetScaleCombined() - 1 },
-			_fps->GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc)) / lc.GetScaleCombined(), lc.GetScaleCombined()), 1, true };
+		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, size.y / scale - 1 },
+			_fps->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)) / scale, scale), 1, true };
 	}
 	if (_tierTitle.get() == &child)
 	{
 		float opacity = 0;
 		if (auto gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext().get()))
 			opacity = std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
-		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(lc.GetPixelSize() / 2), vec2d{}), opacity, true };
+		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(size / 2), vec2d{}), opacity, true };
 	}
 	if (_pauseButton.get() == &child)
 	{
 		return UI::WindowLayout{ MakeRectWH(UI::ToPx(child.GetSize(), lc)), 1, true };
+	}
+	if (_editorButton.get() == &child)
+	{
+		return UI::WindowLayout{ AlignRT(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)), size.x), 1, true };
 	}
 	assert(false);
 	return {};

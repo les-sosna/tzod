@@ -100,6 +100,8 @@ void AppController::SetEditorMode(AppState &appState, bool editorMode)
 
 		std::unique_ptr<World> world = LoadMapUncached(*_fs.GetFileSystem("user"), "current");
 
+		_savedEditorContext = editorContext;
+
 		PlayerDesc player;
 		player.nick = "Player";
 		player.skin = "red";
@@ -125,8 +127,6 @@ void AppController::SetEditorMode(AppState &appState, bool editorMode)
 		settings.timeLimit = 300;
 
 		appState.SetGameContext(std::make_shared<GameContext>(std::move(world), settings));
-
-		_savedEditorContext = editorContext;
 	}
 }
 
