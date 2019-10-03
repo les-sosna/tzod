@@ -82,10 +82,6 @@ public:
 	DECLARE_EVENTS(GC_Vehicle);
 	DECLARE_EVENTS(World);
 
-#ifndef NDEBUG
-	std::set<GC_Object*> _garbage;
-#endif
-
 #ifdef NETWORK_DEBUG
 	uint32_t _checksum;
 	int _frame;
@@ -144,8 +140,6 @@ public:
 	FRECT GetOccupiedBounds() const;
 	void Export(FS::Stream &stream);
 	void Import(MapFile &file);
-
-	void Freeze(bool freeze) { _frozen = freeze; }
 
 	bool GetNightMode() const { return _nightMode; }
 	bool IsSafeMode() const { return _safeMode; }
@@ -228,7 +222,6 @@ private:
 	float _time;
 
 	bool _gameStarted;
-	bool _frozen;
 	bool _nightMode;
 	FRECT _bounds;
 	RectRB _blockBounds;

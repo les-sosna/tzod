@@ -26,11 +26,11 @@ void MemoryStream::Seek(long long amount, unsigned int origin)
 	switch (origin)
 	{
 	case SEEK_SET:
-		assert(amount >= 0 && amount <= _data.size());
+		assert(amount >= 0 && amount <= (long long)_data.size());
 		_streamPos = static_cast<size_t>(amount);
 		break;
 	case SEEK_CUR:
-		assert((long long)_streamPos + amount >= 0 && (long long)_streamPos + amount <= _data.size());
+		assert((long long)_streamPos + amount >= 0 && (long long)_streamPos + amount <= (long long)_data.size());
 		_streamPos += static_cast<size_t>(amount);
 		break;
 	case SEEK_END:

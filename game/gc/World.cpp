@@ -44,7 +44,6 @@ World::World(RectRB blockBounds, bool initField)
 	, _safeMode(true)
 	, _time(0)
 	, _gameStarted(false)
-	, _frozen(false)
 	, _nightMode(false)
 	, _bounds(RectToFRect(blockBounds * WORLD_BLOCK_SIZE))
 	, _blockBounds(blockBounds)
@@ -116,7 +115,6 @@ void World::Clear()
 
 	// reset variables
 	_time = 0;
-	_frozen = false;
 	_gameStarted = false;
 #ifdef NETWORK_DEBUG
 	_checksum = 0;
@@ -134,7 +132,7 @@ World::~World()
 {
 	assert(IsSafeMode());
 	Clear();
-	assert(GetList(LIST_objects).empty() && _garbage.empty());
+	assert(GetList(LIST_objects).empty());
 }
 
 void World::Serialize(SaveFile &f)
@@ -466,18 +464,13 @@ void World::Step(float dt)
 
 	_time = nextTime;
 
-	if( !_frozen )
-	{
-		_safeMode = false;
-        ObjectList &ls = GetList(LIST_timestep);
-        ls.for_each([=](ObjectList::id_type id, GC_Object *o){
-            o->TimeStep(*this, dt);
-        });
-		GC_RigidBodyDynamic::ProcessResponse(*this);
-		_safeMode = true;
-	}
-
-    assert(_safeMode);
+	_safeMode = false;
+	ObjectList &ls = GetList(LIST_timestep);
+	ls.for_each([=](ObjectList::id_type id, GC_Object *o){
+		o->TimeStep(*this, dt);
+	});
+	GC_RigidBodyDynamic::ProcessResponse(*this);
+	_safeMode = true;
 
 
 	//

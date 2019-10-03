@@ -42,10 +42,6 @@ void FpsCounter::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 			s << " objects:" << gc->GetWorld().GetList(LIST_objects).size();
 			s << "\ntimestep:" << std::setw(6) << std::left << gc->GetWorld().GetList(LIST_timestep).size();
 			s << " timeout:" << gc->GetWorld().GetResumableCount();
-
-#ifndef NDEBUG
-			s << " " << std::setw(4) << gc->GetWorld()._garbage.size() << "garbage";
-#endif
 		}
 
 
