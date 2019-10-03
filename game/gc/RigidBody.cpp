@@ -35,25 +35,25 @@ void GC_RigidBodyStatic::Init(World &world)
 {
 	GC_MovingObject::Init(world);
 	if( GetObstacleFlags() && world._field )
-		world._field->ProcessObject(world.GetBlockBounds(), this, true);
+		world._field->ProcessObject(world, this, true);
 }
 
 void GC_RigidBodyStatic::Kill(World &world)
 {
 	if( GetObstacleFlags() && world._field )
-		world._field->ProcessObject(world.GetBlockBounds(), this, false);
+		world._field->ProcessObject(world, this, false);
 	GC_MovingObject::Kill(world);
 }
 
 void GC_RigidBodyStatic::MoveTo(World &world, const vec2d &pos)
 {
 	if( GetObstacleFlags() && world._field )
-		world._field->ProcessObject(world.GetBlockBounds(), this, false);
+		world._field->ProcessObject(world, this, false);
 
 	GC_MovingObject::MoveTo(world, pos);
 
 	if( GetObstacleFlags() && world._field )
-		world._field->ProcessObject(world.GetBlockBounds(), this, true);
+		world._field->ProcessObject(world, this, true);
 }
 
 bool GC_RigidBodyStatic::IntersectWithLine(const vec2d &lineCenter, const vec2d &lineDirection,
@@ -394,7 +394,7 @@ void GC_RigidBodyStatic::Serialize(World &world, SaveFile &f)
 	f.Serialize(_length);
 
 	if( f.loading() && GetObstacleFlags() && world._field )
-		world._field->ProcessObject(world.GetBlockBounds(), this, true);
+		world._field->ProcessObject(world, this, true);
 }
 
 

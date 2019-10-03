@@ -1,24 +1,24 @@
 #include "inc/gc/Field.h"
 #include "inc/gc/RigidBody.h"
+#include "inc/gc/World.h"
 #include "inc/gc/WorldCfg.h"
 #include <cassert>
 
 unsigned int FieldCell::_sessionId;
 
-void FieldCell::UpdateProperties()
+void FieldCell::UpdateProperties(const World& world)
 {
 	_obstacleFlags = 0;
 	for( unsigned int i = 0; i < GetObjectsCount(); i++ )
 	{
-		assert(GetObject(i)->GetObstacleFlags());
-		_obstacleFlags |= GetObject(i)->GetObstacleFlags();
+		auto object = static_cast<GC_RigidBodyStatic*>(world.GetList(GlobalListID::LIST_objects).at(GetObject(i)));
+		assert(object->GetObstacleFlags());
+		_obstacleFlags |= object->GetObstacleFlags();
 	}
 }
 
-void FieldCell::AddObject(GC_RigidBodyStatic *object)
+void FieldCell::AddObject(const World& world, ObjectList::id_type object)
 {
-	assert(object);
-
 #ifndef NDEBUG
 	for( unsigned int i = 0; i < GetObjectsCount(); ++i )
 	{
@@ -28,60 +28,59 @@ void FieldCell::AddObject(GC_RigidBodyStatic *object)
 
 	if (_objCount > 0)
 	{
-		std::unique_ptr<GC_RigidBodyStatic*[]> tmp(new GC_RigidBodyStatic*[_objCount + 1]);
+		std::unique_ptr<ObjectList::id_type[]> tmp(new ObjectList::id_type[_objCount + 1]);
 		if (_objCount == 1)
 		{
-			tmp[0] = _singleObject;
+			tmp[0] = _storage._singleObject;
 		}
 		else
 		{
-			std::memcpy(tmp.get(), _objects, _objCount * sizeof(GC_RigidBodyStatic*));
-			delete[] _objects;
+			std::memcpy(tmp.get(), _storage._objects, _objCount * sizeof(ObjectList::id_type));
+			delete[] _storage._objects;
 		}
 		tmp[_objCount] = object;
-		_objects = tmp.release();
+		_storage._objects = tmp.release();
 	}
 	else
 	{
-		_singleObject = object;
+		_storage._singleObject = object;
 	}
 
 	_objCount++;
 
-	UpdateProperties();
+	UpdateProperties(world);
 }
 
-void FieldCell::RemoveObject(GC_RigidBodyStatic *object)
+void FieldCell::RemoveObject(const World& world, ObjectList::id_type object)
 {
-	assert(object);
 	assert(_objCount > 0);
 
 	if( 1 == _objCount )
 	{
-		assert(object == _singleObject);
-		_singleObject = nullptr;
+		assert(object == _storage._singleObject);
+		_storage._singleObject = ObjectList::id_type();
 	}
 	else if (2 == _objCount)
 	{
-		GC_RigidBodyStatic *tmp = _objects[0] == object ? _objects[1] : _objects[0];
-		delete[] _objects;
-		_singleObject = tmp;
+		ObjectList::id_type tmp = _storage._objects[0] == object ? _storage._objects[1] : _storage._objects[0];
+		delete[] _storage._objects;
+		_storage._singleObject = tmp;
 	}
 	else
 	{
-		auto tmp = std::make_unique<GC_RigidBodyStatic*[]>(_objCount - 1);
+		auto tmp = std::make_unique<ObjectList::id_type[]>(_objCount - 1);
 		int j = 0;
 		for( unsigned int i = 0; i < _objCount; ++i )
 		{
-			if( object != _objects[i] )
-				tmp[j++] = _objects[i];
+			if( object != _storage._objects[i] )
+				tmp[j++] = _storage._objects[i];
 		}
 		assert(j == _objCount - 1);
-		delete[] _objects;
-		_objects = tmp.release();
+		delete[] _storage._objects;
+		_storage._objects = tmp.release();
 	}
 	_objCount--;
-	UpdateProperties();
+	UpdateProperties(world);
 }
 
 ////////////////////////////////////////////////////////////
@@ -103,8 +102,9 @@ void Field::Resize(int width, int height)
 	FieldCell::_sessionId = 0;
 }
 
-void Field::ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object, bool add)
+void Field::ProcessObject(const World& world, GC_RigidBodyStatic *object, bool add)
 {
+	RectRB blockBounds = world.GetBlockBounds();
 	float r = object->GetRadius() / WORLD_BLOCK_SIZE;
 	vec2d p = object->GetPos() / WORLD_BLOCK_SIZE;
 
@@ -122,11 +122,11 @@ void Field::ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object,
 		{
 			if (add)
 			{
-				(*this)(x - blockBounds.left, y - blockBounds.top).AddObject(object);
+				(*this)(x - blockBounds.left, y - blockBounds.top).AddObject(world, object->GetId());
 			}
 			else
 			{
-				(*this)(x - blockBounds.left, y - blockBounds.top).RemoveObject(object);
+				(*this)(x - blockBounds.left, y - blockBounds.top).RemoveObject(world, object->GetId());
 				if (blockBounds.left == x || blockBounds.top == y || blockBounds.right == x || blockBounds.bottom == y)
 					(*this)(x - blockBounds.left, y - blockBounds.top)._obstacleFlags = 0xFF;
 			}

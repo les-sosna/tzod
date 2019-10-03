@@ -1,12 +1,9 @@
 #pragma once
-
+#include "Object.h"
 #include <math/MyMath.h>
 #include <algorithm>
 #include <cstdlib>
 #include <memory>
-
-class Field;
-class GC_RigidBodyStatic;
 
 class FieldCell final
 {
@@ -14,14 +11,16 @@ public:
 	static unsigned int _sessionId;
 	unsigned int _mySession = 0xffffffff;
 	//-----------------------------
-	union
+	union X
 	{
-		GC_RigidBodyStatic **_objects = nullptr;
-		GC_RigidBodyStatic *_singleObject; // when _objCount==1
-	};
+		ObjectList::id_type* _objects;
+		ObjectList::id_type _singleObject; // when _objCount==1
+
+		X() {}
+	} _storage;
 	unsigned int _objCount = 0;
 	//-----------------------------
-	void UpdateProperties();
+	void UpdateProperties(const World &world);
 
 	int _before; // actual path cost to this node
 
@@ -35,16 +34,16 @@ public:
 	FieldCell& operator = (const FieldCell &other) = delete;
 
 	unsigned int GetObjectsCount() const { return _objCount; }
-	GC_RigidBodyStatic* GetObject(unsigned int index) const
+	ObjectList::id_type GetObject(unsigned int index) const
 	{
-		return _objCount > 1 ? _objects[index] : _singleObject;
+		return _objCount > 1 ? _storage._objects[index] : _storage._singleObject;
 	}
 
 	bool IsChecked() const { return _mySession == _sessionId; }
 	void Check()           { _mySession = _sessionId;         }
 
-	void AddObject(GC_RigidBodyStatic *object);
-	void RemoveObject(GC_RigidBodyStatic *object);
+	void AddObject(const World& world, ObjectList::id_type object);
+	void RemoveObject(const World& world, ObjectList::id_type object);
 
 	uint8_t ObstacleFlags() const { return _obstacleFlags; }
 
@@ -66,13 +65,15 @@ struct RefFieldCell
 	}
 };
 
+class GC_RigidBodyStatic;
+
 class Field final
 {
 public:
 	static void NewSession() { ++FieldCell::_sessionId; }
 
 	void Resize(int width, int height);
-	void ProcessObject(const RectRB &blockBounds, GC_RigidBodyStatic *object, bool add);
+	void ProcessObject(const World& world, GC_RigidBodyStatic *object, bool add);
 
 	const FieldCell& operator() (int x, int y) const
 	{

@@ -64,7 +64,7 @@ static void RemoveCorner(World &world, GC_RigidBodyStatic &obj, int corner)
 		y = std::max(blockBounds.top, std::min(y, blockBounds.bottom));
 
 		auto &field = *world._field;
-		field(x - blockBounds.left, y - blockBounds.top).RemoveObject(&obj);
+		field(x - blockBounds.left, y - blockBounds.top).RemoveObject(world, obj.GetId());
 		if( blockBounds.left == x || blockBounds.top == y || blockBounds.right == x || blockBounds.bottom == y )
 			field(x - blockBounds.left, y - blockBounds.top)._obstacleFlags = 0xFF;
 	}
@@ -485,7 +485,7 @@ void GC_Wall::SetCorner(World &world, unsigned int index) // 0 means normal view
 		x = std::max(blockBounds.left, std::min(x, blockBounds.right));
 		y = std::max(blockBounds.top, std::min(y, blockBounds.bottom));
 
-		(*world._field)(x - blockBounds.left, y - blockBounds.top).AddObject(this);
+		(*world._field)(x - blockBounds.left, y - blockBounds.top).AddObject(world, GetId());
 	}
 
 	SetFlags(GC_FLAG_WALL_CORNER_ALL, false);

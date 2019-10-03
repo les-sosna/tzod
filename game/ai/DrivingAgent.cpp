@@ -192,8 +192,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 
 				for( unsigned int i = 0; i < current->GetObjectsCount(); ++i )
 				{
-					GC_RigidBodyStatic *object = current->GetObject(i);
-
+					auto object = static_cast<GC_RigidBodyStatic*>(world.GetList(GlobalListID::LIST_objects).at(current->GetObject(i)));
 					if( team && !_attackFriendlyTurrets)
 					{
 						auto turret = dynamic_cast<GC_Turret*>(object);
