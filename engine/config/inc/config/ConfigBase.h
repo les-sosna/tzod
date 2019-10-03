@@ -30,9 +30,6 @@ public:
 	ConfVar();
 	virtual ~ConfVar();
 
-	void SetHelpString(std::string str) { _help = std::move(str); }
-	std::string_view GetHelpString() const { return _help; }
-
 	void SetType(Type type);
 	Type GetType() const { return _type; }
 	virtual const char* GetTypeName() const;
@@ -72,7 +69,6 @@ protected:
 
 	Type  _type;
 	Value _val;
-	std::string _help;
 	bool _frozen;    // frozen value can not change its type and also its content in case of table
 };
 

@@ -28,7 +28,7 @@ REFLECTION_END()
 
 REFLECTION_BEGIN(DMCampaignMapDesc)
 	VAR_STR(map_name, "")
-	VAR_FLOAT(timelimit, 10)  HELPSTRING("minutes")
+	VAR_FLOAT(timelimit, 10) // minutes
 	VAR_INT(fraglimit, 10)
 	VAR_ARRAY(bot_names, nullptr)
 REFLECTION_END()

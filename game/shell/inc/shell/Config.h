@@ -51,8 +51,8 @@ REFLECTION_BEGIN(ShellConfig) //  var_name  def_value
 	VAR_FLOAT(  sv_fps,              60 )
 	VAR_FLOAT(  sv_latency,           0 )
 	VAR_FLOAT(  sv_sensitivity,       1 )
-	VAR_FLOAT(  sv_speed,           100 )  HELPSTRING("percent")
-	VAR_FLOAT(  sv_timelimit,         7 )  HELPSTRING("minutes")
+	VAR_FLOAT(  sv_speed,           100 )  // percent
+	VAR_FLOAT(  sv_timelimit,         7 )  // minutes
 	VAR_INT(    sv_fraglimit,        21 )
 	VAR_BOOL(   sv_nightmode,     false )
 	VAR_STR(    sv_lobby,            "" )

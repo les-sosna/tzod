@@ -47,9 +47,6 @@ namespace config_detail
 	};
 }
 
-#define NO_HELP
-#define HELPSTRING(h)
-
 #define REFLECTION_BEGIN(ReflectionName)                           \
     REFLECTION_BEGIN_(ReflectionName, config_detail::ReflectionBase)
 
@@ -83,9 +80,6 @@ namespace config_detail
 #define CONFIG_CACHE_PASS2_INCLUDED
 
 
-#undef NO_HELP
-#undef HELPSTRING
-
 #undef REFLECTION_BEGIN
 #undef REFLECTION_BEGIN_
  #undef VAR_FLOAT
@@ -101,16 +95,14 @@ namespace config_detail
  #undef VAR_REFLECTION
 #undef REFLECTION_END
 
-ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type, const char *help = nullptr);
-ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax, const char *help = nullptr);
-ConfVarNumber& InitFloat(ConfVarNumber &var, const char *help = nullptr);
-ConfVarBool& InitBool(ConfVarBool &var, const char *help = nullptr);
-ConfVarArray& InitArray(ConfVarArray &var, const char *help = nullptr);
-ConfVarTable& InitTable(ConfVarTable &var, const char *help = nullptr);
-ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax, const char *help = nullptr);
-ConfVarString& InitStrType(ConfVarString &var, const char *type, const char *help = nullptr);
-
-#define HELPSTRING(h)     ,(h)
+ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type);
+ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax);
+ConfVarNumber& InitFloat(ConfVarNumber &var);
+ConfVarBool& InitBool(ConfVarBool &var);
+ConfVarArray& InitArray(ConfVarArray &var);
+ConfVarTable& InitTable(ConfVarTable &var);
+ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax);
+ConfVarString& InitStrType(ConfVarString &var, const char *type);
 
 #define REFLECTION_BEGIN_(ReflectionName, Base) ReflectionName::ReflectionName(ConfVarTable *root, bool freeze): Base(root, (false
 #define REFLECTION_BEGIN(ReflectionName) REFLECTION_BEGIN_(ReflectionName, config_detail::ReflectionBase)

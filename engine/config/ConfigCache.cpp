@@ -1,6 +1,6 @@
 #include "inc/config/ConfigCache.h"
 
-ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type, const char *help)
+ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type)
 {
 	//	if( type )
 	//	{
@@ -8,57 +8,50 @@ ConfVarNumber& InitIntType(ConfVarNumber &var, const char *type, const char *hel
 	//		meta.type = type;
 	//		var->SetMeta(&meta);
 	//	}
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax, const char *help)
+ConfVarNumber& InitIntRange(ConfVarNumber &var, int iMin, int iMax)
 {
 	//	ConfVarNumber::NumberMeta meta;
 	//	meta.type = "integer";
 	//	meta.fMin = (float) iMin;
 	//	meta.fMax = (float) iMax;
 	//	var->SetMeta(&meta);
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarNumber& InitFloat(ConfVarNumber &var, const char *help)
+ConfVarNumber& InitFloat(ConfVarNumber &var)
 {
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarBool& InitBool(ConfVarBool &var, const char *help)
+ConfVarBool& InitBool(ConfVarBool &var)
 {
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarArray& InitArray(ConfVarArray &var, const char *help)
+ConfVarArray& InitArray(ConfVarArray &var)
 {
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarTable& InitTable(ConfVarTable &var, const char *help)
+ConfVarTable& InitTable(ConfVarTable &var)
 {
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax, const char *help)
+ConfVarNumber& InitFloatRange(ConfVarNumber &var, float fMin, float fMax)
 {
 	//	ConfVarNumber::NumberMeta meta;
 	//	meta.type = "float";
 	//	meta.fMin = fMin;
 	//	meta.fMax = fMax;
 	//	var->SetMeta(&meta);
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }
 
-ConfVarString& InitStrType(ConfVarString &var, const char *type, const char *help)
+ConfVarString& InitStrType(ConfVarString &var, const char *type)
 {
 	//	if( type )
 	//	{
@@ -66,6 +59,5 @@ ConfVarString& InitStrType(ConfVarString &var, const char *type, const char *hel
 	//		meta.type = type;
 	//		var->SetMeta(&meta);
 	//	}
-	//	if( help ) var->SetHelpString(help);
 	return var;
 }

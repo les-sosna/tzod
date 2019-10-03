@@ -895,12 +895,7 @@ void ConfVarTable::Write(std::ostream &o, int indent) const
 {
 	if( indent )
 	{
-		o << '{';
-		if (!GetHelpString().empty())
-		{
-			o << " -- " << GetHelpString();
-		}
-		o << std::endl;
+		o << '{' << std::endl;
 	}
 
 	for( auto it = _val.asTable->begin(); _val.asTable->end() != it; ++it )
@@ -958,12 +953,6 @@ void ConfVarTable::Write(std::ostream &o, int indent) const
 		o << " = ";
 		it->second->Write(o, indent + 1);
 		o << (indent ? ',' : ';');
-
-		// help string
-		if( !it->second->GetHelpString().empty() )
-		{
-			o << "  -- " << it->second->GetHelpString();
-		}
 		o << std::endl;
 	}
 	if( indent )
