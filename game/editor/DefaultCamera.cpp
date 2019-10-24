@@ -51,9 +51,10 @@ void DefaultCamera::HandleMovement(const Plat::Input &input, const FRECT &worldB
 
 	direction.Normalize();
 
-	if (input.GetGamepadState(0).rightThumbstickPos.sqr() > .5f)
+	auto gamepadState = input.GetGamepadState(0);
+	if (gamepadState.rightThumbstickPos.sqr() > .5f)
 	{
-		direction += input.GetGamepadState(0).rightThumbstickPos;
+		direction += gamepadState.rightThumbstickPos;
 	}
 
 	// Pure exponent would move to target infinitely long.
