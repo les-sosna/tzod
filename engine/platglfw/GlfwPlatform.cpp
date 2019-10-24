@@ -52,41 +52,30 @@ Plat::PointerState GlfwInput::GetPointerState(unsigned int index) const
 Plat::GamepadState GlfwInput::GetGamepadState(unsigned int index) const
 {
 	Plat::GamepadState gamepadState = {};
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1 + index))
+	GLFWgamepadstate glfwState;
+	if (glfwGetGamepadState(GLFW_JOYSTICK_1 + index, &glfwState))
 	{
-		// XBox One/360 controller mapping
+		gamepadState.leftTrigger = glfwState.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+		gamepadState.rightTrigger = glfwState.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+		gamepadState.leftThumbstickPos.x = glfwState.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+		gamepadState.leftThumbstickPos.y = glfwState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+		gamepadState.rightThumbstickPos.x = glfwState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+		gamepadState.rightThumbstickPos.y = glfwState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
 
-		int axesCount = 0;
-		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1 + index, &axesCount);
-		if (axesCount >= 6)
-		{
-			gamepadState.leftThumbstickPos.x = axes[0];
-			gamepadState.leftThumbstickPos.y = -axes[1];
-			gamepadState.rightThumbstickPos.x = axes[2];
-			gamepadState.rightThumbstickPos.y = -axes[3];
-			gamepadState.leftTrigger = axes[4];
-			gamepadState.rightTrigger = axes[5];
-		}
-
-		int buttonsCount = 0;
-		const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1 + index, &buttonsCount);
-		if (buttonsCount >= 14)
-		{
-			gamepadState.A = !!buttons[0];
-			gamepadState.B = !!buttons[1];
-			gamepadState.X = !!buttons[2];
-			gamepadState.Y = !!buttons[3];
-			gamepadState.leftShoulder = !!buttons[4];
-			gamepadState.rightShoulder = !!buttons[5];
-			gamepadState.view = !!buttons[6];
-			gamepadState.menu = !!buttons[7];
-			gamepadState.leftThumbstickPressed = !!buttons[8];
-			gamepadState.rightThumbstickPressed = !!buttons[9];
-			gamepadState.DPadUp = !!buttons[10];
-			gamepadState.DPadRight = !!buttons[11];
-			gamepadState.DPadDown = !!buttons[12];
-			gamepadState.DPadLeft = !!buttons[13];
-		}
+		gamepadState.A = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_A]);
+		gamepadState.B = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_B]);
+		gamepadState.X = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_X]);
+		gamepadState.Y = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_Y]);
+		gamepadState.leftShoulder = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_BUMPER]);
+		gamepadState.rightShoulder = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER]);
+		gamepadState.view = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_BACK]);
+		gamepadState.menu = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_START]);
+		gamepadState.leftThumbstickPressed = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB]);
+		gamepadState.rightThumbstickPressed = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_RIGHT_THUMB]);
+		gamepadState.DPadUp = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP]);
+		gamepadState.DPadRight = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT]);
+		gamepadState.DPadDown = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN]);
+		gamepadState.DPadLeft = (GLFW_PRESS == glfwState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT]);
 	}
 	return gamepadState;
 }
