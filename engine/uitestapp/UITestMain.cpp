@@ -49,7 +49,7 @@ try
 	timer.Start();
 
 	UI::TimeStepManager timeStepManager;
-	UIInputRenderingController controller(appWindow.GetInput(), textureManager, timeStepManager, desktop);
+	UIInputRenderingController controller(textureManager, timeStepManager, desktop);
 
 	while (!appWindow.ShouldClose())
 	{

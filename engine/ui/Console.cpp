@@ -83,7 +83,7 @@ void Console::SetEcho(bool echo)
 	_echo = echo;
 }
 
-bool Console::OnKeyPressed(const InputContext &ic, Plat::Key key)
+bool Console::OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -208,9 +208,9 @@ void Console::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 		_scroll->SetPos(_scroll->GetDocumentSize());
 }
 
-void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void Console::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
-	_background->Draw(dc, sc, lc, ic, rc, texman, time, hovered);
+	_background->Draw(dc, sc, lc, ic, rc, texman, input, time, hovered);
 
 	if( _buf )
 	{

@@ -130,7 +130,7 @@ const Window* EditableText::GetFocus() const
 	return _fakeCursorPlaceholder.get();
 }
 
-void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void EditableText::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	size_t font = _font.GetTextureId(texman);
 	float pxCharWidth = ToPx(texman.GetCharWidth(font), lc);
@@ -173,10 +173,9 @@ bool EditableText::OnChar(int c)
 	return false;
 }
 
-bool EditableText::OnKeyPressed(const InputContext &ic, Plat::Key key)
+bool EditableText::OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key)
 {
-	bool shift = ic.GetInput().IsKeyPressed(Plat::Key::LeftShift) ||
-		ic.GetInput().IsKeyPressed(Plat::Key::RightShift);
+	bool shift = input.IsKeyPressed(Plat::Key::LeftShift) || input.IsKeyPressed(Plat::Key::RightShift);
 	int tmp;
 	switch (key)
 	{
@@ -257,7 +256,7 @@ bool EditableText::OnKeyPressed(const InputContext &ic, Plat::Key key)
 	return false;
 }
 
-bool EditableText::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+bool EditableText::OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	if (pi.type == Plat::PointerType::Mouse && 1 == button && !ic.HasCapturedPointers(this))
 	{
@@ -268,7 +267,7 @@ bool EditableText::OnPointerDown(const InputContext &ic, const LayoutContext &lc
 	return false;
 }
 
-void EditableText::OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
+void EditableText::OnPointerMove(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured)
 {
 	if (captured)
 	{

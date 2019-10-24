@@ -24,12 +24,10 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 	return false;
 }
 
-UIInputRenderingController::UIInputRenderingController(Plat::Input& input,
-                                                       TextureManager &textureManager,
+UIInputRenderingController::UIInputRenderingController(TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)
-	: _inputContext(input)
-	, _textureManager(textureManager)
+	: _textureManager(textureManager)
 	, _timeStepManager(timeStepManager)
 	, _desktop(desktop)
 {
@@ -58,6 +56,7 @@ bool UIInputRenderingController::OnKey(Plat::AppWindow& appWindow, Plat::Key key
 	UI::DataContext dataContext;
 	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive());
 	return _inputContext.ProcessKeys(
+		appWindow.GetInput(),
 		_textureManager,
 		_desktop,
 		layoutContext,
@@ -71,6 +70,7 @@ bool UIInputRenderingController::OnPointer(Plat::AppWindow& appWindow, Plat::Poi
 {
 	UI::DataContext dataContext;
 	return _inputContext.ProcessPointer(
+		appWindow.GetInput(),
 		_textureManager,
 		_desktop,
 		UI::LayoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, appWindow.GetPixelSize(), true /* enabled */, _inputContext.GetMainWindowActive()),
@@ -119,7 +119,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 
 	UI::DataContext dataContext;
 	UI::LayoutContext layoutContext(1.f, appWindow.GetLayoutScale(), vec2d{}, pxWindowSize, true /* enabled */, _inputContext.GetMainWindowActive());
-	UI::RenderSettings rs{ _inputContext, rc, _textureManager, _timeStepManager.GetTime() };
+	UI::RenderSettings rs{ appWindow.GetInput(), _inputContext, rc, _textureManager, _timeStepManager.GetTime() };
 
 	UI::RenderUIRoot(_desktop, rs, layoutContext, dataContext, UI::StateContext());
 

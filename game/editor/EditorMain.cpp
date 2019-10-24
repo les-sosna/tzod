@@ -172,7 +172,7 @@ void EditorMain::ChoosePrevType()
 		0, _typeSelector->GetList()->GetData()->GetItemCount() - 1));
 }
 
-bool EditorMain::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
+bool EditorMain::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key)
 {
 	switch (key)
 	{

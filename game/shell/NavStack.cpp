@@ -173,11 +173,11 @@ bool NavStack::GetChildEnabled(const UI::Window& child) const
 	return GetNavFront() == &child;
 }
 
-void NavStack::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void NavStack::OnPointerMove(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 }
 
-bool NavStack::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool NavStack::OnPointerDown(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	return true;
 }

@@ -37,7 +37,7 @@ void MapPreview::SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating)
 	}
 }
 
-void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
 	vec2d pxViewSize = lc.GetPixelSize() - pxPadding * 2;

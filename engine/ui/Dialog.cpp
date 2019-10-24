@@ -47,7 +47,7 @@ void Dialog::OnNavigate(TextureManager& texman, const InputContext &ic, const La
 	}
 }
 
-bool Dialog::OnKeyPressed(const InputContext &ic, Plat::Key key)
+bool Dialog::OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{

@@ -25,7 +25,7 @@ void MessageArea::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 	}
 }
 
-void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void MessageArea::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if( _lines.empty() )
 	{

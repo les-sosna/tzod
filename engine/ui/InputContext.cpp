@@ -39,15 +39,6 @@ static bool TraverseFocusPath(std::shared_ptr<Window> wnd, const LayoutContext &
 	return false;
 }
 
-InputContext::InputContext(Plat::Input &input)
-	: _input(input)
-	, _isAppActive(true)
-#ifndef NDEBUG
-	, _lastPointerLocation()
-#endif
-{
-}
-
 void InputContext::ReadInput(const Plat::Input &input)
 {
 	_pointerState = input.GetPointerState(0);
@@ -201,6 +192,7 @@ static LayoutContext RestoreLayoutContext(TextureManager& texman, const InputCon
 }
 
 bool InputContext::ProcessPointer(
+	const Plat::Input& input,
 	TextureManager &texman,
 	std::shared_ptr<Window> wnd,
 	const LayoutContext &lc,
@@ -269,7 +261,7 @@ bool InputContext::ProcessPointer(
 		switch (msg)
 		{
 		case Plat::Msg::PointerDown:
-			if (pointerSink->OnPointerDown(*this, targetLC, texman, pi, button))
+			if (pointerSink->OnPointerDown(input, *this, targetLC, texman, pi, button))
 			{
 				_pointerCaptures[pointerID].capturePath = std::move(sinkPath);
 			}
@@ -286,7 +278,7 @@ bool InputContext::ProcessPointer(
 			}
 			break;
 		case Plat::Msg::PointerMove:
-			pointerSink->OnPointerMove(*this, targetLC, texman, pi, isPointerCaptured);
+			pointerSink->OnPointerMove(input, *this, targetLC, texman, pi, isPointerCaptured);
 			break;
 		case Plat::Msg::TAP:
 			pointerSink->OnTap(*this, targetLC, texman, pi.position);
@@ -443,7 +435,7 @@ static bool AllowNonActiveNavigation(Navigate navigate)
 		navigate == Navigate::Menu;
 }
 
-bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time)
+bool InputContext::ProcessKeys(const Plat::Input &input, TextureManager &texman, std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc, Plat::Msg msg, Plat::Key key, float time)
 {
 	bool currentlyActiveInputMethod = _lastKeyTime >= _lastPointerTime;
 
@@ -461,7 +453,7 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
-			[key, this](std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc) // visitor
+			[&input, key, this](std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc) // visitor
 			{
 				if (KeyboardSink *keyboardSink = wnd->GetKeyboardSink())
 				{
@@ -475,10 +467,10 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 		handled = TraverseFocusPath(wnd, lc, dc, TraverseFocusPathSettings {
 			texman,
 			*this,
-			[key, this](std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc) // visitor
+			[&input, key, this](std::shared_ptr<Window> wnd, const LayoutContext &lc, const DataContext &dc) // visitor
 			{
 				KeyboardSink *keyboardSink = wnd->GetKeyboardSink();
-				return keyboardSink ? keyboardSink->OnKeyPressed(*this, key) : false;
+				return keyboardSink ? keyboardSink->OnKeyPressed(input, *this, key) : false;
 			}
 		});
 		break;
@@ -489,8 +481,8 @@ bool InputContext::ProcessKeys(TextureManager &texman, std::shared_ptr<Window> w
 	// navigation
 	if (!handled)
 	{
-		bool alt = _input.IsKeyPressed(Plat::Key::LeftAlt) || _input.IsKeyPressed(Plat::Key::RightAlt);
-		bool shift = _input.IsKeyPressed(Plat::Key::LeftShift) || _input.IsKeyPressed(Plat::Key::RightShift);
+		bool alt = input.IsKeyPressed(Plat::Key::LeftAlt) || input.IsKeyPressed(Plat::Key::RightAlt);
+		bool shift = input.IsKeyPressed(Plat::Key::LeftShift) || input.IsKeyPressed(Plat::Key::RightShift);
 		Navigate navigate = GetNavigateAction(key, alt, shift);
 		if (Plat::Msg::KeyReleased == msg)
 		{

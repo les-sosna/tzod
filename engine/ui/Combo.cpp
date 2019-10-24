@@ -96,7 +96,7 @@ void ComboBox::OnListLostFocus()
 	_btn->SetBackground("ui/scroll_down");
 }
 
-bool ComboBox::OnKeyPressed(const InputContext &ic, Plat::Key key)
+bool ComboBox::OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key)
 {
 	switch( key )
 	{
@@ -159,11 +159,11 @@ vec2d ComboBox::GetContentSize(TextureManager &texman, const DataContext &dc, fl
 	return vec2d{ itemSize.x + pxBtnSize.x, std::max(itemSize.y, pxBtnSize.y) };
 }
 
-void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void ComboBox::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if (_list->GetList()->GetCurSel() != -1)
 	{
-		UI::RenderSettings rs{ ic, rc, texman, time };
+		UI::RenderSettings rs{ input, ic, rc, texman, time };
 
 		DataContext itemDC;
 		{

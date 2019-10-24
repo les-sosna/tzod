@@ -39,7 +39,7 @@ public:
 protected:
 	void OnSelect(int index);
 	void OnChangeName();
-	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key);
+	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key);
 
 	void OnOK();
 

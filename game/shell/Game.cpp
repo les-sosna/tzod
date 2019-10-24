@@ -290,7 +290,7 @@ void GameLayout::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 	}
 }
 
-void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	int pxWidth = (int)lc.GetPixelSize().x;
 	int pxHeight = (int)lc.GetPixelSize().y;
@@ -375,7 +375,7 @@ const UI::Window* GameLayout::GetFocus() const
 	return _scoreAndControls.get();
 }
 
-bool GameLayout::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool GameLayout::OnPointerDown(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (Plat::PointerType::Touch == pi.type)
 	{
@@ -391,7 +391,7 @@ void GameLayout::OnPointerUp(const UI::InputContext &ic, const UI::LayoutContext
 	_activeDrags.erase(pi.id);
 }
 
-void GameLayout::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void GameLayout::OnPointerMove(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	if( captured )
 	{

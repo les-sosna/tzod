@@ -34,7 +34,7 @@ namespace UI
 		void SetFrame(std::shared_ptr<RenderData<unsigned int>> frame) { _frame = std::move(frame); }
 
 		// Window
-		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
+		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const override;
 
 	private:
 		std::shared_ptr<RenderData<SpriteColor>> _backColor;

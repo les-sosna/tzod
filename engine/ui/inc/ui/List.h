@@ -47,7 +47,7 @@ public:
 	NavigationSink *GetNavigationSink() override { return _enableNavigation ? this : nullptr; }
 	std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
 	const Window* GetFocus() const override;
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const override;
 
 protected:
 	// callback interface
@@ -79,7 +79,7 @@ private:
 	int GetNextIndex(Navigate navigate) const;
 
 	// PointerSink
-	bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
+	bool OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
 	void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// NavigationSink

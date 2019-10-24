@@ -18,7 +18,7 @@ void GameClassVis::SetGameClass(std::shared_ptr<UI::RenderData<std::string_view>
 	_className = std::move(className);
 }
 
-void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if (!_className)
 		return;

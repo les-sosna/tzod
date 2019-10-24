@@ -27,7 +27,7 @@ public:
 
 	std::function<void(void)> eventClick;
 
-	State GetState(const LayoutContext &lc, const InputContext &ic, bool hovered) const;
+	State GetState(const Plat::Input& input, const LayoutContext &lc, const InputContext &ic, bool hovered) const;
 
 	// Window
 	NavigationSink* GetNavigationSink() override { return eventClick ? this : nullptr; }
@@ -43,12 +43,12 @@ private:
 	void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override final;
 
 	// PointerSink
-	bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
+	bool OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
 	void OnPointerUp(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;
 	void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override final;
 
 	// StateGen
-	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const override final;
+	void PushState(const Plat::Input &input, StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const override final;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ public:
 	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
 	// Window
-	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time, bool hovered) const override;
+	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, const Plat::Input &input, float time, bool hovered) const override;
 	WindowLayout GetChildLayout(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, const Window& child) const override;
 	vec2d GetContentSize(TextureManager& texman, const DataContext& dc, float scale, const LayoutConstraints& layoutConstraints) const override;
 	unsigned int GetChildrenCount() const override { return 1; }

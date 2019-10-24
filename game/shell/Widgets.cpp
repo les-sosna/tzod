@@ -198,9 +198,9 @@ void Oscilloscope::AutoRange()
 	}
 }
 
-void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
-	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
+	UI::Rectangle::Draw(dc, sc, lc, ic, rc, texman, input, time, hovered);
 
 	float pxLabelOffset = UI::ToPx(texman.GetCharHeight(_titleFont.GetTextureId(texman)) / 2, lc);
 	float pxAvailableSpace = lc.GetPixelSize().y - pxLabelOffset * 2;

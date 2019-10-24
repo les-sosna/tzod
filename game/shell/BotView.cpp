@@ -10,7 +10,7 @@ void BotView::SetBotConfig(ConfVarTable &botConf)
 	_texSkin = std::string("skin/").append(_botConfCache->skin.Get());
 }
 
-void BotView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void BotView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if (_botConfCache)
 	{

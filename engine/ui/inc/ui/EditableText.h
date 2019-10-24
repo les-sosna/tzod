@@ -41,7 +41,7 @@ namespace UI
 		WindowLayout GetChildLayout(TextureManager &texman, const LayoutContext &lc, const DataContext &dc, const Window &child) const override;
 		std::shared_ptr<const Window> GetFocus(const std::shared_ptr<const Window>& owner) const override;
 		const Window* GetFocus() const override;
-		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
+		void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const override;
 		PointerSink* GetPointerSink() override { return this; }
 		KeyboardSink *GetKeyboardSink() override;
 		TextSink* GetTextSink() override { return this; }
@@ -67,11 +67,11 @@ namespace UI
 		std::string OnCut() override;
 
 		// KeyboardSink
-		bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
+		bool OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key) override;
 
 		// PointerSink
-		bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
-		void OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
+		bool OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
+		void OnPointerMove(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
 		void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 	};
 

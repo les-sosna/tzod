@@ -129,7 +129,7 @@ private:
 	void OnGameContextChanged() override;
 
 	// UI::KeyboardSink
-	bool OnKeyPressed(const UI::InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key) override;
 	void OnKeyReleased(const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink

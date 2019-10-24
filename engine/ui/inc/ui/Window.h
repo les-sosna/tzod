@@ -50,7 +50,7 @@ struct ScrollSink
 
 struct KeyboardSink
 {
-	virtual bool OnKeyPressed(const InputContext &ic, Plat::Key key) { return false; }
+	virtual bool OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key) { return false; }
 	virtual void OnKeyReleased(const InputContext &ic, Plat::Key key) {}
 };
 
@@ -66,7 +66,7 @@ class StateContext;
 
 struct StateGen
 {
-	virtual void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const = 0;
+	virtual void PushState(const Plat::Input &input, StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const = 0;
 };
 
 struct WindowLayout
@@ -132,7 +132,7 @@ public:
 	vec2d GetSize() const { return vec2d{GetWidth(), GetHeight()}; }
 
 	// rendering
-	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const {}
+	virtual void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const {}
 
 	// const utils
 	bool HasNavigationSink() const { return !!const_cast<Window*>(this)->GetNavigationSink(); }

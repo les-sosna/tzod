@@ -35,12 +35,12 @@ private:
 	std::shared_ptr<EditableText> _editable;
 
 	// PointerSink
-	bool OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
-	void OnPointerMove(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
+	bool OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override;
+	void OnPointerMove(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, bool captured) override;
 	void OnTap(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
 	// StateGen
-	void PushState(StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const override;
+	void PushState(const Plat::Input &input, StateContext &sc, const LayoutContext &lc, const InputContext &ic, bool hovered) const override;
 };
 
 } // namespace UI

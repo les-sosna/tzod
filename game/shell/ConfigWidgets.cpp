@@ -153,7 +153,7 @@ vec2d KeyBindSetting::GetContentSize(TextureManager& texman, const UI::DataConte
 	return std::get<0>(_children).GetContentSize(texman, dc, scale, layoutConstraints);
 }
 
-bool KeyBindSetting::OnKeyPressed(const UI::InputContext& ic, Plat::Key key)
+bool KeyBindSetting::OnKeyPressed(const Plat::Input &input, const UI::InputContext& ic, Plat::Key key)
 {
 	if (_waitingForKey)
 	{

@@ -126,7 +126,7 @@ int List::HitTest(vec2d pxPos, const LayoutContext &lc, TextureManager &texman) 
 	return index;
 }
 
-bool List::OnPointerDown(const InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
+bool List::OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button)
 {
 	if( 1 == button && pi.type == Plat::PointerType::Mouse )
 	{
@@ -216,7 +216,7 @@ const Window* List::GetFocus() const
 	return GetCurSel() != -1 ? _itemTemplate.get() : nullptr;
 }
 
-void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if (!_itemTemplate)
 		return;
@@ -281,7 +281,7 @@ void List::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 		rc.PushTransform(pxItemOffset, lc.GetOpacityCombined());
 
 		InputContext childIC(ic);
-		UI::RenderSettings rs{ childIC, rc, texman, time };
+		UI::RenderSettings rs{ input, childIC, rc, texman, time };
 		LayoutContext itemLC(lc.GetOpacityCombined(), lc.GetScaleCombined(), pxItemOffset, pxItemSize, lc.GetEnabledCombined(), true /* focused */);
 		RenderUIRoot(_itemTemplate, rs, itemLC, itemDC, itemSC);
 

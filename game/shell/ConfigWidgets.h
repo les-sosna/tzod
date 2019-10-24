@@ -67,7 +67,7 @@ public:
 
 private:
 	// UI::KeyboardSink
-	bool OnKeyPressed(const UI::InputContext& ic, Plat::Key key) override;
+	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext& ic, Plat::Key key) override;
 
 	class KeyBindSettingContent : public UI::Window
 	{

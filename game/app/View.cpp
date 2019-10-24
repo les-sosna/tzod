@@ -12,7 +12,7 @@ static CounterBase counterDt("dt", "dt, ms");
 
 TzodView::TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindow& appWindow)
 	: _appWindow(appWindow)
-	, _impl(new TzodViewImpl(fs, appWindow.CmdClose(), logger, appWindow.GetInput(), appWindow.GetRender(), app))
+	, _impl(new TzodViewImpl(fs, appWindow.CmdClose(), logger, appWindow.GetRender(), app))
 {
 	//	ThemeManager themeManager(appState, *fs, texman);
 }

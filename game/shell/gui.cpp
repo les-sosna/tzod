@@ -398,7 +398,7 @@ void NewGameDlg::OnOK()
 	Close(_resultOK);
 }
 
-bool NewGameDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
+bool NewGameDlg::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -413,7 +413,7 @@ bool NewGameDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 		OnAddPlayer();
 		break;
 	default:
-		return Dialog::OnKeyPressed(ic, key);
+		return Dialog::OnKeyPressed(input, ic, key);
 	}
 	return true;
 }

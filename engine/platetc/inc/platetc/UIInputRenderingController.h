@@ -12,7 +12,6 @@ class UIInputRenderingController final
 {
 public:
 	UIInputRenderingController(
-		Plat::Input& input,
 		TextureManager &textureManager,
 		UI::TimeStepManager &timeStepManager,
 		std::shared_ptr<UI::Window> desktop);

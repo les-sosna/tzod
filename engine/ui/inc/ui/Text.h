@@ -17,7 +17,7 @@ public:
 	void SetText(std::shared_ptr<LayoutData<std::string_view>> text);
 
 	// Window
-	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const override;
+	void Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const override;
 	vec2d GetContentSize(TextureManager &texman, const DataContext &dc, float scale, const LayoutConstraints &layoutConstraints) const override;
 
 protected:
@@ -31,7 +31,7 @@ class TextWithUnderline : public Text
 {
 public:
 	void SetUnderline(std::shared_ptr<RenderData<bool>> underline) { _underline = underline; }
-	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time, bool hovered) const override;
+	void Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, const Plat::Input &input, float time, bool hovered) const override;
 private:
 	Texture _underlineTexture = "ui/editsel";
 	std::shared_ptr<RenderData<bool>> _underline;

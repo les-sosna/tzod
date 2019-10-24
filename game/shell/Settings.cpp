@@ -411,7 +411,7 @@ void ControlProfileDlg::OnCancel()
 	Close(_resultCancel);
 }
 
-bool ControlProfileDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
+bool ControlProfileDlg::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key)
 {
 	if (-1 != _activeIndex)
 	{
@@ -439,7 +439,7 @@ bool ControlProfileDlg::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 		case Plat::Key::Escape:
 			break;
 		default:
-			return Dialog::OnKeyPressed(ic, key);
+			return Dialog::OnKeyPressed(input, ic, key);
 		}
 	}
 	return true;

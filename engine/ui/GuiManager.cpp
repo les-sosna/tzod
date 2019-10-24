@@ -82,14 +82,14 @@ static void DrawWindowRecursive(
 	bool hovered = depth < renderSettings.hoverPath.size() &&
 		renderSettings.hoverPath[renderSettings.hoverPath.size() - 1 - depth].get() == &wnd;
 	if (insideTopMost == renderSettings.topMostPass)
-		wnd.Draw(dc, sc, lc, renderSettings.ic, renderSettings.rc, renderSettings.texman, renderSettings.time, hovered);
+		wnd.Draw(dc, sc, lc, renderSettings.ic, renderSettings.rc, renderSettings.texman, renderSettings.input, renderSettings.time, hovered);
 
 	StateContext childCS;
 	auto stateGen = wnd.GetStateGen();
 	if (stateGen)
 	{
 		childCS = sc;
-		stateGen->PushState(childCS, lc, renderSettings.ic, hovered);
+		stateGen->PushState(renderSettings.input, childCS, lc, renderSettings.ic, hovered);
 	}
 
 	// topmost windows escape parents' clip

@@ -16,7 +16,7 @@ void Text::SetText(std::shared_ptr<LayoutData<std::string_view>> text)
 	_text = std::move(text);
 }
 
-void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutContext &lc, const InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if (_text && !_fontTexture.Empty())
 	{
@@ -54,7 +54,7 @@ vec2d Text::GetContentSize(TextureManager &texman, const DataContext &dc, float 
 	return vec2d{ (w - 1) * (float)maxline, h * (float)lineCount };
 }
 
-void TextWithUnderline::Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, float time, bool hovered) const
+void TextWithUnderline::Draw(const DataContext& dc, const StateContext& sc, const LayoutContext& lc, const InputContext& ic, RenderContext& rc, TextureManager& texman, const Plat::Input &input, float time, bool hovered) const
 {
 	if (_text && !_fontTexture.Empty() &&
 		_underline && _underline->GetRenderValue(dc, sc))
@@ -73,5 +73,5 @@ void TextWithUnderline::Draw(const DataContext& dc, const StateContext& sc, cons
 		rect.bottom = rect.top + std::ceil(lc.GetScaleCombined());
 		rc.DrawSprite(rect, _underlineTexture.GetTextureId(texman), color, 0);
 	}
-	Text::Draw(dc, sc, lc, ic, rc, texman, time, hovered);
+	Text::Draw(dc, sc, lc, ic, rc, texman, input, time, hovered);
 }

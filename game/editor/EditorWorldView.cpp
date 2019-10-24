@@ -341,7 +341,7 @@ void EditorWorldView::OnScroll(TextureManager &texman, const UI::InputContext &i
 	}
 }
 
-void EditorWorldView::OnPointerMove(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
+void EditorWorldView::OnPointerMove(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured)
 {
 	_virtualPointer = CanvasToWorld(lc, pi.position);
 
@@ -352,7 +352,7 @@ void EditorWorldView::OnPointerMove(const UI::InputContext &ic, const UI::Layout
 		{
 		case 1:
 			// keep default properties if Ctrl key is not pressed
-			CreateAt(worldPos, !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl));
+			CreateAt(worldPos, !input.IsKeyPressed(Plat::Key::LeftCtrl) && !input.IsKeyPressed(Plat::Key::RightCtrl));
 			break;
 
 		case 2:
@@ -375,7 +375,7 @@ void EditorWorldView::OnPointerUp(const UI::InputContext &ic, const UI::LayoutCo
 	}
 }
 
-bool EditorWorldView::OnPointerDown(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
+bool EditorWorldView::OnPointerDown(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
 {
 	if (pi.type == Plat::PointerType::Touch)
 		return false; // ignore touch here to not conflict with scroll. handle tap instead
@@ -409,7 +409,7 @@ bool EditorWorldView::OnPointerDown(const UI::InputContext &ic, const UI::Layout
 		else
 		{
 			// keep default properties if Ctrl key is not pressed
-			bool defaultProperties = !ic.GetInput().IsKeyPressed(Plat::Key::LeftCtrl) && !ic.GetInput().IsKeyPressed(Plat::Key::RightCtrl);
+			bool defaultProperties = !input.IsKeyPressed(Plat::Key::LeftCtrl) && !input.IsKeyPressed(Plat::Key::RightCtrl);
 			ActionOrCreateAt(worldPos, defaultProperties);
 		}
 	}
@@ -433,7 +433,7 @@ void EditorWorldView::OnTap(const UI::InputContext &ic, const UI::LayoutContext 
 	}
 }
 
-bool EditorWorldView::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
+bool EditorWorldView::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -557,7 +557,7 @@ UI::WindowLayout EditorWorldView::GetChildLayout(TextureManager &texman, const U
 	return {};
 }
 
-void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, float time, bool hovered) const
+void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const
 {
 	// World
 	RectRB viewport{ 0, 0, (int)lc.GetPixelSize().x, (int)lc.GetPixelSize().y };

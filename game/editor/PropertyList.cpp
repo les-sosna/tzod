@@ -239,7 +239,7 @@ UI::WindowLayout PropertyList::GetChildLayout(TextureManager &texman, const UI::
 	return UI::Dialog::GetChildLayout(texman, lc, dc, child);
 }
 
-bool PropertyList::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
+bool PropertyList::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key)
 {
 	switch(key)
 	{
@@ -248,7 +248,7 @@ bool PropertyList::OnKeyPressed(const UI::InputContext &ic, Plat::Key key)
 		SaveToConfig(_conf, *_ps);
 		break;
 	default:
-		return Dialog::OnKeyPressed(ic, key);
+		return Dialog::OnKeyPressed(input, ic, key);
 	}
 	return true;
 }

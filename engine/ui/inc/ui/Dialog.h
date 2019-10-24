@@ -36,7 +36,7 @@ public:
 
 protected:
 	// KeyboardSink
-	bool OnKeyPressed(const InputContext &ic, Plat::Key key) override;
+	bool OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key) override;
 
 	// NavigationSink
 	bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;

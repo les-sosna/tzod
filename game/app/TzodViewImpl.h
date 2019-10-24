@@ -15,7 +15,7 @@ namespace Plat
 
 struct TzodViewImpl
 {
-	TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose *cmdClose, Plat::ConsoleBuffer &logger, Plat::Input& input, IRender& render, TzodApp& app);
+	TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose *cmdClose, Plat::ConsoleBuffer &logger, IRender& render, TzodApp& app);
 	~TzodViewImpl();
 
 	TextureManager textureManager;

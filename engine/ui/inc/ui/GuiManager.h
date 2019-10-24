@@ -25,6 +25,7 @@ class Window;
 
 struct RenderSettings
 {
+	const Plat::Input &input;
 	const InputContext &ic;
 	RenderContext &rc;
 	TextureManager &texman;
