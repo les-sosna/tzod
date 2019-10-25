@@ -18,7 +18,7 @@ static auto InitTextureManager(FS::FileSystem &fs)
 	}
 	catch(...)
 	{
-		textureManager.UnloadAllTextures(render);
+		textureManager.UnloadAllTextures();
 		throw;
 	}
 	return textureManager;

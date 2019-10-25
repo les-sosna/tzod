@@ -72,7 +72,7 @@ try
 	do {
 		view.GetAppWindowInputSink().OnRefresh(appWindow);
 		GlfwAppWindow::PollEvents(view.GetAppWindowInputSink());
-		view.Step(app, timer.GetDt());
+		view.Step(app, timer.GetDt(), appWindow.GetInput());
 	} while (!appWindow.ShouldClose());
 
 	app.SaveConfig();

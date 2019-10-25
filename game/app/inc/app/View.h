@@ -14,6 +14,7 @@ namespace Plat
 {
 	struct AppWindowCommandClose;
 	struct AppWindowInputSink;
+	struct Input;
 	class ConsoleBuffer;
 }
 
@@ -23,7 +24,7 @@ public:
 	TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindowCommandClose* cmdClose);
 	~TzodView();
 
-	void Step(TzodApp& app, float dt);
+	void Step(TzodApp& app, float dt, const Plat::Input& input);
 	Plat::AppWindowInputSink& GetAppWindowInputSink();
 
 private:
