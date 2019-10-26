@@ -19,7 +19,7 @@ struct LogicalTexture
 	float pxFrameHeight;
 	float pxBorderSize;
 	int leadChar;
-	std::vector<FRECT> uvFrames;
+	unsigned int frameCount;
 };
 
 class TextureManager final
@@ -38,7 +38,7 @@ public:
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
 	vec2d GetFrameSize(size_t texIndex) const { return vec2d{GetFrameWidth(texIndex, 0), GetFrameHeight(texIndex, 0)}; }
 	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].pxBorderSize; }
-	unsigned int GetFrameCount(size_t texIndex) const { return static_cast<unsigned int>(_logicalTextures[texIndex].uvFrames.size()); }
+	unsigned int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].frameCount; }
 
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix) const;
 

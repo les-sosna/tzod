@@ -11,21 +11,36 @@ public:
 	explicit RenderBinding(IRender& render);
 	~RenderBinding();
 
-	void Update(const TextureManager& tm);
+	void Update(const TextureManager& tm, IRender& render);
 
 	void UnloadAllTextures(IRender& render) noexcept;
 
-	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const { return _logicalTexturesMapping[texIndex]->id; }
+	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const noexcept
+	{
+		return _sprites[texIndex].descIt->id;
+	}
+
+	const FRECT* GetUVFrames(size_t texIndex) const noexcept
+	{
+		const SpriteRef& spriteRef = _sprites[texIndex];
+		return &spriteRef.descIt->uvFrames[spriteRef.firstFrameIndex];
+	}
 
 
 private:
 	struct TexDesc
 	{
 		DEV_TEXTURE id;
-		int refCount;       // number of logical textures
+		std::vector<FRECT> uvFrames;
 	};
 
-	std::vector<std::list<TexDesc>::iterator> _logicalTexturesMapping;
+	struct SpriteRef
+	{
+		std::list<TexDesc>::iterator descIt;
+		unsigned int firstFrameIndex;
+	};
+
+	std::vector<SpriteRef> _sprites;
 	std::list<TexDesc> _devTextures;
 };
 

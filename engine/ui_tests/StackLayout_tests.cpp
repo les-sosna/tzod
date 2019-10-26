@@ -6,7 +6,7 @@
 
 TEST(StackLayout, MeasureContent)
 {
-    TextureManager texman(nullptr);
+    TextureManager texman;
     UI::StackLayout stackLayout;
     UI::DataContext dc;
     float scale = 3;
@@ -33,7 +33,7 @@ TEST(StackLayout, MeasureContent)
 
 TEST(StackLayout, ChildrenLayout)
 {
-    TextureManager texman(nullptr);
+    TextureManager texman;
     UI::StackLayout stackLayout;
     stackLayout.SetAlign(UI::Align::CT);
 

@@ -62,13 +62,11 @@ void TextureManager::CreateChecker()
 {
 	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
 	assert(_mapName_to_Index.empty());
-	TRACE("Creating checker texture...");
 
 	TexDesc td = {};
 	CheckerImage c;
 	if( !render.TexCreate(td.id, c, false) )
 	{
-		TRACE("ERROR: error in render device");
 		assert(false);
 		return;
 	}
@@ -163,20 +161,6 @@ void TextureManager::LoadPackage(FS::FileSystem& fs, const std::vector<PackageSp
 
 	CreateAtlas(fs, loadedImages, std::move(magFilterOn), true, 1);
 	CreateAtlas(fs, loadedImages, std::move(magFilterOff), false, 1);
-
-	// unload unused textures
-	for (auto it = _devTextures.begin(); _devTextures.end() != it; )
-	{
-		if (0 == it->refCount)
-		{
-			render.TexFree(it->id);
-			it = _devTextures.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
 }
 
 void TextureManager::CreateAtlas(FS::FileSystem& fs, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter, int gutters)
@@ -279,11 +263,12 @@ void TextureManager::CreateAtlas(FS::FileSystem& fs, const LoadedImages& loadedI
 		{
 			spriteSourceImageIt = loadedImages.find(psd.textureFilePath);
 
-			auto emplaced = _mapName_to_Index.emplace(psd.spriteName, _logicalTextures.size());
+			size_t newSpriteId = _logicalTextures.size();
+			auto emplaced = _mapName_to_Index.emplace(psd.spriteName, newSpriteId);
 			if (emplaced.second)
 			{
 				// define new texture
-				currentLT = &_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second)), devTexIt);
+				currentLT = &_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second)));
 			}
 			else
 			{

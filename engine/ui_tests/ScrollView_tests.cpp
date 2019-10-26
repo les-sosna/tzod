@@ -6,7 +6,7 @@
 
 TEST(ScrollView, MeasureContent)
 {
-    TextureManager texman(nullptr);
+    TextureManager texman;
     UI::ScrollView scrollView{};
     UI::DataContext dc{};
     float scale = 3;
