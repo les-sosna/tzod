@@ -19,10 +19,16 @@ class CheckerImage final
 {
 public:
 	// Image
-	const void* GetData() const override { return _bytes; }
-	unsigned int GetBpp() const override { return 24; }
-	unsigned int GetWidth() const override { return 4; }
-	unsigned int GetHeight() const override { return 4; }
+	ImageView GetData() const override
+    {
+        ImageView result = {};
+        result.pixels = _bytes;
+        result.width = 4;
+        result.height = 4;
+        result.stride = 12;
+        result.bpp = 24;
+        return result;
+    }
 
 private:
 	static const unsigned char _bytes[];
@@ -61,7 +67,7 @@ void TextureManager::UnloadAllTextures(IRender& render) noexcept
 
 static vec2d GetImageSize(const Image& image)
 {
-	return vec2d{ (float)image.GetWidth(), (float)image.GetHeight() };
+	return vec2d{ (float)image.GetData().width, (float)image.GetData().height };
 }
 
 void TextureManager::CreateChecker(IRender& render)
@@ -72,7 +78,7 @@ void TextureManager::CreateChecker(IRender& render)
 
 	TexDesc td = {};
 	CheckerImage c;
-	if( !render.TexCreate(td.id, c, false) )
+	if( !render.TexCreate(td.id, c.GetData(), false) )
 	{
 		TRACE("ERROR: error in render device");
 		assert(false);
@@ -224,7 +230,7 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 				auto src = psd.atlasOffset + pxFrameSizeWithBorder * vec2d{ (float)x, (float)y };
 				int widthWithGutters = (int)pxFrameSizeWithBorder.x + gutters * 2;
 				int heightWithGutters = (int)pxFrameSizeWithBorder.y + gutters * 2;
-				atlasFrames.push_back({ widthWithGutters, heightWithGutters, (int)src.x, (int)src.y });
+				atlasFrames.push_back({ (int)pxFrameSizeWithBorder.x, (int)pxFrameSizeWithBorder.y, (int)src.x, (int)src.y });
 				totalTexels += widthWithGutters * heightWithGutters;
 				minAtlasWidth = std::max(minAtlasWidth, widthWithGutters);
 			}
@@ -253,7 +259,7 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 	for (auto index : sortedFrames)
 	{
 		auto& atlasFrame = atlasFrames[index];
-		bool success = packer.PlaceRect(atlasFrame.width, atlasFrame.height, atlasFrame.dstX, atlasFrame.dstY);
+		bool success = packer.PlaceRect(atlasFrame.width + gutters * 2, atlasFrame.height + gutters * 2, atlasFrame.dstX, atlasFrame.dstY);
 		assert(success);
 	}
 
@@ -271,14 +277,6 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 
 	for (auto& atlasFrame : atlasFrames)
 	{
-		auto texOuterFrameNoGutters = RectRB
-		{
-			atlasFrame.dstX + gutters,
-			atlasFrame.dstY + gutters,
-			atlasFrame.dstX + atlasFrame.width - gutters,
-			atlasFrame.dstY + atlasFrame.height - gutters
-		};
-
 		auto& psd = packageSpriteDescs[spriteIndex];
 		auto numFrames = psd.xframes * psd.yframes;
 		if (frameIndex == 0)
@@ -301,20 +299,27 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 				existing.second = devTexIt;
 				currentLT = &existing.first;
 			}
-#if 0
+#if 1
 			// export sprites
-			EditableImage exportedImage(WIDTH(texOuterFrameNoGutters) * psd.xframes, HEIGHT(texOuterFrameNoGutters) * psd.yframes);
+			EditableImage exportedImage(atlasFrame.width * psd.xframes, atlasFrame.height * psd.yframes);
 			for (int y = 0; y < psd.yframes; y++)
 			{
 				for (int x = 0; x < psd.xframes; x++)
 				{
-					RectRB dstRect = { WIDTH(texOuterFrameNoGutters) * x, HEIGHT(texOuterFrameNoGutters) * y,
-						WIDTH(texOuterFrameNoGutters) * (x + 1), HEIGHT(texOuterFrameNoGutters) * (y + 1) };
-					exportedImage.Blit(dstRect, 0, (x + y * psd.xframes)[&atlasFrame].srcX, (x + y * psd.xframes)[&atlasFrame].srcY, spriteSourceImageIt->second);
+                    int dstX = atlasFrame.width * x;
+                    int dstY = atlasFrame.height * y;
+                    auto srcFrame = (x + y * psd.xframes)[&atlasFrame];
+                    RectRB srcRect = {
+                        srcFrame.srcX,
+                        srcFrame.srcY,
+                        srcFrame.srcX + atlasFrame.width,
+                        srcFrame.srcY + atlasFrame.height
+                    };
+                    exportedImage.Blit(dstX, dstY, 0, spriteSourceImageIt->second.GetData().Slice(srcRect));
 				}
 			}
-			std::vector<uint8_t> buffer(GetTgaByteSize(exportedImage));
-			WriteTga(exportedImage, buffer.data(), buffer.size());
+			std::vector<uint8_t> buffer(GetTgaByteSize(exportedImage.GetData()));
+			WriteTga(exportedImage.GetData(), buffer.data(), buffer.size());
 			std::string exportedPath = std::string("export/") + psd.spriteName + ".tga";
 
 			auto pd = exportedPath.rfind('/');
@@ -355,10 +360,22 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 		}
 		assert(loadedImages.end() != spriteSourceImageIt);
 
-		atlasImage.Blit(texOuterFrameNoGutters, gutters, atlasFrame.srcX, atlasFrame.srcY, spriteSourceImageIt->second);
+        RectRB dstOuterFrameNoGutters = {
+            atlasFrame.dstX + gutters,
+            atlasFrame.dstY + gutters,
+            atlasFrame.dstX + atlasFrame.width + gutters,
+            atlasFrame.dstY + atlasFrame.height + gutters
+        };
+        RectRB srcRect = {
+            atlasFrame.srcX,
+            atlasFrame.srcY,
+            atlasFrame.srcX + atlasFrame.width,
+            atlasFrame.srcY + atlasFrame.height
+        };
+		atlasImage.Blit(dstOuterFrameNoGutters.left, dstOuterFrameNoGutters.top, gutters, spriteSourceImageIt->second.GetData().Slice(srcRect));
 
 		// replace uv frame
-		currentLT->uvFrames[frameIndex] = MakeInnerFrameUV(texOuterFrameNoGutters, vec2d{ psd.border, psd.border }, atlasSize);
+		currentLT->uvFrames[frameIndex] = MakeInnerFrameUV(dstOuterFrameNoGutters, vec2d{ psd.border, psd.border }, atlasSize);
 
 		++frameIndex;
 		if (frameIndex == numFrames)
@@ -368,8 +385,23 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 		}
 	}
 
+#if 1
+    static int s_atlas_idx = 0;
+    s_atlas_idx++;
+
+    std::vector<uint8_t> buffer(GetTgaByteSize(atlasImage.GetData()));
+    WriteTga(atlasImage.GetData(), buffer.data(), buffer.size());
+    std::string exportedPath = std::string("export/").append("atlas").append(1, s_atlas_idx+'0').append(".tga");
+
+    auto pd = exportedPath.rfind('/');
+    auto exportedDirName = exportedPath.substr(0, pd);
+    auto exportedFileName = exportedPath.substr(pd + 1);
+    auto dir = fs.GetFileSystem(exportedDirName, true /*create*/);
+    dir->Open(exportedFileName, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
+#endif
+
 	// allocate hardware texture for atlas
-	if (!render.TexCreate(td.id, atlasImage, magFilter))
+	if (!render.TexCreate(td.id, atlasImage.GetData(), magFilter))
 		throw std::runtime_error("error in render device");
 
 	td.refCount = static_cast<int>(packageSpriteDescs.size());

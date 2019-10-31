@@ -10,21 +10,17 @@ EditableImage::EditableImage(unsigned int width, unsigned int height)
 	assert(!_pixels.empty());
 }
 
-void EditableImage::Blit(RectRB dstRect, int dstGutters, int srcX, int srcY, const Image& source)
+void EditableImage::Blit(int dstX, int dstY, int dstGutters, ImageView source)
 {
-	assert(source.GetBpp() == 32);
-	assert(dstRect.left - dstGutters >= 0 && dstRect.top - dstGutters >= 0);
-	assert(dstRect.right + dstGutters <= _width && dstRect.bottom + dstGutters <= _height);
-	assert(srcX + WIDTH(dstRect) <= (int)source.GetWidth() && srcY + HEIGHT(dstRect) <= (int)source.GetHeight());
-	assert(srcX >= 0 && srcY >= 0);
+	assert(source.bpp == 32);
+	assert(dstX - dstGutters >= 0 && dstY - dstGutters >= 0);
+	assert(dstX + source.width + dstGutters <= _width && dstY + source.height + dstGutters <= _height);
 
-	int rowPixels = WIDTH(dstRect);
-	int rowBytes = WIDTH(dstRect) * sizeof(uint32_t);
-	int numRows = HEIGHT(dstRect);
-	int srcRowPitch = source.GetWidth();
+	int rowBytes = source.width * sizeof(uint32_t);
+	int numRows = source.height;
 
-	auto* src = static_cast<const uint32_t*>(source.GetData()) + srcY * srcRowPitch + srcX;
-	auto* dst = _pixels.data() + (dstRect.top - dstGutters) * _width + dstRect.left;
+	auto* src = static_cast<const uint32_t*>(source.pixels);
+	auto* dst = _pixels.data() + (dstY - dstGutters) * _width + dstX;
 
 	// top gutters
 	for (int i = 0; i < dstGutters; i++)
@@ -33,7 +29,7 @@ void EditableImage::Blit(RectRB dstRect, int dstGutters, int srcX, int srcY, con
 		for (int i = 0; i < dstGutters; i++)
 		{
 			dst[-1 - i] = src[0];
-			dst[rowPixels + i] = src[rowPixels - 1];
+			dst[source.width + i] = src[source.width - 1];
 		}
 		dst += _width;
 	}
@@ -45,42 +41,33 @@ void EditableImage::Blit(RectRB dstRect, int dstGutters, int srcX, int srcY, con
 		for (int i = 0; i < dstGutters; i++)
 		{
 			dst[-1 - i] = src[0];
-			dst[rowPixels + i] = src[rowPixels - 1];
+			dst[source.width + i] = src[source.width - 1];
 		}
-		src += srcRowPitch;
+		reinterpret_cast<const std::byte*&>(src) += source.stride;
 		dst += _width;
 	}
 
 	// bottom gutters
-	src -= srcRowPitch;
+	reinterpret_cast<const std::byte*&>(src) -= source.stride;
 	for (int i = 0; i < dstGutters; i++)
 	{
 		memcpy(dst, src, rowBytes);
 		for (int i = 0; i < dstGutters; i++)
 		{
 			dst[-1 - i] = src[0];
-			dst[rowPixels + i] = src[rowPixels - 1];
+			dst[source.width + i] = src[source.width - 1];
 		}
 		dst += _width;
 	}
 }
 
-const void* EditableImage::GetData() const
+ImageView EditableImage::GetData() const
 {
-	return _pixels.data();
-}
-
-unsigned int EditableImage::GetBpp() const
-{
-	return 32;
-}
-
-unsigned int EditableImage::GetWidth() const
-{
-	return _width;
-}
-
-unsigned int EditableImage::GetHeight() const
-{
-	return _height;
+    ImageView result = {};
+    result.pixels = _pixels.data();
+    result.width = _width;
+    result.height = _height;
+    result.stride = _width * 4;
+    result.bpp = 32;
+    return result;
 }

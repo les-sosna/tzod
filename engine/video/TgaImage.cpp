@@ -127,35 +127,26 @@ TgaImage::TgaImage(const void *data, unsigned long size)
 	}
 }
 
-const void* TgaImage::GetData() const
+ImageView TgaImage::GetData() const
 {
-	return &_data[0];
-}
-
-unsigned int TgaImage::GetBpp() const
-{
-	return _bpp;
-}
-
-unsigned int TgaImage::GetWidth() const
-{
-	return _width;
-}
-
-unsigned int TgaImage::GetHeight() const
-{
-	return _height;
+    ImageView result = {};
+    result.pixels = _data.data();
+    result.width = _width;
+    result.height = _height;
+    result.stride = _width * _bpp / 8;
+    result.bpp = _bpp;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-unsigned int GetTgaByteSize(const Image& image)
+unsigned int GetTgaByteSize(ImageView image)
 {
-	assert(image.GetBpp() == 32);
-	return offsetof(Header, data) + image.GetWidth() * image.GetHeight() * 4;
+	assert(image.bpp == 32);
+	return offsetof(Header, data) + image.width * image.height * 4;
 }
 
-void WriteTga(const Image& image, void* dst, size_t bufferSize)
+void WriteTga(ImageView image, void* dst, size_t bufferSize)
 {
 	if (bufferSize < GetTgaByteSize(image))
 	{
@@ -164,20 +155,20 @@ void WriteTga(const Image& image, void* dst, size_t bufferSize)
 
 	auto &header = *reinterpret_cast<Header*>(dst);
 	memcpy(header.signature, signatureU, sizeof(signatureU));
-	header.width = image.GetWidth();
-	header.height = image.GetHeight();
-	header.bpp = image.GetBpp();
+	header.width = image.width;
+	header.height = image.height;
+	header.bpp = image.bpp;
 	header.descriptor = 0;
 
 	// flip row order and swap red & blue channels
 	auto dstPixels = reinterpret_cast<uint32_t*>(header.data);
-	auto srcPixels = reinterpret_cast<const uint32_t*>(image.GetData());
-	auto width = image.GetWidth();
-	auto height = image.GetHeight();
+    auto srcBytes = reinterpret_cast<const std::byte*>(image.pixels);
+	auto width = image.width;
+	auto height = image.height;
 	for (unsigned int i = 0; i < height; ++i)
 	{
 		auto dstRow = dstPixels + i * width;
-		auto srcRow = srcPixels + (height - i - 1) * width;
+		auto srcRow = reinterpret_cast<const uint32_t*>(srcBytes + (height - i - 1) * image.stride);
 		for (unsigned int j = 0; j < width; ++j)
 		{
 			auto c = srcRow[j];
