@@ -71,14 +71,34 @@ struct MyVertex
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct ImageView
+{
+    const void *pixels;
+    unsigned int width;
+    unsigned int height;
+    unsigned int stride;
+    unsigned int bpp;
+
+    ImageView Slice(RectRB rect) const
+    {
+        assert(rect.left >= 0 && rect.top >= 0);
+        assert(rect.right <= width && rect.bottom <= height);
+        assert(rect.left <= rect.right && rect.top <= rect.bottom);
+        ImageView slice;
+        slice.pixels = reinterpret_cast<const std::byte*>(pixels) + rect.left * bpp / 8 + rect.top * stride;
+        slice.width = WIDTH(rect);
+        slice.height = HEIGHT(rect);
+        slice.stride = stride;
+        slice.bpp = bpp;
+        return slice;
+    }
+};
+
 class Image
 {
 public:
 	virtual ~Image() = default;
-	virtual const void* GetData() const = 0;
-	virtual unsigned int GetBpp() const = 0;
-	virtual unsigned int GetWidth() const = 0;
-	virtual unsigned int GetHeight() const = 0;
+	virtual ImageView GetData() const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,7 +121,7 @@ struct IRender
 	// texture management
 	//
 
-	virtual bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) = 0;
+	virtual bool TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter) = 0;
 	virtual void TexFree(DEV_TEXTURE tex) = 0;
 
 

@@ -31,7 +31,7 @@ private:
 	// texture management
 	//
 
-	bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) override;
+	bool TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter) override;
 	void TexFree(DEV_TEXTURE tex) override;
 
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
@@ -159,8 +159,9 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 	_mode = mode;
 }
 
-bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter)
+bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 {
+    assert(img.stride == img.width * img.bpp / 8);
 	glGenTextures(1, &tex.index);
 	glBindTexture(GL_TEXTURE_2D, tex.index);
 
@@ -168,12 +169,12 @@ bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter)
 		GL_TEXTURE_2D,                      // target
 		0,                                  // level
 		GL_RGBA,                            // internalformat
-		img.GetWidth(),                    // width
-		img.GetHeight(),                   // height
+		img.width,                          // width
+		img.height,                         // height
 		0,                                  // border
-		(24==img.GetBpp())?GL_RGB:GL_RGBA, // format
+		(24==img.bpp) ? GL_RGB : GL_RGBA,   // format
 		GL_UNSIGNED_BYTE,                   // type
-		img.GetData()                      // pixels
+		img.pixels                          // pixels
 	);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter ? GL_LINEAR : GL_NEAREST);

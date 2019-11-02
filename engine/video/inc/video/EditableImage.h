@@ -9,17 +9,14 @@ class EditableImage final
 public:
 	EditableImage(unsigned int width, unsigned int height);
 
-	void Blit(RectRB dstRect, int dstGutters, int sourceX, int sourceY, const Image& source);
+	void Blit(int dstX, int dstY, int dstGutters, ImageView source);
 
 	// Image
-	const void* GetData() const override;
-	unsigned int GetBpp() const override;
-	unsigned int GetWidth() const override;
-	unsigned int GetHeight() const override;
+	ImageView GetData() const override;
 
 private:
+    int _width;
 	int _height;
-	int _width;
 	std::vector<uint32_t> _pixels;
 };
 
