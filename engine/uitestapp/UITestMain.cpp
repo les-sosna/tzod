@@ -39,8 +39,9 @@ try
 		768 // height
 	);
 
+	ImageCache imageCache;
 	TextureManager textureManager;
-	textureManager.LoadPackage(*fs, ParseDirectory(*fs, "sprites"));
+	textureManager.LoadPackage(*fs, imageCache, ParseDirectory(*fs, "sprites"));
 
 	auto desktop = std::make_shared<UITestDesktop>();
 
@@ -49,7 +50,7 @@ try
 	timer.Start();
 
 	UI::TimeStepManager timeStepManager;
-	UIInputRenderingController controller(textureManager, timeStepManager, desktop);
+	UIInputRenderingController controller(*fs, textureManager, timeStepManager, desktop);
 
 	while (!appWindow.ShouldClose())
 	{
@@ -60,7 +61,7 @@ try
 
 	return 0;
 }
-catch (const std::exception &e)
+catch (const std::runtime_error &e)
 {
 	print_what(/*s_logger,*/ e, "");
 	return 1;

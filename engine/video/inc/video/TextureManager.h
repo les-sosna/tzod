@@ -1,4 +1,5 @@
 #pragma once
+#include "ImageView.h"
 #include "TexturePackage.h"
 #include <list>
 #include <map>
@@ -15,11 +16,35 @@ namespace FS
 struct LogicalTexture
 {
 	vec2d pxPivot;
-	float pxFrameWidth;
+	float pxFrameWidth; // render size with border
 	float pxFrameHeight;
 	float pxBorderSize;
 	int leadChar;
 	unsigned int frameCount;
+	bool magFilter;
+	bool wrappable;
+};
+
+struct SpriteSource
+{
+	std::string textureFilePath;
+	int srcX;
+	int srcY;
+	int pxFrameWidth;
+	int pxFrameHeight;
+	int xframes;
+	int yframes;
+};
+
+class ImageCache final
+{
+public:
+	ImageCache();
+	~ImageCache();
+	ImageView GetImage(FS::FileSystem& fs, std::string_view filePath);
+
+private:
+	std::map<std::string, class TgaImage, std::less<>> _loadedImages;
 };
 
 class TextureManager final
@@ -29,7 +54,7 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	void LoadPackage(FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs);
+	void LoadPackage(FS::FileSystem& fs, ImageCache& imageCache, const std::vector<PackageSpriteDesc>& packageSpriteDescs);
 	void UnloadAllTextures() noexcept;
 
 	size_t FindSprite(std::string_view name) const;
@@ -45,12 +70,11 @@ public:
 	float GetCharHeight(size_t fontTexture) const;
 	float GetCharWidth(size_t fontTexture) const;
 
+	ImageView GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, size_t frameIdx) const;
+	size_t GetNextSprite(size_t texIndex) const;
+
 private:
 	std::map<std::string, size_t, std::less<>> _mapName_to_Index;// index in _logicalTextures
 	std::vector<LogicalTexture> _logicalTextures;
-
-	void CreateChecker(); // Create checker texture without name and with index=0
-
-	using LoadedImages = std::map<std::string, class TgaImage, std::less<>>;
-	void CreateAtlas(FS::FileSystem& fs, const LoadedImages &loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter, int gutters);
+	std::vector<SpriteSource> _spriteSources;
 };

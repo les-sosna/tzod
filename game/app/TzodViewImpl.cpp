@@ -9,12 +9,12 @@
 # include <audio/SoundView.h>
 #endif
 
-static auto InitTextureManager(FS::FileSystem &fs)
+static auto InitTextureManager(FS::FileSystem &fs, ImageCache &imageCache)
 {
 	TextureManager textureManager;
 	try
 	{
-		textureManager.LoadPackage(fs, ParseDirectory(fs, DIR_SPRITES));
+		textureManager.LoadPackage(fs, imageCache, ParseDirectory(fs, DIR_SPRITES));
 	}
 	catch(...)
 	{
@@ -25,7 +25,7 @@ static auto InitTextureManager(FS::FileSystem &fs)
 }
 
 TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose* cmdClose, Plat::ConsoleBuffer &logger, TzodApp &app)
-	: textureManager(InitTextureManager(fs))
+	: textureManager(InitTextureManager(fs, imageCache))
 	, timeStepManager()
 	, desktop(std::make_shared<Desktop>(
 		timeStepManager,
@@ -39,7 +39,7 @@ TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose* cmdC
 		app.GetDMCampaign(),
 		logger,
 		cmdClose))
-	, uiInputRenderingController(textureManager, timeStepManager, desktop)
+	, uiInputRenderingController(fs, textureManager, timeStepManager, desktop)
 #ifndef NOSOUND
 	, soundView(app.GetShellConfig().s_enabled.Get() ? std::make_unique<SoundView>(*fs.GetFileSystem(DIR_SOUND), logger, app.GetAppState()) : nullptr)
 #endif

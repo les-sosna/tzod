@@ -18,6 +18,7 @@ struct TzodViewImpl
 	TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose *cmdClose, Plat::ConsoleBuffer &logger, TzodApp& app);
 	~TzodViewImpl();
 
+	ImageCache imageCache;
 	TextureManager textureManager;
 	UI::TimeStepManager timeStepManager;
 	std::shared_ptr<Desktop> desktop;

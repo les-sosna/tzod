@@ -165,11 +165,11 @@ void WriteTga(ImageView image, void* dst, size_t bufferSize)
     auto srcBytes = reinterpret_cast<const std::byte*>(image.pixels);
 	auto width = image.width;
 	auto height = image.height;
-	for (unsigned int i = 0; i < height; ++i)
+	for (int i = 0; i < height; ++i)
 	{
 		auto dstRow = dstPixels + i * width;
 		auto srcRow = reinterpret_cast<const uint32_t*>(srcBytes + (height - i - 1) * image.stride);
-		for (unsigned int j = 0; j < width; ++j)
+		for (int j = 0; j < width; ++j)
 		{
 			auto c = srcRow[j];
 			dstRow[j] = ((c & 0xff) << 16) | (c & 0xff00ff00) | ((c & 0xff0000) >> 16);

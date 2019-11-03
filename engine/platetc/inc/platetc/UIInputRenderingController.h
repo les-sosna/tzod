@@ -13,6 +13,7 @@ class UIInputRenderingController final
 {
 public:
 	UIInputRenderingController(
+		FS::FileSystem& fs,
 		TextureManager &textureManager,
 		UI::TimeStepManager &timeStepManager,
 		std::shared_ptr<UI::Window> desktop);
@@ -35,6 +36,7 @@ private:
 
 	Plat::MouseCursor _mouseCursor = Plat::MouseCursor::Arrow;
 	UI::InputContext _inputContext;
+	FS::FileSystem& _fs;
 	TextureManager &_textureManager;
 	UI::TimeStepManager &_timeStepManager;
 	std::shared_ptr<UI::Window> _desktop;

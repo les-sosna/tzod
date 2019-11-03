@@ -1,16 +1,11 @@
 #include "inc/video/TextureManager.h"
 #include "inc/video/RenderBase.h"
 #include "inc/video/TgaImage.h"
-#include "inc/video/EditableImage.h"
-#include "AtlasPacker.h"
-
-#define TRACE(...)
 
 #include <fs/FileSystem.h>
 
 #include <cstring>
 #include <sstream>
-#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -25,8 +20,8 @@ public:
         result.pixels = _bytes;
         result.width = 4;
         result.height = 4;
-        result.stride = 12;
-        result.bpp = 24;
+        result.stride = 16;
+        result.bpp = 32;
         return result;
     }
 
@@ -35,18 +30,53 @@ private:
 };
 
 const unsigned char CheckerImage::_bytes[] = {
-	0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
-	0,  0,  0,     0,  0,  0,   255,255,255,   255,255,255,
-	255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
-	255,255,255,   255,255,255,     0,  0,  0,     0,  0,  0,
+	  0,  0,  0,255,     0,  0,  0,255,   255,255,255,255,   255,255,255,255,
+	  0,  0,  0,255,     0,  0,  0,255,   255,255,255,255,   255,255,255,255,
+	255,255,255,255,   255,255,255,255,     0,  0,  0,255,     0,  0,  0,255,
+	255,255,255,255,   255,255,255,255,     0,  0,  0,255,     0,  0,  0,255,
 };
 
+ImageCache::ImageCache()
+{
+}
+
+ImageCache::~ImageCache()
+{
+}
+
+ImageView ImageCache::GetImage(FS::FileSystem& fs, std::string_view filePath)
+{
+	auto imageIt = _loadedImages.find(filePath);
+	if (imageIt == _loadedImages.end())
+	{
+		auto file = fs.Open(filePath)->QueryMap();
+		imageIt = _loadedImages.emplace(filePath, TgaImage(file->GetData(), file->GetSize())).first;
+	}
+	return imageIt->second.GetData();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static vec2d GetImageSize(const Image& image)
+{
+	return vec2d{ (float)image.GetData().width, (float)image.GetData().height };
+}
+
 TextureManager::TextureManager()
 {
-//	CreateChecker(render);
+	CheckerImage c;
+
+	LogicalTexture tex = {};
+	tex.pxPivot = GetImageSize(c) * 4;
+	tex.pxFrameWidth = GetImageSize(c).x * 8;
+	tex.pxFrameHeight = GetImageSize(c).y * 8;
+	tex.pxBorderSize = 0;
+	tex.frameCount = 1;
+	tex.magFilter = false;
+	tex.wrappable = true;
+
+	_logicalTextures.push_back(tex);
+	_spriteSources.emplace_back();
 }
 
 TextureManager::~TextureManager()
@@ -59,331 +89,58 @@ void TextureManager::UnloadAllTextures() noexcept
 	_logicalTextures.clear();
 }
 
-static vec2d GetImageSize(const Image& image)
+static vec2d GetFrameSizeWithBorder(const PackageSpriteDesc& psd, vec2d pxTextureSize)
 {
-	return vec2d{ (float)image.GetData().width, (float)image.GetData().height };
+	vec2d pxAtlasSizeWithBorder = { psd.hasSizeX ? psd.atlasSize.x : pxTextureSize.x - psd.atlasOffset.x,
+	                                psd.hasSizeY ? psd.atlasSize.y : pxTextureSize.y - psd.atlasOffset.y };
+	return pxAtlasSizeWithBorder / vec2d{ (float)psd.xframes, (float)psd.yframes };
 }
 
-void TextureManager::CreateChecker()
-{
-	assert(_logicalTextures.empty()); // to be sure that checker will get index 0
-	assert(_mapName_to_Index.empty());
-
-	TexDesc td = {};
-	CheckerImage c;
-	if( !render.TexCreate(td.id, c.GetData(), false) )
-	{
-		assert(false);
-		return;
-	}
-
-	_devTextures.push_front(td);
-	auto texDescIter = _devTextures.begin();
-	texDescIter->refCount++;
-
-	LogicalTexture tex;
-	tex.pxPivot = GetImageSize(c) * 4;
-	tex.pxFrameWidth = GetImageSize(c).x * 8;
-	tex.pxFrameHeight = GetImageSize(c).y * 8;
-	tex.pxBorderSize = 0;
-	tex.uvFrames = { { 0,0,2,2 } };
-
-	_logicalTextures.emplace_back(tex, texDescIter);
-}
-
-static FRECT MakeInnerFrameUV(RectRB texOuterFrame, vec2d texFrameBorder, vec2d texSize)
-{
-	vec2d uvBorderSize = texFrameBorder / texSize;
-	return FRECT
-	{
-		(float)texOuterFrame.left / texSize.x + uvBorderSize.x,
-		(float)texOuterFrame.top / texSize.y + uvBorderSize.y,
-		(float)texOuterFrame.right / texSize.x - uvBorderSize.x,
-		(float)texOuterFrame.bottom / texSize.y - uvBorderSize.y
-	};
-}
-
-static LogicalTexture LogicalTextureFromSpriteDefinition(const PackageSpriteDesc& sd, vec2d pxTextureSize)
+static LogicalTexture LogicalTextureFromSpriteDefinition(const PackageSpriteDesc& psd, vec2d pxFrameSizeWithBorder)
 {
 	LogicalTexture lt;
 
-	vec2d pxAtlasSizeWithBorder = { sd.hasSizeX ? sd.atlasSize.x : pxTextureSize.x - sd.atlasOffset.x, sd.hasSizeY ? sd.atlasSize.y : pxTextureSize.y - sd.atlasOffset.y };
-	vec2d pxFrameSizeWithBorder = pxAtlasSizeWithBorder / vec2d{ (float)sd.xframes, (float)sd.yframes };
-	vec2d uvFrameSizeWithBorder = pxFrameSizeWithBorder / pxTextureSize;
-
 	// render size
-	lt.pxPivot = vec2d{ sd.hasPivotX ? sd.pivot.x : pxFrameSizeWithBorder.x / 2, sd.hasPivotY ? sd.pivot.y : pxFrameSizeWithBorder.y / 2 } * sd.scale;
-	lt.pxFrameWidth = pxTextureSize.x * sd.scale.x * uvFrameSizeWithBorder.x;
-	lt.pxFrameHeight = pxTextureSize.y * sd.scale.y * uvFrameSizeWithBorder.y;
-	lt.pxBorderSize = sd.border;
+	lt.pxPivot = vec2d{ psd.hasPivotX ? psd.pivot.x : pxFrameSizeWithBorder.x / 2, psd.hasPivotY ? psd.pivot.y : pxFrameSizeWithBorder.y / 2 } * psd.scale;
+	lt.pxFrameWidth = pxFrameSizeWithBorder.x * psd.scale.x;
+	lt.pxFrameHeight = pxFrameSizeWithBorder.y * psd.scale.y;
+	lt.pxBorderSize = psd.border;
 
 	// font
-	lt.leadChar = sd.leadChar;
+	lt.leadChar = psd.leadChar;
 
 	// frames
-	vec2d texBorderSize = vec2d{ sd.border, sd.border };
-	lt.uvFrames.reserve(sd.xframes * sd.yframes);
-	for (int y = 0; y < sd.yframes; ++y)
-	{
-		for (int x = 0; x < sd.xframes; ++x)
-		{
-			auto texOuterFrame = FRectToRect(MakeRectWH(sd.atlasOffset + pxFrameSizeWithBorder * vec2d{ (float)x, (float)y }, pxFrameSizeWithBorder));
-			lt.uvFrames.push_back(MakeInnerFrameUV(texOuterFrame, texBorderSize, pxTextureSize));
-		}
-	}
+	lt.frameCount = psd.xframes * psd.yframes;
+	lt.magFilter = psd.magFilter;
+	lt.wrappable = psd.wrappable;
 
 	return lt;
 }
 
-void TextureManager::LoadPackage(FS::FileSystem& fs, const std::vector<PackageSpriteDesc>& packageSpriteDescs)
+void TextureManager::LoadPackage(FS::FileSystem& fs, ImageCache &imageCache, const std::vector<PackageSpriteDesc>& packageSpriteDescs)
 {
-	LoadedImages loadedImages;
-
-	std::vector<PackageSpriteDesc> magFilterOn;
-	std::vector<PackageSpriteDesc> magFilterOff;
-
-	// load all images
-	for (auto& item : packageSpriteDescs)
-	{
-		auto imageIt = loadedImages.find(item.textureFilePath);
-		if (imageIt == loadedImages.end())
-		{
-			auto file = fs.Open(item.textureFilePath)->QueryMap();
-			imageIt = loadedImages.emplace(item.textureFilePath, TgaImage(file->GetData(), file->GetSize())).first;
-		}
-
-		if (item.wrappable)
-		{
-			CreateAtlas(fs, loadedImages, std::vector<PackageSpriteDesc>(1, item), item.magFilter, 0 /*gutters*/);
-		}
-		else
-		{
-			if (item.magFilter)
-				magFilterOn.push_back(item);
-			else
-				magFilterOff.push_back(item);
-		}
-	}
-
-	CreateAtlas(fs, loadedImages, std::move(magFilterOn), true, 1);
-	CreateAtlas(fs, loadedImages, std::move(magFilterOff), false, 1);
-}
-
-void TextureManager::CreateAtlas(FS::FileSystem& fs, const LoadedImages& loadedImages, std::vector<PackageSpriteDesc> packageSpriteDescs, bool magFilter, int gutters)
-{
-	if (packageSpriteDescs.empty())
-		return;
-
-	int totalFrames = 0;
-	for (auto& psd : packageSpriteDescs)
-		totalFrames += psd.xframes* psd.yframes;
-
-	struct AtlasFrame
-	{
-		int width;
-		int height;
-		int srcX;
-		int srcY;
-		int dstX;
-		int dstY;
-	};
-	std::vector<AtlasFrame> atlasFrames;
-	atlasFrames.reserve(totalFrames);
-
-	int totalTexels = 0;
-	int minAtlasWidth = 0;
-
 	for (auto& psd : packageSpriteDescs)
 	{
-		auto imageIt = loadedImages.find(psd.textureFilePath);
-		vec2d pxTextureSize = GetImageSize(imageIt->second);
-		vec2d pxAtlasSizeWithBorder = { psd.hasSizeX ? psd.atlasSize.x : pxTextureSize.x - psd.atlasOffset.x,
-		                                psd.hasSizeY ? psd.atlasSize.y : pxTextureSize.y - psd.atlasOffset.y };
-		vec2d pxFrameSizeWithBorder = pxAtlasSizeWithBorder / vec2d{ (float)psd.xframes, (float)psd.yframes };
+		auto image = imageCache.GetImage(fs, psd.textureFilePath);
+		auto pxTextureSize = vec2d{ (float)image.width, (float)image.height };
+		vec2d pxFrameSizeWithBorder = GetFrameSizeWithBorder(psd, pxTextureSize);
 
-		for (int y = 0; y < psd.yframes; ++y)
-		{
-			for (int x = 0; x < psd.xframes; ++x)
-			{
-				auto src = psd.atlasOffset + pxFrameSizeWithBorder * vec2d{ (float)x, (float)y };
-				int widthWithGutters = (int)pxFrameSizeWithBorder.x + gutters * 2;
-				int heightWithGutters = (int)pxFrameSizeWithBorder.y + gutters * 2;
-				atlasFrames.push_back({ (int)pxFrameSizeWithBorder.x, (int)pxFrameSizeWithBorder.y, (int)src.x, (int)src.y });
-				totalTexels += widthWithGutters * heightWithGutters;
-				minAtlasWidth = std::max(minAtlasWidth, widthWithGutters);
-			}
-		}
+		size_t newSpriteId = _logicalTextures.size();
+		auto emplaced = _mapName_to_Index.emplace(psd.spriteName, newSpriteId);
+		assert(emplaced.second);
+
+		_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, pxFrameSizeWithBorder));
+
+		SpriteSource ss;
+		ss.textureFilePath = psd.textureFilePath;
+		ss.srcX = static_cast<int>(psd.atlasOffset.x);
+		ss.srcY = static_cast<int>(psd.atlasOffset.y);
+		ss.pxFrameWidth = static_cast<int>(pxFrameSizeWithBorder.x);
+		ss.pxFrameHeight = static_cast<int>(pxFrameSizeWithBorder.y);
+		ss.xframes = psd.xframes;
+		ss.yframes = psd.yframes;
+		_spriteSources.push_back(ss);
 	}
-
-	std::vector<int> sortedFrames(atlasFrames.size());
-	for (int i = 0; i < sortedFrames.size(); i++)
-		sortedFrames[i] = i;
-
-	std::stable_sort(sortedFrames.begin(), sortedFrames.end(),
-		[&](int leftIndex, int rightIndex)
-		{
-			const AtlasFrame& left = atlasFrames[leftIndex];
-			const AtlasFrame& right = atlasFrames[rightIndex];
-			// for same height take narrow first, otherwise tall first
-			return (left.height == right.height) ? (left.width < right.width) : (left.height > right.height);
-		});
-
-	double idealSquareSide = std::sqrt(totalTexels);
-	double nextMultiple64 = std::ceil(idealSquareSide / 64) * 64;
-	int atlasWidth = std::max(minAtlasWidth, (int)nextMultiple64);
-
-	AtlasPacker packer;
-	packer.ExtendCanvas(atlasWidth, atlasWidth * 100); // unlimited height
-	for (auto index : sortedFrames)
-	{
-		auto& atlasFrame = atlasFrames[index];
-		bool success = packer.PlaceRect(atlasFrame.width + gutters * 2, atlasFrame.height + gutters * 2, atlasFrame.dstX, atlasFrame.dstY);
-		assert(success);
-	}
-
-	// now when we know the atlas height we can blit pixels from the source images
-	EditableImage atlasImage(atlasWidth, packer.GetContentHeight()); // actual height
-	auto atlasSize = GetImageSize(atlasImage);
-
-	TexDesc &td = _devTextures.emplace_front();
-	auto devTexIt = _devTextures.begin();
-
-	LoadedImages::const_iterator spriteSourceImageIt;
-	LogicalTexture* currentLT = nullptr;
-	int spriteIndex = 0;
-	int frameIndex = 0;
-
-	for (auto& atlasFrame : atlasFrames)
-	{
-		auto& psd = packageSpriteDescs[spriteIndex];
-		auto numFrames = psd.xframes * psd.yframes;
-		if (frameIndex == 0)
-		{
-			spriteSourceImageIt = loadedImages.find(psd.textureFilePath);
-
-			size_t newSpriteId = _logicalTextures.size();
-			auto emplaced = _mapName_to_Index.emplace(psd.spriteName, newSpriteId);
-			if (emplaced.second)
-			{
-				// define new texture
-				currentLT = &_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second)));
-			}
-			else
-			{
-				// replace existing logical texture
-				auto& existing = _logicalTextures[emplaced.first->second];
-				assert(existing.second->refCount > 0);
-				existing = LogicalTextureFromSpriteDefinition(psd, GetImageSize(spriteSourceImageIt->second));
-				existing.second->refCount--;
-				existing.second = devTexIt;
-				currentLT = &existing;
-			}
-#if 1
-			// export sprites
-			EditableImage exportedImage(atlasFrame.width * psd.xframes, atlasFrame.height * psd.yframes);
-			for (int y = 0; y < psd.yframes; y++)
-			{
-				for (int x = 0; x < psd.xframes; x++)
-				{
-                    int dstX = atlasFrame.width * x;
-                    int dstY = atlasFrame.height * y;
-                    auto srcFrame = (x + y * psd.xframes)[&atlasFrame];
-                    RectRB srcRect = {
-                        srcFrame.srcX,
-                        srcFrame.srcY,
-                        srcFrame.srcX + atlasFrame.width,
-                        srcFrame.srcY + atlasFrame.height
-                    };
-                    exportedImage.Blit(dstX, dstY, 0, spriteSourceImageIt->second.GetData().Slice(srcRect));
-				}
-			}
-			std::vector<uint8_t> buffer(GetTgaByteSize(exportedImage.GetData()));
-			WriteTga(exportedImage.GetData(), buffer.data(), buffer.size());
-			std::string exportedPath = std::string("export/") + psd.spriteName + ".tga";
-
-			auto pd = exportedPath.rfind('/');
-			auto exportedDirName = exportedPath.substr(0, pd);
-			auto exportedFileName = exportedPath.substr(pd + 1);
-			auto dir = fs.GetFileSystem(exportedDirName, true /*create*/);
-			dir->Open(exportedFileName, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
-
-			std::ostringstream metadata;
-			if (psd.border != 0)
-				metadata << "border = " << psd.border << std::endl;
-			if (psd.hasPivotX) // todo: check not center
-				metadata << "xpivot = " << psd.pivot.x << std::endl;
-			if (psd.hasPivotY)
-				metadata << "ypivot = " << psd.pivot.y << std::endl;
-			if (psd.xframes != 1)
-				metadata << "xframes = " << psd.xframes << std::endl;
-			if (psd.yframes != 1)
-				metadata << "yframes = " << psd.yframes << std::endl;
-			if (psd.scale.x != 1)
-				metadata << "xscale = " << psd.scale.x << std::endl;
-			if (psd.scale.y != 1)
-				metadata << "yscale = " << psd.scale.y << std::endl;
-			if (psd.magFilter)
-				metadata << "magfilter = true" << std::endl;
-			if (psd.wrappable)
-				metadata << "wrappable = true" << std::endl;
-			if (psd.leadChar != ' ')
-				metadata << "leadchar = '" << (char)psd.leadChar << "'" << std::endl;
-			auto strbuf = metadata.str();
-			if (!strbuf.empty())
-			{
-				auto exportedFileNameNoExt = exportedFileName;
-				exportedFileNameNoExt.erase(exportedFileNameNoExt.size() - 4);
-				dir->Open(exportedFileNameNoExt + ".lua", FS::FileMode::ModeWrite)->QueryStream()->Write(strbuf.data(), strbuf.size());
-			}
-#endif
-		}
-		assert(loadedImages.end() != spriteSourceImageIt);
-
-        RectRB dstOuterFrameNoGutters = {
-            atlasFrame.dstX + gutters,
-            atlasFrame.dstY + gutters,
-            atlasFrame.dstX + atlasFrame.width + gutters,
-            atlasFrame.dstY + atlasFrame.height + gutters
-        };
-        RectRB srcRect = {
-            atlasFrame.srcX,
-            atlasFrame.srcY,
-            atlasFrame.srcX + atlasFrame.width,
-            atlasFrame.srcY + atlasFrame.height
-        };
-		atlasImage.Blit(dstOuterFrameNoGutters.left, dstOuterFrameNoGutters.top, gutters, spriteSourceImageIt->second.GetData().Slice(srcRect));
-
-		// replace uv frame
-		currentLT->uvFrames[frameIndex] = MakeInnerFrameUV(dstOuterFrameNoGutters, vec2d{ psd.border, psd.border }, atlasSize);
-
-		++frameIndex;
-		if (frameIndex == numFrames)
-		{
-			frameIndex = 0;
-			++spriteIndex;
-		}
-	}
-
-#if 1
-    static int s_atlas_idx = 0;
-    s_atlas_idx++;
-
-    std::vector<uint8_t> buffer(GetTgaByteSize(atlasImage.GetData()));
-    WriteTga(atlasImage.GetData(), buffer.data(), buffer.size());
-    std::string exportedPath = std::string("export/").append("atlas").append(1, s_atlas_idx+'0').append(".tga");
-
-    auto pd = exportedPath.rfind('/');
-    auto exportedDirName = exportedPath.substr(0, pd);
-    auto exportedFileName = exportedPath.substr(pd + 1);
-    auto dir = fs.GetFileSystem(exportedDirName, true /*create*/);
-    dir->Open(exportedFileName, FS::FileMode::ModeWrite)->QueryStream()->Write(buffer.data(), buffer.size());
-#endif
-
-	// allocate hardware texture for atlas
-	if (!render.TexCreate(td.id, atlasImage.GetData(), magFilter))
-		throw std::runtime_error("error in render device");
-
-	td.refCount = static_cast<int>(packageSpriteDescs.size());
 }
 
 size_t TextureManager::FindSprite(std::string_view name) const
@@ -418,3 +175,30 @@ float TextureManager::GetCharWidth(size_t fontTexture) const
 {
 	return GetSpriteInfo(fontTexture).pxFrameWidth - 1;
 }
+
+ImageView TextureManager::GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, size_t frameIdx) const
+{
+	if (texIndex == 0)
+	{
+		assert(frameIdx == 0);
+		CheckerImage c;
+		return c.GetData();
+	}
+	else
+	{
+		auto& ss = _spriteSources[texIndex];
+		RectRB sourceFrameRect;
+		sourceFrameRect.left = ss.srcX + ss.pxFrameWidth * (frameIdx % ss.xframes);
+		sourceFrameRect.top = ss.srcY + ss.pxFrameHeight * (frameIdx / ss.xframes);
+		sourceFrameRect.right = sourceFrameRect.left + ss.pxFrameWidth;
+		sourceFrameRect.bottom = sourceFrameRect.top + ss.pxFrameHeight;
+		return imageCache.GetImage(fs, ss.textureFilePath).Slice(sourceFrameRect);
+	}
+}
+
+size_t TextureManager::GetNextSprite(size_t spriteId) const
+{
+	size_t nextSpriteId = spriteId + 1;
+	return nextSpriteId == _logicalTextures.size() ? 0 : nextSpriteId;
+}
+

@@ -547,7 +547,8 @@ bool Desktop::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic,
 	case Plat::Key::F10:
 		if (_conf.d_artistmode.Get())
 		{
-			_texman.LoadPackage(_fs, ParseDirectory(_fs, DIR_SPRITES));
+			ImageCache imageCache;
+			_texman.LoadPackage(_fs, imageCache, ParseDirectory(_fs, DIR_SPRITES));
 		}
 		break;
 

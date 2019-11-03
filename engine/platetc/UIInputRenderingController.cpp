@@ -9,6 +9,7 @@
 #include <plat/Input.h>
 #include <plat/Keys.h>
 #include <video/RenderContext.h>
+#include <video/TextureManager.h>
 
 static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, const UI::Window &wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
 {
@@ -24,10 +25,12 @@ static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, 
 	return false;
 }
 
-UIInputRenderingController::UIInputRenderingController(TextureManager &textureManager,
+UIInputRenderingController::UIInputRenderingController(FS::FileSystem& fs,
+                                                       TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)
-	: _textureManager(textureManager)
+	: _fs(fs)
+	, _textureManager(textureManager)
 	, _timeStepManager(timeStepManager)
 	, _desktop(desktop)
 {
@@ -117,7 +120,8 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
 
 	RenderBinding rb(render);  // FIXME: need to cache one per render/window
-	rb.Update(_textureManager);
+	ImageCache imageCache;
+	rb.Update(RenderBindingEnv{ _fs, _textureManager, imageCache, render });
 	RenderContext rc(_textureManager, rb, render, displayWidth, displayHeight);
 
 	UI::DataContext dataContext;
@@ -155,6 +159,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 #endif
 
 	render.End();
+	rb.UnloadAllTextures(render); // fixme
 	appWindow.Present();
 }
 

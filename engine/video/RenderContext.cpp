@@ -82,9 +82,7 @@ void RenderContext::DrawSprite(FRECT dst, size_t sprite, SpriteColor color, unsi
 	if (color.a == 0)
 		return;
 
-	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
-	const FRECT &rt = lt.uvFrames[frame];
-
+	FRECT rt = _rb.GetUVFrames(sprite)[frame];
 	MyVertex *v = _render.DrawQuad(_rb.GetDeviceTexture(sprite));
 
 	if (!_currentTransform.hardware)
@@ -127,7 +125,7 @@ void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsi
 	const LogicalTexture &lt = _tm.GetSpriteInfo(sprite);
 	const DEV_TEXTURE &devtex = _rb.GetDeviceTexture(sprite);
 
-	FRECT uvFrame = lt.uvFrames[frame];
+	FRECT uvFrame = _rb.GetUVFrames(sprite)[frame];
 	float uvFrameWidth = WIDTH(uvFrame);
 	float uvFrameHeight = HEIGHT(uvFrame);
 
@@ -387,7 +385,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 			continue;
 		}
 
-		const FRECT &rt = lt.uvFrames[(unsigned char) *tmp - lt.leadChar];
+		const FRECT &rt = _rb.GetUVFrames(tex)[(unsigned char) *tmp - lt.leadChar];
 		float x = x0 + (float) ((count++) * pxAdvance);
 		float y = y0 + (float) (line * pxCharSize.y);
 
@@ -428,10 +426,9 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 
 	assert(frame < _tm.GetFrameCount(tex));
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
-	const FRECT &rt = lt.uvFrames[frame];
-	IRender &render = _render;
+	FRECT rt = _rb.GetUVFrames(tex)[frame];
 
-	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
+	MyVertex *v = _render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	if (!_currentTransform.hardware)
 	{
@@ -477,7 +474,7 @@ void RenderContext::DrawSprite(size_t tex, unsigned int frame, SpriteColor color
 		return;
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
-	const FRECT &rt = lt.uvFrames[frame];
+	const FRECT &rt = _rb.GetUVFrames(tex)[frame];
 
 	MyVertex *v = _render.DrawQuad(_rb.GetDeviceTexture(tex));
 
@@ -519,13 +516,12 @@ void RenderContext::DrawIndicator(size_t tex, vec2d pos, float value)
 	SpriteColor color = ApplyOpacity(0xffffffff, _currentTransform.opacity);
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
-	const FRECT &rt = lt.uvFrames[0];
-	IRender &render = _render;
+	const FRECT &rt = _rb.GetUVFrames(tex)[0];
 
 	float px = lt.pxPivot.x;
 	float py = lt.pxPivot.y;
 
-	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
+	MyVertex *v = _render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	v[0].color = color;
 	v[0].u = rt.left;

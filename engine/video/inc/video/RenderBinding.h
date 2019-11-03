@@ -4,6 +4,20 @@
 #include <vector>
 
 class TextureManager;
+class ImageCache;
+
+namespace FS
+{
+	class FileSystem;
+}
+
+struct RenderBindingEnv
+{
+	FS::FileSystem& fs;
+	const TextureManager& texman;
+	ImageCache& imageCache;
+	IRender& render;
+};
 
 class RenderBinding
 {
@@ -11,7 +25,7 @@ public:
 	explicit RenderBinding(IRender& render);
 	~RenderBinding();
 
-	void Update(const TextureManager& tm, IRender& render);
+	void Update(const RenderBindingEnv &env);
 
 	void UnloadAllTextures(IRender& render) noexcept;
 
@@ -37,10 +51,13 @@ private:
 	struct SpriteRef
 	{
 		std::list<TexDesc>::iterator descIt;
-		unsigned int firstFrameIndex;
+		int firstFrameIndex;
 	};
 
 	std::vector<SpriteRef> _sprites;
 	std::list<TexDesc> _devTextures;
+
+	SpriteRef& EnsureSpriteRef(size_t spriteId);
+	void CreateAtlas(const RenderBindingEnv& env, std::vector<size_t> sprites, bool magFilter, int gutters);
 };
 
