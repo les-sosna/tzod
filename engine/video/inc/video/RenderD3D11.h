@@ -36,7 +36,7 @@ public:
 
 	void SetAmbient(float ambient) override;
 
-	bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) override;
+	bool TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter) override;
 	void TexFree(DEV_TEXTURE tex) override;
 
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;

@@ -6,7 +6,6 @@
 #include "DisplayOrientation.h"
 
 #include <app/tzod.h>
-#include <app/View.h>
 #include <video/SwapChainResources.h>
 
 using namespace wtzod;
@@ -25,6 +24,7 @@ FrameworkView::FrameworkView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, Tz
 	: _fs(fs)
 	, _logger(logger)
 	, _app(app)
+	, _view(_fs, _logger, _app, nullptr)
 {
 	CoreApplication::Suspending += ref new Windows::Foundation::EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
 	CoreApplication::Resuming += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
@@ -64,24 +64,21 @@ void FrameworkView::Run()
 {
 	while (!_appWindow->ShouldClose())
 	{
-		if ((!_appWindow || _appWindow->IsVisible()) && _view != nullptr)
+		if (!_appWindow || _appWindow->IsVisible())
 		{
 			if (!_appWindow || _appWindow->IsDeviceRemoved())
 			{
 				HandleDeviceLost();
 			}
 
-			_view->GetAppWindowInputSink().OnRefresh(*_appWindow);
+			_view.GetAppWindowInputSink().OnRefresh(*_appWindow);
 
-			_appWindow->PollEvents(_view->GetAppWindowInputSink());
+			_appWindow->PollEvents(_view.GetAppWindowInputSink());
 
 			m_timer.Tick([&]()
 			{
 				float dt = (float)m_timer.GetElapsedSeconds();
-				if (_view)
-				{
-					_view->Step(_app, dt);
-				}
+				_view.Step(_app, dt, _appWindow->GetInput());
 			});
 		}
 		else
@@ -145,8 +142,6 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 */
 void FrameworkView::HandleDeviceLost()
 {
-	_view.reset();
 	_appWindow.reset();
 	_appWindow.reset(new StoreAppWindow(m_window.Get()));
-	_view.reset(new TzodView(_fs, _logger, _app, *_appWindow));
 }

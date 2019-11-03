@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "StepTimer.h"
+#include <app/View.h>
 
 class SwapChainResources;
 namespace DX
@@ -54,11 +55,11 @@ namespace wtzod
 		FS::FileSystem &_fs;
 		Plat::ConsoleBuffer &_logger;
 		TzodApp &_app;
+		TzodView _view;
 
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
 
 		std::unique_ptr<StoreAppWindow> _appWindow;
-		std::unique_ptr<TzodView> _view;
 
 		// Rendering loop timer.
 		DX::StepTimer m_timer;

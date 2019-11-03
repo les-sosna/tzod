@@ -410,13 +410,14 @@ void RenderD3D11::SetMode(const RenderMode mode)
 	_mode = mode;
 }
 
-bool RenderD3D11::TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter)
+bool RenderD3D11::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 {
+	assert(img.stride > 0);
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-	CD3D11_TEXTURE2D_DESC desc(DXGI_FORMAT_R8G8B8A8_UNORM, img.GetWidth(), img.GetHeight(), 1, 1);
-	D3D11_SUBRESOURCE_DATA data{ img.GetData(), img.GetWidth() * sizeof(SpriteColor), 0 };
-	CHECK(_device->CreateTexture2D(&desc, 32 == img.GetBpp() ? &data : nullptr, &texture));
+	CD3D11_TEXTURE2D_DESC desc(DXGI_FORMAT_R8G8B8A8_UNORM, img.width, img.height, 1, 1);
+	D3D11_SUBRESOURCE_DATA data{ img.pixels, static_cast<UINT>(img.stride), 0 };
+	CHECK(_device->CreateTexture2D(&desc, 32 == img.bpp ? &data : nullptr, &texture));
 	CHECK(_device->CreateShaderResourceView(texture.Get(), nullptr, &srv));
 	tex.ptr = srv.Detach();
 	return true;
