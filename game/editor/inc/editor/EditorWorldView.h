@@ -31,7 +31,7 @@ class EditorWorldView
 public:
 	EditorWorldView(UI::TimeStepManager &manager,
 		TextureManager &texman,
-		EditorContext &editorContext,
+		std::shared_ptr<EditorContext> editorContext,
 		WorldView &worldView,
 		EditorConfig &conf,
 		LangCache &lang,
@@ -97,6 +97,7 @@ private:
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
+	std::shared_ptr<EditorContext> _editorContext;
 	EditorConfig &_conf;
 	vec2d _virtualPointer;
 	vec2d _prevPointerPosition;

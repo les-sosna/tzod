@@ -96,20 +96,21 @@ GC_MovingObject* EditorWorldView::PickEdObject(const RenderScheme &rs, World &wo
 
 EditorWorldView::EditorWorldView(UI::TimeStepManager &manager,
                                  TextureManager &texman,
-                                 EditorContext &editorContext,
+                                 std::shared_ptr<EditorContext> editorContext,
                                  WorldView &worldView,
                                  EditorConfig &conf,
                                  LangCache &lang,
                                  Plat::ConsoleBuffer &logger)
 	: UI::TimeStepping(manager)
+	, _editorContext(editorContext)
 	, _conf(conf)
-	, _virtualPointer(Center(editorContext.GetOriginalBounds()))
+	, _virtualPointer(Center(editorContext->GetOriginalBounds()))
 	, _defaultCamera(_virtualPointer)
-	, _world(editorContext.GetWorld())
+	, _world(editorContext->GetWorld())
 	, _worldView(worldView)
 	, _quickActions(logger, _world)
 {
-	_propList = std::make_shared<PropertyList>(texman, editorContext.GetWorld(), conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(texman, editorContext->GetWorld(), conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 

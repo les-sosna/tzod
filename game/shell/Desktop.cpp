@@ -81,14 +81,6 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_tierTitle->SetFont("font_default");
 	AddFront(_tierTitle);
 
-	_editorButton = std::make_shared<UI::Button>();
-	_editorButton->SetText(ConfBind(lang.editor_btn));
-	_editorButton->eventClick = [=]()
-	{
-		SetEditorMode(true);
-	};
-	AddFront(_editorButton);
-
 	_background = std::make_shared<UI::Rectangle>();
 	_background->SetTexture("gui_splash");
 	_background->SetTextureStretchMode(UI::StretchMode::Fill);
@@ -148,25 +140,13 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_navStack->SetSpacing(_conf.ui_nav_spacing.GetFloat());
 	AddFront(_navStack);
 
-	OnGameContextChanged();
+	ShowMainMenu();
+	OnGameContextAdded();
 }
 
 Desktop::~Desktop()
 {
 	_conf.d_showfps.eventChange = nullptr;
-}
-
-bool Desktop::GetEditorMode() const
-{
-	return !!_editor;
-}
-
-void Desktop::SetEditorMode(bool editorMode)
-{
-	if (!editorMode || _appController.GetEditorModeAvailable())
-	{
-		_appController.SetEditorMode(GetAppState(), editorMode);
-	}
 }
 
 void Desktop::ShowConsole(bool show)
@@ -189,29 +169,6 @@ void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child)
 	_navStack->PopNavStack(child.get());
 	UpdateFocus();
 }
-/*
-static DMSettings GetDMSettingsFromConfig(const ShellConfig &conf)
-{
-	DMSettings settings;
-
-	for( size_t i = 0; i < conf.dm_players.GetSize(); ++i )
-	{
-		ConfPlayerLocal p(&conf.dm_players.GetAt(i).AsTable());
-		settings.players.push_back(GetPlayerDescFromConf(p));
-	}
-
-	for( size_t i = 0; i < conf.dm_bots.GetSize(); ++i )
-	{
-		ConfPlayerAI p(&conf.dm_bots.GetAt(i).AsTable());
-		settings.bots.push_back(GetPlayerDescFromConf(p));
-	}
-
-	settings.timeLimit = conf.sv_timelimit.GetFloat() * 60;
-	settings.fragLimit = conf.sv_fraglimit.GetInt();
-
-	return settings;
-}
-*/
 
 void Desktop::OnNewCampaign()
 {
@@ -253,13 +210,14 @@ void Desktop::OnSinglePlayer()
 			if (auto sender = weakSender.lock())
 			{
 				_conf.sp_map.SetInt(index);
-				OnCloseChild(sender);
 				try
 				{
+					// previous game/editor context may be held by UI, release it first to prevent memory spike
+					_navStack->Trim();
+
 					int currentTier = GetCurrentTier(_conf, _dmCampaign);
 					int currentMap = GetCurrentMap(_conf, _dmCampaign);
 					_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
-					NavigateHome();
 				}
 				catch (const std::exception & e)
 				{
@@ -316,18 +274,15 @@ void Desktop::OnOpenMap()
 	{
 		if (auto sender = weakSender.lock())
 		{
-			OnCloseChild(sender);
 			std::shared_ptr<FS::Stream> stream;
 			if (mapIndex != -1)
 			{
 				auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".tzod";
 				stream = _fs.Open(fileName)->QueryStream();
 			}
-			// clear the existing context first to prevent memory usage spike
-			GetAppState().SetGameContext(nullptr);
+			_navStack->Trim(); // previous game/editor context may be held by UI, release it first to prevent memory spike
 			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
-			GetAppState().SetGameContext(std::move(gc));
-			NavigateHome();
+			GetAppState().PushGameContext(std::move(gc));
 		}
 	};
 
@@ -439,10 +394,10 @@ void Desktop::ShowMainMenu()
 	commands.gameSettings = std::bind(&Desktop::OnSettingsMain, this);
 	commands.close = [=]
 	{
-		if (GetAppState().GetGameContext()) // do not return to nothing
-		{
-			NavigateHome();
-		}
+		//if (GetAppState().GetGameContext()) // do not return to nothing
+		//{
+		//	NavigateHome();
+		//}
 	};
 	if (_cmdCloseAppWindow)
 	{
@@ -462,20 +417,14 @@ void Desktop::UpdateFocus()
 	{
 		SetFocus(_navStack.get());
 	}
-	else if (_editor)
-	{
-		SetFocus(_editor.get());
-	}
 	else
 	{
-		SetFocus(_game.get()); // may be null
+		SetFocus(nullptr);
 	}
 
 	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
 	bool isGameRunning = !!GetAppState().GetGameContext();
 	_pauseButton->SetVisible(CanNavigateBack() || isGameRunning);
-
-	_editorButton->SetVisible(_appController.GetEditorModeAvailable());
 }
 
 void Desktop::NavigateHome()
@@ -490,9 +439,25 @@ void Desktop::NavigateHome()
 void Desktop::NavigateBack()
 {
 	if (GetFocus() == _con.get())
+	{
 		_con->SetVisible(false);
+	}
 	else
-		_navStack->PopNavStack();
+	{
+		if (_navStack->GetNavFront() == _game.get())
+		{
+			GetAppState().PopGameContext();
+			assert(!_game);
+		}
+		else if (_navStack->IsOnTop<EditorMain>())
+		{
+			GetAppState().PopGameContext();
+		}
+		else
+		{
+			_navStack->PopNavStack();
+		}
+	}
 	UpdateFocus();
 }
 
@@ -536,12 +501,6 @@ bool Desktop::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic,
 
 	case Plat::Key::F8:
 		OnMapSettings();
-		break;
-
-	case Plat::Key::F5:
-	case Plat::Key::GamepadView:
-		if (!_navStack->GetNavFront())
-			SetEditorMode(!GetEditorMode());
 		break;
 
 	case Plat::Key::F10:
@@ -589,7 +548,7 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 		float transition = 1 - (1 - std::cos(PI * std::min(1.f, navDepth))) / 2;
 		return UI::WindowLayout{ MakeRectWH(vec2d{0, -size.y * transition}, size), 1, true };
 	}
-	if (_editor.get() == &child || _game.get() == &child || _navStack.get() == &child)
+	if (_navStack.get() == &child)
 	{
 		return UI::WindowLayout{ MakeRectWH(size), 1, true };
 	}
@@ -612,10 +571,6 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	if (_pauseButton.get() == &child)
 	{
 		return UI::WindowLayout{ MakeRectWH(UI::ToPx(child.GetSize(), lc)), 1, true };
-	}
-	if (_editorButton.get() == &child)
-	{
-		return UI::WindowLayout{ AlignRT(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)), size.x), 1, true };
 	}
 	assert(false);
 	return {};
@@ -647,24 +602,26 @@ bool Desktop::OnCompleteCommand(std::string_view cmd, int &pos, std::string &res
 	return _luaConsole->CompleteCommand(cmd, pos, result);
 }
 
-void Desktop::OnGameContextChanging()
+void Desktop::OnGameContextRemoving()
 {
-	if (_game)
+	if (dynamic_cast<GameContext*>(GetAppState().GetGameContext().get()))
 	{
-		UnlinkChild(*_game);
+		while (_navStack->IsOnStack<GameLayout>())
+			_navStack->PopNavStack();
 		_game.reset();
 	}
-
-	if (_editor)
+	else if (dynamic_cast<EditorContext*>(GetAppState().GetGameContext().get()))
 	{
-		UnlinkChild(*_editor);
-		_editor.reset();
+		while (_navStack->IsOnStack<EditorMain>())
+			_navStack->PopNavStack();
 	}
-
-	UpdateFocus();
 }
 
-void Desktop::OnGameContextChanged()
+void Desktop::OnGameContextRemoved()
+{
+}
+
+void Desktop::OnGameContextAdded()
 {
 	if (auto gameContext = std::dynamic_pointer_cast<GameContext>(GetAppState().GetGameContext()))
 	{
@@ -695,7 +652,7 @@ void Desktop::OnGameContextChanged()
 			_lang,
 			_logger,
 			std::move(campaignControlCommands));
-		AddBack(_game);
+		_navStack->PushNavStack(_game);
 
 		int currentTier = GetCurrentTier(_conf, _dmCampaign);
 		DMCampaignTier tierDesc(&_dmCampaign.tiers.GetTable(currentTier));
@@ -703,22 +660,19 @@ void Desktop::OnGameContextChanged()
 	}
 	else if (auto editorContext = std::dynamic_pointer_cast<EditorContext>(GetAppState().GetGameContext()))
 	{
-		assert(!_editor);
-		_editor = std::make_shared<EditorMain>(
+		_navStack->Trim();
+
+		auto editor = std::make_shared<EditorMain>(
 			GetTimeStepManager(),
 			_texman,
-			*editorContext,
+			std::move(editorContext),
 			_worldView,
 			_conf.editor,
 			_lang,
-			EditorCommands{ [this] { SetEditorMode(false); } },
+			EditorCommands{ [this] { _appController.SetEditorMode(GetAppState(), false); } },
 			_logger);
-		AddBack(_editor);
-	}
 
-	if (!GetAppState().GetGameContext())
-	{
-		ShowMainMenu();
+		_navStack->PushNavStack(editor);
 	}
 
 	UpdateFocus();

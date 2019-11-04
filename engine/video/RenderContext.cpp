@@ -14,6 +14,8 @@ RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned
 
 void RenderContext::PushClippingRect(RectRB rect)
 {
+	assert(rect.right >= rect.left && rect.bottom >= rect.top);
+
 	rect.left += (int)_currentTransform.offset.x;
 	rect.top += (int)_currentTransform.offset.y;
 	rect.right += (int)_currentTransform.offset.x;

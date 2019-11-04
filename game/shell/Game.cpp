@@ -365,6 +365,11 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	return {};
 }
 
+vec2d GameLayout::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	return layoutConstraints.maxPixelSize;
+}
+
 std::shared_ptr<const UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
 {
 	return _scoreAndControls;

@@ -86,6 +86,18 @@ void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
 	SetFocus(*rbegin(*this));
 }
 
+void NavStack::Trim()
+{
+	if (_state == State::GoingBack)
+	{
+		// remove the staging guy
+		UnlinkChild(*GetChildren().back());
+
+		_state = State::GoingForward;
+		_navTransitionStartTime = 0;
+	}
+}
+
 vec2d NavStack::GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const
 {
 	vec2d pxNavStackSize = {};

@@ -74,7 +74,7 @@ namespace
 
 EditorMain::EditorMain(UI::TimeStepManager &manager,
                        TextureManager &texman,
-                       EditorContext &editorContext,
+                       std::shared_ptr<EditorContext> editorContext,
                        WorldView &worldView,
                        EditorConfig &conf,
                        LangCache &lang,
@@ -179,6 +179,10 @@ bool EditorMain::OnKeyPressed(const Plat::Input &input, const UI::InputContext &
 	case Plat::Key::F1:
 		_helpBox->SetVisible(!_helpBox->GetVisible());
 		break;
+	case Plat::Key::F5:
+	case Plat::Key::GamepadView:
+		_commands.playMap();
+		break;
 	case Plat::Key::F9:
 		_conf.uselayers.Set(!_conf.uselayers.Get());
 		break;
@@ -254,3 +258,9 @@ UI::WindowLayout EditorMain::GetChildLayout(TextureManager &texman, const UI::La
 	assert(false);
 	return {};
 }
+
+vec2d EditorMain::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	return layoutConstraints.maxPixelSize;
+}
+
