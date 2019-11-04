@@ -30,7 +30,6 @@ namespace UI
 class AppConfig;
 class AppController;
 class MainMenuDlg;
-class EditorMain;
 class GameLayout;
 class FpsCounter;
 class ShellConfig;
@@ -83,14 +82,12 @@ private:
 	Plat::AppWindowCommandClose* _cmdCloseAppWindow;
 	std::unique_ptr<LuaConsole> _luaConsole;
 
-	std::shared_ptr<EditorMain> _editor;
 	std::shared_ptr<GameLayout> _game;
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
-	std::shared_ptr<UI::Button> _editorButton;
 	std::shared_ptr<NavStack> _navStack;
 
 	RenderScheme _renderScheme;
@@ -107,8 +104,6 @@ private:
 	void OnControlsSettings();
 	void OnAdvancedSettings();
 	void OnMapSettings();
-	bool GetEditorMode() const;
-	void SetEditorMode(bool editorMode);
 	void ShowMainMenu();
 
 	void OnChangeShowFps();
@@ -125,8 +120,9 @@ private:
 	bool CanNavigateBack() const;
 
 	// AppStateListener
-	void OnGameContextChanging() override;
-	void OnGameContextChanged() override;
+	void OnGameContextRemoving() override;
+	void OnGameContextRemoved() override;
+	void OnGameContextAdded() override;
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key) override;

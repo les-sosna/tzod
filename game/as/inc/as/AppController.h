@@ -22,7 +22,6 @@ public:
 //	void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
 	void StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
 	void SetEditorMode(AppState &appState, bool editorMode);
-	bool GetEditorModeAvailable() const { return !!_savedEditorContext; }
 	void StartNewMapEditor();
 
 	WorldCache& GetWorldCache() { return *_worldCache; }
@@ -30,5 +29,4 @@ public:
 private:
 	FS::FileSystem &_fs;
 	std::unique_ptr<WorldCache> _worldCache;
-	std::shared_ptr<EditorContext> _savedEditorContext;
 };

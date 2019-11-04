@@ -38,11 +38,11 @@ std::string ThemeManager::GetThemeName(size_t index) const
 	return _themes[index-1].fileName.substr(0, _themes[index-1].fileName.size() - 4); // throw off the extension
 }
 
-void ThemeManager::OnGameContextChanging()
+void ThemeManager::OnGameContextRemoving()
 {
 }
 
-void ThemeManager::OnGameContextChanged()
+void ThemeManager::OnGameContextAdded()
 {
 	// load default theme
 //	_textureManager.LoadPackage(ParsePackage(FILE_TEXTURES, _fs.Open(FILE_TEXTURES)->QueryMap(), _fs));

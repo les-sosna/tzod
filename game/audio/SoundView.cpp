@@ -77,7 +77,7 @@ SoundView::SoundView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, AppState &
 	LoadBuffer(fs, logger, SoundTemplate::LightSwitch, "misc/light1"); //
 	LoadBuffer(fs, logger, SoundTemplate::Beep, "misc/beep"); // http://soundbible.com/1133-Beep-Ping.html
 
-	OnGameContextChanged();
+	OnGameContextAdded();
 }
 
 SoundView::~SoundView()
@@ -109,15 +109,20 @@ void SoundView::Step(vec2d listenerPos)
 //		_scriptEnvironment.music->HandleBufferFilling();
 }
 
-void SoundView::OnGameContextChanging()
+void SoundView::OnGameContextRemoving()
 {
 	_soundHarness.reset();
 }
 
-void SoundView::OnGameContextChanged()
+void SoundView::OnGameContextRemoved()
 {
-	if (auto gc = GetAppState().GetGameContext())
+	if (auto &gc = GetAppState().GetGameContext())
 	{
 		_soundHarness.reset(new SoundHarness(*_soundRender, *gc, gc->GetGameplay()));
 	}
+}
+
+void SoundView::OnGameContextAdded()
+{
+	OnGameContextRemoved();
 }

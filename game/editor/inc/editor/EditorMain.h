@@ -40,7 +40,7 @@ class EditorMain
 public:
 	EditorMain(UI::TimeStepManager &manager,
 		TextureManager &texman,
-		EditorContext &editorContext,
+		std::shared_ptr<EditorContext> editorContext,
 		WorldView &worldView,
 		EditorConfig &conf,
 		LangCache &lang,
@@ -50,6 +50,7 @@ public:
 
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	NavigationSink* GetNavigationSink() override { return this; }
 	KeyboardSink* GetKeyboardSink() override { return this; }
 

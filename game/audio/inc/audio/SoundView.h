@@ -30,6 +30,7 @@ private:
 	void LoadBuffer(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, SoundTemplate st, const char *fileName);
 
 	// AppStateListener
-	void OnGameContextChanging() override;
-	void OnGameContextChanged() override;
+	void OnGameContextRemoving() override;
+	void OnGameContextRemoved() override;
+	void OnGameContextAdded() override;
 };

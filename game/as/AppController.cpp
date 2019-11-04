@@ -68,30 +68,27 @@ void AppController::Step(AppState &appState, AppConfig &appConfig, float dt, boo
 //    appState.SetGameContext(std::move(gc));
 //}
 
-void AppController::StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map)
+void AppController::StartDMCampaignMap(AppState& appState, AppConfig& appConfig, DMCampaign& dmCampaign, unsigned int tier, unsigned int map)
 {
 	DMCampaignTier tierDesc(&dmCampaign.tiers.GetTable(tier));
 	DMCampaignMapDesc mapDesc(&tierDesc.maps.GetTable(map));
 
+	while (appState.GetGameContext())
+		appState.PopGameContext();
+
 	auto world = _worldCache->CheckoutCachedWorld(_fs, mapDesc.map_name.Get());
 	DMSettings settings = GetCampaignDMSettings(appConfig, dmCampaign, tier, map);
-	appState.SetGameContext(std::make_shared<GameContextCampaignDM>(std::move(world), settings, tier, map));
-
-	_savedEditorContext.reset();
+	appState.PushGameContext(std::make_shared<GameContextCampaignDM>(std::move(world), settings, tier, map));
 }
 
 void AppController::SetEditorMode(AppState &appState, bool editorMode)
 {
 	if (editorMode)
 	{
-		assert(_savedEditorContext);
-		appState.SetGameContext(std::move(_savedEditorContext));
-		_savedEditorContext.reset();
+		appState.PopGameContext();
 	}
 	else
 	{
-//		assert(!_savedEditorContext);
-
 		auto editorContext = std::dynamic_pointer_cast<EditorContext>(appState.GetGameContext());
 		assert(editorContext);
 
@@ -99,8 +96,6 @@ void AppController::SetEditorMode(AppState &appState, bool editorMode)
 		editorContext->GetWorld().Export(*_fs.Open(fileName, FS::ModeWrite)->QueryStream());
 
 		std::unique_ptr<World> world = LoadMapUncached(*_fs.GetFileSystem("user"), "current");
-
-		_savedEditorContext = editorContext;
 
 		PlayerDesc player;
 		player.nick = "Player";
@@ -126,7 +121,7 @@ void AppController::SetEditorMode(AppState &appState, bool editorMode)
 		//settings.bots.push_back(bot);
 		settings.timeLimit = 300;
 
-		appState.SetGameContext(std::make_shared<GameContext>(std::move(world), settings));
+		appState.PushGameContext(std::make_shared<GameContext>(std::move(world), settings));
 	}
 }
 

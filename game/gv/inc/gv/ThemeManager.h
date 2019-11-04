@@ -32,8 +32,8 @@ private:
 	TextureManager &_textureManager;
 
 	// AppStateListener
-	void OnGameContextChanging() override;
-	void OnGameContextChanged() override;
+	void OnGameContextRemoving() override;
+	void OnGameContextAdded() override;
 
 	ThemeManager(const ThemeManager&) = delete;
 };

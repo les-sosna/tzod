@@ -17,6 +17,7 @@ public:
 	void SetSpacing(float spacing) { _spacing = spacing; }
 	void PopNavStack(UI::Window *wnd = nullptr);
 	void PushNavStack(std::shared_ptr<UI::Window> wnd);
+	void Trim();
 
 	UI::Window* GetNavFront() const;
 	float GetNavigationDepth() const;
