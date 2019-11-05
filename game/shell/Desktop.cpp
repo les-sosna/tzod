@@ -99,11 +99,6 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_con->SetHistory(&_history);
 	AddFront(_con);
 
-	_fps = std::make_shared<FpsCounter>(manager, alignTextLB, GetAppState());
-	AddFront(_fps);
-	_conf.d_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
-	OnChangeShowFps();
-
 	if( _conf.d_graph.Get() )
 	{
 		float xx = 200;
@@ -142,6 +137,9 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 
 	ShowMainMenu();
 	OnGameContextAdded();
+
+	_conf.d_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
+	OnChangeShowFps();
 }
 
 Desktop::~Desktop()
@@ -578,7 +576,16 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 
 void Desktop::OnChangeShowFps()
 {
-	_fps->SetVisible(_conf.d_showfps.Get());
+	if (_conf.d_showfps.Get() && !_fps)
+	{
+		_fps = std::make_shared<FpsCounter>(GetTimeStepManager(), alignTextLB, GetAppState());
+		AddFront(_fps);
+	}
+	else if (!_conf.d_showfps.Get() && _fps)
+	{
+		UnlinkChild(*_fps);
+		_fps.reset();
+	}
 }
 
 void Desktop::OnCommand(std::string_view cmd)
