@@ -2,6 +2,8 @@
 #include <ui/DataSource.h>
 #include <ui/GuiManager.h>
 #include <ui/LayoutContext.h>
+#include <ui/WindowIterator.h>
+#include <algorithm>
 
 NavStack::NavStack(UI::TimeStepManager &manager)
 	: UI::Managerful(manager)
@@ -35,6 +37,29 @@ float NavStack::GetNavigationDepth() const
 		return (float)GetChildren().size() - 1 + transition;
 }
 
+float NavStack::GetInterpolatedAttribute() const
+{
+	auto count = GetChildren().size();
+	if (count > 1)
+	{
+		float transition = GetTransitionTimeLeft() / _foldTime;
+		float a = _attributes[_attributes.size() - 2];
+		float b = _attributes[_attributes.size() - 1];
+		if (_state == State::GoingForward)
+			return Lerp(b, a, transition);
+		else
+			return Lerp(a, b, transition);
+	}
+	else if (count == 1)
+	{
+		return _attributes[0];
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 void NavStack::PopNavStack(UI::Window *wnd)
 {
 	auto navFront = GetNavFront();
@@ -55,12 +80,15 @@ void NavStack::PopNavStack(UI::Window *wnd)
 		case State::GoingBack:
 			// remove the previous staging child
 			UnlinkChild(*GetChildren().back());
+			_attributes.pop_back();
 			_navTransitionStartTime = GetTimeStepManager().GetTime();
 			break;
 		}
 	}
 	else
 	{
+		auto it = std::find(begin(*this), end(*this), wnd);
+		_attributes.erase(_attributes.begin() + std::distance(begin(*this), it));
 		UnlinkChild(*wnd);
 	}
 
@@ -71,17 +99,19 @@ void NavStack::PopNavStack(UI::Window *wnd)
 	}
 }
 
-void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd)
+void NavStack::PushNavStack(std::shared_ptr<UI::Window> wnd, float attribute)
 {
 	if (_state == State::GoingBack)
 	{
 		// remove the staging guy
 		UnlinkChild(*GetChildren().back());
+		_attributes.pop_back();
 	}
 
 	_state = State::GoingForward;
 	_navTransitionStartTime = GetTimeStepManager().GetTime() - GetTransitionTimeLeft();
 
+	_attributes.push_back(attribute);
 	AddFront(wnd);
 	SetFocus(*rbegin(*this));
 }
@@ -92,6 +122,7 @@ void NavStack::Trim()
 	{
 		// remove the staging guy
 		UnlinkChild(*GetChildren().back());
+		_attributes.pop_back();
 
 		_state = State::GoingForward;
 		_navTransitionStartTime = 0;

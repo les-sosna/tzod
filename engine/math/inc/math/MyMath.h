@@ -191,6 +191,11 @@ inline FRECT AlignRT(vec2d rectSize, float canvasWidth)
 	return MakeRectWH(vec2d{ canvasWidth - rectSize.x, 0 }, rectSize);
 }
 
+inline FRECT AlignCC(vec2d rectSize, vec2d canvasSize)
+{
+	return MakeRectWH((canvasSize - rectSize) / 2, rectSize);
+}
+
 struct RectRB
 {
 	int left;
@@ -349,6 +354,11 @@ inline float frand(float max)
 inline vec2d vrand(float len)
 {
 	return Vec2dDirection(frand(PI2)) * len;
+}
+
+inline float Lerp(float a, float b, float t)
+{
+	return a + t * (b - a);
 }
 
 } // namespace math
