@@ -299,7 +299,7 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 				existing.second = devTexIt;
 				currentLT = &existing.first;
 			}
-#if 1
+#if 0
 			// export sprites
 			EditableImage exportedImage(atlasFrame.width * psd.xframes, atlasFrame.height * psd.yframes);
 			for (int y = 0; y < psd.yframes; y++)
@@ -385,7 +385,7 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 		}
 	}
 
-#if 1
+#if 0
     static int s_atlas_idx = 0;
     s_atlas_idx++;
 
