@@ -112,7 +112,7 @@ void WorldView::Render(RenderContext &rc,
 
 	rc.SetMode(RM_WORLD);
 
-	_terrain.Draw(rc, world.GetBounds(), options.drawGrid);
+	_terrain.Draw(rc, world, options.drawGrid);
 
 	for( int z = 0; z < Z_COUNT; ++z )
 	{

@@ -99,11 +99,6 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	_con->SetHistory(&_history);
 	AddFront(_con);
 
-	_fps = std::make_shared<FpsCounter>(manager, alignTextLB, GetAppState());
-	AddFront(_fps);
-	_conf.d_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
-	OnChangeShowFps();
-
 	if( _conf.d_graph.Get() )
 	{
 		float xx = 200;
@@ -142,6 +137,9 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 
 	ShowMainMenu();
 	OnGameContextAdded();
+
+	_conf.d_showfps.eventChange = std::bind(&Desktop::OnChangeShowFps, this);
+	OnChangeShowFps();
 }
 
 Desktop::~Desktop()
@@ -204,7 +202,7 @@ void Desktop::OnSinglePlayer()
 
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
-		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache());
+		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache(), _lang);
 		dlg->eventSelectMap = [this, weakSender = std::weak_ptr<SinglePlayer>(dlg)](int index)
 		{
 			if (auto sender = weakSender.lock())
@@ -335,7 +333,7 @@ void Desktop::OnSettingsMain()
 	commands.player = std::bind(&Desktop::OnPlayerSettings, this);
 	commands.controls = std::bind(&Desktop::OnControlsSettings, this);
 	commands.advanced = std::bind(&Desktop::OnAdvancedSettings, this);
-	_navStack->PushNavStack(std::make_shared<MainSettingsDlg>(_lang, std::move(commands)));
+	_navStack->PushNavStack(std::make_shared<MainSettingsDlg>(_lang, std::move(commands)), 1);
 	UpdateFocus();
 }
 
@@ -344,7 +342,7 @@ void Desktop::OnPlayerSettings()
 	if (_navStack->IsOnStack<PlayerSettings>())
 		return;
 
-	_navStack->PushNavStack(std::make_shared<PlayerSettings>(_conf, _lang));
+	_navStack->PushNavStack(std::make_shared<PlayerSettings>(_conf, _lang), 1);
 	UpdateFocus();
 }
 
@@ -353,7 +351,7 @@ void Desktop::OnControlsSettings()
 	if (_navStack->IsOnStack<ControlsSettings>())
 		return;
 
-	_navStack->PushNavStack(std::make_shared<ControlsSettings>(_conf, _lang));
+	_navStack->PushNavStack(std::make_shared<ControlsSettings>(_conf, _lang), 1);
 	UpdateFocus();
 }
 
@@ -362,7 +360,7 @@ void Desktop::OnAdvancedSettings()
 	if (_navStack->IsOnStack<AdvancedSettings>())
 		return;
 
-	_navStack->PushNavStack(std::make_shared<AdvancedSettings>(_conf, _lang));
+	_navStack->PushNavStack(std::make_shared<AdvancedSettings>(_conf, _lang), 1);
 	UpdateFocus();
 }
 
@@ -403,7 +401,7 @@ void Desktop::ShowMainMenu()
 	{
 		commands.quitGame = [=] { _cmdCloseAppWindow->RequestClose(); };
 	}
-	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_lang, std::move(commands)));
+	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_lang, std::move(commands)), 1);
 	UpdateFocus();
 }
 
@@ -544,9 +542,8 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	auto scale = lc.GetScaleCombined();
 	if (_background.get() == &child)
 	{
-		float navDepth = _navStack->GetNavigationDepth();
-		float transition = 1 - (1 - std::cos(PI * std::min(1.f, navDepth))) / 2;
-		return UI::WindowLayout{ MakeRectWH(vec2d{0, -size.y * transition}, size), 1, true };
+		float transition = (1 - std::cos(PI * _navStack->GetInterpolatedAttribute())) / 2;
+		return UI::WindowLayout{ AlignCC(size * Lerp(1.5f, 1, transition), size), transition, true };
 	}
 	if (_navStack.get() == &child)
 	{
@@ -578,7 +575,16 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 
 void Desktop::OnChangeShowFps()
 {
-	_fps->SetVisible(_conf.d_showfps.Get());
+	if (_conf.d_showfps.Get() && !_fps)
+	{
+		_fps = std::make_shared<FpsCounter>(GetTimeStepManager(), alignTextLB, GetAppState());
+		AddFront(_fps);
+	}
+	else if (!_conf.d_showfps.Get() && _fps)
+	{
+		UnlinkChild(*_fps);
+		_fps.reset();
+	}
 }
 
 void Desktop::OnCommand(std::string_view cmd)

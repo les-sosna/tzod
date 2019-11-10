@@ -16,11 +16,12 @@ public:
 	UI::FlowDirection GetFlowDirection() const { return _flowDirection; }
 	void SetSpacing(float spacing) { _spacing = spacing; }
 	void PopNavStack(UI::Window *wnd = nullptr);
-	void PushNavStack(std::shared_ptr<UI::Window> wnd);
+	void PushNavStack(std::shared_ptr<UI::Window> wnd, float attribute = 0);
 	void Trim();
 
 	UI::Window* GetNavFront() const;
 	float GetNavigationDepth() const;
+	float GetInterpolatedAttribute() const;
 
 	template <class T>
 	bool IsOnTop() const
@@ -60,6 +61,7 @@ private:
 	float _spacing = 0;
 	float _navTransitionStartTime = 0;
 	float _foldTime = 0.25f;
+	std::vector<float> _attributes;
 
 	vec2d GetNavStackPixelSize(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc) const;
 	float GetTransitionTimeLeft() const;

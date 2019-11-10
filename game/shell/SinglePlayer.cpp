@@ -7,6 +7,7 @@
 #include <cbind/ConfigBinding.h>
 #include <fs/FileSystem.h>
 #include <gc/World.h>
+#include <loc/Language.h>
 #include <render/WorldView.h>
 #include <video/RenderContext.h>
 #include <ui/Button.h>
@@ -14,7 +15,6 @@
 #include <ui/DataSource.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
-#include <ui/Rating.h>
 #include <ui/Rectangle.h>
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
@@ -111,7 +111,7 @@ namespace
 	class DifficultySelectorContent final : public UI::WindowContainer
 	{
 	public:
-		DifficultySelectorContent(ConfVarNumber& confValue)
+		DifficultySelectorContent(const LangCache& lang, ConfVarNumber& confValue)
 			: _confValue(confValue)
 		{
 			auto background = std::make_shared<UI::Rectangle>();
@@ -120,9 +120,11 @@ namespace
 				UI::StateBinding<unsigned int>::MapType{ { "Hover", 1 }, { "Pushed", 1 } }));
 			AddFront(background);
 
-			auto rating = std::make_shared<UI::Rating>();
-			rating->SetRating(std::make_shared<DifficultyConfigBinding>(confValue));
-			AddFront(rating);
+			auto difficultyText = std::make_shared<UI::Text>();
+			difficultyText->SetFont("font_default");
+			difficultyText->SetText(std::make_shared<DifficultyConfigBinding>(lang, confValue));
+			difficultyText->SetAlign(alignTextCC);
+			AddFront(difficultyText);
 
 			auto proxy = std::make_shared<NavigationProxy>(confValue);
 			AddFront(proxy);
@@ -137,20 +139,31 @@ namespace
 
 	private:
 		class DifficultyConfigBinding final
-			: public UI::RenderData<unsigned int>
+			: public UI::LayoutData<std::string_view>
 		{
 		public:
-			DifficultyConfigBinding(const ConfVarNumber& confValue)
-				: _confValue(confValue)
+			DifficultyConfigBinding(const LangCache& lang, const ConfVarNumber& confValue)
+				: _lang(lang)
+				, _confValue(confValue)
 			{}
 
-			// UI::RenderData<unsigned int>
-			unsigned int GetRenderValue(const UI::DataContext& dc, const UI::StateContext& sc) const override
+			// UI::LayoutData<std::string_view>
+			std::string_view GetLayoutValue(const UI::DataContext& dc) const override
 			{
-				return _confValue.GetInt() + 1;
+				switch (_confValue.GetInt())
+				{
+				default:
+				case 0:
+					return _lang.difficulty_setting_easy.Get();
+				case 1:
+					return _lang.difficulty_setting_medium.Get();
+				case 2:
+					return _lang.difficulty_setting_hard.Get();
+				}
 			}
 
 		private:
+			const LangCache& _lang;
 			const ConfVarNumber& _confValue;
 		};
 
@@ -203,7 +216,7 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache)
+SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache, const LangCache& lang)
 	: _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
@@ -214,7 +227,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
-	auto difficultySelectorContent = std::make_shared<DifficultySelectorContent>(appConfig.sp_difficulty);
+	auto difficultySelectorContent = std::make_shared<DifficultySelectorContent>(lang, appConfig.sp_difficulty);
 	difficultySelectorContent->Resize(144, 48);
 	auto difficultySelectorButton = std::make_shared<UI::ContentButton>();;
 	difficultySelectorButton->SetContent(difficultySelectorContent);

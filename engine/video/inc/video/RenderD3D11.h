@@ -36,7 +36,7 @@ public:
 
 	void SetAmbient(float ambient) override;
 
-	bool TexCreate(DEV_TEXTURE &tex, const Image &img, bool magFilter) override;
+	bool TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter) override;
 	void TexFree(DEV_TEXTURE tex) override;
 
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
@@ -57,7 +57,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>  _vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShaderColor;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShaderLight;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerLinear;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerPoint;
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateUI;
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateWorld;
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateLight;

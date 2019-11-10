@@ -24,10 +24,12 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		return;
 
 	_world.Clear();
-	RTTypes::Inst().CreateObject(_world, RTTypes::Inst().GetTypeByName(_className->GetRenderValue(dc, sc)), vec2d{});
+	auto type = RTTypes::Inst().GetTypeByName(_className->GetRenderValue(dc, sc));
+	auto offset = RTTypes::Inst().GetTypeInfo(type).offset;
+	RTTypes::Inst().CreateObject(_world, type, vec2d{ offset, offset });
 
 	RectRB viewport = { 0, 0, (int) lc.GetPixelSize().x, (int) lc.GetPixelSize().y };
-	vec2d eye{ 0, 0 };
+	vec2d eye{ offset, offset };
 	float zoom = lc.GetScaleCombined();
 
 	rc.PushClippingRect(viewport);
