@@ -202,7 +202,7 @@ void Desktop::OnSinglePlayer()
 
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
-		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache());
+		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache(), _lang);
 		dlg->eventSelectMap = [this, weakSender = std::weak_ptr<SinglePlayer>(dlg)](int index)
 		{
 			if (auto sender = weakSender.lock())

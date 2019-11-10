@@ -30,7 +30,7 @@ class SinglePlayer final
 	, private UI::NavigationSink
 {
 public:
-	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache);
+	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache, const LangCache &lang);
 
 	std::function<void(int)> eventSelectMap;
 

@@ -19,6 +19,10 @@ REFLECTION_BEGIN(LangCache)
 
 	VAR_STR( c_locale, "English" )
 
+	VAR_STR( difficulty_setting_easy, "EASY" )
+	VAR_STR( difficulty_setting_medium, "MEDIUM" )
+	VAR_STR( difficulty_setting_hard, "HARD" )
+
 	//
 	// Main menu
 	//
