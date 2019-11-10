@@ -12,8 +12,57 @@ Terrain::Terrain(TextureManager &tm)
 {
 }
 
-static const int dx[8] = { 1,  0, -1,    1, -1,    1,  0, -1 };
-static const int dy[8] = { 1,  1,  1,    0,  0,   -1, -1, -1 };
+namespace
+{
+	struct TileRule
+	{
+		int frame;
+		int include;
+		int exclude;
+	};
+}
+
+static constexpr int LT = 0b00000001, CT = 0b00000010, RT = 0b00000100;
+static constexpr int LC = 0b00001000,                  RC = 0b00010000;
+static constexpr int LB = 0b00100000, CB = 0b01000000, RB = 0b10000000;
+
+static constexpr TileRule rules21[] =
+{
+	{ 0, RB, RC|CB },
+	{ 1, CB, LC|RC },
+	{ 2, LB, LC|CB },
+	{ 3, RC, CT|CB },
+	{ 5, LC, CT|CB },
+	{ 6, RT, CT|RC },
+	{ 7, CT, LC|RC },
+	{ 8, LT, CT|LC },
+
+	{ 12, CT|LC, RC|CB},
+	{ 13, CT|RC, LC|CB},
+	{ 15, LC|CB, CT|RC},
+	{ 16, RC|CB, CT|LC},
+
+	{ 14, CT|LC|RC, CB},
+	{ 17, LC|RC|CB, CT},
+	{ 18, CT|LC|CB, RC},
+	{ 19, CT|RC|CB, LC},
+
+	{ 20, CT|LC|RC|CB },
+};
+static constexpr TileRule rules12[] =
+{
+	{ 0, RB, RC|CB },
+	{ 1, CB },
+	{ 2, LB, LC|CB },
+	{ 3, RC },
+	{ 5, LC },
+	{ 6, RT, CT|RC },
+	{ 7, CT },
+	{ 8, LT, CT|LC },
+};
+//                            LT  CT  RT    LC  RC    LB  CB  RB
+static constexpr int dx[8] = {-1,  0,  1,   -1,  1,   -1,  0,  1 };
+static constexpr int dy[8] = {-1, -1, -1,    0,  0,    1,  1,  1 };
 
 void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid) const
 {
@@ -31,30 +80,6 @@ void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid) const
 	int ymin = std::max(world.GetBlockBounds().top, (int)std::floor(visibleRegion.top / WORLD_BLOCK_SIZE - 0.5f));
 	int xmax = std::min(world.GetBlockBounds().right - 1, (int)std::floor(visibleRegion.right / WORLD_BLOCK_SIZE + 0.5f));
 	int ymax = std::min(world.GetBlockBounds().bottom - 1, (int)std::floor(visibleRegion.bottom / WORLD_BLOCK_SIZE + 0.5f));
-
-	struct TileDef
-	{
-		int frame;
-		int include;
-		int exclude;
-	};
-
-	constexpr int LT = 0b00000001, CT = 0b00000010, RT = 0b00000100;
-	constexpr int LC = 0b00001000,                  RC = 0b00010000;
-	constexpr int LB = 0b00100000, CB = 0b01000000, RB = 0b10000000;
-
-	TileDef definitions[] =
-	{
-		{ 0, LT, CT|LC },
-		{ 1, CT, /*LC|RC*/ },
-		{ 2, RT, CT|RC },
-		{ 3, LC, /*CT|CB*/ },
-		{ 5, RC, /*CT|CB*/ },
-		{ 6, LB, LC|CB },
-		{ 7, CB, /*LC|RC*/ },
-		{ 8, RB, CB|RC },
-	};
-
 
 	for( int y0 = ymin; y0 <= ymax; ++y0 )
 	for( int x0 = xmin; x0 <= xmax; ++x0 )
@@ -77,11 +102,11 @@ void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid) const
 		if (neighbors)
 		{
 			auto rect = MakeRectWH(vec2d{ (float)x0, (float)y0 } *WORLD_BLOCK_SIZE, vec2d{ WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE });
-			for (auto def : definitions)
+			for (auto rule : rules12)
 			{
-				if ((neighbors & def.include) && !(neighbors & def.exclude))
+				if ((neighbors & rule.include) == rule.include && !(neighbors & rule.exclude))
 				{
-					rc.DrawSprite(rect, _texWater, 0xffffffff, def.frame);
+					rc.DrawSprite(rect, _texWater, 0xffffffff, rule.frame);
 				}
 			}
 		}
