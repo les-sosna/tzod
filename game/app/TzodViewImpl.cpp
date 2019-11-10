@@ -16,7 +16,7 @@ static TextureManager InitTextureManager(FS::FileSystem &fs, Plat::ConsoleBuffer
 	{
 		textureManager.LoadPackage(render, fs, ParseDirectory(fs, DIR_SPRITES));
 	}
-	catch(...)
+	catch(const std::runtime_error&)
 	{
 		textureManager.UnloadAllTextures(render);
 		throw;
