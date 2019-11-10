@@ -151,7 +151,7 @@ public:
 
 		AddView<GC_Wood>(Make<Z_Const>(Z_WOOD), Make<R_Tile>(tm, "wood", 0xffffffff, vec2d{ 0, 0 }, true));
 		AddView<GC_Wood>(Make<Z_Const>(Z_SHADOW), Make<R_Tile>(tm, "wood_shadow", 0x50000000, vec2d{ 8, 8 }, false));
-		AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_Tile>(tm, "water", 0xffffffff, vec2d{ 0, 0 }, true));
+		AddView<GC_Water>(Make<Z_Const>(Z_WATER), Make<R_AnimatedSpriteSequence>(tm, "water", 4.0f, std::vector<int>{4, 9, 10, 11}));
 
 		AddView<GC_BrickFragment>(Make<Z_Const>(Z_PARTICLE), Make<R_BrickFragment>(tm));
 		AddView<GC_Particle>(Make<Z_Const>(Z_PARTICLE), Make<R_Particle>(tm));
