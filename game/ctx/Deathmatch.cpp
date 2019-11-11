@@ -26,14 +26,14 @@ void Deathmatch::Step()
 {
 }
 
-float Deathmatch::GetGameOverTime() const
+float Deathmatch::GetGameEndTime() const
 {
-	float gameOverTime = FLT_MAX;
+	float gameEndTime = FLT_MAX;
 	if (_timeLimit > 0)
-		gameOverTime = std::min(gameOverTime, _timeLimit);
+		gameEndTime = std::min(gameEndTime, _timeLimit);
 	if (_fragLimit > 0 && _maxScore >= _fragLimit)
-		gameOverTime = std::min(gameOverTime, _maxScoreTime);
-	return gameOverTime;
+		gameEndTime = std::min(gameEndTime, _maxScoreTime);
+	return gameEndTime;
 }
 
 void Deathmatch::Serialize(SaveFile &f)

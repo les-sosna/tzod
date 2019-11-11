@@ -4,7 +4,7 @@
 #include <as/AppStateListener.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
-#include "ui/Navigation.h"
+#include <ui/Navigation.h>
 #include <ui/Window.h>
 #include <functional>
 #include <string>
@@ -115,7 +115,6 @@ private:
 
 	void UpdateFocus();
 
-	void NavigateHome();
 	void NavigateBack();
 	bool CanNavigateBack() const;
 

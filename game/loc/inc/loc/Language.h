@@ -55,6 +55,8 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( get_file_name_load_map, "Select map to edit" )
 	VAR_STR( get_file_name_new_map, "<Create new map>" )
 
+	VAR_STR( game_restart_btn, "RESTART" )
+
 
 
 	//

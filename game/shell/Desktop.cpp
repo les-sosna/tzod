@@ -126,8 +126,11 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	{
 		if (CanNavigateBack())
 			NavigateBack();
-		else
-			ShowMainMenu();
+		else if (_game)
+		{
+			_game->ShowPauseMenu();
+			UpdateFocus();
+		}
 	};
 	AddFront(_pauseButton);
 
@@ -244,7 +247,6 @@ void Desktop::OnSplitScreen()
 				try
 				{
 //					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-					NavigateHome();
 				}
 				catch (const std::exception & e)
 				{
@@ -390,13 +392,6 @@ void Desktop::ShowMainMenu()
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnSettingsMain, this);
-	commands.close = [=]
-	{
-		//if (GetAppState().GetGameContext()) // do not return to nothing
-		//{
-		//	NavigateHome();
-		//}
-	};
 	if (_cmdCloseAppWindow)
 	{
 		commands.quitGame = [=] { _cmdCloseAppWindow->RequestClose(); };
@@ -423,15 +418,6 @@ void Desktop::UpdateFocus()
 	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
 	bool isGameRunning = !!GetAppState().GetGameContext();
 	_pauseButton->SetVisible(CanNavigateBack() || isGameRunning);
-}
-
-void Desktop::NavigateHome()
-{
-	while (auto wnd = _navStack->GetNavFront())
-	{
-		_navStack->PopNavStack(wnd);
-	}
-	UpdateFocus();
 }
 
 void Desktop::NavigateBack()
@@ -464,6 +450,9 @@ bool Desktop::CanNavigateBack() const
 	if (GetFocus() == _con.get())
 		return true;
 
+	if (_game.get() == _navStack->GetNavFront())
+		return false;
+
 	// Can navigate all the way back if there is game running, otherwise have to stop at main menu
 	bool isGameRunning = !!GetAppState().GetGameContext();
 	bool atMainMenu = _navStack->IsOnTop<MainMenuDlg>();
@@ -481,12 +470,6 @@ bool Desktop::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic,
 		{
 			UpdateFocus();
 		}
-		break;
-
-	case Plat::Key::Escape:
-		if (CanNavigateBack())
-			return false; // keep unhandled, will use navigation sink
-		ShowMainMenu();
 		break;
 
 	case Plat::Key::F2:
@@ -647,6 +630,11 @@ void Desktop::OnGameContextAdded()
 			_conf.sp_tier.SetInt(tierIndex);
 			_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, tierIndex, nextMapIndex);
 		};
+		campaignControlCommands.quitCurrent = [this]
+		{
+			GetAppState().PopGameContext();
+		};
+		campaignControlCommands.systemSettings = std::bind(&Desktop::OnSettingsMain, this);
 
 		_game = std::make_shared<GameLayout>(
 			GetTimeStepManager(),
