@@ -39,8 +39,8 @@ private:
 	virtual void OnClick() {}
 
 	// NavigationSink
-	bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override final;
-	void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override final;
+	bool CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override final;
+	void OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override final;
 
 	// PointerSink
 	bool OnPointerDown(const Plat::Input &input, const  InputContext &ic, const LayoutContext &lc, TextureManager &texman, PointerInfo pi, int button) override final;

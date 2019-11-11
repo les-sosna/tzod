@@ -180,7 +180,7 @@ namespace
 
 		private:
 			// UI::NavigationSink
-			bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override
+			bool CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override
 			{
 				switch (navigate)
 				{
@@ -191,7 +191,7 @@ namespace
 					return false;
 				}
 			}
-			void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override
+			void OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override
 			{
 				if (phase == UI::NavigationPhase::Started)
 				{
@@ -363,12 +363,12 @@ vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints) + pxMargins * 2;
 }
 
-bool SinglePlayer::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool SinglePlayer::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	return GetNextTier(navigate) != GetCurrentTier(_conf, _dmCampaign);
 }
 
-void SinglePlayer::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void SinglePlayer::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Started == phase)
 	{

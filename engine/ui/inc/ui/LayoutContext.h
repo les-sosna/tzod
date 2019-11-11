@@ -6,7 +6,6 @@ namespace UI
 {
 	class Window;
 	class DataContext;
-	class InputContext;
 	struct WindowLayout;
 
 	class LayoutContext
@@ -16,7 +15,7 @@ namespace UI
 		LayoutContext(float opacity, float scale, vec2d pxOffset, vec2d pxSize, bool enabled, bool focused);
 
 		// Initialize layout context for child window
-		LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC,
+		LayoutContext(const Window &parentWindow, const LayoutContext &parentLC,
 			const Window &childWindow, const WindowLayout &childLayout);
 
 		vec2d GetPixelSize() const { return _pxSize; }

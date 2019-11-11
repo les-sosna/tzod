@@ -15,7 +15,7 @@ LayoutContext::LayoutContext(float opacity, float scale, vec2d pxOffset, vec2d p
 	assert(_pxSize.x >= 0 && _pxSize.y >= 0);
 }
 
-LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const WindowLayout &childLayout)
+LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const WindowLayout &childLayout)
 	: _pxOffsetCombined(parentLC.GetPixelOffsetCombined() + Offset(childLayout.rect))
 	, _pxSize(Size(childLayout.rect))
 	, _scaleCombined(parentLC.GetScaleCombined())

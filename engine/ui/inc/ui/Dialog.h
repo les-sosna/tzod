@@ -39,8 +39,8 @@ protected:
 	bool OnKeyPressed(const Plat::Input &input, const InputContext &ic, Plat::Key key) override;
 
 	// NavigationSink
-	bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
-	void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
+	bool CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) override;
 
 	std::shared_ptr<Rectangle> _background;
 

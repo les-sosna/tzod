@@ -201,7 +201,7 @@ bool EditorMain::OnKeyPressed(const Plat::Input &input, const UI::InputContext &
 	return true;
 }
 
-bool EditorMain::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool EditorMain::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -213,7 +213,7 @@ bool EditorMain::CanNavigate(TextureManager& texman, const UI::InputContext& ic,
 	}
 }
 
-void EditorMain::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void EditorMain::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{

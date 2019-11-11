@@ -123,7 +123,7 @@ static void DrawWindowRecursive(
 
 				if (canDrawOutside || RectIntersect(visibleRegion, childLayout.rect))
 				{
-					LayoutContext childLC(renderSettings.ic, wnd, lc, *child, childLayout);
+					LayoutContext childLC(wnd, lc, *child, childLayout);
 					if (childLC.GetOpacityCombined() != 0)
 					{
 						renderSettings.rc.PushTransform(Offset(childLayout.rect), childLC.GetOpacityCombined());
@@ -160,7 +160,7 @@ void UI::RenderUIRoot(const std::shared_ptr<Window> &desktop, RenderSettings &rs
 	{
 		for (bool topMostPass : {true, false})
 		{
-			AreaSinkSearch search{ rs.texman, rs.ic, dc, topMostPass };
+			AreaSinkSearch search{ rs.texman, dc, topMostPass };
 			if (FindAreaSink<PointerSink>(search, desktop, lc, rs.ic.GetPointerPos(0, lc), desktop->GetTopMost()))
 			{
 				rs.hoverPath = std::move(search.outSinkPath);

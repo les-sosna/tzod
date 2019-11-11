@@ -475,7 +475,7 @@ bool EditorWorldView::OnKeyPressed(const Plat::Input &input, const UI::InputCont
 	return true;
 }
 
-bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -493,7 +493,7 @@ bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::InputContext
 	}
 }
 
-void EditorWorldView::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void EditorWorldView::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{

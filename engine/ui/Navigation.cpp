@@ -4,14 +4,14 @@
 #include "inc/ui/WindowIterator.h"
 using namespace UI;
 
-Window* UI::GetPrevFocusChild(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Window &wnd)
+Window* UI::GetPrevFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window &wnd)
 {
 	auto focus = wnd.GetFocus();
 	if (!focus && wnd.GetChildrenCount() > 0)
 	{
 		auto &child = wnd.GetChild(wnd.GetChildrenCount() - 1);
-		LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-		if (NeedsFocus(texman, ic, child, childLC, dc))
+		LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+		if (NeedsFocus(texman, child, childLC, dc))
 			return &child;
 	}
 	if (focus)
@@ -20,22 +20,22 @@ Window* UI::GetPrevFocusChild(TextureManager& texman, const InputContext &ic, co
 		while (focusIt != begin(wnd))
 		{
 			auto &child = **(--focusIt);
-			LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-			if (NeedsFocus(texman, ic, child, childLC, dc))
+			LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+			if (NeedsFocus(texman, child, childLC, dc))
 				return &child;
 		}
 	}
 	return nullptr;
 }
 
-Window* UI::GetNextFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window &wnd)
+Window* UI::GetNextFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window &wnd)
 {
 	auto focus = wnd.GetFocus();
 	if (!focus && wnd.GetChildrenCount() > 0)
 	{
 		auto &child = wnd.GetChild(0);
-		LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-		if (NeedsFocus(texman, ic, child, childLC, dc))
+		LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+		if (NeedsFocus(texman, child, childLC, dc))
 			return &child;
 	}
 	if (focus)
@@ -44,8 +44,8 @@ Window* UI::GetNextFocusChild(TextureManager& texman, const InputContext& ic, co
 		while (focusIt != rbegin(wnd))
 		{
 			auto &child = **(--focusIt);
-			LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-			if (NeedsFocus(texman, ic, child, childLC, dc))
+			LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+			if (NeedsFocus(texman, child, childLC, dc))
 				return &child;
 		}
 	}
