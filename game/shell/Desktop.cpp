@@ -566,7 +566,7 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	}
 	if (_pauseButton.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectWH(UI::ToPx(child.GetSize(), lc)), 1, true };
+		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), 1, true };
 	}
 	assert(false);
 	return {};
