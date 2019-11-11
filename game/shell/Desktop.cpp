@@ -119,18 +119,14 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	}
 
 	_pauseButton = std::make_shared<UI::Button>();
-	_pauseButton->SetBackground("ui/pause");
-	_pauseButton->AlignToBackground(texman);
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
 		if (CanNavigateBack())
 			NavigateBack();
 		else if (_game)
-		{
 			_game->ShowPauseMenu();
-			UpdateFocus();
-		}
+		UpdateFocus();
 	};
 	AddFront(_pauseButton);
 
@@ -417,7 +413,10 @@ void Desktop::UpdateFocus()
 
 	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
 	bool isGameRunning = !!GetAppState().GetGameContext();
-	_pauseButton->SetVisible(CanNavigateBack() || isGameRunning);
+	bool canNavigateBack = CanNavigateBack() || (_game && _game->InPauseMenu());
+	_pauseButton->SetVisible(canNavigateBack || isGameRunning);
+	_pauseButton->SetBackground(canNavigateBack ? "ui/back" : "ui/pause");
+	_pauseButton->AlignToBackground(_texman);
 }
 
 void Desktop::NavigateBack()

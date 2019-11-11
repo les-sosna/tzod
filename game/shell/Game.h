@@ -56,6 +56,7 @@ public:
 
 	vec2d GetListenerPos() const;
 	void ShowPauseMenu();
+	bool InPauseMenu() const { return !!_gamePauseMenu; }
 
 	// Window
 	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;
