@@ -10,20 +10,6 @@
 #include <plat/Keys.h>
 #include <video/RenderContext.h>
 
-static bool CanNavigateBack(TextureManager &texman, const UI::Window &wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
-{
-	// OK to cast since we CanNavigate is const
-	const UI::NavigationSink *navigationSink = const_cast<UI::Window&>(wnd).GetNavigationSink();
-	if (navigationSink && navigationSink->CanNavigate(texman, lc, dc, UI::Navigate::Back))
-		return true;
-	if (auto focusedChild = wnd.GetFocus())
-	{
-		UI::LayoutContext childLC(wnd, lc, *focusedChild, wnd.GetChildLayout(texman, lc, dc, *focusedChild));
-		return CanNavigateBack(texman, *focusedChild, childLC, dc);
-	}
-	return false;
-}
-
 UIInputRenderingController::UIInputRenderingController(TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
                                                        std::shared_ptr<UI::Window> desktop)

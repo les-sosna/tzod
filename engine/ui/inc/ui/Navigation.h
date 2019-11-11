@@ -40,4 +40,6 @@ namespace UI
 
 	Window* GetPrevFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window& wnd);
 	Window* GetNextFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window& wnd);
+
+	bool CanNavigateBack(TextureManager& texman, const Window& wnd, const LayoutContext& lc, const DataContext& dc);
 }
