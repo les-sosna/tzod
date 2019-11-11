@@ -555,8 +555,7 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, size.y / scale - 1 },
-			_fps->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)) / scale, scale), 1, true };
+		return UI::WindowLayout{ AlignLB(_fps->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)), size.y), 1, true };
 	}
 	if (_tierTitle.get() == &child)
 	{
