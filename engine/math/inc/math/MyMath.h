@@ -196,6 +196,11 @@ inline FRECT AlignCC(vec2d rectSize, vec2d canvasSize)
 	return MakeRectWH((canvasSize - rectSize) / 2, rectSize);
 }
 
+inline FRECT AlignLB(vec2d rectSize, float canvasHeight)
+{
+	return MakeRectWH(vec2d{ 0, canvasHeight - rectSize.y }, rectSize);
+}
+
 struct RectRB
 {
 	int left;

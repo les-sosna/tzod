@@ -115,7 +115,7 @@ const Window* WindowContainer::GetFocus() const
 
 // Utils
 
-bool UI::NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc)
+bool UI::NeedsFocus(TextureManager& texman, const Window& wnd, const LayoutContext& lc, const DataContext& dc)
 {
 	if (!wnd.GetVisible())
 		return false;
@@ -126,7 +126,7 @@ bool UI::NeedsFocus(TextureManager& texman, const InputContext& ic, const Window
 	if (auto focus = wnd.GetFocus())
 	{
 		auto childLayout = wnd.GetChildLayout(texman, lc, dc, *focus);
-		if (childLayout.enabled && NeedsFocus(texman, ic, *focus, LayoutContext(ic, wnd, lc, *focus, childLayout), dc))
+		if (childLayout.enabled && NeedsFocus(texman, *focus, LayoutContext(wnd, lc, *focus, childLayout), dc))
 			return true;
 	}
 

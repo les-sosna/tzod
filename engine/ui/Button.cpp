@@ -80,12 +80,12 @@ void ButtonBase::DoClick()
 		eventClick();
 }
 
-bool ButtonBase::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
+bool ButtonBase::CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
 	return Navigate::Enter == navigate && eventClick;
 }
 
-void ButtonBase::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
+void ButtonBase::OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Completed == phase && Navigate::Enter == navigate)
 	{

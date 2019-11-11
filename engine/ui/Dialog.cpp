@@ -34,12 +34,12 @@ WindowLayout Dialog::GetChildLayout(TextureManager& texman, const LayoutContext&
 	return {};
 }
 
-bool Dialog::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
+bool Dialog::CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
 	return Navigate::Back == navigate;
 }
 
-void Dialog::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
+void Dialog::OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (Navigate::Back == navigate && NavigationPhase::Completed == phase)
 	{

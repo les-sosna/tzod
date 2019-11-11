@@ -84,37 +84,37 @@ vec2d StackLayout::GetContentSize(TextureManager &texman, const DataContext &dc,
 		vec2d{ pxMaxSize, pxTotalSize };
 }
 
-Window* StackLayout::GetNavigateTarget(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate)
+Window* StackLayout::GetNavigateTarget(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate)
 {
 	switch (navigate)
 	{
 	case Navigate::Prev:
-		return GetPrevFocusChild(texman, ic, lc, dc, *this);
+		return GetPrevFocusChild(texman, lc, dc, *this);
 	case Navigate::Next:
-		return GetNextFocusChild(texman, ic, lc, dc, *this);
+		return GetNextFocusChild(texman, lc, dc, *this);
 	case Navigate::Up:
-		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(texman, ic, lc, dc, *this) : nullptr;
+		return FlowDirection::Vertical == _flowDirection ? GetPrevFocusChild(texman, lc, dc, *this) : nullptr;
 	case Navigate::Down:
-		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(texman, ic, lc, dc, *this) : nullptr;
+		return FlowDirection::Vertical == _flowDirection ? GetNextFocusChild(texman, lc, dc, *this) : nullptr;
 	case Navigate::Left:
-		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(texman, ic, lc, dc, *this) : nullptr;
+		return FlowDirection::Horizontal == _flowDirection ? GetPrevFocusChild(texman, lc, dc, *this) : nullptr;
 	case Navigate::Right:
-		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(texman, ic, lc, dc, *this) : nullptr;
+		return FlowDirection::Horizontal == _flowDirection ? GetNextFocusChild(texman, lc, dc, *this) : nullptr;
 	default:
 		return nullptr;
 	}
 }
 
-bool StackLayout::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
+bool StackLayout::CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
-	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(texman, ic, lc, dc, navigate);
+	return !!const_cast<StackLayout*>(this)->GetNavigateTarget(texman, lc, dc, navigate);
 }
 
-void StackLayout::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
+void StackLayout::OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(texman, ic, lc, dc, navigate))
+		if (auto newFocus = GetNavigateTarget(texman, lc, dc, navigate))
 		{
 			SetFocus(newFocus);
 		}

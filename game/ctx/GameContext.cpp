@@ -83,7 +83,7 @@ bool GameContext::IsGameplayActive() const
 
 bool GameContext::IsWorldActive() const
 {
-	return (_world->GetTime() < _gameplay->GetGameOverTime()) && IsGameplayActive();
+	return (_world->GetTime() < _gameplay->GetGameEndTime()) && IsGameplayActive();
 }
 
 void GameContext::Serialize(FS::Stream &stream)
@@ -163,7 +163,7 @@ void GameContextCampaignDM::Step(float dt, AppConfig &appConfig, bool *outConfig
 	GameContext::Step(dt, appConfig, outConfigChanged);
 	auto gameplay = GetGameplay();
 	assert(gameplay);
-	if (gameplay->GetGameOverTime() <= GetWorld().GetTime() &&
+	if (gameplay->GetGameEndTime() <= GetWorld().GetTime() &&
 		_campaignTier >= 0 && _campaignMap >= 0 && IsVictory())
 	{
 		appConfig.sp_tiersprogress.EnsureIndex(_campaignTier);

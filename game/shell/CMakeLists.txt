@@ -13,6 +13,7 @@ add_library(shell
 	CampaignControls.h
 	ConfigWidgets.h
 	Game.h
+	GamePauseMenu.h
 	GetFileName.h
 	gui.h	
 	InputManager.h
@@ -40,6 +41,7 @@ add_library(shell
 	ConfigWidgets.cpp
 	Desktop.cpp
 	Game.cpp
+	GamePauseMenu.cpp
 	GetFileName.cpp
 	gui.cpp
 	InputManager.cpp

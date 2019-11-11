@@ -242,7 +242,7 @@ private:
 	std::deque<std::shared_ptr<Window>> _children;
 };
 
-bool NeedsFocus(TextureManager& texman, const InputContext& ic, const Window& wnd, const LayoutContext& lc, const DataContext& dc);
+bool NeedsFocus(TextureManager& texman, const Window& wnd, const LayoutContext& lc, const DataContext& dc);
 FRECT CanvasLayout(vec2d offset, vec2d size, float scale);
 
 //////////////////////// to remove ////////////////////

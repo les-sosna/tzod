@@ -30,7 +30,7 @@ vec2d ScanlineLayout::GetContentSize(TextureManager &texman, const DataContext &
 	return pxElementSize * vec2d{ (float)numColumns, (float)numRows };
 }
 
-Window* ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputContext &ic, const LayoutContext &lc, const DataContext& dc, Navigate navigate)
+Window* ScanlineLayout::GetNavigateTarget(TextureManager& texman, const LayoutContext &lc, const DataContext& dc, Navigate navigate)
 {
 	auto focusChild = GetFocus();
 	auto childIt = std::find(begin(*this), end(*this), focusChild);
@@ -41,9 +41,9 @@ Window* ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputCon
 	switch (navigate)
 	{
 	case Navigate::Prev:
-		return GetPrevFocusChild(texman, ic, lc, dc, *this);
+		return GetPrevFocusChild(texman, lc, dc, *this);
 	case Navigate::Next:
-		return GetNextFocusChild(texman, ic, lc, dc, *this);
+		return GetNextFocusChild(texman, lc, dc, *this);
 	case Navigate::Up:
 		childIndex -= numColumns;
 		if (childIndex >= 0)
@@ -55,9 +55,9 @@ Window* ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputCon
 			return *childIt;
 		break;
 	case Navigate::Left:
-		return GetPrevFocusChild(texman, ic, lc, dc, *this);
+		return GetPrevFocusChild(texman, lc, dc, *this);
 	case Navigate::Right:
-		return GetNextFocusChild(texman, ic, lc, dc, *this);
+		return GetNextFocusChild(texman, lc, dc, *this);
 	case Navigate::Begin:
 		return *begin(*this);
 	case Navigate::End:
@@ -68,16 +68,16 @@ Window* ScanlineLayout::GetNavigateTarget(TextureManager& texman, const InputCon
 	return nullptr;
 }
 
-bool ScanlineLayout::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
+bool ScanlineLayout::CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
-	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(texman, ic, lc, dc, navigate);
+	return !!const_cast<ScanlineLayout*>(this)->GetNavigateTarget(texman, lc, dc, navigate);
 }
 
-void ScanlineLayout::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
+void ScanlineLayout::OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Started == phase)
 	{
-		if (auto newFocus = GetNavigateTarget(texman, ic, lc, dc, navigate))
+		if (auto newFocus = GetNavigateTarget(texman, lc, dc, navigate))
 		{
 			SetFocus(std::move(newFocus));
 		}

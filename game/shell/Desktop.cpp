@@ -119,15 +119,14 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	}
 
 	_pauseButton = std::make_shared<UI::Button>();
-	_pauseButton->SetBackground("ui/pause");
-	_pauseButton->AlignToBackground(texman);
 	_pauseButton->SetTopMost(true);
 	_pauseButton->eventClick = [=]()
 	{
 		if (CanNavigateBack())
 			NavigateBack();
-		else
-			ShowMainMenu();
+		else if (_game)
+			_game->ShowPauseMenu();
+		UpdateFocus();
 	};
 	AddFront(_pauseButton);
 
@@ -244,7 +243,6 @@ void Desktop::OnSplitScreen()
 				try
 				{
 //					_appController.NewGameDM(GetAppState(), _conf.cl_map.Get(), GetDMSettingsFromConfig(_conf));
-					NavigateHome();
 				}
 				catch (const std::exception & e)
 				{
@@ -390,13 +388,6 @@ void Desktop::ShowMainMenu()
 	commands.openMap = std::bind(&Desktop::OnOpenMap, this);
 	commands.exportMap = std::bind(&Desktop::OnExportMap, this);
 	commands.gameSettings = std::bind(&Desktop::OnSettingsMain, this);
-	commands.close = [=]
-	{
-		//if (GetAppState().GetGameContext()) // do not return to nothing
-		//{
-		//	NavigateHome();
-		//}
-	};
 	if (_cmdCloseAppWindow)
 	{
 		commands.quitGame = [=] { _cmdCloseAppWindow->RequestClose(); };
@@ -422,16 +413,10 @@ void Desktop::UpdateFocus()
 
 	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
 	bool isGameRunning = !!GetAppState().GetGameContext();
-	_pauseButton->SetVisible(CanNavigateBack() || isGameRunning);
-}
-
-void Desktop::NavigateHome()
-{
-	while (auto wnd = _navStack->GetNavFront())
-	{
-		_navStack->PopNavStack(wnd);
-	}
-	UpdateFocus();
+	bool canNavigateBack = CanNavigateBack() || (_game && _game->InPauseMenu());
+	_pauseButton->SetVisible(canNavigateBack || isGameRunning);
+	_pauseButton->SetBackground(canNavigateBack ? "ui/back" : "ui/pause");
+	_pauseButton->AlignToBackground(_texman);
 }
 
 void Desktop::NavigateBack()
@@ -464,6 +449,9 @@ bool Desktop::CanNavigateBack() const
 	if (GetFocus() == _con.get())
 		return true;
 
+	if (_game.get() == _navStack->GetNavFront())
+		return false;
+
 	// Can navigate all the way back if there is game running, otherwise have to stop at main menu
 	bool isGameRunning = !!GetAppState().GetGameContext();
 	bool atMainMenu = _navStack->IsOnTop<MainMenuDlg>();
@@ -481,12 +469,6 @@ bool Desktop::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic,
 		{
 			UpdateFocus();
 		}
-		break;
-
-	case Plat::Key::Escape:
-		if (CanNavigateBack())
-			return false; // keep unhandled, will use navigation sink
-		ShowMainMenu();
 		break;
 
 	case Plat::Key::F2:
@@ -523,12 +505,12 @@ void Desktop::OnKeyReleased(const UI::InputContext &ic, Plat::Key key)
 	}
 }
 
-bool Desktop::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool Desktop::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	return UI::Navigate::Back == navigate && CanNavigateBack();
 }
 
-void Desktop::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void Desktop::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{
@@ -555,8 +537,7 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	}
 	if (_fps.get() == &child)
 	{
-		return UI::WindowLayout{ UI::CanvasLayout(vec2d{ 1, size.y / scale - 1 },
-			_fps->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)) / scale, scale), 1, true };
+		return UI::WindowLayout{ AlignLB(_fps->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)), size.y), 1, true };
 	}
 	if (_tierTitle.get() == &child)
 	{
@@ -567,7 +548,7 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 	}
 	if (_pauseButton.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectWH(UI::ToPx(child.GetSize(), lc)), 1, true };
+		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), 1, true };
 	}
 	assert(false);
 	return {};
@@ -648,6 +629,11 @@ void Desktop::OnGameContextAdded()
 			_conf.sp_tier.SetInt(tierIndex);
 			_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, tierIndex, nextMapIndex);
 		};
+		campaignControlCommands.quitCurrent = [this]
+		{
+			GetAppState().PopGameContext();
+		};
+		campaignControlCommands.systemSettings = std::bind(&Desktop::OnSettingsMain, this);
 
 		_game = std::make_shared<GameLayout>(
 			GetTimeStepManager(),
