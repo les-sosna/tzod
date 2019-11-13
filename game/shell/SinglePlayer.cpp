@@ -5,7 +5,6 @@
 #include "inc/shell/Config.h"
 #include <MapFile.h>
 #include <cbind/ConfigBinding.h>
-#include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <loc/Language.h>
 #include <render/WorldView.h>

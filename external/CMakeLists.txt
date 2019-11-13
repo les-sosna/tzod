@@ -25,10 +25,10 @@ add_subdirectory(lua)
 #endif()
 add_subdirectory(pluto)
 add_subdirectory(utfcpp)
-add_subdirectory(zlib)
+#add_subdirectory(zlib)
 
 set_target_properties(
 	lua
 	pluto
-	zlib
+#	zlib
 PROPERTIES FOLDER external)

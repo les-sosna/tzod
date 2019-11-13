@@ -5,10 +5,12 @@ add_library(as
 	inc/as/AppController.h
 	inc/as/AppState.h
 	inc/as/AppStateListener.h
+	inc/as/MapCollection.h
 
 	AppController.cpp
 	AppState.cpp
 	AppStateListener.cpp
+	MapCollection.cpp
 )
 
 target_link_libraries(as PRIVATE

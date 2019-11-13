@@ -1,6 +1,5 @@
 #pragma once
 #include "detail/ConfigConsoleHistory.h"
-#include "detail/MapCollection.h"
 #include <as/AppStateListener.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
@@ -29,12 +28,13 @@ namespace UI
 
 class AppConfig;
 class AppController;
-class MainMenuDlg;
 class GameLayout;
 class FpsCounter;
 class ShellConfig;
 class LangCache;
 class LuaConsole;
+class MainMenuDlg;
+class MapCollection;
 class NavStack;
 
 class Desktop final
@@ -48,6 +48,7 @@ public:
 	Desktop(UI::TimeStepManager &manager,
 	        TextureManager &texman,
 	        AppState &appState,
+	        MapCollection &mapCollection,
 	        AppConfig &appConfig,
 	        AppController &appController,
 	        FS::FileSystem &fs,
@@ -72,6 +73,7 @@ protected:
 private:
 	ConfigConsoleHistory _history;
 	TextureManager &_texman;
+	MapCollection& _mapCollection;
 	AppConfig &_appConfig;
 	AppController &_appController;
 	FS::FileSystem &_fs;
@@ -92,7 +94,6 @@ private:
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
-	MapCollection _mapCollection;
 
 	void OnNewCampaign();
 	void OnSinglePlayer();

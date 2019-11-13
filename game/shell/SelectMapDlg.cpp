@@ -1,8 +1,7 @@
-#include "inc/shell/detail/MapCollection.h"
 #include "inc/shell/Config.h"
 #include "MapPreview.h"
 #include "SelectMapDlg.h"
-#include <fs/FileSystem.h>
+#include <as/MapCollection.h>
 #include <loc/Language.h>
 #include <render/WorldView.h>
 #include <ui/Button.h>

@@ -15,6 +15,7 @@
 #include <as/AppConstants.h>
 #include <as/AppController.h>
 #include <as/AppState.h>
+#include <as/MapCollection.h>
 #include <cbind/ConfigBinding.h>
 #include <ctx/EditorContext.h>
 #include <editor/EditorMain.h>
@@ -49,6 +50,7 @@ extern "C"
 Desktop::Desktop(UI::TimeStepManager &manager,
                  TextureManager &texman,
                  AppState &appState,
+                 MapCollection &mapCollection,
                  AppConfig &appConfig,
                  AppController &appController,
                  FS::FileSystem &fs,
@@ -61,6 +63,7 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	, AppStateListener(appState)
 	, _history(conf)
 	, _texman(texman)
+	, _mapCollection(mapCollection)
 	, _appConfig(appConfig)
 	, _appController(appController)
 	, _fs(fs)
@@ -71,7 +74,6 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 	, _cmdCloseAppWindow(cmdClose)
 	, _renderScheme(texman)
 	, _worldView(texman, _renderScheme)
-	, _mapCollection(*fs.GetFileSystem(DIR_MAPS))
 {
 	using namespace std::placeholders;
 	using namespace UI::DataSourceAliases;
@@ -257,14 +259,6 @@ void Desktop::OnSplitScreen()
 
 void Desktop::OnOpenMap()
 {
-	auto mapsFolder = _fs.GetFileSystem(DIR_MAPS);
-	if (!mapsFolder)
-	{
-		ShowConsole(true);
-		_logger.Printf(1, "Could not open directory '%s'", DIR_MAPS);
-		return;
-	}
-
 	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetWorldCache(), _mapCollection);
 	selectMapDlg->eventMapSelected = [this, weakSender = std::weak_ptr<SelectMapDlg>(selectMapDlg)](unsigned int mapIndex)
 	{
