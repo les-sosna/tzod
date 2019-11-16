@@ -10,7 +10,6 @@ class AppConfig;
 class ShellConfig;
 class LangCache;
 class DMCampaign;
-class WorldCache;
 class MapPreview;
 class World;
 class WorldView;
@@ -30,7 +29,7 @@ class SinglePlayer final
 	, private UI::NavigationSink
 {
 public:
-	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache, const LangCache &lang);
+	SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, MapCollection& mapCollection, const LangCache &lang);
 
 	std::function<void(int)> eventSelectMap;
 
@@ -49,7 +48,7 @@ private:
 	AppConfig &_appConfig;
 	ShellConfig &_conf;
 	DMCampaign &_dmCampaign;
-	WorldCache &_worldCache;
+	MapCollection& _mapCollection;
 	UI::ListDataSourceDefault _tiersSource;
 
 	std::shared_ptr<UI::StackLayout> _content;

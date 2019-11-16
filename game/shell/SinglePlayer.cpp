@@ -5,7 +5,6 @@
 #include "inc/shell/Config.h"
 #include <MapFile.h>
 #include <cbind/ConfigBinding.h>
-#include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <loc/Language.h>
 #include <render/WorldView.h>
@@ -216,13 +215,13 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache, const LangCache& lang)
+SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, MapCollection &mapCollection, const LangCache& lang)
 	: _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
 	, _conf(conf)
 	, _dmCampaign(dmCampaign)
-	, _worldCache(mapCache)
+	, _mapCollection(mapCollection)
 	, _content(std::make_shared<UI::StackLayout>())
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
@@ -301,7 +300,7 @@ void SinglePlayer::UpdateTier()
 
         auto mpButton = std::make_shared<UI::ContentButton>();
         {
-            auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _worldCache);
+            auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _mapCollection);
             mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
             mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
             mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));

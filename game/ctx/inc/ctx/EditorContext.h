@@ -13,9 +13,10 @@ namespace FS
 class EditorContext : public GameContextBase
 {
 public:
-	EditorContext(int width, int height, FS::Stream *stream = nullptr);
+	EditorContext(std::string mapName, int width, int height, FS::Stream *stream);
 	virtual ~EditorContext();
 
+	std::string_view GetMapName() const { return _mapName; }
 	FRECT GetOriginalBounds() const { return _originalBounds; }
 
 	// GameContextBase
@@ -25,6 +26,7 @@ public:
 	bool IsWorldActive() const override { return false; }
 
 private:
+	std::string _mapName;
 	std::unique_ptr<World> _world;
 	FRECT _originalBounds = {};
 };

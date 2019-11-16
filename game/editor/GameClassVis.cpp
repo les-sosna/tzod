@@ -36,6 +36,7 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
 	WorldViewRenderOptions options;
 	options.editorMode = true;
+	options.noBackground = true;
 	_worldView.Render(rc, _world, options);
 	rc.PopTransform();
 	rc.PopClippingRect();

@@ -9,7 +9,6 @@ add_library(editor
 	inc/editor/detail/QuickActions.h
 
 	GameClassVis.h
-	MapList.h
 	PropertyList.h
 #	ServiceEditor.h
 
@@ -18,7 +17,6 @@ add_library(editor
 	EditorMain.cpp
 	EditorWorldView.cpp
 	GameClassVis.cpp
-	MapList.cpp
 	MapSettings.cpp
 	PropertyList.cpp
 	QuickActions.cpp
@@ -29,7 +27,6 @@ add_library(editor
 target_link_libraries(editor PRIVATE
 	cbind
 	ctx
-	fs
 	gc
 	gclua
 	gv

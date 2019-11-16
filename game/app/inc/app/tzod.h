@@ -19,6 +19,7 @@ class AppState;
 class AppController;
 class ShellConfig;
 class LangCache;
+class MapCollection;
 class DMCampaign;
 
 class TzodApp final
@@ -27,6 +28,7 @@ public:
 	TzodApp(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, const char *language = nullptr);
 	~TzodApp();
 
+	MapCollection& GetMapCollection();
 	AppState& GetAppState();
 	AppController& GetAppController();
 	AppConfig& GetAppConfig();

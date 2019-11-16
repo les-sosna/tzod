@@ -5,7 +5,8 @@
 #include <MapFile.h>
 #include <stdexcept>
 
-EditorContext::EditorContext(int width, int height, FS::Stream *stream)
+EditorContext::EditorContext(std::string mapName, int width, int height, FS::Stream *stream)
+	: _mapName(std::move(mapName))
 {
 	assert(width >= 0 && height >= 0);
 	RectRB bounds{ -width / 2, -height / 2, width / 2, height / 2 };

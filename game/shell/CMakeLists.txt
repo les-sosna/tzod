@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 3.3)
 
 add_library(shell
 	inc/shell/detail/ConfigConsoleHistory.h
-	inc/shell/detail/MapCollection.h
 	inc/shell/Config.h
 	inc/shell/Desktop.h
 	inc/shell/Profiler.h
@@ -48,7 +47,6 @@ add_library(shell
 	KeyMapper.cpp
 	LuaConsole.cpp
 	MainMenu.cpp
-	MapCollection.cpp
 	MapList.cpp
 	MapPreview.cpp
 	MessageArea.cpp

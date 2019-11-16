@@ -7,7 +7,6 @@
 #include <gc/RigidBody.h>
 #include <gc/TypeSystem.h>
 #include <gc/WorldCfg.h>
-#include <gv/ThemeManager.h>
 #include <plat/ConsoleBuffer.h>
 #include <plat/Input.h>
 #include <plat/Keys.h>

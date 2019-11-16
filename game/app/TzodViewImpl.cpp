@@ -31,6 +31,7 @@ TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose* cmdC
 		timeStepManager,
 		textureManager,
 		app.GetAppState(),
+		app.GetMapCollection(),
 		app.GetAppConfig(),
 		app.GetAppController(),
 		fs,
