@@ -17,7 +17,7 @@ static constexpr auto CompareMapName = [](std::string_view a, std::string_view b
 
 MapCollection::MapCollection(FS::FileSystem &fs)
 {
-	std::map<std::string, bool, decltype(CompareMapName)> isUserMap;
+	std::map<std::string, bool, decltype(CompareMapName)> isUserMap(CompareMapName);
 
 	for (auto &fileName: fs.GetFileSystem(DIR_MAPS)->EnumAllFiles("*.tzod"))
 	{

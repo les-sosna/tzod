@@ -21,8 +21,7 @@ void R_AnimatedSprite::Draw(const World &world, const GC_MovingObject &mo, Rende
 
 
 R_AnimatedSpriteSequence::R_AnimatedSpriteSequence(TextureManager& tm, const char* tex, float frameRate, std::vector<int> frames)
-	: _tm(tm)
-	, _texId(tm.FindSprite(tex))
+	: _texId(tm.FindSprite(tex))
 	, _frameRate(frameRate)
 	, _frames(std::move(frames))
 {
