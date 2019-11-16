@@ -203,7 +203,7 @@ void Desktop::OnSinglePlayer()
 
 	if (_dmCampaign.tiers.GetSize() > 0)
 	{
-		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _appController.GetWorldCache(), _lang);
+		auto dlg = std::make_shared<SinglePlayer>(_worldView, _fs, _appConfig, _conf, _dmCampaign, _mapCollection, _lang);
 		dlg->eventSelectMap = [this, weakSender = std::weak_ptr<SinglePlayer>(dlg)](int index)
 		{
 			if (auto sender = weakSender.lock())
@@ -216,7 +216,7 @@ void Desktop::OnSinglePlayer()
 
 					int currentTier = GetCurrentTier(_conf, _dmCampaign);
 					int currentMap = GetCurrentMap(_conf, _dmCampaign);
-					_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, currentTier, currentMap);
+					_appController.StartDMCampaignMap(GetAppState(), _mapCollection, _appConfig, _dmCampaign, currentTier, currentMap);
 				}
 				catch (const std::exception & e)
 				{
@@ -259,20 +259,15 @@ void Desktop::OnSplitScreen()
 
 void Desktop::OnOpenMap()
 {
-	auto selectMapDlg = std::make_shared<SelectMapDlg>(_worldView, _fs, _conf, _lang, _appController.GetWorldCache(), _mapCollection);
+	auto selectMapDlg = std::make_shared<SelectMapDlg>(_fs, _worldView, _conf, _lang, _mapCollection);
 	selectMapDlg->eventMapSelected = [this, weakSender = std::weak_ptr<SelectMapDlg>(selectMapDlg)](unsigned int mapIndex)
 	{
 		if (auto sender = weakSender.lock())
 		{
-			std::shared_ptr<FS::Stream> stream;
-			if (mapIndex != -1)
-			{
-				auto fileName = std::string(DIR_MAPS).append("/").append(_mapCollection.GetMapName(mapIndex)) + ".tzod";
-				stream = _fs.Open(fileName)->QueryStream();
-			}
-			_navStack->Trim(); // previous game/editor context may be held by UI, release it first to prevent memory spike
-			std::unique_ptr<GameContextBase> gc(new EditorContext(_conf.editor.width.GetInt(), _conf.editor.height.GetInt(), stream.get()));
-			GetAppState().PushGameContext(std::move(gc));
+			// previous game/editor context may be held by UI, release it first to prevent memory spike
+			_navStack->Trim();
+			_appController.StartNewMapEditor(GetAppState(), _mapCollection, _conf.editor.width.GetInt(), _conf.editor.height.GetInt(),
+				mapIndex != -1 ? _mapCollection.GetMapName(mapIndex) : "");
 		}
 	};
 
@@ -428,7 +423,7 @@ void Desktop::NavigateBack()
 		}
 		else if (_navStack->IsOnTop<EditorMain>())
 		{
-			GetAppState().PopGameContext();
+			_appController.SaveAndExitEditor(GetAppState(), _mapCollection);
 		}
 		else
 		{
@@ -611,7 +606,7 @@ void Desktop::OnGameContextAdded()
 		CampaignControlCommands campaignControlCommands;
 		campaignControlCommands.replayCurrent = [this]
 		{
-			_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
+			_appController.StartDMCampaignMap(GetAppState(), _mapCollection, _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
 		};
 		campaignControlCommands.playNext = [this]
 		{
@@ -621,7 +616,7 @@ void Desktop::OnGameContextAdded()
 				tierIndex++;
 			_conf.sp_map.SetInt(nextMapIndex);
 			_conf.sp_tier.SetInt(tierIndex);
-			_appController.StartDMCampaignMap(GetAppState(), _appConfig, _dmCampaign, tierIndex, nextMapIndex);
+			_appController.StartDMCampaignMap(GetAppState(), _mapCollection, _appConfig, _dmCampaign, tierIndex, nextMapIndex);
 		};
 		campaignControlCommands.quitCurrent = [this]
 		{
@@ -655,7 +650,7 @@ void Desktop::OnGameContextAdded()
 			_worldView,
 			_conf.editor,
 			_lang,
-			EditorCommands{ [this] { _appController.SetEditorMode(GetAppState(), false); } },
+			EditorCommands{ [this] { _appController.PlayCurrentMap(GetAppState(), _mapCollection); } },
 			_logger);
 
 		_navStack->PushNavStack(editor);

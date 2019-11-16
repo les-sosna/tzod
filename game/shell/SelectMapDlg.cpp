@@ -11,15 +11,23 @@
 #include <ui/ScrollView.h>
 #include <ui/StackLayout.h>
 
-SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection)
-	: _worldView(worldView)
+SelectMapDlg::SelectMapDlg(FS::FileSystem& fsRoot, WorldView &worldView, ShellConfig &conf, LangCache &lang, MapCollection &mapCollection)
+	: MapCollectionListener(mapCollection)
+	, _fs(fsRoot)
+	, _worldView(worldView)
 	, _conf(conf)
-	, _worldCache(worldCache)
 	, _mapCollection(mapCollection)
 	, _mapTiles(std::make_shared<UI::ScanlineLayout>())
 {
 	SetContent(_mapTiles);
 	_mapTiles->SetElementSize(vec2d{ _conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat() });
+
+	OnMapAdded(-1);
+}
+
+void SelectMapDlg::OnMapAdded(int newMapIndex)
+{
+	_mapTiles->UnlinkAllChildren(); // TODO: add just one element
 
 	using namespace UI::DataSourceAliases;
 	auto newMapButton = std::make_shared<UI::Button>();
@@ -31,23 +39,29 @@ SelectMapDlg::SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellCo
 	};
 	_mapTiles->AddFront(newMapButton);
 
-	for (unsigned int mapIndex = 0; mapIndex < _mapCollection.GetMapCount(); mapIndex++)
+	auto mapCount = GetMapCollection().GetMapCount();
+	for (int mapIndex = 0; mapIndex < mapCount; mapIndex++)
 	{
-		auto mapPreview = std::make_shared<MapPreview>(fsRoot, _worldView, _worldCache);
-		mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
-		mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
-		mapPreview->SetMapName(std::make_shared<UI::StaticText>(_mapCollection.GetMapName(mapIndex)));
-
-		auto mpButton = std::make_shared<UI::ContentButton>();
-		mpButton->SetContent(mapPreview);
-		mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
-		mpButton->eventClick = [this, mapIndex]()
-		{
-			eventMapSelected(mapIndex);
-		};
-
-		_mapTiles->AddFront(mpButton);
+		_mapTiles->AddFront(MakeMapTileButton(mapIndex));
 	}
 
 	_mapTiles->SetFocus(&_mapTiles->GetChild(0));
+}
+
+std::shared_ptr<UI::ContentButton> SelectMapDlg::MakeMapTileButton(int mapIndex)
+{
+	auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _mapCollection);
+	mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
+	mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
+	mapPreview->SetMapName(std::make_shared<UI::StaticText>(GetMapCollection().GetMapName(mapIndex)));
+
+	auto mpButton = std::make_shared<UI::ContentButton>();
+	mpButton->SetContent(mapPreview);
+	mpButton->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
+	mpButton->eventClick = [this, mapIndex]()
+	{
+		eventMapSelected(mapIndex);
+	};
+
+	return mpButton;
 }

@@ -1,5 +1,5 @@
 #include "MapPreview.h"
-#include <gc/WorldCache.h>
+#include <as/MapCollection.h>
 #include <gc/World.h>
 #include <ui/DataSource.h>
 #include <ui/InputContext.h>
@@ -10,10 +10,10 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-MapPreview::MapPreview(FS::FileSystem &fs, WorldView &worldView, WorldCache &mapCache)
+MapPreview::MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCollection &mapCollection)
 	: _fs(fs)
 	, _worldView(worldView)
-	, _worldCache(mapCache)
+	, _mapCollection(mapCollection)
 {
 }
 
@@ -45,7 +45,7 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 
 	if (_mapName)
 	{
-		const World &world = _worldCache.GetCachedWorld(_fs, _mapName->GetRenderValue(dc, sc));
+		const World &world = _mapCollection.GetCachedWorld(_fs, _mapName->GetRenderValue(dc, sc));
 
 		vec2d worldSize = Size(world.GetBounds());
 		vec2d eye = Center(world.GetBounds());

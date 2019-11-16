@@ -5,7 +5,7 @@
 class AppState;
 class AppConfig;
 class DMCampaign;
-class WorldCache;
+class MapCollection;
 class EditorContext;
 
 namespace FS
@@ -20,13 +20,13 @@ public:
 	~AppController();
 	void Step(AppState &appState, AppConfig &appConfig, float dt, bool *outConfigChanged);
 //	void NewGameDM(TzodApp &app, const std::string &mapName, const DMSettings &settings);
-	void StartDMCampaignMap(AppState &appState, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
-	void SetEditorMode(AppState &appState, bool editorMode);
-	void StartNewMapEditor();
-
-	WorldCache& GetWorldCache() { return *_worldCache; }
+	void StartDMCampaignMap(AppState &appState, MapCollection& mapCollection, AppConfig &appConfig, DMCampaign &dmCampaign, unsigned int tier, unsigned int map);
+	void PlayCurrentMap(AppState &appState, MapCollection& mapCollection);
+	void StartNewMapEditor(AppState& appState, MapCollection& mapCollection, int width, int height, std::string_view existingMapNameOptional);
+	void SaveAndExitEditor(AppState& appState, MapCollection& mapCollection);
 
 private:
 	FS::FileSystem &_fs;
-	std::unique_ptr<WorldCache> _worldCache;
+
+	void SaveCurrentMap(EditorContext &editorContext, MapCollection& mapCollection);
 };

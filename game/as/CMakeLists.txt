@@ -17,6 +17,7 @@ target_link_libraries(as PRIVATE
 	ctx
 	gc
 	fs
+	mapfile
 )
 
 target_include_directories(as INTERFACE inc)

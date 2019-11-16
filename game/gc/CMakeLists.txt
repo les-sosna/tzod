@@ -39,7 +39,6 @@ add_library(gc
 	inc/gc/Weapons.h
 	inc/gc/World.h
 	inc/gc/World.inl
-	inc/gc/WorldCache.h
 	inc/gc/WorldCfg.h
 	inc/gc/WorldEvents.h
 	inc/gc/Z.h	
@@ -82,7 +81,6 @@ add_library(gc
 	WeaponBase.cpp
 	Weapons.cpp
 	World.cpp
-	WorldCache.cpp
 )
 
 target_link_libraries(gc
