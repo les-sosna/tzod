@@ -72,6 +72,7 @@ private:
 	LangCache &_lang;
 	EditorCommands _commands;
 	std::shared_ptr<EditorWorldView> _editorWorldView;
+	std::shared_ptr<UI::Rectangle> _shadow;
 	std::shared_ptr<UI::Text> _layerDisp;
 	std::shared_ptr<UI::Window> _helpBox;
 	std::shared_ptr<UI::CheckBox> _modeSelect;

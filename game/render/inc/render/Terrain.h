@@ -15,7 +15,7 @@ class Terrain final
 {
 public:
 	Terrain(TextureManager &tm);
-	void Draw(RenderContext &rc, const World& world, bool drawGrid) const;
+	void Draw(RenderContext &rc, const World& world, bool drawGrid, bool drawBackground) const;
 
 private:
 	size_t _texBack;

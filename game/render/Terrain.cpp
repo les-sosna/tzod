@@ -64,10 +64,11 @@ static constexpr TileRule rules12[] =
 static constexpr int dx[8] = {-1,  0,  1,   -1,  1,   -1,  0,  1 };
 static constexpr int dy[8] = {-1, -1, -1,    0,  0,    1,  1,  1 };
 
-void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid) const
+void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid, bool drawBackground) const
 {
 	auto bounds = world.GetBounds();
-	rc.DrawBackground(_texBack, bounds);
+	if (drawBackground)
+		rc.DrawBackground(_texBack, bounds);
 
 	if( drawGrid && rc.GetScale() > 0.25 )
 		rc.DrawBackground(_texGrid, bounds);
