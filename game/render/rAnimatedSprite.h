@@ -25,7 +25,6 @@ public:
 	void Draw(const World& world, const GC_MovingObject& mo, RenderContext& rc) const override;
 
 private:
-	TextureManager& _tm;
 	size_t _texId;
 	float _frameRate;
 	std::vector<int> _frames;

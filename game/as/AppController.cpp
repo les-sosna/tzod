@@ -9,7 +9,7 @@
 #include <fs/FileSystem.h>
 #include <gc/World.h>
 #include <algorithm>
-#include <ctime>
+#include <time.h>
 
 static PlayerDesc GetPlayerDescFromConf(const ConfPlayerBase &p)
 {
@@ -125,12 +125,11 @@ void AppController::StartNewMapEditor(AppState& appState, MapCollection& mapColl
 	{
 		// generate new unique map name
 
-		auto time = std::time(nullptr);
-		struct tm buf;
-		gmtime_s(&buf, &time);
+		auto t = time(nullptr);
+		auto tm = gmtime(&t);
 		
 		char str[256];
-		sprintf_s(str, "!%04d%02d%02d%02d%02d%02d-", buf.tm_year+1900, buf.tm_mon+1, buf.tm_mday, buf.tm_hour, buf.tm_min, buf.tm_sec);
+		snprintf(str, sizeof(str), "!%04d%02d%02d%02d%02d%02d-", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
 		mapName = str;
 
 		static const std::string_view abc = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
