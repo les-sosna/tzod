@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "inc/as/AppController.h"
 #include "inc/as/AppConstants.h"
 #include "inc/as/AppState.h"
