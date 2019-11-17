@@ -1,1 +1,1 @@
-yframes=4
+yframes=10

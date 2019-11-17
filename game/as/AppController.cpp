@@ -93,13 +93,13 @@ void AppController::PlayCurrentMap(AppState &appState, MapCollection& mapCollect
 
 	PlayerDesc player;
 	player.nick = "Player";
-	player.skin = "red";
+	player.skin = "yellow_move";
 	player.cls = "default";
 	player.team = 0;
 
 	PlayerDesc player2;
 	player2.nick = "Player2";
-	player2.skin = "yellow";
+	player2.skin = "red";
 	player2.cls = "default";
 	player2.team = 0;
 
@@ -111,7 +111,7 @@ void AppController::PlayCurrentMap(AppState &appState, MapCollection& mapCollect
 
 	DMSettings settings;
 	settings.players.push_back(player);
-	settings.players.push_back(player2);
+	//settings.players.push_back(player2);
 	//settings.bots.push_back(bot);
 	settings.timeLimit = 300;
 
