@@ -128,7 +128,7 @@ void AppController::StartNewMapEditor(AppState& appState, MapCollection& mapColl
 
 		auto t = time(nullptr);
 		auto tm = gmtime(&t);
-		
+
 		char str[256];
 		snprintf(str, sizeof(str), "!%04d%02d%02d%02d%02d%02d-", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
 		mapName = str;

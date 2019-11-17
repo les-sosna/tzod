@@ -3,6 +3,7 @@
 #include "detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/ObjPtr.h>
+#include <gc/World.h>
 #include <ui/Navigation.h>
 #include <ui/PointerInput.h>
 #include <ui/Texture.h>
@@ -13,7 +14,6 @@ class PropertyList;
 class TextureManager;
 class EditorConfig;
 class EditorContext;
-class World;
 class WorldView;
 class RenderScheme;
 class GameClassVis;
@@ -102,6 +102,7 @@ private:
 	vec2d _virtualPointer;
 	vec2d _prevPointerPosition;
 	DefaultCamera _defaultCamera;
+	mutable World _objectPreviewWorld;
 	std::shared_ptr<PropertyList> _propList;
 	UI::Texture _fontSmall = "font_small";
 	UI::Texture _texSelection = "ui/selection";

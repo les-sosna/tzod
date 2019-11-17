@@ -24,7 +24,7 @@ public:
 	void PopTransform();
 
 	FRECT GetVisibleRegion() const;
-	float GetScale() const { return _scale; }
+	float GetScale() const { return _currentTransform.scale; }
 
 	void DrawSprite(const FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
@@ -47,6 +47,7 @@ private:
 	struct Transform
 	{
 		vec2d offset;
+		float scale;
 		uint32_t opacity;
 		bool hardware;
 	};
@@ -55,6 +56,5 @@ private:
 	std::stack<RectRB> _clipStack;
 	std::stack<Transform> _transformStack;
 	Transform _currentTransform; // local copy of _transformStack.top
-	float _scale = 1;
 	RenderMode _mode;
 };

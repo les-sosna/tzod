@@ -5,7 +5,7 @@
 RenderContext::RenderContext(const TextureManager &tm, IRender &render, unsigned int width, unsigned int height)
 	: _tm(tm)
 	, _render(render)
-	, _currentTransform{ vec2d{}, 0xff }
+	, _currentTransform{ vec2d{}, 1, 0xff }
 	, _mode(RM_UNDEFINED)
 {
 	_transformStack.push(_currentTransform);
@@ -37,35 +37,37 @@ void RenderContext::PopClippingRect()
 void RenderContext::PushTransform(vec2d offset, float opacityCombined)
 {
 	assert(!_currentTransform.hardware);
-	_transformStack.push({ _currentTransform.offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
+	_transformStack.push({ _currentTransform.offset + offset, 1, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
 	_currentTransform = _transformStack.top();
 }
 
 void RenderContext::PushWorldTransform(vec2d offset, float scale)
 {
-	assert(!_currentTransform.hardware);
-	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.opacity, true /*hardware*/ });
+	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.scale * scale, _currentTransform.opacity, true /*hardware*/ });
 	_currentTransform = _transformStack.top();
-	_scale = scale;
-	_render.SetTransform(_currentTransform.offset, scale);
+	_render.SetTransform(_currentTransform.offset, _currentTransform.scale);
 }
 
 void RenderContext::PopTransform()
 {
 	assert(_transformStack.size() > 1);
-	if (_currentTransform.hardware)
-	{
-		_render.SetTransform({}, 1);
-		_scale = 1;
-	}
+	bool wasHardware = _currentTransform.hardware;
 	_transformStack.pop();
 	_currentTransform = _transformStack.top();
+	if (_currentTransform.hardware)
+	{
+		_render.SetTransform(_currentTransform.offset, _currentTransform.scale);
+	}
+	else if (wasHardware)
+	{
+		_render.SetTransform({}, 1);
+	}
 }
 
 FRECT RenderContext::GetVisibleRegion() const
 {
 	FRECT visibleRegion = RectOffset(RectToFRect(_clipStack.top()), -_currentTransform.offset);
-	return visibleRegion / _scale;
+	return visibleRegion / _currentTransform.scale;
 }
 
 static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
