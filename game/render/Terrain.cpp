@@ -103,7 +103,7 @@ void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid, bool dr
 		if (neighbors)
 		{
 			auto rect = MakeRectWH(vec2d{ (float)x0, (float)y0 } *WORLD_BLOCK_SIZE, vec2d{ WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE });
-			for (auto rule : rules12)
+			for (auto rule : rules21)
 			{
 				if ((neighbors & rule.include) == rule.include && !(neighbors & rule.exclude))
 				{
