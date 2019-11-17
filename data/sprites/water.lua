@@ -1,2 +1,2 @@
 xframes = 3
-yframes = 4
+yframes = 7

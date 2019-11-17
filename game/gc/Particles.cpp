@@ -14,7 +14,7 @@ GC_BrickFragment::GC_BrickFragment(vec2d pos, vec2d v0)
   : GC_MovingObject(pos)
   , _startFrame(rand())
   , _time(0)
-  , _timeLife(frand(0.5f) + 1.0f)
+  , _timeLife(frand(0.1f) + 0.2f)
   , _velocity(v0)
 {
 }
@@ -37,14 +37,18 @@ void GC_BrickFragment::TimeStep(World &world, float dt)
 {
 	_time += dt;
 
-	if( _time >= _timeLife * 0.5f )
+	if( _time >= _timeLife )
 	{
 		Kill(world);
 		return;
 	}
+	else
+	{
+		MoveTo(world, GetPos() + _velocity * dt * std::cos(_time / _timeLife * PI / 2));
+		//	_velocity += vec2d{ 0, 300.0f } *dt;
 
-	MoveTo(world, GetPos() + _velocity * dt);
-	_velocity += vec2d{ 0, 300.0f } *dt;
+	}
+
 }
 
 /////////////////////////////////////////////////////////////

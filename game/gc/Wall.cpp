@@ -448,7 +448,8 @@ void GC_Wall::OnDamage(World &world, DamageDesc &dd)
 		}
 		v += vrand(25);
 
-		world.New<GC_BrickFragment>(dd.hit, v);
+		world.New<GC_BrickFragment>(dd.hit, v*2.5f);
+		world.New<GC_Particle>(dd.hit + vrand(8), SPEED_SMOKE, PARTICLE_SMOKE, frand(0.2f) + 0.3f);
 	}
 	GC_RigidBodyStatic::OnDamage(world, dd);
 }

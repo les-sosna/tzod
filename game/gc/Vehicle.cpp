@@ -246,7 +246,10 @@ void GC_Vehicle::MoveTo(World &world, const vec2d &pos)
 	if (_weapon)
 		_weapon->MoveTo(world, pos);
 	if (_shield)
+	{
 		_shield->MoveTo(world, pos);
+		_shield->SetDirection(GetDirection());
+	}
 	GC_MovingObject::MoveTo(world, pos);
 }
 
