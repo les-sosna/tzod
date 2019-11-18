@@ -133,7 +133,7 @@ protected:
 class PlayerSettings : public SettingsListBase
 {
 public:
-	PlayerSettings(ShellConfig &conf, LangCache& lang);
+	PlayerSettings(AppConfig &conf, LangCache& lang);
 };
 
 class ControlsSettings : public SettingsListBase

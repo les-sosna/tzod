@@ -329,7 +329,7 @@ void Desktop::OnPlayerSettings()
 	if (_navStack->IsOnStack<PlayerSettings>())
 		return;
 
-	_navStack->PushNavStack(std::make_shared<PlayerSettings>(_conf, _lang), 1);
+	_navStack->PushNavStack(std::make_shared<PlayerSettings>(_appConfig, _lang), 1);
 	UpdateFocus();
 }
 
