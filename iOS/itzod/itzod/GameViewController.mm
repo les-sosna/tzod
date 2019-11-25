@@ -39,6 +39,8 @@
 
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
         _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, view.appWindow));
+
+        view.inputSink = &_tzodView->GetAppWindowInputSink();
     }
 }
 
@@ -81,15 +83,19 @@
 - (void)update
 {
     if (_tzodView)
-        _tzodView->Step(self.timeSinceLastUpdate);
+    {
+        AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        _tzodView->Step(appDelegate.app, self.timeSinceLastUpdate);
+    }
 }
 
+// GLKViewDelegate
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
     if (_tzodView)
     {
-//        auto &appWindow = ((GameView *)view).appWindow;
-  //      _tzodView->Render(appWindow.GetPixelWidth(), appWindow.GetPixelHeight(), appWindow.GetLayoutScale());
+        auto &appWindow = ((GameView *)view).appWindow;
+        _tzodView->GetAppWindowInputSink().OnRefresh(appWindow);
     }
 }
 

@@ -4,17 +4,14 @@
 #include <plat/Input.h>
 #include <plat/Clipboard.h>
 #include <video/RenderOpenGL.h>
-#include <ui/GuiManager.h>
-#include <ui/Window.h>
 
 class Input : public Plat::Input
 {
 public:
     // Plat::Input
     bool IsKeyPressed(Plat::Key key) const override { return false; }
-    bool IsMousePressed(int button) const override { return false; }
-    vec2d GetMousePos() const override { return vec2d(); }
-	Plat::GamepadState GetGamepadState(unsigned int index) const override { return {}; }
+    Plat::PointerState GetPointerState(unsigned int index) const override { return {}; }
+    Plat::GamepadState GetGamepadState(unsigned int index) const override { return {}; }
 	bool GetSystemNavigationBackAvailable() const override { return false; }
 };
 
@@ -25,9 +22,8 @@ public:
     void SetClipboardText(std::string text) override {}
 };
 
-CocoaTouchWindow::CocoaTouchWindow(GLKView *view)
-    : _glkView(view)
-    , _render(RenderCreateOpenGL())
+CocoaTouchWindow::CocoaTouchWindow()
+    : _render(RenderCreateOpenGL())
 {
 }
 
