@@ -251,8 +251,8 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 		});
 
 	double idealSquareSide = std::sqrt(totalTexels);
-	double nextMultiple64 = std::ceil(idealSquareSide / 64) * 64;
-	int atlasWidth = std::max(minAtlasWidth, (int)nextMultiple64);
+    double nextPow2Width = std::pow(2, std::ceil(std::log2(std::max((double)minAtlasWidth, idealSquareSide))));
+	int atlasWidth = (int)nextPow2Width;
 
 	AtlasPacker packer;
 	packer.ExtendCanvas(atlasWidth, atlasWidth * 100); // unlimited height
@@ -264,7 +264,8 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 	}
 
 	// now when we know the atlas height we can blit pixels from the source images
-	EditableImage atlasImage(atlasWidth, packer.GetContentHeight()); // actual height
+    double nextPow2Height = std::pow(2, std::ceil(std::log2(packer.GetContentHeight())));
+	EditableImage atlasImage(atlasWidth, (int)nextPow2Height);
 	auto atlasSize = GetImageSize(atlasImage);
 
 	TexDesc &td = _devTextures.emplace_front();
@@ -391,7 +392,7 @@ void TextureManager::CreateAtlas(IRender& render, FS::FileSystem& fs, const Load
 
     std::vector<uint8_t> buffer(GetTgaByteSize(atlasImage.GetData()));
     WriteTga(atlasImage.GetData(), buffer.data(), buffer.size());
-    std::string exportedPath = std::string("export/").append("atlas").append(1, s_atlas_idx+'0').append(".tga");
+    std::string exportedPath = std::string("user/export/").append("atlas").append(1, s_atlas_idx+'0').append(".tga");
 
     auto pd = exportedPath.rfind('/');
     auto exportedDirName = exportedPath.substr(0, pd);
