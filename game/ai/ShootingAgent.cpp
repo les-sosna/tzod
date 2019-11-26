@@ -46,7 +46,7 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 		{
 			_currentOffset = _desiredOffset;
 
-			static float d_array[5] = { 0.5f, 0.25f, 0.00f };
+			static float d_array[5] = { 0.5f, 0.5f, 0.00f };
 
 			float d = d_array[_accuracy];
 
@@ -79,7 +79,7 @@ void ShootingAgent::AttackTarget(World &world, const GC_Vehicle &myVehicle, cons
 	}
 
 	float len = (target.GetPos() - myVehicle.GetPos()).len();
-	TowerTo(myVehicle, &outVehicleState, fake, len > weapSettings.fAttackRadius_crit, weapSettings, _currentOffset);
+	TowerTo(myVehicle, &outVehicleState, fake, _accuracy > 0 && len > weapSettings.fAttackRadius_crit, weapSettings, _currentOffset);
 }
 
 void ShootingAgent::SetAccuracy(int accuracy)

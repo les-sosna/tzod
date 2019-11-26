@@ -265,7 +265,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	};
 	_content->AddFront(_tierSelector);
 
-	_content->SetSpacing(48);
+	_content->SetSpacing(32);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
 	SetFocus(_content.get());

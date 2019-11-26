@@ -298,7 +298,8 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 {
 	int pxWidth = (int)lc.GetPixelSize().x;
 	int pxHeight = (int)lc.GetPixelSize().y;
-	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f); // lc.GetScaleCombined()
+	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f);
+    scale = std::max(scale, lc.GetScaleCombined());
 	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize(pxWidth, pxHeight, scale);
 
 	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
