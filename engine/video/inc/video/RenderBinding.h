@@ -22,11 +22,9 @@ struct RenderBindingEnv
 class RenderBinding
 {
 public:
-	explicit RenderBinding(IRender& render);
 	~RenderBinding();
 
 	void Update(const RenderBindingEnv &env);
-
 	void UnloadAllTextures(IRender& render) noexcept;
 
 	const DEV_TEXTURE& GetDeviceTexture(size_t texIndex) const noexcept
@@ -56,6 +54,7 @@ private:
 
 	std::vector<SpriteRef> _sprites;
 	std::list<TexDesc> _devTextures;
+	int _texmanVersion = 0;
 
 	SpriteRef& EnsureSpriteRef(size_t spriteId);
 	void CreateAtlas(const RenderBindingEnv& env, std::vector<size_t> sprites, bool magFilter, int gutters);

@@ -87,6 +87,7 @@ void TextureManager::UnloadAllTextures() noexcept
 {
 	_mapName_to_Index.clear();
 	_logicalTextures.clear();
+	_version++;
 }
 
 static vec2d GetFrameSizeWithBorder(const PackageSpriteDesc& psd, vec2d pxTextureSize)
@@ -125,11 +126,20 @@ void TextureManager::LoadPackage(FS::FileSystem& fs, ImageCache &imageCache, con
 		auto pxTextureSize = vec2d{ (float)image.width, (float)image.height };
 		vec2d pxFrameSizeWithBorder = GetFrameSizeWithBorder(psd, pxTextureSize);
 
-		size_t newSpriteId = _logicalTextures.size();
-		auto emplaced = _mapName_to_Index.emplace(psd.spriteName, newSpriteId);
-		assert(emplaced.second);
+		size_t spriteId = _logicalTextures.size();
+		auto emplaced = _mapName_to_Index.emplace(psd.spriteName, spriteId);
 
-		_logicalTextures.emplace_back(LogicalTextureFromSpriteDefinition(psd, pxFrameSizeWithBorder));
+		if (emplaced.second)
+		{
+			_logicalTextures.emplace_back();
+			_spriteSources.emplace_back();
+		}
+		else
+		{
+			spriteId = emplaced.first->second;
+		}
+
+		_logicalTextures[spriteId] = LogicalTextureFromSpriteDefinition(psd, pxFrameSizeWithBorder);
 
 		SpriteSource ss;
 		ss.textureFilePath = psd.textureFilePath;
@@ -139,8 +149,9 @@ void TextureManager::LoadPackage(FS::FileSystem& fs, ImageCache &imageCache, con
 		ss.pxFrameHeight = static_cast<int>(pxFrameSizeWithBorder.y);
 		ss.xframes = psd.xframes;
 		ss.yframes = psd.yframes;
-		_spriteSources.push_back(ss);
-		}
+		_spriteSources[spriteId] = std::move(ss);
+	}
+	_version++;
 }
 
 size_t TextureManager::FindSprite(std::string_view name) const
@@ -201,4 +212,3 @@ size_t TextureManager::GetNextSprite(size_t spriteId) const
 	size_t nextSpriteId = spriteId + 1;
 	return nextSpriteId == _logicalTextures.size() ? 0 : nextSpriteId;
 }
-

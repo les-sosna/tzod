@@ -2,6 +2,7 @@
 #include <math/MyMath.h>
 
 struct IRender;
+class RenderBinding;
 
 namespace Plat
 {
@@ -39,10 +40,10 @@ namespace Plat
 
 	struct AppWindowInputSink
 	{
-		virtual bool OnChar(Plat::AppWindow& appWindow, unsigned int codepoint) = 0;
-		virtual bool OnKey(Plat::AppWindow& appWindow, Key key, Msg action) = 0;
-		virtual bool OnPointer(Plat::AppWindow& appWindow, PointerType pointerType, Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID) = 0;
-		virtual bool OnSystemNavigationBack(Plat::AppWindow& appWindow) = 0;
-		virtual void OnRefresh(Plat::AppWindow& appWindow) = 0;
+		virtual bool OnChar(AppWindow& appWindow, unsigned int codepoint) = 0;
+		virtual bool OnKey(AppWindow& appWindow, Key key, Msg action) = 0;
+		virtual bool OnPointer(AppWindow& appWindow, PointerType pointerType, Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID) = 0;
+		virtual bool OnSystemNavigationBack(AppWindow& appWindow) = 0;
+		virtual void OnRefresh(AppWindow& appWindow, RenderBinding& rb) = 0;
 	};
 }

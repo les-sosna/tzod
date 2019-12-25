@@ -5,6 +5,7 @@
 
 struct GLFWcursor;
 struct GLFWwindow;
+class RenderBinding;
 
 struct GlfwCursorDeleter
 {
@@ -39,6 +40,7 @@ public:
 
 	static void PollEvents(Plat::AppWindowInputSink& inputSink);
 
+	RenderBinding& GetRenderBinding() { return *_renderBinding; }
 	bool ShouldClose() const;
 	int _windowedTop = 0;
 	int _windowedLeft = 0;
@@ -68,4 +70,5 @@ private:
 	std::unique_ptr<GlfwClipboard> _clipboard;
 	std::unique_ptr<GlfwInput> _input;
 	std::unique_ptr<IRender> _render;
+	std::unique_ptr<RenderBinding> _renderBinding;
 };

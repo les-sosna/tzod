@@ -4,10 +4,6 @@
 #include "AtlasPacker.h"
 #include <stdexcept>
 
-RenderBinding::RenderBinding(IRender& render)
-{
-}
-
 RenderBinding::~RenderBinding()
 {
 	assert(_devTextures.empty());
@@ -15,6 +11,13 @@ RenderBinding::~RenderBinding()
 
 void RenderBinding::Update(const RenderBindingEnv& env)
 {
+	int newVersion = env.texman.GetVersion();
+	if (_texmanVersion == newVersion)
+		return;
+	_texmanVersion = newVersion;
+
+	UnloadAllTextures(env.render);
+
 	std::vector<size_t> magFilterOn;
 	std::vector<size_t> magFilterOff;
 

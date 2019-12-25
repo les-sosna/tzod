@@ -2,6 +2,7 @@
 #include "inc/platglfw/GlfwPlatform.h"
 #include "inc/platglfw/GlfwKeys.h"
 #include <plat/Input.h>
+#include <video/RenderBinding.h>
 #include <video/RenderOpenGL.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
@@ -200,7 +201,7 @@ static void OnRefresh(GLFWwindow *window)
 
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		s_inputSink->OnRefresh(*self);
+		s_inputSink->OnRefresh(*self, self->GetRenderBinding());
 	}
 }
 
@@ -226,6 +227,7 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 	, _clipboard(new GlfwClipboard(*_window))
 	, _input(new GlfwInput(*_window))
 	, _render(RenderCreateOpenGL())
+	, _renderBinding(new RenderBinding())
 {
 	glfwSetMouseButtonCallback(_window.get(), OnMouseButton);
 	glfwSetCursorEnterCallback(_window.get(), OnCursorEnter);
@@ -246,6 +248,8 @@ GlfwAppWindow::~GlfwAppWindow()
 	glfwSetWindowUserPointer(_window.get(), nullptr);
 
 	glfwMakeContextCurrent(_window.get());
+	_renderBinding->UnloadAllTextures(*_render);
+	_renderBinding.reset();
 	_render.reset();
 	glfwMakeContextCurrent(nullptr);
 }

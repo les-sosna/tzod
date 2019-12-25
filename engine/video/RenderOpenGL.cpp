@@ -162,6 +162,7 @@ void RenderOpenGL::SetMode(const RenderMode mode)
 bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 {
     assert(img.stride == img.width * img.bpp / 8);
+	assert(GL_NO_ERROR == glGetError());
 	glGenTextures(1, &tex.index);
 	glBindTexture(GL_TEXTURE_2D, tex.index);
 
@@ -182,7 +183,7 @@ bool RenderOpenGL::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	return true;
+	return GL_NO_ERROR == glGetError();
 }
 
 void RenderOpenGL::TexFree(DEV_TEXTURE tex)

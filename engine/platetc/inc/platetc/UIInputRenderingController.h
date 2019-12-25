@@ -26,7 +26,7 @@ public:
 	bool OnKey(Plat::AppWindow& appWindow, Plat::Key key, Plat::Msg action) override;
 	bool OnPointer(Plat::AppWindow& appWindow, Plat::PointerType pointerType, Plat::Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID) override;
 	bool OnSystemNavigationBack(Plat::AppWindow& appWindow) override;
-	void OnRefresh(Plat::AppWindow& appWindow) override;
+	void OnRefresh(Plat::AppWindow& appWindow, RenderBinding& rb) override;
 
 private:
 	bool HandleClipboardShortcuts(Plat::AppWindow& appWindow, Plat::Key key, Plat::Msg action);

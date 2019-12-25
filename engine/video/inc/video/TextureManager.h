@@ -72,9 +72,11 @@ public:
 
 	ImageView GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, int frameIdx) const;
 	size_t GetNextSprite(size_t texIndex) const;
+	int GetVersion() const { return _version; }
 
 private:
-	std::map<std::string, size_t, std::less<>> _mapName_to_Index;// index in _logicalTextures
+	std::map<std::string, size_t, std::less<>> _mapName_to_Index; // index in _logicalTextures and _spriteSources
 	std::vector<LogicalTexture> _logicalTextures;
 	std::vector<SpriteSource> _spriteSources;
+	int _version = 0;
 };

@@ -95,7 +95,7 @@ static ::DisplayOrientation DOFromDegrees(int degrees)
 	}
 }
 
-void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
+void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, RenderBinding &rb)
 {
 	IRender& render = appWindow.GetRender();
 	vec2d pxWindowSize = appWindow.GetPixelSize();
@@ -105,7 +105,6 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 	render.Begin(displayWidth, displayHeight, DOFromDegrees(appWindow.GetDisplayRotation()));
 	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
 
-	RenderBinding rb(render);  // FIXME: need to cache one per render/window
 	ImageCache imageCache;
 	rb.Update(RenderBindingEnv{ _fs, _textureManager, imageCache, render });
 	RenderContext rc(_textureManager, rb, render, displayWidth, displayHeight);
@@ -145,7 +144,6 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 #endif
 
 	render.End();
-	rb.UnloadAllTextures(render); // fixme
 	appWindow.Present();
 }
 
