@@ -19,7 +19,7 @@ void R_BrickFragment::Draw(const World &world, const GC_MovingObject &mo, Render
 	uint32_t rand = ((uint64_t)seed * 279470273UL) % 4294967291UL;
 
 	vec2d pos = mo.GetPos();
-	vec2d dir = Vec2dDirection((float) (int32_t) rand);
-	unsigned int frame = (rand + static_cast<unsigned int>(world.GetTime() * ANIMATION_FPS)) % _tm.GetFrameCount(_texId);
+	vec2d dir = Vec2dDirection((float) (int(rand%2000) - 1000) + world.GetTime()*(float)(int(rand % 100) - 50) / 5.f);
+	unsigned int frame = (rand + 0*static_cast<unsigned int>(world.GetTime() * ANIMATION_FPS)) % _tm.GetFrameCount(_texId);
 	rc.DrawSprite(_texId, frame, 0xffffffff, pos, dir);
 }

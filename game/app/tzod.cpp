@@ -2,6 +2,7 @@
 #include "CombinedConfig.h"
 #include <as/AppController.h>
 #include <as/AppState.h>
+#include <as/MapCollection.h>
 #include <ctx/GameContextBase.h>
 #include <fs/FileSystem.h>
 #include <fs/StreamWrapper.h>
@@ -18,12 +19,14 @@ static std::map<std::string, std::string> s_localizations = {
 struct TzodAppImpl
 {
 	explicit TzodAppImpl(FS::FileSystem &fs)
-		: appController(fs)
+		: mapCollection(fs)
+		, appController(fs)
 	{}
 
 	CombinedConfig combinedConfig;
 	DMCampaign dmCampaign;
 	LangCache lang;
+	MapCollection mapCollection;
 	AppState appState;
 	AppController appController;
 };
@@ -66,6 +69,11 @@ TzodApp::TzodApp(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, const char *la
 
 TzodApp::~TzodApp()
 {
+}
+
+MapCollection& TzodApp::GetMapCollection()
+{
+	return _impl->mapCollection;
 }
 
 AppState& TzodApp::GetAppState()

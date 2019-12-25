@@ -165,12 +165,12 @@ int List::GetNextIndex(Navigate navigate) const
 	}
 }
 
-bool List::CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
+bool List::CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const
 {
 	return GetNextIndex(navigate) != GetCurSel();
 }
 
-void List::OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
+void List::OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase)
 {
 	if (NavigationPhase::Started == phase)
 	{

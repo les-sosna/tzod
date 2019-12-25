@@ -1,5 +1,6 @@
 #include "inc/ui/LayoutContext.h"
 #include "inc/ui/Window.h"
+#include <cassert>
 
 using namespace UI;
 
@@ -11,9 +12,10 @@ LayoutContext::LayoutContext(float opacity, float scale, vec2d pxOffset, vec2d p
 	, _enabledCombined(enabled)
 	, _focusedCombined(focused)
 {
+	assert(_pxSize.x >= 0 && _pxSize.y >= 0);
 }
 
-LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const WindowLayout &childLayout)
+LayoutContext::LayoutContext(const Window &parentWindow, const LayoutContext &parentLC, const Window &childWindow, const WindowLayout &childLayout)
 	: _pxOffsetCombined(parentLC.GetPixelOffsetCombined() + Offset(childLayout.rect))
 	, _pxSize(Size(childLayout.rect))
 	, _scaleCombined(parentLC.GetScaleCombined())
@@ -21,4 +23,5 @@ LayoutContext::LayoutContext(const InputContext& ic, const Window &parentWindow,
 	, _enabledCombined(parentLC.GetEnabledCombined() && childLayout.enabled)
 	, _focusedCombined(parentLC.GetFocusedCombined() && (parentWindow.GetFocus() == &childWindow))
 {
+	assert(_pxSize.x >= 0 && _pxSize.y >= 0);
 }

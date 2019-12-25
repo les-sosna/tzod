@@ -4,14 +4,14 @@
 #include "inc/ui/WindowIterator.h"
 using namespace UI;
 
-Window* UI::GetPrevFocusChild(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Window &wnd)
+Window* UI::GetPrevFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window &wnd)
 {
 	auto focus = wnd.GetFocus();
 	if (!focus && wnd.GetChildrenCount() > 0)
 	{
 		auto &child = wnd.GetChild(wnd.GetChildrenCount() - 1);
-		LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-		if (NeedsFocus(texman, ic, child, childLC, dc))
+		LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+		if (NeedsFocus(texman, child, childLC, dc))
 			return &child;
 	}
 	if (focus)
@@ -20,22 +20,22 @@ Window* UI::GetPrevFocusChild(TextureManager& texman, const InputContext &ic, co
 		while (focusIt != begin(wnd))
 		{
 			auto &child = **(--focusIt);
-			LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-			if (NeedsFocus(texman, ic, child, childLC, dc))
+			LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+			if (NeedsFocus(texman, child, childLC, dc))
 				return &child;
 		}
 	}
 	return nullptr;
 }
 
-Window* UI::GetNextFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window &wnd)
+Window* UI::GetNextFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window &wnd)
 {
 	auto focus = wnd.GetFocus();
 	if (!focus && wnd.GetChildrenCount() > 0)
 	{
 		auto &child = wnd.GetChild(0);
-		LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-		if (NeedsFocus(texman, ic, child, childLC, dc))
+		LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+		if (NeedsFocus(texman, child, childLC, dc))
 			return &child;
 	}
 	if (focus)
@@ -44,10 +44,24 @@ Window* UI::GetNextFocusChild(TextureManager& texman, const InputContext& ic, co
 		while (focusIt != rbegin(wnd))
 		{
 			auto &child = **(--focusIt);
-			LayoutContext childLC(ic, wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
-			if (NeedsFocus(texman, ic, child, childLC, dc))
+			LayoutContext childLC(wnd, lc, child, wnd.GetChildLayout(texman, lc, dc, child));
+			if (NeedsFocus(texman, child, childLC, dc))
 				return &child;
 		}
 	}
 	return nullptr;
+}
+
+bool UI::CanNavigateBack(TextureManager& texman, const Window& wnd, const LayoutContext& lc, const DataContext& dc)
+{
+	// OK to cast since we CanNavigate is const
+	const NavigationSink* navigationSink = const_cast<Window&>(wnd).GetNavigationSink();
+	if (navigationSink && navigationSink->CanNavigate(texman, lc, dc, Navigate::Back))
+		return true;
+	if (auto focusedChild = wnd.GetFocus())
+	{
+		UI::LayoutContext childLC(wnd, lc, *focusedChild, wnd.GetChildLayout(texman, lc, dc, *focusedChild));
+		return CanNavigateBack(texman, *focusedChild, childLC, dc);
+	}
+	return false;
 }

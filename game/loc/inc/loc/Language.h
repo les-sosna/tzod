@@ -19,6 +19,10 @@ REFLECTION_BEGIN(LangCache)
 
 	VAR_STR( c_locale, "English" )
 
+	VAR_STR( difficulty_setting_easy, "EASY" )
+	VAR_STR( difficulty_setting_medium, "MEDIUM" )
+	VAR_STR( difficulty_setting_hard, "HARD" )
+
 	//
 	// Main menu
 	//
@@ -36,6 +40,7 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( settings_title, "SETTINGS" )
 	VAR_STR( settings_player, "PLAYER" )
 	VAR_STR( settings_player_nick, "NICKNAME" )
+	VAR_STR( settings_player_skin, "SKIN" )
 	VAR_STR( settings_controls, "CONTROLS" )
 	VAR_STR( settings_advanced, "ADVANCED" )
 	VAR_STR( settings_advanced_fullscreen, "FULL SCREEN" )
@@ -50,6 +55,8 @@ REFLECTION_BEGIN(LangCache)
 	VAR_STR( get_file_name_save_map, "Save map" )
 	VAR_STR( get_file_name_load_map, "Select map to edit" )
 	VAR_STR( get_file_name_new_map, "<Create new map>" )
+
+	VAR_STR( game_restart_btn, "RESTART" )
 
 
 

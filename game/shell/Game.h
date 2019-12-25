@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include <ctx/GameEvents.h>
 #include <gv/GameViewHarness.h>
+#include <ui/Navigation.h>
 #include <ui/PointerInput.h>
 #include <ui/Text.h>
 #include <ui/Texture.h>
@@ -19,6 +20,7 @@ class WorldController;
 class MessageArea;
 class ScoreTable;
 class CampaignControls;
+class GamePauseMenu;
 
 
 namespace Plat
@@ -37,6 +39,8 @@ class GameLayout final
 	: public UI::WindowContainer
 	, public UI::TimeStepping
 	, private UI::PointerSink
+	, private UI::KeyboardSink
+	, private UI::NavigationSink
 	, private GameListener
 {
 public:
@@ -51,14 +55,19 @@ public:
 	virtual ~GameLayout();
 
 	vec2d GetListenerPos() const;
+	void ShowPauseMenu();
+	bool InPauseMenu() const { return !!_gamePauseMenu; }
 
 	// Window
 	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const override;
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	PointerSink* GetPointerSink() override { return this; }
 	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const UI::Window>& owner) const override;
 	const UI::Window* GetFocus() const override;
+	UI::NavigationSink* GetNavigationSink() override { return this; }
+	UI::KeyboardSink* GetKeyboardSink() override { return this; }
 
 private:
 	vec2d GetDragDirection() const;
@@ -73,6 +82,7 @@ private:
 	std::shared_ptr<ScoreTable> _score;
 	std::shared_ptr<CampaignControls> _campaignControls;
 	std::shared_ptr<UI::Text> _timerDisplay;
+	std::shared_ptr<GamePauseMenu> _gamePauseMenu;
 
 	std::shared_ptr<GameContext> _gameContext;
 	GameViewHarness _gameViewHarness;
@@ -80,6 +90,7 @@ private:
 	WorldController &_worldController;
 	ShellConfig &_conf;
 	LangCache &_lang;
+	CampaignControlCommands _campaignControlCommands;
 	InputManager _inputMgr;
 	UI::Texture _texDrag = "ui/direction";
 	UI::Texture _texTarget = "ui/target";
@@ -92,6 +103,13 @@ private:
 	void OnPointerMove(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, bool captured) override;
 	void OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, vec2d pointerPosition) override;
 
+	// UI::KeyboardSink
+	bool OnKeyPressed(const Plat::Input& input, const UI::InputContext& ic, Plat::Key key) override;
+
+	// UI::NavigationSink
+	bool CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
+
 	// GameListener
-	void OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType) override;
+	void OnMurder(GC_Player& victim, GC_Player* killer, MurderType murderType) override;
 };

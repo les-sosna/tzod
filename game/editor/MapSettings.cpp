@@ -1,6 +1,5 @@
 #include "inc/editor/MapSettings.h"
 #include <cbind/ConfigBinding.h>
-#include <gv/ThemeManager.h>
 #include <gc/World.h>
 #include <loc/Language.h>
 #include <ui/Button.h>
@@ -10,18 +9,6 @@
 #include <ui/DataSourceAdapters.h>
 #include <ui/Text.h>
 #include <ui/List.h>
-
-static size_t FindTheme(const ThemeManager &themeManager, const std::string &name)
-{
-	for (size_t i = 0; i < themeManager.GetThemeCount(); ++i)
-	{
-		if (themeManager.GetThemeName(i) == name)
-		{
-			return i;
-		}
-	}
-	return 0;
-}
 
 MapSettingsDlg::MapSettingsDlg(World &world/*, const ThemeManager &themeManager*/, LangCache &lang)
 	: _world(world)

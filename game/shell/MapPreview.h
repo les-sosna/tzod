@@ -3,8 +3,8 @@
 #include <ui/Window.h>
 #include <memory>
 #include <string>
+class MapCollection;
 class WorldView;
-class WorldCache;
 
 namespace FS
 {
@@ -20,7 +20,7 @@ class MapPreview final
 	: public UI::WindowContainer
 {
 public:
-	MapPreview(FS::FileSystem &fs, WorldView &worldView, WorldCache &mapCache);
+	MapPreview(FS::FileSystem &fs, WorldView &worldView, MapCollection &mapCollection);
 
 	void SetMapName(std::shared_ptr<UI::RenderData<std::string_view>> mapName);
 	void SetRating(std::shared_ptr<UI::RenderData<unsigned int>> rating);
@@ -34,7 +34,7 @@ public:
 private:
 	FS::FileSystem &_fs;
 	WorldView &_worldView;
-	WorldCache &_worldCache;
+	MapCollection &_mapCollection;
 	UI::Texture _texSelection = "ui/selection";
 	UI::Texture _texLock = "ui/lock";
 	UI::Texture _texLockShade = "ui/window";

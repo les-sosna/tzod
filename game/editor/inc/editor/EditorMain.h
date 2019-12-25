@@ -40,7 +40,7 @@ class EditorMain
 public:
 	EditorMain(UI::TimeStepManager &manager,
 		TextureManager &texman,
-		EditorContext &editorContext,
+		std::shared_ptr<EditorContext> editorContext,
 		WorldView &worldView,
 		EditorConfig &conf,
 		LangCache &lang,
@@ -50,6 +50,7 @@ public:
 
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	vec2d GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const override;
 	NavigationSink* GetNavigationSink() override { return this; }
 	KeyboardSink* GetKeyboardSink() override { return this; }
 
@@ -63,14 +64,15 @@ private:
 	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
-	bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
-	void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
+	bool CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
 
 	typedef UI::ListAdapter<UI::ListDataSourceDefault, UI::ListBox> DefaultListBox;
 	EditorConfig &_conf;
 	LangCache &_lang;
 	EditorCommands _commands;
 	std::shared_ptr<EditorWorldView> _editorWorldView;
+	std::shared_ptr<UI::Rectangle> _shadow;
 	std::shared_ptr<UI::Text> _layerDisp;
 	std::shared_ptr<UI::Window> _helpBox;
 	std::shared_ptr<UI::CheckBox> _modeSelect;

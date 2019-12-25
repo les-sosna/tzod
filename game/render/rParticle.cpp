@@ -54,7 +54,7 @@ void R_Particle::Draw(const World &world, const GC_MovingObject &mo, RenderConte
 	{
 		size_t texId = _ptype2texId[ptype];
 		float state = ptime / decal.GetLifeTime();
-		auto frame = std::min(_tm.GetFrameCount(texId) - 1, (unsigned int) ((float) _tm.GetFrameCount(texId) * state));
+		auto frame = std::min(_tm.GetFrameCount(texId) - 1, (int) ((float) _tm.GetFrameCount(texId) * state));
 		vec2d pos = decal.GetPos();
 		vec2d dir = Vec2dAddDirection(decal.GetDirection(), Vec2dDirection(decal.GetRotationSpeed() * ptime));
 		SpriteColor color;

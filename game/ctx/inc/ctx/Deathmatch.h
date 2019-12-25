@@ -20,7 +20,7 @@ public:
 
 	// Gameplay
 	void Step() override;
-	float GetGameOverTime() const override;
+	float GetGameEndTime() const override;
 	float GetTimeLimit() const override { return _timeLimit; }
 	void Serialize(SaveFile &f) override;
 

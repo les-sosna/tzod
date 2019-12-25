@@ -11,20 +11,6 @@
 #include <video/RenderContext.h>
 #include <video/TextureManager.h>
 
-static bool CanNavigateBack(TextureManager &texman, const UI::InputContext &ic, const UI::Window &wnd, const UI::LayoutContext &lc, const UI::DataContext &dc)
-{
-	// OK to cast since we CanNavigate is const
-	const UI::NavigationSink *navigationSink = const_cast<UI::Window&>(wnd).GetNavigationSink();
-	if (navigationSink && navigationSink->CanNavigate(texman, ic, lc, dc, UI::Navigate::Back))
-		return true;
-	if (auto focusedChild = wnd.GetFocus())
-	{
-		UI::LayoutContext childLC(ic, wnd, lc, *focusedChild, wnd.GetChildLayout(texman, lc, dc, *focusedChild));
-		return CanNavigateBack(texman, ic, *focusedChild, childLC, dc);
-	}
-	return false;
-}
-
 UIInputRenderingController::UIInputRenderingController(FS::FileSystem& fs,
                                                        TextureManager &textureManager,
                                                        UI::TimeStepManager &timeStepManager,
@@ -140,7 +126,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow)
 		}
 	}
 
-	appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, _inputContext, *_desktop, layoutContext, dataContext));
+	appWindow.SetCanNavigateBack(CanNavigateBack(_textureManager, *_desktop, layoutContext, dataContext));
 
 	Plat::MouseCursor mouseCursor = hoverTextSink ? Plat::MouseCursor::IBeam : Plat::MouseCursor::Arrow;
 	if (_mouseCursor != mouseCursor)

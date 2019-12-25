@@ -1,5 +1,6 @@
 #pragma once
 #include <ui/ScrollView.h>
+#include <as/MapCollection.h>
 
 namespace FS
 {
@@ -8,27 +9,32 @@ namespace FS
 
 namespace UI
 {
+	class ContentButton;
 	class ScanlineLayout;
 }
 
 class ShellConfig;
 class LangCache;
 class MapCollection;
-class WorldCache;
-class WorldView;
 
 class SelectMapDlg final
 	: public UI::ScrollView
+	, private MapCollectionListener
 {
 public:
-	SelectMapDlg(WorldView &worldView, FS::FileSystem &fsRoot, ShellConfig &conf, LangCache &lang, WorldCache &worldCache, MapCollection &mapCollection);
+	SelectMapDlg(FS::FileSystem &fsRoot, WorldView& worldView, ShellConfig &conf, LangCache &lang, MapCollection &mapCollection);
 
 	std::function<void(unsigned int)> eventMapSelected;
 
 private:
+	FS::FileSystem& _fs;
 	WorldView &_worldView;
 	ShellConfig &_conf;
-	WorldCache &_worldCache;
-	MapCollection &_mapCollection;
+	MapCollection& _mapCollection;
 	std::shared_ptr<UI::ScanlineLayout> _mapTiles;
+
+	// MapCollectionListener
+	void OnMapAdded(int newMapIndex) override;
+
+	std::shared_ptr<UI::ContentButton> MakeMapTileButton(int mapIndex);
 };

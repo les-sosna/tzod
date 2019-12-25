@@ -74,7 +74,7 @@ namespace
 
 EditorMain::EditorMain(UI::TimeStepManager &manager,
                        TextureManager &texman,
-                       EditorContext &editorContext,
+                       std::shared_ptr<EditorContext> editorContext,
                        WorldView &worldView,
                        EditorConfig &conf,
                        LangCache &lang,
@@ -87,6 +87,11 @@ EditorMain::EditorMain(UI::TimeStepManager &manager,
 	_editorWorldView = std::make_shared<EditorWorldView>(manager, texman, editorContext, worldView, conf, lang, logger);
 	AddFront(_editorWorldView);
 	SetFocus(_editorWorldView.get());
+
+	_shadow = std::make_shared<UI::Rectangle>();
+	_shadow->SetTexture("ui/shadow");
+	_shadow->SetDrawBorder(false);
+	AddFront(_shadow);
 
 	_helpBox = std::make_shared<HelpBox>(lang);
 	_helpBox->SetVisible(false);
@@ -179,6 +184,10 @@ bool EditorMain::OnKeyPressed(const Plat::Input &input, const UI::InputContext &
 	case Plat::Key::F1:
 		_helpBox->SetVisible(!_helpBox->GetVisible());
 		break;
+	case Plat::Key::F5:
+	case Plat::Key::GamepadView:
+		_commands.playMap();
+		break;
 	case Plat::Key::F9:
 		_conf.uselayers.Set(!_conf.uselayers.Get());
 		break;
@@ -197,7 +206,7 @@ bool EditorMain::OnKeyPressed(const Plat::Input &input, const UI::InputContext &
 	return true;
 }
 
-bool EditorMain::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool EditorMain::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -209,7 +218,7 @@ bool EditorMain::CanNavigate(TextureManager& texman, const UI::InputContext& ic,
 	}
 }
 
-void EditorMain::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void EditorMain::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{
@@ -236,7 +245,13 @@ UI::WindowLayout EditorMain::GetChildLayout(TextureManager &texman, const UI::La
 
 	if (_editorWorldView.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectWH(size.x - _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x, size.y), 1, true };
+		float pxToolbarWidth = _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x;
+		return UI::WindowLayout{ MakeRectWH(size.x - pxToolbarWidth, size.y), 1, true };
+	}
+	if (_shadow.get() == &child)
+	{
+		float pxToolbarWidth = _toolbar->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)).x;
+		return UI::WindowLayout{ MakeRectRB(vec2d{size.x - pxToolbarWidth - UI::ToPx(42, scale), 0}, vec2d{size.x - pxToolbarWidth, size.y}), 1, true };
 	}
 	if (_layerDisp.get() == &child)
 	{
@@ -254,3 +269,9 @@ UI::WindowLayout EditorMain::GetChildLayout(TextureManager &texman, const UI::La
 	assert(false);
 	return {};
 }
+
+vec2d EditorMain::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	return layoutConstraints.maxPixelSize;
+}
+

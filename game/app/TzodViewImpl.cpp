@@ -16,7 +16,7 @@ static auto InitTextureManager(FS::FileSystem &fs, ImageCache &imageCache)
 	{
 		textureManager.LoadPackage(fs, imageCache, ParseDirectory(fs, DIR_SPRITES));
 	}
-	catch(...)
+	catch(const std::runtime_error&)
 	{
 		textureManager.UnloadAllTextures();
 		throw;
@@ -31,6 +31,7 @@ TzodViewImpl::TzodViewImpl(FS::FileSystem &fs, Plat::AppWindowCommandClose* cmdC
 		timeStepManager,
 		textureManager,
 		app.GetAppState(),
+		app.GetMapCollection(),
 		app.GetAppConfig(),
 		app.GetAppController(),
 		fs,

@@ -140,7 +140,7 @@ void TextureManager::LoadPackage(FS::FileSystem& fs, ImageCache &imageCache, con
 		ss.xframes = psd.xframes;
 		ss.yframes = psd.yframes;
 		_spriteSources.push_back(ss);
-	}
+		}
 }
 
 size_t TextureManager::FindSprite(std::string_view name) const
@@ -176,7 +176,7 @@ float TextureManager::GetCharWidth(size_t fontTexture) const
 	return GetSpriteInfo(fontTexture).pxFrameWidth - 1;
 }
 
-ImageView TextureManager::GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, size_t frameIdx) const
+ImageView TextureManager::GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, int frameIdx) const
 {
 	if (texIndex == 0)
 	{

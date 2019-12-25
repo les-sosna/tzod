@@ -1,5 +1,6 @@
 #include "CampaignControls.h"
 #include "Game.h"
+#include "GamePauseMenu.h"
 #include "InputManager.h"
 #include "MessageArea.h"
 #include "ScoreTable.h"
@@ -90,7 +91,7 @@ namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
-constexpr float showScoreDelay = 0.3f;
+constexpr float showScoreDelay = 0.5f;
 
 
 GameLayout::GameLayout(UI::TimeStepManager &manager,
@@ -109,6 +110,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
   , _worldController(worldController)
   , _conf(conf)
   , _lang(lang)
+  , _campaignControlCommands(std::move(campaignControlCommands))
   , _inputMgr(conf, logger)
 {
 	assert(_gameContext);
@@ -139,7 +141,7 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 
 	if (deathmatch)
 	{
-		_campaignControls = std::make_shared<CampaignControls>(*deathmatch, std::move(campaignControlCommands));
+		_campaignControls = std::make_shared<CampaignControls>(*deathmatch, _campaignControlCommands);
 		_campaignControls->SetVisible(false);
 		_scoreAndControls->AddFront(_campaignControls);
 		_scoreAndControls->SetFocus(_campaignControls.get());
@@ -243,29 +245,31 @@ float GameLayout::GetLastPlayerDieTime() const
 void GameLayout::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 {
 	float gameplayTime = _gameContext->GetGameplayTime();
-	float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
+	float gameEndTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameEndTime() : FLT_MAX;
 	float lastDieTime = GetLastPlayerDieTime();
 
 	constexpr float showRatingDelay = 1.0f;
 	constexpr float showControlsDelay = 2.0f;
 
 	bool showScoreWhenDead = lastDieTime <= gameplayTime - showScoreDelay && GetAllPlayerDead();
-	bool showScoreWhenGameOver = gameOverTime <= gameplayTime - showScoreDelay;
-	bool showScoreWhenTabPressed = input.IsKeyPressed(Plat::Key::Tab);
+	bool showScoreWhenGameOver = gameEndTime <= gameplayTime - showScoreDelay;
+	bool showScoreWhenTabPressed = !_gamePauseMenu && input.IsKeyPressed(Plat::Key::Tab);
 
 	_score->SetVisible(showScoreWhenTabPressed || showScoreWhenDead || showScoreWhenGameOver);
 	if (_campaignControls)
-		_campaignControls->SetVisible(gameOverTime <= gameplayTime - showControlsDelay);
+		_campaignControls->SetVisible(gameEndTime <= gameplayTime - showControlsDelay);
 	if (_rating)
-		_rating->SetVisible(gameOverTime <= gameplayTime - showRatingDelay);
+		_rating->SetVisible(gameEndTime <= gameplayTime - showRatingDelay);
 
 	_gameViewHarness.Step(dt);
 
+	bool gameplayActive = focused && !_gamePauseMenu;
+
 	std::vector<GC_Player*> players = _worldController.GetLocalPlayers();
 	for (auto player : players)
-		player->SetIsActive(focused);
+		player->SetIsActive(gameplayActive);
 
-	if (focused)
+	if (gameplayActive)
 	{
 		WorldController::ControllerStateMap controlStates;
 
@@ -294,7 +298,8 @@ void GameLayout::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 {
 	int pxWidth = (int)lc.GetPixelSize().x;
 	int pxHeight = (int)lc.GetPixelSize().y;
-	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f); // lc.GetScaleCombined()
+	float scale = std::min(lc.GetPixelSize().x / 1024.f, lc.GetPixelSize().y / 768.f);
+    scale = std::max(scale, lc.GetScaleCombined());
 	const_cast<GameViewHarness&>(_gameViewHarness).SetCanvasSize(pxWidth, pxHeight, scale);
 
 	_gameViewHarness.RenderGame(rc, _worldView, _conf.d_field.Get(), _conf.d_path.Get() ? &_gameContext->GetAIManager() : nullptr);
@@ -339,19 +344,18 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	if (_background.get() == &child)
 	{
 		UI::WindowLayout result;
-		if (_gameContext->GetGameplay() && _gameContext->GetGameplay()->GetGameOverTime() <= _gameContext->GetGameplayTime())
+		float gameplayTime = _gameContext->GetGameplayTime();
+		float gameEndTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameEndTime() : FLT_MAX;
+		if (_gamePauseMenu || gameEndTime <= gameplayTime)
 			result = UI::WindowLayout{ MakeRectWH(size), 1, true };
 		else
 			result = GetChildLayout(texman, lc, dc, *_scoreAndControls);
-		float gameplayTime = _gameContext->GetGameplayTime();
-		float gameOverTime = _gameContext->GetGameplay() ? _gameContext->GetGameplay()->GetGameOverTime() : FLT_MAX;
-		result.opacity = _score->GetVisible() ? 1 : std::clamp((gameplayTime - gameOverTime) / showScoreDelay, 0.f, 1.f);
+		result.opacity = (_gamePauseMenu || _score->GetVisible()) ? 1 : std::clamp((gameplayTime - gameEndTime) / showScoreDelay, 0.f, 1.f);
 		return result;
 	}
-	if (_scoreAndControls.get() == &child)
+	if (_scoreAndControls.get() == &child || _gamePauseMenu.get() == &child)
 	{
-		vec2d pxChildSize = child.GetContentSize(texman, dc, lc.GetScaleCombined(), DefaultLayoutConstraints(lc));
-		return UI::WindowLayout{ MakeRectWH(Vec2dFloor((size - pxChildSize) / 2), pxChildSize), 1, true };
+		return UI::WindowLayout{ AlignCC(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)), size), 1, true };
 	}
 	if (_timerDisplay.get() == &child)
 	{
@@ -365,14 +369,19 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	return {};
 }
 
+vec2d GameLayout::GetContentSize(TextureManager& texman, const UI::DataContext& dc, float scale, const UI::LayoutConstraints& layoutConstraints) const
+{
+	return layoutConstraints.maxPixelSize;
+}
+
 std::shared_ptr<const UI::Window> GameLayout::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
 {
-	return _scoreAndControls;
+	return _gamePauseMenu ? _gamePauseMenu : _scoreAndControls;
 }
 
 const UI::Window* GameLayout::GetFocus() const
 {
-	return _scoreAndControls.get();
+	return _gamePauseMenu ? _gamePauseMenu.get() : _scoreAndControls.get();
 }
 
 bool GameLayout::OnPointerDown(const Plat::Input &input, const  UI::InputContext &ic, const UI::LayoutContext &lc, TextureManager &texman, UI::PointerInfo pi, int button)
@@ -422,6 +431,39 @@ void GameLayout::OnTap(const UI::InputContext &ic, const UI::LayoutContext &lc, 
 	}
 }
 
+bool GameLayout::OnKeyPressed(const Plat::Input& input, const UI::InputContext& ic, Plat::Key key)
+{
+	switch (key)
+	{
+	case Plat::Key::GamepadMenu:
+	case Plat::Key::Escape:
+		if (_gamePauseMenu)
+			return false; // keep unhandled, will use navigation sink
+		else
+			ShowPauseMenu();
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+bool GameLayout::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+{
+	return UI::Navigate::Back == navigate && _gamePauseMenu;
+}
+
+void GameLayout::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+{
+	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
+	{
+		UnlinkChild(*_gamePauseMenu);
+		_gamePauseMenu.reset();
+	}
+}
+
 void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murderType)
 {
 	char msg[256] = { 0 };
@@ -450,3 +492,24 @@ void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murde
 	}
 	_msg->WriteLine(msg);
 }
+
+void GameLayout::ShowPauseMenu()
+{
+	if (_gamePauseMenu)
+	{
+		UnlinkChild(*_gamePauseMenu);
+		_gamePauseMenu.reset();
+	}
+	else
+	{
+		GamePauseMenuCommands commands;
+		commands.restartGame = _campaignControlCommands.replayCurrent;
+		commands.gameSettings = _campaignControlCommands.systemSettings;
+		commands.quitGame = _campaignControlCommands.quitCurrent;
+
+		_gamePauseMenu = std::make_shared<GamePauseMenu>(_lang, std::move(commands));
+		AddFront(_gamePauseMenu);
+	}
+
+}
+

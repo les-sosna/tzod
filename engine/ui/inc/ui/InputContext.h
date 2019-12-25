@@ -117,7 +117,6 @@ class LayoutContext;
 struct AreaSinkSearch
 {
 	TextureManager &texman;
-	const InputContext& ic;
 	const DataContext &dc;
 	bool topMostPass;
 	std::vector<std::shared_ptr<Window>> outSinkPath;

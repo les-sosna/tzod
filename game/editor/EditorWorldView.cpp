@@ -6,8 +6,8 @@
 #include <gc/Pickup.h>
 #include <gc/RigidBody.h>
 #include <gc/TypeSystem.h>
+#include <gc/World.h>
 #include <gc/WorldCfg.h>
-#include <gv/ThemeManager.h>
 #include <plat/ConsoleBuffer.h>
 #include <plat/Input.h>
 #include <plat/Keys.h>
@@ -96,20 +96,22 @@ GC_MovingObject* EditorWorldView::PickEdObject(const RenderScheme &rs, World &wo
 
 EditorWorldView::EditorWorldView(UI::TimeStepManager &manager,
                                  TextureManager &texman,
-                                 EditorContext &editorContext,
+                                 std::shared_ptr<EditorContext> editorContext,
                                  WorldView &worldView,
                                  EditorConfig &conf,
                                  LangCache &lang,
                                  Plat::ConsoleBuffer &logger)
 	: UI::TimeStepping(manager)
+	, _editorContext(editorContext)
 	, _conf(conf)
-	, _virtualPointer(Center(editorContext.GetOriginalBounds()))
+	, _virtualPointer(Center(editorContext->GetOriginalBounds()))
 	, _defaultCamera(_virtualPointer)
-	, _world(editorContext.GetWorld())
+	, _objectPreviewWorld(RectRB{ -2, -2, 2, 2 }, false /* initField */)
+	, _world(editorContext->GetWorld())
 	, _worldView(worldView)
 	, _quickActions(logger, _world)
 {
-	_propList = std::make_shared<PropertyList>(texman, editorContext.GetWorld(), conf, logger, lang);
+	_propList = std::make_shared<PropertyList>(texman, editorContext->GetWorld(), conf, logger, lang);
 	_propList->SetVisible(false);
 	AddFront(_propList);
 
@@ -474,7 +476,7 @@ bool EditorWorldView::OnKeyPressed(const Plat::Input &input, const UI::InputCont
 	return true;
 }
 
-bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	switch (navigate)
 	{
@@ -492,7 +494,7 @@ bool EditorWorldView::CanNavigate(TextureManager& texman, const UI::InputContext
 	}
 }
 
-void EditorWorldView::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void EditorWorldView::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (phase != UI::NavigationPhase::Started)
 	{
@@ -599,6 +601,21 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 			case WorldCursor::Type::Action:     cursorColor = 0xff00ffff; break;
 			case WorldCursor::Type::None: break;
 		}
+
+		// object preview
+		{
+			_objectPreviewWorld.Clear();
+			auto offset = RTTypes::Inst().GetTypeInfo(_currentType).offset;
+			RTTypes::Inst().CreateObject(_objectPreviewWorld, _currentType, vec2d{ offset, offset });
+
+			rc.PushWorldTransform((Center(cursor.bounds) - vec2d{ offset, offset }) * zoom, 1);
+			WorldViewRenderOptions options;
+			options.editorMode = true;
+			options.noBackground = true;
+			_worldView.Render(rc, _objectPreviewWorld, options);
+			rc.PopTransform();
+		}
+
 		rc.DrawBorder(cursor.bounds, _texSelection.GetTextureId(texman), cursorColor, 0);
 
 		if (cursor.cursorType == WorldCursor::Type::Obstructed)

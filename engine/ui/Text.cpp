@@ -21,7 +21,7 @@ void Text::Draw(const DataContext &dc, const StateContext &sc, const LayoutConte
 	if (_text && !_fontTexture.Empty())
 	{
 		SpriteColor color = _fontColor ? _fontColor->GetRenderValue(dc, sc) : 0xffffffff;
-		rc.DrawBitmapText(vec2d{}, lc.GetScaleCombined(), _fontTexture.GetTextureId(texman), color, _text->GetLayoutValue(dc), _align);
+		rc.DrawBitmapText(MakeRectWH(lc.GetPixelSize()), lc.GetScaleCombined(), _fontTexture.GetTextureId(texman), color, _text->GetLayoutValue(dc), _align);
 	}
 }
 

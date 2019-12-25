@@ -100,7 +100,7 @@ void RenderBinding::CreateAtlas(const RenderBindingEnv& env, std::vector<size_t>
 		spriteRef.descIt = _devTextures.begin();
 		spriteRef.firstFrameIndex = currentFrame;
 
-		for (size_t frame = 0; frame < env.texman.GetFrameCount(spriteId); frame++)
+		for (int frame = 0; frame < env.texman.GetFrameCount(spriteId); frame++)
 		{
 			AtlasEntry entry = { env.texman.GetSpritePixels(env.fs, env.imageCache, spriteId, frame) };
 			atlasEntries.push_back(entry);
@@ -126,8 +126,8 @@ void RenderBinding::CreateAtlas(const RenderBindingEnv& env, std::vector<size_t>
 	});
 
 	double idealSquareSide = std::sqrt(totalTexels);
-	double nextMultiple64 = std::ceil(idealSquareSide / 64) * 64;
-	int atlasWidth = std::max(minAtlasWidth, (int)nextMultiple64);
+	double nextPow2Width = std::pow(2, std::ceil(std::log2(std::max((double)minAtlasWidth, idealSquareSide))));
+	int atlasWidth = (int)nextPow2Width;
 
 	AtlasPacker packer;
 	packer.ExtendCanvas(atlasWidth, atlasWidth * 100); // unlimited height
@@ -139,8 +139,9 @@ void RenderBinding::CreateAtlas(const RenderBindingEnv& env, std::vector<size_t>
 	}
 
 	// now when we know the atlas height we can blit pixels from the source images
-	EditableImage atlasImage(atlasWidth, packer.GetContentHeight()); // actual height
-	vec2d atlasSize = { (float)atlasWidth, (float)packer.GetContentHeight() };
+	int nextPow2Height = (int)std::pow(2, std::ceil(std::log2(packer.GetContentHeight())));
+	EditableImage atlasImage(atlasWidth, nextPow2Height);
+	vec2d atlasSize = { (float)atlasWidth, (float)nextPow2Height };
 	currentFrame = 0;
 	for (auto spriteId : sprites)
 	{

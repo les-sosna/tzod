@@ -31,13 +31,20 @@
     return *_logger;
 }
 
++ (NSString *)applicationDocumentsDirectory
+{
+     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     chdir([resourcePath UTF8String]);
     NSString *dataPath = [resourcePath stringByAppendingPathComponent:@"data"];
+    NSString *userDataPath = [AppDelegate applicationDocumentsDirectory];
     NSString *language = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
 	_fs = std::make_shared<FS::FileSystemPosix>([dataPath UTF8String]);
+    _fs->Mount("user", std::make_shared<FS::FileSystemPosix>([userDataPath UTF8String]));
     _logger.reset(new Plat::ConsoleBuffer(100, 500));
     _app.reset(new TzodApp(*_fs, *_logger, [language UTF8String]));
     return YES;

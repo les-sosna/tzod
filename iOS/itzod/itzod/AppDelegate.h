@@ -4,6 +4,9 @@ class TzodApp;
 namespace FS {
     class FileSystem;
 }
+namespace Plat {
+    struct ConsoleBuffer;
+}
 namespace UI {
     class ConsoleBuffer;
 }

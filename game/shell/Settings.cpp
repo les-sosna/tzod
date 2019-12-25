@@ -517,9 +517,10 @@ UI::WindowLayout SettingsListBase::GetChildLayout(TextureManager& texman, const 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PlayerSettings::PlayerSettings(ShellConfig& conf, LangCache& lang)
+PlayerSettings::PlayerSettings(AppConfig& conf, LangCache& lang)
 {
-	AddSetting<StringSetting>(lang.settings_player_nick, conf.cl_playerinfo.nick);
+	AddSetting<StringSetting>(lang.settings_player_nick, conf.sp_playerinfo.nick);
+	AddSetting<StringSetting>(lang.settings_player_skin, conf.sp_playerinfo.skin);
 }
 
 ControlsSettings::ControlsSettings(ShellConfig& conf, LangCache& lang)

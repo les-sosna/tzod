@@ -1,2 +1,2 @@
-xframes = 4
+xframes = 6
 yframes = 4

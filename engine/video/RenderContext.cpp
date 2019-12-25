@@ -7,7 +7,7 @@ RenderContext::RenderContext(const TextureManager &tm, const RenderBinding& rb, 
 	: _tm(tm)
 	, _rb(rb)
 	, _render(render)
-	, _currentTransform{ vec2d{}, 0xff }
+	, _currentTransform{ vec2d{}, 1, 0xff }
 	, _mode(RM_UNDEFINED)
 {
 	_transformStack.push(_currentTransform);
@@ -16,6 +16,8 @@ RenderContext::RenderContext(const TextureManager &tm, const RenderBinding& rb, 
 
 void RenderContext::PushClippingRect(RectRB rect)
 {
+	assert(rect.right >= rect.left && rect.bottom >= rect.top);
+
 	rect.left += (int)_currentTransform.offset.x;
 	rect.top += (int)_currentTransform.offset.y;
 	rect.right += (int)_currentTransform.offset.x;
@@ -37,35 +39,37 @@ void RenderContext::PopClippingRect()
 void RenderContext::PushTransform(vec2d offset, float opacityCombined)
 {
 	assert(!_currentTransform.hardware);
-	_transformStack.push({ _currentTransform.offset + offset, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
+	_transformStack.push({ _currentTransform.offset + offset, 1, static_cast<uint32_t>(opacityCombined * 255 + .5f), false /*hardware*/ });
 	_currentTransform = _transformStack.top();
 }
 
 void RenderContext::PushWorldTransform(vec2d offset, float scale)
 {
-	assert(!_currentTransform.hardware);
-	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.opacity, true /*hardware*/ });
+	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.scale * scale, _currentTransform.opacity, true /*hardware*/ });
 	_currentTransform = _transformStack.top();
-	_scale = scale;
-	_render.SetTransform(_currentTransform.offset, scale);
+	_render.SetTransform(_currentTransform.offset, _currentTransform.scale);
 }
 
 void RenderContext::PopTransform()
 {
 	assert(_transformStack.size() > 1);
-	if (_currentTransform.hardware)
-	{
-		_render.SetTransform({}, 1);
-		_scale = 1;
-	}
+	bool wasHardware = _currentTransform.hardware;
 	_transformStack.pop();
 	_currentTransform = _transformStack.top();
+	if (_currentTransform.hardware)
+	{
+		_render.SetTransform(_currentTransform.offset, _currentTransform.scale);
+	}
+	else if (wasHardware)
+	{
+		_render.SetTransform({}, 1);
+	}
 }
 
 FRECT RenderContext::GetVisibleRegion() const
 {
 	FRECT visibleRegion = RectOffset(RectToFRect(_clipStack.top()), -_currentTransform.offset);
-	return visibleRegion / _scale;
+	return visibleRegion / _currentTransform.scale;
 }
 
 static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
@@ -327,6 +331,11 @@ void RenderContext::DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsi
 
 void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align)
 {
+	DrawBitmapText(MakeRectWH(origin, {}), scale, tex, color, str, align);
+}
+
+void RenderContext::DrawBitmapText(FRECT rect, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align)
+{
 	color = ApplyOpacity(color, _currentTransform.opacity);
 
 	if (color.a == 0)
@@ -336,7 +345,7 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 	static const float dx[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
 	static const float dy[] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
 
-	std::vector<size_t> lines;
+	int lineCount = 0;
 	size_t maxline = 0;
 	if( align )
 	{
@@ -349,28 +358,31 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 			{
 				if( maxline < count )
 					maxline = count;
-				lines.push_back(count);
+				lineCount++;
 				count = 0;
 			}
 		}
 	}
 
-	if (!_currentTransform.hardware)
-	{
-		origin += _currentTransform.offset;
-	}
-
-	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
+	LogicalTexture lt = _tm.GetSpriteInfo(tex);
 	IRender &render = _render;
 
-	size_t count = 0;
-	size_t line  = 0;
+	int count = 0;
+	int line  = 0;
 
 	vec2d pxCharSize = Vec2dFloor(vec2d{ lt.pxFrameWidth, lt.pxFrameHeight } * scale);
 	float pxAdvance = std::floor((lt.pxFrameWidth - 1) * scale);
 
-	float x0 = origin.x - std::floor(dx[align] * pxAdvance * (float) maxline / 2);
-	float y0 = origin.y - std::floor(dy[align] * pxCharSize.y * (float) lines.size() / 2);
+	vec2d pxTextSize = { pxAdvance * (float)maxline, pxCharSize.y * (float)lineCount };
+
+	float x0 = rect.left + std::floor(dx[align] * (WIDTH(rect) - pxTextSize.x) / 2);
+	float y0 = rect.top + std::floor(dy[align] * (HEIGHT(rect) - pxTextSize.y) / 2);
+
+	if (!_currentTransform.hardware)
+	{
+		x0 += _currentTransform.offset.x;
+		y0 += _currentTransform.offset.y;
+	}
 
 	for(auto tmp = str.cbegin(); tmp != str.cend(); ++tmp )
 	{
@@ -380,12 +392,13 @@ void RenderContext::DrawBitmapText(vec2d origin, float scale, size_t tex, Sprite
 			count = 0;
 		}
 
-		if( (unsigned char) *tmp < lt.leadChar )
+		int frame = (int)(unsigned char)*tmp - lt.leadChar;
+		if( frame < 0 || frame >= lt.frameCount )
 		{
 			continue;
 		}
 
-		const FRECT &rt = _rb.GetUVFrames(tex)[(unsigned char) *tmp - lt.leadChar];
+		const FRECT &rt = _rb.GetUVFrames(tex)[frame];
 		float x = x0 + (float) ((count++) * pxAdvance);
 		float y = y0 + (float) (line * pxCharSize.y);
 

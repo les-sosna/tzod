@@ -1,10 +1,9 @@
 #pragma once
 #include "detail/ConfigConsoleHistory.h"
-#include "detail/MapCollection.h"
 #include <as/AppStateListener.h>
 #include <render/RenderScheme.h>
 #include <render/WorldView.h>
-#include "ui/Navigation.h"
+#include <ui/Navigation.h>
 #include <ui/Window.h>
 #include <functional>
 #include <string>
@@ -29,13 +28,13 @@ namespace UI
 
 class AppConfig;
 class AppController;
-class MainMenuDlg;
-class EditorMain;
 class GameLayout;
 class FpsCounter;
 class ShellConfig;
 class LangCache;
 class LuaConsole;
+class MainMenuDlg;
+class MapCollection;
 class NavStack;
 
 class Desktop final
@@ -49,6 +48,7 @@ public:
 	Desktop(UI::TimeStepManager &manager,
 	        TextureManager &texman,
 	        AppState &appState,
+	        MapCollection &mapCollection,
 	        AppConfig &appConfig,
 	        AppController &appController,
 	        FS::FileSystem &fs,
@@ -73,6 +73,7 @@ protected:
 private:
 	ConfigConsoleHistory _history;
 	TextureManager &_texman;
+	MapCollection& _mapCollection;
 	AppConfig &_appConfig;
 	AppController &_appController;
 	FS::FileSystem &_fs;
@@ -83,19 +84,16 @@ private:
 	Plat::AppWindowCommandClose* _cmdCloseAppWindow;
 	std::unique_ptr<LuaConsole> _luaConsole;
 
-	std::shared_ptr<EditorMain> _editor;
 	std::shared_ptr<GameLayout> _game;
 	std::shared_ptr<UI::Text> _tierTitle;
 	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
-	std::shared_ptr<UI::Button> _editorButton;
 	std::shared_ptr<NavStack> _navStack;
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;
-	MapCollection _mapCollection;
 
 	void OnNewCampaign();
 	void OnSinglePlayer();
@@ -107,8 +105,6 @@ private:
 	void OnControlsSettings();
 	void OnAdvancedSettings();
 	void OnMapSettings();
-	bool GetEditorMode() const;
-	void SetEditorMode(bool editorMode);
 	void ShowMainMenu();
 
 	void OnChangeShowFps();
@@ -120,19 +116,19 @@ private:
 
 	void UpdateFocus();
 
-	void NavigateHome();
 	void NavigateBack();
 	bool CanNavigateBack() const;
 
 	// AppStateListener
-	void OnGameContextChanging() override;
-	void OnGameContextChanged() override;
+	void OnGameContextRemoving() override;
+	void OnGameContextRemoved() override;
+	void OnGameContextAdded() override;
 
 	// UI::KeyboardSink
 	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key) override;
 	void OnKeyReleased(const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
-	bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
-	void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
+	bool CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
 };

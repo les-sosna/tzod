@@ -90,6 +90,10 @@ static void ThrowIfFailed(HRESULT hr, const char *msg)
 #define TOSTR(s) #s
 #define CHECK(expr) ThrowIfFailed((expr), "Failed at line " TOSTR(__LINE__))
 
+// {FCAACEE2-F3A0-4FDB-BC50-139D23AF2C3B}
+static const GUID s_sampler = 
+{ 0xfcaacee2, 0xf3a0, 0x4fdb, { 0xbc, 0x50, 0x13, 0x9d, 0x23, 0xaf, 0x2c, 0x3b } };
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const DirectX::XMFLOAT4X4 s_rotation0(
@@ -223,7 +227,10 @@ RenderD3D11::RenderD3D11(ID3D11DeviceContext2 *context, SwapChainResources &swap
 	CD3D11_SAMPLER_DESC samplerDesc((CD3D11_DEFAULT()));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	CHECK(_device->CreateSamplerState(&samplerDesc, &_samplerState));
+	CHECK(_device->CreateSamplerState(&samplerDesc, &_samplerLinear));
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	CHECK(_device->CreateSamplerState(&samplerDesc, &_samplerPoint));
 
 	CD3D11_BLEND_DESC blendDescUI((CD3D11_DEFAULT()));
 	blendDescUI.RenderTarget[0].BlendEnable = TRUE;
@@ -370,7 +377,6 @@ void RenderD3D11::Begin(unsigned int displayWidth, unsigned int displayHeight, D
 	_context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_context->VSSetShader(_vertexShader.Get(), nullptr, 0);
 	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
-	_context->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
 	_context->RSSetState(_rasterizerState.Get());
 }
 
@@ -419,6 +425,7 @@ bool RenderD3D11::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 	D3D11_SUBRESOURCE_DATA data{ img.pixels, static_cast<UINT>(img.stride), 0 };
 	CHECK(_device->CreateTexture2D(&desc, 32 == img.bpp ? &data : nullptr, &texture));
 	CHECK(_device->CreateShaderResourceView(texture.Get(), nullptr, &srv));
+	CHECK(srv->SetPrivateData(s_sampler, sizeof(void*), magFilter ? _samplerLinear.GetAddressOf() : _samplerPoint.GetAddressOf()));
 	tex.ptr = srv.Detach();
 	return true;
 }
@@ -472,7 +479,15 @@ MyVertex* RenderD3D11::DrawQuad(DEV_TEXTURE tex)
 	{
 		Flush();
 		_curtex = tex.ptr;
-		_context->PSSetShaderResources(0, 1, (ID3D11ShaderResourceView**)&tex.ptr);
+
+		auto srv = (ID3D11ShaderResourceView*)tex.ptr;
+
+		ID3D11SamplerState* samplerNoRef = nullptr;
+		UINT dataSize = sizeof(samplerNoRef);
+		CHECK(srv->GetPrivateData(s_sampler, &dataSize, &samplerNoRef));
+
+		_context->PSSetShaderResources(0, 1, &srv);
+		_context->PSSetSamplers(0, 1, &samplerNoRef);
 	}
 	if( _vaSize > VERTEX_ARRAY_SIZE - 4 || _iaSize > INDEX_ARRAY_SIZE  - 6 )
 	{

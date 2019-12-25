@@ -3,6 +3,7 @@
 #include "detail/QuickActions.h"
 #include <gc/Object.h>
 #include <gc/ObjPtr.h>
+#include <gc/World.h>
 #include <ui/Navigation.h>
 #include <ui/PointerInput.h>
 #include <ui/Texture.h>
@@ -13,7 +14,6 @@ class PropertyList;
 class TextureManager;
 class EditorConfig;
 class EditorContext;
-class World;
 class WorldView;
 class RenderScheme;
 class GameClassVis;
@@ -31,7 +31,7 @@ class EditorWorldView
 public:
 	EditorWorldView(UI::TimeStepManager &manager,
 		TextureManager &texman,
-		EditorContext &editorContext,
+		std::shared_ptr<EditorContext> editorContext,
 		WorldView &worldView,
 		EditorConfig &conf,
 		LangCache &lang,
@@ -85,8 +85,8 @@ private:
 	bool OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key) override;
 
 	// UI::NavigationSink
-	bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
-	void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
+	bool CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override;
+	void OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override;
 
 	// UI::Window
 	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;
@@ -97,10 +97,12 @@ private:
 	PointerSink* GetPointerSink() override { return this; }
 	KeyboardSink *GetKeyboardSink() override { return this; }
 
+	std::shared_ptr<EditorContext> _editorContext;
 	EditorConfig &_conf;
 	vec2d _virtualPointer;
 	vec2d _prevPointerPosition;
 	DefaultCamera _defaultCamera;
+	mutable World _objectPreviewWorld;
 	std::shared_ptr<PropertyList> _propList;
 	UI::Texture _fontSmall = "font_small";
 	UI::Texture _texSelection = "ui/selection";

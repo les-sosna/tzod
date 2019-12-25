@@ -57,7 +57,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader>  _vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShaderColor;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader>   _pixelShaderLight;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerLinear;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState>  _samplerPoint;
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateUI;
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateWorld;
 	Microsoft::WRL::ComPtr<ID3D11BlendState>    _blendStateLight;

@@ -5,8 +5,8 @@
 #include "inc/shell/Config.h"
 #include <MapFile.h>
 #include <cbind/ConfigBinding.h>
-#include <fs/FileSystem.h>
 #include <gc/World.h>
+#include <loc/Language.h>
 #include <render/WorldView.h>
 #include <video/RenderContext.h>
 #include <ui/Button.h>
@@ -14,7 +14,6 @@
 #include <ui/DataSource.h>
 #include <ui/LayoutContext.h>
 #include <ui/List.h>
-#include <ui/Rating.h>
 #include <ui/Rectangle.h>
 #include <ui/StackLayout.h>
 #include <ui/StateContext.h>
@@ -111,7 +110,7 @@ namespace
 	class DifficultySelectorContent final : public UI::WindowContainer
 	{
 	public:
-		DifficultySelectorContent(ConfVarNumber& confValue)
+		DifficultySelectorContent(const LangCache& lang, ConfVarNumber& confValue)
 			: _confValue(confValue)
 		{
 			auto background = std::make_shared<UI::Rectangle>();
@@ -120,9 +119,11 @@ namespace
 				UI::StateBinding<unsigned int>::MapType{ { "Hover", 1 }, { "Pushed", 1 } }));
 			AddFront(background);
 
-			auto rating = std::make_shared<UI::Rating>();
-			rating->SetRating(std::make_shared<DifficultyConfigBinding>(confValue));
-			AddFront(rating);
+			auto difficultyText = std::make_shared<UI::Text>();
+			difficultyText->SetFont("font_default");
+			difficultyText->SetText(std::make_shared<DifficultyConfigBinding>(lang, confValue));
+			difficultyText->SetAlign(alignTextCC);
+			AddFront(difficultyText);
 
 			auto proxy = std::make_shared<NavigationProxy>(confValue);
 			AddFront(proxy);
@@ -137,20 +138,31 @@ namespace
 
 	private:
 		class DifficultyConfigBinding final
-			: public UI::RenderData<unsigned int>
+			: public UI::LayoutData<std::string_view>
 		{
 		public:
-			DifficultyConfigBinding(const ConfVarNumber& confValue)
-				: _confValue(confValue)
+			DifficultyConfigBinding(const LangCache& lang, const ConfVarNumber& confValue)
+				: _lang(lang)
+				, _confValue(confValue)
 			{}
 
-			// UI::RenderData<unsigned int>
-			unsigned int GetRenderValue(const UI::DataContext& dc, const UI::StateContext& sc) const override
+			// UI::LayoutData<std::string_view>
+			std::string_view GetLayoutValue(const UI::DataContext& dc) const override
 			{
-				return _confValue.GetInt() + 1;
+				switch (_confValue.GetInt())
+				{
+				default:
+				case 0:
+					return _lang.difficulty_setting_easy.Get();
+				case 1:
+					return _lang.difficulty_setting_medium.Get();
+				case 2:
+					return _lang.difficulty_setting_hard.Get();
+				}
 			}
 
 		private:
+			const LangCache& _lang;
 			const ConfVarNumber& _confValue;
 		};
 
@@ -167,7 +179,7 @@ namespace
 
 		private:
 			// UI::NavigationSink
-			bool CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override
+			bool CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const override
 			{
 				switch (navigate)
 				{
@@ -178,7 +190,7 @@ namespace
 					return false;
 				}
 			}
-			void OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override
+			void OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase) override
 			{
 				if (phase == UI::NavigationPhase::Started)
 				{
@@ -203,18 +215,18 @@ namespace
 	};
 }
 
-SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, WorldCache &mapCache)
+SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &appConfig, ShellConfig &conf, DMCampaign &dmCampaign, MapCollection &mapCollection, const LangCache& lang)
 	: _worldView(worldView)
 	, _fs(fs)
 	, _appConfig(appConfig)
 	, _conf(conf)
 	, _dmCampaign(dmCampaign)
-	, _worldCache(mapCache)
+	, _mapCollection(mapCollection)
 	, _content(std::make_shared<UI::StackLayout>())
 	, _mapTiles(std::make_shared<UI::StackLayout>())
 	, _tierSelector(std::make_shared<UI::List>(&_tiersSource))
 {
-	auto difficultySelectorContent = std::make_shared<DifficultySelectorContent>(appConfig.sp_difficulty);
+	auto difficultySelectorContent = std::make_shared<DifficultySelectorContent>(lang, appConfig.sp_difficulty);
 	difficultySelectorContent->Resize(144, 48);
 	auto difficultySelectorButton = std::make_shared<UI::ContentButton>();;
 	difficultySelectorButton->SetContent(difficultySelectorContent);
@@ -253,7 +265,7 @@ SinglePlayer::SinglePlayer(WorldView &worldView, FS::FileSystem &fs, AppConfig &
 	};
 	_content->AddFront(_tierSelector);
 
-	_content->SetSpacing(48);
+	_content->SetSpacing(32);
 	_content->SetAlign(UI::Align::CT);
 	AddFront(_content);
 	SetFocus(_content.get());
@@ -288,7 +300,7 @@ void SinglePlayer::UpdateTier()
 
         auto mpButton = std::make_shared<UI::ContentButton>();
         {
-            auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _worldCache);
+            auto mapPreview = std::make_shared<MapPreview>(_fs, _worldView, _mapCollection);
             mapPreview->Resize(_conf.ui_tile_size.GetFloat(), _conf.ui_tile_size.GetFloat());
             mapPreview->SetPadding(_conf.ui_tile_spacing.GetFloat() / 2);
             mapPreview->SetMapName(std::make_shared<UI::StaticText>(mapDesc.map_name.Get()));
@@ -350,12 +362,12 @@ vec2d SinglePlayer::GetContentSize(TextureManager &texman, const UI::DataContext
 	return _content->GetContentSize(texman, dc, scale, layoutConstraints) + pxMargins * 2;
 }
 
-bool SinglePlayer::CanNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
+bool SinglePlayer::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
 	return GetNextTier(navigate) != GetCurrentTier(_conf, _dmCampaign);
 }
 
-void SinglePlayer::OnNavigate(TextureManager& texman, const UI::InputContext& ic, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
+void SinglePlayer::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Started == phase)
 	{

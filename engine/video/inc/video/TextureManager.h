@@ -20,7 +20,7 @@ struct LogicalTexture
 	float pxFrameHeight;
 	float pxBorderSize;
 	int leadChar;
-	unsigned int frameCount;
+	int frameCount;
 	bool magFilter;
 	bool wrappable;
 };
@@ -63,14 +63,14 @@ public:
 	float GetFrameHeight(size_t texIndex, size_t /*frameIdx*/) const { return _logicalTextures[texIndex].pxFrameHeight; }
 	vec2d GetFrameSize(size_t texIndex) const { return vec2d{GetFrameWidth(texIndex, 0), GetFrameHeight(texIndex, 0)}; }
 	float GetBorderSize(size_t texIndex) const { return _logicalTextures[texIndex].pxBorderSize; }
-	unsigned int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].frameCount; }
+	int GetFrameCount(size_t texIndex) const { return _logicalTextures[texIndex].frameCount; }
 
 	void GetTextureNames(std::vector<std::string> &names, const char *prefix) const;
 
 	float GetCharHeight(size_t fontTexture) const;
 	float GetCharWidth(size_t fontTexture) const;
 
-	ImageView GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, size_t frameIdx) const;
+	ImageView GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, int frameIdx) const;
 	size_t GetNextSprite(size_t texIndex) const;
 
 private:

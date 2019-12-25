@@ -25,11 +25,12 @@ public:
 	void PopTransform();
 
 	FRECT GetVisibleRegion() const;
-	float GetScale() const { return _scale; }
+	float GetScale() const { return _currentTransform.scale; }
 
 	void DrawSprite(const FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBorder(FRECT dst, size_t sprite, SpriteColor color, unsigned int frame);
 	void DrawBitmapText(vec2d origin, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align = alignTextLT);
+	void DrawBitmapText(FRECT rect, float scale, size_t tex, SpriteColor color, std::string_view str, enumAlignText align = alignTextLT);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, vec2d pos, vec2d dir);
 	void DrawSprite(size_t tex, unsigned int frame, SpriteColor color, vec2d pos, float width, float height, vec2d dir);
 	void DrawIndicator(size_t tex, vec2d pos, float value);
@@ -47,6 +48,7 @@ private:
 	struct Transform
 	{
 		vec2d offset;
+		float scale;
 		uint32_t opacity;
 		bool hardware;
 	};
@@ -56,6 +58,5 @@ private:
 	std::stack<RectRB> _clipStack;
 	std::stack<Transform> _transformStack;
 	Transform _currentTransform; // local copy of _transformStack.top
-	float _scale = 1;
 	RenderMode _mode;
 };

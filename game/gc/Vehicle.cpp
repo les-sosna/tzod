@@ -102,6 +102,8 @@ void GC_Vehicle::Serialize(World &world, SaveFile &f)
 	f.Serialize(_weapon);
 	f.Serialize(_shield);
 	f.Serialize(_time_smoke);
+	f.Serialize(_trackTotalPathL);
+	f.Serialize(_trackTotalPathR);
 	f.Serialize(_trackPathL);
 	f.Serialize(_trackPathR);
 	f.Serialize(_light_ambient);
@@ -246,7 +248,10 @@ void GC_Vehicle::MoveTo(World &world, const vec2d &pos)
 	if (_weapon)
 		_weapon->MoveTo(world, pos);
 	if (_shield)
+	{
 		_shield->MoveTo(world, pos);
+		_shield->SetDirection(GetDirection());
+	}
 	GC_MovingObject::MoveTo(world, pos);
 }
 
@@ -337,6 +342,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	const float trackDensity = 8;
 
 	vec2d e = trackL_new - trackL;
+	_trackTotalPathL += Vec2dDot(e, GetDirection());
 	float len = e.len();
 	e /= len;
 	while( _trackPathL < len )
@@ -349,6 +355,7 @@ void GC_Vehicle::TimeStep(World &world, float dt)
 	_trackPathL -= len;
 
 	e   = trackR_new - trackR;
+	_trackTotalPathR += Vec2dDot(e, GetDirection());
 	len = e.len();
 	e  /= len;
 	while( _trackPathR < len )

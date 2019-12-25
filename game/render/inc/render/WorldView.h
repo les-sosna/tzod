@@ -14,6 +14,7 @@ struct WorldViewRenderOptions
 	bool nightMode = false;
 	bool editorMode = false;
 	bool drawGrid = false;
+	bool noBackground = false;
 	bool visualizeField = false;
 	bool visualizePath = false;
 };

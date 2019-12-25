@@ -6,7 +6,6 @@ class TextureManager;
 namespace UI
 {
 	class DataContext;
-	class InputContext;
 	class LayoutContext;
 	class Window;
 
@@ -35,10 +34,12 @@ namespace UI
 
 	struct NavigationSink
 	{
-		virtual bool CanNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const = 0;
-		virtual void OnNavigate(TextureManager& texman, const InputContext &ic, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) = 0;
+		virtual bool CanNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate) const = 0;
+		virtual void OnNavigate(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Navigate navigate, NavigationPhase phase) = 0;
 	};
 
-	Window* GetPrevFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window& wnd);
-	Window* GetNextFocusChild(TextureManager& texman, const InputContext& ic, const LayoutContext& lc, const DataContext& dc, Window& wnd);
+	Window* GetPrevFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window& wnd);
+	Window* GetNextFocusChild(TextureManager& texman, const LayoutContext& lc, const DataContext& dc, Window& wnd);
+
+	bool CanNavigateBack(TextureManager& texman, const Window& wnd, const LayoutContext& lc, const DataContext& dc);
 }
