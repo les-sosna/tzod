@@ -28,10 +28,19 @@ void R_Vehicle::Draw(const World &world, const GC_MovingObject &mo, RenderContex
 	}
 	else
 	{
-		float vehicleHalfWidth = _tm.GetFrameHeight(texId, 0);
-		int leftFrame = ((int)vehicle._trackTotalPathL % (frameCount / 2)) * 2;
-		int rightFrame = ((int)vehicle._trackTotalPathR % (frameCount / 2)) * 2 + 1;
+		int animationLength = frameCount / 2;
 
+		int leftFrame = (int)std::floor(vehicle._trackTotalPathL) % animationLength;
+		if (leftFrame < 0)
+			leftFrame += animationLength;
+		leftFrame = leftFrame * 2;
+
+		int rightFrame = (int)std::floor(vehicle._trackTotalPathR) % animationLength;
+		if (rightFrame < 0)
+			rightFrame += animationLength;
+		rightFrame = rightFrame * 2 + 1;
+
+		float vehicleHalfWidth = _tm.GetFrameHeight(texId, 0);
 		auto leftOffset = vec2d{ dir.y, -dir.x } * vehicleHalfWidth / 2;
 		auto rightOffset = vec2d{ -dir.y, dir.x } * vehicleHalfWidth / 2;
 		rc.DrawSprite(texId, leftFrame, 0x40000000, leftOffset + pos + vec2d{ 4, 4 }, dir);
