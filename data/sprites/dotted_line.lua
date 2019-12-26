@@ -1,1 +1,2 @@
 wrappable = true
+magfilter = true

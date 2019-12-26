@@ -154,9 +154,11 @@ void WorldView::Render(RenderContext &rc,
 		for (auto controller: controllers)
 		{
 			auto &path = controller->GetPath();
+			float distance = 0;
 			for (size_t i = 1; i < path.size(); i++)
 			{
-				rc.DrawLine(_lineTex, 0x80408040, path[i - 1], path[i], 0);
+				rc.DrawLine(_lineTex, 0x80408040, path[i - 1], path[i], distance);
+				distance += (path[i - 1] - path[i]).len();
 			}
 		}
 	}

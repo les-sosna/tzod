@@ -569,37 +569,39 @@ void RenderContext::DrawLine(size_t tex, SpriteColor color, vec2d begin, vec2d e
 		return;
 
 	const LogicalTexture &lt = _tm.GetSpriteInfo(tex);
+	FRECT rt = _rb.GetUVFrames(tex)[0];
 	IRender &render = _render;
 
 	MyVertex *v = render.DrawQuad(_rb.GetDeviceTexture(tex));
 
 	float len = (begin - end).len();
-	float phase1 = phase + len / lt.pxFrameWidth;
+	float uvStart = phase / lt.pxFrameWidth;
+	float uvEnd = uvStart + len / lt.pxFrameWidth;
 	float c = (end.x - begin.x) / len;
 	float s = (end.y - begin.y) / len;
 	float py = lt.pxFrameHeight / 2;
 
 	v[0].color = color;
-	v[0].u = phase;
-	v[0].v = 0;
+	v[0].u = uvStart;
+	v[0].v = rt.top;
 	v[0].x = begin.x + py * s;
 	v[0].y = begin.y - py * c;
 
 	v[1].color = color;
-	v[1].u = phase1;
-	v[1].v = 0;
+	v[1].u = uvEnd;
+	v[1].v = rt.top;
 	v[1].x = begin.x + len * c + py * s;
 	v[1].y = begin.y + len * s - py * c;
 
 	v[2].color = color;
-	v[2].u = phase1;
-	v[2].v = 1;
+	v[2].u = uvEnd;
+	v[2].v = rt.bottom;
 	v[2].x = begin.x + len * c - py * s;
 	v[2].y = begin.y + len * s + py * c;
 
 	v[3].color = color;
-	v[3].u = phase;
-	v[3].v = 1;
+	v[3].u = uvStart;
+	v[3].v = rt.bottom;
 	v[3].x = begin.x - py * s;
 	v[3].y = begin.y + py * c;
 }
