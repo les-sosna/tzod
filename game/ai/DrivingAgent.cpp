@@ -89,10 +89,12 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 {
 	int maxRelativeDepth = int(max_depth * (float)BLOCK_MULTIPLIER);
 
-	if (!PtInFRect(world.GetBounds(), to))
-	{
+	auto bounds = world.GetBounds();
+	if (!PtInFRect(bounds, to))
 		return -1;
-	}
+
+	to -= Offset(bounds);
+	from -= Offset(bounds);
 
 	Field::NewSession();
 	Field &field = *world._field;
@@ -181,7 +183,7 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 			RefFieldCell currentRef = endRef;
 			const FieldCell *current = &field(currentRef.x, currentRef.y);
 
-			_path.push_back(to);
+			_path.push_back(to + Offset(bounds));
 
 			while( currentRef != startRef )
 			{
@@ -206,10 +208,10 @@ float DrivingAgent::CreatePath(World &world, vec2d from, vec2d dir, vec2d to, in
 
 				// skip first node, will use exact 'from' location instead
 				if( currentRef != startRef )
-					_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) });
+					_path.push_back(vec2d{ (float)(currentRef.x * WORLD_BLOCK_SIZE), (float)(currentRef.y * WORLD_BLOCK_SIZE) } + Offset(bounds));
 			}
 
-			_path.push_back(from);
+			_path.push_back(from + Offset(bounds));
 
 			std::reverse(begin(_path), end(_path));
 			assert(startRef == currentRef);
