@@ -70,10 +70,10 @@ void Terrain::Draw(RenderContext &rc, const World& world, bool drawGrid, bool dr
 	if (drawBackground)
 		rc.DrawBackground(_texBack, bounds);
 
-	if( drawGrid && rc.GetScale() > 0.25 )
+	if( drawGrid && rc.GetScale() > 0.3f )
 		rc.DrawBackground(_texGrid, bounds);
 
-	if (rc.GetScale() <= 0.25)
+	if( rc.GetScale() <= 0.3f )
 		return;
 
 	FRECT visibleRegion = rc.GetVisibleRegion();
