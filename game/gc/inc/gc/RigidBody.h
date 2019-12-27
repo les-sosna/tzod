@@ -45,6 +45,8 @@ public:
 	// return true if object has been killed
 	void TakeDamage(World &world, DamageDesc dd);
 
+	void Destroy(World& world, DamageDesc& dd);
+
 	virtual float GetDefaultHealth() const = 0;
 	virtual uint8_t GetObstacleFlags() const = 0;
 	virtual GC_Player* GetOwner() const { return nullptr; }

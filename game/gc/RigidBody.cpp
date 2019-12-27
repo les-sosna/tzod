@@ -337,11 +337,16 @@ void GC_RigidBodyStatic::TakeDamage(World &world, DamageDesc dd)
 		SetHealth(GetHealth() - dd.damage);
 		if( GetHealth() <= 0 )
 		{
-			SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
-			OnDestroy(world, dd);
-			Kill(world);
+			Destroy(world, dd);
 		}
 	}
+}
+
+void GC_RigidBodyStatic::Destroy(World& world, DamageDesc& dd)
+{
+	SetFlags(GC_FLAG_RBSTATIC_DESTROYED, true);
+	OnDestroy(world, dd);
+	Kill(world);
 }
 
 void GC_RigidBodyStatic::SetSize(float width, float length)
