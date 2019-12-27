@@ -48,7 +48,6 @@ protected:
 	void Draw(const UI::DataContext &dc, const UI::StateContext &sc, const UI::LayoutContext &lc, const UI::InputContext &ic, RenderContext &rc, TextureManager &texman, const Plat::Input &input, float time, bool hovered) const override;
 
 private:
-	UI::Texture _barTexture = "ui/bar";
 	UI::Texture _titleFont = "font_small";
 	std::string _title;
 	std::deque<float> _data;

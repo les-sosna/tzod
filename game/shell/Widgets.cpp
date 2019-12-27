@@ -207,8 +207,6 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 
 	float dataScale = pxAvailableSpace / (_rangeMin - _rangeMax);
 
-	size_t texBar = _barTexture.GetTextureId(texman);
-
 	float pxStepSize = UI::ToPx(_stepSize, lc);
 	float pxBarWidth = pxStepSize > 2 ? pxStepSize - 1 : pxStepSize;
 
@@ -223,7 +221,7 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 		rect.bottom = lc.GetPixelSize().y - pxLabelOffset;
 		rect.top = rect.bottom + (_data[i] - _rangeMin) * dataScale;
 
-		rc.DrawSprite(rect, texBar, 0x44444444, 0);
+		rc.DrawSprite(rect, 0, 0x44444444, 0);
 	}
 
 	// grid
@@ -241,13 +239,13 @@ void Oscilloscope::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 			
 			float pxTextWidth = pxCharWidth * (float) text.size();
 
-			rc.DrawSprite(texBar, 0, 0x44444444, vec2d{ pxTextWidth, pxLabelOffset - (_rangeMax - y) * dataScale }, lc.GetPixelSize().x - pxTextWidth, -1, vec2d{ 1, 0 });
+			rc.DrawSprite(0, 0, 0x44444444, vec2d{ pxTextWidth, pxLabelOffset - (_rangeMax - y) * dataScale }, lc.GetPixelSize().x - pxTextWidth, -1, vec2d{ 1, 0 });
 			rc.DrawBitmapText(vec2d{ 0, std::floor((y - _rangeMax) * dataScale) }, lc.GetScaleCombined(), _titleFont.GetTextureId(texman), 0x77777777, text);
 		}
 	}
 	else
 	{
-		rc.DrawSprite(texBar, 0, 0x44444444, vec2d{ 0, pxLabelOffset - _rangeMax * dataScale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
+		rc.DrawSprite(0, 0, 0x44444444, vec2d{ 0, pxLabelOffset - _rangeMax * dataScale }, lc.GetPixelSize().x, -1, vec2d{ 1, 0 });
 	}
 
 	// title

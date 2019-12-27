@@ -9,33 +9,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class CheckerImage final
-	: public Image
-{
-public:
-	// Image
-	ImageView GetData() const override
-    {
-        ImageView result = {};
-        result.pixels = _bytes;
-        result.width = 4;
-        result.height = 4;
-        result.stride = 16;
-        result.bpp = 32;
-        return result;
-    }
-
-private:
-	static const unsigned char _bytes[];
-};
-
-const unsigned char CheckerImage::_bytes[] = {
-	  0,  0,  0,255,     0,  0,  0,255,   255,255,255,255,   255,255,255,255,
-	  0,  0,  0,255,     0,  0,  0,255,   255,255,255,255,   255,255,255,255,
-	255,255,255,255,   255,255,255,255,     0,  0,  0,255,     0,  0,  0,255,
-	255,255,255,255,   255,255,255,255,     0,  0,  0,255,     0,  0,  0,255,
-};
-
 ImageCache::ImageCache()
 {
 }
@@ -64,16 +37,13 @@ static vec2d GetImageSize(const Image& image)
 
 TextureManager::TextureManager()
 {
-	CheckerImage c;
-
 	LogicalTexture tex = {};
-	tex.pxPivot = GetImageSize(c) * 4;
-	tex.pxFrameWidth = GetImageSize(c).x * 8;
-	tex.pxFrameHeight = GetImageSize(c).y * 8;
+	tex.pxFrameWidth = 1;
+	tex.pxFrameHeight = 1;
 	tex.pxBorderSize = 0;
 	tex.frameCount = 1;
 	tex.magFilter = false;
-	tex.wrappable = true;
+	tex.wrappable = false;
 
 	_logicalTextures.push_back(tex);
 	_spriteSources.emplace_back();
@@ -156,11 +126,8 @@ void TextureManager::LoadPackage(FS::FileSystem& fs, ImageCache &imageCache, con
 
 size_t TextureManager::FindSprite(std::string_view name) const
 {
-	std::map<std::string, size_t>::const_iterator it = _mapName_to_Index.find(name);
-	if( _mapName_to_Index.end() != it )
-		return it->second;
-
-	return 0; // index of checker texture
+	auto it = _mapName_to_Index.find(name);
+	return _mapName_to_Index.end() != it ? it->second : 0;
 }
 
 void TextureManager::GetTextureNames(std::vector<std::string> &names, const char *prefix) const
@@ -187,13 +154,20 @@ float TextureManager::GetCharWidth(size_t fontTexture) const
 	return GetSpriteInfo(fontTexture).pxFrameWidth - 1;
 }
 
+static const unsigned char s_blankBytes[] = { 255,255,255,255 };
+
 ImageView TextureManager::GetSpritePixels(FS::FileSystem& fs, ImageCache& imageCache, size_t texIndex, int frameIdx) const
 {
 	if (texIndex == 0)
 	{
 		assert(frameIdx == 0);
-		CheckerImage c;
-		return c.GetData();
+		ImageView blank = {};
+		blank.pixels = s_blankBytes;
+		blank.width = 1;
+		blank.height = 1;
+		blank.stride = 4;
+		blank.bpp = 32;
+		return blank;
 	}
 	else
 	{
