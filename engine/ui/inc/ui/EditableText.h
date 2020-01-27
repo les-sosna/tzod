@@ -50,8 +50,8 @@ namespace UI
 	private:
 		std::shared_ptr<Window> _fakeCursorPlaceholder = std::make_shared<Window>();
 		std::string _text;
-		int _selStart = 0;
-		int _selEnd = 0;
+		int _selStart = -1;
+		int _selEnd = -1;
 		Texture _font = "font_small";
 		Texture _cursor = "ui/editcursor";
 		Texture _selection = "ui/editsel";
