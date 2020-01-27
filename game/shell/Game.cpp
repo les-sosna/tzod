@@ -48,7 +48,9 @@ namespace
 			if (_deathmatch && _deathmatch->GetTimeLimit() > 0)
 			{
 				int secondsLeft = (int)std::ceil(_deathmatch->GetTimeLimit() - _world.GetTime());
-				text << (secondsLeft / 60) << ":" << std::setfill('0') << std::setw(2) << (secondsLeft % 60);
+				text << std::setw(2) << std::setfill(' ') << (secondsLeft / 60) // minutes
+				     << ":"
+				     << std::setw(2) << std::setfill('0') << (secondsLeft % 60); // seconds
 			}
 			else
 			{
@@ -114,6 +116,13 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
   , _inputMgr(conf, logger)
 {
 	assert(_gameContext);
+	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
+
+	_timerDisplay = std::make_shared<UI::Text>();
+	_timerDisplay->SetAlign(alignTextCT);
+	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
+	_timerDisplay->SetFont("font_default");
+	AddFront(_timerDisplay);
 
 	_background = std::make_shared<UI::Rectangle>();
 	_background->SetTexture("ui/list");
@@ -134,7 +143,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 		_scoreAndControls->AddFront(_rating);
 	}
 
-	auto deathmatch = dynamic_cast<Deathmatch*>(_gameContext->GetGameplay());
 	_score = std::make_shared<ScoreTable>(_gameContext->GetWorld(), deathmatch, _lang);
 	_score->SetVisible(false);
 	_scoreAndControls->AddFront(_score);
@@ -146,11 +154,6 @@ GameLayout::GameLayout(UI::TimeStepManager &manager,
 		_scoreAndControls->AddFront(_campaignControls);
 		_scoreAndControls->SetFocus(_campaignControls.get());
 	}
-
-	_timerDisplay = std::make_shared<UI::Text>();
-	_timerDisplay->SetAlign(alignTextRB);
-	_timerDisplay->SetText(std::make_shared<TimerDisplay>(_gameContext->GetWorld(), deathmatch));
-	AddFront(_timerDisplay);
 
 	SetTimeStep(true);
 	_gameContext->GetGameEventSource().AddListener(*this);
@@ -368,7 +371,7 @@ UI::WindowLayout GameLayout::GetChildLayout(TextureManager &texman, const UI::La
 	}
 	if (_timerDisplay.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectWH(size - vec2d{1, 1}, {}), 1, true };
+		return UI::WindowLayout{ MakeRectWH(size), 1, true };
 	}
 	if (_msg.get() == &child)
 	{

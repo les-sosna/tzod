@@ -82,12 +82,12 @@ private:
 	bool GetAllPlayerDead() const;
 
 	std::shared_ptr<MessageArea> _msg;
+	std::shared_ptr<UI::Text> _timerDisplay;
 	std::shared_ptr<UI::Rectangle> _background;
 	std::shared_ptr<UI::StackLayout> _scoreAndControls;
 	std::shared_ptr<UI::Rating> _rating;
 	std::shared_ptr<ScoreTable> _score;
 	std::shared_ptr<CampaignControls> _campaignControls;
-	std::shared_ptr<UI::Text> _timerDisplay;
 	std::shared_ptr<GamePauseMenu> _gamePauseMenu;
 
 	std::shared_ptr<GameContext> _gameContext;
