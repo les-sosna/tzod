@@ -43,9 +43,11 @@ void RenderContext::PushTransform(vec2d offset, float opacityCombined)
 	_currentTransform = _transformStack.top();
 }
 
-void RenderContext::PushWorldTransform(vec2d offset, float scale)
+void RenderContext::PushWorldTransform(vec2d offset, float scale, float opacity)
 {
-	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.scale * scale, _currentTransform.opacity, true /*hardware*/ });
+	auto opacity8bit = static_cast<uint32_t>(opacity * 255 + .5f);
+	auto opacityCombined = (_currentTransform.opacity * (opacity8bit + 1)) >> 8;
+	_transformStack.push({ _currentTransform.offset + offset, _currentTransform.scale * scale, opacityCombined, true /*hardware*/ });
 	_currentTransform = _transformStack.top();
 	_render.SetTransform(_currentTransform.offset, _currentTransform.scale);
 }
@@ -74,8 +76,8 @@ FRECT RenderContext::GetVisibleRegion() const
 
 static SpriteColor ApplyOpacity(SpriteColor color, uint8_t opacity)
 {
-	auto colorAG = (((color.color & 0xff00ff00) >> 8) * opacity) & 0xff00ff00;
-	auto colorBR = (((color.color & 0x00ff00ff) * opacity) >> 8) & 0x00ff00ff;
+	auto colorAG = (((color.color & 0xff00ff00) >> 8) * ((uint32_t)opacity + 1)) & 0xff00ff00;
+	auto colorBR = (((color.color & 0x00ff00ff) * ((uint32_t)opacity + 1)) >> 8) & 0x00ff00ff;
 	return colorAG | colorBR;
 }
 

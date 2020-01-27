@@ -568,7 +568,7 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 	vec2d worldTransformOffset = ComputeWorldTransformOffset(MakeRectWH(lc.GetPixelSize()), eye, zoom);
 
 	rc.PushClippingRect(viewport);
-	rc.PushWorldTransform(worldTransformOffset, zoom);
+	rc.PushWorldTransform(worldTransformOffset, zoom, 1);
 	WorldViewRenderOptions options;
 	options.editorMode = true;
 	options.drawGrid = _conf.drawgrid.Get();
@@ -594,21 +594,32 @@ void EditorWorldView::Draw(const UI::DataContext &dc, const UI::StateContext &sc
 	{
 		auto cursor = GetCursor();
 		auto cursorColor = SpriteColor{};
+		float previewOpacity = 0;
 		switch (cursor.cursorType)
 		{
-			case WorldCursor::Type::Create:     cursorColor = 0xff00ff00; break;
-			case WorldCursor::Type::Obstructed: cursorColor = 0x8f008f00; break;
-			case WorldCursor::Type::Action:     cursorColor = 0xff00ffff; break;
-			case WorldCursor::Type::None: break;
+			case WorldCursor::Type::Create:
+				cursorColor = 0xff00ff00;
+				previewOpacity = 0.6f;
+				break;
+			case WorldCursor::Type::Obstructed:
+				cursorColor = 0x8f008f00;
+				previewOpacity = 0.3f;
+				break;
+			case WorldCursor::Type::Action:
+				cursorColor = 0xff00ffff;
+				break;
+			case WorldCursor::Type::None:
+				break;
 		}
 
 		// object preview
+		if (cursor.cursorType == WorldCursor::Type::Create || cursor.cursorType == WorldCursor::Type::Obstructed)
 		{
 			_objectPreviewWorld.Clear();
 			auto offset = RTTypes::Inst().GetTypeInfo(_currentType).offset;
 			RTTypes::Inst().CreateObject(_objectPreviewWorld, _currentType, vec2d{ offset, offset });
 
-			rc.PushWorldTransform((Center(cursor.bounds) - vec2d{ offset, offset }) * zoom, 1);
+			rc.PushWorldTransform((Center(cursor.bounds) - vec2d{ offset, offset }) * zoom, 1, previewOpacity);
 			WorldViewRenderOptions options;
 			options.editorMode = true;
 			options.noBackground = true;

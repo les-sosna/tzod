@@ -52,7 +52,7 @@ void MapPreview::Draw(const UI::DataContext &dc, const UI::StateContext &sc, con
 		float zoom = std::max(pxViewSize.x / worldSize.x, pxViewSize.y / worldSize.y);
 
 		rc.PushClippingRect(FRectToRect(pxContentRect));
-		rc.PushWorldTransform(ComputeWorldTransformOffset(pxContentRect, eye, zoom), zoom);
+		rc.PushWorldTransform(ComputeWorldTransformOffset(pxContentRect, eye, zoom), zoom, 1);
 		_worldView.Render(rc, world);
 		rc.PopTransform();
 		rc.PopClippingRect();

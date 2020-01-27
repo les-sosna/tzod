@@ -21,7 +21,7 @@ public:
 	void PopClippingRect();
 
 	void PushTransform(vec2d offset, float opacityCombined = 1);
-	void PushWorldTransform(vec2d offset, float scale);
+	void PushWorldTransform(vec2d offset, float scale, float opacity);
 	void PopTransform();
 
 	FRECT GetVisibleRegion() const;

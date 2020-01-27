@@ -127,7 +127,7 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView, 
 		{
 			vec2d eye = GetMaxShakeCamera().GetCameraPos();
 			rc.PushClippingRect(GetMaxShakeCamera().GetViewport());
-			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(GetMaxShakeCamera().GetViewport()), eye, _scale), _scale);
+			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(GetMaxShakeCamera().GetViewport()), eye, _scale), _scale, 1);
 			worldView.Render(rc, _world, options, aiManager);
 			rc.PopTransform();
 			rc.PopClippingRect();
@@ -137,7 +137,7 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView, 
 		{
 			vec2d eye = camera.GetCameraPos();
 			rc.PushClippingRect(camera.GetViewport());
-			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(camera.GetViewport()), eye, _scale), _scale);
+			rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(camera.GetViewport()), eye, _scale), _scale, 1);
 			worldView.Render(rc, _world, options, aiManager);
 			rc.PopTransform();
 			rc.PopClippingRect();
@@ -150,7 +150,7 @@ void GameViewHarness::RenderGame(RenderContext &rc, const WorldView &worldView, 
 
 		RectRB viewport{ 0, 0, _pxWidth, _pxHeight };
 		rc.PushClippingRect(viewport);
-		rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
+		rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom, 1);
 		worldView.Render(rc, _world, options, aiManager);
 		rc.PopTransform();
 		rc.PopClippingRect();

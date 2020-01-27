@@ -33,7 +33,7 @@ void GameClassVis::Draw(const UI::DataContext &dc, const UI::StateContext &sc, c
 	float zoom = lc.GetScaleCombined();
 
 	rc.PushClippingRect(viewport);
-	rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom);
+	rc.PushWorldTransform(ComputeWorldTransformOffset(RectToFRect(viewport), eye, zoom), zoom, 1);
 	WorldViewRenderOptions options;
 	options.editorMode = true;
 	options.noBackground = true;
