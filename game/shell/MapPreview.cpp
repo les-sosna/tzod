@@ -87,7 +87,7 @@ UI::WindowLayout MapPreview::GetChildLayout(TextureManager &texman, const UI::La
 	if (_rating.get() == &child)
 	{
 		vec2d pxPadding = UI::ToPx(vec2d{ _padding, _padding }, lc);
-		return UI::WindowLayout{ MakeRectWH(pxPadding, lc.GetPixelSize() / 2), 1, true };
+		return UI::WindowLayout{ MakeRectWH(pxPadding, lc.GetPixelSize() / 2), _locked ? 0.f : 1.f, true };
 	}
 	assert(false);
 	return {};
