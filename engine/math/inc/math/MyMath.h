@@ -186,21 +186,6 @@ inline vec2d Size(const FRECT &rect) { return { WIDTH(rect), HEIGHT(rect) }; }
 inline vec2d Offset(const FRECT &rect) { return{ rect.left, rect.top }; }
 inline vec2d Center(const FRECT &rect) { return vec2d{ rect.left + rect.right, rect.top + rect.bottom} / 2; }
 
-inline FRECT AlignRT(vec2d rectSize, float canvasWidth)
-{
-	return MakeRectWH(vec2d{ canvasWidth - rectSize.x, 0 }, rectSize);
-}
-
-inline FRECT AlignCC(vec2d rectSize, vec2d canvasSize)
-{
-	return MakeRectWH((canvasSize - rectSize) / 2, rectSize);
-}
-
-inline FRECT AlignLB(vec2d rectSize, float canvasHeight)
-{
-	return MakeRectWH(vec2d{ 0, canvasHeight - rectSize.y }, rectSize);
-}
-
 struct RectRB
 {
 	int left;
@@ -347,6 +332,21 @@ inline bool RectIntersect(const FRECT &a, const FRECT &b)
 {
 	return std::abs(a.left - b.left + a.right - b.right) < a.right - a.left + b.right - b.left &&
 		std::abs(a.top - b.top + a.bottom - b.bottom) < a.bottom - a.top + b.bottom - b.top;
+}
+
+inline FRECT AlignRT(vec2d rectSize, float canvasWidth)
+{
+	return MakeRectWH(vec2d{ canvasWidth - rectSize.x, 0 }, rectSize);
+}
+
+inline FRECT AlignCC(vec2d rectSize, vec2d canvasSize)
+{
+	return MakeRectWH(Vec2dFloor((canvasSize - rectSize) / 2), rectSize);
+}
+
+inline FRECT AlignLB(vec2d rectSize, float canvasHeight)
+{
+	return MakeRectWH(vec2d{ 0, canvasHeight - rectSize.y }, rectSize);
 }
 
 // generates a pseudo random number in range [0, max)
