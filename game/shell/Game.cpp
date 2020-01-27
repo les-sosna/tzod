@@ -227,6 +227,15 @@ bool GameLayout::GetAllPlayerDead() const
 	return allDead;
 }
 
+bool GameLayout::GetGameOver() const
+{
+	if (Gameplay* gameplay = _gameContext->GetGameplay())
+	{
+		return _gameContext->GetGameplayTime() >= gameplay->GetGameEndTime();
+	}
+	return false;
+}
+
 float GameLayout::GetLastPlayerDieTime() const
 {
 	float lastDieTime = FLT_MAX;
@@ -251,8 +260,8 @@ void GameLayout::OnTimeStep(const Plat::Input &input, bool focused, float dt)
 	constexpr float showRatingDelay = 1.0f;
 	constexpr float showControlsDelay = 2.0f;
 
-	bool showScoreWhenDead = lastDieTime <= gameplayTime - showScoreDelay && GetAllPlayerDead();
-	bool showScoreWhenGameOver = gameEndTime <= gameplayTime - showScoreDelay;
+	bool showScoreWhenDead = lastDieTime <= (gameplayTime - showScoreDelay) && GetAllPlayerDead();
+	bool showScoreWhenGameOver = gameEndTime <= (gameplayTime - showScoreDelay);
 	bool showScoreWhenTabPressed = !_gamePauseMenu && input.IsKeyPressed(Plat::Key::Tab);
 
 	_score->SetVisible(showScoreWhenTabPressed || showScoreWhenDead || showScoreWhenGameOver);
@@ -437,10 +446,10 @@ bool GameLayout::OnKeyPressed(const Plat::Input& input, const UI::InputContext& 
 	{
 	case Plat::Key::GamepadMenu:
 	case Plat::Key::Escape:
-		if (_gamePauseMenu)
-			return false; // keep unhandled, will use navigation sink
-		else
+		if (CanPause())
 			ShowPauseMenu();
+		else
+			return false; // keep unhandled, will use navigation sink to go back
 		break;
 
 	default:
@@ -452,15 +461,14 @@ bool GameLayout::OnKeyPressed(const Plat::Input& input, const UI::InputContext& 
 
 bool GameLayout::CanNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate) const
 {
-	return UI::Navigate::Back == navigate && _gamePauseMenu;
+	return UI::Navigate::Back == navigate && CanNavigateBack();
 }
 
 void GameLayout::OnNavigate(TextureManager& texman, const UI::LayoutContext& lc, const UI::DataContext& dc, UI::Navigate navigate, UI::NavigationPhase phase)
 {
 	if (UI::NavigationPhase::Completed == phase && UI::Navigate::Back == navigate)
 	{
-		UnlinkChild(*_gamePauseMenu);
-		_gamePauseMenu.reset();
+		NavigateBack();
 	}
 }
 
@@ -495,12 +503,7 @@ void GameLayout::OnMurder(GC_Player &victim, GC_Player *killer, MurderType murde
 
 void GameLayout::ShowPauseMenu()
 {
-	if (_gamePauseMenu)
-	{
-		UnlinkChild(*_gamePauseMenu);
-		_gamePauseMenu.reset();
-	}
-	else
+	if (!_gamePauseMenu)
 	{
 		GamePauseMenuCommands commands;
 		commands.restartGame = _campaignControlCommands.replayCurrent;
@@ -510,6 +513,23 @@ void GameLayout::ShowPauseMenu()
 		_gamePauseMenu = std::make_shared<GamePauseMenu>(_lang, std::move(commands));
 		AddFront(_gamePauseMenu);
 	}
+}
 
+bool GameLayout::CanPause() const
+{
+	return !_gamePauseMenu && !GetGameOver();
+}
+
+void GameLayout::NavigateBack()
+{
+	assert(CanNavigateBack());
+
+	UnlinkChild(*_gamePauseMenu);
+	_gamePauseMenu.reset();
+}
+
+bool GameLayout::CanNavigateBack() const
+{
+	return !!_gamePauseMenu;
 }
 

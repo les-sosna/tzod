@@ -122,15 +122,27 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 
 	_pauseButton = std::make_shared<UI::Button>();
 	_pauseButton->SetTopMost(true);
+	_pauseButton->SetBackground("ui/pause");
+	_pauseButton->AlignToBackground(_texman);
 	_pauseButton->eventClick = [=]()
 	{
-		if (CanNavigateBack())
-			NavigateBack();
-		else if (_game)
-			_game->ShowPauseMenu();
-		UpdateFocus();
+		assert(_game && _game->CanPause());
+		_game->ShowPauseMenu();
 	};
 	AddFront(_pauseButton);
+
+	_backButton = std::make_shared<UI::Button>();
+	_backButton->SetTopMost(true);
+	_backButton->SetBackground("ui/back");
+	_backButton->AlignToBackground(_texman);
+	_backButton->eventClick = [=]()
+	{
+		if (_game && _game.get() == _navStack->GetNavFront() && _game->CanNavigateBack())
+			_game->NavigateBack();
+		else if (CanNavigateBack())
+			NavigateBack();
+	};
+	AddFront(_backButton);
 
 	_navStack = std::make_shared<NavStack>(manager);
 	_navStack->SetSpacing(_conf.ui_nav_spacing.GetFloat());
@@ -166,7 +178,6 @@ vec2d Desktop::GetListenerPos() const
 void Desktop::OnCloseChild(std::shared_ptr<UI::Window> child)
 {
 	_navStack->PopNavStack(child.get());
-	UpdateFocus();
 }
 
 void Desktop::OnNewCampaign()
@@ -193,7 +204,6 @@ void Desktop::OnNewCampaign()
 		}
 	};
 	_navStack->PushNavStack(dlg);
-	UpdateFocus();
 }
 
 void Desktop::OnSinglePlayer()
@@ -225,7 +235,6 @@ void Desktop::OnSinglePlayer()
 			}
 		};
 		_navStack->PushNavStack(dlg);
-		UpdateFocus();
 	}
 }
 
@@ -254,7 +263,6 @@ void Desktop::OnSplitScreen()
 		}
 	};
 	_navStack->PushNavStack(dlg);
-	UpdateFocus();
 }
 
 void Desktop::OnOpenMap()
@@ -272,7 +280,6 @@ void Desktop::OnOpenMap()
 	};
 
 	_navStack->PushNavStack(selectMapDlg);
-	UpdateFocus();
 }
 
 void Desktop::OnExportMap()
@@ -307,7 +314,6 @@ void Desktop::OnExportMap()
 			}
 		};
 		_navStack->PushNavStack(fileDlg);
-		UpdateFocus();
 	}
 }
 
@@ -321,7 +327,6 @@ void Desktop::OnSettingsMain()
 	commands.controls = std::bind(&Desktop::OnControlsSettings, this);
 	commands.advanced = std::bind(&Desktop::OnAdvancedSettings, this);
 	_navStack->PushNavStack(std::make_shared<MainSettingsDlg>(_lang, std::move(commands)), 1);
-	UpdateFocus();
 }
 
 void Desktop::OnPlayerSettings()
@@ -330,7 +335,6 @@ void Desktop::OnPlayerSettings()
 		return;
 
 	_navStack->PushNavStack(std::make_shared<PlayerSettings>(_appConfig, _lang), 1);
-	UpdateFocus();
 }
 
 void Desktop::OnControlsSettings()
@@ -339,7 +343,6 @@ void Desktop::OnControlsSettings()
 		return;
 
 	_navStack->PushNavStack(std::make_shared<ControlsSettings>(_conf, _lang), 1);
-	UpdateFocus();
 }
 
 void Desktop::OnAdvancedSettings()
@@ -348,7 +351,6 @@ void Desktop::OnAdvancedSettings()
 		return;
 
 	_navStack->PushNavStack(std::make_shared<AdvancedSettings>(_conf, _lang), 1);
-	UpdateFocus();
 }
 
 void Desktop::OnMapSettings()
@@ -361,7 +363,6 @@ void Desktop::OnMapSettings()
 			OnCloseChild(weakSender.lock());
 		};
 		_navStack->PushNavStack(dlg);
-		UpdateFocus();
 	}
 }
 
@@ -382,30 +383,32 @@ void Desktop::ShowMainMenu()
 		commands.quitGame = [=] { _cmdCloseAppWindow->RequestClose(); };
 	}
 	_navStack->PushNavStack(std::make_shared<MainMenuDlg>(_lang, std::move(commands)), 1);
-	UpdateFocus();
 }
 
-void Desktop::UpdateFocus()
+std::shared_ptr<const UI::Window> Desktop::GetFocus(const std::shared_ptr<const UI::Window>& owner) const
 {
-	if (_con->GetVisible())
+	if (_con->GetVisible() && !_consoleKeyPressed)
 	{
-		SetFocus(_con.get());
+		return _con;
 	}
-	else if(_navStack->GetNavFront())
+	else if (_navStack->GetNavFront())
 	{
-		SetFocus(_navStack.get());
+		return _navStack;
 	}
-	else
-	{
-		SetFocus(nullptr);
-	}
+	return nullptr;
+}
 
-	// Pause button can navigate both Back or Menu. Must update last as it depends on focus.
-	bool isGameRunning = !!GetAppState().GetGameContext();
-	bool canNavigateBack = CanNavigateBack() || (_game && _game->InPauseMenu());
-	_pauseButton->SetVisible(canNavigateBack || isGameRunning);
-	_pauseButton->SetBackground(canNavigateBack ? "ui/back" : "ui/pause");
-	_pauseButton->AlignToBackground(_texman);
+const UI::Window* Desktop::GetFocus() const
+{
+	if (_con->GetVisible() && !_consoleKeyPressed)
+	{
+		return _con.get();
+	}
+	else if (_navStack->GetNavFront())
+	{
+		return _navStack.get();
+	}
+	return nullptr;
 }
 
 void Desktop::NavigateBack()
@@ -430,7 +433,6 @@ void Desktop::NavigateBack()
 			_navStack->PopNavStack();
 		}
 	}
-	UpdateFocus();
 }
 
 bool Desktop::CanNavigateBack() const
@@ -438,13 +440,12 @@ bool Desktop::CanNavigateBack() const
 	if (GetFocus() == _con.get())
 		return true;
 
-	if (_game.get() == _navStack->GetNavFront())
+	// cannot navigate back past the game until it's over
+	if (_game && _game.get() == _navStack->GetNavFront() && !_game->GetGameOver())
 		return false;
 
-	// Can navigate all the way back if there is game running, otherwise have to stop at main menu
-	bool isGameRunning = !!GetAppState().GetGameContext();
-	bool atMainMenu = _navStack->IsOnTop<MainMenuDlg>();
-	return _navStack->GetNavFront() && (isGameRunning || !atMainMenu);
+	// Cannot navigate back past the main menu
+	return _navStack->GetNavFront() && !_navStack->IsOnTop<MainMenuDlg>();
 }
 
 bool Desktop::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic, Plat::Key key)
@@ -453,11 +454,7 @@ bool Desktop::OnKeyPressed(const Plat::Input &input, const UI::InputContext &ic,
 	{
 	case Plat::Key::GraveAccent: // '~'
 		_con->SetVisible(!_con->GetVisible());
-		// on show do not grab focus yet - wait until the key released
-		if (!_con->GetVisible())
-		{
-			UpdateFocus();
-		}
+		_consoleKeyPressed = true;
 		break;
 
 	case Plat::Key::F2:
@@ -491,7 +488,7 @@ void Desktop::OnKeyReleased(const UI::InputContext &ic, Plat::Key key)
 {
 	if (Plat::Key::GraveAccent == key)
 	{
-		UpdateFocus();
+		_consoleKeyPressed = false;
 	}
 }
 
@@ -536,9 +533,16 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 			opacity = std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
 		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(size / 2), vec2d{}), opacity, true };
 	}
+	if (_backButton.get() == &child)
+	{
+		bool canNavigateBack = UI::CanNavigateBack(texman, *this, lc, dc);
+		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), (float) canNavigateBack /*opacity*/, canNavigateBack /*enabled*/ };
+	}
 	if (_pauseButton.get() == &child)
 	{
-		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), 1, true };
+		bool canNavigateBack = UI::CanNavigateBack(texman, *this, lc, dc);
+		bool canPause = !canNavigateBack && _game && _game->CanPause();
+		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), (float)canPause /*opacity*/, canPause /*enabled*/ };
 	}
 	assert(false);
 	return {};
@@ -656,6 +660,4 @@ void Desktop::OnGameContextAdded()
 
 		_navStack->PushNavStack(editor);
 	}
-
-	UpdateFocus();
 }

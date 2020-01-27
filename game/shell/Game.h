@@ -55,8 +55,14 @@ public:
 	virtual ~GameLayout();
 
 	vec2d GetListenerPos() const;
+
 	void ShowPauseMenu();
-	bool InPauseMenu() const { return !!_gamePauseMenu; }
+	bool CanPause() const;
+
+	void NavigateBack();
+	bool CanNavigateBack() const;
+
+	bool GetGameOver() const;
 
 	// Window
 	void OnTimeStep(const Plat::Input &input, bool focused, float dt) override;

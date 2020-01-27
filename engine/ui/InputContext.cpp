@@ -480,28 +480,31 @@ bool InputContext::ProcessKeys(const Plat::Input &input, TextureManager &texman,
 		bool alt = input.IsKeyPressed(Plat::Key::LeftAlt) || input.IsKeyPressed(Plat::Key::RightAlt);
 		bool shift = input.IsKeyPressed(Plat::Key::LeftShift) || input.IsKeyPressed(Plat::Key::RightShift);
 		Navigate navigate = GetNavigateAction(key, alt, shift);
-		if (Plat::Msg::KeyReleased == msg)
+		if (Navigate::None != navigate)
 		{
-			if (auto wnd = _navigationSubjects[navigate].lock())
+			if (Plat::Msg::KeyReleased == msg)
 			{
-				// FIXME: reconstruct the actual LC
-				_navigationSubjects[navigate].reset();
-				auto navigationSink = wnd->GetNavigationSink();
-				assert(navigationSink);
-				if (navigationSink->CanNavigate(texman, lc, dc, navigate))
-					navigationSink->OnNavigate(texman, lc, dc, navigate, NavigationPhase::Completed);
-				handled = true;
+				if (auto wnd = _navigationSubjects[navigate].lock())
+				{
+					// FIXME: reconstruct the actual LC
+					_navigationSubjects[navigate].reset();
+					auto navigationSink = wnd->GetNavigationSink();
+					assert(navigationSink);
+					if (navigationSink->CanNavigate(texman, lc, dc, navigate))
+						navigationSink->OnNavigate(texman, lc, dc, navigate, NavigationPhase::Completed);
+					handled = true;
+				}
 			}
-		}
-		else if (currentlyActiveInputMethod || AllowNonActiveNavigation(navigate))
-		{
-			auto handledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, navigate, NavigationPhase::Started);
-			handled = !!handledBy;
-			_navigationSubjects[navigate] = std::move(handledBy);
-
-			if (handled)
+			else if (currentlyActiveInputMethod || AllowNonActiveNavigation(navigate))
 			{
-				EnsureVisibleMostDescendantFocus(texman, *this, *wnd, lc, dc);
+				auto handledBy = NavigateMostDescendantFocus(texman, wnd, lc, dc, navigate, NavigationPhase::Started);
+				handled = !!handledBy;
+				_navigationSubjects[navigate] = std::move(handledBy);
+
+				if (handled)
+				{
+					EnsureVisibleMostDescendantFocus(texman, *this, *wnd, lc, dc);
+				}
 			}
 		}
 	}

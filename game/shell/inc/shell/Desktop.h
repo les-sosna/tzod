@@ -65,6 +65,8 @@ public:
 
 	// UI::Window
 	UI::WindowLayout GetChildLayout(TextureManager &texman, const UI::LayoutContext &lc, const UI::DataContext &dc, const UI::Window &child) const override;
+	std::shared_ptr<const UI::Window> GetFocus(const std::shared_ptr<const UI::Window>& owner) const override;
+	const UI::Window* GetFocus() const override;
 
 protected:
 	UI::NavigationSink* GetNavigationSink() override { return this; }
@@ -83,6 +85,7 @@ private:
 	Plat::ConsoleBuffer &_logger;
 	Plat::AppWindowCommandClose* _cmdCloseAppWindow;
 	std::unique_ptr<LuaConsole> _luaConsole;
+	bool _consoleKeyPressed = false;
 
 	std::shared_ptr<GameLayout> _game;
 	std::shared_ptr<UI::Text> _tierTitle;
@@ -90,6 +93,7 @@ private:
 	std::shared_ptr<UI::Console> _con;
 	std::shared_ptr<FpsCounter> _fps;
 	std::shared_ptr<UI::Button> _pauseButton;
+	std::shared_ptr<UI::Button> _backButton;
 	std::shared_ptr<NavStack> _navStack;
 
 	RenderScheme _renderScheme;
@@ -113,8 +117,6 @@ private:
 	bool OnCompleteCommand(std::string_view cmd, int &pos, std::string &result);
 
 	void OnCloseChild(std::shared_ptr<UI::Window> child);
-
-	void UpdateFocus();
 
 	void NavigateBack();
 	bool CanNavigateBack() const;
