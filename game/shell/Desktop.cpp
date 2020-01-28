@@ -609,20 +609,37 @@ void Desktop::OnGameContextAdded()
 		assert(!_game);
 
 		CampaignControlCommands campaignControlCommands;
-		campaignControlCommands.replayCurrent = [this]
+		if (dynamic_cast<GameContextCampaignDM*>(gameContext.get()))
 		{
-			_appController.StartDMCampaignMap(GetAppState(), _mapCollection, _appConfig, _dmCampaign, GetCurrentTier(_conf, _dmCampaign), GetCurrentMap(_conf, _dmCampaign));
-		};
-		campaignControlCommands.playNext = [this]
+			campaignControlCommands.replayCurrent = [this]
+			{
+				_appController.StartDMCampaignMap(
+					GetAppState(),
+					_mapCollection,
+					_appConfig,
+					_dmCampaign,
+					GetCurrentTier(_conf, _dmCampaign),
+					GetCurrentMap(_conf, _dmCampaign));
+			};
+			campaignControlCommands.playNext = [this]
+			{
+				int tierIndex = GetCurrentTier(_conf, _dmCampaign);
+				int nextMapIndex = (GetCurrentMap(_conf, _dmCampaign) + 1) % GetCurrentTierMapCount(_conf, _dmCampaign);
+				if (nextMapIndex == 0 && IsTierComplete(_appConfig, _dmCampaign, tierIndex))
+					tierIndex++;
+				_conf.sp_map.SetInt(nextMapIndex);
+				_conf.sp_tier.SetInt(tierIndex);
+				_appController.StartDMCampaignMap(GetAppState(), _mapCollection, _appConfig, _dmCampaign, tierIndex, nextMapIndex);
+			};
+		}
+		else
 		{
-			int tierIndex = GetCurrentTier(_conf, _dmCampaign);
-			int nextMapIndex = (GetCurrentMap(_conf, _dmCampaign) + 1) % GetCurrentTierMapCount(_conf, _dmCampaign);
-			if (nextMapIndex == 0 && IsTierComplete(_appConfig, _dmCampaign, tierIndex))
-				tierIndex++;
-			_conf.sp_map.SetInt(nextMapIndex);
-			_conf.sp_tier.SetInt(tierIndex);
-			_appController.StartDMCampaignMap(GetAppState(), _mapCollection, _appConfig, _dmCampaign, tierIndex, nextMapIndex);
-		};
+			campaignControlCommands.replayCurrent = [this]
+			{
+				GetAppState().PopGameContext();
+				_appController.PlayCurrentMap(GetAppState(), _mapCollection);
+			};
+		}
 		campaignControlCommands.quitCurrent = [this]
 		{
 			GetAppState().PopGameContext();
