@@ -411,7 +411,7 @@ vec2d GC_Vehicle::GetLightPos2() const
 
 IMPLEMENT_SELF_REGISTRATION(GC_Tank_Light)
 {
-	ED_MOVING_OBJECT("tank", "obj_tank", 1, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("tank", "obj_tank", 1, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0, true /*hidden*/);
 	return true;
 }
 

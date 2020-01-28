@@ -119,9 +119,9 @@ EditorMain::EditorMain(UI::TimeStepManager &manager,
 	_typeSelector->GetList()->SetItemTemplate(gameClassVis);
 	for (unsigned int i = 0; i < RTTypes::Inst().GetTypeCount(); ++i)
 	{
-		if (!RTTypes::Inst().GetTypeInfoByIndex(i).service)
+		auto& typeInfo = RTTypes::Inst().GetTypeInfoByIndex(i);
+		if (!typeInfo.service && !typeInfo.hidden)
 		{
-			auto &typeInfo = RTTypes::Inst().GetTypeInfoByIndex(i);
 			_typeSelector->GetData()->AddItem(typeInfo.name);
 			_typeSelectorTypes.push_back(RTTypes::Inst().GetTypeByIndex(i));
 		}

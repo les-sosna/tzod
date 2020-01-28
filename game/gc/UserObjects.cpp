@@ -7,7 +7,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_UserObject)
 {
-	ED_MOVING_OBJECT("user_object", "obj_user_object", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("user_object", "obj_user_object", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0, true /*hidden*/);
 	return true;
 }
 
@@ -106,7 +106,7 @@ void GC_UserObject::MyPropertySet::MyExchange(World &world, bool applyToObject)
 
 IMPLEMENT_SELF_REGISTRATION(GC_Decoration)
 {
-	ED_MOVING_OBJECT("user_sprite", "obj_user_sprite", 7, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("user_sprite", "obj_user_sprite", 7, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0, true /*hidden*/);
 	return true;
 }
 

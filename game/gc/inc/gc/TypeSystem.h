@@ -33,6 +33,7 @@ public:
 		const char*   name;
 		const char*   desc;
 		bool          service;
+		bool          hidden;
 	};
 
 private:
@@ -84,8 +85,8 @@ public:
 	//
 
 	template<class T>
-	void RegisterObject( const char *name, const char *desc, int layer, float width,
-	                    float height, float align, float offset )
+	void RegisterObject(const char *name, const char *desc, int layer, float width,
+	                    float height, float align, float offset, bool hidden)
 	{
 		assert( !IsRegistered(T::GetTypeStatic()) );
 		assert( 0 == _n2t.count(name) );
@@ -97,6 +98,7 @@ public:
 		ei.align = align;
 		ei.offset = offset;
 		ei.service = false;
+		ei.hidden = hidden;
 		ei.CreateObject = ObjectCtor<T>;
 		ei.CreateDetachedObject = DetachedObjectCtor<T>;
 		_t2i[T::GetTypeStatic()] = ei;
@@ -112,6 +114,7 @@ public:
 		ei.desc    = desc;
 		ei.name    = name;
 		ei.service = true;
+		ei.hidden  = true;
 		ei.CreateService  = ServiceCtor<T>;
 		ei.CreateDetachedService = DetachedServiceCtor<T>;
 		_t2i[T::GetTypeStatic()] = ei;

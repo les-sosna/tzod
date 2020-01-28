@@ -6,7 +6,7 @@
 
 IMPLEMENT_SELF_REGISTRATION(GC_Crate)
 {
-	ED_MOVING_OBJECT("crate", "obj_crate", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0);
+	ED_MOVING_OBJECT("crate", "obj_crate", 0, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE, WORLD_BLOCK_SIZE/2, 0, false /*hidden*/);
 	return true;
 }
 
