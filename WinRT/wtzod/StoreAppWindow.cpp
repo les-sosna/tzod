@@ -113,7 +113,7 @@ static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowIn
 	return inputSink.OnPointer(appWindow, pointerType, msg, pxPointerPos, vec2d{ 0, (float)delta / 120.f }, button, args->CurrentPoint->PointerId);
 }
 
-static ComPtr<IDXGISwapChain1> CreateSwapchainForCoreWindow(ID3D11Device * d3dDevice, CoreWindow ^ coreWindow)
+static ComPtr<IDXGISwapChain3> CreateSwapchainForCoreWindow(ID3D11Device * d3dDevice, CoreWindow ^ coreWindow)
 {
 	// This sequence obtains the DXGI factory that was used to create the Direct3D device.
 	ComPtr<IDXGIDevice3> dxgiDevice;
@@ -151,7 +151,10 @@ static ComPtr<IDXGISwapChain1> CreateSwapchainForCoreWindow(ID3D11Device * d3dDe
 		nullptr,
 		swapChain.ReleaseAndGetAddressOf()));
 
-	return swapChain;
+	ComPtr<IDXGISwapChain3> swapChain3;
+	DX::ThrowIfFailed(swapChain.As(&swapChain3));
+
+	return swapChain3;
 }
 
 StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)

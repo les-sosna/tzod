@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <ppltasks.h>	// For create_task
-
 namespace DX
 {
 	inline bool IsDeviceLost(HRESULT hr)
@@ -16,28 +14,6 @@ namespace DX
 			// Set a breakpoint on this line to catch Win32 API errors.
 			throw Platform::Exception::CreateException(hr);
 		}
-	}
-
-	// Function that reads from a binary file asynchronously.
-	inline Concurrency::task<std::vector<byte>> ReadDataAsync(const std::wstring& filename)
-	{
-		using namespace Windows::Storage;
-		using namespace Concurrency;
-
-		return create_task([=]()
-		{
-			StorageFolder ^folder = Windows::ApplicationModel::Package::Current->InstalledLocation;
-			return folder->GetFileAsync(Platform::StringReference(filename.c_str()));
-		}).then([](StorageFile^ file)
-		{
-			return FileIO::ReadBufferAsync(file);
-		}).then([] (Streams::IBuffer^ fileBuffer)
-		{
-			std::vector<byte> returnBuffer;
-			returnBuffer.resize(fileBuffer->Length);
-			Streams::DataReader::FromBuffer(fileBuffer)->ReadBytes(Platform::ArrayReference<byte>(returnBuffer.data(), fileBuffer->Length));
-			return returnBuffer;
-		});
 	}
 
 	// Converts a length in device-independent pixels (DIPs) to a length in physical pixels.

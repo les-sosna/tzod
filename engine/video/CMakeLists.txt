@@ -29,8 +29,10 @@ if(IOS OR ANDROID)
 elseif(WINRT)
 	list(APPEND video_SOURCES
 		inc/video/RenderD3D11.h
+		inc/video/RenderD3D12.h
 		inc/video/SwapChainResources.h
 		RenderD3D11.cpp
+		RenderD3D12.cpp
 		SwapChainResources.cpp
 	)
 else()

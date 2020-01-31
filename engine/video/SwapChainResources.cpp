@@ -1,10 +1,7 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-//#include "DeviceResources.h"
 #include "inc/video/SwapChainResources.h"
-//#include "DirectXHelper.h"
-//#include "DisplayOrientation.h"
-#include <dxgi.h>
+#include <dxgi1_4.h>
 #include <d3d11_2.h>
 #include <wrl/client.h>
 
@@ -12,7 +9,7 @@
 
 using namespace Microsoft::WRL;
 
-SwapChainResources::SwapChainResources(IDXGISwapChain1 *swapChain)
+SwapChainResources::SwapChainResources(IDXGISwapChain3 *swapChain)
 	: m_swapChain(swapChain)
 	, m_pixelSize{ 0, 0 }
 	, m_rotationAngle(-1)
