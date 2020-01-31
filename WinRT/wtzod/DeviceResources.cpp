@@ -3,7 +3,6 @@
 #include "DirectXHelper.h"
 #include <video/RenderD3D11.h>
 #include <video/RenderBinding.h>
-#include <video/SwapChainResources.h>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -11,18 +10,10 @@ using namespace Windows::Foundation;
 using namespace Windows::UI::Core;
 using namespace Platform;
 
-using namespace DX;
+#define ReturnIfFailed(expr) if(HRESULT hr = (expr); SUCCEEDED(hr)) {} else return hr
 
-static ComPtr<IDXGISwapChain3> CreateSwapchainForCoreWindow(ID3D11Device* d3dDevice, CoreWindow^ coreWindow)
+static ComPtr<IDXGISwapChain3> CreateSwapchainForCoreWindow(IDXGIDevice* dxgiDevice, IUnknown* deviceForSwapChain, CoreWindow^ coreWindow)
 {
-	// This sequence obtains the DXGI factory that was used to create the Direct3D device.
-	ComPtr<IDXGIDevice3> dxgiDevice;
-	DX::ThrowIfFailed(d3dDevice->QueryInterface(IID_PPV_ARGS(&dxgiDevice)));
-
-	// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and
-	// ensures that the application will only render after each VSync, minimizing power consumption.
-	DX::ThrowIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
-
 	ComPtr<IDXGIAdapter> dxgiAdapter;
 	DX::ThrowIfFailed(dxgiDevice->GetAdapter(&dxgiAdapter));
 
@@ -45,7 +36,7 @@ static ComPtr<IDXGISwapChain3> CreateSwapchainForCoreWindow(ID3D11Device* d3dDev
 
 	ComPtr<IDXGISwapChain1> swapChain;
 	DX::ThrowIfFailed(dxgiFactory->CreateSwapChainForCoreWindow(
-		d3dDevice,
+		deviceForSwapChain,
 		reinterpret_cast<IUnknown*>(coreWindow),
 		&swapChainDesc,
 		nullptr,
@@ -127,12 +118,20 @@ DeviceResources::DeviceResources(CoreWindow^ coreWindow)
 			);
 	}
 
+	ComPtr<IDXGIDevice3> dxgiDevice;
+	DX::ThrowIfFailed(device.As(&dxgiDevice));
+
+	// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and
+	// ensures that the application will only render after each VSync, minimizing power consumption.
+	DX::ThrowIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
+
+
 	// Store pointers to the Direct3D 11.1 API device and immediate context.
 	DX::ThrowIfFailed(device.As(&_d3dDevice));
 	DX::ThrowIfFailed(context.As(&_d3dContext));
 
-	_swapChainResources.reset(new SwapChainResources(CreateSwapchainForCoreWindow(_d3dDevice.Get(), coreWindow).Get()));
-	_render.reset(new RenderD3D11(_d3dContext.Get(), *_swapChainResources));
+	_swapChain = CreateSwapchainForCoreWindow(dxgiDevice.Get(), _d3dDevice.Get(), coreWindow);
+	_render.reset(new RenderD3D11(*_d3dRenderTargetView.GetAddressOf(), _d3dContext.Get()));
 }
 
 DeviceResources::~DeviceResources()
@@ -190,13 +189,12 @@ bool DeviceResources::IsDeviceRemoved() const
 
 IRender& DeviceResources::GetRender(int rotationAngle, int width, int height)
 {
-	HRESULT hr = _swapChainResources->SetPixelSize(_d3dDevice.Get(), _d3dContext.Get(), width, height);
-	if (!DX::IsDeviceLost(hr))
-		DX::ThrowIfFailed(hr);
-
-	hr = _swapChainResources->SetCurrentOrientation(_d3dDevice.Get(), _d3dContext.Get(), rotationAngle);
-	if (!DX::IsDeviceLost(hr))
-		DX::ThrowIfFailed(hr);
+	if (m_rotationAngle != rotationAngle || m_pxWidth != width || m_pxHeight != height)
+	{
+		HRESULT hr = ResizeSwapChainInternal(width, height, rotationAngle);
+		if (!DX::IsDeviceLost(hr))
+			DX::ThrowIfFailed(hr);
+	}
 
 	return *_render;
 }
@@ -206,7 +204,7 @@ void DeviceResources::Present()
 	// The first argument instructs DXGI to block until VSync, putting the application
 	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
 	// frames that will never be displayed to the screen.
-	HRESULT hr = _swapChainResources->GetSwapChain()->Present(1, 0);
+	HRESULT hr = _swapChain->Present(1, 0);
 
 	if (DX::IsDeviceLost(hr))
 	{
@@ -216,4 +214,62 @@ void DeviceResources::Present()
 	{
 		throw Platform::Exception::CreateException(hr);
 	}
+}
+
+static DXGI_MODE_ROTATION AsDXGIModeRotation(int rotationAngle)
+{
+	switch (rotationAngle)
+	{
+	default: assert(0);
+	case 0: return DXGI_MODE_ROTATION_IDENTITY;
+	case 90: return DXGI_MODE_ROTATION_ROTATE90;
+	case 180: return DXGI_MODE_ROTATION_ROTATE180;
+	case 270: return DXGI_MODE_ROTATION_ROTATE270;
+	}
+}
+
+HRESULT DeviceResources::ResizeSwapChainInternal(int width, int height, int rotationAngle)
+{
+	assert(_swapChain != nullptr);
+
+	// Clear the previous window size specific context.
+	ID3D11RenderTargetView* nullViews[] = { nullptr };
+	_d3dContext->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
+	_d3dRenderTargetView.Reset();
+	_d3dContext->Flush();
+
+	// Prevent zero size DirectX content from being created.
+	int outputWidth = std::max(width, 1);
+	int outputHeight = std::max(height, 1);
+
+	// The width and height of the swap chain must be based on the window's
+	// natively-oriented width and height. If the window is not in the native
+	// orientation, the dimensions must be reversed.
+	bool swapDimensions = 90 == rotationAngle || 270 == rotationAngle;
+	int renderTargetWidth = swapDimensions ? outputHeight : outputWidth;
+	int renderTargetHeight = swapDimensions ? outputWidth : outputHeight;
+
+	ReturnIfFailed(_swapChain->ResizeBuffers(
+		2, // Double-buffered swap chain.
+		renderTargetWidth,
+		renderTargetHeight,
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		0));
+
+	ReturnIfFailed(_swapChain->SetRotation(AsDXGIModeRotation(rotationAngle)));
+
+	// Create a render target view of the swap chain back buffer.
+	ComPtr<ID3D11Texture2D> backBuffer;
+	ReturnIfFailed(_swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer)));
+
+	ReturnIfFailed(_d3dDevice->CreateRenderTargetView(
+		backBuffer.Get(),
+		nullptr,
+		&_d3dRenderTargetView));
+
+	m_rotationAngle = rotationAngle;
+	m_pxWidth = width;
+	m_pxHeight = height;
+
+	return S_OK;
 }

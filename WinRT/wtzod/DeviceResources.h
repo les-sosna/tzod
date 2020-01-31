@@ -8,27 +8,30 @@ struct IRender;
 class RenderBinding;
 class SwapChainResources;
 
-namespace DX
+class DeviceResources
 {
-	// Controls all the DirectX device resources.
-	class DeviceResources
-	{
-	public:
-		explicit DeviceResources(Windows::UI::Core::CoreWindow^ coreWindow);
-		~DeviceResources();
-		bool ValidateDevice() const;
-		bool IsDeviceRemoved() const;
-		void Present();
+public:
+	explicit DeviceResources(Windows::UI::Core::CoreWindow^ coreWindow);
+	~DeviceResources();
+	bool ValidateDevice() const;
+	bool IsDeviceRemoved() const;
+	void Present();
 
-		IRender& GetRender(int rotationAngle, int width, int height);
-		RenderBinding& GetRenderBinding() { return *_renderBinding; }
+	IRender& GetRender(int rotationAngle, int width, int height);
+	RenderBinding& GetRenderBinding() { return *_renderBinding; }
 
-	private:
-		Microsoft::WRL::ComPtr<ID3D11Device2> _d3dDevice;
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext2> _d3dContext;
+private:
+	Microsoft::WRL::ComPtr<ID3D11Device2> _d3dDevice;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext2> _d3dContext;
+	Microsoft::WRL::ComPtr<IDXGISwapChain3> _swapChain;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _d3dRenderTargetView;
 
-		std::unique_ptr<SwapChainResources> _swapChainResources;
-		std::unique_ptr<IRender> _render;
-		std::unique_ptr<RenderBinding> _renderBinding;
-	};
-}
+	int m_pxWidth = 0;
+	int m_pxHeight = 0;
+	int m_rotationAngle = -1;
+
+	std::unique_ptr<IRender> _render;
+	std::unique_ptr<RenderBinding> _renderBinding;
+
+	HRESULT ResizeSwapChainInternal(int width, int height, int rotationAngle);
+};

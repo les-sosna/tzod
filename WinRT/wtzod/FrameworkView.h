@@ -4,11 +4,7 @@
 #include "StepTimer.h"
 #include <app/View.h>
 
-class SwapChainResources;
-namespace DX
-{
-	class DeviceResources;
-}
+class DeviceResources;
 
 namespace FS
 {
@@ -63,8 +59,7 @@ namespace wtzod
 		// Rendering loop timer.
 		DX::StepTimer m_timer;
 
-		std::unique_ptr<DX::DeviceResources> _deviceResources;
-		std::unique_ptr<SwapChainResources> _swapChainResources;
+		std::unique_ptr<DeviceResources> _deviceResources;
 
 		void HandleDeviceLost();
 	};

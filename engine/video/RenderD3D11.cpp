@@ -199,8 +199,8 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderD3D11::RenderD3D11(ID3D11DeviceContext2 *context, SwapChainResources &swapChainResources)
-	: _swapChainResources(swapChainResources)
+RenderD3D11::RenderD3D11(ID3D11RenderTargetView *&rtv, ID3D11DeviceContext2 *context)
+	: _rtv(rtv)
 	, _context(context)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
@@ -364,7 +364,7 @@ void RenderD3D11::Begin(unsigned int displayWidth, unsigned int displayHeight, D
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
 
-	ID3D11RenderTargetView *const targets[1] = { _swapChainResources.GetBackBufferRenderTargetView() };
+	ID3D11RenderTargetView *const targets[1] = { _rtv };
 	_context->OMSetRenderTargets(1, targets, nullptr);
 	_context->DiscardView(targets[0]);
 	_context->ClearRenderTargetView(targets[0], DirectX::XMVECTORF32{ 0, 0, 0, _ambient });

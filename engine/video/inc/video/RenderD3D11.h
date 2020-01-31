@@ -17,12 +17,10 @@ struct ID3D11Buffer;
 struct ID3D11Device;
 struct ID3D11RenderTargetView;
 
-class SwapChainResources;
-
 class RenderD3D11 : public IRender
 {
 public:
-	RenderD3D11(ID3D11DeviceContext2 *context, SwapChainResources &swapChainResources);
+	RenderD3D11(ID3D11RenderTargetView *&rtv, ID3D11DeviceContext2 *context);
 	~RenderD3D11() override;
 
 	// IRender
@@ -47,9 +45,9 @@ public:
 private:
 	void Flush();
 
-	SwapChainResources &_swapChainResources;
-	Microsoft::WRL::ComPtr<ID3D11Device>        _device;
+	ID3D11RenderTargetView *&_rtv;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext2> _context;
+	Microsoft::WRL::ComPtr<ID3D11Device>        _device;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _constantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _indexBuffer;

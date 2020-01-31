@@ -146,5 +146,5 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 void FrameworkView::HandleDeviceLost()
 {
 	_deviceResources.reset();
-	_deviceResources.reset(new DX::DeviceResources(m_window.Get()));
+	_deviceResources.reset(new DeviceResources(m_window.Get()));
 }
