@@ -18,7 +18,6 @@ namespace DX
 		~DeviceResources();
 		bool ValidateDevice() const;
 		bool IsDeviceRemoved() const;
-		void Trim();
 		void Present();
 
 		IRender& GetRender(int rotationAngle, int width, int height);

@@ -188,16 +188,6 @@ bool DeviceResources::IsDeviceRemoved() const
 	return FAILED(_d3dDevice->GetDeviceRemovedReason());
 }
 
-// Call this method when the app suspends. It provides a hint to the driver that the app 
-// is entering an idle state and that temporary buffers can be reclaimed for use by other apps.
-void DeviceResources::Trim()
-{
-	ComPtr<IDXGIDevice3> dxgiDevice;
-	DX::ThrowIfFailed(_d3dDevice.As(&dxgiDevice));
-
-	dxgiDevice->Trim();
-}
-
 IRender& DeviceResources::GetRender(int rotationAngle, int width, int height)
 {
 	HRESULT hr = _swapChainResources->SetPixelSize(_d3dDevice.Get(), _d3dContext.Get(), width, height);

@@ -51,8 +51,6 @@ void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 
 //	DisplayInformation::DisplayContentsInvalidated +=
 //		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
-
-	HandleDeviceLost();
 }
 
 // Initializes scene resources, or loads a previously saved app state.
@@ -65,9 +63,9 @@ void FrameworkView::Run()
 {
 	while (!_appWindow->ShouldClose())
 	{
-		if (!_appWindow || _appWindow->IsVisible())
+		if (_appWindow->IsVisible())
 		{
-			if (!_appWindow || _deviceResources->IsDeviceRemoved())
+			if (!_deviceResources || _deviceResources->IsDeviceRemoved())
 			{
 				HandleDeviceLost();
 			}
@@ -121,10 +119,8 @@ void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArg
 
 	create_task([this, deferral]()
 	{
-//		m_deviceResources->Trim();
-
+		_deviceResources.reset();
 		_app.SaveConfig();
-
 		deferral->Complete();
 	});
 }
