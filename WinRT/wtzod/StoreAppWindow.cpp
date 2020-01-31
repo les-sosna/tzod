@@ -13,6 +13,7 @@
 #include <ui/Window.h>
 
 #include <video/RenderBase.h>
+#include <video/RenderBinding.h>
 #include <video/RenderD3D11.h>
 #include <video/SwapChainResources.h>
 
@@ -164,6 +165,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 	, _swapChainResources(CreateSwapchainForCoreWindow(_deviceResources.GetD3DDevice(), coreWindow).Get())
 	, _input(coreWindow)
 	, _render(new RenderD3D11(_deviceResources.GetD3DDeviceContext(), _swapChainResources))
+	, _renderBinding(new RenderBinding())
 {
 	_regBackRequested = _systemNavigationManager->BackRequested += ref new Windows::Foundation::EventHandler<Windows::UI::Core::BackRequestedEventArgs^>(
 		[self = _self, inputSink = _inputSink](Platform::Object ^ sender, BackRequestedEventArgs ^ args)

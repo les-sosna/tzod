@@ -17,6 +17,7 @@ public:
 	StoreAppWindow(Windows::UI::Core::CoreWindow^ coreWindow);
 	~StoreAppWindow();
 
+	RenderBinding& GetRenderBinding() { return *_renderBinding; }
 	bool ShouldClose() const { return _shouldClose; }
 	bool IsDeviceRemoved() const;
 	bool IsVisible() const { return _visible; }
@@ -48,6 +49,7 @@ private:
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;
 	std::unique_ptr<IRender> _render;
+	std::unique_ptr<RenderBinding> _renderBinding;
 
 	bool _shouldClose = false;
 	bool _visible = true;

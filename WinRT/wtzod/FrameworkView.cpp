@@ -71,7 +71,7 @@ void FrameworkView::Run()
 				HandleDeviceLost();
 			}
 
-			_view.GetAppWindowInputSink().OnRefresh(*_appWindow);
+			_view.GetAppWindowInputSink().OnRefresh(*_appWindow, _appWindow->GetRenderBinding());
 
 			_appWindow->PollEvents(_view.GetAppWindowInputSink());
 
