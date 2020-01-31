@@ -2,13 +2,6 @@
 #include "StoreAppClipboard.h"
 #include "StoreAppInput.h"
 #include <plat/AppWindow.h>
-#include <video/SwapChainResources.h>
-
-class SwapChainResources;
-namespace DX
-{
-	class DeviceResources;
-}
 
 class StoreAppWindow final
 	: public Plat::AppWindow
@@ -17,22 +10,18 @@ public:
 	StoreAppWindow(Windows::UI::Core::CoreWindow^ coreWindow);
 	~StoreAppWindow();
 
-	RenderBinding& GetRenderBinding() { return *_renderBinding; }
 	bool ShouldClose() const { return _shouldClose; }
-	bool IsDeviceRemoved() const;
 	bool IsVisible() const { return _visible; }
-	void PollEvents(Plat::AppWindowInputSink& inputSink);
+	void PollEvents(Plat::AppWindowInputSink& inputSink, Windows::UI::Core::CoreProcessEventsOption options);
 
 	// AppWindow
-	virtual int GetDisplayRotation() const override;
+	int GetDisplayRotation() const override;
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
 	Plat::Clipboard& GetClipboard() override;
 	Plat::Input& GetInput() override;
-	IRender& GetRender() override;
 	void SetCanNavigateBack(bool canNavigateBack) override;
 	void SetMouseCursor(Plat::MouseCursor mouseCursor) override;
-	void Present() override;
 
 private:
 	Windows::UI::Input::GestureRecognizer ^_gestureRecognizer;
@@ -44,12 +33,8 @@ private:
 	Windows::UI::Core::CoreCursor ^_cursorArrow;
 	Windows::UI::Core::CoreCursor ^_cursorIBeam;
 	Plat::MouseCursor _mouseCursor = Plat::MouseCursor::Arrow;
-	DX::DeviceResources _deviceResources;
-	SwapChainResources _swapChainResources;
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;
-	std::unique_ptr<IRender> _render;
-	std::unique_ptr<RenderBinding> _renderBinding;
 
 	bool _shouldClose = false;
 	bool _visible = true;

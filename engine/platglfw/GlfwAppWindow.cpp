@@ -201,7 +201,8 @@ static void OnRefresh(GLFWwindow *window)
 
 	if (auto self = (GlfwAppWindow *)glfwGetWindowUserPointer(window))
 	{
-		s_inputSink->OnRefresh(*self, self->GetRenderBinding());
+		s_inputSink->OnRefresh(*self, self->GetRender(), self->GetRenderBinding());
+		self->Present();
 	}
 }
 

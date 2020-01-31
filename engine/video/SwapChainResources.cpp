@@ -4,6 +4,8 @@
 #include <dxgi1_4.h>
 #include <d3d11_2.h>
 #include <wrl/client.h>
+#include <cassert>
+#include <algorithm>
 
 #define ReturnIfFailed(expr) if(HRESULT hr = (expr); SUCCEEDED(hr)) {} else return hr
 
@@ -11,8 +13,6 @@ using namespace Microsoft::WRL;
 
 SwapChainResources::SwapChainResources(IDXGISwapChain3 *swapChain)
 	: m_swapChain(swapChain)
-	, m_pixelSize{ 0, 0 }
-	, m_rotationAngle(-1)
 {
 }
 
@@ -20,14 +20,15 @@ SwapChainResources::~SwapChainResources()
 {
 }
 
-HRESULT SwapChainResources::SetPixelSize(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, vec2d pixelSize)
+HRESULT SwapChainResources::SetPixelSize(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, int width, int height)
 {
-	if (m_pixelSize != pixelSize)
+	if (m_pxWidth != width || m_pxHeight != height)
 	{
-		m_pixelSize = pixelSize;
+		m_pxWidth = width;
+		m_pxHeight = height;
 		if (m_rotationAngle != -1)
 		{
-			ReturnIfFailed(ResizeSwapChainInternal(device, deviceContext, m_pixelSize, m_rotationAngle));
+			ReturnIfFailed(ResizeSwapChainInternal(device, deviceContext, m_pxWidth, m_pxHeight, m_rotationAngle));
 		}
 	}
 	return S_OK;
@@ -39,9 +40,9 @@ HRESULT SwapChainResources::SetCurrentOrientation(ID3D11Device *device, ID3D11De
 	if (m_rotationAngle != rotationAngle)
 	{
 		m_rotationAngle = rotationAngle;
-		if (!m_pixelSize.IsZero())
+		if (m_pxWidth != 0 || m_pxHeight != 0)
 		{
-			ReturnIfFailed(ResizeSwapChainInternal(device, deviceContext, m_pixelSize, m_rotationAngle));
+			ReturnIfFailed(ResizeSwapChainInternal(device, deviceContext, m_pxWidth, m_pxHeight, m_rotationAngle));
 		}
 	}
 	return S_OK;
@@ -59,7 +60,7 @@ static DXGI_MODE_ROTATION AsDXGIModeRotation(int rotationAngle)
 	}
 }
 
-HRESULT SwapChainResources::ResizeSwapChainInternal(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, vec2d pixelSize, int rotationAngle)
+HRESULT SwapChainResources::ResizeSwapChainInternal(ID3D11Device *device, ID3D11DeviceContext2 *deviceContext, int width, int height, int rotationAngle)
 {
 	assert(m_swapChain != nullptr);
 
@@ -70,19 +71,20 @@ HRESULT SwapChainResources::ResizeSwapChainInternal(ID3D11Device *device, ID3D11
 	deviceContext->Flush();
 
 	// Prevent zero size DirectX content from being created.
-	vec2d outputSize = Vec2dMax(pixelSize, { 1, 1 });
+	int outputWidth = std::max(width, 1);
+	int outputHeight = std::max(height, 1);
 
 	// The width and height of the swap chain must be based on the window's
 	// natively-oriented width and height. If the window is not in the native
 	// orientation, the dimensions must be reversed.
 	bool swapDimensions = 90 == rotationAngle || 270 == rotationAngle;
-	float renderTargetWidth = swapDimensions ? outputSize.y : outputSize.x;
-	float renderTargetHeight = swapDimensions ? outputSize.x : outputSize.y;
+	int renderTargetWidth = swapDimensions ? outputHeight : outputWidth;
+	int renderTargetHeight = swapDimensions ? outputWidth : outputHeight;
 
 	ReturnIfFailed(m_swapChain->ResizeBuffers(
 		2, // Double-buffered swap chain.
-		lround(renderTargetWidth),
-		lround(renderTargetHeight),
+		renderTargetWidth,
+		renderTargetHeight,
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		0));
 

@@ -113,50 +113,6 @@ static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowIn
 	return inputSink.OnPointer(appWindow, pointerType, msg, pxPointerPos, vec2d{ 0, (float)delta / 120.f }, button, args->CurrentPoint->PointerId);
 }
 
-static ComPtr<IDXGISwapChain3> CreateSwapchainForCoreWindow(ID3D11Device * d3dDevice, CoreWindow ^ coreWindow)
-{
-	// This sequence obtains the DXGI factory that was used to create the Direct3D device.
-	ComPtr<IDXGIDevice3> dxgiDevice;
-	DX::ThrowIfFailed(d3dDevice->QueryInterface(IID_PPV_ARGS(&dxgiDevice)));
-
-	// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and
-	// ensures that the application will only render after each VSync, minimizing power consumption.
-	DX::ThrowIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
-
-	ComPtr<IDXGIAdapter> dxgiAdapter;
-	DX::ThrowIfFailed(dxgiDevice->GetAdapter(&dxgiAdapter));
-
-	ComPtr<IDXGIFactory2> dxgiFactory;
-	DX::ThrowIfFailed(dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)));
-
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
-	swapChainDesc.Width = 0; // todo: Match the size of the window.
-	swapChainDesc.Height = 0;
-	swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
-	swapChainDesc.Stereo = false;
-	swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
-	swapChainDesc.SampleDesc.Quality = 0;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferCount = 2; // Use double-buffering to minimize latency.
-	swapChainDesc.Scaling = DXGI_SCALING_NONE;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
-	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-	swapChainDesc.Flags = 0;
-
-	ComPtr<IDXGISwapChain1> swapChain;
-	DX::ThrowIfFailed(dxgiFactory->CreateSwapChainForCoreWindow(
-		d3dDevice,
-		reinterpret_cast<IUnknown*>(coreWindow),
-		&swapChainDesc,
-		nullptr,
-		swapChain.ReleaseAndGetAddressOf()));
-
-	ComPtr<IDXGISwapChain3> swapChain3;
-	DX::ThrowIfFailed(swapChain.As(&swapChain3));
-
-	return swapChain3;
-}
-
 StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 	: _gestureRecognizer(ref new GestureRecognizer())
 	, _systemNavigationManager(SystemNavigationManager::GetForCurrentView())
@@ -164,11 +120,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 	, _coreWindow(coreWindow)
 	, _cursorArrow(ref new CoreCursor(CoreCursorType::Arrow, 0))
 	, _cursorIBeam(ref new CoreCursor(CoreCursorType::IBeam, 0))
-	, _deviceResources()
-	, _swapChainResources(CreateSwapchainForCoreWindow(_deviceResources.GetD3DDevice(), coreWindow).Get())
 	, _input(coreWindow)
-	, _render(new RenderD3D11(_deviceResources.GetD3DDeviceContext(), _swapChainResources))
-	, _renderBinding(new RenderBinding())
 {
 	_regBackRequested = _systemNavigationManager->BackRequested += ref new Windows::Foundation::EventHandler<Windows::UI::Core::BackRequestedEventArgs^>(
 		[self = _self, inputSink = _inputSink](Platform::Object ^ sender, BackRequestedEventArgs ^ args)
@@ -301,18 +253,13 @@ StoreAppWindow::~StoreAppWindow()
 	_systemNavigationManager->BackRequested -= _regBackRequested;
 }
 
-bool StoreAppWindow::IsDeviceRemoved() const
-{
-	return _deviceResources.IsDeviceRemoved();
-}
-
-void StoreAppWindow::PollEvents(Plat::AppWindowInputSink & inputSink)
+void StoreAppWindow::PollEvents(Plat::AppWindowInputSink & inputSink, CoreProcessEventsOption options)
 {
 	assert(!*_inputSink && !*_self);
 	*_self = this;
 	*_inputSink = &inputSink;
 
-	_coreWindow->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+	_coreWindow->Dispatcher->ProcessEvents(options);
 
 	// Remove the sink so that handlers could no-op.
 	*_inputSink = nullptr;
@@ -327,20 +274,6 @@ Plat::Clipboard& StoreAppWindow::GetClipboard()
 Plat::Input& StoreAppWindow::GetInput()
 {
 	return _input;
-}
-
-IRender& StoreAppWindow::GetRender()
-{
-	HRESULT hr = _swapChainResources.SetPixelSize(_deviceResources.GetD3DDevice(), _deviceResources.GetD3DDeviceContext(), GetPixelSize());
-	if (!DX::IsDeviceLost(hr))
-		DX::ThrowIfFailed(hr);
-
-	int rotationAngle = ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation);
-	hr = _swapChainResources.SetCurrentOrientation(_deviceResources.GetD3DDevice(), _deviceResources.GetD3DDeviceContext(), rotationAngle);
-	if (!DX::IsDeviceLost(hr))
-		DX::ThrowIfFailed(hr);
-
-	return *_render;
 }
 
 int StoreAppWindow::GetDisplayRotation() const
@@ -383,22 +316,5 @@ void StoreAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 			_coreWindow->PointerCursor = nullptr;
 			break;
 		}
-	}
-}
-
-void StoreAppWindow::Present()
-{
-	// The first argument instructs DXGI to block until VSync, putting the application
-	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
-	// frames that will never be displayed to the screen.
-	HRESULT hr = _swapChainResources.GetSwapChain()->Present(1, 0);
-
-	if (DX::IsDeviceLost(hr))
-	{
-		// Do nothing - the main loop will check for device lost and recover on next tick
-	}
-	else if (FAILED(hr))
-	{
-		throw Platform::Exception::CreateException(hr);
 	}
 }

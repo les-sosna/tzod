@@ -95,9 +95,8 @@ static ::DisplayOrientation DOFromDegrees(int degrees)
 	}
 }
 
-void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, RenderBinding &rb)
+void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, IRender& render, RenderBinding& rb)
 {
-	IRender& render = appWindow.GetRender();
 	vec2d pxWindowSize = appWindow.GetPixelSize();
 
 	auto displayWidth = static_cast<unsigned int>(pxWindowSize.x);
@@ -144,7 +143,6 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, RenderBin
 #endif
 
 	render.End();
-	appWindow.Present();
 }
 
 bool UIInputRenderingController::HandleClipboardShortcuts(Plat::AppWindow& appWindow, Plat::Key key, Plat::Msg action)

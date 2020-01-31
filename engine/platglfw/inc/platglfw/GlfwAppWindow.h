@@ -41,6 +41,8 @@ public:
 	static void PollEvents(Plat::AppWindowInputSink& inputSink);
 
 	RenderBinding& GetRenderBinding() { return *_renderBinding; }
+	IRender& GetRender();
+	void Present();
 	bool ShouldClose() const;
 	int _windowedTop = 0;
 	int _windowedLeft = 0;
@@ -53,10 +55,8 @@ public:
 	float GetLayoutScale() const override;
 	Plat::Clipboard& GetClipboard() override;
 	GlfwInput& GetInput() override;
-	IRender& GetRender() override;
 	void SetCanNavigateBack(bool canNavigateBack) override;
 	void SetMouseCursor(Plat::MouseCursor mouseCursor) override;
-	void Present() override;
 	Plat::AppWindowCommandClose* CmdClose() override { return this; }
 
 	// AppWindowCommandClose

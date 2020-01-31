@@ -30,10 +30,8 @@ namespace Plat
 		virtual float GetLayoutScale() const = 0;
 		virtual Clipboard& GetClipboard() = 0;
 		virtual Input& GetInput() = 0;
-		virtual IRender& GetRender() = 0;
 		virtual void SetCanNavigateBack(bool canNavigateBack) = 0;
 		virtual void SetMouseCursor(MouseCursor mouseCursor) = 0;
-		virtual void Present() = 0;
 
 		virtual AppWindowCommandClose* CmdClose() { return nullptr; }
 	};
@@ -44,6 +42,6 @@ namespace Plat
 		virtual bool OnKey(AppWindow& appWindow, Key key, Msg action) = 0;
 		virtual bool OnPointer(AppWindow& appWindow, PointerType pointerType, Msg action, vec2d pxPointerPos, vec2d pxPointerOffset, int buttons, unsigned int pointerID) = 0;
 		virtual bool OnSystemNavigationBack(AppWindow& appWindow) = 0;
-		virtual void OnRefresh(AppWindow& appWindow, RenderBinding& rb) = 0;
+		virtual void OnRefresh(AppWindow& appWindow, IRender& render, RenderBinding& rb) = 0;
 	};
 }

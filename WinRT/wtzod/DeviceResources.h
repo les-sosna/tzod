@@ -1,9 +1,12 @@
 ﻿#pragma once
 #include <wrl/client.h>
 
-enum D3D_FEATURE_LEVEL;
 struct ID3D11Device2;
 struct ID3D11DeviceContext2;
+
+struct IRender;
+class RenderBinding;
+class SwapChainResources;
 
 namespace DX
 {
@@ -11,22 +14,22 @@ namespace DX
 	class DeviceResources
 	{
 	public:
-		DeviceResources();
+		explicit DeviceResources(Windows::UI::Core::CoreWindow^ coreWindow);
+		~DeviceResources();
 		bool ValidateDevice() const;
 		bool IsDeviceRemoved() const;
 		void Trim();
+		void Present();
 
-		// D3D Accessors.
-		ID3D11Device2*			GetD3DDevice() const					{ return m_d3dDevice.Get(); }
-		ID3D11DeviceContext2*	GetD3DDeviceContext() const				{ return m_d3dContext.Get(); }
-		D3D_FEATURE_LEVEL		GetDeviceFeatureLevel() const			{ return m_d3dFeatureLevel; }
+		IRender& GetRender(int rotationAngle, int width, int height);
+		RenderBinding& GetRenderBinding() { return *_renderBinding; }
 
 	private:
-		// Direct3D objects.
-		Microsoft::WRL::ComPtr<ID3D11Device2>			m_d3dDevice;
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext2>	m_d3dContext;
+		Microsoft::WRL::ComPtr<ID3D11Device2> _d3dDevice;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext2> _d3dContext;
 
-		// Cached device properties.
-		D3D_FEATURE_LEVEL								m_d3dFeatureLevel;
+		std::unique_ptr<SwapChainResources> _swapChainResources;
+		std::unique_ptr<IRender> _render;
+		std::unique_ptr<RenderBinding> _renderBinding;
 	};
 }

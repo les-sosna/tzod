@@ -54,7 +54,8 @@ try
 
 	while (!appWindow.ShouldClose())
 	{
-		controller.OnRefresh(appWindow, appWindow.GetRenderBinding());
+		controller.OnRefresh(appWindow, appWindow.GetRender(), appWindow.GetRenderBinding());
+		appWindow.Present();
 		GlfwAppWindow::PollEvents(controller);
 		controller.TimeStep(timer.GetDt(), appWindow.GetInput());
 	}

@@ -70,7 +70,8 @@ try
 	timer.SetMaxDt(0.05f);
 	timer.Start();
 	do {
-		view.GetAppWindowInputSink().OnRefresh(appWindow, appWindow.GetRenderBinding());
+		view.GetAppWindowInputSink().OnRefresh(appWindow, appWindow.GetRender(), appWindow.GetRenderBinding());
+		appWindow.Present();
 		GlfwAppWindow::PollEvents(view.GetAppWindowInputSink());
 		view.Step(app, timer.GetDt(), appWindow.GetInput());
 	} while (!appWindow.ShouldClose());

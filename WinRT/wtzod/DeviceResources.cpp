@@ -1,15 +1,64 @@
 ﻿#include "pch.h"
 #include "DeviceResources.h"
 #include "DirectXHelper.h"
+#include <video/RenderD3D11.h>
+#include <video/RenderBinding.h>
+#include <video/SwapChainResources.h>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
 using namespace Windows::Foundation;
-using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Core;
 using namespace Platform;
 
-DX::DeviceResources::DeviceResources()
-	: m_d3dFeatureLevel(D3D_FEATURE_LEVEL_9_1)
+using namespace DX;
+
+static ComPtr<IDXGISwapChain3> CreateSwapchainForCoreWindow(ID3D11Device* d3dDevice, CoreWindow^ coreWindow)
+{
+	// This sequence obtains the DXGI factory that was used to create the Direct3D device.
+	ComPtr<IDXGIDevice3> dxgiDevice;
+	DX::ThrowIfFailed(d3dDevice->QueryInterface(IID_PPV_ARGS(&dxgiDevice)));
+
+	// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and
+	// ensures that the application will only render after each VSync, minimizing power consumption.
+	DX::ThrowIfFailed(dxgiDevice->SetMaximumFrameLatency(1));
+
+	ComPtr<IDXGIAdapter> dxgiAdapter;
+	DX::ThrowIfFailed(dxgiDevice->GetAdapter(&dxgiAdapter));
+
+	ComPtr<IDXGIFactory2> dxgiFactory;
+	DX::ThrowIfFailed(dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)));
+
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
+	swapChainDesc.Width = 0; // todo: Match the size of the window.
+	swapChainDesc.Height = 0;
+	swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
+	swapChainDesc.Stereo = false;
+	swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
+	swapChainDesc.SampleDesc.Quality = 0;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferCount = 2; // Use double-buffering to minimize latency.
+	swapChainDesc.Scaling = DXGI_SCALING_NONE;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
+	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+	swapChainDesc.Flags = 0;
+
+	ComPtr<IDXGISwapChain1> swapChain;
+	DX::ThrowIfFailed(dxgiFactory->CreateSwapChainForCoreWindow(
+		d3dDevice,
+		reinterpret_cast<IUnknown*>(coreWindow),
+		&swapChainDesc,
+		nullptr,
+		swapChain.ReleaseAndGetAddressOf()));
+
+	ComPtr<IDXGISwapChain3> swapChain3;
+	DX::ThrowIfFailed(swapChain.As(&swapChain3));
+
+	return swapChain3;
+}
+
+DeviceResources::DeviceResources(CoreWindow^ coreWindow)
+	: _renderBinding(new RenderBinding())
 {
 	// This flag adds support for surfaces with a different color channel ordering
 	// than the API default. It is required for compatibility with Direct2D.
@@ -42,6 +91,8 @@ DX::DeviceResources::DeviceResources()
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> context;
 
+	D3D_FEATURE_LEVEL d3dFeatureLevel = D3D_FEATURE_LEVEL_9_1;
+
 	HRESULT hr = D3D11CreateDevice(
 		nullptr,					// Specify nullptr to use the default adapter.
 		D3D_DRIVER_TYPE_HARDWARE,	// Create a device using the hardware graphics driver.
@@ -51,7 +102,7 @@ DX::DeviceResources::DeviceResources()
 		ARRAYSIZE(featureLevels),	// Size of the list above.
 		D3D11_SDK_VERSION,			// Always set this to D3D11_SDK_VERSION for Windows Store apps.
 		&device,					// Returns the Direct3D device created.
-		&m_d3dFeatureLevel,			// Returns feature level of device created.
+		&d3dFeatureLevel,			// Returns feature level of device created.
 		&context					// Returns the device immediate context.
 		);
 
@@ -70,20 +121,28 @@ DX::DeviceResources::DeviceResources()
 				ARRAYSIZE(featureLevels),
 				D3D11_SDK_VERSION,
 				&device,
-				&m_d3dFeatureLevel,
+				&d3dFeatureLevel,
 				&context
 				)
 			);
 	}
 
 	// Store pointers to the Direct3D 11.1 API device and immediate context.
-	DX::ThrowIfFailed(device.As(&m_d3dDevice));
-	DX::ThrowIfFailed(context.As(&m_d3dContext));
+	DX::ThrowIfFailed(device.As(&_d3dDevice));
+	DX::ThrowIfFailed(context.As(&_d3dContext));
+
+	_swapChainResources.reset(new SwapChainResources(CreateSwapchainForCoreWindow(_d3dDevice.Get(), coreWindow).Get()));
+	_render.reset(new RenderD3D11(_d3dContext.Get(), *_swapChainResources));
+}
+
+DeviceResources::~DeviceResources()
+{
+	_renderBinding->UnloadAllTextures(*_render);
 }
 
 // This method is called in the event handler for the DisplayContentsInvalidated event.
 // If return value is false a new D3D device must be created.
-bool DX::DeviceResources::ValidateDevice() const
+bool DeviceResources::ValidateDevice() const
 {
 	// The D3D Device is no longer valid if the default adapter changed since the device
 	// was created or if the device has been removed.
@@ -91,7 +150,7 @@ bool DX::DeviceResources::ValidateDevice() const
 	// First, get the information for the default adapter from when the device was created.
 
 	ComPtr<IDXGIDevice3> dxgiDevice;
-	DX::ThrowIfFailed(m_d3dDevice.As(&dxgiDevice));
+	DX::ThrowIfFailed(_d3dDevice.As(&dxgiDevice));
 
 	ComPtr<IDXGIAdapter> deviceAdapter;
 	DX::ThrowIfFailed(dxgiDevice->GetAdapter(&deviceAdapter));
@@ -124,17 +183,47 @@ bool DX::DeviceResources::ValidateDevice() const
 		!IsDeviceRemoved();
 }
 
-bool DX::DeviceResources::IsDeviceRemoved() const
+bool DeviceResources::IsDeviceRemoved() const
 {
-	return FAILED(m_d3dDevice->GetDeviceRemovedReason());
+	return FAILED(_d3dDevice->GetDeviceRemovedReason());
 }
 
 // Call this method when the app suspends. It provides a hint to the driver that the app 
 // is entering an idle state and that temporary buffers can be reclaimed for use by other apps.
-void DX::DeviceResources::Trim()
+void DeviceResources::Trim()
 {
 	ComPtr<IDXGIDevice3> dxgiDevice;
-	DX::ThrowIfFailed(m_d3dDevice.As(&dxgiDevice));
+	DX::ThrowIfFailed(_d3dDevice.As(&dxgiDevice));
 
 	dxgiDevice->Trim();
+}
+
+IRender& DeviceResources::GetRender(int rotationAngle, int width, int height)
+{
+	HRESULT hr = _swapChainResources->SetPixelSize(_d3dDevice.Get(), _d3dContext.Get(), width, height);
+	if (!DX::IsDeviceLost(hr))
+		DX::ThrowIfFailed(hr);
+
+	hr = _swapChainResources->SetCurrentOrientation(_d3dDevice.Get(), _d3dContext.Get(), rotationAngle);
+	if (!DX::IsDeviceLost(hr))
+		DX::ThrowIfFailed(hr);
+
+	return *_render;
+}
+
+void DeviceResources::Present()
+{
+	// The first argument instructs DXGI to block until VSync, putting the application
+	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
+	// frames that will never be displayed to the screen.
+	HRESULT hr = _swapChainResources->GetSwapChain()->Present(1, 0);
+
+	if (DX::IsDeviceLost(hr))
+	{
+		// Do nothing - the main loop will check for device lost and recover on next tick
+	}
+	else if (FAILED(hr))
+	{
+		throw Platform::Exception::CreateException(hr);
+	}
 }

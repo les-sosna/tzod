@@ -58,11 +58,13 @@ namespace wtzod
 		TzodView _view;
 
 		Platform::Agile<Windows::UI::Core::CoreWindow>  m_window;
-
 		std::unique_ptr<StoreAppWindow> _appWindow;
 
 		// Rendering loop timer.
 		DX::StepTimer m_timer;
+
+		std::unique_ptr<DX::DeviceResources> _deviceResources;
+		std::unique_ptr<SwapChainResources> _swapChainResources;
 
 		void HandleDeviceLost();
 	};

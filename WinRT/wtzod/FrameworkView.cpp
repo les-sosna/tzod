@@ -47,6 +47,7 @@ void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 void FrameworkView::SetWindow(CoreWindow^ coreWindow)
 {
 	m_window = coreWindow;
+	_appWindow.reset(new StoreAppWindow(m_window.Get()));
 
 //	DisplayInformation::DisplayContentsInvalidated +=
 //		ref new Windows::Foundation::TypedEventHandler<DisplayInformation^, Object^>(this, &FrameworkView::OnDisplayContentsInvalidated);
@@ -66,14 +67,20 @@ void FrameworkView::Run()
 	{
 		if (!_appWindow || _appWindow->IsVisible())
 		{
-			if (!_appWindow || _appWindow->IsDeviceRemoved())
+			if (!_appWindow || _deviceResources->IsDeviceRemoved())
 			{
 				HandleDeviceLost();
 			}
 
-			_view.GetAppWindowInputSink().OnRefresh(*_appWindow, _appWindow->GetRenderBinding());
+			int rotationAngle = _appWindow->GetDisplayRotation();
+			vec2d pxSize = _appWindow->GetPixelSize();
+			_view.GetAppWindowInputSink().OnRefresh(
+				*_appWindow,
+				_deviceResources->GetRender(rotationAngle, (int)pxSize.x, (int)pxSize.y),
+				_deviceResources->GetRenderBinding());
+			_deviceResources->Present();
 
-			_appWindow->PollEvents(_view.GetAppWindowInputSink());
+			_appWindow->PollEvents(_view.GetAppWindowInputSink(), CoreProcessEventsOption::ProcessAllIfPresent);
 
 			m_timer.Tick([&]()
 			{
@@ -83,7 +90,7 @@ void FrameworkView::Run()
 		}
 		else
 		{
-			m_window->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+			_appWindow->PollEvents(_view.GetAppWindowInputSink(), CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
 	}
 }
@@ -142,6 +149,6 @@ void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Obj
 */
 void FrameworkView::HandleDeviceLost()
 {
-	_appWindow.reset();
-	_appWindow.reset(new StoreAppWindow(m_window.Get()));
+	_deviceResources.reset();
+	_deviceResources.reset(new DX::DeviceResources(m_window.Get()));
 }
