@@ -38,7 +38,7 @@
         view.context = context; // has to be set first to access view.appWindow property
 
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, view.appWindow));
+        _tzodView.reset(new TzodView(appDelegate.fs, appDelegate.logger, appDelegate.app, nullptr));
 
         view.inputSink = &_tzodView->GetAppWindowInputSink();
     }
@@ -85,7 +85,8 @@
     if (_tzodView)
     {
         AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        _tzodView->Step(appDelegate.app, self.timeSinceLastUpdate);
+        CocoaTouchWindow &appWindow = ((GameView *)self.view).appWindow;
+        _tzodView->Step(appDelegate.app, self.timeSinceLastUpdate, appWindow.GetInput());
     }
 }
 
@@ -94,8 +95,8 @@
 {
     if (_tzodView)
     {
-        auto &appWindow = ((GameView *)view).appWindow;
-        _tzodView->GetAppWindowInputSink().OnRefresh(appWindow);
+        CocoaTouchWindow &appWindow = ((GameView *)view).appWindow;
+        _tzodView->GetAppWindowInputSink().OnRefresh(appWindow, appWindow.GetRender(), appWindow.GetRenderBinding());
     }
 }
 

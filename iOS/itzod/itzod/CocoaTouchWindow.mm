@@ -29,6 +29,7 @@ CocoaTouchWindow::CocoaTouchWindow()
 
 CocoaTouchWindow::~CocoaTouchWindow()
 {
+    _renderBinding.UnloadAllTextures(*_render);
 }
 
 void CocoaTouchWindow::SetSizeAndScale(float width, float height, float scale)

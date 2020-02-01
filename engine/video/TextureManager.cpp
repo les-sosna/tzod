@@ -30,11 +30,6 @@ ImageView ImageCache::GetImage(FS::FileSystem& fs, std::string_view filePath)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static vec2d GetImageSize(const Image& image)
-{
-	return vec2d{ (float)image.GetData().width, (float)image.GetData().height };
-}
-
 TextureManager::TextureManager()
 {
 	LogicalTexture tex = {};
