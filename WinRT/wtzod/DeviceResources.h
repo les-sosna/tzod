@@ -6,7 +6,6 @@ struct ID3D11DeviceContext2;
 
 struct IRender;
 class RenderBinding;
-class SwapChainResources;
 
 class DeviceResources
 {

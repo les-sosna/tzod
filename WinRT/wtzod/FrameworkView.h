@@ -5,6 +5,7 @@
 #include <app/View.h>
 
 class DeviceResources;
+class DeviceResources12;
 
 namespace FS
 {
@@ -60,7 +61,6 @@ namespace wtzod
 		DX::StepTimer m_timer;
 
 		std::unique_ptr<DeviceResources> _deviceResources;
-
-		void HandleDeviceLost();
+		std::unique_ptr<DeviceResources12> _deviceResources12;
 	};
 }

@@ -34,6 +34,7 @@
     <ClCompile Include="StoreAppWindow.cpp" />
     <ClCompile Include="StoreAppClipboard.cpp" />
     <ClCompile Include="StoreAppInput.cpp" />
+    <ClCompile Include="DeviceResources12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -46,6 +47,7 @@
     <ClInclude Include="StoreAppInput.h" />
     <ClInclude Include="StoreAppClipboard.h" />
     <ClInclude Include="WinStoreKeys.h" />
+    <ClInclude Include="DeviceResources12.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

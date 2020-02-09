@@ -2,16 +2,15 @@
 #include "RenderBase.h"
 #include <math/MyMath.h>
 #include <wrl/client.h>
+#include <d3d12.h>
 #include <memory>
 #define VERTEX_ARRAY_SIZE   1024
-#define  INDEX_ARRAY_SIZE   2048
-
-class SwapChainResources;
+#define INDEX_ARRAY_SIZE    2048
 
 class RenderD3D12 : public IRender
 {
 public:
-	RenderD3D12(SwapChainResources &swapChainResources);
+	RenderD3D12(ID3D12Device* d3dDevice);
 	~RenderD3D12() override;
 
 	// IRender
@@ -36,7 +35,17 @@ public:
 private:
 	void Flush();
 
-	SwapChainResources &_swapChainResources;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> _rootSignature;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelineStateUI;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelineStateWorld;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelineStateLight;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _commandAllocator;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _indexBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _constantBuffer;
+	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
+	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 
 	unsigned int _windowWidth = 0;
 	unsigned int _windowHeight = 0;

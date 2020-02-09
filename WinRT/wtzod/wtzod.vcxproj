@@ -208,6 +208,7 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DeviceResources12.h" />
     <ClInclude Include="DisplayOrientation.h" />
     <ClInclude Include="FrameworkView.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="WinStoreKeys.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DeviceResources12.cpp" />
     <ClCompile Include="DisplayOrientation.cpp" />
     <ClCompile Include="FrameworkView.cpp" />
     <ClCompile Include="DeviceResources.cpp" />

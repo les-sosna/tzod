@@ -1,12 +1,11 @@
 ﻿#include "pch.h"
 #include "FrameworkView.h"
 #include "DeviceResources.h"
+#include "DeviceResources12.h"
 #include "DirectXHelper.h"
 #include "StoreAppWindow.h"
 #include "DisplayOrientation.h"
-
 #include <app/tzod.h>
-#include <video/SwapChainResources.h>
 
 using namespace wtzod;
 
@@ -61,22 +60,29 @@ void FrameworkView::Load(Platform::String^ entryPoint)
 // This method is called after the window becomes active.
 void FrameworkView::Run()
 {
+	auto refreshAndPresent = [this](auto& deviceResources)
+	{
+		if (!deviceResources || deviceResources->IsDeviceRemoved())
+		{
+			using ElementType = std::remove_reference<decltype(deviceResources)>::type::element_type;
+			deviceResources.reset();
+			deviceResources.reset(new ElementType(m_window.Get()));
+		}
+
+		int rotationAngle = _appWindow->GetDisplayRotation();
+		vec2d pxSize = _appWindow->GetPixelSize();
+		_view.GetAppWindowInputSink().OnRefresh(
+			*_appWindow,
+			deviceResources->GetRender(rotationAngle, (int)pxSize.x, (int)pxSize.y),
+			deviceResources->GetRenderBinding());
+		deviceResources->Present();
+	};
+
 	while (!_appWindow->ShouldClose())
 	{
 		if (_appWindow->IsVisible())
 		{
-			if (!_deviceResources || _deviceResources->IsDeviceRemoved())
-			{
-				HandleDeviceLost();
-			}
-
-			int rotationAngle = _appWindow->GetDisplayRotation();
-			vec2d pxSize = _appWindow->GetPixelSize();
-			_view.GetAppWindowInputSink().OnRefresh(
-				*_appWindow,
-				_deviceResources->GetRender(rotationAngle, (int)pxSize.x, (int)pxSize.y),
-				_deviceResources->GetRenderBinding());
-			_deviceResources->Present();
+			refreshAndPresent(_deviceResources);
 
 			_appWindow->PollEvents(_view.GetAppWindowInputSink(), CoreProcessEventsOption::ProcessAllIfPresent);
 
@@ -120,6 +126,7 @@ void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArg
 	create_task([this, deferral]()
 	{
 		_deviceResources.reset();
+		_deviceResources12.reset();
 		_app.SaveConfig();
 		deferral->Complete();
 	});
@@ -137,14 +144,9 @@ void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ ar
 /*
 void FrameworkView::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
 {
-	if (!m_deviceResources->ValidateDevice())
+	if (_deviceResources && !_deviceResources->ValidateDevice())
 	{
-		HandleDeviceLost();
+		_deviceResources.reset();
 	}
 }
 */
-void FrameworkView::HandleDeviceLost()
-{
-	_deviceResources.reset();
-	_deviceResources.reset(new DeviceResources(m_window.Get()));
-}

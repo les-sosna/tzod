@@ -1,5 +1,4 @@
 #include "inc/video/RenderD3D11.h"
-#include "inc/video/SwapChainResources.h"
 #include <d3d11_2.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>

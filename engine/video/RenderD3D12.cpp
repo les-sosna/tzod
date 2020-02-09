@@ -5,6 +5,8 @@
 #include <cstring>
 #include <stdexcept>
 
+using namespace Microsoft::WRL;
+
 struct MyConstants
 {
 	DirectX::XMFLOAT4X4 viewProj;
@@ -196,21 +198,102 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderD3D12::RenderD3D12(SwapChainResources &swapChainResources)
-	: _swapChainResources(swapChainResources)
+static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
+{
+	D3D12_DESCRIPTOR_RANGE rangesVS[1] = {};
+	rangesVS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	rangesVS[0].NumDescriptors = 1;
+	rangesVS[0].BaseShaderRegister = 0;
+	rangesVS[0].RegisterSpace = 0;
+	rangesVS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE rangesPS[1] = {};
+	rangesPS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	rangesPS[0].NumDescriptors = 1;
+	rangesPS[0].BaseShaderRegister = 0;
+	rangesPS[0].RegisterSpace = 0;
+	rangesPS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER parameters[2] = {};
+	parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[0].DescriptorTable.NumDescriptorRanges = _countof(rangesVS);
+	parameters[0].DescriptorTable.pDescriptorRanges = rangesVS;
+	parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[1].DescriptorTable.NumDescriptorRanges = _countof(rangesPS);
+	parameters[1].DescriptorTable.pDescriptorRanges = rangesPS;
+	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	D3D12_STATIC_SAMPLER_DESC sampler = {};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.MipLODBias = 0;
+	sampler.MaxAnisotropy = 0;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	sampler.MinLOD = 0.0f;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = 0;
+	sampler.RegisterSpace = 0;
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// Only the input assembler stage needs access to the constant buffer
+	D3D12_ROOT_SIGNATURE_DESC descRootSignature = {};
+	descRootSignature.NumParameters = _countof(parameters);
+	descRootSignature.pParameters = parameters;
+	descRootSignature.NumStaticSamplers = 1;
+	descRootSignature.pStaticSamplers = &sampler;
+	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS/* |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS*/;
+
+	ComPtr<ID3DBlob> signature;
+	ComPtr<ID3DBlob> error;
+	CHECK(D3D12SerializeRootSignature(&descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, signature.GetAddressOf(), error.GetAddressOf()));
+
+	ComPtr<ID3D12RootSignature> rootSignature;
+	CHECK(d3dDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
+
+	return rootSignature;
+}
+
+static const D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
+	FALSE,                      // BlendEnable
+	FALSE,                      // LogicOpEnable
+	D3D12_BLEND_ONE,            // SrcBlend
+	D3D12_BLEND_ZERO,           // DestBlend
+	D3D12_BLEND_OP_ADD,         // BlendOp
+	D3D12_BLEND_ONE,            // SrcBlendAlpha
+	D3D12_BLEND_ZERO,           // DestBlendAlpha
+	D3D12_BLEND_OP_ADD,         // BlendOpAlpha
+	D3D12_LOGIC_OP_NOOP,        // LogicOp
+	D3D12_COLOR_WRITE_ENABLE_ALL, // RenderTargetWriteMask
+};
+
+static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
+	D3D12_FILL_MODE_SOLID,      // FillMode
+	D3D12_CULL_MODE_BACK,       // CullMode;
+	FALSE,                      // FrontCounterClockwise
+	D3D12_DEFAULT_DEPTH_BIAS,   // DepthBias
+	D3D12_DEFAULT_DEPTH_BIAS_CLAMP, // DepthBiasClamp
+	D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS, // SlopeScaledDepthBias
+	TRUE,                       // DepthClipEnable
+	FALSE,                      // MultisampleEnable
+	FALSE,                      // AntialiasedLineEnable
+	0,                          // ForcedSampleCount
+	D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF // ConservativeRaster
+};
+
+RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
 /*
-	context->GetDevice(&_device);
-
 	CHECK(_device->CreateBuffer(&CD3D11_BUFFER_DESC(sizeof(MyConstants), D3D11_BIND_CONSTANT_BUFFER), nullptr, &_constantBuffer));
-
-	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(_vertexArray), D3D11_BIND_VERTEX_BUFFER);
-	CHECK(_device->CreateBuffer(&vertexBufferDesc, nullptr, &_vertexBuffer));
-
-	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(_indexArray), D3D11_BIND_INDEX_BUFFER);
-	CHECK(_device->CreateBuffer(&indexBufferDesc, nullptr, &_indexBuffer));
 
 	CD3D11_SAMPLER_DESC samplerDesc((CD3D11_DEFAULT()));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -219,36 +302,15 @@ RenderD3D12::RenderD3D12(SwapChainResources &swapChainResources)
 
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	CHECK(_device->CreateSamplerState(&samplerDesc, &_samplerPoint));
+*/
 
-	CD3D11_BLEND_DESC blendDescUI((CD3D11_DEFAULT()));
-	blendDescUI.RenderTarget[0].BlendEnable = TRUE;
-	blendDescUI.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	blendDescUI.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDescUI.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE;
-	CHECK(_device->CreateBlendState(&blendDescUI, &_blendStateUI));
+	_rootSignature = MakeRootSignature(d3dDevice);
 
-	CD3D11_BLEND_DESC blendDescWorld((CD3D11_DEFAULT()));
-	blendDescWorld.RenderTarget[0].BlendEnable = TRUE;
-	blendDescWorld.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_ALPHA;
-	blendDescWorld.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	blendDescWorld.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN | D3D11_COLOR_WRITE_ENABLE_BLUE;
-	CHECK(_device->CreateBlendState(&blendDescWorld, &_blendStateWorld));
 
-	CD3D11_BLEND_DESC blendDescLight((CD3D11_DEFAULT()));
-	blendDescLight.RenderTarget[0].BlendEnable = TRUE;
-	blendDescLight.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	blendDescLight.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	blendDescLight.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALPHA;
-	CHECK(_device->CreateBlendState(&blendDescLight, &_blendStateLight));
+	ComPtr<ID3DBlob> log;
 
-	CD3D11_RASTERIZER_DESC rasterizerDesc((CD3D11_DEFAULT()));
-	rasterizerDesc.ScissorEnable = TRUE;
-	CHECK(_device->CreateRasterizerState(&rasterizerDesc, &_rasterizerState));
-
-	Microsoft::WRL::ComPtr<ID3DBlob> code;
-	Microsoft::WRL::ComPtr<ID3DBlob> log;
-
-	// Vertex shader & input layout
+	// Shaders
+	ComPtr<ID3DBlob> codeVS;
 	if (FAILED(D3DCompile(
 		s_vertexShader,                 // pSrcData
 		sizeof(s_vertexShader),         // SrcDataSize
@@ -259,7 +321,7 @@ RenderD3D12::RenderD3D12(SwapChainResources &swapChainResources)
 		"vs_4_0_level_9_1",             // pTarget
 		D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3,
 		0,                              // Flags2
-		code.ReleaseAndGetAddressOf(),  // [out] ppCode
+		codeVS.ReleaseAndGetAddressOf(), // [out] ppCode
 		log.ReleaseAndGetAddressOf()    // [out] ppErrorMsgs
 		)))
 	{
@@ -267,23 +329,7 @@ RenderD3D12::RenderD3D12(SwapChainResources &swapChainResources)
 		throw std::runtime_error(msg);
 	}
 
-	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] =
-	{
-	//SemanticName SemanticIndex Format InputSlot AlignedByteOffset InputSlotClass InstanceDataStepRate
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,  0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	CHECK(_device->CreateInputLayout(
-		inputElementDescs,
-		sizeof(inputElementDescs) / sizeof(inputElementDescs[0]),
-		code->GetBufferPointer(),
-		code->GetBufferSize(),
-		&_inputLayout));
-
-	CHECK(_device->CreateVertexShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &_vertexShader));
-
-	// Pixel shaders
+	ComPtr<ID3DBlob> codeColorPS;
 	if (FAILED(D3DCompile(
 		s_pixelShaderColor,             // pSrcData
 		sizeof(s_pixelShaderColor),     // SrcDataSize
@@ -294,15 +340,15 @@ RenderD3D12::RenderD3D12(SwapChainResources &swapChainResources)
 		"ps_4_0_level_9_1",             // pTarget
 		D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3,
 		0,                              // Flags2
-		code.ReleaseAndGetAddressOf(),  // [out] ppCode
+		codeColorPS.ReleaseAndGetAddressOf(), // [out] ppCode
 		log.ReleaseAndGetAddressOf()    // [out] ppErrorMsgs
 		)))
 	{
 		const char *msg = log ? (const char*)log->GetBufferPointer() : "Shader compilation failed";
 		throw std::runtime_error(msg);
 	}
-	CHECK(_device->CreatePixelShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &_pixelShaderColor));
 
+	ComPtr<ID3DBlob> codeLightPS;
 	if (FAILED(D3DCompile(
 		s_pixelShaderLight,             // pSrcData
 		sizeof(s_pixelShaderLight),     // SrcDataSize
@@ -313,15 +359,85 @@ RenderD3D12::RenderD3D12(SwapChainResources &swapChainResources)
 		"ps_4_0_level_9_1",             // pTarget
 		D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3,
 		0,                              // Flags2
-		code.ReleaseAndGetAddressOf(),  // [out] ppCode
+		codeLightPS.ReleaseAndGetAddressOf(), // [out] ppCode
 		log.ReleaseAndGetAddressOf()    // [out] ppErrorMsgs
 		)))
 	{
 		const char *msg = log ? (const char*)log->GetBufferPointer() : "Shader compilation failed";
 		throw std::runtime_error(msg);
 	}
-	CHECK(_device->CreatePixelShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &_pixelShaderLight));
-*/
+
+	// InputLayout
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+	{
+	//SemanticName SemanticIndex Format InputSlot AlignedByteOffset InputSlotClass InstanceDataStepRate
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,  0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
+
+	// common pipeline state
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC state = {};
+	state.pRootSignature = _rootSignature.Get();
+	state.VS = D3D12_SHADER_BYTECODE{ codeVS->GetBufferPointer(), codeVS->GetBufferSize() };
+	state.SampleMask = UINT_MAX;
+	state.RasterizerState = c_defaultRasterizerDesc;
+	state.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
+	state.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	state.NumRenderTargets = 1;
+	state.RTVFormats[0] = DXGI_FORMAT_B8G8R8A8_UNORM;
+	state.SampleDesc.Count = 1;
+
+	// pipeline state - Light
+	std::fill(std::begin(state.BlendState.RenderTarget), std::end(state.BlendState.RenderTarget), c_defaultRenderTargetBlendDesc);
+	state.BlendState.RenderTarget[0].BlendEnable = TRUE;
+	state.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	state.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	state.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALPHA;
+	state.PS = D3D12_SHADER_BYTECODE{ codeLightPS->GetBufferPointer(), codeLightPS->GetBufferSize() };
+	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateLight)));
+
+	// pipeline state - UI
+	std::fill(std::begin(state.BlendState.RenderTarget), std::end(state.BlendState.RenderTarget), c_defaultRenderTargetBlendDesc);
+	state.BlendState.RenderTarget[0].BlendEnable = TRUE;
+	state.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+	state.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	state.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_RED | D3D12_COLOR_WRITE_ENABLE_GREEN | D3D12_COLOR_WRITE_ENABLE_BLUE;
+	state.PS = D3D12_SHADER_BYTECODE{ codeColorPS->GetBufferPointer(), codeColorPS->GetBufferSize() };
+	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateUI)));
+
+	// pipeline state - World
+	std::fill(std::begin(state.BlendState.RenderTarget), std::end(state.BlendState.RenderTarget), c_defaultRenderTargetBlendDesc);
+	state.BlendState.RenderTarget[0].BlendEnable = TRUE;
+	state.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_DEST_ALPHA;
+	state.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	state.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_RED | D3D12_COLOR_WRITE_ENABLE_GREEN | D3D12_COLOR_WRITE_ENABLE_BLUE;
+	state.PS = D3D12_SHADER_BYTECODE{ codeColorPS->GetBufferPointer(), codeColorPS->GetBufferSize() };
+	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateWorld)));
+
+	// create buffers
+	D3D12_HEAP_PROPERTIES defaultHeapProps = {};
+	defaultHeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+	defaultHeapProps.CreationNodeMask = 1;
+	defaultHeapProps.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC bufferDesc = {};
+	bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	bufferDesc.Height = 1;
+	bufferDesc.DepthOrArraySize = 1;
+	bufferDesc.MipLevels = 1;
+	bufferDesc.SampleDesc.Count = 1;
+	bufferDesc.SampleDesc.Quality = 0;
+	bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	bufferDesc.Width = sizeof(_vertexArray);
+	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_vertexBuffer)));
+
+	bufferDesc.Width = sizeof(_indexArray);
+	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_indexBuffer)));
+
+	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
+	CHECK(d3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&_commandList)));
 }
 
 RenderD3D12::~RenderD3D12()
@@ -331,14 +447,14 @@ RenderD3D12::~RenderD3D12()
 void RenderD3D12::SetScissor(const RectRB &rect)
 {
 	Flush();
-//	_context->RSSetScissorRects(1, &AsD3D11Rect(ApplyRectRotation(rect, _windowWidth, _windowHeight, _displayOrientation)));
+	_commandList->RSSetScissorRects(1, &AsD3D12Rect(ApplyRectRotation(rect, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
 void RenderD3D12::SetViewport(const RectRB &rect)
 {
 	Flush();
 	_viewport = rect;
-//	_context->RSSetViewports(1, &AsD3D11Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
+	_commandList->RSSetViewports(1, &AsD3D12Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
 void RenderD3D12::SetTransform(vec2d offset, float scale)
@@ -358,16 +474,11 @@ void RenderD3D12::Begin(unsigned int displayWidth, unsigned int displayHeight, D
 	_context->DiscardView(targets[0]);
 	_context->ClearRenderTargetView(targets[0], DirectX::XMVECTORF32{ 0, 0, 0, _ambient });
 
-	UINT stride = sizeof(MyVertex);
-	UINT offset = 0;
-	_context->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
-	_context->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-	_context->IASetInputLayout(_inputLayout.Get());
-	_context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	_context->VSSetShader(_vertexShader.Get(), nullptr, 0);
 	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
-	_context->RSSetState(_rasterizerState.Get());
 */
+	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_commandList->IASetIndexBuffer(&_indexBufferView);
+	_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
 }
 
 void RenderD3D12::End()
@@ -382,18 +493,15 @@ void RenderD3D12::SetMode(const RenderMode mode)
 	switch( mode )
 	{
 	case RM_LIGHT:
-//		_context->PSSetShader(_pixelShaderLight.Get(), nullptr, 0);
-//		_context->OMSetBlendState(_blendStateLight.Get(), nullptr, ~0U);
+		_commandList->SetPipelineState(_pipelineStateLight.Get());
 		break;
 
 	case RM_WORLD:
-//		_context->PSSetShader(_pixelShaderColor.Get(), nullptr, 0);
-//		_context->OMSetBlendState(_blendStateWorld.Get(), nullptr, ~0U);
+		_commandList->SetPipelineState(_pipelineStateWorld.Get());
 		break;
 
 	case RM_INTERFACE:
-//		_context->PSSetShader(_pixelShaderColor.Get(), nullptr, 0);
-//		_context->OMSetBlendState(_blendStateUI.Get(), nullptr, ~0U);
+		_commandList->SetPipelineState(_pipelineStateUI.Get());
 		break;
 
 	default:
@@ -422,6 +530,83 @@ bool RenderD3D12::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 void RenderD3D12::TexFree(DEV_TEXTURE tex)
 {
 //	((ID3D11ShaderResourceView*)tex.ptr)->Release();
+}
+
+static void UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList *commandList, ID3D12Resource *target, const void *data)
+{
+	D3D12_RESOURCE_DESC bufferDesc = target->GetDesc();
+	assert(bufferDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
+
+	D3D12_HEAP_PROPERTIES uploadHeapProps = {};
+	uploadHeapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+	uploadHeapProps.CreationNodeMask = 1;
+	uploadHeapProps.VisibleNodeMask = 1;
+
+	D3D12_SUBRESOURCE_DATA subresourceData = {};
+	subresourceData.pData = data;
+	subresourceData.RowPitch = bufferDesc.Width;
+	subresourceData.SlicePitch = bufferDesc.Width;
+
+//	UpdateSubresources(commandList, target, uploadBuffer.Get(), 0, 0, 1, data);
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+	UINT numRows;
+	UINT64 rowSizesInBytes;
+	UINT64 totalBytes;
+	d3dDevice->GetCopyableFootprints(
+		&bufferDesc,
+		0, // FirstSubresource
+		1, // NumSubresources
+		0, // BaseOffset
+		&layout,
+		&numRows,
+		&rowSizesInBytes,
+		&totalBytes);
+ 
+//	UpdateSubresources(pCmdList, pDestinationResource, pIntermediate, FirstSubresource, NumSubresources, RequiredSize, Layouts, NumRows, RowSizesInBytes, pSrcData);
+	// Minor validation
+	assert(bufferDesc.Width >= totalBytes + layout.Offset);
+	assert(totalBytes <= (SIZE_T)-1);
+	assert(rowSizesInBytes <= (SIZE_T)-1);
+
+	BYTE* pData;
+	ComPtr<ID3D12Resource> uploadBuffer;
+	CHECK(d3dDevice->CreateCommittedResource(&uploadHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer)));
+	CHECK(uploadBuffer->Map(0, NULL, reinterpret_cast<void**>(&pData)));
+
+	void* destData = pData + layout.Offset;
+	SIZE_T destRowPitch = layout.Footprint.RowPitch;
+	SIZE_T destSlicePitch = layout.Footprint.RowPitch * numRows;
+//  MemcpySubresource(&DestData, &subresourceData, (SIZE_T)rowSizesInBytes, numRows, layout.Footprint.Depth);
+	for (UINT z = 0; z < layout.Footprint.Depth; ++z)
+	{
+		BYTE* pDestSlice = reinterpret_cast<BYTE*>(destData) + destSlicePitch * z;
+		const BYTE* pSrcSlice = reinterpret_cast<const BYTE*>(subresourceData.pData) + subresourceData.SlicePitch * z;
+		for (UINT y = 0; y < numRows; ++y)
+		{
+			memcpy(pDestSlice + destRowPitch * y, pSrcSlice + subresourceData.RowPitch * y, rowSizesInBytes);
+		}
+	}
+// \MemcpySubresource
+
+	uploadBuffer->Unmap(0, NULL);
+
+	commandList->CopyBufferRegion(
+		target, // destination
+		0,      // destination offset
+		uploadBuffer.Get(), // source
+		layout.Offset,      // source offset
+		layout.Footprint.Width // NumBytes
+	);
+
+	// \UpdateSubresources
+
+	D3D12_RESOURCE_BARRIER vertexBufferResourceBarrier = {};
+	vertexBufferResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	vertexBufferResourceBarrier.Transition.pResource = target;
+	vertexBufferResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	vertexBufferResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER; // TODO: index
+	vertexBufferResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList->ResourceBarrier(1, &vertexBufferResourceBarrier);
 }
 
 void RenderD3D12::Flush()
@@ -456,6 +641,7 @@ MyVertex* RenderD3D12::DrawQuad(DEV_TEXTURE tex)
 	{
 		Flush();
 		_curtex = tex.ptr;
+
 /*
 		auto srv = (ID3D11ShaderResourceView*)tex.ptr;
 		ID3D11SamplerState* samplerNoRef = nullptr;

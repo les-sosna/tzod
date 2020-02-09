@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "DeviceResources.h"
 #include "DirectXHelper.h"
 #include "DisplayOrientation.h"
 #include "StoreAppWindow.h"
@@ -15,7 +14,6 @@
 #include <video/RenderBase.h>
 #include <video/RenderBinding.h>
 #include <video/RenderD3D11.h>
-#include <video/SwapChainResources.h>
 
 using namespace Microsoft::WRL;
 using namespace Windows::ApplicationModel;
