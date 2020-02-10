@@ -446,18 +446,25 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	bufferDesc.Width = sizeof(_vertexArray);
-	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_vertexBuffer)));
+	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, IID_PPV_ARGS(&_vertexBuffer)));
 	NAME_D3D12_OBJECT(_vertexBuffer);
+	_vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
+	_vertexBufferView.StrideInBytes = sizeof(MyVertex);
+	_vertexBufferView.SizeInBytes = sizeof(_vertexArray);
 
 	bufferDesc.Width = sizeof(_indexArray);
-	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_indexBuffer)));
+	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_INDEX_BUFFER, nullptr, IID_PPV_ARGS(&_indexBuffer)));
 	NAME_D3D12_OBJECT(_indexBuffer);
+	_indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
+	_indexBufferView.SizeInBytes = sizeof(_indexArray);
+	_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
 
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
 	NAME_D3D12_OBJECT(_commandAllocator);
 
 	CHECK(d3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&_commandList)));
 	NAME_D3D12_OBJECT(_commandList);
+	CHECK(_commandList->Close());
 }
 
 RenderD3D12::~RenderD3D12()
@@ -486,6 +493,9 @@ void RenderD3D12::SetTransform(vec2d offset, float scale)
 
 void RenderD3D12::Begin(ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int displayWidth, int displayHeight, DisplayOrientation displayOrientation)
 {
+	CHECK(_commandAllocator->Reset());
+	CHECK(_commandList->Reset(_commandAllocator.Get(), nullptr));
+
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
 
@@ -499,13 +509,21 @@ void RenderD3D12::Begin(ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int
 
 	_commandList->ClearRenderTargetView(rtv, DirectX::XMVECTORF32{ 0, 0, 0, _ambient }, 0, nullptr);
 	_commandList->OMSetRenderTargets(1, &rtv, false, nullptr);
+}
 
-//	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
+static void WaitForGPU(ID3D12Device* device, ID3D12CommandQueue* commandQueue)
+{
+	ComPtr<ID3D12Fence> fence;
+	CHECK(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+	NAME_D3D12_OBJECT(fence);
 
-	_commandList->SetGraphicsRootSignature(_rootSignature.Get());
-	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	_commandList->IASetIndexBuffer(&_indexBufferView);
-	_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
+	HANDLE waitCompleteEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	CHECK(fence->SetEventOnCompletion(1, waitCompleteEvent));
+
+	CHECK(commandQueue->Signal(fence.Get(), 1));
+
+	WaitForSingleObject(waitCompleteEvent, INFINITE);
+	CloseHandle(waitCompleteEvent);
 }
 
 void RenderD3D12::End(ID3D12Resource* rt)
@@ -520,30 +538,17 @@ void RenderD3D12::End(ID3D12Resource* rt)
 	presentResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	presentResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	_commandList->ResourceBarrier(1, &presentResourceBarrier);
+
+	CHECK(_commandList->Close());
+	ID3D12CommandList* commandLists[] = { _commandList.Get() }; // needed to cast to ID3D12CommandList
+	_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+	WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 }
 
 void RenderD3D12::SetMode(const RenderMode mode)
 {
 	Flush();
-
-	switch( mode )
-	{
-	case RM_LIGHT:
-		_commandList->SetPipelineState(_pipelineStateLight.Get());
-		break;
-
-	case RM_WORLD:
-		_commandList->SetPipelineState(_pipelineStateWorld.Get());
-		break;
-
-	case RM_INTERFACE:
-		_commandList->SetPipelineState(_pipelineStateUI.Get());
-		break;
-
-	default:
-		assert(false);
-	}
-
 	_mode = mode;
 }
 
@@ -568,7 +573,7 @@ void RenderD3D12::TexFree(DEV_TEXTURE tex)
 //	((ID3D11ShaderResourceView*)tex.ptr)->Release();
 }
 
-static void UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList *commandList, ID3D12Resource *target, const void *data)
+static ComPtr<ID3D12Resource> UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList *commandList, ID3D12Resource *target, const void *data)
 {
 	D3D12_RESOURCE_DESC bufferDesc = target->GetDesc();
 	assert(bufferDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
@@ -638,13 +643,7 @@ static void UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList 
 
 	// \UpdateSubresources
 
-	D3D12_RESOURCE_BARRIER vertexBufferResourceBarrier = {};
-	vertexBufferResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	vertexBufferResourceBarrier.Transition.pResource = target;
-	vertexBufferResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	vertexBufferResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER; // TODO: index
-	vertexBufferResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &vertexBufferResourceBarrier);
+	return uploadBuffer;
 }
 
 void RenderD3D12::Flush()
@@ -657,21 +656,59 @@ void RenderD3D12::Flush()
 		float viewportHalfWidth = (float)WIDTH(_viewport) / 2;
 		float viewportHalfHeight = (float)HEIGHT(_viewport) / 2;
 		XMMATRIX view = XMMatrixTranslation(-_offset.x / _scale - viewportHalfWidth / _scale,
-		                                    -_offset.y / _scale - viewportHalfHeight / _scale, 0.f)
-			* XMMatrixScaling(_scale, _scale, 1.f);
+		                                    -_offset.y / _scale - viewportHalfHeight / _scale, 0.f) * XMMatrixScaling(_scale, _scale, 1.f);
 		XMMATRIX proj = XMMatrixOrthographicLH(
 			GetProjWidth(_viewport, _displayOrientation), -GetProjHeight(_viewport, _displayOrientation), -1.f, 1.f);
 		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
 		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 
+		D3D12_RESOURCE_BARRIER barriers[2] = {};
+		barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barriers[0].Transition.pResource = _vertexBuffer.Get();
+		barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+		barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barriers[1].Transition.pResource = _indexBuffer.Get();
+		barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_INDEX_BUFFER;
+		barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+		barriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		_commandList->ResourceBarrier(_countof(barriers), barriers);
+
 //		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
-		UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), &_vertexArray);
-		UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), &_indexArray);
+		auto vertexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), &_vertexArray);
+		auto indexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), &_indexArray);
+
+		for (auto &barrier: barriers)
+			std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
+		_commandList->ResourceBarrier(_countof(barriers), barriers);
+
+		switch (_mode)
+		{
+		default: assert(false);
+		case RM_LIGHT: _commandList->SetPipelineState(_pipelineStateLight.Get()); break;
+		case RM_WORLD: _commandList->SetPipelineState(_pipelineStateWorld.Get()); break;
+		case RM_INTERFACE: _commandList->SetPipelineState(_pipelineStateUI.Get()); break;
+		}
+
+		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
+		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		_commandList->IASetIndexBuffer(&_indexBufferView);
+		_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
+//		_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
 
 		_commandList->DrawIndexedInstanced(_iaSize, 1, 0, 0, 0);
 
-		ID3D12CommandList* commandLists[] = { _commandList.Get() };
+		CHECK(_commandList->Close());
+
+		ID3D12CommandList* commandLists[] = { _commandList.Get() }; // needed to cast to ID3D12CommandList
 		_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+		// The command list can be reset anytime after ExecuteCommandList() is called.
+		CHECK(_commandList->Reset(_commandAllocator.Get(), nullptr));
+
+		// wait for upload to complete before releasing upload buffers
+		WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 	}
 	_vaSize = 0;
 	_iaSize = 0;
