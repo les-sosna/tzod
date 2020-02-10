@@ -6,6 +6,8 @@ struct ID3D11DeviceContext2;
 
 struct IRender;
 class RenderBinding;
+class RenderD3D11;
+enum DisplayOrientation;
 
 class DeviceResources
 {
@@ -16,7 +18,7 @@ public:
 	bool IsDeviceRemoved() const;
 	void Present();
 
-	IRender& GetRender(int rotationAngle, int width, int height);
+	IRender& GetRender(int width, int height, DisplayOrientation displayOrientation);
 	RenderBinding& GetRenderBinding() { return *_renderBinding; }
 
 private:
@@ -25,12 +27,12 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> _swapChain;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _d3dRenderTargetView;
 
-	int m_pxWidth = 0;
-	int m_pxHeight = 0;
-	int m_rotationAngle = -1;
+	int _pxWidth = 0;
+	int _pxHeight = 0;
+	DisplayOrientation _displayOrientation;
 
-	std::unique_ptr<IRender> _render;
+	std::unique_ptr<RenderD3D11> _render;
 	std::unique_ptr<RenderBinding> _renderBinding;
 
-	HRESULT ResizeSwapChainInternal(int width, int height, int rotationAngle);
+	HRESULT ResizeSwapChainInternal(int width, int height, DisplayOrientation displayOrientation);
 };

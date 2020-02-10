@@ -70,6 +70,7 @@ static ComPtr<IDXGIAdapter1> GetHardwareAdapter(IDXGIFactory1 *dxgiFactory)
 
 DeviceResources12::DeviceResources12(CoreWindow^ coreWindow)
 	: _renderBinding(new RenderBinding())
+	, _displayOrientation(DO_0)
 {
 #if defined(_DEBUG)
 	// If the project is in a debug build, enable debugging via SDK Layers.
@@ -194,20 +195,24 @@ bool DeviceResources12::IsDeviceRemoved() const
 	return FAILED(_d3dDevice->GetDeviceRemovedReason());
 }
 
-IRender& DeviceResources12::GetRender(int rotationAngle, int width, int height)
+IRender& DeviceResources12::GetRender(int width, int height, DisplayOrientation displayOrientation)
 {
-	if (m_rotationAngle != rotationAngle || m_pxWidth != width || m_pxHeight != height)
+	if (_displayOrientation != displayOrientation || _pxWidth != width || _pxHeight != height)
 	{
-		HRESULT hr = ResizeSwapChainInternal(width, height, rotationAngle);
+		HRESULT hr = ResizeSwapChainInternal(width, height, displayOrientation);
 		if (!DX::IsDeviceLost(hr))
 			DX::ThrowIfFailed(hr);
 	}
+
+	_render->Begin(width, height, displayOrientation);
 
 	return *_render;
 }
 
 void DeviceResources12::Present()
 {
+	_render->End();
+
 	// The first argument instructs DXGI to block until VSync, putting the application
 	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
 	// frames that will never be displayed to the screen.
@@ -223,19 +228,19 @@ void DeviceResources12::Present()
 	}
 }
 
-static DXGI_MODE_ROTATION AsDXGIModeRotation(int rotationAngle)
+static DXGI_MODE_ROTATION AsDXGIModeRotation(DisplayOrientation displayOrientation)
 {
-	switch (rotationAngle)
+	switch (displayOrientation)
 	{
 	default: assert(0);
-	case 0: return DXGI_MODE_ROTATION_IDENTITY;
-	case 90: return DXGI_MODE_ROTATION_ROTATE90;
-	case 180: return DXGI_MODE_ROTATION_ROTATE180;
-	case 270: return DXGI_MODE_ROTATION_ROTATE270;
+	case DO_0: return DXGI_MODE_ROTATION_IDENTITY;
+	case DO_90: return DXGI_MODE_ROTATION_ROTATE90;
+	case DO_180: return DXGI_MODE_ROTATION_ROTATE180;
+	case DO_270: return DXGI_MODE_ROTATION_ROTATE270;
 	}
 }
 
-HRESULT DeviceResources12::ResizeSwapChainInternal(int width, int height, int rotationAngle)
+HRESULT DeviceResources12::ResizeSwapChainInternal(int width, int height, DisplayOrientation displayOrientation)
 {
 	assert(_swapChain != nullptr);
 
@@ -256,7 +261,7 @@ HRESULT DeviceResources12::ResizeSwapChainInternal(int width, int height, int ro
 	// The width and height of the swap chain must be based on the window's
 	// natively-oriented width and height. If the window is not in the native
 	// orientation, the dimensions must be reversed.
-	bool swapDimensions = 90 == rotationAngle || 270 == rotationAngle;
+	bool swapDimensions = DO_90 == displayOrientation || DO_270 == displayOrientation;
 	int renderTargetWidth = swapDimensions ? outputHeight : outputWidth;
 	int renderTargetHeight = swapDimensions ? outputWidth : outputHeight;
 
@@ -267,7 +272,7 @@ HRESULT DeviceResources12::ResizeSwapChainInternal(int width, int height, int ro
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		0));
 
-	ReturnIfFailed(_swapChain->SetRotation(AsDXGIModeRotation(rotationAngle)));
+	ReturnIfFailed(_swapChain->SetRotation(AsDXGIModeRotation(displayOrientation)));
 
 	// Create render target views of the swap chain back buffer.
 	_currentFrame = _swapChain->GetCurrentBackBufferIndex();
@@ -279,9 +284,9 @@ HRESULT DeviceResources12::ResizeSwapChainInternal(int width, int height, int ro
 		rtvDescriptor.ptr += _rtvDescriptorSize;
 	}
 
-	m_rotationAngle = rotationAngle;
-	m_pxWidth = width;
-	m_pxHeight = height;
+	_displayOrientation = displayOrientation;
+	_pxWidth = width;
+	_pxHeight = height;
 
 	return S_OK;
 }

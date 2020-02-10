@@ -10,6 +10,8 @@ struct ID3D12CommandAllocator;
 
 struct IRender;
 class RenderBinding;
+class RenderD3D12;
+enum DisplayOrientation;
 
 class DeviceResources12
 {
@@ -20,7 +22,7 @@ public:
 	bool IsDeviceRemoved() const;
 	void Present();
 
-	IRender& GetRender(int rotationAngle, int width, int height);
+	IRender& GetRender(int width, int height, DisplayOrientation displayOrientation);
 	RenderBinding& GetRenderBinding() { return *_renderBinding; }
 
 private:
@@ -45,12 +47,12 @@ private:
 	};
 	std::unique_ptr<HANDLE, HandleDeleter> _fenceEvent;
 
-	int m_pxWidth = 0;
-	int m_pxHeight = 0;
-	int m_rotationAngle = -1;
+	int _pxWidth = 0;
+	int _pxHeight = 0;
+	DisplayOrientation _displayOrientation;
 
-	std::unique_ptr<IRender> _render;
+	std::unique_ptr<RenderD3D12> _render;
 	std::unique_ptr<RenderBinding> _renderBinding;
 
-	HRESULT ResizeSwapChainInternal(int width, int height, int rotationAngle);
+	HRESULT ResizeSwapChainInternal(int width, int height, DisplayOrientation displayOrientation);
 };

@@ -83,25 +83,12 @@ bool UIInputRenderingController::OnSystemNavigationBack(Plat::AppWindow& appWind
 		dataContext);
 }
 
-static ::DisplayOrientation DOFromDegrees(int degrees)
-{
-	switch (degrees)
-	{
-	default: assert(false);
-	case 0: return DO_0;
-	case 90: return DO_90;
-	case 180: return DO_180;
-	case 270: return DO_270;
-	}
-}
-
 void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, IRender& render, RenderBinding& rb)
 {
 	vec2d pxWindowSize = appWindow.GetPixelSize();
 
 	auto displayWidth = static_cast<unsigned int>(pxWindowSize.x);
 	auto displayHeight = static_cast<unsigned int>(pxWindowSize.y);
-	render.Begin(displayWidth, displayHeight, DOFromDegrees(appWindow.GetDisplayRotation()));
 	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
 
 	ImageCache imageCache;
@@ -141,8 +128,6 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, IRender& 
 		rs.rc.DrawSprite(dst, 0U, 0xffffffff, 0U);
 	}
 #endif
-
-	render.End();
 }
 
 bool UIInputRenderingController::HandleClipboardShortcuts(Plat::AppWindow& appWindow, Plat::Key key, Plat::Msg action)

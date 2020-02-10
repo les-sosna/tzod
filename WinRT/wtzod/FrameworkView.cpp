@@ -6,6 +6,7 @@
 #include "StoreAppWindow.h"
 #include "DisplayOrientation.h"
 #include <app/tzod.h>
+#include <video/RenderBase.h>
 
 using namespace wtzod;
 
@@ -57,6 +58,18 @@ void FrameworkView::Load(Platform::String^ entryPoint)
 {
 }
 
+static ::DisplayOrientation DOFromDegrees(int degrees)
+{
+	switch (degrees)
+	{
+	default: assert(false);
+	case 0: return DO_0;
+	case 90: return DO_90;
+	case 180: return DO_180;
+	case 270: return DO_270;
+	}
+}
+
 // This method is called after the window becomes active.
 void FrameworkView::Run()
 {
@@ -69,11 +82,10 @@ void FrameworkView::Run()
 			deviceResources.reset(new ElementType(m_window.Get()));
 		}
 
-		int rotationAngle = _appWindow->GetDisplayRotation();
 		vec2d pxSize = _appWindow->GetPixelSize();
 		_view.GetAppWindowInputSink().OnRefresh(
 			*_appWindow,
-			deviceResources->GetRender(rotationAngle, (int)pxSize.x, (int)pxSize.y),
+			deviceResources->GetRender((int)pxSize.x, (int)pxSize.y, DOFromDegrees(_appWindow->GetDisplayRotation())),
 			deviceResources->GetRenderBinding());
 		deviceResources->Present();
 	};
@@ -82,7 +94,10 @@ void FrameworkView::Run()
 	{
 		if (_appWindow->IsVisible())
 		{
-			refreshAndPresent(_deviceResources);
+			if (true)
+				refreshAndPresent(_deviceResources);
+			else
+				refreshAndPresent(_deviceResources12);
 
 			_appWindow->PollEvents(_view.GetAppWindowInputSink(), CoreProcessEventsOption::ProcessAllIfPresent);
 

@@ -91,8 +91,6 @@ struct IRender
 
 	virtual void SetAmbient(float ambient) = 0;
 	virtual void SetMode(const RenderMode mode) = 0;
-	virtual void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation) = 0;
-	virtual void End() = 0;
 
 
 	//

@@ -23,23 +23,19 @@ public:
 	RenderD3D11(ID3D11RenderTargetView *&rtv, ID3D11DeviceContext2 *context);
 	~RenderD3D11() override;
 
+	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation);
+	void End();
+
 	// IRender
 	void SetViewport(const RectRB &rect) override;
 	void SetScissor(const RectRB &rect) override;
 	void SetTransform(vec2d offset, float scale) override;
-
-	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation) override;
-	void End() override;
 	void SetMode(const RenderMode mode) override;
-
 	void SetAmbient(float ambient) override;
-
 	bool TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter) override;
 	void TexFree(DEV_TEXTURE tex) override;
-
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
 	MyVertex* DrawFan(unsigned int nEdges) override;
-
 	void DrawLines(const MyLine *lines, size_t count) override;
 
 private:

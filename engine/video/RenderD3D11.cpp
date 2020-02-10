@@ -362,6 +362,7 @@ void RenderD3D11::Begin(unsigned int displayWidth, unsigned int displayHeight, D
 {
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
+	_displayOrientation = displayOrientation;
 
 	ID3D11RenderTargetView *const targets[1] = { _rtv };
 	_context->OMSetRenderTargets(1, targets, nullptr);
@@ -444,8 +445,7 @@ void RenderD3D11::Flush()
 		float viewportHalfWidth = (float)WIDTH(_viewport) / 2;
 		float viewportHalfHeight = (float)HEIGHT(_viewport) / 2;
 		XMMATRIX view = XMMatrixTranslation(-_offset.x / _scale - viewportHalfWidth / _scale,
-		                                    -_offset.y / _scale - viewportHalfHeight / _scale, 0.f)
-			* XMMatrixScaling(_scale, _scale, 1.f);
+		                                    -_offset.y / _scale - viewportHalfHeight / _scale, 0.f) * XMMatrixScaling(_scale, _scale, 1.f);
 		XMMATRIX proj = XMMatrixOrthographicLH(
 			GetProjWidth(_viewport, _displayOrientation), -GetProjHeight(_viewport, _displayOrientation), -1.f, 1.f);
 		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
