@@ -32,7 +32,6 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> _swapChain;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _renderTargets[c_frameCount];
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvHeap;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _commandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _commandAllocators[c_frameCount];
 	UINT _rtvDescriptorSize;

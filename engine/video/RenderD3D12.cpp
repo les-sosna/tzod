@@ -430,7 +430,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateWorld)));
 	NAME_D3D12_OBJECT(_pipelineStateWorld);
 
-	// create buffers
+	// create vertex and index buffers
 	D3D12_HEAP_PROPERTIES defaultHeapProps = {};
 	defaultHeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 	defaultHeapProps.CreationNodeMask = 1;
@@ -446,19 +446,32 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	bufferDesc.Width = sizeof(_vertexArray);
-	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, nullptr, IID_PPV_ARGS(&_vertexBuffer)));
+	CHECK(d3dDevice->CreateCommittedResource(
+		&defaultHeapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+		nullptr,
+		IID_PPV_ARGS(&_vertexBuffer)));
 	NAME_D3D12_OBJECT(_vertexBuffer);
 	_vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
 	_vertexBufferView.StrideInBytes = sizeof(MyVertex);
 	_vertexBufferView.SizeInBytes = sizeof(_vertexArray);
 
 	bufferDesc.Width = sizeof(_indexArray);
-	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_INDEX_BUFFER, nullptr, IID_PPV_ARGS(&_indexBuffer)));
+	CHECK(d3dDevice->CreateCommittedResource(
+		&defaultHeapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_INDEX_BUFFER,
+		nullptr,
+		IID_PPV_ARGS(&_indexBuffer)));
 	NAME_D3D12_OBJECT(_indexBuffer);
 	_indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
 	_indexBufferView.SizeInBytes = sizeof(_indexArray);
 	_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
 
+	// command allocator and command list
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
 	NAME_D3D12_OBJECT(_commandAllocator);
 

@@ -121,17 +121,9 @@ DeviceResources12::DeviceResources12(CoreWindow^ coreWindow)
 
 	_rtvDescriptorSize = _d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-	dsvHeapDesc.NumDescriptors = 1;
-	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	DX::ThrowIfFailed(_d3dDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&_dsvHeap)));
-
 	for (UINT n = 0; n < c_frameCount; n++)
 	{
-		DX::ThrowIfFailed(
-			_d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocators[n]))
-		);
+		DX::ThrowIfFailed(_d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocators[n])));
 	}
 
 	// Create synchronization objects.
@@ -204,15 +196,16 @@ IRender& DeviceResources12::GetRender(int width, int height, DisplayOrientation 
 			DX::ThrowIfFailed(hr);
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtv = { _rtvHeap->GetCPUDescriptorHandleForHeapStart().ptr + _currentFrame * _rtvDescriptorSize };
-	_render->Begin(_renderTargets[_currentFrame].Get(), rtv, width, height, displayOrientation);
+	auto currentFrame = _swapChain->GetCurrentBackBufferIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE rtv = { _rtvHeap->GetCPUDescriptorHandleForHeapStart().ptr + currentFrame * _rtvDescriptorSize };
+	_render->Begin(_renderTargets[currentFrame].Get(), rtv, width, height, displayOrientation);
 
 	return *_render;
 }
 
 void DeviceResources12::Present()
 {
-	_render->End(_renderTargets[_currentFrame].Get());
+	_render->End(_renderTargets[_swapChain->GetCurrentBackBufferIndex()].Get());
 
 	// The first argument instructs DXGI to block until VSync, putting the application
 	// to sleep until the next VSync. This ensures we don't waste any cycles rendering
