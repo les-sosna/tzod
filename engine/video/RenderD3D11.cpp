@@ -198,9 +198,8 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderD3D11::RenderD3D11(ID3D11RenderTargetView *&rtv, ID3D11DeviceContext2 *context)
-	: _rtv(rtv)
-	, _context(context)
+RenderD3D11::RenderD3D11(ID3D11DeviceContext2 *context)
+	: _context(context)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
@@ -358,16 +357,15 @@ void RenderD3D11::SetTransform(vec2d offset, float scale)
 	_offset = -offset;
 }
 
-void RenderD3D11::Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
+void RenderD3D11::Begin(ID3D11RenderTargetView* rtv, unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
 {
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
 	_displayOrientation = displayOrientation;
 
-	ID3D11RenderTargetView *const targets[1] = { _rtv };
-	_context->OMSetRenderTargets(1, targets, nullptr);
-	_context->DiscardView(targets[0]);
-	_context->ClearRenderTargetView(targets[0], DirectX::XMVECTORF32{ 0, 0, 0, _ambient });
+	_context->OMSetRenderTargets(1, &rtv, nullptr);
+	_context->DiscardView(rtv);
+	_context->ClearRenderTargetView(rtv, DirectX::XMVECTORF32{ 0, 0, 0, _ambient });
 
 	UINT stride = sizeof(MyVertex);
 	UINT offset = 0;
@@ -392,9 +390,6 @@ void RenderD3D11::SetMode(const RenderMode mode)
 	switch( mode )
 	{
 	case RM_LIGHT:
-		//glClearColor(0, 0, 0, _ambient);
-		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		//glClear(GL_COLOR_BUFFER_BIT);
 		_context->PSSetShader(_pixelShaderLight.Get(), nullptr, 0);
 		_context->OMSetBlendState(_blendStateLight.Get(), nullptr, ~0U);
 		break;

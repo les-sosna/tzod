@@ -204,14 +204,15 @@ IRender& DeviceResources12::GetRender(int width, int height, DisplayOrientation 
 			DX::ThrowIfFailed(hr);
 	}
 
-	_render->Begin(width, height, displayOrientation);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtv = { _rtvHeap->GetCPUDescriptorHandleForHeapStart().ptr + _currentFrame * _rtvDescriptorSize };
+	_render->Begin(_renderTargets[_currentFrame].Get(), rtv, width, height, displayOrientation);
 
 	return *_render;
 }
 
 void DeviceResources12::Present()
 {
-	_render->End();
+	_render->End(_renderTargets[_currentFrame].Get());
 
 	// The first argument instructs DXGI to block until VSync, putting the application
 	// to sleep until the next VSync. This ensures we don't waste any cycles rendering

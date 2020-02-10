@@ -89,6 +89,15 @@ static void ThrowIfFailed(HRESULT hr, const char *msg)
 #define TOSTR(s) #s
 #define CHECK(expr) ThrowIfFailed((expr), "Failed at line " TOSTR(__LINE__))
 
+// Assign a name to the object to aid with debugging.
+#if NDEBUG
+inline void SetD3D12ObjectName(ID3D12Object*, LPCWSTR) {}
+#else
+inline void SetD3D12ObjectName(ID3D12Object* o, LPCWSTR name) { o->SetName(name); }
+#endif
+#define NAME_D3D12_OBJECT(x) SetD3D12ObjectName((x).Get(), L#x)
+
+
 // {FCAACEE2-F3A0-4FDB-BC50-139D23AF2C3B}
 static const GUID s_sampler = 
 { 0xfcaacee2, 0xf3a0, 0x4fdb, { 0xbc, 0x50, 0x13, 0x9d, 0x23, 0xaf, 0x2c, 0x3b } };
@@ -307,6 +316,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 */
 
 	_rootSignature = MakeRootSignature(d3dDevice);
+	NAME_D3D12_OBJECT(_rootSignature);
 
 
 	ComPtr<ID3DBlob> log;
@@ -398,6 +408,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	state.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALPHA;
 	state.PS = D3D12_SHADER_BYTECODE{ codeLightPS->GetBufferPointer(), codeLightPS->GetBufferSize() };
 	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateLight)));
+	NAME_D3D12_OBJECT(_pipelineStateLight);
 
 	// pipeline state - UI
 	std::fill(std::begin(state.BlendState.RenderTarget), std::end(state.BlendState.RenderTarget), c_defaultRenderTargetBlendDesc);
@@ -407,6 +418,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	state.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_RED | D3D12_COLOR_WRITE_ENABLE_GREEN | D3D12_COLOR_WRITE_ENABLE_BLUE;
 	state.PS = D3D12_SHADER_BYTECODE{ codeColorPS->GetBufferPointer(), codeColorPS->GetBufferSize() };
 	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateUI)));
+	NAME_D3D12_OBJECT(_pipelineStateUI);
 
 	// pipeline state - World
 	std::fill(std::begin(state.BlendState.RenderTarget), std::end(state.BlendState.RenderTarget), c_defaultRenderTargetBlendDesc);
@@ -416,6 +428,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	state.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_RED | D3D12_COLOR_WRITE_ENABLE_GREEN | D3D12_COLOR_WRITE_ENABLE_BLUE;
 	state.PS = D3D12_SHADER_BYTECODE{ codeColorPS->GetBufferPointer(), codeColorPS->GetBufferSize() };
 	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateWorld)));
+	NAME_D3D12_OBJECT(_pipelineStateWorld);
 
 	// create buffers
 	D3D12_HEAP_PROPERTIES defaultHeapProps = {};
@@ -434,12 +447,17 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 
 	bufferDesc.Width = sizeof(_vertexArray);
 	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_vertexBuffer)));
+	NAME_D3D12_OBJECT(_vertexBuffer);
 
 	bufferDesc.Width = sizeof(_indexArray);
 	CHECK(d3dDevice->CreateCommittedResource(&defaultHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&_indexBuffer)));
+	NAME_D3D12_OBJECT(_indexBuffer);
 
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
+	NAME_D3D12_OBJECT(_commandAllocator);
+
 	CHECK(d3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&_commandList)));
+	NAME_D3D12_OBJECT(_commandList);
 }
 
 RenderD3D12::~RenderD3D12()
@@ -466,38 +484,38 @@ void RenderD3D12::SetTransform(vec2d offset, float scale)
 	_offset = -offset;
 }
 
-void RenderD3D12::Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation)
+void RenderD3D12::Begin(ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int displayWidth, int displayHeight, DisplayOrientation displayOrientation)
 {
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
 
 	D3D12_RESOURCE_BARRIER presentResourceBarrier = {};
 	presentResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-//	presentResourceBarrier.Transition.pResource = m_deviceResources->GetRenderTarget();
+	presentResourceBarrier.Transition.pResource = rt;
 	presentResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	presentResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	presentResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	_commandList->ResourceBarrier(1, &presentResourceBarrier);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = {};// m_deviceResources->GetRenderTargetView();
-	_commandList->ClearRenderTargetView(renderTargetView, DirectX::XMVECTORF32{ 0, 0, 0, _ambient }, 0, nullptr);
-	_commandList->OMSetRenderTargets(1, &renderTargetView, false, nullptr);
+	_commandList->ClearRenderTargetView(rtv, DirectX::XMVECTORF32{ 0, 0, 0, _ambient }, 0, nullptr);
+	_commandList->OMSetRenderTargets(1, &rtv, false, nullptr);
 
 //	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
 
+	_commandList->SetGraphicsRootSignature(_rootSignature.Get());
 	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_commandList->IASetIndexBuffer(&_indexBufferView);
 	_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
 }
 
-void RenderD3D12::End()
+void RenderD3D12::End(ID3D12Resource* rt)
 {
 	Flush();
 
 	// Indicate that the render target will now be used to present when the command list is done executing.
 	D3D12_RESOURCE_BARRIER presentResourceBarrier = {};
 	presentResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-//	presentResourceBarrier.Transition.pResource = m_deviceResources->GetRenderTarget();
+	presentResourceBarrier.Transition.pResource = rt;
 	presentResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	presentResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	presentResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -589,11 +607,13 @@ static void UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList 
 	BYTE* pData;
 	ComPtr<ID3D12Resource> uploadBuffer;
 	CHECK(d3dDevice->CreateCommittedResource(&uploadHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer)));
+	NAME_D3D12_OBJECT(uploadBuffer);
+
 	CHECK(uploadBuffer->Map(0, NULL, reinterpret_cast<void**>(&pData)));
 
 	void* destData = pData + layout.Offset;
 	SIZE_T destRowPitch = layout.Footprint.RowPitch;
-	SIZE_T destSlicePitch = layout.Footprint.RowPitch * numRows;
+	SIZE_T destSlicePitch = (SIZE_T)layout.Footprint.RowPitch * numRows;
 //  MemcpySubresource(&DestData, &subresourceData, (SIZE_T)rowSizesInBytes, numRows, layout.Footprint.Depth);
 	for (UINT z = 0; z < layout.Footprint.Depth; ++z)
 	{

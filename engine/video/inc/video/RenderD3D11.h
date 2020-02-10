@@ -20,10 +20,10 @@ struct ID3D11RenderTargetView;
 class RenderD3D11 : public IRender
 {
 public:
-	RenderD3D11(ID3D11RenderTargetView *&rtv, ID3D11DeviceContext2 *context);
+	RenderD3D11(ID3D11DeviceContext2 *context);
 	~RenderD3D11() override;
 
-	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation);
+	void Begin(ID3D11RenderTargetView *rtv, unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation);
 	void End();
 
 	// IRender
@@ -41,7 +41,6 @@ public:
 private:
 	void Flush();
 
-	ID3D11RenderTargetView *&_rtv;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext2> _context;
 	Microsoft::WRL::ComPtr<ID3D11Device>        _device;
 	Microsoft::WRL::ComPtr<ID3D11Buffer>        _constantBuffer;

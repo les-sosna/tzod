@@ -132,7 +132,7 @@ DeviceResources::DeviceResources(CoreWindow^ coreWindow)
 	DX::ThrowIfFailed(context.As(&_d3dContext));
 
 	_swapChain = CreateSwapchainForCoreWindow(dxgiDevice.Get(), _d3dDevice.Get(), coreWindow);
-	_render.reset(new RenderD3D11(*_d3dRenderTargetView.GetAddressOf(), _d3dContext.Get()));
+	_render.reset(new RenderD3D11(_d3dContext.Get()));
 }
 
 DeviceResources::~DeviceResources()
@@ -197,7 +197,7 @@ IRender& DeviceResources::GetRender(int width, int height, DisplayOrientation di
 			DX::ThrowIfFailed(hr);
 	}
 
-	_render->Begin(width, height, displayOrientation);
+	_render->Begin(_d3dRenderTargetView.Get(), width, height, displayOrientation);
 
 	return *_render;
 }

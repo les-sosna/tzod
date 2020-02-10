@@ -13,8 +13,8 @@ public:
 	RenderD3D12(ID3D12Device *d3dDevice, ID3D12CommandQueue *commandQueue);
 	~RenderD3D12() override;
 
-	void Begin(unsigned int displayWidth, unsigned int displayHeight, DisplayOrientation displayOrientation);
-	void End();
+	void Begin(ID3D12Resource *rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int width, int height, DisplayOrientation displayOrientation);
+	void End(ID3D12Resource* rt);
 
 	// IRender
 	void SetViewport(const RectRB &rect) override;
@@ -45,8 +45,8 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 
-	unsigned int _windowWidth = 0;
-	unsigned int _windowHeight = 0;
+	int _windowWidth = 0;
+	int _windowHeight = 0;
 	RectRB _viewport = {};
 	vec2d _offset = {};
 	float _scale = 1;
