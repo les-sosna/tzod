@@ -89,6 +89,7 @@ void UIInputRenderingController::OnRefresh(Plat::AppWindow& appWindow, IRender& 
 
 	auto displayWidth = static_cast<unsigned int>(pxWindowSize.x);
 	auto displayHeight = static_cast<unsigned int>(pxWindowSize.y);
+	render.SetScissor({ 0, 0, (int)displayWidth, (int)displayHeight });
 	render.SetViewport({ 0, 0, (int)displayWidth, (int)displayHeight });
 
 	ImageCache imageCache;
