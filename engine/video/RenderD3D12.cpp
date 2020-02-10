@@ -226,8 +226,8 @@ static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
 
 	D3D12_STATIC_SAMPLER_DESC sampler = {};
 	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 	sampler.MipLODBias = 0;
 	sampler.MaxAnisotropy = 0;
@@ -288,7 +288,9 @@ static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
 	D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF // ConservativeRaster
 };
 
-RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice)
+RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQueue)
+	: _d3dDevice(d3dDevice)
+	, _commandQueue(commandQueue)
 {
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
@@ -468,14 +470,21 @@ void RenderD3D12::Begin(unsigned int displayWidth, unsigned int displayHeight, D
 {
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
-/*
-	ID3D11RenderTargetView *const targets[1] = { _swapChainResources.GetBackBufferRenderTargetView() };
-	_context->OMSetRenderTargets(1, targets, nullptr);
-	_context->DiscardView(targets[0]);
-	_context->ClearRenderTargetView(targets[0], DirectX::XMVECTORF32{ 0, 0, 0, _ambient });
 
-	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
-*/
+	D3D12_RESOURCE_BARRIER presentResourceBarrier = {};
+	presentResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+//	presentResourceBarrier.Transition.pResource = m_deviceResources->GetRenderTarget();
+	presentResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	presentResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	presentResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	_commandList->ResourceBarrier(1, &presentResourceBarrier);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = {};// m_deviceResources->GetRenderTargetView();
+	_commandList->ClearRenderTargetView(renderTargetView, DirectX::XMVECTORF32{ 0, 0, 0, _ambient }, 0, nullptr);
+	_commandList->OMSetRenderTargets(1, &renderTargetView, false, nullptr);
+
+//	_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
+
 	_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_commandList->IASetIndexBuffer(&_indexBufferView);
 	_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
@@ -484,6 +493,15 @@ void RenderD3D12::Begin(unsigned int displayWidth, unsigned int displayHeight, D
 void RenderD3D12::End()
 {
 	Flush();
+
+	// Indicate that the render target will now be used to present when the command list is done executing.
+	D3D12_RESOURCE_BARRIER presentResourceBarrier = {};
+	presentResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+//	presentResourceBarrier.Transition.pResource = m_deviceResources->GetRenderTarget();
+	presentResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	presentResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	presentResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	_commandList->ResourceBarrier(1, &presentResourceBarrier);
 }
 
 void RenderD3D12::SetMode(const RenderMode mode)
@@ -627,9 +645,13 @@ void RenderD3D12::Flush()
 		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 
 //		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
-//		_context->UpdateSubresource(_vertexBuffer.Get(), 0, nullptr, &_vertexArray, 0, 0);
-//		_context->UpdateSubresource(_indexBuffer.Get(), 0, nullptr, &_indexArray, 0, 0);
-//		_context->DrawIndexed(_iaSize, 0, 0);
+		UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), &_vertexArray);
+		UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), &_indexArray);
+
+		_commandList->DrawIndexedInstanced(_iaSize, 1, 0, 0, 0);
+
+		ID3D12CommandList* commandLists[] = { _commandList.Get() };
+		_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 	}
 	_vaSize = 0;
 	_iaSize = 0;
@@ -642,14 +664,13 @@ MyVertex* RenderD3D12::DrawQuad(DEV_TEXTURE tex)
 		Flush();
 		_curtex = tex.ptr;
 
-/*
-		auto srv = (ID3D11ShaderResourceView*)tex.ptr;
-		ID3D11SamplerState* samplerNoRef = nullptr;
-		UINT dataSize = sizeof(samplerNoRef);
-		CHECK(srv->GetPrivateData(s_sampler, &dataSize, &samplerNoRef));
-		_context->PSSetShaderResources(0, 1, &srv);
-		_context->PSSetSamplers(0, 1, &samplerNoRef);
-*/
+//		auto srv = (ID3D11ShaderResourceView*)tex.ptr;
+//		ID3D11SamplerState* samplerNoRef = nullptr;
+//		UINT dataSize = sizeof(samplerNoRef);
+//		CHECK(srv->GetPrivateData(s_sampler, &dataSize, &samplerNoRef));
+
+//		_context->PSSetShaderResources(0, 1, &srv);
+//		_context->PSSetSamplers(0, 1, &samplerNoRef);
 	}
 	if( _vaSize > VERTEX_ARRAY_SIZE - 4 || _iaSize > INDEX_ARRAY_SIZE  - 6 )
 	{

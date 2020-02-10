@@ -10,7 +10,7 @@
 class RenderD3D12 : public IRender
 {
 public:
-	RenderD3D12(ID3D12Device* d3dDevice);
+	RenderD3D12(ID3D12Device *d3dDevice, ID3D12CommandQueue *commandQueue);
 	~RenderD3D12() override;
 
 	// IRender
@@ -35,6 +35,8 @@ public:
 private:
 	void Flush();
 
+	Microsoft::WRL::ComPtr<ID3D12Device> _d3dDevice;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _commandQueue;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> _rootSignature;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelineStateUI;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelineStateWorld;

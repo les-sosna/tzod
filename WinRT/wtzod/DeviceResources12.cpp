@@ -146,7 +146,7 @@ DeviceResources12::DeviceResources12(CoreWindow^ coreWindow)
 	// Swap chains need a reference to the command queue in DirectX 12
 	_swapChain = CreateSwapchainForCoreWindow(_dxgiFactory.Get(), _commandQueue.Get(), coreWindow);
 
-	_render.reset(new RenderD3D12(_d3dDevice.Get()));
+	_render.reset(new RenderD3D12(_d3dDevice.Get(), _commandQueue.Get()));
 }
 
 DeviceResources12::~DeviceResources12()
