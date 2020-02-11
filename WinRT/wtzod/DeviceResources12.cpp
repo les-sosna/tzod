@@ -121,20 +121,20 @@ DeviceResources12::DeviceResources12(CoreWindow^ coreWindow)
 
 	_rtvDescriptorSize = _d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-	for (UINT n = 0; n < c_frameCount; n++)
-	{
-		DX::ThrowIfFailed(_d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocators[n])));
-	}
+	//for (UINT n = 0; n < c_frameCount; n++)
+	//{
+	//	DX::ThrowIfFailed(_d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocators[n])));
+	//}
 
 	// Create synchronization objects.
-	DX::ThrowIfFailed(_d3dDevice->CreateFence(_fenceValues[_currentFrame], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)));
-	_fenceValues[_currentFrame]++;
+//	DX::ThrowIfFailed(_d3dDevice->CreateFence(_fenceValues[_currentFrame], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)));
+//	_fenceValues[_currentFrame]++;
 
-	_fenceEvent.reset(CreateEvent(nullptr, FALSE, FALSE, nullptr));
-	if (!_fenceEvent)
-	{
-		DX::ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-	}
+	//_fenceEvent.reset(CreateEvent(nullptr, FALSE, FALSE, nullptr));
+	//if (!_fenceEvent)
+	//{
+	//	DX::ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+	//}
 
 	// Swap chains need a reference to the command queue in DirectX 12
 	_swapChain = CreateSwapchainForCoreWindow(_dxgiFactory.Get(), _commandQueue.Get(), coreWindow);
@@ -145,6 +145,10 @@ DeviceResources12::DeviceResources12(CoreWindow^ coreWindow)
 DeviceResources12::~DeviceResources12()
 {
 	_renderBinding->UnloadAllTextures(*_render);
+
+	// Wait until all previous GPU work is complete.
+	void WaitForGPU(ID3D12Device * device, ID3D12CommandQueue * commandQueue);
+	WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 }
 
 // This method is called in the event handler for the DisplayContentsInvalidated event.
@@ -239,13 +243,14 @@ HRESULT DeviceResources12::ResizeSwapChainInternal(int width, int height, Displa
 	assert(_swapChain != nullptr);
 
 	// Wait until all previous GPU work is complete.
-//	WaitForGpu();
+	void WaitForGPU(ID3D12Device * device, ID3D12CommandQueue * commandQueue);
+	WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 
 	// Clear the previous window size specific content and update the tracked fence values.
 	for (UINT n = 0; n < c_frameCount; n++)
 	{
 		_renderTargets[n].Reset();
-		_fenceValues[n] = _fenceValues[_currentFrame];
+//		_fenceValues[n] = _fenceValues[_currentFrame];
 	}
 
 	// Prevent zero size DirectX content from being created.

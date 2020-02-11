@@ -549,7 +549,7 @@ void RenderD3D12::Begin(ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int
 	_commandList->ClearRenderTargetView(rtv, DirectX::XMVECTORF32{ 0, 0, 0, _ambient }, 0, nullptr);
 }
 
-static void WaitForGPU(ID3D12Device* device, ID3D12CommandQueue* commandQueue)
+void WaitForGPU(ID3D12Device* device, ID3D12CommandQueue* commandQueue)
 {
 	ComPtr<ID3D12Fence> fence;
 	CHECK(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
@@ -734,6 +734,8 @@ void RenderD3D12::Flush()
 			std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
 		_commandList->ResourceBarrier(_countof(barriers), barriers);
 
+
+		// setup pipeline state
 		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
 		_commandList->SetDescriptorHeaps(1, _cbvHeap.GetAddressOf());
 		_commandList->SetGraphicsRootDescriptorTable(0 /*RootParameterIndex*/, _cbvHeap->GetGPUDescriptorHandleForHeapStart());

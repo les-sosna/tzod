@@ -33,18 +33,18 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _renderTargets[c_frameCount];
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvHeap;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _commandQueue;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _commandAllocators[c_frameCount];
+//	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _commandAllocators[c_frameCount];
 	UINT _rtvDescriptorSize;
 
-	Microsoft::WRL::ComPtr<ID3D12Fence> _fence;
-	UINT64 _fenceValues[c_frameCount];
+//	Microsoft::WRL::ComPtr<ID3D12Fence> _fence;
+//	UINT64 _fenceValues[c_frameCount];
 	UINT _currentFrame;
-	struct HandleDeleter
-	{
-		typedef HANDLE pointer;
-		void operator()(HANDLE h) { ::CloseHandle(h); }
-	};
-	std::unique_ptr<HANDLE, HandleDeleter> _fenceEvent;
+	//struct HandleDeleter
+	//{
+	//	typedef HANDLE pointer;
+	//	void operator()(HANDLE h) { ::CloseHandle(h); }
+	//};
+	//std::unique_ptr<HANDLE, HandleDeleter> _fenceEvent;
 
 	int _pxWidth = 0;
 	int _pxHeight = 0;
