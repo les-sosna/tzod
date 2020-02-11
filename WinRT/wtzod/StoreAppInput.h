@@ -6,7 +6,10 @@ class StoreAppInput final
 	: public Plat::Input
 {
 public:
-	StoreAppInput(Windows::UI::Core::CoreWindow ^coreWindow);
+	StoreAppInput(Windows::UI::Core::CoreWindow ^coreWindow, double scale);
+
+	void SetScale(double scale) { _scale = scale; }
+	double GetScale() const { return _scale; }
 
 	// UI::IInput
 	bool IsKeyPressed(Plat::Key key) const override;
@@ -16,4 +19,5 @@ public:
 
 private:
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;
+	double _scale;
 };

@@ -10,8 +10,9 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::System;
 using namespace Windows::UI::Core;
 
-StoreAppInput::StoreAppInput(CoreWindow ^coreWindow)
+StoreAppInput::StoreAppInput(CoreWindow ^coreWindow, double scale)
 	: _coreWindow(coreWindow)
+	, _scale(scale)
 {
 }
 
@@ -30,10 +31,9 @@ Plat::PointerState StoreAppInput::GetPointerState(unsigned int index) const
 	Plat::PointerState pointerState = {};
 	if (index == 0)
 	{
-	Point pos = _coreWindow->PointerPosition; // this can seem to throw access denied exception
-	float dpi = DisplayInformation::GetForCurrentView()->LogicalDpi;
-		pointerState.position = vec2d{ DX::ConvertDipsToPixels(pos.X - _coreWindow->Bounds.Left, dpi),
-		                               DX::ConvertDipsToPixels(pos.Y - _coreWindow->Bounds.Top, dpi) };
+		Point pos = _coreWindow->PointerPosition; // this can seem to throw access denied exception
+		pointerState.position = vec2d{ float((pos.X - _coreWindow->Bounds.Left) * _scale),
+		                               float((pos.Y - _coreWindow->Bounds.Top) * _scale) };
 		pointerState.button1 = (_coreWindow->GetKeyState(VirtualKey::LeftButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
 		pointerState.button2 = (_coreWindow->GetKeyState(VirtualKey::RightButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
 		pointerState.button3 = (_coreWindow->GetKeyState(VirtualKey::MiddleButton) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;

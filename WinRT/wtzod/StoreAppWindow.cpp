@@ -26,17 +26,11 @@ using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Devices::Input;
 
-static const float c_defaultDpi = 96.0f;
-
-static float PixelsFromDips(float dips, float dpi)
-{
-	return dips * dpi / c_defaultDpi;
-}
-
-static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowInputSink& inputSink, PointerEventArgs^ args, float dpi, Plat::Msg msgHint)
+static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowInputSink& inputSink, PointerEventArgs^ args, Plat::Msg msgHint, double scale)
 {
 	Plat::PointerType pointerType;
-	switch (args->CurrentPoint->PointerDevice->PointerDeviceType)
+	auto currentPoint = args->CurrentPoint;
+	switch (currentPoint->PointerDevice->PointerDeviceType)
 	{
 	case PointerDeviceType::Mouse:
 	case PointerDeviceType::Pen:
@@ -53,7 +47,8 @@ static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowIn
 	}
 
 	int button;
-	switch (args->CurrentPoint->Properties->PointerUpdateKind)
+	auto currentPointProperties = currentPoint->Properties;
+	switch (currentPointProperties->PointerUpdateKind)
 	{
 	case PointerUpdateKind::LeftButtonPressed:
 	case PointerUpdateKind::LeftButtonReleased:
@@ -76,7 +71,7 @@ static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowIn
 	}
 
 	Plat::Msg msg;
-	switch (args->CurrentPoint->Properties->PointerUpdateKind)
+	switch (currentPointProperties->PointerUpdateKind)
 	{
 	case PointerUpdateKind::LeftButtonPressed:
 	case PointerUpdateKind::RightButtonPressed:
@@ -103,12 +98,10 @@ static bool DispatchPointerMessage(Plat::AppWindow& appWindow, Plat::AppWindowIn
 		break;
 	}
 
-	int delta = args->CurrentPoint->Properties->MouseWheelDelta;
-
-	vec2d pxPointerPos = { PixelsFromDips(args->CurrentPoint->Position.X, dpi),
-						   PixelsFromDips(args->CurrentPoint->Position.Y, dpi) };
-
-	return inputSink.OnPointer(appWindow, pointerType, msg, pxPointerPos, vec2d{ 0, (float)delta / 120.f }, button, args->CurrentPoint->PointerId);
+	int delta = currentPointProperties->MouseWheelDelta;
+	auto pos = currentPoint->Position;
+	vec2d pxPointerPos = { float(pos.X * scale), float(pos.Y * scale) };
+	return inputSink.OnPointer(appWindow, pointerType, msg, pxPointerPos, vec2d{ 0, (float)delta / 120.f }, button, currentPoint->PointerId);
 }
 
 StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
@@ -118,7 +111,8 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 	, _coreWindow(coreWindow)
 	, _cursorArrow(ref new CoreCursor(CoreCursorType::Arrow, 0))
 	, _cursorIBeam(ref new CoreCursor(CoreCursorType::IBeam, 0))
-	, _input(coreWindow)
+	, _input(coreWindow, _displayInformation->RawPixelsPerViewPixel)
+	, _displayRotation(ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation))
 {
 	_regBackRequested = _systemNavigationManager->BackRequested += ref new Windows::Foundation::EventHandler<Windows::UI::Core::BackRequestedEventArgs^>(
 		[self = _self, inputSink = _inputSink](Platform::Object ^ sender, BackRequestedEventArgs ^ args)
@@ -126,6 +120,24 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 			if (*inputSink)
 			{
 				args->Handled = (*inputSink)->OnSystemNavigationBack(**self);
+			}
+		});
+
+	_regDpiChanged = _displayInformation->DpiChanged += ref new Windows::Foundation::TypedEventHandler<Windows::Graphics::Display::DisplayInformation^, Platform::Object^>(
+		[self = _self, inputSink = _inputSink](Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args)
+		{
+			if (*self)
+			{
+				(*self)->_input.SetScale(sender->RawPixelsPerViewPixel);
+			}
+		});
+
+	_regOrientationChanged = _displayInformation->OrientationChanged += ref new Windows::Foundation::TypedEventHandler<Windows::Graphics::Display::DisplayInformation^, Platform::Object^>(
+		[self = _self, inputSink = _inputSink](Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args)
+		{
+			if (*self)
+			{
+				(*self)->_displayRotation = ComputeDisplayRotation(sender->NativeOrientation, sender->CurrentOrientation);
 			}
 		});
 
@@ -150,13 +162,13 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 		});
 
 	_regPointerMoved = _coreWindow->PointerMoved += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-		[self = _self, inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow ^ sender, PointerEventArgs ^ args)
+		[self = _self, inputSink = _inputSink, gestureRecognizer = _gestureRecognizer](CoreWindow ^ sender, PointerEventArgs ^ args)
 		{
 			gestureRecognizer->ProcessMoveEvents(args->GetIntermediatePoints());
 
-			if (*inputSink)
+			if (*inputSink && *self)
 			{
-				args->Handled = DispatchPointerMessage(**self, **inputSink, args, displayInformation->LogicalDpi, Plat::Msg::PointerMove);
+				args->Handled = DispatchPointerMessage(**self, **inputSink, args, Plat::Msg::PointerMove, (*self)->_input.GetScale());
 			}
 		});
 
@@ -167,24 +179,24 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 
 			if (*inputSink)
 			{
-				args->Handled = DispatchPointerMessage(**self, **inputSink, args, displayInformation->LogicalDpi, Plat::Msg::PointerDown);
+				args->Handled = DispatchPointerMessage(**self, **inputSink, args, Plat::Msg::PointerDown, (*self)->_input.GetScale());
 			}
 		});
 
 	_regPointerReleased = _coreWindow->PointerReleased += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-		[self = _self, inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow ^ sender, PointerEventArgs ^ args)
+		[self = _self, inputSink = _inputSink, gestureRecognizer = _gestureRecognizer](CoreWindow ^ sender, PointerEventArgs ^ args)
 		{
 			gestureRecognizer->ProcessUpEvent(args->CurrentPoint);
 			gestureRecognizer->CompleteGesture();
 
 			if (*inputSink)
 			{
-				args->Handled = DispatchPointerMessage(**self, **inputSink, args, displayInformation->LogicalDpi, Plat::Msg::PointerUp);
+				args->Handled = DispatchPointerMessage(**self, **inputSink, args, Plat::Msg::PointerUp, (*self)->_input.GetScale());
 			}
 		});
 
 	_coreWindow->PointerWheelChanged += ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(
-		[self = _self, inputSink = _inputSink, displayInformation = _displayInformation, gestureRecognizer = _gestureRecognizer](CoreWindow ^ sender, PointerEventArgs ^ args)
+		[self = _self, inputSink = _inputSink, gestureRecognizer = _gestureRecognizer](CoreWindow ^ sender, PointerEventArgs ^ args)
 		{
 			gestureRecognizer->ProcessMouseWheelEvent(args->CurrentPoint,
 				(args->KeyModifiers & VirtualKeyModifiers::Shift) != VirtualKeyModifiers::None,
@@ -192,7 +204,7 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 
 			if (*inputSink)
 			{
-				args->Handled = DispatchPointerMessage(**self, **inputSink, args, displayInformation->LogicalDpi, Plat::Msg::Scroll);
+				args->Handled = DispatchPointerMessage(**self, **inputSink, args, Plat::Msg::Scroll, (*self)->_input.GetScale());
 			}
 		});
 
@@ -202,9 +214,9 @@ StoreAppWindow::StoreAppWindow(CoreWindow ^ coreWindow)
 		{
 			if (*inputSink)
 			{
-				float dpi = displayInformation->LogicalDpi;
-				vec2d pxPointerPosition{ PixelsFromDips(args->Position.X, dpi), PixelsFromDips(args->Position.Y, dpi) };
-				unsigned int pointerID = 111; // should be unique enough :)
+				auto scale = (*self)->_input.GetScale();
+				vec2d pxPointerPosition{ float(args->Position.X * scale), float(args->Position.Y * scale) };
+				unsigned int pointerID = 111; // should be unique enough
 				(*inputSink)->OnPointer(**self, Plat::PointerType::Touch, Plat::Msg::TAP, pxPointerPosition, vec2d{}/*offset*/, 1/*buttons*/, pointerID);
 			}
 		});
@@ -247,7 +259,8 @@ StoreAppWindow::~StoreAppWindow()
 	_coreWindow->PointerMoved -= _regPointerMoved;
 	_coreWindow->Closed -= _regClosed;
 	_coreWindow->VisibilityChanged -= _regVisibilityChanged;
-
+	_displayInformation->OrientationChanged -= _regOrientationChanged;
+	_displayInformation->DpiChanged -= _regDpiChanged;
 	_systemNavigationManager->BackRequested -= _regBackRequested;
 }
 
@@ -274,21 +287,15 @@ Plat::Input& StoreAppWindow::GetInput()
 	return _input;
 }
 
-int StoreAppWindow::GetDisplayRotation() const
-{
-	return ComputeDisplayRotation(_displayInformation->NativeOrientation, _displayInformation->CurrentOrientation);
-}
-
 vec2d StoreAppWindow::GetPixelSize() const
 {
 	auto coreWindowBounds = _coreWindow->Bounds;
-	float dpi = _displayInformation->LogicalDpi;
-	return vec2d{ PixelsFromDips(coreWindowBounds.Width, dpi), PixelsFromDips(coreWindowBounds.Height, dpi) };
+	return vec2d{ float(coreWindowBounds.Width * _input.GetScale()), float(coreWindowBounds.Height * _input.GetScale()) };
 }
 
 float StoreAppWindow::GetLayoutScale() const
 {
-	return _displayInformation->LogicalDpi / c_defaultDpi;
+	return (float) _input.GetScale();
 }
 
 void StoreAppWindow::SetCanNavigateBack(bool canNavigateBack)

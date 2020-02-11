@@ -15,7 +15,7 @@ public:
 	void PollEvents(Plat::AppWindowInputSink& inputSink, Windows::UI::Core::CoreProcessEventsOption options);
 
 	// AppWindow
-	int GetDisplayRotation() const override;
+	int GetDisplayRotation() const { return _displayRotation; }
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
 	Plat::Clipboard& GetClipboard() override;
@@ -28,6 +28,8 @@ private:
 	Windows::UI::Core::SystemNavigationManager ^_systemNavigationManager;
 	Windows::Graphics::Display::DisplayInformation ^_displayInformation;
 	Windows::Foundation::EventRegistrationToken _regBackRequested;
+	Windows::Foundation::EventRegistrationToken _regDpiChanged;
+	Windows::Foundation::EventRegistrationToken _regOrientationChanged;
 
 	Platform::Agile<Windows::UI::Core::CoreWindow> _coreWindow;
 	Windows::UI::Core::CoreCursor ^_cursorArrow;
@@ -36,6 +38,7 @@ private:
 	StoreAppClipboard _clipboard;
 	StoreAppInput _input;
 
+	int _displayRotation;
 	bool _shouldClose = false;
 	bool _visible = true;
 

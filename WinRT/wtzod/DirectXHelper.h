@@ -16,13 +16,6 @@ namespace DX
 		}
 	}
 
-	// Converts a length in device-independent pixels (DIPs) to a length in physical pixels.
-	inline float ConvertDipsToPixels(float dips, float dpi)
-	{
-		static const float dipsPerInch = 96.0f;
-		return dips * dpi / dipsPerInch;
-	}
-
 #if defined(_DEBUG)
 	// Check for SDK Layer support.
 	inline bool SdkLayersAvailable()
