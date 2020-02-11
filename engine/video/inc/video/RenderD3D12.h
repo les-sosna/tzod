@@ -42,11 +42,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _constantBuffer;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _cbvHeap;
 	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
+	D3D12_CPU_DESCRIPTOR_HANDLE _rtv = {};
 
 	int _windowWidth = 0;
 	int _windowHeight = 0;
+	RectRB _scissor = {};
 	RectRB _viewport = {};
 	vec2d _offset = {};
 	float _scale = 1;

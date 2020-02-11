@@ -59,7 +59,7 @@ R"(
 
 	float4 main(PixelShaderInput input) : SV_Target
 	{
-		return input.color * tex.Sample(sam, input.texcoord);
+		return input.color * float4(input.texcoord,1,1);//tex.Sample(sam, input.texcoord);
 	}
 )";
 
@@ -304,8 +304,6 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	memset(_indexArray, 0, sizeof(_indexArray));
 	memset(_vertexArray, 0, sizeof(_vertexArray));
 /*
-	CHECK(_device->CreateBuffer(&CD3D11_BUFFER_DESC(sizeof(MyConstants), D3D11_BIND_CONSTANT_BUFFER), nullptr, &_constantBuffer));
-
 	CD3D11_SAMPLER_DESC samplerDesc((CD3D11_DEFAULT()));
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -471,6 +469,34 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	_indexBufferView.SizeInBytes = sizeof(_indexArray);
 	_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
 
+	// create constant buffer
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;// c_frameCount;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; // can be bound to the pipeline and that descriptors contained in it can be referenced by a root table
+	CHECK(d3dDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_cbvHeap)));
+	NAME_D3D12_OBJECT(_cbvHeap);
+
+	D3D12_HEAP_PROPERTIES uploadHeapProperties = {};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	uploadHeapProperties.CreationNodeMask = 1;
+	uploadHeapProperties.VisibleNodeMask = 1;
+
+	bufferDesc.Width = (sizeof(MyConstants) + 255) & ~255; // Constant buffers must be 256-byte aligned
+	CHECK(d3dDevice->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&_constantBuffer)));
+	NAME_D3D12_OBJECT(_constantBuffer);
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+	cbvDesc.BufferLocation = _constantBuffer->GetGPUVirtualAddress();;
+	cbvDesc.SizeInBytes = (UINT)bufferDesc.Width;
+	d3dDevice->CreateConstantBufferView(&cbvDesc, _cbvHeap->GetCPUDescriptorHandleForHeapStart());
+
 	// command allocator and command list
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
 	NAME_D3D12_OBJECT(_commandAllocator);
@@ -487,14 +513,13 @@ RenderD3D12::~RenderD3D12()
 void RenderD3D12::SetScissor(const RectRB &rect)
 {
 	Flush();
-	_commandList->RSSetScissorRects(1, &AsD3D12Rect(ApplyRectRotation(rect, _windowWidth, _windowHeight, _displayOrientation)));
+	_scissor = rect;
 }
 
 void RenderD3D12::SetViewport(const RectRB &rect)
 {
 	Flush();
 	_viewport = rect;
-	_commandList->RSSetViewports(1, &AsD3D12Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
 }
 
 void RenderD3D12::SetTransform(vec2d offset, float scale)
@@ -511,6 +536,7 @@ void RenderD3D12::Begin(ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int
 
 	_windowWidth = displayWidth;
 	_windowHeight = displayHeight;
+	_rtv = rtv;
 
 	D3D12_RESOURCE_BARRIER presentResourceBarrier = {};
 	presentResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -521,7 +547,6 @@ void RenderD3D12::Begin(ID3D12Resource* rt, D3D12_CPU_DESCRIPTOR_HANDLE rtv, int
 	_commandList->ResourceBarrier(1, &presentResourceBarrier);
 
 	_commandList->ClearRenderTargetView(rtv, DirectX::XMVECTORF32{ 0, 0, 0, _ambient }, 0, nullptr);
-	_commandList->OMSetRenderTargets(1, &rtv, false, nullptr);
 }
 
 static void WaitForGPU(ID3D12Device* device, ID3D12CommandQueue* commandQueue)
@@ -555,6 +580,8 @@ void RenderD3D12::End(ID3D12Resource* rt)
 	CHECK(_commandList->Close());
 	ID3D12CommandList* commandLists[] = { _commandList.Get() }; // needed to cast to ID3D12CommandList
 	_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+	_rtv = {};
 
 	WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 }
@@ -675,6 +702,18 @@ void RenderD3D12::Flush()
 		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
 		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 
+		// Update constant buffer
+		void* mappedConstantBuffer = nullptr;
+		if (!mappedConstantBuffer)
+		{
+			D3D12_RANGE emptyReadRange = {};
+			CHECK(_constantBuffer->Map(0, &emptyReadRange, &mappedConstantBuffer));
+		}
+		memcpy(mappedConstantBuffer, &constantBufferData, sizeof(MyConstants));
+		_constantBuffer->Unmap(0, nullptr);
+
+
+		// Update vertex and index buffers
 		D3D12_RESOURCE_BARRIER barriers[2] = {};
 		barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barriers[0].Transition.pResource = _vertexBuffer.Get();
@@ -688,13 +727,16 @@ void RenderD3D12::Flush()
 		barriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		_commandList->ResourceBarrier(_countof(barriers), barriers);
 
-//		_context->UpdateSubresource(_constantBuffer.Get(), 0, nullptr, &constantBufferData, 0, 0);
-		auto vertexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), &_vertexArray);
-		auto indexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), &_indexArray);
+		auto vertexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), _vertexArray);
+		auto indexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), _indexArray);
 
 		for (auto &barrier: barriers)
 			std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
 		_commandList->ResourceBarrier(_countof(barriers), barriers);
+
+		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
+		_commandList->SetDescriptorHeaps(1, _cbvHeap.GetAddressOf());
+		_commandList->SetGraphicsRootDescriptorTable(0 /*RootParameterIndex*/, _cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
 		switch (_mode)
 		{
@@ -704,11 +746,12 @@ void RenderD3D12::Flush()
 		case RM_INTERFACE: _commandList->SetPipelineState(_pipelineStateUI.Get()); break;
 		}
 
-		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
 		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		_commandList->IASetIndexBuffer(&_indexBufferView);
 		_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
-//		_context->VSSetConstantBuffers(0, 1, _constantBuffer.GetAddressOf());
+		_commandList->RSSetScissorRects(1, &AsD3D12Rect(ApplyRectRotation(_scissor, _windowWidth, _windowHeight, _displayOrientation)));
+		_commandList->RSSetViewports(1, &AsD3D12Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
+		_commandList->OMSetRenderTargets(1, &_rtv, false, nullptr);
 
 		_commandList->DrawIndexedInstanced(_iaSize, 1, 0, 0, 0);
 
