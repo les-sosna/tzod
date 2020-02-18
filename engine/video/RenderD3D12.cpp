@@ -59,7 +59,7 @@ R"(
 
 	float4 main(PixelShaderInput input) : SV_Target
 	{
-		return input.color * float4(input.texcoord,1,1);//tex.Sample(sam, input.texcoord);
+		return input.color * tex.Sample(sam, input.texcoord);
 	}
 )";
 
@@ -207,15 +207,15 @@ static float GetProjHeight(const RectRB &viewport, DisplayOrientation orientatio
 
 ///////////////////////////////////////////////////////////////////////////////
 
+enum// RootParameterIndex
+{
+	RootParameterCBV,
+	RootParameterSRV,
+	_RootParameterCount,
+};
+
 static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE rangesVS[1] = {};
-	rangesVS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	rangesVS[0].NumDescriptors = 1;
-	rangesVS[0].BaseShaderRegister = 0;
-	rangesVS[0].RegisterSpace = 0;
-	rangesVS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
 	D3D12_DESCRIPTOR_RANGE rangesPS[1] = {};
 	rangesPS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	rangesPS[0].NumDescriptors = 1;
@@ -223,15 +223,17 @@ static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
 	rangesPS[0].RegisterSpace = 0;
 	rangesPS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER parameters[2] = {};
-	parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameters[0].DescriptorTable.NumDescriptorRanges = _countof(rangesVS);
-	parameters[0].DescriptorTable.pDescriptorRanges = rangesVS;
-	parameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	parameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameters[1].DescriptorTable.NumDescriptorRanges = _countof(rangesPS);
-	parameters[1].DescriptorTable.pDescriptorRanges = rangesPS;
-	parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	D3D12_ROOT_PARAMETER parameters[_RootParameterCount] = {};
+
+	parameters[RootParameterCBV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	parameters[RootParameterCBV].Descriptor.ShaderRegister = 0;
+	parameters[RootParameterCBV].Descriptor.RegisterSpace = 0;
+	parameters[RootParameterCBV].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+	parameters[RootParameterSRV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[RootParameterSRV].DescriptorTable.NumDescriptorRanges = _countof(rangesPS);
+	parameters[RootParameterSRV].DescriptorTable.pDescriptorRanges = rangesPS;
+	parameters[RootParameterSRV].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC sampler = {};
 	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -295,6 +297,22 @@ static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
 	FALSE,                      // AntialiasedLineEnable
 	0,                          // ForcedSampleCount
 	D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF // ConservativeRaster
+};
+
+static D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
+	D3D12_HEAP_TYPE_UPLOAD,     // Type
+	D3D12_CPU_PAGE_PROPERTY_UNKNOWN, // CPUPageProperty
+	D3D12_MEMORY_POOL_UNKNOWN,  // MemoryPoolPreference
+	1,                          // CreationNodeMask
+	1                           // VisibleNodeMask
+};
+
+D3D12_HEAP_PROPERTIES c_defaultHeapProps = {
+	D3D12_HEAP_TYPE_DEFAULT,    // Type
+	D3D12_CPU_PAGE_PROPERTY_UNKNOWN, // CPUPageProperty
+	D3D12_MEMORY_POOL_UNKNOWN,  // MemoryPoolPreference
+	1,                          // CreationNodeMask
+	1                           // VisibleNodeMask
 };
 
 RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQueue)
@@ -429,11 +447,6 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	NAME_D3D12_OBJECT(_pipelineStateWorld);
 
 	// create vertex and index buffers
-	D3D12_HEAP_PROPERTIES defaultHeapProps = {};
-	defaultHeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-	defaultHeapProps.CreationNodeMask = 1;
-	defaultHeapProps.VisibleNodeMask = 1;
-
 	D3D12_RESOURCE_DESC bufferDesc = {};
 	bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	bufferDesc.Height = 1;
@@ -445,7 +458,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 
 	bufferDesc.Width = sizeof(_vertexArray);
 	CHECK(d3dDevice->CreateCommittedResource(
-		&defaultHeapProps,
+		&c_defaultHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
 		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
@@ -458,7 +471,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 
 	bufferDesc.Width = sizeof(_indexArray);
 	CHECK(d3dDevice->CreateCommittedResource(
-		&defaultHeapProps,
+		&c_defaultHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
 		D3D12_RESOURCE_STATE_INDEX_BUFFER,
@@ -469,33 +482,15 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	_indexBufferView.SizeInBytes = sizeof(_indexArray);
 	_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
 
-	// create constant buffer
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;// c_frameCount;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; // can be bound to the pipeline and that descriptors contained in it can be referenced by a root table
-	CHECK(d3dDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_cbvHeap)));
-	NAME_D3D12_OBJECT(_cbvHeap);
-
-	D3D12_HEAP_PROPERTIES uploadHeapProperties = {};
-	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-	uploadHeapProperties.CreationNodeMask = 1;
-	uploadHeapProperties.VisibleNodeMask = 1;
-
 	bufferDesc.Width = (sizeof(MyConstants) + 255) & ~255; // Constant buffers must be 256-byte aligned
 	CHECK(d3dDevice->CreateCommittedResource(
-		&uploadHeapProperties,
+		&c_uploadHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&_constantBuffer)));
 	NAME_D3D12_OBJECT(_constantBuffer);
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-	cbvDesc.BufferLocation = _constantBuffer->GetGPUVirtualAddress();;
-	cbvDesc.SizeInBytes = (UINT)bufferDesc.Width;
-	d3dDevice->CreateConstantBufferView(&cbvDesc, _cbvHeap->GetCPUDescriptorHandleForHeapStart());
 
 	// command allocator and command list
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
@@ -567,6 +562,7 @@ void WaitForGPU(ID3D12Device* device, ID3D12CommandQueue* commandQueue)
 void RenderD3D12::End(ID3D12Resource* rt)
 {
 	Flush();
+	_curtex = nullptr;
 
 	// Indicate that the render target will now be used to present when the command list is done executing.
 	D3D12_RESOURCE_BARRIER presentResourceBarrier = {};
@@ -605,28 +601,159 @@ bool RenderD3D12::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 	CHECK(srv->SetPrivateData(s_sampler, sizeof(void*), magFilter ? _samplerLinear.GetAddressOf() : _samplerPoint.GetAddressOf()));
 	tex.ptr = srv.Detach();
 */
+
+	assert(img.bpp == 32);
+
+	TextureData texture;
+
+	D3D12_RESOURCE_DESC textureDesc = {};
+	textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	textureDesc.Width = img.width;
+	textureDesc.Height = img.height;
+	textureDesc.DepthOrArraySize = 1;
+	textureDesc.MipLevels = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	CHECK(_d3dDevice->CreateCommittedResource(
+		&c_defaultHeapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&textureDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&texture.resource)));
+	NAME_D3D12_OBJECT(texture.resource);
+
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	CHECK(_d3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&texture.srvHeap)));
+	NAME_D3D12_OBJECT(texture.srvHeap);
+
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+	UINT numRows;
+	UINT64 rowSizesInBytes;
+	UINT64 totalBytes;
+	_d3dDevice->GetCopyableFootprints(
+		&textureDesc,
+		0, // FirstSubresource
+		1, // NumSubresources
+		0, // BaseOffset
+		&layout,
+		&numRows,
+		&rowSizesInBytes,
+		&totalBytes);
+
+	auto uploadBufferSize = img.width * img.height * (img.bpp / 8);
+
+	D3D12_RESOURCE_DESC uploadBufferDesc = {};
+	uploadBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	uploadBufferDesc.Width = uploadBufferSize;
+	uploadBufferDesc.Height = 1;
+	uploadBufferDesc.DepthOrArraySize = 1;
+	uploadBufferDesc.MipLevels = 1;
+	uploadBufferDesc.SampleDesc.Count = 1;
+	uploadBufferDesc.SampleDesc.Quality = 0;
+	uploadBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	ComPtr<ID3D12Resource> uploadTextureBuffer;
+	CHECK(_d3dDevice->CreateCommittedResource(&c_uploadHeapProps, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadTextureBuffer)));
+	NAME_D3D12_OBJECT(uploadTextureBuffer);
+
+	BYTE* mappedUploadBuffer;
+	CHECK(uploadTextureBuffer->Map(0, NULL, reinterpret_cast<void**>(&mappedUploadBuffer)));
+
+	void* destData = mappedUploadBuffer + layout.Offset;
+	SIZE_T destRowPitch = layout.Footprint.RowPitch;
+	SIZE_T destSlicePitch = (SIZE_T)layout.Footprint.RowPitch * numRows;
+
+	D3D12_SUBRESOURCE_DATA subresourceData = {};
+	subresourceData.pData = img.pixels;
+	subresourceData.RowPitch = img.stride;
+	subresourceData.SlicePitch = img.height * img.stride;
+
+//  MemcpySubresource(&DestData, &subresourceData, (SIZE_T)rowSizesInBytes, numRows, layout.Footprint.Depth);
+	for (UINT z = 0; z < layout.Footprint.Depth; ++z)
+	{
+		BYTE* destSlice = reinterpret_cast<BYTE*>(destData) + destSlicePitch * z;
+		const BYTE* srcSlice = reinterpret_cast<const BYTE*>(subresourceData.pData) + subresourceData.SlicePitch * z;
+		for (UINT y = 0; y < numRows; ++y)
+		{
+			memcpy(destSlice + destRowPitch * y, srcSlice + subresourceData.RowPitch * y, rowSizesInBytes);
+		}
+	}
+// \MemcpySubresource
+
+	uploadTextureBuffer->Unmap(0, NULL);
+
+	D3D12_TEXTURE_COPY_LOCATION dstTextureCopyLocation = {};
+	dstTextureCopyLocation.pResource = texture.resource.Get();
+	dstTextureCopyLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+
+	D3D12_TEXTURE_COPY_LOCATION srcTextureCopyLocation = {};
+	srcTextureCopyLocation.pResource = uploadTextureBuffer.Get();
+	srcTextureCopyLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	srcTextureCopyLocation.PlacedFootprint = layout;
+
+	_commandList->CopyTextureRegion(&dstTextureCopyLocation, 0, 0, 0, &srcTextureCopyLocation, nullptr);
+
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Transition.pResource = texture.resource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	_commandList->ResourceBarrier(1, &barrier);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	_d3dDevice->CreateShaderResourceView(texture.resource.Get(), &srvDesc, texture.srvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	CHECK(_commandList->Close());
+
+	ID3D12CommandList* commandLists[] = { _commandList.Get() }; // needed to cast to ID3D12CommandList
+	_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+	// The command list can be reset anytime after ExecuteCommandList() is called.
+	CHECK(_commandList->Reset(_commandAllocator.Get(), nullptr));
+
+	// cannot release upload buffer while it's in use
+	WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
+
+	_textures.push_back(std::move(texture));
+	tex.ptr = &_textures.back();
+
 	return true;
 }
 
 void RenderD3D12::TexFree(DEV_TEXTURE tex)
 {
-//	((ID3D11ShaderResourceView*)tex.ptr)->Release();
+	assert(_curtex != tex.ptr);
+	for (auto it = _textures.begin(); it != _textures.end(); it++)
+	{
+		if (&*it == tex.ptr)
+		{
+			_textures.erase(it);
+			return;
+		}
+	}
+	assert(false);
 }
 
 static ComPtr<ID3D12Resource> UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList *commandList, ID3D12Resource *target, const void *data)
 {
-	D3D12_RESOURCE_DESC bufferDesc = target->GetDesc();
-	assert(bufferDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
-
-	D3D12_HEAP_PROPERTIES uploadHeapProps = {};
-	uploadHeapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
-	uploadHeapProps.CreationNodeMask = 1;
-	uploadHeapProps.VisibleNodeMask = 1;
+	D3D12_RESOURCE_DESC targetBufferDesc = target->GetDesc();
+	assert(targetBufferDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
 
 	D3D12_SUBRESOURCE_DATA subresourceData = {};
 	subresourceData.pData = data;
-	subresourceData.RowPitch = bufferDesc.Width;
-	subresourceData.SlicePitch = bufferDesc.Width;
+	subresourceData.RowPitch = targetBufferDesc.Width;
+	subresourceData.SlicePitch = targetBufferDesc.Width;
 
 //	UpdateSubresources(commandList, target, uploadBuffer.Get(), 0, 0, 1, data);
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
@@ -634,7 +761,7 @@ static ComPtr<ID3D12Resource> UploadBufferData(ID3D12Device *d3dDevice, ID3D12Gr
 	UINT64 rowSizesInBytes;
 	UINT64 totalBytes;
 	d3dDevice->GetCopyableFootprints(
-		&bufferDesc,
+		&targetBufferDesc,
 		0, // FirstSubresource
 		1, // NumSubresources
 		0, // BaseOffset
@@ -645,28 +772,28 @@ static ComPtr<ID3D12Resource> UploadBufferData(ID3D12Device *d3dDevice, ID3D12Gr
  
 //	UpdateSubresources(pCmdList, pDestinationResource, pIntermediate, FirstSubresource, NumSubresources, RequiredSize, Layouts, NumRows, RowSizesInBytes, pSrcData);
 	// Minor validation
-	assert(bufferDesc.Width >= totalBytes + layout.Offset);
+	assert(targetBufferDesc.Width >= totalBytes + layout.Offset);
 	assert(totalBytes <= (SIZE_T)-1);
 	assert(rowSizesInBytes <= (SIZE_T)-1);
 
-	BYTE* pData;
 	ComPtr<ID3D12Resource> uploadBuffer;
-	CHECK(d3dDevice->CreateCommittedResource(&uploadHeapProps, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer)));
+	CHECK(d3dDevice->CreateCommittedResource(&c_uploadHeapProps, D3D12_HEAP_FLAG_NONE, &targetBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer)));
 	NAME_D3D12_OBJECT(uploadBuffer);
 
-	CHECK(uploadBuffer->Map(0, NULL, reinterpret_cast<void**>(&pData)));
+	BYTE* mappedUploadBuffer;
+	CHECK(uploadBuffer->Map(0, NULL, reinterpret_cast<void**>(&mappedUploadBuffer)));
 
-	void* destData = pData + layout.Offset;
+	void* destData = mappedUploadBuffer + layout.Offset;
 	SIZE_T destRowPitch = layout.Footprint.RowPitch;
 	SIZE_T destSlicePitch = (SIZE_T)layout.Footprint.RowPitch * numRows;
 //  MemcpySubresource(&DestData, &subresourceData, (SIZE_T)rowSizesInBytes, numRows, layout.Footprint.Depth);
 	for (UINT z = 0; z < layout.Footprint.Depth; ++z)
 	{
-		BYTE* pDestSlice = reinterpret_cast<BYTE*>(destData) + destSlicePitch * z;
-		const BYTE* pSrcSlice = reinterpret_cast<const BYTE*>(subresourceData.pData) + subresourceData.SlicePitch * z;
+		BYTE* destSlice = reinterpret_cast<BYTE*>(destData) + destSlicePitch * z;
+		const BYTE* srcSlice = reinterpret_cast<const BYTE*>(subresourceData.pData) + subresourceData.SlicePitch * z;
 		for (UINT y = 0; y < numRows; ++y)
 		{
-			memcpy(pDestSlice + destRowPitch * y, pSrcSlice + subresourceData.RowPitch * y, rowSizesInBytes);
+			memcpy(destSlice + destRowPitch * y, srcSlice + subresourceData.RowPitch * y, rowSizesInBytes);
 		}
 	}
 // \MemcpySubresource
@@ -690,6 +817,8 @@ void RenderD3D12::Flush()
 {
 	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 )
 	{
+		assert(_curtex);
+
 		using namespace DirectX;
 
 		MyConstants constantBufferData;
@@ -737,8 +866,9 @@ void RenderD3D12::Flush()
 
 		// setup pipeline state
 		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
-		_commandList->SetDescriptorHeaps(1, _cbvHeap.GetAddressOf());
-		_commandList->SetGraphicsRootDescriptorTable(0 /*RootParameterIndex*/, _cbvHeap->GetGPUDescriptorHandleForHeapStart());
+		_commandList->SetDescriptorHeaps(1, _curtex->srvHeap.GetAddressOf());
+		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, _constantBuffer->GetGPUVirtualAddress());
+		_commandList->SetGraphicsRootDescriptorTable(RootParameterSRV, _curtex->srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 		switch (_mode)
 		{
@@ -777,7 +907,7 @@ MyVertex* RenderD3D12::DrawQuad(DEV_TEXTURE tex)
 	if( _curtex != tex.ptr )
 	{
 		Flush();
-		_curtex = tex.ptr;
+		_curtex = reinterpret_cast<TextureData *>(tex.ptr);
 
 //		auto srv = (ID3D11ShaderResourceView*)tex.ptr;
 //		ID3D11SamplerState* samplerNoRef = nullptr;

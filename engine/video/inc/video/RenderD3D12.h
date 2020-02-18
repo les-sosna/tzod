@@ -4,6 +4,7 @@
 #include <wrl/client.h>
 #include <d3d12.h>
 #include <memory>
+#include <list>
 #define VERTEX_ARRAY_SIZE   1024
 #define INDEX_ARRAY_SIZE    2048
 
@@ -42,10 +43,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _constantBuffer;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _cbvHeap;
 	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 	D3D12_CPU_DESCRIPTOR_HANDLE _rtv = {};
+
+	struct TextureData
+	{
+		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
+	};
+	std::list<TextureData> _textures;
 
 	int _windowWidth = 0;
 	int _windowHeight = 0;
@@ -55,7 +62,7 @@ private:
 	float _scale = 1;
 	DisplayOrientation _displayOrientation = DO_0;
 
-	void* _curtex = nullptr;
+	TextureData *_curtex = nullptr;
 	float _ambient = 1.f;
 
 	UINT16 _indexArray[INDEX_ARRAY_SIZE];
