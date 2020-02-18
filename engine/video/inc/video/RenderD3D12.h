@@ -43,6 +43,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _constantBuffer;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _samplerHeap;
 	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 	D3D12_CPU_DESCRIPTOR_HANDLE _rtv = {};
@@ -51,6 +52,7 @@ private:
 	{
 		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap;
+		D3D12_GPU_DESCRIPTOR_HANDLE sampler;
 	};
 	std::list<TextureData> _textures;
 
@@ -65,8 +67,8 @@ private:
 	TextureData *_curtex = nullptr;
 	float _ambient = 1.f;
 
-	UINT16 _indexArray[INDEX_ARRAY_SIZE];
-	MyVertex _vertexArray[VERTEX_ARRAY_SIZE];
+	UINT16 _indexArray[INDEX_ARRAY_SIZE] = {};
+	MyVertex _vertexArray[VERTEX_ARRAY_SIZE] = {};
 
 	unsigned int _vaSize = 0; // number of filled elements in _vertexArray
 	unsigned int _iaSize = 0; // number of filled elements in _indexArray

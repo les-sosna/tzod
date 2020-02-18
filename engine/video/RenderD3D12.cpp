@@ -98,10 +98,6 @@ inline void SetD3D12ObjectName(ID3D12Object* o, LPCWSTR name) { o->SetName(name)
 #define NAME_D3D12_OBJECT(x) SetD3D12ObjectName((x).Get(), L#x)
 
 
-// {FCAACEE2-F3A0-4FDB-BC50-139D23AF2C3B}
-static const GUID s_sampler = 
-{ 0xfcaacee2, 0xf3a0, 0x4fdb, { 0xbc, 0x50, 0x13, 0x9d, 0x23, 0xaf, 0x2c, 0x3b } };
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static const DirectX::XMFLOAT4X4 s_rotation0(
@@ -211,17 +207,25 @@ enum// RootParameterIndex
 {
 	RootParameterCBV,
 	RootParameterSRV,
+	RootParameterSampler,
 	_RootParameterCount,
 };
 
 static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE rangesPS[1] = {};
-	rangesPS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	rangesPS[0].NumDescriptors = 1;
-	rangesPS[0].BaseShaderRegister = 0;
-	rangesPS[0].RegisterSpace = 0;
-	rangesPS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	D3D12_DESCRIPTOR_RANGE srvPS[1] = {};
+	srvPS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	srvPS[0].NumDescriptors = 1;
+	srvPS[0].BaseShaderRegister = 0;
+	srvPS[0].RegisterSpace = 0;
+	srvPS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE samplerPS[1] = {};
+	samplerPS[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+	samplerPS[0].NumDescriptors = 1;
+	samplerPS[0].BaseShaderRegister = 0;
+	samplerPS[0].RegisterSpace = 0;
+	samplerPS[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	D3D12_ROOT_PARAMETER parameters[_RootParameterCount] = {};
 
@@ -231,36 +235,23 @@ static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
 	parameters[RootParameterCBV].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	parameters[RootParameterSRV].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameters[RootParameterSRV].DescriptorTable.NumDescriptorRanges = _countof(rangesPS);
-	parameters[RootParameterSRV].DescriptorTable.pDescriptorRanges = rangesPS;
+	parameters[RootParameterSRV].DescriptorTable.NumDescriptorRanges = _countof(srvPS);
+	parameters[RootParameterSRV].DescriptorTable.pDescriptorRanges = srvPS;
 	parameters[RootParameterSRV].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	D3D12_STATIC_SAMPLER_DESC sampler = {};
-	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-	sampler.MipLODBias = 0;
-	sampler.MaxAnisotropy = 0;
-	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-	sampler.MinLOD = 0.0f;
-	sampler.MaxLOD = D3D12_FLOAT32_MAX;
-	sampler.ShaderRegister = 0;
-	sampler.RegisterSpace = 0;
-	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	parameters[RootParameterSampler].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameters[RootParameterSampler].DescriptorTable.NumDescriptorRanges = _countof(samplerPS);
+	parameters[RootParameterSampler].DescriptorTable.pDescriptorRanges = samplerPS;
+	parameters[RootParameterSampler].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// Only the input assembler stage needs access to the constant buffer
 	D3D12_ROOT_SIGNATURE_DESC descRootSignature = {};
 	descRootSignature.NumParameters = _countof(parameters);
 	descRootSignature.pParameters = parameters;
-	descRootSignature.NumStaticSamplers = 1;
-	descRootSignature.pStaticSamplers = &sampler;
 	descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS/* |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS*/;
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
@@ -270,6 +261,12 @@ static ComPtr<ID3D12RootSignature> MakeRootSignature(ID3D12Device* d3dDevice)
 	CHECK(d3dDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature)));
 
 	return rootSignature;
+}
+
+template <class T>
+static T OffsetDescriptorHandle(T handle, INT offset)
+{
+	return T{ handle.ptr + offset };
 }
 
 static const D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
@@ -319,17 +316,30 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	: _d3dDevice(d3dDevice)
 	, _commandQueue(commandQueue)
 {
-	memset(_indexArray, 0, sizeof(_indexArray));
-	memset(_vertexArray, 0, sizeof(_vertexArray));
-/*
-	CD3D11_SAMPLER_DESC samplerDesc((CD3D11_DEFAULT()));
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	CHECK(_device->CreateSamplerState(&samplerDesc, &_samplerLinear));
+	D3D12_DESCRIPTOR_HEAP_DESC samplerHeapDesc = {};
+	samplerHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+	samplerHeapDesc.NumDescriptors = 2; // linear and point
+	samplerHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	CHECK(_d3dDevice->CreateDescriptorHeap(&samplerHeapDesc, IID_PPV_ARGS(&_samplerHeap)));
+	NAME_D3D12_OBJECT(_samplerHeap);
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	CHECK(_device->CreateSamplerState(&samplerDesc, &_samplerPoint));
-*/
+	auto sampleDescriptorSize = _d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+	D3D12_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	samplerDesc.MipLODBias = 0;
+	samplerDesc.MaxAnisotropy = 0;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	_d3dDevice->CreateSampler(&samplerDesc, _samplerHeap->GetCPUDescriptorHandleForHeapStart());
+
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	_d3dDevice->CreateSampler(&samplerDesc, OffsetDescriptorHandle(_samplerHeap->GetCPUDescriptorHandleForHeapStart(), sampleDescriptorSize));
 
 	_rootSignature = MakeRootSignature(d3dDevice);
 	NAME_D3D12_OBJECT(_rootSignature);
@@ -591,17 +601,6 @@ void RenderD3D12::SetMode(const RenderMode mode)
 bool RenderD3D12::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 {
 	assert(img.stride > 0);
-/*
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-	CD3D11_TEXTURE2D_DESC desc(DXGI_FORMAT_R8G8B8A8_UNORM, img.width, img.height, 1, 1);
-	D3D11_SUBRESOURCE_DATA data{ img.pixels, static_cast<UINT>(img.stride), 0 };
-	CHECK(_device->CreateTexture2D(&desc, 32 == img.bpp ? &data : nullptr, &texture));
-	CHECK(_device->CreateShaderResourceView(texture.Get(), nullptr, &srv));
-	CHECK(srv->SetPrivateData(s_sampler, sizeof(void*), magFilter ? _samplerLinear.GetAddressOf() : _samplerPoint.GetAddressOf()));
-	tex.ptr = srv.Detach();
-*/
-
 	assert(img.bpp == 32);
 
 	TextureData texture;
@@ -713,6 +712,10 @@ bool RenderD3D12::TexCreate(DEV_TEXTURE &tex, ImageView img, bool magFilter)
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	_d3dDevice->CreateShaderResourceView(texture.resource.Get(), &srvDesc, texture.srvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	texture.sampler = _samplerHeap->GetGPUDescriptorHandleForHeapStart();
+	if (!magFilter)
+		texture.sampler = OffsetDescriptorHandle(texture.sampler, _d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER));
 
 	CHECK(_commandList->Close());
 
@@ -863,12 +866,13 @@ void RenderD3D12::Flush()
 			std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
 		_commandList->ResourceBarrier(_countof(barriers), barriers);
 
-
 		// setup pipeline state
 		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
-		_commandList->SetDescriptorHeaps(1, _curtex->srvHeap.GetAddressOf());
+		ID3D12DescriptorHeap* descriptorHeaps[] = { _samplerHeap.Get(), _curtex->srvHeap.Get() };
+		_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, _constantBuffer->GetGPUVirtualAddress());
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSRV, _curtex->srvHeap->GetGPUDescriptorHandleForHeapStart());
+		_commandList->SetGraphicsRootDescriptorTable(RootParameterSampler, _curtex->sampler);
 
 		switch (_mode)
 		{
@@ -908,14 +912,6 @@ MyVertex* RenderD3D12::DrawQuad(DEV_TEXTURE tex)
 	{
 		Flush();
 		_curtex = reinterpret_cast<TextureData *>(tex.ptr);
-
-//		auto srv = (ID3D11ShaderResourceView*)tex.ptr;
-//		ID3D11SamplerState* samplerNoRef = nullptr;
-//		UINT dataSize = sizeof(samplerNoRef);
-//		CHECK(srv->GetPrivateData(s_sampler, &dataSize, &samplerNoRef));
-
-//		_context->PSSetShaderResources(0, 1, &srv);
-//		_context->PSSetSamplers(0, 1, &samplerNoRef);
 	}
 	if( _vaSize > VERTEX_ARRAY_SIZE - 4 || _iaSize > INDEX_ARRAY_SIZE  - 6 )
 	{
