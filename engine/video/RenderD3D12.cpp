@@ -750,7 +750,7 @@ void RenderD3D12::TexFree(DEV_TEXTURE tex)
 
 void RenderD3D12::Flush()
 {
-	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 )
+	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 && WIDTH(_scissor) > 0 && HEIGHT(_scissor) > 0 )
 	{
 		assert(_curtex);
 
