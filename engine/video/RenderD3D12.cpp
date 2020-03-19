@@ -468,10 +468,10 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 
 	bufferDesc.Width = sizeof(_vertexArray);
 	CHECK(d3dDevice->CreateCommittedResource(
-		&c_defaultHeapProps,
+		&c_uploadHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
-		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&_vertexBuffer)));
 	NAME_D3D12_OBJECT(_vertexBuffer);
@@ -481,10 +481,10 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 
 	bufferDesc.Width = sizeof(_indexArray);
 	CHECK(d3dDevice->CreateCommittedResource(
-		&c_defaultHeapProps,
+		&c_uploadHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
-		D3D12_RESOURCE_STATE_INDEX_BUFFER,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&_indexBuffer)));
 	NAME_D3D12_OBJECT(_indexBuffer);
@@ -748,74 +748,6 @@ void RenderD3D12::TexFree(DEV_TEXTURE tex)
 	assert(false);
 }
 
-static ComPtr<ID3D12Resource> UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList *commandList, ID3D12Resource *target, const void *data)
-{
-	D3D12_RESOURCE_DESC targetBufferDesc = target->GetDesc();
-	assert(targetBufferDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
-
-	D3D12_SUBRESOURCE_DATA subresourceData = {};
-	subresourceData.pData = data;
-	subresourceData.RowPitch = targetBufferDesc.Width;
-	subresourceData.SlicePitch = targetBufferDesc.Width;
-
-//	UpdateSubresources(commandList, target, uploadBuffer.Get(), 0, 0, 1, data);
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
-	UINT numRows;
-	UINT64 rowSizesInBytes;
-	UINT64 totalBytes;
-	d3dDevice->GetCopyableFootprints(
-		&targetBufferDesc,
-		0, // FirstSubresource
-		1, // NumSubresources
-		0, // BaseOffset
-		&layout,
-		&numRows,
-		&rowSizesInBytes,
-		&totalBytes);
- 
-//	UpdateSubresources(pCmdList, pDestinationResource, pIntermediate, FirstSubresource, NumSubresources, RequiredSize, Layouts, NumRows, RowSizesInBytes, pSrcData);
-	// Minor validation
-	assert(targetBufferDesc.Width >= totalBytes + layout.Offset);
-	assert(totalBytes <= (SIZE_T)-1);
-	assert(rowSizesInBytes <= (SIZE_T)-1);
-
-	ComPtr<ID3D12Resource> uploadBuffer;
-	CHECK(d3dDevice->CreateCommittedResource(&c_uploadHeapProps, D3D12_HEAP_FLAG_NONE, &targetBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer)));
-	NAME_D3D12_OBJECT(uploadBuffer);
-
-	BYTE* mappedUploadBuffer;
-	CHECK(uploadBuffer->Map(0, NULL, reinterpret_cast<void**>(&mappedUploadBuffer)));
-
-	void* destData = mappedUploadBuffer + layout.Offset;
-	SIZE_T destRowPitch = layout.Footprint.RowPitch;
-	SIZE_T destSlicePitch = (SIZE_T)layout.Footprint.RowPitch * numRows;
-//  MemcpySubresource(&DestData, &subresourceData, (SIZE_T)rowSizesInBytes, numRows, layout.Footprint.Depth);
-	for (UINT z = 0; z < layout.Footprint.Depth; ++z)
-	{
-		BYTE* destSlice = reinterpret_cast<BYTE*>(destData) + destSlicePitch * z;
-		const BYTE* srcSlice = reinterpret_cast<const BYTE*>(subresourceData.pData) + subresourceData.SlicePitch * z;
-		for (UINT y = 0; y < numRows; ++y)
-		{
-			memcpy(destSlice + destRowPitch * y, srcSlice + subresourceData.RowPitch * y, rowSizesInBytes);
-		}
-	}
-// \MemcpySubresource
-
-	uploadBuffer->Unmap(0, NULL);
-
-	commandList->CopyBufferRegion(
-		target, // destination
-		0,      // destination offset
-		uploadBuffer.Get(), // source
-		layout.Offset,      // source offset
-		layout.Footprint.Width // NumBytes
-	);
-
-	// \UpdateSubresources
-
-	return uploadBuffer;
-}
-
 void RenderD3D12::Flush()
 {
 	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 )
@@ -836,35 +768,21 @@ void RenderD3D12::Flush()
 
 		// Update constant buffer
 		void* mappedConstantBuffer = nullptr;
-		if (!mappedConstantBuffer)
-		{
-			D3D12_RANGE emptyReadRange = {};
-			CHECK(_constantBuffer->Map(0, &emptyReadRange, &mappedConstantBuffer));
-		}
+		D3D12_RANGE emptyReadRange = {};
+		CHECK(_constantBuffer->Map(0, &emptyReadRange, &mappedConstantBuffer));
 		memcpy(mappedConstantBuffer, &constantBufferData, sizeof(MyConstants));
 		_constantBuffer->Unmap(0, nullptr);
 
-
 		// Update vertex and index buffers
-		D3D12_RESOURCE_BARRIER barriers[2] = {};
-		barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barriers[0].Transition.pResource = _vertexBuffer.Get();
-		barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-		barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		barriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barriers[1].Transition.pResource = _indexBuffer.Get();
-		barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_INDEX_BUFFER;
-		barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		_commandList->ResourceBarrier(_countof(barriers), barriers);
+		void* mappedVertexBuffer = nullptr;
+		CHECK(_vertexBuffer->Map(0, &emptyReadRange, &mappedVertexBuffer));
+		memcpy(mappedVertexBuffer, _vertexArray, _vaSize * sizeof(MyVertex));
+		_vertexBuffer->Unmap(0, nullptr);
 
-		auto vertexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), _vertexArray);
-		auto indexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), _indexArray);
-
-		for (auto &barrier: barriers)
-			std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
-		_commandList->ResourceBarrier(_countof(barriers), barriers);
+		void* mappedIndexBuffer = nullptr;
+		CHECK(_indexBuffer->Map(0, &emptyReadRange, &mappedIndexBuffer));
+		memcpy(mappedIndexBuffer, _indexArray, _iaSize * sizeof(_indexArray[0]));
+		_indexBuffer->Unmap(0, nullptr);
 
 		// setup pipeline state
 		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
