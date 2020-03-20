@@ -269,7 +269,7 @@ static T OffsetDescriptorHandle(T handle, INT offset)
 	return T{ handle.ptr + offset };
 }
 
-static const D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
+static constexpr D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
 	FALSE,                      // BlendEnable
 	FALSE,                      // LogicOpEnable
 	D3D12_BLEND_ONE,            // SrcBlend
@@ -282,7 +282,7 @@ static const D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
 	D3D12_COLOR_WRITE_ENABLE_ALL, // RenderTargetWriteMask
 };
 
-static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
+static constexpr D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
 	D3D12_FILL_MODE_SOLID,      // FillMode
 	D3D12_CULL_MODE_BACK,       // CullMode;
 	FALSE,                      // FrontCounterClockwise
@@ -296,7 +296,7 @@ static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
 	D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF // ConservativeRaster
 };
 
-static D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
+static constexpr D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
 	D3D12_HEAP_TYPE_UPLOAD,     // Type
 	D3D12_CPU_PAGE_PROPERTY_UNKNOWN, // CPUPageProperty
 	D3D12_MEMORY_POOL_UNKNOWN,  // MemoryPoolPreference
@@ -304,13 +304,16 @@ static D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
 	1                           // VisibleNodeMask
 };
 
-D3D12_HEAP_PROPERTIES c_defaultHeapProps = {
+static constexpr D3D12_HEAP_PROPERTIES c_defaultHeapProps = {
 	D3D12_HEAP_TYPE_DEFAULT,    // Type
 	D3D12_CPU_PAGE_PROPERTY_UNKNOWN, // CPUPageProperty
 	D3D12_MEMORY_POOL_UNKNOWN,  // MemoryPoolPreference
 	1,                          // CreationNodeMask
 	1                           // VisibleNodeMask
 };
+
+static constexpr int RING_BUFFER_SIZE = 1024*1024;
+
 
 RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQueue)
 	: _d3dDevice(d3dDevice)
@@ -456,9 +459,10 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateWorld)));
 	NAME_D3D12_OBJECT(_pipelineStateWorld);
 
-	// create vertex and index buffers
+	// create ring buffer to suballocate constant, vertex and index data
 	D3D12_RESOURCE_DESC bufferDesc = {};
 	bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	bufferDesc.Width = RING_BUFFER_SIZE;
 	bufferDesc.Height = 1;
 	bufferDesc.DepthOrArraySize = 1;
 	bufferDesc.MipLevels = 1;
@@ -466,41 +470,17 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	bufferDesc.SampleDesc.Quality = 0;
 	bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	bufferDesc.Width = sizeof(_vertexArray);
 	CHECK(d3dDevice->CreateCommittedResource(
 		&c_uploadHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&_vertexBuffer)));
-	NAME_D3D12_OBJECT(_vertexBuffer);
-	_vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-	_vertexBufferView.StrideInBytes = sizeof(MyVertex);
-	_vertexBufferView.SizeInBytes = sizeof(_vertexArray);
+		nullptr, // clear value
+		IID_PPV_ARGS(&_ringBuffer)));
+	NAME_D3D12_OBJECT(_ringBuffer);
 
-	bufferDesc.Width = sizeof(_indexArray);
-	CHECK(d3dDevice->CreateCommittedResource(
-		&c_uploadHeapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&bufferDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&_indexBuffer)));
-	NAME_D3D12_OBJECT(_indexBuffer);
-	_indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
-	_indexBufferView.SizeInBytes = sizeof(_indexArray);
-	_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
-
-	bufferDesc.Width = (sizeof(MyConstants) + 255) & ~255; // Constant buffers must be 256-byte aligned
-	CHECK(d3dDevice->CreateCommittedResource(
-		&c_uploadHeapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&bufferDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&_constantBuffer)));
-	NAME_D3D12_OBJECT(_constantBuffer);
+	D3D12_RANGE emptyReadRange = {};
+	CHECK(_ringBuffer->Map(0, &emptyReadRange, (void**)&_mappedRingBuffer));
 
 	// command allocator and command list
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
@@ -748,11 +728,23 @@ void RenderD3D12::TexFree(DEV_TEXTURE tex)
 	assert(false);
 }
 
+// align must be power of 2
+static UINT AlignPow2(UINT offset, UINT align)
+{
+	assert(!align && !(align & (align - 1)));
+	return (offset + align - 1) & ~(align - 1);
+}
+
 void RenderD3D12::Flush()
 {
 	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 && WIDTH(_scissor) > 0 && HEIGHT(_scissor) > 0 )
 	{
 		assert(_curtex);
+
+		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
+		ID3D12DescriptorHeap* descriptorHeaps[] = { _samplerHeap.Get(), _curtex->srvHeap.Get() };
+		_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
 
 		using namespace DirectX;
 
@@ -766,32 +758,37 @@ void RenderD3D12::Flush()
 		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
 		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 
+		UINT64 bufferOffset = 0;
+
 		// Update constant buffer
-		void* mappedConstantBuffer = nullptr;
-		D3D12_RANGE emptyReadRange = {};
-		CHECK(_constantBuffer->Map(0, &emptyReadRange, &mappedConstantBuffer));
-		memcpy(mappedConstantBuffer, &constantBufferData, sizeof(MyConstants));
-		_constantBuffer->Unmap(0, nullptr);
+		memcpy(_mappedRingBuffer + bufferOffset, &constantBufferData, sizeof(MyConstants));
+		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, _ringBuffer->GetGPUVirtualAddress() + bufferOffset);
+		bufferOffset += sizeof(MyConstants);// AlignPow2(sizeof(MyConstants), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-		// Update vertex and index buffers
-		void* mappedVertexBuffer = nullptr;
-		CHECK(_vertexBuffer->Map(0, &emptyReadRange, &mappedVertexBuffer));
-		memcpy(mappedVertexBuffer, _vertexArray, _vaSize * sizeof(MyVertex));
-		_vertexBuffer->Unmap(0, nullptr);
 
-		void* mappedIndexBuffer = nullptr;
-		CHECK(_indexBuffer->Map(0, &emptyReadRange, &mappedIndexBuffer));
-		memcpy(mappedIndexBuffer, _indexArray, _iaSize * sizeof(_indexArray[0]));
-		_indexBuffer->Unmap(0, nullptr);
+		// Update vertex buffer
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		vertexBufferView.BufferLocation = _ringBuffer->GetGPUVirtualAddress() + bufferOffset;
+		vertexBufferView.SizeInBytes = _vaSize * sizeof(MyVertex);
+		vertexBufferView.StrideInBytes = sizeof(MyVertex);
+		_commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+		memcpy(_mappedRingBuffer + bufferOffset, _vertexArray, vertexBufferView.SizeInBytes);
+		bufferOffset += vertexBufferView.SizeInBytes;
 
-		// setup pipeline state
-		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
-		ID3D12DescriptorHeap* descriptorHeaps[] = { _samplerHeap.Get(), _curtex->srvHeap.Get() };
-		_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, _constantBuffer->GetGPUVirtualAddress());
+		// Update index buffer
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		indexBufferView.BufferLocation = _ringBuffer->GetGPUVirtualAddress() + bufferOffset;
+		indexBufferView.SizeInBytes = _iaSize * sizeof(_indexArray[0]);
+		indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+		_commandList->IASetIndexBuffer(&indexBufferView);
+		memcpy(_mappedRingBuffer + bufferOffset, _indexArray, indexBufferView.SizeInBytes);
+		bufferOffset += indexBufferView.SizeInBytes;
+
+		assert(bufferOffset <= RING_BUFFER_SIZE);
+
+
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSRV, _curtex->srvHeap->GetGPUDescriptorHandleForHeapStart());
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSampler, _curtex->sampler);
-
 		switch (_mode)
 		{
 		default: assert(false);
@@ -799,10 +796,7 @@ void RenderD3D12::Flush()
 		case RM_WORLD: _commandList->SetPipelineState(_pipelineStateWorld.Get()); break;
 		case RM_INTERFACE: _commandList->SetPipelineState(_pipelineStateUI.Get()); break;
 		}
-
 		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		_commandList->IASetIndexBuffer(&_indexBufferView);
-		_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
 		_commandList->RSSetScissorRects(1, &AsD3D12Rect(ApplyRectRotation(_scissor, _windowWidth, _windowHeight, _displayOrientation)));
 		_commandList->RSSetViewports(1, &AsD3D12Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
 		_commandList->OMSetRenderTargets(1, &_rtv, false, nullptr);

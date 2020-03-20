@@ -40,12 +40,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelineStateLight;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _commandAllocator;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList;
-	Microsoft::WRL::ComPtr<ID3D12Resource> _vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource> _indexBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource> _constantBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _ringBuffer;
+	UINT8* _mappedRingBuffer;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _samplerHeap;
-	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 	D3D12_CPU_DESCRIPTOR_HANDLE _rtv = {};
 
 	struct TextureData
