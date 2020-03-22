@@ -227,7 +227,7 @@ GlfwAppWindow::GlfwAppWindow(const char *title, bool fullscreen, int width, int 
 	, _cursorIBeam(glfwCreateStandardCursor(GLFW_IBEAM_CURSOR))
 	, _clipboard(new GlfwClipboard(*_window))
 	, _input(new GlfwInput(*_window))
-	, _render(RenderCreateOpenGL())
+	, _render(new RenderOpenGL())
 	, _renderBinding(new RenderBinding())
 {
 	glfwSetMouseButtonCallback(_window.get(), OnMouseButton);
@@ -268,6 +268,11 @@ GlfwInput& GlfwAppWindow::GetInput()
 IRender& GlfwAppWindow::GetRender()
 {
 	glfwMakeContextCurrent(_window.get());
+
+	int width;
+	int height;
+	glfwGetFramebufferSize(_window.get(), &width, &height);
+	_render->Begin(width, height, DO_0);
 	return *_render;
 }
 
@@ -307,6 +312,7 @@ void GlfwAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 void GlfwAppWindow::Present()
 {
 	assert(glfwGetCurrentContext() == _window.get());
+	_render->End();
 	glfwSwapBuffers(_window.get());
 	glFinish(); // prevent gpu queue growth to reduce input lag, only seems to help in full screen
 }

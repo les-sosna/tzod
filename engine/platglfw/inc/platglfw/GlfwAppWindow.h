@@ -6,6 +6,7 @@
 struct GLFWcursor;
 struct GLFWwindow;
 class RenderBinding;
+class RenderOpenGL;
 
 struct GlfwCursorDeleter
 {
@@ -69,6 +70,6 @@ private:
 	std::unique_ptr<GLFWcursor, GlfwCursorDeleter> _cursorIBeam;
 	std::unique_ptr<GlfwClipboard> _clipboard;
 	std::unique_ptr<GlfwInput> _input;
-	std::unique_ptr<IRender> _render;
+	std::unique_ptr<RenderOpenGL> _render;
 	std::unique_ptr<RenderBinding> _renderBinding;
 };
