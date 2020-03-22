@@ -1,10 +1,11 @@
 #pragma once
 #include "RenderBase.h"
+#include "RingAllocator.h"
 #include <math/MyMath.h>
 #include <wrl/client.h>
 #include <d3d12.h>
-#include <memory>
 #include <list>
+#include <memory>
 #define VERTEX_ARRAY_SIZE   1024
 #define INDEX_ARRAY_SIZE    2048
 
@@ -41,9 +42,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _commandAllocator;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _ringBuffer;
-	UINT8* _mappedRingBuffer;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _samplerHeap;
 	D3D12_CPU_DESCRIPTOR_HANDLE _rtv = {};
+
+	RingAllocator _ringAllocator{ 64 * 1024 };
+
+	UINT8* _mappedRingBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Fence> _drawFence;
+	HANDLE _drawFenceEvent;
+	UINT64 _drawCount = 0;
 
 	struct TextureData
 	{

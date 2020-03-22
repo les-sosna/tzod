@@ -6,6 +6,7 @@ set(video_SOURCES
 	inc/video/RenderBase.h
 	inc/video/RenderBinding.h
 	inc/video/RenderContext.h
+	inc/video/RingAllocator.h
 	inc/video/TextureManager.h
 	inc/video/TexturePackage.h
 	inc/video/TgaImage.h

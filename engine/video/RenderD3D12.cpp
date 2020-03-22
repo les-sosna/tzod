@@ -312,8 +312,6 @@ static constexpr D3D12_HEAP_PROPERTIES c_defaultHeapProps = {
 	1                           // VisibleNodeMask
 };
 
-static constexpr int RING_BUFFER_SIZE = 1024*1024;
-
 
 RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQueue)
 	: _d3dDevice(d3dDevice)
@@ -462,7 +460,7 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	// create ring buffer to suballocate constant, vertex and index data
 	D3D12_RESOURCE_DESC bufferDesc = {};
 	bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	bufferDesc.Width = RING_BUFFER_SIZE;
+	bufferDesc.Width = _ringAllocator.GetCapacity();
 	bufferDesc.Height = 1;
 	bufferDesc.DepthOrArraySize = 1;
 	bufferDesc.MipLevels = 1;
@@ -489,10 +487,14 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	CHECK(d3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&_commandList)));
 	NAME_D3D12_OBJECT(_commandList);
 	CHECK(_commandList->Close());
+
+	CHECK(_d3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_drawFence)));
+	_drawFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
 RenderD3D12::~RenderD3D12()
 {
+	CloseHandle(_drawFenceEvent);
 }
 
 void RenderD3D12::SetScissor(const RectRB &rect)
@@ -728,18 +730,12 @@ void RenderD3D12::TexFree(DEV_TEXTURE tex)
 	assert(false);
 }
 
-// align must be power of 2
-static UINT AlignPow2(UINT offset, UINT align)
-{
-	assert(!align && !(align & (align - 1)));
-	return (offset + align - 1) & ~(align - 1);
-}
-
 void RenderD3D12::Flush()
 {
 	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 && WIDTH(_scissor) > 0 && HEIGHT(_scissor) > 0 )
 	{
 		assert(_curtex);
+		_drawCount++;
 
 		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
 		ID3D12DescriptorHeap* descriptorHeaps[] = { _samplerHeap.Get(), _curtex->srvHeap.Get() };
@@ -758,34 +754,43 @@ void RenderD3D12::Flush()
 		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
 		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 
-		UINT64 bufferOffset = 0;
+		// Constant buffer
+		UINT constantBufferOffset = _ringAllocator.Allocate(sizeof(MyConstants), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-		// Update constant buffer
-		memcpy(_mappedRingBuffer + bufferOffset, &constantBufferData, sizeof(MyConstants));
-		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, _ringBuffer->GetGPUVirtualAddress() + bufferOffset);
-		bufferOffset += sizeof(MyConstants);// AlignPow2(sizeof(MyConstants), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+		// Vertex buffer
+		UINT vertexBufferSizeInBytes = _vaSize * sizeof(MyVertex);
+		UINT vertexBufferOffset = _ringAllocator.Allocate(vertexBufferSizeInBytes, 1 /* alignment */);
 
+		// Index buffer
+		UINT indexBufferSizeInBytes = _iaSize * sizeof(_indexArray[0]);
+		UINT indexBufferOffset = _ringAllocator.Allocate(indexBufferSizeInBytes, sizeof(_indexArray[0]) /* alignment */);
 
-		// Update vertex buffer
+		auto overlappedFenceValue = _ringAllocator.CommitFreeOverlapped(_drawCount /* fenceValue */);
+		if (overlappedFenceValue > _drawFence->GetCompletedValue())
+		{
+			CHECK(_drawFence->SetEventOnCompletion(overlappedFenceValue, _drawFenceEvent));
+			WaitForSingleObject(_drawFenceEvent, INFINITE);
+		}
+
+		// Copy all buffers data
+		memcpy(_mappedRingBuffer + constantBufferOffset, &constantBufferData, sizeof(MyConstants));
+		memcpy(_mappedRingBuffer + vertexBufferOffset, _vertexArray, vertexBufferSizeInBytes);
+		memcpy(_mappedRingBuffer + indexBufferOffset, _indexArray, indexBufferSizeInBytes);
+
+		auto ringBufferGPUVirtualAddress = _ringBuffer->GetGPUVirtualAddress();
+		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, ringBufferGPUVirtualAddress + constantBufferOffset);
+
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-		vertexBufferView.BufferLocation = _ringBuffer->GetGPUVirtualAddress() + bufferOffset;
-		vertexBufferView.SizeInBytes = _vaSize * sizeof(MyVertex);
+		vertexBufferView.BufferLocation = ringBufferGPUVirtualAddress + vertexBufferOffset;
+		vertexBufferView.SizeInBytes = vertexBufferSizeInBytes;
 		vertexBufferView.StrideInBytes = sizeof(MyVertex);
 		_commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-		memcpy(_mappedRingBuffer + bufferOffset, _vertexArray, vertexBufferView.SizeInBytes);
-		bufferOffset += vertexBufferView.SizeInBytes;
 
-		// Update index buffer
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
-		indexBufferView.BufferLocation = _ringBuffer->GetGPUVirtualAddress() + bufferOffset;
-		indexBufferView.SizeInBytes = _iaSize * sizeof(_indexArray[0]);
+		indexBufferView.BufferLocation = ringBufferGPUVirtualAddress + indexBufferOffset;
+		indexBufferView.SizeInBytes = indexBufferSizeInBytes;
 		indexBufferView.Format = DXGI_FORMAT_R16_UINT;
 		_commandList->IASetIndexBuffer(&indexBufferView);
-		memcpy(_mappedRingBuffer + bufferOffset, _indexArray, indexBufferView.SizeInBytes);
-		bufferOffset += indexBufferView.SizeInBytes;
-
-		assert(bufferOffset <= RING_BUFFER_SIZE);
-
 
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSRV, _curtex->srvHeap->GetGPUDescriptorHandleForHeapStart());
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSampler, _curtex->sampler);
@@ -804,15 +809,13 @@ void RenderD3D12::Flush()
 		_commandList->DrawIndexedInstanced(_iaSize, 1, 0, 0, 0);
 
 		CHECK(_commandList->Close());
-
 		ID3D12CommandList* commandLists[] = { _commandList.Get() }; // needed to cast to ID3D12CommandList
 		_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
+		CHECK(_commandQueue->Signal(_drawFence.Get(), _drawCount));
+
 		// The command list can be reset anytime after ExecuteCommandList() is called.
 		CHECK(_commandList->Reset(_commandAllocator.Get(), nullptr));
-
-		// wait for upload to complete before releasing upload buffers
-		WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 	}
 	_vaSize = 0;
 	_iaSize = 0;
