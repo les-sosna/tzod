@@ -30,6 +30,7 @@ if((NOT IOS) AND (NOT WINRT) AND (NOT ANDROID))
 	add_subdirectory(platglfw)
 	add_subdirectory(fsmem)
 	add_subdirectory(ui_tests)
+	add_subdirectory(video_tests)
 	add_subdirectory(uitestapp)
 endif()
 

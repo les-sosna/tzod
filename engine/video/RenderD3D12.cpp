@@ -269,7 +269,7 @@ static T OffsetDescriptorHandle(T handle, INT offset)
 	return T{ handle.ptr + offset };
 }
 
-static const D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
+static constexpr D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
 	FALSE,                      // BlendEnable
 	FALSE,                      // LogicOpEnable
 	D3D12_BLEND_ONE,            // SrcBlend
@@ -282,7 +282,7 @@ static const D3D12_RENDER_TARGET_BLEND_DESC c_defaultRenderTargetBlendDesc = {
 	D3D12_COLOR_WRITE_ENABLE_ALL, // RenderTargetWriteMask
 };
 
-static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
+static constexpr D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
 	D3D12_FILL_MODE_SOLID,      // FillMode
 	D3D12_CULL_MODE_BACK,       // CullMode;
 	FALSE,                      // FrontCounterClockwise
@@ -296,7 +296,7 @@ static const D3D12_RASTERIZER_DESC c_defaultRasterizerDesc = {
 	D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF // ConservativeRaster
 };
 
-static D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
+static constexpr D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
 	D3D12_HEAP_TYPE_UPLOAD,     // Type
 	D3D12_CPU_PAGE_PROPERTY_UNKNOWN, // CPUPageProperty
 	D3D12_MEMORY_POOL_UNKNOWN,  // MemoryPoolPreference
@@ -304,13 +304,14 @@ static D3D12_HEAP_PROPERTIES c_uploadHeapProps = {
 	1                           // VisibleNodeMask
 };
 
-D3D12_HEAP_PROPERTIES c_defaultHeapProps = {
+static constexpr D3D12_HEAP_PROPERTIES c_defaultHeapProps = {
 	D3D12_HEAP_TYPE_DEFAULT,    // Type
 	D3D12_CPU_PAGE_PROPERTY_UNKNOWN, // CPUPageProperty
 	D3D12_MEMORY_POOL_UNKNOWN,  // MemoryPoolPreference
 	1,                          // CreationNodeMask
 	1                           // VisibleNodeMask
 };
+
 
 RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQueue)
 	: _d3dDevice(d3dDevice)
@@ -456,9 +457,10 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	CHECK(d3dDevice->CreateGraphicsPipelineState(&state, IID_PPV_ARGS(&_pipelineStateWorld)));
 	NAME_D3D12_OBJECT(_pipelineStateWorld);
 
-	// create vertex and index buffers
+	// create ring buffer to suballocate constant, vertex and index data
 	D3D12_RESOURCE_DESC bufferDesc = {};
 	bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	bufferDesc.Width = _ringAllocator.GetCapacity();
 	bufferDesc.Height = 1;
 	bufferDesc.DepthOrArraySize = 1;
 	bufferDesc.MipLevels = 1;
@@ -466,41 +468,17 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	bufferDesc.SampleDesc.Quality = 0;
 	bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	bufferDesc.Width = sizeof(_vertexArray);
-	CHECK(d3dDevice->CreateCommittedResource(
-		&c_defaultHeapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&bufferDesc,
-		D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-		nullptr,
-		IID_PPV_ARGS(&_vertexBuffer)));
-	NAME_D3D12_OBJECT(_vertexBuffer);
-	_vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-	_vertexBufferView.StrideInBytes = sizeof(MyVertex);
-	_vertexBufferView.SizeInBytes = sizeof(_vertexArray);
-
-	bufferDesc.Width = sizeof(_indexArray);
-	CHECK(d3dDevice->CreateCommittedResource(
-		&c_defaultHeapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&bufferDesc,
-		D3D12_RESOURCE_STATE_INDEX_BUFFER,
-		nullptr,
-		IID_PPV_ARGS(&_indexBuffer)));
-	NAME_D3D12_OBJECT(_indexBuffer);
-	_indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
-	_indexBufferView.SizeInBytes = sizeof(_indexArray);
-	_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
-
-	bufferDesc.Width = (sizeof(MyConstants) + 255) & ~255; // Constant buffers must be 256-byte aligned
 	CHECK(d3dDevice->CreateCommittedResource(
 		&c_uploadHeapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&bufferDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&_constantBuffer)));
-	NAME_D3D12_OBJECT(_constantBuffer);
+		nullptr, // clear value
+		IID_PPV_ARGS(&_ringBuffer)));
+	NAME_D3D12_OBJECT(_ringBuffer);
+
+	D3D12_RANGE emptyReadRange = {};
+	CHECK(_ringBuffer->Map(0, &emptyReadRange, (void**)&_mappedRingBuffer));
 
 	// command allocator and command list
 	CHECK(d3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_commandAllocator)));
@@ -509,10 +487,14 @@ RenderD3D12::RenderD3D12(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQue
 	CHECK(d3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator.Get(), nullptr, IID_PPV_ARGS(&_commandList)));
 	NAME_D3D12_OBJECT(_commandList);
 	CHECK(_commandList->Close());
+
+	CHECK(_d3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_drawFence)));
+	_drawFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
 RenderD3D12::~RenderD3D12()
 {
+	CloseHandle(_drawFenceEvent);
 }
 
 void RenderD3D12::SetScissor(const RectRB &rect)
@@ -748,79 +730,17 @@ void RenderD3D12::TexFree(DEV_TEXTURE tex)
 	assert(false);
 }
 
-static ComPtr<ID3D12Resource> UploadBufferData(ID3D12Device *d3dDevice, ID3D12GraphicsCommandList *commandList, ID3D12Resource *target, const void *data)
-{
-	D3D12_RESOURCE_DESC targetBufferDesc = target->GetDesc();
-	assert(targetBufferDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER);
-
-	D3D12_SUBRESOURCE_DATA subresourceData = {};
-	subresourceData.pData = data;
-	subresourceData.RowPitch = targetBufferDesc.Width;
-	subresourceData.SlicePitch = targetBufferDesc.Width;
-
-//	UpdateSubresources(commandList, target, uploadBuffer.Get(), 0, 0, 1, data);
-	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
-	UINT numRows;
-	UINT64 rowSizesInBytes;
-	UINT64 totalBytes;
-	d3dDevice->GetCopyableFootprints(
-		&targetBufferDesc,
-		0, // FirstSubresource
-		1, // NumSubresources
-		0, // BaseOffset
-		&layout,
-		&numRows,
-		&rowSizesInBytes,
-		&totalBytes);
- 
-//	UpdateSubresources(pCmdList, pDestinationResource, pIntermediate, FirstSubresource, NumSubresources, RequiredSize, Layouts, NumRows, RowSizesInBytes, pSrcData);
-	// Minor validation
-	assert(targetBufferDesc.Width >= totalBytes + layout.Offset);
-	assert(totalBytes <= (SIZE_T)-1);
-	assert(rowSizesInBytes <= (SIZE_T)-1);
-
-	ComPtr<ID3D12Resource> uploadBuffer;
-	CHECK(d3dDevice->CreateCommittedResource(&c_uploadHeapProps, D3D12_HEAP_FLAG_NONE, &targetBufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer)));
-	NAME_D3D12_OBJECT(uploadBuffer);
-
-	BYTE* mappedUploadBuffer;
-	CHECK(uploadBuffer->Map(0, NULL, reinterpret_cast<void**>(&mappedUploadBuffer)));
-
-	void* destData = mappedUploadBuffer + layout.Offset;
-	SIZE_T destRowPitch = layout.Footprint.RowPitch;
-	SIZE_T destSlicePitch = (SIZE_T)layout.Footprint.RowPitch * numRows;
-//  MemcpySubresource(&DestData, &subresourceData, (SIZE_T)rowSizesInBytes, numRows, layout.Footprint.Depth);
-	for (UINT z = 0; z < layout.Footprint.Depth; ++z)
-	{
-		BYTE* destSlice = reinterpret_cast<BYTE*>(destData) + destSlicePitch * z;
-		const BYTE* srcSlice = reinterpret_cast<const BYTE*>(subresourceData.pData) + subresourceData.SlicePitch * z;
-		for (UINT y = 0; y < numRows; ++y)
-		{
-			memcpy(destSlice + destRowPitch * y, srcSlice + subresourceData.RowPitch * y, rowSizesInBytes);
-		}
-	}
-// \MemcpySubresource
-
-	uploadBuffer->Unmap(0, NULL);
-
-	commandList->CopyBufferRegion(
-		target, // destination
-		0,      // destination offset
-		uploadBuffer.Get(), // source
-		layout.Offset,      // source offset
-		layout.Footprint.Width // NumBytes
-	);
-
-	// \UpdateSubresources
-
-	return uploadBuffer;
-}
-
 void RenderD3D12::Flush()
 {
-	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 )
+	if( _iaSize > 0 && WIDTH(_viewport) > 0 && HEIGHT(_viewport) > 0 && WIDTH(_scissor) > 0 && HEIGHT(_scissor) > 0 )
 	{
 		assert(_curtex);
+		_drawCount++;
+
+		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
+		ID3D12DescriptorHeap* descriptorHeaps[] = { _samplerHeap.Get(), _curtex->srvHeap.Get() };
+		_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
 
 		using namespace DirectX;
 
@@ -834,46 +754,46 @@ void RenderD3D12::Flush()
 		XMMATRIX orientation = XMLoadFloat4x4(GetOrientationTransform(_displayOrientation));
 		XMStoreFloat4x4(&constantBufferData.viewProj, XMMatrixTranspose(view * orientation * proj));
 
-		// Update constant buffer
-		void* mappedConstantBuffer = nullptr;
-		if (!mappedConstantBuffer)
+		// Constant buffer
+		UINT constantBufferOffset = _ringAllocator.Allocate(sizeof(MyConstants), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+
+		// Vertex buffer
+		UINT vertexBufferSizeInBytes = _vaSize * sizeof(MyVertex);
+		UINT vertexBufferOffset = _ringAllocator.Allocate(vertexBufferSizeInBytes, 1 /* alignment */);
+
+		// Index buffer
+		UINT indexBufferSizeInBytes = _iaSize * sizeof(_indexArray[0]);
+		UINT indexBufferOffset = _ringAllocator.Allocate(indexBufferSizeInBytes, sizeof(_indexArray[0]) /* alignment */);
+
+		auto overlappedFenceValue = _ringAllocator.CommitFreeOverlapped(_drawCount /* fenceValue */);
+		if (overlappedFenceValue > _drawFence->GetCompletedValue())
 		{
-			D3D12_RANGE emptyReadRange = {};
-			CHECK(_constantBuffer->Map(0, &emptyReadRange, &mappedConstantBuffer));
+			CHECK(_drawFence->SetEventOnCompletion(overlappedFenceValue, _drawFenceEvent));
+			WaitForSingleObject(_drawFenceEvent, INFINITE);
 		}
-		memcpy(mappedConstantBuffer, &constantBufferData, sizeof(MyConstants));
-		_constantBuffer->Unmap(0, nullptr);
 
+		// Copy all buffers data
+		memcpy(_mappedRingBuffer + constantBufferOffset, &constantBufferData, sizeof(MyConstants));
+		memcpy(_mappedRingBuffer + vertexBufferOffset, _vertexArray, vertexBufferSizeInBytes);
+		memcpy(_mappedRingBuffer + indexBufferOffset, _indexArray, indexBufferSizeInBytes);
 
-		// Update vertex and index buffers
-		D3D12_RESOURCE_BARRIER barriers[2] = {};
-		barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barriers[0].Transition.pResource = _vertexBuffer.Get();
-		barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-		barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		barriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barriers[1].Transition.pResource = _indexBuffer.Get();
-		barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_INDEX_BUFFER;
-		barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
-		barriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		_commandList->ResourceBarrier(_countof(barriers), barriers);
+		auto ringBufferGPUVirtualAddress = _ringBuffer->GetGPUVirtualAddress();
+		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, ringBufferGPUVirtualAddress + constantBufferOffset);
 
-		auto vertexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _vertexBuffer.Get(), _vertexArray);
-		auto indexUpload = UploadBufferData(_d3dDevice.Get(), _commandList.Get(), _indexBuffer.Get(), _indexArray);
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		vertexBufferView.BufferLocation = ringBufferGPUVirtualAddress + vertexBufferOffset;
+		vertexBufferView.SizeInBytes = vertexBufferSizeInBytes;
+		vertexBufferView.StrideInBytes = sizeof(MyVertex);
+		_commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 
-		for (auto &barrier: barriers)
-			std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
-		_commandList->ResourceBarrier(_countof(barriers), barriers);
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		indexBufferView.BufferLocation = ringBufferGPUVirtualAddress + indexBufferOffset;
+		indexBufferView.SizeInBytes = indexBufferSizeInBytes;
+		indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+		_commandList->IASetIndexBuffer(&indexBufferView);
 
-		// setup pipeline state
-		_commandList->SetGraphicsRootSignature(_rootSignature.Get());
-		ID3D12DescriptorHeap* descriptorHeaps[] = { _samplerHeap.Get(), _curtex->srvHeap.Get() };
-		_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-		_commandList->SetGraphicsRootConstantBufferView(RootParameterCBV, _constantBuffer->GetGPUVirtualAddress());
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSRV, _curtex->srvHeap->GetGPUDescriptorHandleForHeapStart());
 		_commandList->SetGraphicsRootDescriptorTable(RootParameterSampler, _curtex->sampler);
-
 		switch (_mode)
 		{
 		default: assert(false);
@@ -881,10 +801,7 @@ void RenderD3D12::Flush()
 		case RM_WORLD: _commandList->SetPipelineState(_pipelineStateWorld.Get()); break;
 		case RM_INTERFACE: _commandList->SetPipelineState(_pipelineStateUI.Get()); break;
 		}
-
 		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		_commandList->IASetIndexBuffer(&_indexBufferView);
-		_commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
 		_commandList->RSSetScissorRects(1, &AsD3D12Rect(ApplyRectRotation(_scissor, _windowWidth, _windowHeight, _displayOrientation)));
 		_commandList->RSSetViewports(1, &AsD3D12Viewport(ApplyRectRotation(_viewport, _windowWidth, _windowHeight, _displayOrientation)));
 		_commandList->OMSetRenderTargets(1, &_rtv, false, nullptr);
@@ -892,15 +809,13 @@ void RenderD3D12::Flush()
 		_commandList->DrawIndexedInstanced(_iaSize, 1, 0, 0, 0);
 
 		CHECK(_commandList->Close());
-
 		ID3D12CommandList* commandLists[] = { _commandList.Get() }; // needed to cast to ID3D12CommandList
 		_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
+		CHECK(_commandQueue->Signal(_drawFence.Get(), _drawCount));
+
 		// The command list can be reset anytime after ExecuteCommandList() is called.
 		CHECK(_commandList->Reset(_commandAllocator.Get(), nullptr));
-
-		// wait for upload to complete before releasing upload buffers
-		WaitForGPU(_d3dDevice.Get(), _commandQueue.Get());
 	}
 	_vaSize = 0;
 	_iaSize = 0;
