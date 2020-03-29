@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 set(ANDROID 1)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_BINARY_DIR}/game/src)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_BINARY_DIR}/build)
 
 add_library(tzodjni SHARED
   src/main/cpp/gl_code.cpp
@@ -14,6 +14,7 @@ add_library(tzodjni SHARED
 target_link_libraries(tzodjni
   app
   fsjni
+  fsposix
   platjni
   ui
   video

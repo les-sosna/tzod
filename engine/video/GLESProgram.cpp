@@ -1,4 +1,4 @@
-#include "GLESProgram.h"
+#include "inc/video/detail/GLESProgram.h"
 #include <cassert>
 #include <memory>
 #include <sstream>

@@ -1,14 +1,10 @@
 #include "inc/platjni/JniAppWindow.h"
-#include <video/RenderOpenGL.h>
 
 JniAppWindow::JniAppWindow()
-    : _render(RenderCreateOpenGL())
-{
-}
+{}
 
 JniAppWindow::~JniAppWindow()
-{
-}
+{}
 
 void JniAppWindow::SetPixelSize(vec2d pxSize)
 {
@@ -42,7 +38,8 @@ Plat::Input& JniAppWindow::GetInput()
 
 IRender& JniAppWindow::GetRender()
 {
-    return *_render;
+    _render.Begin((unsigned int) _pxSize.x, (unsigned int) _pxSize.y, DO_0);
+    return _render;
 }
 
 void JniAppWindow::SetCanNavigateBack(bool canNavigateBack)
@@ -52,4 +49,6 @@ void JniAppWindow::SetMouseCursor(Plat::MouseCursor mouseCursor)
 {}
 
 void JniAppWindow::Present()
-{}
+{
+    _render.End();
+}

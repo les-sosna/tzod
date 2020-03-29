@@ -23,7 +23,8 @@ set(video_SOURCES
 
 if(IOS OR ANDROID)
 	list(APPEND video_SOURCES
-		inc/video/RenderOpenGL.h
+		inc/video/RenderGLES2.h
+		inc/video/detail/GLESProgram.h
 		GLESProgram.cpp
 		RenderGLES2.cpp
 	)

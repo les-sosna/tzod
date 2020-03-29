@@ -5,6 +5,7 @@
 #include <app/tzod.h>
 #include <app/View.h>
 #include <fsjni/FileSystemJni.h>
+#include <fsposix/FileSystemPosix.h>
 #include <plat/ConsoleBuffer.h>
 
 #include <stdio.h>
@@ -24,6 +25,17 @@ static void printGLString(const char *name, GLenum s) {
 #include <android/asset_manager_jni.h>
 #include <android/input.h>
 
+static std::shared_ptr<FS::FileSystem> InitFileSystem(AAssetManager *assetManager)
+{
+    auto fs = std::make_shared<FS::FileSystemJni>(assetManager, "data");
+    FILE *f = fopen("/proc/self/cmdline", "r");
+    char cmdline[256] = {};
+    fread(cmdline, 1, 255, f);
+    fclose(f);
+    fs->Mount("user", std::make_shared<FS::FileSystemPosix>(std::string("/data/data/") + cmdline));
+    return fs;
+}
+
 struct State
 {
     Plat::ConsoleBuffer logger;
@@ -35,9 +47,9 @@ struct State
 
     State(AAssetManager *assetManager)
         : logger(80, 100)
-        , fs(std::make_shared<FS::FileSystemJni>(assetManager, "data"))
+        , fs(InitFileSystem(assetManager))
         , app(*fs, logger)
-        , view(*fs, logger, app, appWindow)
+        , view(*fs, logger, app, nullptr /*cmdClose*/)
     {
         logger.SetLog(new JniConsoleLog());
     }
@@ -64,8 +76,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_resize(JNIEnv *
 extern "C" JNIEXPORT void JNICALL Java_com_neaoo_tzod_TZODJNILib_step(JNIEnv *env, jobject obj)
 {
     std::lock_guard<std::mutex> lock(g_state->mutex);
-    g_state->view.Step(g_state->app, 0.016F);
-    g_state->view.GetAppWindowInputSink().OnRefresh(g_state->appWindow);
+    g_state->view.Step(g_state->app, 0.016F, g_state->appWindow.GetInput());
+    g_state->view.GetAppWindowInputSink().OnRefresh(g_state->appWindow, g_state->appWindow.GetRender(), g_state->appWindow.GetRenderBinding());
+    g_state->appWindow.Present();
 }
 
 #include <plat/Input.h>

@@ -15,7 +15,7 @@ public:
 	void PollEvents(Plat::AppWindowInputSink& inputSink, Windows::UI::Core::CoreProcessEventsOption options);
 
 	// AppWindow
-	int GetDisplayRotation() const { return _displayRotation; }
+	int GetDisplayRotation() const override { return _displayRotation; }
 	vec2d GetPixelSize() const override;
 	float GetLayoutScale() const override;
 	Plat::Clipboard& GetClipboard() override;

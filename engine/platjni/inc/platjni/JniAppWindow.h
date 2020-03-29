@@ -2,6 +2,8 @@
 #include "JniClipboard.h"
 #include "JniInput.h"
 #include <plat/AppWindow.h>
+#include <video/RenderGLES2.h>
+#include <video/RenderBinding.h>
 
 class JniAppWindow final : public Plat::AppWindow
 {
@@ -10,6 +12,9 @@ public:
     ~JniAppWindow();
 
     void SetPixelSize(vec2d pxSize);
+    IRender& GetRender();
+    RenderBinding& GetRenderBinding() { return _renderBinding; }
+    void Present();
 
     // Plat::AppWindow
     int GetDisplayRotation() const override;
@@ -17,14 +22,13 @@ public:
     float GetLayoutScale() const override;
     Plat::Clipboard& GetClipboard() override;
     Plat::Input& GetInput() override;
-    IRender& GetRender() override;
     void SetCanNavigateBack(bool canNavigateBack) override;
     void SetMouseCursor(Plat::MouseCursor mouseCursor) override;
-    void Present() override;
 
 private:
     JniClipboard _clipboard;
     JniInput _input;
-    std::unique_ptr<IRender> _render;
+    RenderGLES2 _render;
+    RenderBinding _renderBinding;
     vec2d _pxSize = {};
 };
