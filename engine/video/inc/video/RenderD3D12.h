@@ -28,7 +28,6 @@ public:
 	void TexFree(DEV_TEXTURE tex) override;
 	MyVertex* DrawQuad(DEV_TEXTURE tex) override;
 	MyVertex* DrawFan(unsigned int nEdges) override;
-	void DrawLines(const MyLine *lines, size_t count) override;
 
 private:
 	void Flush();

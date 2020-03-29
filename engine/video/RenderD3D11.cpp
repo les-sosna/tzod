@@ -529,11 +529,6 @@ MyVertex* RenderD3D11::DrawFan(unsigned int nEdges)
 	return result;
 }
 
-void RenderD3D11::DrawLines(const MyLine *lines, size_t count)
-{
-	// todo: do something
-}
-
 void RenderD3D11::SetAmbient(float ambient)
 {
 	_ambient = ambient;

@@ -23,13 +23,6 @@ struct SpriteColor
 	{}
 };
 
-struct MyLine
-{
-	vec2d       begin;
-	vec2d       end;
-	SpriteColor color;
-};
-
 struct DEV_TEXTURE
 {
 	union
@@ -107,6 +100,4 @@ struct IRender
 
 	virtual MyVertex* DrawQuad(DEV_TEXTURE tex) = 0;
 	virtual MyVertex* DrawFan(unsigned int nEdges) = 0;
-
-	virtual void DrawLines(const MyLine *lines, size_t count) = 0;
 };

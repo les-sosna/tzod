@@ -202,25 +202,6 @@ MyVertex* RenderOpenGL::DrawFan(unsigned int nEdges)
 	return result;
 }
 
-void RenderOpenGL::DrawLines(const MyLine *lines, size_t count)
-{
-	Flush();
-
-	glDisable(GL_TEXTURE_2D);
-
-	glBegin(GL_LINES);
-	const MyLine *it = lines, *end = lines + count;
-	for( ; it != end; ++it )
-	{
-		glColor4ub(it->color.rgba[3], it->color.rgba[2], it->color.rgba[1], it->color.rgba[0]);
-		glVertex2fv((const float *) &it->begin);
-		glVertex2fv((const float *) &it->end);
-	}
-	glEnd();
-
-	SetMode(_mode); // to enable texture
-}
-
 void RenderOpenGL::SetAmbient(float ambient)
 {
 	_ambient = ambient;
