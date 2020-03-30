@@ -32,7 +32,7 @@ static std::shared_ptr<FS::FileSystem> InitFileSystem(AAssetManager *assetManage
     char cmdline[256] = {};
     fread(cmdline, 1, 255, f);
     fclose(f);
-    fs->Mount("user", std::make_shared<FS::FileSystemPosix>(std::string("/data/data/") + cmdline));
+    fs->Mount("user", std::make_shared<FS::FileSystemPosix>(std::string("/data/data/") + cmdline)->GetFileSystem("files", true /*create*/));
     return fs;
 }
 
