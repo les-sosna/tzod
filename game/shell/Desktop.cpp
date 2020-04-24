@@ -103,20 +103,20 @@ Desktop::Desktop(UI::TimeStepManager &manager,
 
 	if( _conf.d_graph.Get() )
 	{
-		float xx = 200;
-		float yy = 3;
+        _graphs = std::make_shared<UI::StackLayout>();
+        _graphs->SetSpacing(5);
+        _graphs->SetTopMost(true);
+        AddFront(_graphs);
+        
 		float hh = 50;
 		for( size_t i = 0; i < CounterBase::GetMarkerCountStatic(); ++i )
 		{
 			auto os = std::make_shared<Oscilloscope>();
-//			os->Move(xx, yy);
 			os->Resize(400, hh);
 			os->SetRange(-1/15.0f, 1/15.0f);
 			os->SetTitle(CounterBase::GetMarkerInfoStatic(i).title);
-			os->SetTopMost(true);
-			AddFront(os);
+			_graphs->AddFront(os);
 			CounterBase::SetMarkerCallbackStatic(i, std::bind(&Oscilloscope::Push, os, std::ref(texman), std::placeholders::_1));
-			yy += hh+5;
 		}
 	}
 
@@ -514,36 +514,40 @@ UI::WindowLayout Desktop::GetChildLayout(TextureManager &texman, const UI::Layou
 		float transition = (1 - std::cos(PI * _navStack->GetInterpolatedAttribute())) / 2;
 		return UI::WindowLayout{ AlignCC(size * Lerp(1.5f, 1, transition), size), transition, true };
 	}
-	if (_navStack.get() == &child)
+	else if (_navStack.get() == &child)
 	{
 		return UI::WindowLayout{ MakeRectWH(size), 1, true };
 	}
-	if (_con.get() == &child)
+	else if (_con.get() == &child)
 	{
 		return UI::WindowLayout{ MakeRectRB(Vec2dFloor(vec2d{ 10, 0 } * scale), Vec2dFloor(size.x - 10 * scale, size.y / 2)), 1, true };
 	}
-	if (_fps.get() == &child)
+	else if (_fps.get() == &child)
 	{
 		return UI::WindowLayout{ AlignLB(_fps->GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc)), size.y), 1, true };
 	}
-	if (_tierTitle.get() == &child)
+	else if (_tierTitle.get() == &child)
 	{
 		float opacity = 0;
 		if (auto gameContext = dynamic_cast<GameContext*>(GetAppState().GetGameContext().get()))
 			opacity = std::max(0.f, std::min(1.f, (5 - gameContext->GetWorld().GetTime()) / 3));
 		return UI::WindowLayout{ MakeRectWH(Vec2dFloor(size / 2), vec2d{}), opacity, true };
 	}
-	if (_backButton.get() == &child)
+	else if (_backButton.get() == &child)
 	{
 		bool canNavigateBack = UI::CanNavigateBack(texman, *this, lc, dc);
 		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), (float) canNavigateBack /*opacity*/, canNavigateBack /*enabled*/ };
 	}
-	if (_pauseButton.get() == &child)
+	else if (_pauseButton.get() == &child)
 	{
 		bool canNavigateBack = UI::CanNavigateBack(texman, *this, lc, dc);
 		bool canPause = !canNavigateBack && _game && _game->CanPause();
 		return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), (float)canPause /*opacity*/, canPause /*enabled*/ };
 	}
+    else if (_graphs.get() == &child)
+    {
+        return UI::WindowLayout{ MakeRectWH(child.GetContentSize(texman, dc, scale, DefaultLayoutConstraints(lc))), 1, true };
+    }
 	assert(false);
 	return {};
 }

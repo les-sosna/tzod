@@ -21,7 +21,7 @@ namespace Plat
 namespace UI
 {
 	class Console;
-	class Oscilloscope;
+	class StackLayout;
 	class Button;
 	class Text;
 }
@@ -95,6 +95,7 @@ private:
 	std::shared_ptr<UI::Button> _pauseButton;
 	std::shared_ptr<UI::Button> _backButton;
 	std::shared_ptr<NavStack> _navStack;
+    std::shared_ptr<UI::StackLayout> _graphs;
 
 	RenderScheme _renderScheme;
 	WorldView _worldView;

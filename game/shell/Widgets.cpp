@@ -133,7 +133,7 @@ void Oscilloscope::AutoGrid(TextureManager &texman)
 {
 	assert(!_data.empty());
 
-	float valMin = _data[0];
+    float valMin = _data[0];
 	float valMax = _data[0];
 	for( size_t i = 1; i < _data.size(); ++i )
 	{
@@ -172,7 +172,7 @@ void Oscilloscope::AutoRange()
 {
 	assert(!_data.empty());
 
-	float valMin = _data[0];
+    float valMin = _data[0];
 	float valMax = _data[0];
 	for( size_t i = 1; i < _data.size(); ++i )
 	{

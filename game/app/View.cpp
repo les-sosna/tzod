@@ -8,7 +8,8 @@
 #endif
 #include <numeric>
 
-static CounterBase counterDt("dt", "dt, ms");
+static CounterBase counterDt("raw dt", "raw dt, ms");
+static CounterBase counterDtFiltered("dt", "dt, ms");
 
 TzodView::TzodView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, TzodApp &app, Plat::AppWindowCommandClose *cmdClose)
 	: _impl(new TzodViewImpl(fs, cmdClose, logger, app))
@@ -40,6 +41,7 @@ void TzodView::Step(TzodApp &app, float dt, const Plat::Input &input)
 
 	// median
 	float filteredDt = buf[_movingMedianWindow.size() / 2];
+    counterDtFiltered.Push(filteredDt);
 
 	// controller pass - handle input
 	// this also sends user controller state to WorldController
