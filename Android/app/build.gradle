@@ -21,6 +21,13 @@ android {
             }
         }
     }
+
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../data']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled = false
