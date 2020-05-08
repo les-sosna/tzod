@@ -1,5 +1,6 @@
 #include "inc/fsmem/FileSystemMemory.h"
 #include <cassert>
+#include <cstring>
 
 using namespace FS;
 
