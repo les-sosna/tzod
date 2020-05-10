@@ -27,7 +27,7 @@ static void printGLString(const char *name, GLenum s) {
 
 static std::shared_ptr<FS::FileSystem> InitFileSystem(AAssetManager *assetManager)
 {
-    auto fs = std::make_shared<FS::FileSystemJni>(assetManager, "data");
+    auto fs = std::make_shared<FS::FileSystemJni>(assetManager);
     FILE *f = fopen("/proc/self/cmdline", "r");
     char cmdline[256] = {};
     fread(cmdline, 1, 255, f);
