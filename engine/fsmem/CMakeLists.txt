@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 add_library(fsmem
 	inc/fsmem/FileSystemMemory.h
 	FileSystemMemory.cpp

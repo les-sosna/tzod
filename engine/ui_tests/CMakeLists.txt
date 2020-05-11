@@ -1,6 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-project(UITests)
-
 add_executable(ui_tests
 	ScrollView_tests.cpp
 	StackLayout_tests.cpp

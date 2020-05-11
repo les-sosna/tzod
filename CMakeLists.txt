@@ -3,8 +3,8 @@ project(tzod VERSION 1.52)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if(APPLE OR UNIX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
+if(WIN32 OR APPLE OR UNIX)
+	set(CMAKE_CXX_STANDARD 17)
 endif()
 
 add_subdirectory(external)

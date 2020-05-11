@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.4.1)
-
 add_library(platjni
 	inc/platjni/JniAppWindow.h
 	inc/platjni/JniClipboard.h

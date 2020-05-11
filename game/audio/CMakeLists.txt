@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 set(Audio_SOURCES
 	inc/audio/SoundRender.h
 	inc/audio/SoundView.h
