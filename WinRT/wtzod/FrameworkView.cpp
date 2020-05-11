@@ -26,8 +26,6 @@ FrameworkView::FrameworkView(FS::FileSystem &fs, Plat::ConsoleBuffer &logger, Tz
 	, _app(app)
 	, _view(_fs, _logger, _app, nullptr)
 {
-	CoreApplication::Suspending += ref new Windows::Foundation::EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
-	CoreApplication::Resuming += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
 }
 
 FrameworkView::~FrameworkView()
@@ -39,6 +37,8 @@ void FrameworkView::Initialize(CoreApplicationView^ coreApplicationView)
 {
 	// Register event handlers for app lifecycle. This example includes Activated, so that we
 	// can make the CoreWindow active and start rendering on the window.
+	CoreApplication::Suspending += ref new Windows::Foundation::EventHandler<SuspendingEventArgs^>(this, &FrameworkView::OnAppSuspending);
+	CoreApplication::Resuming += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &FrameworkView::OnAppResuming);
 	coreApplicationView->Activated +=
 		ref new Windows::Foundation::TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &FrameworkView::OnAppViewActivated);
 }
@@ -132,19 +132,13 @@ void FrameworkView::OnAppViewActivated(CoreApplicationView^ applicationView, IAc
 
 void FrameworkView::OnAppSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 {
-	// Save app state asynchronously after requesting a deferral. Holding a deferral
-	// indicates that the application is busy performing suspending operations. Be
-	// aware that a deferral may not be held indefinitely. After about five seconds,
-	// the app will be forced to exit.
 	SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
 
-	create_task([this, deferral]()
-	{
-		_deviceResources.reset();
-		_deviceResources12.reset();
-		_app.SaveConfig();
-		deferral->Complete();
-	});
+	_deviceResources.reset();
+	_deviceResources12.reset();
+	_app.SaveConfig();
+
+	deferral->Complete();
 }
 
 void FrameworkView::OnAppResuming(Platform::Object^ sender, Platform::Object^ args)
