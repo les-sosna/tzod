@@ -1,6 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-project(VideoTests)
-
 add_executable(video_tests
 	RingAllocator_tests.cpp
 )

@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 add_library(loc inc/loc/Language.h Language.cpp)
 
 target_link_libraries(loc PUBLIC config)

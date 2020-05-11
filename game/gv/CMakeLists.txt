@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 add_library(gv
 	inc/gv/Camera.h
 	inc/gv/GameViewHarness.h

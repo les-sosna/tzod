@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 link_directories(${Boost_LIBRARY_DIR})
 
 if(WIN32)

@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 add_library(config
 	inc/config/ConfigBase.h
 	inc/config/ConfigCache.h

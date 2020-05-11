@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 3.3)
-
 add_library(ctx
 	inc/ctx/AIManager.h
 	inc/ctx/AppConfig.h

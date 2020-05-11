@@ -1,11 +1,4 @@
-cmake_minimum_required (VERSION 3.6)
-
-if(APPLE OR UNIX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
-endif()
-
 if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std:c++latest")
 	add_subdirectory(fswin)
 else()
 	add_subdirectory(fsposix)

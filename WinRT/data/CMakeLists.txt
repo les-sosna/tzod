@@ -1,6 +1,3 @@
-cmake_minimum_required (VERSION 3.4)
-project(WinStoreData)
-
 file(GLOB_RECURSE data_files
     LIST_DIRECTORIES false
     "../_build/data/data/*"
