@@ -6,6 +6,7 @@
 #include <fnmatch.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <stdexcept>
 
 using namespace FS;
 using namespace FS::detail;
